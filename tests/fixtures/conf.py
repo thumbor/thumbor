@@ -1,0 +1,2 @@
+
+ALLOWED_DOMAINS = []
