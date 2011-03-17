@@ -10,7 +10,7 @@ sys.path.append(abspath(join(dirname(__file__), '..')))
 
 from tornado.testing import AsyncHTTPTestCase
 
-import thumbor.loader.http as http
+import thumbor.loaders.http_loader as http
 from thumbor.app import ThumborServiceApp
 
 class HttpLoaderTest(AsyncHTTPTestCase):

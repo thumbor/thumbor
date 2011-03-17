@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+#-*- coding: utf8 -*-
+
+import sys
+import tempfile
+from os.path import join, abspath, dirname
+
+from tornado.testing import AsyncHTTPTestCase
+
+import thumbor.loaders.file_loader as file_loader
+from thumbor.app import ThumborServiceApp
+
+root_dir = abspath(dirname(__file__))
+fixtures_folder = join(root_dir, 'fixtures')
+sys.path.append(join(root_dir, '..'))
+
+
+class FileLoaderTest(AsyncHTTPTestCase):
+
+    def get_app(self):
+        conf = open(join(fixtures_folder, 'file_loader_conf.py')).read()
+        conf = conf.replace(r'@@rootdir@@', fixtures_folder)
+        conf_file = tempfile.NamedTemporaryFile(mode='w+b', dir='/tmp', delete=False)
+        conf_file.write(conf)
+        conf_file.close()
+        return ThumborServiceApp(conf_file.name)
+
+    def test_loads_image(self):
+        image_url = 'img/fixture1.png'
+        file_loaded = file_loader.load(image_url)
+        response = open(join(fixtures_folder, 'img', 'fixture1.png')).read()
+
+        self.assertEqual(file_loaded, response, 'file_loaded is not the same as the filesystem equivalent')

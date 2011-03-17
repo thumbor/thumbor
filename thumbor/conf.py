@@ -12,4 +12,4 @@ MAX_WIDTH = 1280
 MAX_HEIGHT = 800
 
 #
-LOADER = 'thumbor.loader.http'
+LOADER = 'thumbor.loaders.http_loader'

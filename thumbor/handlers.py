@@ -33,7 +33,6 @@ CONTENT_TYPE = {
     '.png': 'image/png'
 }
 
-
 class BaseHandler(tornado.web.RequestHandler):
     def _error(self, status, msg):
         self.set_status(status)

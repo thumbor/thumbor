@@ -9,8 +9,7 @@ from tornado.options import define, options, parse_config_file
 
 from handlers import MainHandler
 
-if not 'LOADER' in options:
-    define('LOADER', default=['http_loader'])
+define('LOADER', default=['http_loader'])
 
 def real_import(name):
     if '.'  in name:
@@ -23,7 +22,6 @@ class ThumborServiceApp(tornado.web.Application):
         
         if conf_file is None:
             conf_file = abspath(join(dirname(__file__), 'conf.py'))
-            
         parse_config_file(conf_file)
 
         loader = real_import(options.LOADER)
