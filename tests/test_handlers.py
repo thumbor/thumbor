@@ -56,12 +56,9 @@ class ImageTestCase(AsyncHTTPTestCase):
         return ThumborServiceApp()
 
     def fetch_image(self, url):
-
         self.http_client.fetch(self.get_url(url), self.stop)
         response = self.wait()
-
         self.assertEqual(200, response.code)
-
         return Image.open(StringIO(response.body))
 
 
@@ -84,6 +81,7 @@ class MainHandlerImagesTest(ImageTestCase):
         reversed_pixels_flipped = list(reversed(pixels_flipped))
 
         self.assertEqual(pixels, reversed_pixels_flipped, 'did not flip the image')
+
 
 if __name__ == '__main__':
     unittest.main()

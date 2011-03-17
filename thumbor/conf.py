@@ -10,3 +10,6 @@ MAX_WIDTH = 1280
 
 # the max height of the resized image
 MAX_HEIGHT = 800
+
+#
+LOADER = 'thumbor.loader.http'

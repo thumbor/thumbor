@@ -42,6 +42,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     
+    def initialize(self, loader):
+        self.loader = loader
+    
     def _verify_allowed_domains(self):
         host = self.request.host.split(':')[0]
         for pattern in options.ALLOWED_DOMAINS:
@@ -57,8 +60,7 @@ class MainHandler(BaseHandler):
         return False
 
     def _fetch(self, url):
-        response = urllib2.urlopen(url)
-        return response.read()
+        return self.loader.load(url)
 
     def _fetch_image(self, url):
         return Image.open(cStringIO.StringIO(self._fetch(url)))
@@ -71,7 +73,7 @@ class MainHandler(BaseHandler):
         return results
 
     def validate_url(self, url):
-        
+
         url = join('http://', url)
 
         if not self._verify_allowed_domains():
