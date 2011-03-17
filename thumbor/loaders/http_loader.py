@@ -16,6 +16,9 @@ define('ALLOWED_SOURCES', type=str, default=['www.globo.com', 's.glbimg.com'], m
 def _normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
 
+def resolve(url):
+    return urlparse(_normalize_url(url)).path
+
 def validate(url):
     url = _normalize_url(url)
     res = urlparse(url)

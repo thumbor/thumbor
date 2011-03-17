@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf8 -*-
 
-import unittest
 import sys
 from os.path import join, abspath, dirname
 
@@ -18,4 +17,3 @@ class ThumborServiceTest(AsyncHTTPTestCase):
 
     def test_app_exists_and_is_instanceof_thumborserviceapp(self):
         assert isinstance(self._app, ThumborServiceApp), 'App does not exist or is not instance of the ThumborServiceApp class'
-    

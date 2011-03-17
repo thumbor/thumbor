@@ -9,7 +9,9 @@ from tornado.options import define, options, parse_config_file
 
 from handlers import MainHandler
 
-define('LOADER', default=['http_loader'])
+define('LOADER', default='thumbor.loaders.http_loader')
+define('STORAGE', default='thumbor.storages.file_storage')
+define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
 
 def real_import(name):
     if '.'  in name:
@@ -25,11 +27,13 @@ class ThumborServiceApp(tornado.web.Application):
         parse_config_file(conf_file)
 
         loader = real_import(options.LOADER)
+        storage = real_import(options.STORAGE)
 
         handlers = [
             #(?:(\d+)x(\d+):(\d+)x(\d+)/)?
             (r'/(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?/?(.+)', MainHandler, {
-                "loader": loader
+                'loader': loader,
+                'storage': storage
             }),
         ]
 

@@ -11,7 +11,7 @@ from tornado.options import define, options
 
 from rect import BoundingRect
 
-define('ALLOWED_DOMAINS', type=str, default=['globo.com'], multiple=True)
+define('ALLOWED_DOMAINS', type=str, default=['localhost', 'www.globo.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=800)
 define('QUALITY', type=int, default=80)
@@ -39,8 +39,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     
-    def initialize(self, loader):
+    def initialize(self, loader, storage):
         self.loader = loader
+        self.storage = storage
     
     def _verify_allowed_domains(self):
         host = self.request.host.split(':')[0]
@@ -50,7 +51,15 @@ class MainHandler(BaseHandler):
         return False
 
     def _fetch(self, url):
-        return self.loader.load(url)
+        loader_resolve = getattr(self.loader, 'resolve', lambda _path: _path)
+        resolved_url = loader_resolve(url)
+        buffer = self.storage.get(resolved_url)
+
+        if not buffer:        
+            buffer = self.loader.load(url)
+            self.storage.put(resolved_url, buffer)
+
+        return buffer
 
     def _fetch_image(self, url):
         return Image.open(cStringIO.StringIO(self._fetch(url)))
@@ -116,14 +125,14 @@ class MainHandler(BaseHandler):
             height,
             halign,
             valign,
-            url):
+            path):
         
-        if not self.validate(url):
+        if not self.validate(path):
             self._error(404)
             return
 
-        width = width and int(width) or 0
-        height = height and int(height) or 0
+        width = int(width) if width else 0
+        height = int(height) if height else 0
 
         if width > options.MAX_WIDTH:
             width = options.MAX_WIDTH
@@ -135,15 +144,16 @@ class MainHandler(BaseHandler):
         if not valign:
             valign = 'middle'
 
-        extension = splitext(url)[-1]
+        extension = splitext(path)[-1]
         image_format = FORMATS[extension]
 
-        img = self._fetch_image(url)
+        img = self._fetch_image(path)
 
         img = self.transform(img, flip_horizontal, width, flip_vertical, height, image_format, halign, valign)
 
         results = self._read_image(img, extension)
 
         self.set_header('Content-Type', CONTENT_TYPE[extension])
+        
         self.write(results)
     

@@ -2,12 +2,9 @@
 #-*- coding: utf8 -*-
 
 import unittest
-import sys
 from os.path import join, abspath, dirname
-
-sys.path.append(abspath(join(dirname(__file__), '..')))
-
 from cStringIO import StringIO
+
 from PIL import Image
 from tornado.testing import AsyncHTTPTestCase
 
@@ -24,7 +21,6 @@ class MainHandlerDomainTest(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url('/www.mydomain.com/logo1.jpg'), self.stop)
         response = self.wait()
         self.assertEqual(404, response.code)
-        
 
 class MainHandlerSourcePathTest(AsyncHTTPTestCase):
     
@@ -35,7 +31,6 @@ class MainHandlerSourcePathTest(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url('/www.mydomain.com/logo2.jpg'), self.stop)
         response = self.wait()
         self.assertEqual(404, response.code)
-
 
 class MainHandlerTest(AsyncHTTPTestCase):
 
@@ -51,7 +46,7 @@ class MainHandlerTest(AsyncHTTPTestCase):
 class ImageTestCase(AsyncHTTPTestCase):
 
     def get_app(self):
-        return ThumborServiceApp()
+        return ThumborServiceApp(get_conf_path('default.py'))
 
     def fetch_image(self, url):
         self.http_client.fetch(self.get_url(url), self.stop)

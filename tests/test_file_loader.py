@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf8 -*-
 
-import sys
 import tempfile
 from os.path import join, abspath, dirname
 
@@ -10,9 +9,8 @@ from tornado.testing import AsyncHTTPTestCase
 import thumbor.loaders.file_loader as file_loader
 from thumbor.app import ThumborServiceApp
 
-root_dir = abspath(dirname(__file__))
-fixtures_folder = join(root_dir, 'fixtures')
-sys.path.append(join(root_dir, '..'))
+
+fixtures_folder = join(abspath(dirname(__file__)), 'fixtures')
 
 
 class FileLoaderTest(AsyncHTTPTestCase):

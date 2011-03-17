@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf8 -*-
 
-import unittest
-import sys
-from os.path import join, abspath, dirname
 import urllib2
-
-sys.path.append(abspath(join(dirname(__file__), '..')))
 
 from tornado.testing import AsyncHTTPTestCase
 
