@@ -20,10 +20,10 @@ define('MAX_HEIGHT', type=int, default=800)
 define('QUALITY', type=int, default=80)
 
 FORMATS = {
-    '.jpg': "JPEG",
-    '.jpeg': "JPEG",
-    '.gif': "GIF",
-    '.png': "PNG"
+    '.jpg': 'JPEG',
+    '.jpeg': 'JPEG',
+    '.gif': 'GIF',
+    '.png': 'PNG'
 }
 
 CONTENT_TYPE = {
@@ -33,18 +33,15 @@ CONTENT_TYPE = {
     '.png': 'image/png'
 }
 
-PROPORTION = 9999999999
 
 class BaseHandler(tornado.web.RequestHandler):
-    pass
+    def _error(self, status, msg):
+        self.set_status(status)
+        self.write(msg)
 
 
 class MainHandler(BaseHandler):
     
-    def _error(self, status, msg):
-        self.set_status(status)
-        self.write(msg)
-        
     def _verify_allowed_domains(self):
         host = self.request.host.split(':')[0]
         for pattern in options.ALLOWED_DOMAINS:
@@ -133,7 +130,6 @@ class MainHandler(BaseHandler):
 
         img = img.resize((width, height))
 
-
         return img
 
     def get(self,
@@ -159,9 +155,9 @@ class MainHandler(BaseHandler):
             height = options.MAX_HEIGHT
 
         if not halign:
-            halign = "center"
+            halign = 'center'
         if not valign:
-            valign = "middle"
+            valign = 'middle'
 
         extension = splitext(url)[-1]
         image_format = FORMATS[extension]
