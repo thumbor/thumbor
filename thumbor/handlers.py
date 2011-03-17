@@ -2,10 +2,8 @@
 #-*- coding: utf8 -*-
 
 import re
-import urllib2
 import cStringIO
-from urlparse import urlparse
-from os.path import join, splitext
+from os.path import splitext
 
 from PIL import Image
 import tornado.web
@@ -14,7 +12,6 @@ from tornado.options import define, options
 from rect import BoundingRect
 
 define('ALLOWED_DOMAINS', type=str, default=['globo.com'], multiple=True)
-define('ALLOWED_SOURCES', type=str, default=['www.globo.com', 's.glbimg.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=800)
 define('QUALITY', type=int, default=80)
@@ -34,9 +31,10 @@ CONTENT_TYPE = {
 }
 
 class BaseHandler(tornado.web.RequestHandler):
-    def _error(self, status, msg):
+    def _error(self, status, msg=None):
         self.set_status(status)
-        self.write(msg)
+        if msg is not None:
+            self.write(msg)
 
 
 class MainHandler(BaseHandler):
@@ -48,13 +46,6 @@ class MainHandler(BaseHandler):
         host = self.request.host.split(':')[0]
         for pattern in options.ALLOWED_DOMAINS:
             if re.match('^%s$' % pattern, host):
-                return True
-        return False
-
-    def _verify_allowed_sources(self, url):
-        res = urlparse(url)
-        for pattern in options.ALLOWED_SOURCES:
-            if re.match('^%s$' % pattern, res.hostname):
                 return True
         return False
 
@@ -71,20 +62,9 @@ class MainHandler(BaseHandler):
         img_buffer.close()
         return results
 
-    def validate_url(self, url):
+    def validate(self, path):
+        return self._verify_allowed_domains() and getattr(self.loader, 'validate', lambda _path: True)(path)
 
-        url = join('http://', url)
-
-        if not self._verify_allowed_domains():
-            self._error(404, 'Your domain is not allowed!')
-            return
-
-        if not self._verify_allowed_sources(url):
-            self._error(404, 'Your image source is not allowed!')
-            return
-
-        return url
-    
     def transform(self, img, flip_horizontal, width, flip_vertical, height, image_format, halign="center", valign="middle"):
         img_width, img_height = img.size
 
@@ -138,9 +118,8 @@ class MainHandler(BaseHandler):
             valign,
             url):
         
-        url = self.validate_url(url)
-
-        if not url:
+        if not self.validate(url):
+            self._error(404)
             return
 
         width = width and int(width) or 0

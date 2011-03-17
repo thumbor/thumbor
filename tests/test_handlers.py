@@ -24,7 +24,6 @@ class MainHandlerDomainTest(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url('/www.mydomain.com/logo1.jpg'), self.stop)
         response = self.wait()
         self.assertEqual(404, response.code)
-        self.assertEqual('Your domain is not allowed!', response.body)
         
 
 class MainHandlerSourcePathTest(AsyncHTTPTestCase):
@@ -36,7 +35,6 @@ class MainHandlerSourcePathTest(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url('/www.mydomain.com/logo2.jpg'), self.stop)
         response = self.wait()
         self.assertEqual(404, response.code)
-        self.assertEqual('Your image source is not allowed!', response.body)
 
 
 class MainHandlerTest(AsyncHTTPTestCase):
