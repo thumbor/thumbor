@@ -2,10 +2,8 @@
 #-*- coding: utf8 -*-
 
 import re
-import cStringIO
 from os.path import splitext
 
-from PIL import Image
 import tornado.web
 from tornado.options import define, options
 
@@ -15,13 +13,6 @@ define('ALLOWED_DOMAINS', type=str, default=['localhost', 'www.globo.com'], mult
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=800)
 define('QUALITY', type=int, default=80)
-
-FORMATS = {
-    '.jpg': 'JPEG',
-    '.jpeg': 'JPEG',
-    '.gif': 'GIF',
-    '.png': 'PNG'
-}
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -39,9 +30,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     
-    def initialize(self, loader, storage):
+    def initialize(self, loader, storage, engine):
         self.loader = loader
         self.storage = storage
+        self.engine = engine
     
     def _verify_allowed_domains(self):
         host = self.request.host.split(':')[0]
@@ -55,27 +47,20 @@ class MainHandler(BaseHandler):
         resolved_url = loader_resolve(url)
         buffer = self.storage.get(resolved_url)
 
-        if not buffer:        
+        if not buffer:
             buffer = self.loader.load(url)
             self.storage.put(resolved_url, buffer)
 
         return buffer
 
     def _fetch_image(self, url):
-        return Image.open(cStringIO.StringIO(self._fetch(url)))
-
-    def _read_image(self, img, extension):
-        img_buffer = cStringIO.StringIO()
-        img.save(img_buffer, FORMATS[extension], quality=options.QUALITY)
-        results = img_buffer.getvalue()
-        img_buffer.close()
-        return results
+        self.engine.load(self._fetch(url))
 
     def validate(self, path):
         return self._verify_allowed_domains() and getattr(self.loader, 'validate', lambda _path: True)(path)
 
-    def transform(self, img, flip_horizontal, width, flip_vertical, height, image_format, halign="center", valign="middle"):
-        img_width, img_height = img.size
+    def transform(self, flip_horizontal, width, flip_vertical, height, halign, valign):
+        img_width, img_height = self.engine.size
 
         if not width and not height:
             width = img_width
@@ -83,12 +68,12 @@ class MainHandler(BaseHandler):
 
         if float(width) / float(img_width) > float(height) / float(img_height):
             new_height = img_height * width / img_width
-            img = img.resize((width, new_height), Image.ANTIALIAS)
+            self.engine.resize(width, new_height)
             image_width = width
             image_height = float(width) / float(img_width) * float(img_height)
         else:
             new_width = img_width * height / img_height
-            img = img.resize((new_width, height), Image.ANTIALIAS)
+            self.engine.resize(new_width, height)
             image_width = float(height) / float(img_height) * float(img_width)
             image_height = height
 
@@ -100,23 +85,19 @@ class MainHandler(BaseHandler):
         if not height:
             height = rect.target_height
 
-        crop_dimensions = (
+        self.engine.crop(
             rect.left * image_width,
             rect.top * image_height,
             rect.right * image_width,
             rect.bottom * image_height
         )
 
-        img = img.crop(crop_dimensions)
-
         if flip_horizontal:
-            img = img.transpose(Image.FLIP_LEFT_RIGHT)
+            self.engine.flip_horizontally()
         if flip_vertical:
-            img = img.transpose(Image.FLIP_TOP_BOTTOM)
+            self.engine.flip_vertically()
 
-        img = img.resize((width, height))
-
-        return img
+        self.engine.resize(width, height)
 
     def get(self,
             flip_horizontal,
@@ -145,13 +126,12 @@ class MainHandler(BaseHandler):
             valign = 'middle'
 
         extension = splitext(path)[-1]
-        image_format = FORMATS[extension]
 
-        img = self._fetch_image(path)
+        self._fetch_image(path)
 
-        img = self.transform(img, flip_horizontal, width, flip_vertical, height, image_format, halign, valign)
+        self.transform(flip_horizontal, width, flip_vertical, height, halign, valign)
 
-        results = self._read_image(img, extension)
+        results = self.engine.read(extension)
 
         self.set_header('Content-Type', CONTENT_TYPE[extension])
         

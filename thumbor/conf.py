@@ -16,3 +16,6 @@
 
 
 #STORAGE = 'thumbor.storages.file_storage'
+
+
+#ENGINE = 'thumbor.engines.pil'
