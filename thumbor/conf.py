@@ -3,7 +3,7 @@
 ALLOWED_DOMAINS = ['localhost', ]
 
 # the domains that can have theyre images resized
-ALLOWED_SOURCES = ['s.glbimg.com']
+ALLOWED_SOURCES = ['s.glbimg.com', 'www.globo.com']
 
 # the max width of the resized image
 MAX_WIDTH = 1280

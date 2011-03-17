@@ -7,6 +7,8 @@ from os.path import join, abspath, dirname
 
 sys.path.append(abspath(join(dirname(__file__), '..')))
 
+from cStringIO import StringIO
+from PIL import Image
 from tornado.testing import AsyncHTTPTestCase
 
 from thumbor.app import ThumborServiceApp
@@ -36,6 +38,7 @@ class MainHandlerSourcePathTest(AsyncHTTPTestCase):
         self.assertEqual(404, response.code)
         self.assertEqual('Your image source is not allowed!', response.body)
 
+
 class MainHandlerTest(AsyncHTTPTestCase):
 
     def get_app(self):
@@ -45,21 +48,42 @@ class MainHandlerTest(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url('/www.globo.com/media/globocom/img/sprite1.png'), self.stop)
         response = self.wait()
         self.assertEqual(200, response.code)
-    
-    # def test_handler_exists(self):
-    #     assert isinstance(self._app, BaseHandler()), 'App does not exist or is not instance of the ThumborServiceApp class'
-    # def test_register_new_device(self):
-    #     self.http_client.fetch(self.get_url('/'), self.stop)
-    #     response = self.wait()
-    #     self.assertEqual(self._http_success_code, response.code)
-    #     verify(self._registration_handler).handle_registration(self._deviceid, self._registrationid)
-    # 
-    # def test_update_registration_for_registered_device(self):
-    #     self.http_client.fetch(self.get_url(self._successfull_update_registration),
-    #         self.stop)
-    #     response = self.wait()
-    #     self.assertEquals(self._http_success_code, response.code)
-    #     verify(self._registration_handler).handle_registration_id_change_for_device(self._deviceid, self._registrationid)
+
+
+class ImageTestCase(AsyncHTTPTestCase):
+
+    def get_app(self):
+        return ThumborServiceApp()
+
+    def fetch_image(self, url):
+
+        self.http_client.fetch(self.get_url(url), self.stop)
+        response = self.wait()
+
+        self.assertEqual(200, response.code)
+
+        return Image.open(StringIO(response.body))
+
+
+class MainHandlerImagesTest(ImageTestCase):
+
+    def test_resizes_the_passed_image(self):
+        image = self.fetch_image('/200x300/www.globo.com/media/globocom/img/sprite1.png')
+        img_width, img_height = image.size
+        self.assertEqual(img_width, 200)
+        self.assertEqual(img_height, 300)
+
+    def test_flips_horizontaly_the_passed_image(self):
+        image = self.fetch_image('/www.globo.com/media/common/img/estrutura/borderbottom.gif')
+        image_flipped = self.fetch_image('/-3x/www.globo.com/media/common/img/estrutura/borderbottom.gif')
+        pixels = list(image.getdata())
+        pixels_flipped = list(image_flipped.getdata())
+
+        self.assertEqual(len(pixels), len(pixels_flipped), 'the images do not have the same size')
+
+        reversed_pixels_flipped = list(reversed(pixels_flipped))
+
+        self.assertEqual(pixels, reversed_pixels_flipped, 'did not flip the image')
 
 if __name__ == '__main__':
     unittest.main()

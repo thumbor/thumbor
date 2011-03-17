@@ -20,6 +20,7 @@ class ThumborServiceApp(tornado.web.Application):
         tornado.options.parse_config_file(conf_file)
 
         handlers = [
+            #(?:(\d+)x(\d+):(\d+)x(\d+)/)?
             (r'/(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?/?(.+)', MainHandler),
         ]
 

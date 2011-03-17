@@ -65,13 +65,9 @@ class MainHandler(BaseHandler):
 
     def _read_image(self, img, extension):
         img_buffer = cStringIO.StringIO()
-
         img.save(img_buffer, FORMATS[extension], quality=options.QUALITY)
-
         results = img_buffer.getvalue()
-
         img_buffer.close()
-
         return results
 
     def validate_url(self, url):
