@@ -1,7 +1,7 @@
 
 from cStringIO import StringIO
 
-from PIL import Image
+from pythonmagickwand.image import Image
 
 from tornado.options import options
 
@@ -19,28 +19,32 @@ class Engine():
     
     def load(self, buffer):
         #loads image buffer in byte format.
-        self.image = Image.open(StringIO(buffer))
+        self.image = Image(StringIO(buffer))
 
     def resize(self, width, height):
         #resizes image
-        self.image = self.image.resize((width, height), Image.ANTIALIAS)
+        self.image.resize((width, height), 'CUBIC')
 
     def crop(self, left, top, right, bottom):
         #crops image
-        self.image = self.image.crop(
-            (left,
-            top,
-            right,
-            bottom)
+        offset_left = left
+        offset_top = top
+        width = right - left
+        height = bottom - top
+        self.image.crop(
+            (width,
+            height,
+            offset_left,
+            offset_top)
         )
 
     def flip_vertically(self):
         #flips vertically
-        self.image = self.image.transpose(Image.FLIP_TOP_BOTTOM)
+        self.image.flip()
 
     def flip_horizontally(self):
         #flips horizontally
-        self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        self.image.flop()
     
     @property
     def size(self):
@@ -50,8 +54,8 @@ class Engine():
     def read(self, format):
         #returns image buffer in byte format.
         img_buffer = StringIO()
-        self.image.save(img_buffer, FORMATS[format], quality=options.QUALITY)
+        self.image.format = FORMATS[format]
+        self.image.save(img_buffer, quality=options.QUALITY)
         results = img_buffer.getvalue()
         img_buffer.close()
         return results
-    
