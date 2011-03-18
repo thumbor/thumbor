@@ -9,5 +9,5 @@ from tornado.options import options, define
 define('FILE_LOADER_ROOT_PATH')
 
 
-def load(path):
-    return open(join(options.FILE_LOADER_ROOT_PATH, path)).read()
+def load(path, callback):
+    callback(open(join(options.FILE_LOADER_ROOT_PATH, path)).read())

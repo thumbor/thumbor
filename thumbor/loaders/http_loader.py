@@ -13,11 +13,11 @@ from tornado.options import options, define
 define('ALLOWED_SOURCES', type=str, default=['www.globo.com', 's.glbimg.com'], multiple=True)
 
 
-def _normalize_url(url):
+def __normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
 
 def validate(url):
-    url = _normalize_url(url)
+    url = __normalize_url(url)
     res = urlparse(url)
     for pattern in options.ALLOWED_SOURCES:
         if re.match('^%s$' % pattern, res.hostname):
@@ -25,6 +25,8 @@ def validate(url):
     return False
 
 def load(url, callback):
-    url = _normalize_url(url)
+    url = __normalize_url(url)
     http = tornado.httpclient.AsyncHTTPClient()
-    http.fetch(url, callback=callback)    
+    def load_callback(response):
+        callback(response.body)
+    http.fetch(url, callback=load_callback)

@@ -9,11 +9,12 @@ from tornado.options import define, options, parse_config_file
 
 from handlers import MainHandler
 
-define('LOADER', default='thumbor.loaders.http_loader')
+define('ENGINE',  default='thumbor.engines.pil')
+define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
-define('ENGINE', default='thumbor.engines.pil')
 define('MAGICKWAND_PATH', default=[])
+
 
 def real_import(name):
     if '.'  in name:
@@ -30,7 +31,8 @@ class ThumborServiceApp(tornado.web.Application):
 
         loader = real_import(options.LOADER)
         storage = real_import(options.STORAGE)
-        storage.init()
+        if hasattr(storage, 'init'):
+            storage.init()
         engine = real_import(options.ENGINE).Engine()
 
         handlers = [

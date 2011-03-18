@@ -5,6 +5,7 @@ import redis
 from datetime import datetime, timedelta
 from tornado.options import options, define
 
+
 define('REDIS_SERVER', default={
     'port': 6379,
     'host': 'localhost',

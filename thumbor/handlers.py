@@ -48,8 +48,7 @@ class MainHandler(BaseHandler):
         if buffer is not None:
             callback(buffer)
 
-        def _put_image(response):
-            buffer = response.body
+        def _put_image(buffer):
             self.storage.put(url, buffer)
             callback(buffer)
 

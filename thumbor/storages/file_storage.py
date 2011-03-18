@@ -7,6 +7,7 @@ from datetime import datetime
 from tornado.options import options, define
 from os.path import exists, dirname, join, getctime
 
+
 define('FILE_STORAGE_ROOT_PATH', default=join(tempfile.gettempdir(), 'thumbor', 'storage'))
 
 
@@ -25,7 +26,6 @@ def get(path):
     if not exists(file_abspath) or __is_expired(file_abspath):
         return None
     return open(file_abspath, 'r').read()
-
 
 def __normalize_path(path):
     if path.startswith('/'):
