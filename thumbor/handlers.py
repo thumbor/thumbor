@@ -58,7 +58,13 @@ class MainHandler(BaseHandler):
     def validate(self, path):
         return self._verify_allowed_domains() and getattr(self.loader, 'validate', lambda _path: True)(path)
 
-    def transform(self, flip_horizontal, width, flip_vertical, height, halign, valign):
+    def transform(self,
+        should_crop, crop_left, crop_top, crop_right, crop_bottom,
+        flip_horizontal, width, flip_vertical, height, halign, valign):
+        
+        if should_crop:
+            self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
+        
         img_width, img_height = self.engine.size
 
         if not width and not height:
@@ -100,6 +106,10 @@ class MainHandler(BaseHandler):
 
     @tornado.web.asynchronous
     def get(self,
+            crop_left,
+            crop_top,
+            crop_right,
+            crop_bottom,
             flip_horizontal,
             width,
             flip_vertical,
@@ -112,6 +122,13 @@ class MainHandler(BaseHandler):
             self._error(404)
             return
 
+        should_crop = crop_left is not None
+        if should_crop:
+            crop_left = int(crop_left)
+            crop_top = int(crop_top)
+            crop_right = int(crop_right)
+            crop_bottom = int(crop_bottom)
+        
         width = int(width) if width else 0
         height = int(height) if height else 0
 
@@ -129,12 +146,21 @@ class MainHandler(BaseHandler):
 
         def callback(buffer):
             self.engine.load(buffer)
-            self.perform_transforms(buffer, flip_horizontal, width, flip_vertical, height, halign, valign, extension)
+            self.perform_transforms(
+                should_crop, crop_left, crop_top, crop_right, crop_bottom,
+                flip_horizontal, width, flip_vertical, height,
+                halign, valign, extension
+            )
 
         self._fetch(path, callback)
 
-    def perform_transforms(self, buffer, flip_horizontal, width, flip_vertical, height, halign, valign, extension):
-        self.transform(flip_horizontal, width, flip_vertical, height, halign, valign)
+    def perform_transforms(
+            self,
+            should_crop, crop_left, crop_top, crop_right, crop_bottom,
+            flip_horizontal, width, flip_vertical, height,
+            halign, valign, extension
+        ):
+        self.transform(should_crop, crop_left, crop_top, crop_right, crop_bottom, flip_horizontal, width, flip_vertical, height, halign, valign)
         results = self.engine.read(extension)
         self.set_header('Content-Type', CONTENT_TYPE[extension])
         self.write(results)
