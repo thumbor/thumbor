@@ -6,7 +6,7 @@ import urllib2
 from urlparse import urlparse
 from os.path import join
 
-
+import tornado.httpclient
 from tornado.options import options, define
 
 
@@ -24,8 +24,7 @@ def validate(url):
             return True
     return False
 
-def load(url):
+def load(url, callback):
     url = _normalize_url(url)
-    response = urllib2.urlopen(url)
-    return response.read()
-    
+    http = tornado.httpclient.AsyncHTTPClient()
+    http.fetch(url, callback=callback)    

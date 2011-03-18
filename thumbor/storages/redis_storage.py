@@ -11,13 +11,18 @@ define('REDIS_SERVER', default={
     'db': 0
 })
 
-def put(path, bytes):
+storage = None
+
+def init():
+    global storage
     storage = redis.Redis(**options.REDIS_SERVER)
+
+def put(path, bytes):
+    global storage
     storage.set(path, bytes)
     storage.expireat(path, datetime.now() + timedelta(seconds=options.STORAGE_EXPIRATION_SECONDS))
-    
 
 def get(path):
-    storage = redis.Redis(**options.REDIS_SERVER)
+    global storage
     return storage.get(path)
 

@@ -9,7 +9,7 @@ from tornado.options import define, options
 
 from rect import BoundingRect
 
-define('ALLOWED_DOMAINS', type=str, default=['localhost', 'www.globo.com'], multiple=True)
+define('ALLOWED_DOMAINS', type=str, default=['localhost', '127.0.0.1', 'www.globo.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=800)
 define('QUALITY', type=int, default=80)
@@ -42,17 +42,19 @@ class MainHandler(BaseHandler):
                 return True
         return False
 
-    def _fetch(self, url):
+    def _fetch(self, url, callback):
         buffer = self.storage.get(url)
 
-        if not buffer:
-            buffer = self.loader.load(url)
+        if buffer is not None:
+            callback(buffer)
+
+        def _put_image(response):
+            buffer = response.body
             self.storage.put(url, buffer)
+            callback(buffer)
 
-        return buffer
-
-    def _fetch_image(self, url):
-        self.engine.load(self._fetch(url))
+        if not buffer:
+            self.loader.load(url, _put_image)
 
     def validate(self, path):
         return self._verify_allowed_domains() and getattr(self.loader, 'validate', lambda _path: True)(path)
@@ -126,14 +128,15 @@ class MainHandler(BaseHandler):
 
         extension = splitext(path)[-1]
 
-        self._fetch_image(path)
+        def callback(buffer):
+            self.engine.load(buffer)
+            self.perform_transforms(buffer, flip_horizontal, width, flip_vertical, height, halign, valign, extension)
 
+        self._fetch(path, callback)
+
+    def perform_transforms(self, buffer, flip_horizontal, width, flip_vertical, height, halign, valign, extension):
         self.transform(flip_horizontal, width, flip_vertical, height, halign, valign)
-
         results = self.engine.read(extension)
-
         self.set_header('Content-Type', CONTENT_TYPE[extension])
-
         self.write(results)
         self.finish()
-    
