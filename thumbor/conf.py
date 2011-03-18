@@ -11,14 +11,12 @@
 # the max height of the resized image
 #MAX_HEIGHT = 800
 
-#
-#LOADER = 'thumbor.loaders.http_loader'
+#QUALITY = 80
 
+#LOADER = 'thumbor.loaders.http_loader'
 
 #STORAGE = 'thumbor.storages.file_storage'
 
-
 #ENGINE = 'thumbor.engines.pil'
-
 
 #MAGICKWAND_PATH = []

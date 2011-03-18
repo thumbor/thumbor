@@ -28,10 +28,10 @@ class Engine():
     def crop(self, left, top, right, bottom):
         #crops image
         self.image = self.image.crop(
-            (left,
-            top,
-            right,
-            bottom)
+            (int(left),
+            int(top),
+            int(right),
+            int(bottom))
         )
 
     def flip_vertically(self):

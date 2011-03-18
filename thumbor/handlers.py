@@ -12,7 +12,7 @@ from rect import BoundingRect
 define('ALLOWED_DOMAINS', type=str, default=['localhost', 'www.globo.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=800)
-define('QUALITY', type=int, default=10)
+define('QUALITY', type=int, default=80)
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -99,6 +99,7 @@ class MainHandler(BaseHandler):
 
         self.engine.resize(width, height)
 
+    @tornado.web.asynchronous
     def get(self,
             flip_horizontal,
             width,
@@ -107,7 +108,7 @@ class MainHandler(BaseHandler):
             halign,
             valign,
             path):
-        
+
         if not self.validate(path):
             self._error(404)
             return
@@ -134,6 +135,7 @@ class MainHandler(BaseHandler):
         results = self.engine.read(extension)
 
         self.set_header('Content-Type', CONTENT_TYPE[extension])
-        
+
         self.write(results)
+        self.finish()
     

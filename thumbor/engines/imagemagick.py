@@ -54,7 +54,7 @@ class Engine():
         #returns image buffer in byte format.
         img_buffer = StringIO()
         self.image.format = FORMATS[format]
-        self.compression_quality = options.QUALITY
+        self.image.compression_quality = options.QUALITY
         self.image.save(img_buffer)
         results = img_buffer.getvalue()
         img_buffer.close()
