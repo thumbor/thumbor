@@ -19,3 +19,6 @@
 
 
 #ENGINE = 'thumbor.engines.pil'
+
+
+#MAGICKWAND_PATH = []

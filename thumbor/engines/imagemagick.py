@@ -1,7 +1,8 @@
 
 from cStringIO import StringIO
 
-from pythonmagickwand.image import Image
+from thumbor.vendor.pythonmagickwand.image import Image
+from thumbor.vendor.pythonmagickwand.wand import CUBIC_FILTER
 
 from tornado.options import options
 
@@ -23,7 +24,7 @@ class Engine():
 
     def resize(self, width, height):
         #resizes image
-        self.image.resize((width, height), 'CUBIC')
+        self.image.resize((width, height), CUBIC_FILTER)
 
     def crop(self, left, top, right, bottom):
         #crops image
@@ -32,10 +33,8 @@ class Engine():
         width = right - left
         height = bottom - top
         self.image.crop(
-            (width,
-            height,
-            offset_left,
-            offset_top)
+            (int(width), int(height)),
+            (int(offset_left), int(offset_top))
         )
 
     def flip_vertically(self):
@@ -55,7 +54,8 @@ class Engine():
         #returns image buffer in byte format.
         img_buffer = StringIO()
         self.image.format = FORMATS[format]
-        self.image.save(img_buffer, quality=options.QUALITY)
+        self.compression_quality = options.QUALITY
+        self.image.save(img_buffer)
         results = img_buffer.getvalue()
         img_buffer.close()
         return results

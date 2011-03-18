@@ -12,7 +12,7 @@ from rect import BoundingRect
 define('ALLOWED_DOMAINS', type=str, default=['localhost', 'www.globo.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=800)
-define('QUALITY', type=int, default=80)
+define('QUALITY', type=int, default=10)
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
