@@ -1,5 +1,5 @@
 run:
-	PYTHONPATH=.:$$PYTHONPATH python thumbor/app.py
+	PYTHONPATH=.:$$PYTHONPATH python server.py
 
 test:
 	nosetests -v -s tests

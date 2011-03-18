@@ -9,6 +9,7 @@ from tornado.options import define, options, parse_config_file
 
 from handlers import MainHandler
 
+
 define('ENGINE',  default='thumbor.engines.pil')
 define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
@@ -36,8 +37,7 @@ class ThumborServiceApp(tornado.web.Application):
         engine = real_import(options.ENGINE).Engine()
 
         handlers = [
-            #(?:(\d+)x(\d+):(\d+)x(\d+)/)?
-            (r'/(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?/?(.+)', MainHandler, {
+            (r'/(?:(\d+)x(\d+):(\d+)x(\d+)/)?(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?/?(.+)', MainHandler, {
                 'loader': loader,
                 'storage': storage,
                 'engine': engine
@@ -46,9 +46,3 @@ class ThumborServiceApp(tornado.web.Application):
 
         super(ThumborServiceApp, self).__init__(handlers)
 
-application = ThumborServiceApp()
-
-if __name__ == "__main__":
-    application.listen(8888)
-    tornado.ioloop.IOLoop.instance().start()
-    
