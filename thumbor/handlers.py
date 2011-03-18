@@ -56,7 +56,8 @@ class MainHandler(BaseHandler):
             self.loader.load(url, _put_image)
 
     def validate(self, path):
-        return self._verify_allowed_domains() and getattr(self.loader, 'validate', lambda _path: True)(path)
+        valid = self.loader.validate(path) if hasattr(self.loader, 'validate') else True
+        return valid and self._verify_allowed_domains()
 
     def transform(self,
         should_crop, crop_left, crop_top, crop_right, crop_bottom,
@@ -70,25 +71,23 @@ class MainHandler(BaseHandler):
         if not width and not height:
             width = img_width
             height = img_height
-
-        if float(width) / float(img_width) > float(height) / float(img_height):
+        
+        width = float(width)
+        height = float(height)
+        
+        if width / img_width > height / img_height:
             new_height = img_height * width / img_width
             self.engine.resize(width, new_height)
             image_width = width
-            image_height = float(width) / float(img_width) * float(img_height)
+            image_height = width / img_width * img_height
         else:
             new_width = img_width * height / img_height
             self.engine.resize(new_width, height)
-            image_width = float(height) / float(img_height) * float(img_width)
+            image_width = height / img_height * img_width
             image_height = height
 
-        rect = BoundingRect(height=image_height, width=image_width)
-        rect.set_size(height=height, width=width, halign=halign, valign=valign)
-
-        if not width:
-            width = rect.target_width
-        if not height:
-            height = rect.target_height
+        rect = BoundingRect(image_width, image_height)
+        rect.set_size(width, height, halign, valign)
 
         self.engine.crop(
             rect.left * image_width,
@@ -101,7 +100,12 @@ class MainHandler(BaseHandler):
             self.engine.flip_horizontally()
         if flip_vertical:
             self.engine.flip_vertically()
-
+            
+        if not width:
+            width = rect.target_width
+        if not height:
+            height = rect.target_height
+            
         self.engine.resize(width, height)
 
     @tornado.web.asynchronous
@@ -154,12 +158,11 @@ class MainHandler(BaseHandler):
 
         self._fetch(path, callback)
 
-    def perform_transforms(
-            self,
-            should_crop, crop_left, crop_top, crop_right, crop_bottom,
-            flip_horizontal, width, flip_vertical, height,
-            halign, valign, extension
-        ):
+    def perform_transforms(self,
+        should_crop, crop_left, crop_top, crop_right, crop_bottom,
+        flip_horizontal, width, flip_vertical, height,
+        halign, valign, extension):
+
         self.transform(should_crop, crop_left, crop_top, crop_right, crop_bottom, flip_horizontal, width, flip_vertical, height, halign, valign)
         results = self.engine.read(extension)
         self.set_header('Content-Type', CONTENT_TYPE[extension])
