@@ -15,7 +15,7 @@
 
 #LOADER = 'thumbor.loaders.http_loader'
 
-#STORAGE = 'thumbor.storages.file_storage'
+STORAGE = 'thumbor.storages.redis_storage'
 
 #ENGINE = 'thumbor.engines.pil'
 

@@ -9,6 +9,7 @@ from tornado.options import define, options, parse_config_file
 
 from handlers import MainHandler
 
+
 define('LOADER', default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month

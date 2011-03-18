@@ -43,13 +43,11 @@ class MainHandler(BaseHandler):
         return False
 
     def _fetch(self, url):
-        loader_resolve = getattr(self.loader, 'resolve', lambda _path: _path)
-        resolved_url = loader_resolve(url)
-        buffer = self.storage.get(resolved_url)
+        buffer = self.storage.get(url)
 
         if not buffer:
             buffer = self.loader.load(url)
-            self.storage.put(resolved_url, buffer)
+            self.storage.put(url, buffer)
 
         return buffer
 

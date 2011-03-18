@@ -9,14 +9,9 @@ from os.path import exists, dirname, join, getctime
 
 define('FILE_STORAGE_ROOT_PATH', default=join(tempfile.gettempdir(), 'thumbor', 'storage'))
 
-def _normalize_path(path):
-    if path.startswith('/'):
-        path = path[1:]
-    
-    return join(options.FILE_STORAGE_ROOT_PATH, path)
 
 def put(path, bytes):
-    file_abspath = _normalize_path(path)
+    file_abspath = __normalize_path(path)
     file_dir_abspath = dirname(file_abspath)
     
     if not exists(file_dir_abspath):
@@ -26,11 +21,18 @@ def put(path, bytes):
         _file.write(bytes)
 
 def get(path):
-    file_abspath = _normalize_path(path)
-    if not exists(file_abspath) or is_expired(file_abspath):
+    file_abspath = __normalize_path(path)
+    if not exists(file_abspath) or __is_expired(file_abspath):
         return None
     return open(file_abspath, 'r').read()
 
-def is_expired(path):
+
+def __normalize_path(path):
+    if path.startswith('/'):
+        path = path[1:]
+
+    return join(options.FILE_STORAGE_ROOT_PATH, path)
+
+def __is_expired(path):
     timediff = datetime.now() - datetime.fromtimestamp(getctime(path))
     return timediff.seconds > options.STORAGE_EXPIRATION_SECONDS
