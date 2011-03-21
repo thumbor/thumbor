@@ -40,10 +40,11 @@ def main():
     application = ThumborServiceApp()
 
     server = HTTPServer(application)
-    server.listen(port, '0.0.0.0')
+    server.bind(port, '0.0.0.0')
+    server.start(0)
 
     print 'server started'
-    tornado.ioloop.IOLoop.instance().start()
+    tornado.ioloop.IOLoop.instance().start(0)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
