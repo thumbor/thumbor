@@ -168,3 +168,8 @@ class MainHandler(BaseHandler):
         self.set_header('Content-Type', CONTENT_TYPE[extension])
         self.write(results)
         self.finish()
+
+
+class HealthcheckHandler(BaseHandler):
+    def get(self):
+        self.write('working')
