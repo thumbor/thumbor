@@ -44,7 +44,7 @@ def main():
     server.start(0)
 
     print 'server started'
-    tornado.ioloop.IOLoop.instance().start(0)
+    tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
