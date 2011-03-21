@@ -1,1 +1,1 @@
-#svn+http://svn2.assembla.com/svn/pythonmagickwand/trunk
+#redis
