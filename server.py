@@ -41,7 +41,7 @@ def main():
 
     server = HTTPServer(application)
     server.bind(port, '0.0.0.0')
-    server.start(0)
+    server.start()
 
     print 'server started'
     tornado.ioloop.IOLoop.instance().start()
