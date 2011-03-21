@@ -7,7 +7,7 @@ import tornado.web
 import tornado.ioloop
 from tornado.options import define, options, parse_config_file
 
-from handlers import MainHandler
+from handlers import MainHandler, HealthcheckHandler
 
 
 define('ENGINE',  default='thumbor.engines.pil')
@@ -37,6 +37,7 @@ class ThumborServiceApp(tornado.web.Application):
         engine = real_import(options.ENGINE).Engine()
 
         handlers = [
+            (r'/healthcheck', HealthcheckHandler),
             (r'/(?:(\d+)x(\d+):(\d+)x(\d+)/)?(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?/?(.+)', MainHandler, {
                 'loader': loader,
                 'storage': storage,
