@@ -15,7 +15,7 @@ define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
 define('MAGICKWAND_PATH', default=[])
-
+define('FILTERS', default=['thumbor.filters.face_filter'], multiple=True)
 
 class ThumborServiceApp(tornado.web.Application):
     
@@ -30,13 +30,18 @@ class ThumborServiceApp(tornado.web.Application):
         if hasattr(storage, 'init'):
             storage.init()
         engine = real_import(options.ENGINE).Engine()
+        
+        filters = []
+        for filter_name in options.FILTERS:
+            filters.append(real_import(filter_name))
 
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
-            (r'/(?:(\d+)x(\d+):(\d+)x(\d+)/)?(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(smart)/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?/?(.+)', MainHandler, {
+            (r'/(?:(\d+)x(\d+):(\d+)x(\d+)/)?(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?(?:(smart)/)?(.+)', MainHandler, {
                 'loader': loader,
                 'storage': storage,
-                'engine': engine
+                'engine': engine,
+                'filters': filters
             }),
         ]
 

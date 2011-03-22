@@ -35,6 +35,9 @@ class Engine():
     def flip_horizontally(self):
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
     
+    def tostring(self):
+        return self.image.tostring()
+    
     @property
     def size(self):
         # returns the image size as a tuple

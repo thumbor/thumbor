@@ -113,6 +113,10 @@ class Image(object):
     def _set_compression_quality(self, quality):
         self._check_wand_error(api.MagickSetImageCompressionQuality(self._wand, int(round(quality, 0))))
 
+    def tostring(self):
+        size = api.size_t()
+        return api.MagickGetImageBlob(self._wand, size)
+        
     def save(self, file=None):
         ''' Saves the image to a file.  If no file is specified, the file is
             saved with the original filename.'''

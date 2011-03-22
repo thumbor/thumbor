@@ -30,10 +30,11 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     
-    def initialize(self, loader, storage, engine):
+    def initialize(self, loader, storage, engine, filters):
         self.loader = loader
         self.storage = storage
         self.engine = engine
+        self.filters = filters
     
     def _verify_allowed_domains(self):
         host = self.request.host.split(':')[0]
@@ -59,15 +60,16 @@ class MainHandler(BaseHandler):
         valid = self.loader.validate(path) if hasattr(self.loader, 'validate') else True
         return valid and self._verify_allowed_domains()
 
-    def transform(self,
-        should_crop, crop_left, crop_top, crop_right, crop_bottom,
-        should_flip_horizontal, width, should_flip_vertical, height, should_be_smart, halign, valign):
+    def transform(self, context):
         
-        if should_crop:
-            self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
+        if context['should_crop']:
+            self.engine.crop(context['crop_left'], context['crop_top'], context['crop_right'], context['crop_bottom'])
         
-        img_width, img_height = self.engine.size
-
+        img_width, img_height = context['engine'].size
+        
+        width = context['width']
+        height = context['height']
+        
         if not width and not height:
             width = img_width
             height = img_height
@@ -87,7 +89,7 @@ class MainHandler(BaseHandler):
             image_height = height
 
         rect = BoundingRect(image_width, image_height)
-        rect.set_size(width, height, halign, valign)
+        rect.set_size(width, height, context['halign'], context['valign'])
 
         self.engine.crop(
             rect.left * image_width,
@@ -96,9 +98,9 @@ class MainHandler(BaseHandler):
             rect.bottom * image_height
         )
 
-        if should_flip_horizontal:
+        if context['should_flip_horizontal']:
             self.engine.flip_horizontally()
-        if should_flip_vertical:
+        if context['should_flip_vertical']:
             self.engine.flip_vertically()
             
         if not width:
@@ -118,9 +120,9 @@ class MainHandler(BaseHandler):
             width,
             should_flip_vertical,
             height,
-            should_be_smart,
             halign,
             valign,
+            should_be_smart,
             path):
 
         if not self.validate(path):
@@ -151,18 +153,44 @@ class MainHandler(BaseHandler):
 
         def callback(buffer):
             self.engine.load(buffer)
-            self.perform_transforms(
-                should_crop, crop_left, crop_top, crop_right, crop_bottom,
-                should_flip_horizontal, width, should_flip_vertical, height,
-                should_be_smart, halign, valign, extension=extension
+
+            context = dict(
+                loader=self.loader,
+                engine=self.engine,
+                storage=self.storage,
+                buffer=buffer,
+                should_crop=should_crop,
+                crop_left=crop_left,
+                crop_top=crop_top,
+                crop_right=crop_right,
+                crop_bottom=crop_bottom,
+                should_flip_horizontal=should_flip_horizontal,
+                width=width,
+                should_flip_vertical=should_flip_vertical,
+                height=height,
+                halign=halign,
+                valign=valign,
+                should_be_smart=should_be_smart,
+                extension=extension
             )
+
+            filter_instances = []
+            for filter in self.filters:
+                filter_instance = filter.Filter(context)
+                filter_instance.before()
+                filter_instances.append(filter_instance)
+
+            self.perform_transforms(context)
+
+            for filter_instance in filter_instances:
+                filter_instance.after()
 
         self._fetch(path, callback)
 
-    def perform_transforms(self, *args, **kwargs):
-        self.transform(*args)
-        results = self.engine.read(kwargs['extension'])
-        self.set_header('Content-Type', CONTENT_TYPE[kwargs['extension']])
+    def perform_transforms(self, context):
+        self.transform(context)
+        results = self.engine.read(context['extension'])
+        self.set_header('Content-Type', CONTENT_TYPE[context['extension']])
         self.write(results)
         self.finish()
 
@@ -170,3 +198,5 @@ class MainHandler(BaseHandler):
 class HealthcheckHandler(BaseHandler):
     def get(self):
         self.write('working')
+
+

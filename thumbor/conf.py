@@ -17,6 +17,10 @@
 
 #STORAGE = 'thumbor.storages.redis_storage'
 
-#ENGINE = 'thumbor.engines.pil'
+ENGINE = 'thumbor.engines.imagemagick'
 
 #MAGICKWAND_PATH = []
+
+#FILTERS = ['thumbor.filters.face_filter']
+
+#FACE_FILTER_CASCADE_FILE = 'haarcascade_frontalface_alt.xml'

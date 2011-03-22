@@ -2,7 +2,7 @@
 from cStringIO import StringIO
 
 from thumbor.vendor.pythonmagickwand.image import Image
-from thumbor.vendor.pythonmagickwand.wand import CUBIC_FILTER
+from thumbor.vendor.pythonmagickwand import wand
 
 from tornado.options import options
 
@@ -20,7 +20,7 @@ class Engine():
         self.image = Image(StringIO(buffer))
 
     def resize(self, width, height):
-        self.image.resize((width, height), CUBIC_FILTER)
+        self.image.resize((int(width), int(height)), wand.CATROM_FILTER, 1)
 
     def crop(self, left, top, right, bottom):
         offset_left = left
@@ -37,6 +37,9 @@ class Engine():
 
     def flip_horizontally(self):
         self.image.flop()
+    
+    def tostring(self):
+        return self.image.tostring()
     
     @property
     def size(self):
