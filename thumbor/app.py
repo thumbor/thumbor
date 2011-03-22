@@ -33,7 +33,7 @@ class ThumborServiceApp(tornado.web.Application):
 
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
-            (r'/(?:(\d+)x(\d+):(\d+)x(\d+)/)?(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?/?(.+)', MainHandler, {
+            (r'/(?:(\d+)x(\d+):(\d+)x(\d+)/)?(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(smart)/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?/?(.+)', MainHandler, {
                 'loader': loader,
                 'storage': storage,
                 'engine': engine

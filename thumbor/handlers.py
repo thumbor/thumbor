@@ -61,7 +61,7 @@ class MainHandler(BaseHandler):
 
     def transform(self,
         should_crop, crop_left, crop_top, crop_right, crop_bottom,
-        flip_horizontal, width, flip_vertical, height, halign, valign):
+        should_flip_horizontal, width, should_flip_vertical, height, should_be_smart, halign, valign):
         
         if should_crop:
             self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
@@ -96,9 +96,9 @@ class MainHandler(BaseHandler):
             rect.bottom * image_height
         )
 
-        if flip_horizontal:
+        if should_flip_horizontal:
             self.engine.flip_horizontally()
-        if flip_vertical:
+        if should_flip_vertical:
             self.engine.flip_vertically()
             
         if not width:
@@ -114,10 +114,11 @@ class MainHandler(BaseHandler):
             crop_top,
             crop_right,
             crop_bottom,
-            flip_horizontal,
+            should_flip_horizontal,
             width,
-            flip_vertical,
+            should_flip_vertical,
             height,
+            should_be_smart,
             halign,
             valign,
             path):
@@ -152,20 +153,16 @@ class MainHandler(BaseHandler):
             self.engine.load(buffer)
             self.perform_transforms(
                 should_crop, crop_left, crop_top, crop_right, crop_bottom,
-                flip_horizontal, width, flip_vertical, height,
-                halign, valign, extension
+                should_flip_horizontal, width, should_flip_vertical, height,
+                should_be_smart, halign, valign, extension=extension
             )
 
         self._fetch(path, callback)
 
-    def perform_transforms(self,
-        should_crop, crop_left, crop_top, crop_right, crop_bottom,
-        flip_horizontal, width, flip_vertical, height,
-        halign, valign, extension):
-
-        self.transform(should_crop, crop_left, crop_top, crop_right, crop_bottom, flip_horizontal, width, flip_vertical, height, halign, valign)
-        results = self.engine.read(extension)
-        self.set_header('Content-Type', CONTENT_TYPE[extension])
+    def perform_transforms(self, *args, **kwargs):
+        self.transform(*args)
+        results = self.engine.read(kwargs['extension'])
+        self.set_header('Content-Type', CONTENT_TYPE[kwargs['extension']])
         self.write(results)
         self.finish()
 
