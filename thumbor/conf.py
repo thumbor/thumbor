@@ -1,9 +1,9 @@
 
 # the domains that the request for thumbnails will come. They can use the service
-#ALLOWED_DOMAINS = ['localhost', ]
+ALLOWED_DOMAINS = ['localhost', ]
 
 # the domains that can have theyre images resized
-#ALLOWED_SOURCES = ['s.glbimg.com', 'www.globo.com']
+ALLOWED_SOURCES = ['s.glbimg.com', 'www.globo.com', 'ego.globo.com']
 
 # the max width of the resized image
 #MAX_WIDTH = 1280
@@ -13,7 +13,7 @@
 
 #QUALITY = 80
 
-#LOADER = 'thumbor.loaders.http_loader'
+LOADER = 'thumbor.loaders.http_loader'
 
 STORAGE = 'thumbor.storages.redis_storage'
 
@@ -23,4 +23,4 @@ ENGINE = 'thumbor.engines.imagemagick'
 
 #FILTERS = ['thumbor.filters.face_filter']
 
-#FACE_FILTER_CASCADE_FILE = 'haarcascade_frontalface_alt.xml'
+#FACE_FILTER_CASCADE_FILE = 'haarcascade_frontface_alt.xml'

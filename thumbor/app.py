@@ -16,6 +16,7 @@ define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
 define('MAGICKWAND_PATH', default=[])
 define('FILTERS', default=['thumbor.filters.face_filter'], multiple=True)
+define('FACE_FILTER_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
 
 class ThumborServiceApp(tornado.web.Application):
     

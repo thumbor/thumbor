@@ -9,7 +9,8 @@ from tornado.options import define, options
 
 from rect import BoundingRect
 
-define('ALLOWED_DOMAINS', type=str, default=['localhost', '127.0.0.1', 'www.globo.com'], multiple=True)
+define('ALLOWED_DOMAINS', default=['localhost', '127.0.0.1', 'www.globo.com'], multiple=True)
+define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=800)
 define('QUALITY', type=int, default=80)
