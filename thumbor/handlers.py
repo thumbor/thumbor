@@ -124,11 +124,11 @@ class MainHandler(BaseHandler):
             valign,
             should_be_smart,
             path):
-
+        
         if not self.validate(path):
             self._error(404)
             return
-
+        
         should_crop = crop_left is not None
         if should_crop:
             crop_left = int(crop_left)

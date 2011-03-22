@@ -15,7 +15,7 @@
 
 #LOADER = 'thumbor.loaders.http_loader'
 
-#STORAGE = 'thumbor.storages.redis_storage'
+STORAGE = 'thumbor.storages.redis_storage'
 
 ENGINE = 'thumbor.engines.imagemagick'
 
