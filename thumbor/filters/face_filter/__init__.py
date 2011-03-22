@@ -11,12 +11,16 @@ from tornado.options import options
 from thumbor.filters import BaseFilter
 
 class Filter(BaseFilter):
-    
+
+    def __init__(self, context):
+        super(Filter, self).__init__(context)
+        self.cascade = cv.Load(join(abspath(dirname(__file__)), options.FACE_FILTER_CASCADE_FILE))
+
     def before(self):
 
         if not self.context['should_be_smart']:
             return
-        
+
         size = self.context['engine'].size
         image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image_header, Image.open(StringIO(self.context['buffer'])).tostring())
@@ -24,8 +28,7 @@ class Filter(BaseFilter):
         cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
         storage = cv.CreateMemStorage(0)
         cv.EqualizeHist(grayscale, grayscale)
-        cascade = cv.Load(join(abspath(dirname(__file__)), options.FACE_FILTER_CASCADE_FILE))
-        faces = cv.HaarDetectObjects(grayscale, cascade, storage, 1.2, 2, cv.CV_HAAR_DO_CANNY_PRUNING, (50, 50))
+        faces = cv.HaarDetectObjects(grayscale, self.cascade, storage, 1.2, 2, cv.CV_HAAR_DO_CANNY_PRUNING)
 
         if faces:
             crop = DetectCrop(faces, size)
