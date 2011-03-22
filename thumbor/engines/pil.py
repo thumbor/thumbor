@@ -14,19 +14,14 @@ FORMATS = {
 
 class Engine():
     
-    def __init__(self):
-        self.image = None
-    
     def load(self, buffer):
         #loads image buffer in byte format.
         self.image = Image.open(StringIO(buffer))
 
     def resize(self, width, height):
-        #resizes image
-        self.image = self.image.resize((width, height), Image.ANTIALIAS)
+        self.image = self.image.resize((int(width), int(height)), Image.ANTIALIAS)
 
     def crop(self, left, top, right, bottom):
-        #crops image
         self.image = self.image.crop(
             (int(left),
             int(top),
@@ -35,11 +30,9 @@ class Engine():
         )
 
     def flip_vertically(self):
-        #flips vertically
         self.image = self.image.transpose(Image.FLIP_TOP_BOTTOM)
 
     def flip_horizontally(self):
-        #flips horizontally
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
     
     @property
@@ -47,10 +40,10 @@ class Engine():
         # returns the image size as a tuple
         return self.image.size
 
-    def read(self, format):
+    def read(self, extension):
         #returns image buffer in byte format.
         img_buffer = StringIO()
-        self.image.save(img_buffer, FORMATS[format], quality=options.QUALITY)
+        self.image.save(img_buffer, FORMATS[extension], quality=options.QUALITY)
         results = img_buffer.getvalue()
         img_buffer.close()
         return results

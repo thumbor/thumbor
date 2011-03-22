@@ -7,8 +7,8 @@ import tornado.web
 import tornado.ioloop
 from tornado.options import define, options, parse_config_file
 
-from handlers import MainHandler, HealthcheckHandler
-
+from thumbor.handlers import MainHandler, HealthcheckHandler
+from thumbor.utils import real_import
 
 define('ENGINE',  default='thumbor.engines.pil')
 define('LOADER',  default='thumbor.loaders.http_loader')
@@ -16,11 +16,6 @@ define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
 define('MAGICKWAND_PATH', default=[])
 
-
-def real_import(name):
-    if '.'  in name:
-        return reduce(getattr, name.split('.')[1:], __import__(name))
-    return __import__(name)
 
 class ThumborServiceApp(tornado.web.Application):
     
