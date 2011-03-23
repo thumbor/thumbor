@@ -17,7 +17,7 @@ LOADER = 'thumbor.loaders.http_loader'
 
 STORAGE = 'thumbor.storages.redis_storage'
 
-ENGINE = 'thumbor.engines.imagemagick'
+ENGINE = 'thumbor.engines.pil'
 
 #MAGICKWAND_PATH = []
 

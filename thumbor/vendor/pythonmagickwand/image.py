@@ -1,5 +1,7 @@
 import ctypes
-from pythonmagickwand import api, wand, color
+import api
+import wand
+import color
 
 class Image(object):
     ''' Represents a single image, supported by a MagickWand.'''
