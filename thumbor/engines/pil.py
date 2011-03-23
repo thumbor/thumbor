@@ -2,8 +2,10 @@
 from cStringIO import StringIO
 
 from PIL import Image
-
 from tornado.options import options
+
+from thumbor.engines import BaseEngine
+
 
 FORMATS = {
     '.jpg': 'JPEG',
@@ -12,11 +14,10 @@ FORMATS = {
     '.png': 'PNG'
 }
 
-class Engine():
+class Engine(BaseEngine):
     
-    def load(self, buffer):
-        #loads image buffer in byte format.
-        self.image = Image.open(StringIO(buffer))
+    def create_image(self, buffer):
+        return Image.open(StringIO(buffer))
 
     def resize(self, width, height):
         self.image = self.image.resize((int(width), int(height)), Image.ANTIALIAS)
@@ -35,14 +36,6 @@ class Engine():
     def flip_horizontally(self):
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
     
-    def tostring(self):
-        return self.image.tostring()
-    
-    @property
-    def size(self):
-        # returns the image size as a tuple
-        return self.image.size
-
     def read(self, extension):
         #returns image buffer in byte format.
         img_buffer = StringIO()

@@ -8,16 +8,15 @@ import cv
 from PIL import Image
 from tornado.options import options
 
-from thumbor.filters import BaseFilter
+from thumbor.detectors import BaseDetector
 
 HAIR_OFFSET = 0.12
 
-class Filter(BaseFilter):
+class Detector(BaseDetector):
+    
+    cascade = cv.Load(join(abspath(dirname(__file__)), options.FACE_FILTER_CASCADE_FILE))
 
-    def __init__(self):
-        self.cascade = cv.Load(join(abspath(dirname(__file__)), options.FACE_FILTER_CASCADE_FILE))
-
-    def before(self, context):
+    def detect(self, context):
 
         if not context['should_be_smart']:
             return
@@ -33,7 +32,8 @@ class Filter(BaseFilter):
         if faces:
             crop = DetectCrop(faces, size)
             context['halign'], context['valign'] = crop.alignments
-
+        else:
+            self.next_before(context)
 
 class DetectCrop():
     def __init__(self, faces, size):

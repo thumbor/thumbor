@@ -1,10 +1,11 @@
 
 from cStringIO import StringIO
 
+from tornado.options import options
+
 from thumbor.vendor.pythonmagickwand.image import Image
 from thumbor.vendor.pythonmagickwand import wand
-
-from tornado.options import options
+from thumbor.engines import BaseEngine
 
 FORMATS = {
     '.jpg': 'JPEG',
@@ -13,11 +14,10 @@ FORMATS = {
     '.png': 'PNG'
 }
 
-class Engine():
+class Engine(BaseEngine):
     
-    def load(self, buffer):
-        #loads image buffer in byte format.
-        self.image = Image(StringIO(buffer))
+    def create_image(self, buffer):
+        return Image(StringIO(buffer))
 
     def resize(self, width, height):
         self.image.resize((int(width), int(height)), wand.CATROM_FILTER, 1)
@@ -38,14 +38,6 @@ class Engine():
     def flip_horizontally(self):
         self.image.flop()
     
-    def tostring(self):
-        return self.image.tostring()
-    
-    @property
-    def size(self):
-        # returns the image size as a tuple
-        return self.image.size
-
     def read(self, extension):
         #returns image buffer in byte format.
         img_buffer = StringIO()

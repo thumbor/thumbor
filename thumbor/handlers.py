@@ -12,7 +12,7 @@ from rect import BoundingRect
 define('ALLOWED_DOMAINS', default=['localhost', '127.0.0.1', 'www.globo.com'], multiple=True)
 define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
-define('MAX_HEIGHT', type=int, default=800)
+define('MAX_HEIGHT', type=int, default=1024)
 define('QUALITY', type=int, default=80)
 
 CONTENT_TYPE = {
@@ -31,11 +31,11 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     
-    def initialize(self, loader, storage, engine, filters):
+    def initialize(self, loader, storage, engine, detectors):
         self.loader = loader
         self.storage = storage
         self.engine = engine
-        self.filters = filters
+        self.detectors = detectors
     
     def _verify_allowed_domains(self):
         host = self.request.host.split(':')[0]
@@ -44,13 +44,16 @@ class MainHandler(BaseHandler):
                 return True
         return False
 
-    def _fetch(self, url, callback):
+    def _fetch(self, url, extension, callback):
         buffer = self.storage.get(url)
 
         if buffer is not None:
             callback(buffer)
 
         def _put_image(buffer):
+            self.engine.load(buffer)
+            self.engine.normalize()
+            buffer = self.engine.read(extension)
             self.storage.put(url, buffer)
             callback(buffer)
 
@@ -79,12 +82,12 @@ class MainHandler(BaseHandler):
         height = float(height)
         
         if width / img_width > height / img_height:
-            new_height = img_height * width / img_width
+            new_height = self.engine.get_proportional_height(width)
             self.engine.resize(width, new_height)
             image_width = width
             image_height = width / img_width * img_height
         else:
-            new_width = img_width * height / img_height
+            new_width = self.engine.get_proportional_width(height)
             self.engine.resize(new_width, height)
             image_width = height / img_height * img_width
             image_height = height
@@ -175,15 +178,12 @@ class MainHandler(BaseHandler):
                 extension=extension
             )
 
-            for filter in self.filters:
-                filter.before(context)
+            if self.detectors:
+                self.detectors[0](index=0, detectors=self.detectors).detect(context)
 
             self.perform_transforms(context)
 
-            for filter in self.filters:
-                filter.after(context)
-
-        self._fetch(path, callback)
+        self._fetch(path, extension, callback)
 
     def perform_transforms(self, context):
         self.transform(context)
@@ -192,9 +192,7 @@ class MainHandler(BaseHandler):
         self.write(results)
         self.finish()
 
-
 class HealthcheckHandler(BaseHandler):
     def get(self):
         self.write('working')
-
 

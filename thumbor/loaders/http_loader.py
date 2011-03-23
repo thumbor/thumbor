@@ -22,5 +22,8 @@ def load(url, callback):
     url = __normalize_url(url)
     http = tornado.httpclient.AsyncHTTPClient()
     def load_callback(response):
-        callback(response.body)
+        if response.code == 200:
+            callback(response.body)
+        else:
+            callback(None)
     http.fetch(url, callback=load_callback)
