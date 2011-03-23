@@ -29,16 +29,15 @@ class BaseEngine(object):
             else:
                 width = self.get_proportional_width(options.MAX_HEIGHT)
                 self.resize(width, options.MAX_HEIGHT)
-    
+
     def get_proportional_width(self, new_height):
         width, height = self.size
         return new_height * width / height
-        
+
     def get_proportional_height(self, new_width):
         width, height = self.size
         return new_width * height / width
-        
+
     def create_image(self):
         raise NotImplementedError()
-
     

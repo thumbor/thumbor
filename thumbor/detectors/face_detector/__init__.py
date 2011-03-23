@@ -14,8 +14,11 @@ HAIR_OFFSET = 0.12
 
 class Detector(BaseDetector):
     
-    cascade = cv.Load(join(abspath(dirname(__file__)), options.FACE_FILTER_CASCADE_FILE))
-
+    def __init__(self, index, detectors):
+        if not hasattr(Detector, 'cascade'):
+            setattr(Detector, 'cascade', cv.Load(join(abspath(dirname(__file__)), options.FACE_FILTER_CASCADE_FILE)))
+        super(Detector, self).__init__(index, detectors)
+    
     def detect(self, context):
 
         if not context['should_be_smart']:
@@ -27,13 +30,13 @@ class Detector(BaseDetector):
         grayscale = cv.CreateImage(size, 8, 1)
         cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
         cv.EqualizeHist(grayscale, grayscale)
-        faces = cv.HaarDetectObjects(grayscale, self.cascade, cv.CreateMemStorage(), 1.2, 2, cv.CV_HAAR_DO_CANNY_PRUNING)
+        faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.2, 2, cv.CV_HAAR_DO_CANNY_PRUNING)
 
         if faces:
             crop = DetectCrop(faces, size)
             context['halign'], context['valign'] = crop.alignments
         else:
-            self.next_before(context)
+            self.next(context)
 
 class DetectCrop():
     def __init__(self, faces, size):
