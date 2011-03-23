@@ -2,37 +2,34 @@
 #-*- coding: utf8 -*-
 
 from os.path import join, dirname, abspath
-from cStringIO import StringIO
 
 import cv
-from PIL import Image
 from tornado.options import options
 
 from thumbor.filters import BaseFilter
 
 class Filter(BaseFilter):
 
-    def __init__(self, context):
-        super(Filter, self).__init__(context)
+    def __init__(self):
         self.cascade = cv.Load(join(abspath(dirname(__file__)), options.FACE_FILTER_CASCADE_FILE))
+        self.storage = cv.CreateMemStorage()
 
-    def before(self):
+    def before(self, context):
 
-        if not self.context['should_be_smart']:
+        if not context['should_be_smart']:
             return
 
-        size = self.context['engine'].size
+        size = context['engine'].size
         image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(image_header, Image.open(StringIO(self.context['buffer'])).tostring())
-        grayscale = cv.CreateImage(cv.GetSize(image_header), 8, 1)
+        cv.SetData(image_header, context['buffer'])
+        grayscale = cv.CreateImage(size, 8, 1)
         cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
-        storage = cv.CreateMemStorage(0)
         cv.EqualizeHist(grayscale, grayscale)
-        faces = cv.HaarDetectObjects(grayscale, self.cascade, storage, 1.2, 2, cv.CV_HAAR_DO_CANNY_PRUNING)
+        faces = cv.HaarDetectObjects(grayscale, self.cascade, self.storage, 1.2, 2, cv.CV_HAAR_DO_CANNY_PRUNING)
 
         if faces:
             crop = DetectCrop(faces, size)
-            self.context['halign'], self.context['valign'] = crop.alignments
+            context['halign'], context['valign'] = crop.alignments
         
 
 class DetectCrop():

@@ -175,16 +175,13 @@ class MainHandler(BaseHandler):
                 extension=extension
             )
 
-            filter_instances = []
             for filter in self.filters:
-                filter_instance = filter.Filter(context)
-                filter_instance.before()
-                filter_instances.append(filter_instance)
+                filter.before(context)
 
             self.perform_transforms(context)
 
-            for filter_instance in filter_instances:
-                filter_instance.after()
+            for filter in self.filters:
+                filter.after(context)
 
         self._fetch(path, callback)
 

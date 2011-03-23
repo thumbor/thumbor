@@ -4,11 +4,11 @@
 
 class BaseFilter(object):
     
-    def __init__(self, context):
-        self.context = context
-    
-    def before(self):
+    def __init__(self):
         pass
     
-    def after(self):
+    def before(self, context):
+        pass
+    
+    def after(self, context):
         pass

@@ -34,7 +34,7 @@ class ThumborServiceApp(tornado.web.Application):
         
         filters = []
         for filter_name in options.FILTERS:
-            filters.append(real_import(filter_name))
+            filters.append(real_import(filter_name).Filter())
 
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
