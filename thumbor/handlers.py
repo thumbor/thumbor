@@ -129,12 +129,11 @@ class MainHandler(BaseHandler):
                 height=height,
                 halign=halign,
                 valign=valign,
-                should_be_smart=should_be_smart,
                 extension=extension,
                 focal_points=[]
             )
 
-            if self.detectors:
+            if self.detectors and should_be_smart:
                 self.detectors[0](index=0, detectors=self.detectors).detect(context)
 
             self.perform_transforms(context)

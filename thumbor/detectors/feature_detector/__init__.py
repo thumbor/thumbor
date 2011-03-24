@@ -10,6 +10,7 @@ from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
 
 class Detector(BaseDetector):
+
     def detect(self, context):
         size = context['engine'].size
         image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)

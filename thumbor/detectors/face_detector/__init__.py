@@ -25,10 +25,6 @@ class Detector(BaseDetector):
         return top
     
     def detect(self, context):
-
-        if not context['should_be_smart']:
-            return
-
         size = context['engine'].size
         image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image_header, Image.open(StringIO(context['buffer'])).tostring())
