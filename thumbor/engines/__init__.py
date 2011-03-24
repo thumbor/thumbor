@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding: utf8 -*-
 
+import math
+
 from tornado.options import options
 
 class BaseEngine(object):
@@ -31,11 +33,11 @@ class BaseEngine(object):
 
     def get_proportional_width(self, new_height):
         width, height = self.size
-        return new_height * width / height
+        return math.ceil(float(new_height) * width / height)
 
     def get_proportional_height(self, new_width):
         width, height = self.size
-        return new_width * height / width
+        return math.ceil(float(new_width) * height / width)
 
     def create_image(self):
         raise NotImplementedError()

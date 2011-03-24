@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import math
+
 from thumbor.point import FocalPoint
 
 class Transformer(object):
@@ -39,7 +41,9 @@ class Transformer(object):
             ]
 
     def transform(self):
-        if self.source_width / self.source_height != self.target_width / self.target_height:
+        source_ratio = round(self.source_width / self.source_height, 2)
+        target_ratio = round(self.target_width / self.target_height, 2)
+        if source_ratio != target_ratio:
             self.crop()
         self.resize()
 
@@ -47,9 +51,9 @@ class Transformer(object):
         
         if self.target_width / self.source_width > self.target_height / self.source_height:
             crop_width = self.source_width
-            crop_height = self.source_width * self.target_height / self.target_width
+            crop_height = math.ceil(self.source_width * self.target_height / self.target_width)
         else:
-            crop_width = self.target_width * self.source_height / self.target_height
+            crop_width = math.ceil(self.target_width * self.source_height / self.target_height)
             crop_height = self.source_height
 
         focal_x, focal_y = self.get_center_of_mass()

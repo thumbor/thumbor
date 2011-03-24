@@ -47,7 +47,7 @@ TESTITEMS = [
         target_width=180, target_height=100,
         halign="center", valign="middle",
         focal_points=[],
-        crop_left=0, crop_top=14, crop_right=200, crop_bottom=125
+        crop_left=0, crop_top=14, crop_right=200, crop_bottom=126
     ),
     
     # tests with focal points
@@ -128,6 +128,379 @@ TESTITEMS = [
         focal_points=[fp(50, 100, 1), fp(50, 300, 1), fp(150, 100, 1), fp(150, 300, 1)],
         crop_left=50.0, crop_top=0, crop_right=250.0, crop_bottom=200
     ),
+
+    #Width maior
+
+    TestData(
+        source_width=800, source_height=600,
+        target_width=400, target_height=300,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=150, target_height=300,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=275, crop_top=0, crop_right=425, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=300, target_height=150,
+        halign="right", valign="bottom",
+        focal_points=[],
+        crop_left=100, crop_top=0, crop_right=700, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=300, target_height=150,
+        halign="left", valign="bottom",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=600, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=150, target_height=300,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=275, crop_top=0, crop_right=425, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=150, target_height=300,
+        halign="left", valign="bottom",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=150, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=150, target_height=300,
+        halign="right", valign="bottom",
+        focal_points=[],
+        crop_left=550, crop_top=0, crop_right=700, crop_bottom=300
+    ),
+
+    ##/* Height maior */
+    TestData(
+        source_width=300, source_height=800,
+        target_width=200, target_height=300,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=0, crop_top=350, crop_right=300, crop_bottom=800
+    ),
+
+    TestData(
+        source_width=300, source_height=800,
+        target_width=200, target_height=300,
+        halign="left", valign="bottom",
+        focal_points=[],
+        crop_left=0, crop_top=350, crop_right=300, crop_bottom=800
+    ),
+
+    TestData(
+        source_width=300, source_height=800,
+        target_width=200, target_height=300,
+        halign="right", valign="bottom",
+        focal_points=[],
+        crop_left=0, crop_top=350, crop_right=300, crop_bottom=800
+    ),
+
+    TestData(
+        source_width=500, source_height=600,
+        target_width=300, target_height=250,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=0, crop_top=183, crop_right=500, crop_bottom=600
+    ),
+
+    TestData(
+        source_width=500, source_height=600,
+        target_width=300, target_height=250,
+        halign="left", valign="bottom",
+        focal_points=[],
+        crop_left=0, crop_top=183, crop_right=500, crop_bottom=600
+    ),
+
+    TestData(
+        source_width=500, source_height=600,
+        target_width=300, target_height=250,
+        halign="right", valign="bottom",
+        focal_points=[],
+        crop_left=0, crop_top=183, crop_right=500, crop_bottom=600
+    ),
+
+    ##Height na proporçao#
+    TestData(
+        source_width=600, source_height=800,
+        target_width=300, target_height=0,
+        halign="right", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=300, target_height=0,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=300, target_height=0,
+        halign="left", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=250, target_height=0,
+        halign="left", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=250, target_height=0,
+        halign="right", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=250, target_height=0,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    #Width na proporçao
+    TestData(
+        source_width=600, source_height=800,
+        target_width=0, target_height=400,
+        halign="right", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=0, target_height=400,
+        halign="left", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=0, target_height=400,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=0, target_height=350,
+        halign="center", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=0, target_height=350,
+        halign="left", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=600, source_height=800,
+        target_width=0, target_height=350,
+        halign="right", valign="bottom",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=800, source_height=600,
+        target_width=400, target_height=150,
+        halign="center", valign="middle",
+        focal_points=[],
+        crop_left=0, crop_top=150, crop_right=800, crop_bottom=450
+    ),
+
+    TestData(
+        source_width=800, source_height=300,
+        target_width=400, target_height=150,
+        halign="center", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=800, source_height=300,
+        target_width=400, target_height=150,
+        halign="right", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=800, source_height=300,
+        target_width=400, target_height=150,
+        halign="left", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=300, target_height=150,
+        halign="center", valign="middle",
+        focal_points=[],
+        crop_left=50, crop_top=0, crop_right=650, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=300, target_height=150,
+        halign="left", valign="middle",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=600, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=300, target_height=150,
+        halign="right", valign="middle",
+        focal_points=[],
+        crop_left=100, crop_top=0, crop_right=700, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=150, target_height=300,
+        halign="center", valign="middle",
+        focal_points=[],
+        crop_left=275, crop_top=0, crop_right=425, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=150, target_height=300,
+        halign="left", valign="middle",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=150, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=700, source_height=300,
+        target_width=150, target_height=300,
+        halign="right", valign="middle",
+        focal_points=[],
+        crop_left=550, crop_top=0, crop_right=700, crop_bottom=300
+    ),
+
+    TestData(
+        source_width=350, source_height=700,
+        target_width=200, target_height=600,
+        halign="left", valign="middle",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=234, crop_bottom=700
+    ),
+
+    TestData(
+        source_width=350, source_height=700,
+        target_width=200, target_height=600,
+        halign="center", valign="middle",
+        focal_points=[],
+        crop_left=58, crop_top=0, crop_right=292, crop_bottom=700
+    ),
+
+    TestData(
+        source_width=350, source_height=700,
+        target_width=200, target_height=600,
+        halign="right", valign="middle",
+        focal_points=[],
+        crop_left=116, crop_top=0, crop_right=350, crop_bottom=700
+    ),
+
+    TestData(
+        source_width=500, source_height=600,
+        target_width=300, target_height=250,
+        halign="left", valign="middle",
+        focal_points=[],
+        crop_left=0, crop_top=91, crop_right=500, crop_bottom=508
+    ),
+
+    TestData(
+        source_width=500, source_height=600,
+        target_width=300, target_height=250,
+        halign="center", valign="middle",
+        focal_points=[],
+        crop_left=0, crop_top=91, crop_right=500, crop_bottom=508
+    ),
+
+    TestData(
+        source_width=500, source_height=600,
+        target_width=300, target_height=250,
+        halign="right", valign="middle",
+        focal_points=[],
+        crop_left=0, crop_top=91, crop_right=500, crop_bottom=508
+    ),
+
+    TestData(
+        source_width=1, source_height=1,
+        target_width=0, target_height=0,
+        halign="left", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=1, source_height=1,
+        target_width=0, target_height=0,
+        halign="center", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=1, source_height=1,
+        target_width=0, target_height=0,
+        halign="right", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=200, source_height=400,
+        target_width=0, target_height=1,
+        halign="left", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    TestData(
+        source_width=200, source_height=200,
+        target_width=16, target_height=16,
+        halign="left", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    )
 ]
 
 def test_transformer():

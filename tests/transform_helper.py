@@ -25,11 +25,11 @@ class MockEngine(object):
 
     def get_proportional_width(self, new_height):
         width, height = self.size
-        return new_height * width / height
+        return float(new_height) * width / height
 
     def get_proportional_height(self, new_width):
         width, height = self.size
-        return new_width * height / width
+        return float(new_width) * height / width
 
 
 class TestData(object):
@@ -112,13 +112,13 @@ class TestData(object):
             return True
 
         if not self.target_width:
-            assert self.engine.calls['resize'][0]['width'] == self.source_width * self.target_height / self.source_height, self.resize_error_message
+            assert self.engine.calls['resize'][0]['width'] == float(self.source_width) * self.target_height / self.source_height, self.resize_error_message
             assert self.engine.calls['resize'][0]['height'] == self.target_height, self.resize_error_message
             return True
 
         if not self.target_height:
             assert self.engine.calls['resize'][0]['width'] == self.target_width, self.resize_error_message
-            assert self.engine.calls['resize'][0]['height'] == self.source_height * self.target_width / self.source_width, self.resize_error_message
+            assert self.engine.calls['resize'][0]['height'] == float(self.source_height) * self.target_width / self.source_width, self.resize_error_message
             return True
 
         assert self.engine.calls['resize'][0]['width'] == self.target_width, self.resize_error_message
