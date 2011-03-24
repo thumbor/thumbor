@@ -500,6 +500,183 @@ TESTITEMS = [
         halign="left", valign="middle",
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+
+    #--------------------Normal---------------------------------------
+    TestData(
+        source_width=800, source_height=600,
+        target_width=400, target_height=150,
+        halign="left", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=800, crop_bottom=300
+    ),
+    TestData(
+        source_width=800, source_height=600,
+        target_width=400, target_height=150,
+        halign="center", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=800, crop_bottom=300
+    ),
+    TestData(
+        source_width=800, source_height=600,
+        target_width=400, target_height=150,
+        halign="right", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=800, crop_bottom=300
+    ),
+    #---------------Normal Invertido---------------------------
+    TestData(
+        source_width=600, source_height=800,
+        target_width=150, target_height=400,
+        halign="left", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=300, crop_bottom=800
+    ),
+    TestData(
+        source_width=600, source_height=800,
+        target_width=150, target_height=400,
+        halign="center", valign="top",
+        focal_points=[],
+        crop_left=150, crop_top=0, crop_right=450, crop_bottom=800
+    ),
+    TestData(
+        source_width=600, source_height=800,
+        target_width=150, target_height=400,
+        halign="right", valign="top",
+        focal_points=[],
+        crop_left=300, crop_top=0, crop_right=600, crop_bottom=800
+    ),
+    #-----------Largo e Baixo---------------------
+    TestData(
+        source_width=800, source_height=60,
+        target_width=400, target_height=15,
+        halign="left", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=800, crop_bottom=30
+    ),
+    TestData(
+        source_width=800, source_height=60,
+        target_width=400, target_height=15,
+        halign="center", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=800, crop_bottom=30
+    ),
+    TestData(
+        source_width=800, source_height=60,
+        target_width=400, target_height=15,
+        halign="right", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=800, crop_bottom=30
+    ),
+    #----------------Alto e Estreito--------------------------
+    TestData(
+        source_width=60, source_height=800,
+        target_width=15, target_height=400,
+        halign="left", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=30, crop_bottom=800
+    ),
+    TestData(
+        source_width=60, source_height=800,
+        target_width=15, target_height=400,
+        halign="center", valign="top",
+        focal_points=[],
+        crop_left=15, crop_top=0, crop_right=45, crop_bottom=800
+    ),
+    TestData(
+        source_width=60, source_height=800,
+        target_width=15, target_height=400,
+        halign="right", valign="top",
+        focal_points=[],
+        crop_left=30, crop_top=0, crop_right=60, crop_bottom=800
+    ),
+    #------------------Valores Pequenos--------------------------
+    TestData(
+        source_width=8, source_height=6,
+        target_width=4, target_height=2,
+        halign="left", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=8, crop_bottom=4
+    ),
+    TestData(
+        source_width=8, source_height=6,
+        target_width=4, target_height=2,
+        halign="center", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=8, crop_bottom=4
+    ),
+    TestData(
+        source_width=8, source_height=6,
+        target_width=4, target_height=2,
+        halign="right", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=8, crop_bottom=4
+    ),
+    #----------------Valores Pequeno Invertido-------------
+    TestData(
+        source_width=6, source_height=8,
+        target_width=2, target_height=4,
+        halign="left", valign="top",
+        focal_points=[],
+        crop_left=0, crop_top=0, crop_right=4, crop_bottom=8
+    ),
+    TestData(
+        source_width=6, source_height=8,
+        target_width=2, target_height=4,
+        halign="center", valign="top",
+        focal_points=[],
+        crop_left=1, crop_top=0, crop_right=5, crop_bottom=8
+    ),
+    TestData(
+        source_width=6, source_height=8,
+        target_width=2, target_height=4,
+        halign="right", valign="top",
+        focal_points=[],
+        crop_left=2, crop_top=0, crop_right=6, crop_bottom=8
+    ),
+    #----------------Valores Proporcionais-------------
+    TestData(
+        source_width=800, source_height=600,
+        target_width=400, target_height=300,
+        halign="left", valign="top",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+    TestData(
+        source_width=800, source_height=600,
+        target_width=400, target_height=300,
+        halign="center", valign="top",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+    TestData(
+        source_width=800, source_height=600,
+        target_width=400, target_height=300,
+        halign="right", valign="top",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+    #----------------Valores Iguais-----------------------
+    TestData(
+        source_width=800, source_height=600,
+        target_width=800, target_height=600,
+        halign="left", valign="top",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+    TestData(
+        source_width=800, source_height=600,
+        target_width=800, target_height=600,
+        halign="center", valign="top",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+    TestData(
+        source_width=800, source_height=600,
+        target_width=800, target_height=600,
+        halign="right", valign="top",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
     )
 ]
 
