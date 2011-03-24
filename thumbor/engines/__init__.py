@@ -16,7 +16,6 @@ class BaseEngine(object):
 
     @property
     def size(self):
-        # returns the image size as a tuple
         return self.image.size
 
     def normalize(self):
@@ -41,4 +40,18 @@ class BaseEngine(object):
 
     def create_image(self):
         raise NotImplementedError()
+
+    def crop(self):
+        raise NotImplementedError()
+
+    def resize(self):
+        raise NotImplementedError()
+
+    def flip_horizontally(self):
+        raise NotImplementedError()
     
+    def flip_vertically(self):
+        raise NotImplementedError()
+
+    def read(self):
+        raise NotImplementedError()

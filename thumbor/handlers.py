@@ -52,22 +52,7 @@ class MainHandler(BaseHandler):
             self.loader.load(url, _put_image)
 
     def validate(self, path):
-        valid = self.loader.validate(path) if hasattr(self.loader, 'validate') else True
-        return valid
-
-    def transform(self, context):
-        
-        if context['should_crop']:
-            self.engine.crop(context['crop_left'], context['crop_top'], context['crop_right'], context['crop_bottom'])
-        
-        source_width, source_height = context['engine'].size
-        
-        Transformer(context, source_width, source_height).transform()
-        
-        if context['should_flip_horizontal']:
-            self.engine.flip_horizontally()
-        if context['should_flip_vertical']:
-            self.engine.flip_vertically()
+        return self.loader.validate(path) if hasattr(self.loader, 'validate') else True
 
     @tornado.web.asynchronous
     def get(self,
@@ -111,8 +96,6 @@ class MainHandler(BaseHandler):
         extension = splitext(path)[-1]
 
         def callback(buffer):
-            self.engine.load(buffer)
-
             context = dict(
                 loader=self.loader,
                 engine=self.engine,
@@ -132,20 +115,21 @@ class MainHandler(BaseHandler):
                 extension=extension,
                 focal_points=[]
             )
-
+            
+            self.engine.load(buffer)
+            
             if self.detectors and should_be_smart:
                 self.detectors[0](index=0, detectors=self.detectors).detect(context)
 
-            self.perform_transforms(context)
+            Transformer(context).transform()
+
+            results = self.engine.read(context['extension'])
+            self.set_header('Content-Type', CONTENT_TYPE[context['extension']])
+            self.write(results)
+            self.finish()
 
         self._fetch(path, extension, callback)
 
-    def perform_transforms(self, context):
-        self.transform(context)
-        results = self.engine.read(context['extension'])
-        self.set_header('Content-Type', CONTENT_TYPE[context['extension']])
-        self.write(results)
-        self.finish()
 
 class HealthcheckHandler(BaseHandler):
     def get(self):

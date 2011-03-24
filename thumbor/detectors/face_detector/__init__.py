@@ -28,10 +28,11 @@ class Detector(BaseDetector):
         size = context['engine'].size
         image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image_header, Image.open(StringIO(context['buffer'])).tostring())
+        
         grayscale = cv.CreateImage(size, 8, 1)
         cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
         cv.EqualizeHist(grayscale, grayscale)
-        faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.2, 2, cv.CV_HAAR_DO_CANNY_PRUNING)
+        faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING)
 
         if faces:
             for face in faces:

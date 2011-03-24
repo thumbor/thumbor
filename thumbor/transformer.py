@@ -6,11 +6,12 @@ import math
 from thumbor.point import FocalPoint
 
 class Transformer(object):
-    def __init__(self, context, source_width, source_height):
+    def __init__(self, context):
         self.context = context
         self.engine = self.context['engine']
-        self.source_width = float(source_width)
-        self.source_height = float(source_height)
+        self.source_width, self.source_height = self.engine.size
+        self.source_width = float(self.source_width)
+        self.source_height = float(self.source_height)
         self.calculate_target_dimensions()
         self.calculate_focal_points()
         
@@ -39,15 +40,28 @@ class Transformer(object):
                                           self.source_width,
                                           self.source_height)
             ]
-
+    
     def transform(self):
+        self.manual_crop()
+        self.auto_crop()
+        self.resize()
+        self.flip()
+        
+    def manual_crop(self):
+        if self.context['should_crop']:
+            crop_left = max(self.context['crop_left'], 0)
+            crop_top = max(self.context['crop_top'], 0)
+            crop_right = min(self.context['crop_right'], self.source_width)
+            crop_bottom = min(self.context['crop_bottom'], self.source_height)
+            self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
+    
+    def auto_crop(self):
+        
         source_ratio = round(self.source_width / self.source_height, 2)
         target_ratio = round(self.target_width / self.target_height, 2)
-        if source_ratio != target_ratio:
-            self.crop()
-        self.resize()
-
-    def crop(self):
+        
+        if source_ratio == target_ratio:
+            return
         
         if self.target_width / self.source_width > self.target_height / self.source_height:
             crop_width = self.source_width
@@ -70,6 +84,12 @@ class Transformer(object):
 
         self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
 
+    def flip(self):
+        if self.context['should_flip_horizontal']:
+            self.engine.flip_horizontally()
+        if self.context['should_flip_vertical']:
+            self.engine.flip_vertically()
+
     def get_center_of_mass(self):
         total_weight = 0.0
         total_x = 0.0
@@ -84,4 +104,4 @@ class Transformer(object):
 
     def resize(self):
         self.engine.resize(self.target_width, self.target_height)
-
+    
