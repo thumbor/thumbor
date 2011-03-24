@@ -10,8 +10,7 @@ class BaseEngine(object):
 
     def load(self, buffer):
         #loads image buffer in byte format.
-        if not self.image:
-            self.image = self.create_image(buffer)
+        self.image = self.create_image(buffer)
 
     @property
     def size(self):

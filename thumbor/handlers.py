@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 #-*- coding: utf8 -*-
 
-import re
 from os.path import splitext
 
 import tornado.web
 from tornado.options import define, options
 
-from rect import BoundingRect
+from transformer import Transformer
 
-define('ALLOWED_DOMAINS', default=['localhost', '127.0.0.1', 'www.globo.com'], multiple=True)
 define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=1024)
@@ -37,13 +35,6 @@ class MainHandler(BaseHandler):
         self.engine = engine
         self.detectors = detectors
     
-    def _verify_allowed_domains(self):
-        host = self.request.host.split(':')[0]
-        for pattern in options.ALLOWED_DOMAINS:
-            if re.match('^%s$' % pattern, host):
-                return True
-        return False
-
     def _fetch(self, url, extension, callback):
         buffer = self.storage.get(url)
 
@@ -62,57 +53,21 @@ class MainHandler(BaseHandler):
 
     def validate(self, path):
         valid = self.loader.validate(path) if hasattr(self.loader, 'validate') else True
-        return valid and self._verify_allowed_domains()
+        return valid
 
     def transform(self, context):
         
         if context['should_crop']:
             self.engine.crop(context['crop_left'], context['crop_top'], context['crop_right'], context['crop_bottom'])
         
-        img_width, img_height = context['engine'].size
+        source_width, source_height = context['engine'].size
         
-        width = context['width']
-        height = context['height']
+        Transformer(context, source_width, source_height).transform()
         
-        if not width and not height:
-            width = img_width
-            height = img_height
-        
-        width = float(width)
-        height = float(height)
-        
-        if width / img_width > height / img_height:
-            new_height = self.engine.get_proportional_height(width)
-            self.engine.resize(width, new_height)
-            image_width = width
-            image_height = width / img_width * img_height
-        else:
-            new_width = self.engine.get_proportional_width(height)
-            self.engine.resize(new_width, height)
-            image_width = height / img_height * img_width
-            image_height = height
-
-        rect = BoundingRect(image_width, image_height)
-        rect.set_size(width, height, context['halign'], context['valign'])
-
-        self.engine.crop(
-            rect.left * image_width,
-            rect.top * image_height,
-            rect.right * image_width,
-            rect.bottom * image_height
-        )
-
         if context['should_flip_horizontal']:
             self.engine.flip_horizontally()
         if context['should_flip_vertical']:
             self.engine.flip_vertically()
-            
-        if not width:
-            width = rect.target_width
-        if not height:
-            height = rect.target_height
-            
-        self.engine.resize(width, height)
 
     @tornado.web.asynchronous
     def get(self,
@@ -175,7 +130,8 @@ class MainHandler(BaseHandler):
                 halign=halign,
                 valign=valign,
                 should_be_smart=should_be_smart,
-                extension=extension
+                extension=extension,
+                focal_points=[]
             )
 
             if self.detectors:

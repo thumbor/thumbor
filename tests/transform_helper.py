@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 class MockEngine(object):
-    def __init__(self):
+    def __init__(self, size):
+        self.size = size
         self.calls = {
             'resize': [],
             'crop': []
@@ -21,6 +22,15 @@ class MockEngine(object):
             'right': right,
             'bottom': bottom
         })
+
+    def get_proportional_width(self, new_height):
+        width, height = self.size
+        return new_height * width / height
+
+    def get_proportional_height(self, new_width):
+        width, height = self.size
+        return new_width * height / width
+
 
 class TestData(object):
     def __init__(self, 
@@ -59,7 +69,7 @@ class TestData(object):
         )
 
     def to_context(self):
-        self.engine = MockEngine()
+        self.engine = MockEngine((self.source_width, self.source_height))
 
         context = dict(
             loader=None,
@@ -95,10 +105,24 @@ class TestData(object):
 
     def has_resized_properly(self):
         assert self.engine.calls['resize'], self.resize_error_message
+
+        if not self.target_width and not self.target_height:
+            assert self.engine.calls['resize'][0]['width'] == self.source_width, self.resize_error_message
+            assert self.engine.calls['resize'][0]['height'] == self.source_height, self.resize_error_message
+            return True
+
+        if not self.target_width:
+            assert self.engine.calls['resize'][0]['width'] == self.source_width * self.target_height / self.source_height, self.resize_error_message
+            assert self.engine.calls['resize'][0]['height'] == self.target_height, self.resize_error_message
+            return True
+
+        if not self.target_height:
+            assert self.engine.calls['resize'][0]['width'] == self.target_width, self.resize_error_message
+            assert self.engine.calls['resize'][0]['height'] == self.source_height * self.target_width / self.source_width, self.resize_error_message
+            return True
+
         assert self.engine.calls['resize'][0]['width'] == self.target_width, self.resize_error_message
-
         assert self.engine.calls['resize'][0]['height'] == self.target_height, self.resize_error_message
-
         return True
 
     @property

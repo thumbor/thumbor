@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 #-*- coding: utf8 -*-
 
-from os.path import join, dirname, abspath
 from cStringIO import StringIO
 
 import cv
 from PIL import Image
-from tornado.options import options
 
 from thumbor.detectors import BaseDetector
+from thumbor.point import FocalPoint
 
 class Detector(BaseDetector):
     def detect(self, context):
@@ -26,14 +25,7 @@ class Detector(BaseDetector):
         points = cv.GoodFeaturesToTrack(grayscale, eig_image, temp_image, 100, 0.04, 1.0, useHarris=False)
 
         if points:
-            x, y = self.get_center_of_mass(points)
-
-            return x/size[0], y/size[1]
+            for x, y in points:
+                context['focal_points'].append(FocalPoint(x, y, 1))
         else:
             self.next(context)
-
-    def get_center_of_mass(self, points):
-        x = reduce(lambda acc, point: acc + point[0], points, 0) / len(points)
-        y = reduce(lambda acc, point: acc + point[1], points, 0) / len(points)
-
-        return x, y

@@ -9,15 +9,31 @@ class Transformer(object):
         self.engine = self.context['engine']
         self.source_width = float(source_width)
         self.source_height = float(source_height)
-        self.target_width = float(self.context['width'])
-        self.target_height = float(self.context['height'])
+        self.calculate_target_dimensions()
+        self.calculate_focal_points()
+        
+    def calculate_target_dimensions(self):
+        if not self.context['width'] and not self.context['height']:
+            self.target_width = self.source_width
+            self.target_height = self.source_height
+        else:
+            if self.context['width']:
+                self.target_width = float(self.context['width'])
+            else:
+                self.target_width = self.engine.get_proportional_width(self.context['height'])
 
-        if context['focal_points']:
-            self.focal_points = context['focal_points']
+            if self.context['height']:
+                self.target_height = float(self.context['height'])
+            else:
+                self.target_height = self.engine.get_proportional_height(self.context['width'])
+
+    def calculate_focal_points(self):
+        if self.context['focal_points']:
+            self.focal_points = self.context['focal_points']
         else:
             self.focal_points = [
-                FocalPoint.from_alignment(context['halign'],
-                                          context['valign'],
+                FocalPoint.from_alignment(self.context['halign'],
+                                          self.context['valign'],
                                           self.source_width,
                                           self.source_height)
             ]
@@ -28,11 +44,12 @@ class Transformer(object):
         self.resize()
 
     def crop(self):
+        
         if self.target_width / self.source_width > self.target_height / self.source_height:
             crop_width = self.source_width
-            crop_height = self.target_width * self.source_height / self.source_width
+            crop_height = self.source_width * self.target_height / self.target_width
         else:
-            crop_width = self.target_height * self.source_width / self.source_height
+            crop_width = self.target_width * self.source_height / self.target_height
             crop_height = self.source_height
 
         focal_x, focal_y = self.get_center_of_mass()
@@ -43,7 +60,7 @@ class Transformer(object):
         crop_left = int(crop_width_amount * focal_x_percentage)
         crop_right = int(self.source_width - crop_width_amount + crop_left)
 
-        crop_height_amount = self.source_height- crop_height
+        crop_height_amount = self.source_height - crop_height
         crop_top = int(crop_height_amount * focal_y_percentage)
         crop_bottom = int(self.source_height - crop_height_amount + crop_top)
 
@@ -53,6 +70,7 @@ class Transformer(object):
         total_weight = 0.0
         total_x = 0.0
         total_y = 0.0
+        
         for focal_point in self.focal_points:
             total_weight += focal_point.weight
             total_x += focal_point.x * focal_point.weight
