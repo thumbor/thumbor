@@ -15,9 +15,8 @@ define('ENGINE',  default='thumbor.engines.pil')
 define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
-define('MAGICKWAND_PATH', default=[])
 define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
-define('FACE_FILTER_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
+
 
 class ThumborServiceApp(tornado.web.Application):
 
@@ -29,14 +28,19 @@ class ThumborServiceApp(tornado.web.Application):
 
         loader = real_import(options.LOADER)
         storage = real_import(options.STORAGE)
-        if hasattr(storage, 'init'):
-            storage.init()
-        engine = real_import(options.ENGINE).Engine()
+        engine = real_import(options.ENGINE)
 
         detectors = []
         for detector_name in options.DETECTORS:
             detectors.append(real_import(detector_name).Detector)
-
+        
+        # run again to overwrite the default settings on the
+        # imported modules with the ones defined into the config file
+        parse_config_file(conf_file)
+        
+        storage = storage.Storage()
+        engine = engine.Engine()
+        
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
             (r'/(?:(\d+)x(\d+):(\d+)x(\d+)/)?(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?(?:(smart)/)?(.+)', MainHandler, {

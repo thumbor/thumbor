@@ -12,7 +12,7 @@ ALLOWED_SOURCES = ['s.glbimg.com', 'www.globo.com', 'ego.globo.com']
 
 LOADER = 'thumbor.loaders.http_loader'
 
-STORAGE = 'thumbor.storages.redis_storage'
+STORAGE = 'thumbor.storages.file_storage'
 
 ENGINE = 'thumbor.engines.pil'
 

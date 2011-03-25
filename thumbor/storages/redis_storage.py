@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 #-*- coding: utf8 -*-
 
-import redis
+
 from datetime import datetime, timedelta
+
+import redis
 from tornado.options import options, define
+
+from thumbor.storages import BaseStorage
 
 
 define('REDIS_SERVER', default={
@@ -12,18 +16,16 @@ define('REDIS_SERVER', default={
     'db': 0
 })
 
-storage = None
 
-def init():
-    global storage
-    storage = redis.Redis(**options.REDIS_SERVER)
+class Storage(BaseStorage):
 
-def put(path, bytes):
-    global storage
-    storage.set(path, bytes)
-    storage.expireat(path, datetime.now() + timedelta(seconds=options.STORAGE_EXPIRATION_SECONDS))
+    def __init__(self):
+        self.storage = redis.Redis(**options.REDIS_SERVER)
 
-def get(path):
-    global storage
-    return storage.get(path)
+    def put(self, path, bytes):
+        self.storage.set(path, bytes)
+        self.storage.expireat(path, datetime.now() + timedelta(seconds=options.STORAGE_EXPIRATION_SECONDS))
+
+    def get(self, path):
+        return self.storage.get(path)
 

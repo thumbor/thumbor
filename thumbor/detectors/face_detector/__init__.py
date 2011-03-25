@@ -6,10 +6,14 @@ from cStringIO import StringIO
 
 import cv
 from PIL import Image
-from tornado.options import options
+from tornado.options import options, define
 
 from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
+
+
+define('FACE_FILTER_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
+
 
 HAIR_OFFSET = 0.12
 
