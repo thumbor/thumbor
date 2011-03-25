@@ -47,7 +47,7 @@ class Detector(BaseDetector):
         grayscale = cv.CreateImage(size, 8, 1)
         cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
         cv.EqualizeHist(grayscale, grayscale)
-        faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING)
+        faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING, (30, 30))
 
         if faces:
             for face in faces:
