@@ -17,7 +17,7 @@ from tornado.options import options, define
 from thumbor.storages import BaseStorage
 
 
-define('REDIS_SERVER', default={
+define('REDIS_STORAGE_SERVER', default={
     'port': 6379,
     'host': 'localhost',
     'db': 0
@@ -27,7 +27,7 @@ define('REDIS_SERVER', default={
 class Storage(BaseStorage):
 
     def __init__(self):
-        self.storage = redis.Redis(**options.REDIS_SERVER)
+        self.storage = redis.Redis(**options.REDIS_STORAGE_SERVER)
 
     def put(self, path, bytes):
         self.storage.set(path, bytes)

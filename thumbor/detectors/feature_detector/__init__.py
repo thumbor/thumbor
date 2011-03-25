@@ -16,6 +16,7 @@ from PIL import Image
 from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
 
+
 class Detector(BaseDetector):
 
     def detect(self, context):

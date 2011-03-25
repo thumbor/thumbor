@@ -28,6 +28,14 @@ LOADER = 'thumbor.loaders.http_loader'
 # how to store the original images
 STORAGE = 'thumbor.storages.file_storage'
 
+#FILE_STORAGE_ROOT_PATH = join(tempfile.gettempdir(), 'thumbor', 'storage')
+
+#REDIS_STORAGE_SERVER = {
+#    'port': 6379,
+#    'host': 'localhost',
+#    'db': 0
+#})
+
 # imaging engine to use to process images
 ENGINE = 'thumbor.engines.pil'
 
