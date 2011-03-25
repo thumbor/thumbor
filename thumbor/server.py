@@ -8,15 +8,16 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import sys
 import signal
 import optparse
+import logging
 
 import tornado.ioloop
 from tornado.httpserver import HTTPServer
 
-from thumbor.app import ThumborServiceApp
 from thumbor import __version__
+from thumbor.utils import logger
+from thumbor.app import ThumborServiceApp
 
 ip = "0.0.0.0"
 port = 8888
@@ -51,6 +52,7 @@ def main():
     parser.add_option("-p", "--port", type="int", dest="port", default=8888, help = "The port to run this thumbor instance at [default: %default]." )
     parser.add_option("-i", "--ip", dest="ip", default="0.0.0.0", help = "The host address to run this thumbor instance at [default: %default]." )
     parser.add_option("-c", "--conf", dest="conf", default="", help = "The path of the configuration file to use for this thumbor instance [default: %default]." )
+    parser.add_option("-l", "--log-level", dest="log_level", default="warning", help = "The log level to be used. Possible values are: debug, info, warning, error, critical or notset. [default: %default]." )
 
     (options, args) = parser.parse_args()
 
@@ -62,12 +64,15 @@ def main():
     port = options.port
     ip = options.ip
     conf = options.conf or None
+    log_level = options.log_level
 
-    run_app(ip, port, conf)
+    run_app(ip, port, conf, log_level)
 
-def run_app(ip, port, conf):
+def run_app(ip, port, conf, log_level):
     global server
-
+    
+    logging.basicConfig(level=getattr(logging, log_level.upper()))
+    
     application = ThumborServiceApp(conf)
 
     server = HTTPServer(application)

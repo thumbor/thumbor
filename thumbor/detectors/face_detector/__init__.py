@@ -32,7 +32,6 @@ class Detector(BaseDetector):
                 cascade_file = options.FACE_DETECTOR_CASCADE_FILE
             else:
                 cascade_file = join(abspath(dirname(__file__)), options.FACE_DETECTOR_CASCADE_FILE)
-            print cascade_file
             setattr(Detector, 'cascade', cv.Load(cascade_file))
         super(Detector, self).__init__(index, detectors)
     

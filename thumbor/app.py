@@ -16,7 +16,7 @@ import tornado.ioloop
 from tornado.options import define, options, parse_config_file
 
 from thumbor.handlers import MainHandler, HealthcheckHandler
-from thumbor.utils import real_import
+from thumbor.utils import real_import, logger
 
 
 define('ENGINE',  default='thumbor.engines.pil')
@@ -32,7 +32,8 @@ class ThumborServiceApp(tornado.web.Application):
 
         if conf_file is None:
             conf_file = self.__get_conf_file(conf_file)
-
+        
+        logger.info('Config file: %s' % conf_file)
         parse_config_file(conf_file)
 
         loader = real_import(options.LOADER)
@@ -62,7 +63,7 @@ class ThumborServiceApp(tornado.web.Application):
 
         super(ThumborServiceApp, self).__init__(handlers)
     
-    def __get_conf_file(conf_file):
+    def __get_conf_file(self, conf_file):
         lookup_conf_file_paths = [
             os.curdir,
             expanduser('~'),

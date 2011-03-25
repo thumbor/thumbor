@@ -8,7 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import logging
+
 def real_import(name):
     if '.'  in name:
         return reduce(getattr, name.split('.')[1:], __import__(name))
     return __import__(name)
+
+logger = logging.getLogger('thumbor')
