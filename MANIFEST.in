@@ -1,4 +1,5 @@
 prune dist
 prune build
 recursive-include thumbor *.py
+recursive-include thumbor *.conf
 recursive-include thumbor *.xml

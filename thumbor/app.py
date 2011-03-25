@@ -8,7 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import join, abspath, dirname
+import os
+from os.path import join, abspath, dirname, expanduser, exists
 
 import tornado.web
 import tornado.ioloop
@@ -30,7 +31,8 @@ class ThumborServiceApp(tornado.web.Application):
     def __init__(self, conf_file=None):
 
         if conf_file is None:
-            conf_file = abspath(join(dirname(__file__), 'conf.py'))
+            conf_file = self.__get_conf_file(conf_file)
+
         parse_config_file(conf_file)
 
         loader = real_import(options.LOADER)
@@ -59,3 +61,21 @@ class ThumborServiceApp(tornado.web.Application):
         ]
 
         super(ThumborServiceApp, self).__init__(handlers)
+    
+    def __get_conf_file(conf_file):
+        lookup_conf_file_paths = [
+            os.curdir,
+            expanduser('~'),
+            '/etc/',
+            dirname(__file__)
+        ]
+        for conf_path in lookup_conf_file_paths:
+            conf_path_file = abspath(join(conf_path, 'thumbor.conf'))
+            if exists(conf_path_file):
+                return conf_path_file
+
+        raise ConfFileNotFoundError('thumbor.conf file not passed and not found on the lookup paths %s' % lookup_conf_file_paths)
+
+
+class ConfFileNotFoundError(RuntimeError):
+    pass
