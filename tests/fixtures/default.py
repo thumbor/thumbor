@@ -1,6 +1,12 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-# the domains that the request for thumbnails will come. They can use the service
-ALLOWED_DOMAINS = ['localhost', ]
+# thumbor imaging service
+# https://github.com/globocom/thumbor/wiki
+
+# Licensed under the MIT license: 
+# http://www.opensource.org/licenses/mit-license
+# Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 # the domains that can have theyre images resized
 ALLOWED_SOURCES = ['s.glbimg.com', 'www.globo.com']
