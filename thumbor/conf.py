@@ -50,11 +50,13 @@ ENGINE = 'thumbor.engines.pil'
 # more about detectors can be found in thumbor's docs
 # at https://github.com/globocom/thumbor/wiki
 DETECTORS = [
-    'thumbor.filters.face_detector',
-    'thumbor.filters.feature_detector'
+    'thumbor.detectors.face_detector',
+    'thumbor.detectors.feature_detector'
 ]
 
 # if you use face detection this is the file that
 # OpenCV will use to find faces. The default should be
 # fine, so change this at your own peril.
-#FACE_DETECTOR_CASCADE_FILE = 'haarcascade_frontface_alt.xml'
+# if you set a relative path it will be relative to
+# the thumbor/detectors/face_detector folder
+#FACE_DETECTOR_CASCADE_FILE = 'haarcascade_frontalface_alt.xml'

@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import join, dirname, abspath
+from os.path import join, dirname, abspath, isabs
 from cStringIO import StringIO
 
 import cv
@@ -19,7 +19,7 @@ from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
 
 
-define('FACE_FILTER_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
+define('FACE_DETECTOR_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
 
 
 HAIR_OFFSET = 0.12
@@ -28,7 +28,12 @@ class Detector(BaseDetector):
     
     def __init__(self, index, detectors):
         if not hasattr(Detector, 'cascade'):
-            setattr(Detector, 'cascade', cv.Load(join(abspath(dirname(__file__)), options.FACE_FILTER_CASCADE_FILE)))
+            if isabs(options.FACE_DETECTOR_CASCADE_FILE):
+                cascade_file = options.FACE_DETECTOR_CASCADE_FILE
+            else:
+                cascade_file = join(abspath(dirname(__file__)), options.FACE_DETECTOR_CASCADE_FILE)
+            print cascade_file
+            setattr(Detector, 'cascade', cv.Load(cascade_file))
         super(Detector, self).__init__(index, detectors)
     
     def __add_hair_offset(self, top, height):
