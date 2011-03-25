@@ -32,6 +32,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_status(status)
         if msg is not None:
             self.write(msg)
+        self.finish()
 
 
 class MainHandler(BaseHandler):
