@@ -111,12 +111,13 @@ class TestData(object):
             return "%s, but was called with %dx%d" % (message, last_resize['width'], last_resize['height'])
 
     def has_resized_properly(self):
-        assert self.engine.calls['resize'], self.resize_error_message
-
         if not self.target_width and not self.target_height:
-            assert self.engine.calls['resize'][0]['width'] == self.source_width, self.resize_error_message
-            assert self.engine.calls['resize'][0]['height'] == self.source_height, self.resize_error_message
             return True
+
+        if self.target_width == self.source_width and self.target_height == self.source_height:
+            return True
+
+        assert self.engine.calls['resize'], self.resize_error_message
 
         if not self.target_width:
             assert self.engine.calls['resize'][0]['width'] == float(self.source_width) * self.target_height / self.source_height, self.resize_error_message

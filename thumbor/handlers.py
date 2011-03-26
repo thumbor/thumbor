@@ -134,7 +134,8 @@ class MainHandler(BaseHandler):
 
             self.engine.load(buffer)
 
-            context['engine'] = JSONEngine(self.engine, path)
+            if meta:
+                context['engine'] = JSONEngine(self.engine, path)
 
             if self.detectors and should_be_smart:
                 self.detectors[0](index=0, detectors=self.detectors).detect(context)
