@@ -17,10 +17,7 @@ from os.path import exists, dirname, join, getctime
 
 from thumbor.storages import BaseStorage
 
-
 define('FILE_STORAGE_ROOT_PATH', default=join(tempfile.gettempdir(), 'thumbor', 'storage'))
-
-
 class Storage(BaseStorage):
 
     def put(self, path, bytes):
@@ -29,7 +26,7 @@ class Storage(BaseStorage):
 
         if not exists(file_dir_abspath):
             os.makedirs(file_dir_abspath)
-    
+
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
 

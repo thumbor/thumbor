@@ -34,7 +34,6 @@ class BaseHandler(tornado.web.RequestHandler):
             self.write(msg)
         self.finish()
 
-
 class MainHandler(BaseHandler):
     
     def initialize(self, loader, storage, engine, detectors):
@@ -50,6 +49,10 @@ class MainHandler(BaseHandler):
             callback(buffer)
 
         def _put_image(buffer):
+            if buffer is None:
+                callback(None)
+                return
+
             self.engine.load(buffer)
             self.engine.normalize()
             buffer = self.engine.read(extension)
@@ -104,6 +107,9 @@ class MainHandler(BaseHandler):
         extension = splitext(path)[-1]
 
         def callback(buffer):
+            if buffer is None:
+                self._error(404)
+                return
             context = dict(
                 loader=self.loader,
                 engine=self.engine,

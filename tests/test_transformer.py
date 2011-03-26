@@ -12,7 +12,6 @@ from thumbor.transformer import Transformer
 from thumbor.point import FocalPoint as fp
 from transform_helper import TestData
 
-
 TESTITEMS = [
     TestData(
         source_width=800, source_height=600,
@@ -692,7 +691,7 @@ def test_transformer():
         yield assert_proper_operations, data
 
 def assert_proper_operations(data):
-    trans = Transformer(data.to_context(), data.source_width, data.source_height)
+    trans = Transformer(data.to_context())
     trans.transform()
 
     assert data.has_cropped_properly(), data.crop_error_message

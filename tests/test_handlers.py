@@ -19,16 +19,6 @@ from thumbor.app import ThumborServiceApp
 
 get_conf_path = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
 
-class MainHandlerDomainTest(AsyncHTTPTestCase):
-    
-    def get_app(self):
-        return ThumborServiceApp(get_conf_path('conf.py'))
-
-    def test_validates_passed_url_is_in_valid_domains(self):
-        self.http_client.fetch(self.get_url('/www.mydomain.com/logo1.jpg'), self.stop)
-        response = self.wait()
-        self.assertEqual(404, response.code)
-
 class MainHandlerSourcePathTest(AsyncHTTPTestCase):
     
     def get_app(self):
@@ -42,13 +32,12 @@ class MainHandlerSourcePathTest(AsyncHTTPTestCase):
 class MainHandlerTest(AsyncHTTPTestCase):
 
     def get_app(self):
-        return ThumborServiceApp()
+        return ThumborServiceApp(get_conf_path('default.py'))
 
     def test_returns_success_status_code(self):
         self.http_client.fetch(self.get_url('/www.globo.com/media/globocom/img/sprite1.png'), self.stop)
-        response = self.wait()
+        response = self.wait(timeout=20)
         self.assertEqual(200, response.code)
-
 
 class ImageTestCase(AsyncHTTPTestCase):
 
@@ -60,7 +49,6 @@ class ImageTestCase(AsyncHTTPTestCase):
         response = self.wait()
         self.assertEqual(200, response.code)
         return Image.open(StringIO(response.body))
-
 
 class MainHandlerImagesTest(ImageTestCase):
 
@@ -81,7 +69,6 @@ class MainHandlerImagesTest(ImageTestCase):
         reversed_pixels_flipped = list(reversed(pixels_flipped))
 
         self.assertEqual(pixels, reversed_pixels_flipped, 'did not flip the image')
-
 
 if __name__ == '__main__':
     unittest.main()

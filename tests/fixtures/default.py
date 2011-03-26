@@ -17,8 +17,8 @@ MAX_WIDTH = 1280
 # the max height of the resized image
 MAX_HEIGHT = 800
 
-#
 LOADER = 'thumbor.loaders.http_loader'
 
 STORAGE = 'thumbor.storages.file_storage'
+
 FILE_STORAGE_ROOT_PATH = "/tmp/thumbor/storage"
