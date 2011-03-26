@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -21,7 +21,7 @@ class Transformer(object):
         self.source_height = float(self.source_height)
         self.calculate_target_dimensions()
         self.calculate_focal_points()
-        
+
     def calculate_target_dimensions(self):
         if not self.context['width'] and not self.context['height']:
             self.target_width = self.source_width
@@ -47,13 +47,13 @@ class Transformer(object):
                                           self.source_width,
                                           self.source_height)
             ]
-    
+
     def transform(self):
         self.manual_crop()
         self.auto_crop()
         self.resize()
         self.flip()
-        
+
     def manual_crop(self):
         if self.context['should_crop']:
             crop_left = max(self.context['crop_left'], 0)
@@ -61,15 +61,15 @@ class Transformer(object):
             crop_right = min(self.context['crop_right'], self.source_width)
             crop_bottom = min(self.context['crop_bottom'], self.source_height)
             self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
-    
+
     def auto_crop(self):
-        
+
         source_ratio = round(self.source_width / self.source_height, 2)
         target_ratio = round(self.target_width / self.target_height, 2)
-        
+
         if source_ratio == target_ratio:
             return
-        
+
         if self.target_width / self.source_width > self.target_height / self.source_height:
             crop_width = self.source_width
             crop_height = math.ceil(self.source_width * self.target_height / self.target_width)
@@ -101,7 +101,7 @@ class Transformer(object):
         total_weight = 0.0
         total_x = 0.0
         total_y = 0.0
-        
+
         for focal_point in self.focal_points:
             total_weight += focal_point.weight
             total_x += focal_point.x * focal_point.weight
@@ -110,5 +110,7 @@ class Transformer(object):
         return total_x / total_weight, total_y / total_weight
 
     def resize(self):
+        if self.target_width == self.source_width and self.target_height == self.source_height:
+            return
         self.engine.resize(self.target_width, self.target_height)
-    
+

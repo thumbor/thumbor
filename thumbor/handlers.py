@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -13,7 +13,8 @@ from os.path import splitext
 import tornado.web
 from tornado.options import define, options
 
-from transformer import Transformer
+from thumbor.transformer import Transformer
+from thumbor.engines.json_engine import JSONEngine
 
 define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
@@ -35,20 +36,20 @@ class BaseHandler(tornado.web.RequestHandler):
         self.finish()
 
 class MainHandler(BaseHandler):
-    
+
     def initialize(self, loader, storage, engine, detectors):
         self.loader = loader
         self.storage = storage
         self.engine = engine
         self.detectors = detectors
-    
+
     def _fetch(self, url, extension, callback):
         buffer = self.storage.get(url)
 
         if buffer is not None:
             callback(buffer)
-
-        def _put_image(buffer):
+        else:
+            buffer = self.loader.load(url)
             if buffer is None:
                 callback(None)
                 return
@@ -59,14 +60,12 @@ class MainHandler(BaseHandler):
             self.storage.put(url, buffer)
             callback(buffer)
 
-        if not buffer:
-            self.loader.load(url, _put_image)
-
     def validate(self, path):
         return self.loader.validate(path) if hasattr(self.loader, 'validate') else True
 
     @tornado.web.asynchronous
     def get(self,
+            meta,
             crop_left,
             crop_top,
             crop_right,
@@ -79,18 +78,20 @@ class MainHandler(BaseHandler):
             valign,
             should_be_smart,
             path):
-        
+
+        meta = meta == "meta"
+
         if not self.validate(path):
             self._error(404)
             return
-        
+
         should_crop = crop_left is not None
         if should_crop:
             crop_left = int(crop_left)
             crop_top = int(crop_top)
             crop_right = int(crop_right)
             crop_bottom = int(crop_bottom)
-        
+
         width = int(width) if width else 0
         height = int(height) if height else 0
 
@@ -110,6 +111,7 @@ class MainHandler(BaseHandler):
             if buffer is None:
                 self._error(404)
                 return
+
             context = dict(
                 loader=self.loader,
                 engine=self.engine,
@@ -129,16 +131,23 @@ class MainHandler(BaseHandler):
                 extension=extension,
                 focal_points=[]
             )
-            
+
             self.engine.load(buffer)
-            
+
+            context['engine'] = JSONEngine(self.engine, path)
+
             if self.detectors and should_be_smart:
                 self.detectors[0](index=0, detectors=self.detectors).detect(context)
 
             Transformer(context).transform()
 
-            results = self.engine.read(context['extension'])
-            self.set_header('Content-Type', CONTENT_TYPE[context['extension']])
+            if meta:
+                self.set_header('Content-Type', "application/json")
+            else:
+                self.set_header('Content-Type', CONTENT_TYPE[context['extension']])
+
+            results = context['engine'].read(context['extension'])
+
             self.write(results)
             self.finish()
 
