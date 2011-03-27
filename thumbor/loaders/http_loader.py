@@ -12,7 +12,11 @@ import re
 from urlparse import urlparse
 
 from tornado.httpclient import HTTPClient
-from tornado.options import options
+from tornado.options import define, options
+
+
+define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
+
 
 def __normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url

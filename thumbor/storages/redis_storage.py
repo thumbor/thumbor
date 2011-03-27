@@ -21,7 +21,6 @@ define('REDIS_STORAGE_SERVER', default={
     'db': 0
 })
 
-
 class Storage(BaseStorage):
 
     def __init__(self):

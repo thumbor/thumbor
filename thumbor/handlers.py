@@ -16,7 +16,6 @@ from tornado.options import define, options
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 
-define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=1024)
 define('QUALITY', type=int, default=80)
