@@ -9,16 +9,19 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import splitext
+import hashlib
 
 import tornado.web
 from tornado.options import define, options
 
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
+from thumbor.crypto import Crypto
 
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=1024)
 define('QUALITY', type=int, default=80)
+define('SECURITY_KEY')
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -34,13 +37,72 @@ class BaseHandler(tornado.web.RequestHandler):
             self.write(msg)
         self.finish()
 
-class MainHandler(BaseHandler):
+    def get_image(self,
+                  meta,
+                  should_crop,
+                  crop_left,
+                  crop_top,
+                  crop_right,
+                  crop_bottom,
+                  horizontal_flip,
+                  width,
+                  vertical_flip,
+                  height,
+                  halign,
+                  valign,
+                  extension,
+                  should_be_smart,
+                  image
+                  ):
+        def callback(buffer):
+            if buffer is None:
+                self._error(404)
+                return
 
-    def initialize(self, loader, storage, engine, detectors):
-        self.loader = loader
-        self.storage = storage
-        self.engine = engine
-        self.detectors = detectors
+            context = dict(
+                loader=self.loader,
+                engine=self.engine,
+                storage=self.storage,
+                buffer=buffer,
+                should_crop=should_crop,
+                crop_left=crop_left,
+                crop_top=crop_top,
+                crop_right=crop_right,
+                crop_bottom=crop_bottom,
+                should_flip_horizontal=horizontal_flip,
+                width=width,
+                should_flip_vertical=vertical_flip,
+                height=height,
+                halign=halign,
+                valign=valign,
+                extension=extension,
+                focal_points=[]
+            )
+
+            self.engine.load(buffer)
+
+            if meta:
+                context['engine'] = JSONEngine(self.engine, image)
+
+            if self.detectors and should_be_smart:
+                self.detectors[0](index=0, detectors=self.detectors).detect(context)
+
+            Transformer(context).transform()
+
+            if meta:
+                self.set_header('Content-Type', "application/json")
+            else:
+                self.set_header('Content-Type', CONTENT_TYPE[context['extension']])
+
+            results = context['engine'].read(context['extension'])
+
+            self.write(results)
+            self.finish()
+
+        self._fetch(image, extension, callback)
+
+    def validate(self, path):
+        return self.loader.validate(path) if hasattr(self.loader, 'validate') else True
 
     def _fetch(self, url, extension, callback):
         buffer = self.storage.get(url)
@@ -59,8 +121,75 @@ class MainHandler(BaseHandler):
             self.storage.put(url, buffer)
             callback(buffer)
 
-    def validate(self, path):
-        return self.loader.validate(path) if hasattr(self.loader, 'validate') else True
+
+class EncryptedHandler(BaseHandler):
+
+    def initialize(self, loader, storage, engine, detectors):
+        self.loader = loader
+        self.storage = storage
+        self.engine = engine
+        self.detectors = detectors
+
+    @tornado.web.asynchronous
+    def get(self,
+            crypto,
+            image):
+
+        try:
+            cr = Crypto(options.SECURITY_KEY)
+            opt = cr.decrypt(crypto)
+        except TypeError:
+            self._error(404)
+            return
+
+        image_hash = opt['image_hash']
+        image_hash = image_hash[1:] if image_hash.startswith('/') else image_hash
+        if image_hash != hashlib.md5(image).hexdigest():
+            self._error(404)
+            return
+
+        if not self.validate(image):
+            self._error(404)
+            return
+
+        should_crop = opt['crop']['left'] > 0 or \
+                      opt['crop']['top'] > 0 or \
+                      opt['crop']['right'] > 0 or \
+                      opt['crop']['bottom'] > 0
+
+        crop_left = crop_top = crop_right = crop_bottom = None
+        if should_crop:
+            crop_left = opt['crop']['left']
+            crop_top = opt['crop']['top']
+            crop_right = opt['crop']['right']
+            crop_bottom = opt['crop']['bottom']
+
+        width = opt['width']
+        height = opt['width']
+
+        if width > options.MAX_WIDTH:
+            width = options.MAX_WIDTH
+        if height > options.MAX_HEIGHT:
+            height = options.MAX_HEIGHT
+
+        halign = opt['halign']
+        valign = opt['valign']
+
+        extension = splitext(image)[-1]
+
+        self.get_image(opt['meta'], should_crop, crop_left,
+                       crop_top, crop_right, crop_bottom,
+                       opt['horizontal_flip'], width, opt['vertical_flip'],
+                       height, halign, valign, extension,
+                       opt['smart'], image)
+
+class MainHandler(BaseHandler):
+
+    def initialize(self, loader, storage, engine, detectors):
+        self.loader = loader
+        self.storage = storage
+        self.engine = engine
+        self.detectors = detectors
 
     @tornado.web.asynchronous
     def get(self,
@@ -69,18 +198,18 @@ class MainHandler(BaseHandler):
             crop_top,
             crop_right,
             crop_bottom,
-            should_flip_horizontal,
+            horizontal_flip,
             width,
-            should_flip_vertical,
+            vertical_flip,
             height,
             halign,
             valign,
-            should_be_smart,
-            path):
+            smart,
+            image):
 
         meta = meta == "meta"
 
-        if not self.validate(path):
+        if not self.validate(image):
             self._error(404)
             return
 
@@ -104,56 +233,14 @@ class MainHandler(BaseHandler):
         if not valign:
             valign = 'middle'
 
-        extension = splitext(path)[-1]
+        extension = splitext(image)[-1]
 
-        def callback(buffer):
-            if buffer is None:
-                self._error(404)
-                return
-
-            context = dict(
-                loader=self.loader,
-                engine=self.engine,
-                storage=self.storage,
-                buffer=buffer,
-                should_crop=should_crop,
-                crop_left=crop_left,
-                crop_top=crop_top,
-                crop_right=crop_right,
-                crop_bottom=crop_bottom,
-                should_flip_horizontal=should_flip_horizontal,
-                width=width,
-                should_flip_vertical=should_flip_vertical,
-                height=height,
-                halign=halign,
-                valign=valign,
-                extension=extension,
-                focal_points=[]
-            )
-
-            self.engine.load(buffer)
-
-            if meta:
-                context['engine'] = JSONEngine(self.engine, path)
-
-            if self.detectors and should_be_smart:
-                self.detectors[0](index=0, detectors=self.detectors).detect(context)
-
-            Transformer(context).transform()
-
-            if meta:
-                self.set_header('Content-Type', "application/json")
-            else:
-                self.set_header('Content-Type', CONTENT_TYPE[context['extension']])
-
-            results = context['engine'].read(context['extension'])
-
-            self.write(results)
-            self.finish()
-
-        self._fetch(path, extension, callback)
-
-
+        self.get_image(meta, should_crop, crop_left,
+                       crop_top, crop_right, crop_bottom,
+                       horizontal_flip, width, vertical_flip,
+                       height, halign, valign, extension,
+                       smart, image)
+ 
 class HealthcheckHandler(BaseHandler):
     def get(self):
         self.write('working')

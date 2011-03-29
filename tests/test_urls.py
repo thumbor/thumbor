@@ -88,12 +88,12 @@ def test_complete_url():
 def test_returns_route_regex():
     url = Url.regex()
 
-    assert url == '/(?:(?P<meta>meta)/)?(?:(?P<left>\d+)x(?P<top>\d+):(?P<right>\d+)x(?P<bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?(?P<image>.+)'
+    assert url == '/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?(?P<image>.+)'
 
 def test_returns_route_regex_without_image():
     url = Url.regex(include_image=False)
 
-    assert url == '/(?:(?P<meta>meta)/)?(?:(?P<left>\d+)x(?P<top>\d+):(?P<right>\d+)x(?P<bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?'
+    assert url == '/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?'
 
 def test_parse_urls_without_image():
 

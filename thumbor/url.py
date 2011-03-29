@@ -13,7 +13,7 @@ import re
 class Url(object):
 
     meta = '(?:(?P<meta>meta)/)?'
-    crop = '(?:(?P<left>\d+)x(?P<top>\d+):(?P<right>\d+)x(?P<bottom>\d+)/)?'
+    crop = '(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?'
     dimensions = '(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?'
     halign = r'(?:(?P<halign>left|right|center)/)?'
     valign = r'(?:(?P<valign>top|bottom|middle)/)?'
@@ -54,10 +54,10 @@ class Url(object):
         values = {
             'meta': result['meta'] == "meta",
             'crop': {
-                'left': int_or_0(result['left']),
-                'top': int_or_0(result['top']),
-                'right': int_or_0(result['right']),
-                'bottom': int_or_0(result['bottom'])
+                'left': int_or_0(result['crop_left']),
+                'top': int_or_0(result['crop_top']),
+                'right': int_or_0(result['crop_right']),
+                'bottom': int_or_0(result['crop_bottom'])
             },
             'width': int_or_0(result['width']),
             'height': int_or_0(result['height']),

@@ -3,6 +3,7 @@
 
 import re
 import base64
+import hashlib
 
 from pyDes import *
 
@@ -23,20 +24,22 @@ class Crypto(object):
                 crop_left,
                 crop_top,
                 crop_right,
-                crop_bottom):
+                crop_bottom,
+                image):
 
-        url = Url.generate_options(width,
-                                   height,
-                                   smart,
-                                   False,
-                                   flip_horizontal,
-                                   flip_vertical,
-                                   halign,
-                                   valign,
-                                   crop_left,
-                                   crop_top,
-                                   crop_right,
-                                   crop_bottom)
+        url = "%s/%s" % (Url.generate_options(width,
+                                              height,
+                                              smart,
+                                              False,
+                                              flip_horizontal,
+                                              flip_vertical,
+                                              halign,
+                                              valign,
+                                              crop_left,
+                                              crop_top,
+                                              crop_right,
+                                              crop_bottom),
+                        hashlib.md5(image).hexdigest())
 
         key = triple_des(self.salt,
                          CBC, 
@@ -59,5 +62,9 @@ class Crypto(object):
         if not decrypted:
             return None
 
-        return Url.parse_options(decrypted)
+        result = Url.parse(decrypted)
+        result['image_hash'] = result['image']
+        del result['image']
+
+        return result
 

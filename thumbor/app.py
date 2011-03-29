@@ -15,14 +15,16 @@ import tornado.web
 import tornado.ioloop
 from tornado.options import define, options, parse_config_file
 
-from thumbor.handlers import MainHandler, HealthcheckHandler
+from thumbor.handlers import MainHandler, HealthcheckHandler, EncryptedHandler
 from thumbor.utils import real_import, logger
+from thumbor.url import Url
 
 define('ENGINE',  default='thumbor.engines.pil')
 define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
 define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
+define('SECURE_URL_ONLY', type=bool, default=False)
 
 class ThumborServiceApp(tornado.web.Application):
 
@@ -49,15 +51,24 @@ class ThumborServiceApp(tornado.web.Application):
         storage = storage.Storage()
         engine = engine.Engine()
 
+        handler_context = {
+            'loader': loader,
+            'storage': storage,
+            'engine': engine,
+            'detectors': detectors
+        }
+
+        safe = '/safe' if not options.SECURE_URL_ONLY else ''
+
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
-            (r'/(?:(meta)/)?(?:(\d+)x(\d+):(\d+)x(\d+)/)?(?:(-)?(\d+)?x(-)?(\d+)?/)?(?:(left|right|center)/)?(?:(top|bottom|middle)/)?(?:(smart)/)?(.+)', MainHandler, {
-                'loader': loader,
-                'storage': storage,
-                'engine': engine,
-                'detectors': detectors
-            }),
+            (r'%s/(?P<crypto>[^/]+)/(?P<image>(.+))' % safe, EncryptedHandler, handler_context)
         ]
+
+        if not options.SECURE_URL_ONLY:
+            handlers.append(
+                (Url.regex(), MainHandler, handler_context),
+            )
 
         super(ThumborServiceApp, self).__init__(handlers)
 

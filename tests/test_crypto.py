@@ -22,9 +22,10 @@ def test_crypto_encrypts():
                                crop_left=10,
                                crop_top=11,
                                crop_right=12,
-                               crop_bottom=13)
+                               crop_bottom=13,
+                               image="/some/image.jpg")
 
-    assert encrypted == 'EdM9L9a8brwnJ-n7Og-yxOJLvf0GHvxFCKknHz_elOc='
+    assert encrypted == 'EdM9L9a8brwnJ-n7Og-yxOJLvf0GHvxFYD20LnjGXY2HKUHe3g946V7JMPkYokdSOdeZ71v7GJXmEozfOqDo5A=='
 
 def test_decrypt():
     crypto = Crypto(salt="something")
@@ -39,7 +40,8 @@ def test_decrypt():
                                crop_left=10,
                                crop_top=11,
                                crop_right=12,
-                               crop_bottom=13)
+                               crop_bottom=13,
+                               image="/some/image.jpg")
 
     decrypted = crypto.decrypt(encrypted)
 
@@ -61,7 +63,8 @@ def test_decrypting_with_wrong_key_fails():
                                crop_left=10,
                                crop_top=11,
                                crop_right=12,
-                               crop_bottom=13)
+                               crop_bottom=13,
+                               image="/some/image/")
 
     crypto = Crypto(salt="simething")
 
@@ -83,7 +86,8 @@ def test_encdec_with_extra_args():
                                crop_left=10,
                                crop_top=11,
                                crop_right=12,
-                               crop_bottom=13)
+                               crop_bottom=13,
+                               image="/some/image")
 
     decrypted = crypto.decrypt(encrypted)
 
