@@ -6,37 +6,37 @@ import base64
 
 from pyDes import *
 
+from thumbor.url import Url
+
 class Crypto(object):
     def __init__(self, salt):
         self.salt = (salt * 24)[:24]
 
-    def __form_url(self, width, height, smart):
-        url = [
-            '%sx%s' % (width, height)
-        ]
+    def encrypt(self, 
+                width,
+                height,
+                smart,
+                flip_horizontal,
+                flip_vertical,
+                halign,
+                valign,
+                crop_left,
+                crop_top,
+                crop_right,
+                crop_bottom):
 
-        if smart:
-            url.append("smart")
-
-        return "/".join(url)
-
-    def __deform_url(self, url):
-        reg = "(\d+)x(\d+)/?(smart)?"
-        res = re.match(reg, url)
-        groups = res.groups()
-
-        result = {
-            "width": int(groups[0]),
-            "height": int(groups[1])
-        }
-
-        result['smart'] = groups[2] == "smart"
-
-        return result
-
-    def encrypt(self, width, height, smart):
-
-        url = self.__form_url(width, height, smart)
+        url = Url.generate_options(width,
+                                   height,
+                                   smart,
+                                   False,
+                                   flip_horizontal,
+                                   flip_vertical,
+                                   halign,
+                                   valign,
+                                   crop_left,
+                                   crop_top,
+                                   crop_right,
+                                   crop_bottom)
 
         key = triple_des(self.salt,
                          CBC, 
@@ -59,5 +59,5 @@ class Crypto(object):
         if not decrypted:
             return None
 
-        return self.__deform_url(decrypted)
+        return Url.parse_options(decrypted)
 
