@@ -40,6 +40,10 @@ def main():
         print 'Error: The image argument is mandatory. For more information type thumbor-url -h'
         return
 
+    image_url = arguments[0]
+    if image_url.startswith('/'):
+        image_url = image_url[1:]
+
     conf_file = ThumborServiceApp.get_conf_file('')
     if conf_file:
         print
@@ -72,8 +76,8 @@ def main():
                         crop_top,
                         crop_right,
                         crop_bottom,
-                        arguments[0])
-    url = '/%s%s' % (opt, arguments[0])
+                        image_url)
+    url = '/%s/%s' % (opt, image_url)
 
     print 'Encrypted URL: "%s" (without quotes)' % url
 
