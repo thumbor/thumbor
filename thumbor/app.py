@@ -31,7 +31,7 @@ class ThumborServiceApp(tornado.web.Application):
     def __init__(self, conf_file=None):
 
         if conf_file is None:
-            conf_file = self.__get_conf_file(conf_file)
+            conf_file = ThumborServiceApp.get_conf_file(conf_file)
 
         logger.info('Config file: %s' % conf_file)
         parse_config_file(conf_file)
@@ -72,7 +72,8 @@ class ThumborServiceApp(tornado.web.Application):
 
         super(ThumborServiceApp, self).__init__(handlers)
 
-    def __get_conf_file(self, conf_file):
+    @classmethod
+    def get_conf_file(cls, conf_file):
         lookup_conf_file_paths = [
             os.curdir,
             expanduser('~'),
