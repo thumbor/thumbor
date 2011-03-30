@@ -18,7 +18,6 @@ from thumbor.utils import logger
 from thumbor.crypto import Crypto
 from thumbor.app import ThumborServiceApp
 
-
 def main():
     '''Converts a given url with the specified arguments.'''
 
@@ -52,7 +51,7 @@ def main():
         print 'Error: The -k or --key argument is mandatory. For more information type thumbor-url -h'
         return
 
-    security_key = options.SECURITY_KEY if conf_file else parsed_options.key
+    security_key = options.SECURITY_KEY if not parsed_options.key else parsed_options.key
 
     crypt = Crypto(security_key)
 

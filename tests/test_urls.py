@@ -16,7 +16,7 @@ def test_url_generate_min():
         height=200
     )
 
-    assert url == "/300x200/"
+    assert url == "300x200"
 
 def test_url_generate_with_smart():
     url = Url.generate_options(
@@ -25,7 +25,7 @@ def test_url_generate_with_smart():
         smart=True
     )
 
-    assert url == "/300x200/smart/"
+    assert url == "300x200/smart"
 
 def test_url_generate_with_alignments():
     url = Url.generate_options(
@@ -33,7 +33,7 @@ def test_url_generate_with_alignments():
         valign='top'
     )
 
-    assert url == "/0x0/left/top/", url
+    assert url == "0x0/left/top", url
 
 def test_url_generate_with_flipping():
     url = Url.generate_options(
@@ -44,7 +44,7 @@ def test_url_generate_with_flipping():
         vertical_flip=True
     )
 
-    assert url == "/-300x-200/smart/"
+    assert url == "-300x-200/smart"
 
 def test_url_generate_with_manual_crop():
     url = Url.generate_options(
@@ -56,18 +56,18 @@ def test_url_generate_with_manual_crop():
         crop_bottom=13
     )
 
-    assert url == "/10x11:12x13/300x200/"
+    assert url == "10x11:12x13/300x200"
 
 def test_url_generate_with_meta():
     url = Url.generate_options(
         meta=True
     )
 
-    assert url == "/meta/0x0/"
+    assert url == "meta/0x0"
 
 def test_default_url():
     url = Url.generate_options()
-    assert url == "/0x0/"
+    assert url == "0x0"
 
 def test_complete_url():
     url = Url.generate_options(
@@ -83,7 +83,7 @@ def test_complete_url():
         crop_bottom=13
     )
 
-    assert url == "/meta/10x11:12x13/-300x-200/smart/"
+    assert url == "meta/10x11:12x13/-300x-200/smart", url
 
 def test_returns_route_regex():
     url = Url.regex()

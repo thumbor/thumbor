@@ -25,7 +25,7 @@ def test_crypto_encrypts():
                                crop_bottom=13,
                                image="/some/image.jpg")
 
-    assert encrypted == 'EdM9L9a8brwnJ-n7Og-yxOJLvf0GHvxFYD20LnjGXY2HKUHe3g946V7JMPkYokdSOdeZ71v7GJXmEozfOqDo5A=='
+    assert encrypted == 'bqHN0YVpT-IIRgV2RbVTx5D9wwCtMF8eEfMZ7L6-mH33qXjOY6c5_iSW7n1ZaLrv-3vaI_uN--FAH_QAFh0Thw=='
 
 def test_decrypt():
     crypto = Crypto(salt="something")

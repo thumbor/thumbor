@@ -62,7 +62,7 @@ class Crypto(object):
         if not decrypted:
             return None
 
-        result = Url.parse(decrypted)
+        result = Url.parse('/%s' % decrypted)
         result['image_hash'] = result['image']
         del result['image']
 

@@ -86,15 +86,13 @@ class Url(object):
                          crop_right=None,
                          crop_bottom=None):
 
-        url = ['']
+        url = []
 
         if meta:
             url.append('meta')
 
-        if crop_left is not None \
-           and crop_top is not None \
-           and crop_right is not None \
-           and crop_bottom is not None:
+        crop = crop_left or crop_top or crop_right or crop_bottom
+        if crop:
             url.append('%sx%s:%sx%s' % (
                 crop_left,
                 crop_top,
@@ -116,7 +114,5 @@ class Url(object):
 
         if smart:
             url.append('smart')
-
-        url.append('')
 
         return "/".join(url)
