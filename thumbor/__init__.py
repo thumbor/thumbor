@@ -8,4 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-__version__ = "0.2.1"
+'''This is the main module in thumbor'''
+
+__version__ = "0.3.0"
