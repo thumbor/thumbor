@@ -37,6 +37,10 @@ def main():
 
     (parsed_options, arguments) = parser.parse_args()
 
+    if not arguments:
+        print 'Error: The image argument is mandatory. For more information type thumbor-url -h'
+        return
+
     conf_file = ThumborServiceApp.get_conf_file('')
     if conf_file:
         print
@@ -45,7 +49,7 @@ def main():
         parse_config_file(conf_file)
 
     if not parsed_options.key and not conf_file:
-        print 'The -k or --key argument is mandatory. For more information type thumbor-url -h'
+        print 'Error: The -k or --key argument is mandatory. For more information type thumbor-url -h'
         return
 
     security_key = options.SECURITY_KEY if conf_file else parsed_options.key
