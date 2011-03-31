@@ -25,7 +25,7 @@ class MainHandlerSourcePathTest(AsyncHTTPTestCase):
         return ThumborServiceApp(get_conf_path('conf1.py'))
     
     def test_validates_passed_url_is_in_valid_source(self):
-        self.http_client.fetch(self.get_url('/www.mydomain.com/logo2.jpg'), self.stop)
+        self.http_client.fetch(self.get_url('/unsafe/www.mydomain.com/logo2.jpg'), self.stop)
         response = self.wait()
         self.assertEqual(404, response.code)
 
@@ -35,7 +35,7 @@ class MainHandlerTest(AsyncHTTPTestCase):
         return ThumborServiceApp(get_conf_path('default.py'))
 
     def test_returns_success_status_code(self):
-        self.http_client.fetch(self.get_url('/www.globo.com/media/globocom/img/sprite1.png'), self.stop)
+        self.http_client.fetch(self.get_url('/unsafe/www.globo.com/media/globocom/img/sprite1.png'), self.stop)
         response = self.wait(timeout=20)
         self.assertEqual(200, response.code)
 
@@ -53,14 +53,14 @@ class ImageTestCase(AsyncHTTPTestCase):
 class MainHandlerImagesTest(ImageTestCase):
 
     def test_resizes_the_passed_image(self):
-        image = self.fetch_image('/200x300/www.globo.com/media/globocom/img/sprite1.png')
+        image = self.fetch_image('/unsafe/200x300/www.globo.com/media/globocom/img/sprite1.png')
         img_width, img_height = image.size
         self.assertEqual(img_width, 200)
         self.assertEqual(img_height, 300)
 
     def test_flips_horizontaly_the_passed_image(self):
-        image = self.fetch_image('/www.globo.com/media/common/img/estrutura/borderbottom.gif')
-        image_flipped = self.fetch_image('/-3x/www.globo.com/media/common/img/estrutura/borderbottom.gif')
+        image = self.fetch_image('/unsafe/www.globo.com/media/common/img/estrutura/borderbottom.gif')
+        image_flipped = self.fetch_image('/unsafe/-3x/www.globo.com/media/common/img/estrutura/borderbottom.gif')
         pixels = list(image.getdata())
         pixels_flipped = list(image_flipped.getdata())
 

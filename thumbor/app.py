@@ -59,14 +59,17 @@ class ThumborServiceApp(tornado.web.Application):
         }
 
         handlers = [
-            (r'/healthcheck', HealthcheckHandler),
-            (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', EncryptedHandler, handler_context)
+            (r'/healthcheck', HealthcheckHandler)
         ]
 
         if options.ALLOW_UNSAFE_URL:
             handlers.append(
                 (Url.regex(), MainHandler, handler_context),
             )
+
+        handlers.append(
+            (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', EncryptedHandler, handler_context)
+        )
 
         super(ThumborServiceApp, self).__init__(handlers)
 

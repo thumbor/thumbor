@@ -21,8 +21,12 @@ class Url(object):
     image = r'(?P<image>.+)'
 
     @classmethod
-    def regex(cls, include_image=True):
-        reg = ['/?unsafe/']
+    def regex(cls, with_unsafe=True, include_image=True):
+        reg = ['/?']
+
+        if with_unsafe:
+            reg.append('unsafe/')
+
         reg.append(cls.meta)
         reg.append(cls.crop)
         reg.append(cls.dimensions)
@@ -40,8 +44,9 @@ class Url(object):
         return cls.parse(url, include_image=False)
 
     @classmethod
-    def parse(cls, url, include_image=True):
-        reg = cls.regex(include_image)
+    def parse(cls, url, with_unsafe=True, include_image=True):
+        reg = cls.regex(with_unsafe=with_unsafe,
+                        include_image=include_image)
 
         result = re.match(reg, url)
 
@@ -86,7 +91,7 @@ class Url(object):
                          crop_right=None,
                          crop_bottom=None):
 
-        url = ['unsafe']
+        url = []
 
         if meta:
             url.append('meta')
