@@ -16,7 +16,7 @@ def test_url_generate_min():
         height=200
     )
 
-    assert url == "300x200"
+    assert url == "unsafe/300x200"
 
 def test_url_generate_with_smart():
     url = Url.generate_options(
@@ -25,7 +25,7 @@ def test_url_generate_with_smart():
         smart=True
     )
 
-    assert url == "300x200/smart"
+    assert url == "unsafe/300x200/smart"
 
 def test_url_generate_with_alignments():
     url = Url.generate_options(
@@ -33,7 +33,7 @@ def test_url_generate_with_alignments():
         valign='top'
     )
 
-    assert url == "0x0/left/top", url
+    assert url == "unsafe/0x0/left/top", url
 
 def test_url_generate_with_flipping():
     url = Url.generate_options(
@@ -44,7 +44,7 @@ def test_url_generate_with_flipping():
         vertical_flip=True
     )
 
-    assert url == "-300x-200/smart"
+    assert url == "unsafe/-300x-200/smart"
 
 def test_url_generate_with_manual_crop():
     url = Url.generate_options(
@@ -56,18 +56,18 @@ def test_url_generate_with_manual_crop():
         crop_bottom=13
     )
 
-    assert url == "10x11:12x13/300x200"
+    assert url == "unsafe/10x11:12x13/300x200"
 
 def test_url_generate_with_meta():
     url = Url.generate_options(
         meta=True
     )
 
-    assert url == "meta/0x0"
+    assert url == "unsafe/meta/0x0"
 
 def test_default_url():
     url = Url.generate_options()
-    assert url == "0x0"
+    assert url == "unsafe/0x0"
 
 def test_complete_url():
     url = Url.generate_options(
@@ -83,22 +83,27 @@ def test_complete_url():
         crop_bottom=13
     )
 
-    assert url == "meta/10x11:12x13/-300x-200/smart", url
+    assert url == "unsafe/meta/10x11:12x13/-300x-200/smart", url
 
 def test_returns_route_regex():
     url = Url.regex()
 
-    assert url == '/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?(?P<image>.+)'
+    assert url == '/?unsafe/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?(?P<image>.+)'
 
 def test_returns_route_regex_without_image():
     url = Url.regex(include_image=False)
 
-    assert url == '/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?'
+    assert url == '/?unsafe/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?'
 
 def test_parse_urls_without_image():
 
-    options = Url.parse_options("/meta/10x11:12x13/-300x-200/left/top/smart/")
+    options = Url.parse_options("unsafe/meta/10x11:12x13/-300x-200/left/top/smart/")
 
+    assert options
+
+    options = Url.parse_options("/unsafe/meta/10x11:12x13/-300x-200/left/top/smart/")
+
+    assert options
     assert options['meta'] == True
 
     assert options['crop']['left'] == 10
@@ -120,8 +125,15 @@ def test_parse_urls_without_image():
 def test_parse_urls_with_image():
 
     image_url = 's.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg'
-    options = Url.parse('/meta/10x11:12x13/-300x-200/left/top/smart/%s' % image_url)
 
+    options = Url.parse('/unsafe/meta/10x11:12x13/-300x-200/left/top/smart/%s' % image_url)
+
+    assert options['image']
     assert options['image'] == image_url
 
+    options = Url.parse('unsafe/meta/10x11:12x13/-300x-200/left/top/smart/%s' % image_url)
  
+    assert options['image']
+    assert options['image'] == image_url
+
+

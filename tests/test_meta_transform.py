@@ -24,21 +24,22 @@ class MetaHandlerTestCase(AsyncHTTPTestCase):
         return ThumborServiceApp(get_conf_path('default.py'))
 
     def test_meta_returns_200(self):
-        self.http_client.fetch(self.get_url('/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop)
+        self.http_client.fetch(self.get_url('/unsafe/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop)
         response = self.wait()
 
         self.assertEqual(200, response.code)
 
     def test_meta_returns_appjson_code(self):
-        self.http_client.fetch(self.get_url('/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop)
+        self.http_client.fetch(self.get_url('/unsafe/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop)
         response = self.wait()
 
+        assert response.code == 200
         content_type = response.headers['Content-Type']
         self.assertEqual("application/json", content_type)
 
     def test_meta_returns_proper_json_for_no_ops(self):
         image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"
-        self.http_client.fetch(self.get_url('/meta/%s' % image_url), self.stop)
+        self.http_client.fetch(self.get_url('/unsafe/meta/%s' % image_url), self.stop)
         response = self.wait()
 
         text = response.body
@@ -54,7 +55,7 @@ class MetaHandlerTestCase(AsyncHTTPTestCase):
 
     def test_meta_returns_proper_json_for_resize_and_crop(self):
         image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"
-        self.http_client.fetch(self.get_url('/meta/300x200/%s' % image_url), self.stop)
+        self.http_client.fetch(self.get_url('/unsafe/meta/300x200/%s' % image_url), self.stop)
         response = self.wait()
 
         text = response.body
@@ -76,7 +77,7 @@ class MetaHandlerTestCase(AsyncHTTPTestCase):
 
     def test_meta_returns_proper_json_for_flip(self):
         image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"
-        self.http_client.fetch(self.get_url('/meta/-300x-200/%s' % image_url), self.stop)
+        self.http_client.fetch(self.get_url('/unsafe/meta/-300x-200/%s' % image_url), self.stop)
         response = self.wait()
 
         text = response.body
