@@ -17,6 +17,7 @@ from tornado.options import define, options
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.crypto import Crypto
+from thumbor.utils import logger
 
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=1024)
@@ -34,7 +35,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
-            self.write(msg)
+            logger.error(msg)
         self.finish()
 
     def get_image(self,
@@ -102,7 +103,15 @@ class BaseHandler(tornado.web.RequestHandler):
         self._fetch(image, extension, callback)
 
     def validate(self, path):
-        return self.loader.validate(path) if hasattr(self.loader, 'validate') else True
+        if not hasattr(self.loader, 'validate'):
+            return True
+
+        is_valid = self.loader.validate(path)
+
+        if not is_valid:
+            logger.error('Request denied because the specified path "%s" was not identified by the loader as a valid path' % path)
+
+        return is_valid
 
     def _fetch(self, url, extension, callback):
         buffer = self.storage.get(url)
@@ -139,13 +148,18 @@ class EncryptedHandler(BaseHandler):
             cr = Crypto(options.SECURITY_KEY)
             opt = cr.decrypt(crypto)
         except TypeError:
-            self._error(404)
+            self._error(404, 'Request denied because the specified encrypted url "%s" could not be decripted' % crypto)
             return
 
-        image_hash = opt['image_hash']
-        image_hash = image_hash[1:] if image_hash.startswith('/') else image_hash
-        if image_hash != hashlib.md5(image).hexdigest():
-            self._error(404)
+        image_hash = opt and opt.get('image_hash')
+        image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash
+        path_hash = hashlib.md5(image).hexdigest()
+
+        if not image_hash or image_hash != path_hash:
+            self._error(404, 'Request denied because the specified image hash "%s" does not match the given image path hash "%s"' %(
+                image_hash,
+                path_hash
+            ))
             return
 
         if not self.validate(image):
