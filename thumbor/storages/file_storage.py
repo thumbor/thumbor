@@ -13,13 +13,11 @@ import tempfile
 from datetime import datetime
 
 from tornado.options import options, define
-from os.path import exists, dirname, join, getctime
+from os.path import exists, dirname, join, getmtime
 
 from thumbor.storages import BaseStorage
 
-
 define('FILE_STORAGE_ROOT_PATH', default=join(tempfile.gettempdir(), 'thumbor', 'storage'))
-
 
 class Storage(BaseStorage):
 
@@ -29,7 +27,7 @@ class Storage(BaseStorage):
 
         if not exists(file_dir_abspath):
             os.makedirs(file_dir_abspath)
-    
+
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
 
@@ -46,5 +44,5 @@ class Storage(BaseStorage):
         return join(options.FILE_STORAGE_ROOT_PATH, path)
 
     def __is_expired(self, path):
-        timediff = datetime.now() - datetime.fromtimestamp(getctime(path))
+        timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
         return timediff.seconds > options.STORAGE_EXPIRATION_SECONDS

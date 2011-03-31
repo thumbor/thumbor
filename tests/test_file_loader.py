@@ -16,9 +16,7 @@ from tornado.testing import AsyncHTTPTestCase
 import thumbor.loaders.file_loader as file_loader
 from thumbor.app import ThumborServiceApp
 
-
 fixtures_folder = join(abspath(dirname(__file__)), 'fixtures')
-
 
 class FileLoaderTest(AsyncHTTPTestCase):
 

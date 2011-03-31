@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-
 from datetime import datetime, timedelta
 
 import redis
@@ -16,13 +15,11 @@ from tornado.options import options, define
 
 from thumbor.storages import BaseStorage
 
-
 define('REDIS_STORAGE_SERVER', default={
     'port': 6379,
     'host': 'localhost',
     'db': 0
 })
-
 
 class Storage(BaseStorage):
 

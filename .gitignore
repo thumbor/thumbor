@@ -3,3 +3,5 @@
 *.swp
 dist/
 *.egg-info
+.project
+.pydevproject

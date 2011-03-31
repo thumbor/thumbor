@@ -11,8 +11,12 @@
 import re
 from urlparse import urlparse
 
-import tornado.httpclient
-from tornado.options import options
+from tornado.httpclient import HTTPClient
+from tornado.options import define, options
+
+
+define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
+
 
 def __normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
@@ -25,12 +29,11 @@ def validate(url):
             return True
     return False
 
-def load(url, callback):
+def load(url):
     url = __normalize_url(url)
-    http = tornado.httpclient.AsyncHTTPClient()
-    def load_callback(response):
-        if response.code == 200:
-            callback(response.body)
-        else:
-            callback(None)
-    http.fetch(url, callback=load_callback)
+    http = HTTPClient()
+    response = http.fetch(url)
+    if response.code == 200:
+        return response.body
+    else:
+        return None

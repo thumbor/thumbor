@@ -49,12 +49,14 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
 
     install_requires=[
         "tornado",
-        "redis"
+        "redis",
+        "pyDes"
     ],
 
     entry_points = {
         'console_scripts': [
-            'thumbor = thumbor.server:main'
+            'thumbor = thumbor.server:main',
+            'thumbor-url = thumbor.url_composer:main'
         ],
     },
 

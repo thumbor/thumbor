@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -24,7 +24,7 @@ FORMATS = {
 }
 
 class Engine(BaseEngine):
-    
+
     def create_image(self, buffer):
         return Image.open(StringIO(buffer))
 
@@ -44,7 +44,7 @@ class Engine(BaseEngine):
 
     def flip_horizontally(self):
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
-    
+
     def read(self, extension):
         #returns image buffer in byte format.
         img_buffer = StringIO()
@@ -52,4 +52,4 @@ class Engine(BaseEngine):
         results = img_buffer.getvalue()
         img_buffer.close()
         return results
-    
+
