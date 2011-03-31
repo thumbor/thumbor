@@ -22,7 +22,7 @@ class Url(object):
 
     @classmethod
     def regex(cls, include_image=True):
-        reg = ['/']
+        reg = ['/?unsafe/']
         reg.append(cls.meta)
         reg.append(cls.crop)
         reg.append(cls.dimensions)
@@ -86,7 +86,7 @@ class Url(object):
                          crop_right=None,
                          crop_bottom=None):
 
-        url = []
+        url = ['unsafe']
 
         if meta:
             url.append('meta')

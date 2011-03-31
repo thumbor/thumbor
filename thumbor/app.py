@@ -24,7 +24,7 @@ define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
 define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
-define('SECURE_URL_ONLY', type=bool, default=False)
+define('ALLOW_UNSAFE_URL', type=bool, default=True)
 
 class ThumborServiceApp(tornado.web.Application):
 
@@ -58,14 +58,12 @@ class ThumborServiceApp(tornado.web.Application):
             'detectors': detectors
         }
 
-        safe = '/safe' if not options.SECURE_URL_ONLY else ''
-
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
-            (r'%s/(?P<crypto>[^/]+)/(?P<image>(.+))' % safe, EncryptedHandler, handler_context)
+            (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', EncryptedHandler, handler_context)
         ]
 
-        if not options.SECURE_URL_ONLY:
+        if options.ALLOW_UNSAFE_URL:
             handlers.append(
                 (Url.regex(), MainHandler, handler_context),
             )
