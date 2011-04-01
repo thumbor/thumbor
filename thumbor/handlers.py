@@ -179,7 +179,7 @@ class EncryptedHandler(BaseHandler):
             crop_bottom = opt['crop']['bottom']
 
         width = opt['width']
-        height = opt['width']
+        height = opt['height']
 
         if width > options.MAX_WIDTH:
             width = options.MAX_WIDTH
