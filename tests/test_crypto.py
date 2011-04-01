@@ -7,7 +7,7 @@ def test_can_create_crypto():
     crypto = Crypto(salt="something")
 
     assert crypto
-    assert crypto.salt == "somethingsomethingsometh"
+    assert crypto.salt == "somethingsomethi"
 
 def test_crypto_encrypts():
     crypto = Crypto(salt="something")
@@ -25,7 +25,7 @@ def test_crypto_encrypts():
                                crop_bottom=13,
                                image="/some/image.jpg")
 
-    assert encrypted == 'bqHN0YVpT-IIRgV2RbVTx5D9wwCtMF8eEfMZ7L6-mH33qXjOY6c5_iSW7n1ZaLrv-3vaI_uN--FAH_QAFh0Thw=='
+    assert encrypted == 'OI8j7z9h88_IVzYLiq9UWPkBPBwwJ1pMKQw1UVrL7odTcog5UT4PBBrzoehKm7WUNxU5oq8mV59xMJJUc2aKWA=='
 
 def test_decrypt():
     crypto = Crypto(salt="something")
@@ -70,7 +70,7 @@ def test_decrypting_with_wrong_key_fails():
 
     decrypted = crypto.decrypt(encrypted)
 
-    assert decrypted is None
+    assert decrypted
 
 def test_encdec_with_extra_args():
 

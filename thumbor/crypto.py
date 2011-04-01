@@ -4,14 +4,15 @@
 import re
 import base64
 import hashlib
+import urlparse
 
-from pyDes import *
+from Crypto.Cipher import *
 
 from thumbor.url import Url
 
 class Crypto(object):
     def __init__(self, salt):
-        self.salt = (salt * 24)[:24]
+        self.salt = (salt * 16)[:16]
 
     def encrypt(self, 
                 width,
@@ -41,25 +42,19 @@ class Crypto(object):
                                               crop_bottom),
                         hashlib.md5(image).hexdigest())
 
-        key = triple_des(self.salt,
-                         CBC, 
-                         '\0\0\0\0\0\0\0\0', 
-                         pad=None, 
-                         padmode=PAD_PKCS5)
+        pad = lambda s: s + (16 - len(s) % 16) * "{"
+        cipher = AES.new(self.salt)
+        encrypted = base64.urlsafe_b64encode(cipher.encrypt(pad(url)))
 
-        return base64.urlsafe_b64encode(key.encrypt(url))
+        return encrypted
 
     def decrypt(self, encrypted):
+        cipher = AES.new(self.salt)
 
-        key = triple_des(self.salt,
-                         CBC, 
-                         '\0\0\0\0\0\0\0\0', 
-                         pad=None, 
-                         padmode=PAD_PKCS5)
+        debased = base64.urlsafe_b64decode(encrypted)
+        decrypted = cipher.decrypt(debased).rstrip('{')
 
-        decrypted = key.decrypt(base64.urlsafe_b64decode(encrypted))
-
-        if not decrypted:
+        if not decrypted or not urlparse.urlparse(decrypted):
             return None
 
         result = Url.parse('/%s' % decrypted, with_unsafe=False)
