@@ -10,13 +10,13 @@
 
 import re
 from urlparse import urlparse
+import urllib2
 
 from tornado.httpclient import HTTPClient
 from tornado.options import define, options
 
-
 define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
-
+define('MAX_SOURCE_SIZE', default=0)
 
 def __normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
@@ -28,6 +28,13 @@ def validate(url):
         if re.match('^%s$' % pattern, res.hostname):
             return True
     return False
+
+def verify_size(url, max_size):
+    usock = urllib2.urlopen(__normalize_url(url))
+    size =  usock.info().get('Content-Length')
+    if size is None:
+        size = 0
+    return (float(size) / 1024) <= max_size
 
 def load(url):
     url = __normalize_url(url)

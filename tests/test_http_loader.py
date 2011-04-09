@@ -26,3 +26,10 @@ class HttpLoaderTest(AsyncHTTPTestCase):
         response = urllib2.urlopen('http://' + image_url).read()
 
         self.assertEqual(http_loaded, response, 'http_loaded is not the same as the http request')
+
+    def test_verify_size(self):
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+
+        is_valid = http.verify_size(image_url, 1)
+
+        assert not is_valid
