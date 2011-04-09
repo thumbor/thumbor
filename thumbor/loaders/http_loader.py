@@ -37,6 +37,9 @@ def verify_size(url, max_size):
     return (float(size) / 1024) <= max_size
 
 def load(url):
+    if options.MAX_SOURCE_SIZE and not verify_size(url, options.MAX_SOURCE_SIZE):
+        return None
+
     url = __normalize_url(url)
     http = HTTPClient()
     response = http.fetch(url)
