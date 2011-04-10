@@ -175,10 +175,11 @@ class EncryptedHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self,
             crypto,
-            image):
+            image,
+            security_key=None):
 
         try:
-            cr = Crypto(options.SECURITY_KEY)
+            cr = Crypto(security_key or options.SECURITY_KEY)
             opt = cr.decrypt(crypto)
         except TypeError:
             self._error(404, 'Request denied because the specified encrypted url "%s" could not be decripted' % crypto)
