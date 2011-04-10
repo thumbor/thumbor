@@ -16,7 +16,7 @@ from tornado.httpclient import HTTPClient
 from tornado.options import define, options
 
 define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
-define('MAX_SOURCE_SIZE', default=0)
+define('MAX_SOURCE_SIZE', type=int, default=0)
 
 def __normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url

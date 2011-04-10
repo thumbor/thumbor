@@ -38,6 +38,39 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.error(msg)
         self.finish()
 
+    def execute_image_operations(self, opt, image):
+
+        should_crop = opt['crop']['left'] > 0 or \
+                      opt['crop']['top'] > 0 or \
+                      opt['crop']['right'] > 0 or \
+                      opt['crop']['bottom'] > 0
+
+        crop_left = crop_top = crop_right = crop_bottom = None
+        if should_crop:
+            crop_left = opt['crop']['left']
+            crop_top = opt['crop']['top']
+            crop_right = opt['crop']['right']
+            crop_bottom = opt['crop']['bottom']
+
+        width = opt['width']
+        height = opt['height']
+
+        if width > options.MAX_WIDTH:
+            width = options.MAX_WIDTH
+        if height > options.MAX_HEIGHT:
+            height = options.MAX_HEIGHT
+
+        halign = opt['halign']
+        valign = opt['valign']
+
+        extension = splitext(image)[-1]
+
+        self.get_image(opt['meta'], should_crop, crop_left,
+                       crop_top, crop_right, crop_bottom,
+                       opt['horizontal_flip'], width, opt['vertical_flip'],
+                       height, halign, valign, extension,
+                       opt['smart'], image)
+
     def get_image(self,
                   meta,
                   should_crop,
@@ -166,36 +199,7 @@ class EncryptedHandler(BaseHandler):
             self._error(404)
             return
 
-        should_crop = opt['crop']['left'] > 0 or \
-                      opt['crop']['top'] > 0 or \
-                      opt['crop']['right'] > 0 or \
-                      opt['crop']['bottom'] > 0
-
-        crop_left = crop_top = crop_right = crop_bottom = None
-        if should_crop:
-            crop_left = opt['crop']['left']
-            crop_top = opt['crop']['top']
-            crop_right = opt['crop']['right']
-            crop_bottom = opt['crop']['bottom']
-
-        width = opt['width']
-        height = opt['height']
-
-        if width > options.MAX_WIDTH:
-            width = options.MAX_WIDTH
-        if height > options.MAX_HEIGHT:
-            height = options.MAX_HEIGHT
-
-        halign = opt['halign']
-        valign = opt['valign']
-
-        extension = splitext(image)[-1]
-
-        self.get_image(opt['meta'], should_crop, crop_left,
-                       crop_top, crop_right, crop_bottom,
-                       opt['horizontal_flip'], width, opt['vertical_flip'],
-                       height, halign, valign, extension,
-                       opt['smart'], image)
+        return self.execute_image_operations(opt, image)
 
 class MainHandler(BaseHandler):
 
@@ -221,40 +225,31 @@ class MainHandler(BaseHandler):
             smart,
             image):
 
-        meta = meta == "meta"
-
         if not self.validate(image):
             self._error(404)
             return
 
-        should_crop = crop_left is not None
-        if should_crop:
-            crop_left = int(crop_left)
-            crop_top = int(crop_top)
-            crop_right = int(crop_right)
-            crop_bottom = int(crop_bottom)
+        int_or_0 = lambda value: 0 if value is None else int(value)
 
-        width = int(width) if width else 0
-        height = int(height) if height else 0
+        opt = {
+            'meta': meta == 'meta',
+            'crop': {
+                'left': int_or_0(crop_left),
+                'top': int_or_0(crop_top),
+                'right': int_or_0(crop_right),
+                'bottom': int_or_0(crop_bottom)
+            },
+            'width': int_or_0(width),
+            'height': int_or_0(height),
+            'horizontal_flip': horizontal_flip == '-',
+            'vertical_flip': vertical_flip == '-',
+            'halign': halign or 'center',
+            'valign': valign or 'middle',
+            'smart': smart == 'smart'
+        }
 
-        if width > options.MAX_WIDTH:
-            width = options.MAX_WIDTH
-        if height > options.MAX_HEIGHT:
-            height = options.MAX_HEIGHT
+        return self.execute_image_operations(opt, image)
 
-        if not halign:
-            halign = 'center'
-        if not valign:
-            valign = 'middle'
-
-        extension = splitext(image)[-1]
-
-        self.get_image(meta, should_crop, crop_left,
-                       crop_top, crop_right, crop_bottom,
-                       horizontal_flip, width, vertical_flip,
-                       height, halign, valign, extension,
-                       smart, image)
- 
 class HealthcheckHandler(BaseHandler):
     def get(self):
         self.write('working')
