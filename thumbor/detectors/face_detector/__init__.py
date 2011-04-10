@@ -34,16 +34,16 @@ class Detector(BaseDetector):
                 cascade_file = join(abspath(dirname(__file__)), options.FACE_DETECTOR_CASCADE_FILE)
             setattr(Detector, 'cascade', cv.Load(cascade_file))
         super(Detector, self).__init__(index, detectors)
-    
+
     def __add_hair_offset(self, top, height):
         top = max(0, top - height * HAIR_OFFSET)
         return top
-    
+
     def detect(self, context):
         size = context['engine'].size
         image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image_header, Image.open(StringIO(context['buffer'])).tostring())
-        
+
         grayscale = cv.CreateImage(size, 8, 1)
         cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
         cv.EqualizeHist(grayscale, grayscale)
@@ -56,5 +56,4 @@ class Detector(BaseDetector):
                 context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
         else:
             self.next(context)
-        
-        
+

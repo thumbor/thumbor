@@ -39,10 +39,7 @@ class ThumborServiceApp(tornado.web.Application):
         loader = real_import(options.LOADER)
         storage = real_import(options.STORAGE)
         engine = real_import(options.ENGINE)
-
-        detectors = []
-        for detector_name in options.DETECTORS:
-            detectors.append(real_import(detector_name).Detector)
+        detectors = [real_import(detector_name).Detector for detector_name in options.DETECTORS]
 
         # run again to overwrite the default settings on the
         # imported modules with the ones defined into the config file
