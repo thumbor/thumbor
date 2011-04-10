@@ -28,7 +28,7 @@ define('ALLOW_UNSAFE_URL', type=bool, default=True)
 
 class ThumborServiceApp(tornado.web.Application):
 
-    def __init__(self, conf_file=None):
+    def __init__(self, conf_file=None, custom_handlers=None):
 
         if conf_file is None:
             conf_file = ThumborServiceApp.get_conf_file(conf_file)
@@ -67,9 +67,12 @@ class ThumborServiceApp(tornado.web.Application):
                 (Url.regex(), MainHandler, handler_context),
             )
 
-        handlers.append(
-            (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', EncryptedHandler, handler_context)
-        )
+        if custom_handlers:
+            handlers.extend(custom_handlers)
+        else:
+            handlers.append(
+                (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', EncryptedHandler, handler_context)
+            )
 
         super(ThumborServiceApp, self).__init__(handlers)
 
