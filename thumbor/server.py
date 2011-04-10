@@ -24,12 +24,18 @@ port = 8888
 conf = None
 server = None
 
-def __real_import(name):
-    module = __import__(name)
+def __import_class(name):
     if not '.' in name:
-        return module
+        raise ImportError("You must specify the app class in the format <namespace>.<namespace2>.<clasname>")
 
-    return reduce(getattr, name.split('.')[1:], module)
+    module_name = '.'.join(name.split('.')[:-1])
+    klass = name.split('.')[-1]
+
+    module = __import__(module_name)
+    if '.' in module_name:
+        module = reduce(getattr, module_name.split('.')[1:], module)
+
+    return getattr(module, klass)
 
 def __kill_server():
     print 'stopping server...'
@@ -83,8 +89,8 @@ def run_app(ip, port, conf, log_level, app):
 
     if app:
         try:
-            application = __real_import(app)(conf)
-        except error, err:
+            application = __import_class(app)(conf)
+        except Exception, err:
             raise RuntimeError('Could not import your custom application "%s" because of error: %s' % (app, str(err)))
     else:
         application = ThumborServiceApp(conf)
