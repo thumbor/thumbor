@@ -68,7 +68,8 @@ class ThumborServiceApp(tornado.web.Application):
             )
 
         if custom_handlers:
-            handlers.extend(custom_handlers)
+            for handler in custom_handlers:
+                handlers.append((handler[0], handler[1], handler_context))
         else:
             handlers.append(
                 (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', EncryptedHandler, handler_context)
