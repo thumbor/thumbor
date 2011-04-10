@@ -15,7 +15,7 @@ import cv
 from PIL import Image
 from tornado.options import options, define
 
-from thumbor.detectors import BaseDetector
+from thumbor.detectors import CascadeLoaderDetector
 from thumbor.point import FocalPoint
 
 
@@ -24,15 +24,10 @@ define('FACE_DETECTOR_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
 
 HAIR_OFFSET = 0.12
 
-class Detector(BaseDetector):
-    
+class Detector(CascadeLoaderDetector):
+
     def __init__(self, index, detectors):
-        if not hasattr(Detector, 'cascade'):
-            if isabs(options.FACE_DETECTOR_CASCADE_FILE):
-                cascade_file = options.FACE_DETECTOR_CASCADE_FILE
-            else:
-                cascade_file = join(abspath(dirname(__file__)), options.FACE_DETECTOR_CASCADE_FILE)
-            setattr(Detector, 'cascade', cv.Load(cascade_file))
+        self.load_cascade_file(__file__, options.FACE_DETECTOR_CASCADE_FILE)
         super(Detector, self).__init__(index, detectors)
 
     def __add_hair_offset(self, top, height):
