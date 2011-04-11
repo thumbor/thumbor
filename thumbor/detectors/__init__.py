@@ -38,3 +38,19 @@ class CascadeLoaderDetector(BaseDetector):
             else:
                 cascade_file = join(abspath(dirname(module_path)), cascade_file_path)
             setattr(self.__class__, 'cascade', cv.Load(cascade_file))
+
+    def detect(self, context):
+        size = context['engine'].size
+        image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
+        cv.SetData(image_header, Image.open(StringIO(context['buffer'])).tostring())
+
+        grayscale = cv.CreateImage(size, 8, 1)
+        cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
+        cv.EqualizeHist(grayscale, grayscale)
+        faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING, (30, 30))
+
+        if faces:
+            for (left, top, width, height), neighbors in faces:
+                context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
+        else:
+            self.next(context)

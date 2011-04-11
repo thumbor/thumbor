@@ -45,8 +45,7 @@ class Detector(CascadeLoaderDetector):
         faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING, (30, 30))
 
         if faces:
-            for face in faces:
-                left, top, width, height = face[0]
+            for (left, top, width, height), neighbors in faces:
                 top = self.__add_hair_offset(top, height)
                 context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
         else:
