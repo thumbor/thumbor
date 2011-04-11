@@ -8,11 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import join, dirname, abspath, isabs
-from cStringIO import StringIO
-
-import cv
-from PIL import Image
 from tornado.options import options, define
 
 from thumbor.detectors import CascadeLoaderDetector
@@ -35,17 +30,10 @@ class Detector(CascadeLoaderDetector):
         return top
 
     def detect(self, context):
-        size = context['engine'].size
-        image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(image_header, Image.open(StringIO(context['buffer'])).tostring())
+        features = self.get_features(context)
 
-        grayscale = cv.CreateImage(size, 8, 1)
-        cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
-        cv.EqualizeHist(grayscale, grayscale)
-        faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING, (30, 30))
-
-        if faces:
-            for (left, top, width, height), neighbors in faces:
+        if features:
+            for (left, top, width, height), neighbors in features:
                 top = self.__add_hair_offset(top, height)
                 context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
         else:

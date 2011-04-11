@@ -9,8 +9,13 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import join, dirname, abspath, isabs
+from cStringIO import StringIO
 
 import cv
+from PIL import Image
+
+from thumbor.point import FocalPoint
+
 
 class BaseDetector(object):
 
@@ -39,7 +44,7 @@ class CascadeLoaderDetector(BaseDetector):
                 cascade_file = join(abspath(dirname(module_path)), cascade_file_path)
             setattr(self.__class__, 'cascade', cv.Load(cascade_file))
 
-    def detect(self, context):
+    def get_features(self, context):
         size = context['engine'].size
         image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image_header, Image.open(StringIO(context['buffer'])).tostring())
@@ -47,10 +52,13 @@ class CascadeLoaderDetector(BaseDetector):
         grayscale = cv.CreateImage(size, 8, 1)
         cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
         cv.EqualizeHist(grayscale, grayscale)
-        faces = cv.HaarDetectObjects(grayscale, Detector.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING, (30, 30))
+        return cv.HaarDetectObjects(grayscale, self.__class__.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING, (30, 30))
 
-        if faces:
-            for (left, top, width, height), neighbors in faces:
+    def detect(self, context):
+        features = self.get_features(context)
+
+        if features:
+            for (left, top, width, height), neighbors in features:
                 context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
         else:
             self.next(context)
