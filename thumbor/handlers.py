@@ -63,7 +63,7 @@ class BaseHandler(tornado.web.RequestHandler):
         halign = opt['halign']
         valign = opt['valign']
 
-        extension = splitext(image)[-1]
+        extension = splitext(image)[-1].lower()
 
         self.get_image(opt['meta'], should_crop, crop_left,
                        crop_top, crop_right, crop_bottom,
