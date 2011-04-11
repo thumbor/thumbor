@@ -123,10 +123,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
             Transformer(context).transform()
 
-            if meta:
-                self.set_header('Content-Type', "application/json")
-            else:
-                self.set_header('Content-Type', CONTENT_TYPE[context['extension']])
+            content_type = "application/json" if meta else CONTENT_TYPE[context['extension']]
+            self.set_header('Content-Type', content_type)
 
             results = context['engine'].read(context['extension'])
 
