@@ -4,4 +4,4 @@
 dist/
 *.egg-info
 .project
-.pydevproject
+.pydevprojectthumbor/tests/visual_test/img
