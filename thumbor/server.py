@@ -16,7 +16,6 @@ import tornado.ioloop
 from tornado.httpserver import HTTPServer
 
 from thumbor import __version__
-from thumbor.utils import logger
 from thumbor.app import ThumborServiceApp
 
 ip = "0.0.0.0"
