@@ -19,11 +19,13 @@ from PIL import Image
 __dirname = abspath(dirname(__file__))
 
 def get_context_from(image):
-    buffer = open(join(__dirname, 'fixtures', 'img', image)).read()
+    filename = join(__dirname, 'fixtures', 'img', image)
+    buffer = open(filename).read()
     size = Image.open(StringIO(buffer)).size
     context = dict(
         engine=MockEngine(size),
         buffer=buffer,
+        file=filename,
         focal_points=[]
     )
     Detector(index=0, detectors=[Detector]).detect(context)

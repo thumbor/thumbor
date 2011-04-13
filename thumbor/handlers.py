@@ -10,6 +10,7 @@
 
 from os.path import splitext
 import hashlib
+import tempfile
 
 import tornado.web
 from tornado.options import define, options
@@ -119,7 +120,11 @@ class BaseHandler(tornado.web.RequestHandler):
                 context['engine'] = JSONEngine(self.engine, image)
 
             if self.detectors and should_be_smart:
-                self.detectors[0](index=0, detectors=self.detectors).detect(context)
+                with tempfile.NamedTemporaryFile() as temp_file:
+                    temp_file.write(context['buffer'])
+                    temp_file.seek(0)
+                    context['file'] = temp_file.name
+                    self.detectors[0](index=0, detectors=self.detectors).detect(context)
 
             Transformer(context).transform()
 

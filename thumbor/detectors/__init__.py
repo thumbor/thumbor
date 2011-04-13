@@ -4,15 +4,13 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import join, dirname, abspath, isabs
-from cStringIO import StringIO
 
 import cv
-from PIL import Image
 
 from thumbor.point import FocalPoint
 
@@ -45,14 +43,24 @@ class CascadeLoaderDetector(BaseDetector):
             setattr(self.__class__, 'cascade', cv.Load(cascade_file))
 
     def get_features(self, context):
-        size = context['engine'].size
-        image_header = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(image_header, Image.open(StringIO(context['buffer'])).tostring())
+        image = cv.LoadImage(context['file'], 1)
+        image_scale = 1.0
 
-        grayscale = cv.CreateImage(size, 8, 1)
-        cv.CvtColor(image_header, grayscale, cv.CV_BGR2GRAY)
-        cv.EqualizeHist(grayscale, grayscale)
-        return cv.HaarDetectObjects(grayscale, self.__class__.cascade, cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING, (30, 30))
+        gray = cv.CreateImage((image.width,image.height), 8, 1)
+        small_img = cv.CreateImage((cv.Round(image.width * image_scale),
+                                    cv.Round (image.height / image_scale)), 8, 1)
+        cv.CvtColor(image, gray, cv.CV_BGR2GRAY)
+        cv.Resize(gray, small_img, cv.CV_INTER_LINEAR)
+
+        cv.EqualizeHist(small_img, small_img)
+
+        haar_scale = 1.1
+        min_neighbors = 3
+        haar_flags = cv.CV_HAAR_DO_CANNY_PRUNING
+        min_size = (20, 20)
+        faces = cv.HaarDetectObjects(small_img, self.__class__.cascade, cv.CreateMemStorage(0),
+                                     haar_scale, min_neighbors, haar_flags, min_size) 
+        return faces
 
     def detect(self, context):
         features = self.get_features(context)
