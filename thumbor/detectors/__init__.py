@@ -43,22 +43,15 @@ class CascadeLoaderDetector(BaseDetector):
             setattr(self.__class__, 'cascade', cv.Load(cascade_file))
 
     def get_features(self, context):
-        image = cv.LoadImage(context['file'], 1)
-        image_scale = 1.0
+        image = cv.LoadImageM(context['file'], cv.CV_LOAD_IMAGE_GRAYSCALE)
 
-        gray = cv.CreateImage((image.width,image.height), 8, 1)
-        small_img = cv.CreateImage((cv.Round(image.width * image_scale),
-                                    cv.Round (image.height / image_scale)), 8, 1)
-        cv.CvtColor(image, gray, cv.CV_BGR2GRAY)
-        cv.Resize(gray, small_img, cv.CV_INTER_LINEAR)
-
-        cv.EqualizeHist(small_img, small_img)
+        cv.EqualizeHist(image, image)
 
         haar_scale = 1.1
         min_neighbors = 3
         haar_flags = cv.CV_HAAR_DO_CANNY_PRUNING
         min_size = (20, 20)
-        faces = cv.HaarDetectObjects(small_img, self.__class__.cascade, cv.CreateMemStorage(0),
+        faces = cv.HaarDetectObjects(image, self.__class__.cascade, cv.CreateMemStorage(0),
                                      haar_scale, min_neighbors, haar_flags, min_size) 
         return faces
 
