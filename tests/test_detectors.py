@@ -39,9 +39,9 @@ def test_should_not_create_focal_points_on_images_that_has_no_face():
 def test_should_return_detect_a_face():
     focal_points = get_context_from('face.jpg', [FaceDetector])['focal_points']
     assert len(focal_points) == 1
-    assert focal_points[0].x == 95
-    assert focal_points[0].y == 79.6
-    assert focal_points[0].weight == 13225
+    assert focal_points[0].x == 96
+    assert focal_points[0].y == 80.48
+    assert focal_points[0].weight == 13689
 
 def test_should_not_detect_glasses():
     focal_points = get_context_from('fixture1.png', [GlassesDetector])['focal_points']

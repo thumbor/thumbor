@@ -120,8 +120,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 context['engine'] = JSONEngine(self.engine, image)
 
             if self.detectors and should_be_smart:
-                with tempfile.NamedTemporaryFile() as temp_file:
-                    temp_file.write(self.engine.read('.jpg'))
+                with tempfile.NamedTemporaryFile(suffix='.jpg') as temp_file:
+                    jpg_buffer = buffer if extension in ('.jpg', '.jpeg') else self.engine.read('.jpg')
+                    temp_file.write(jpg_buffer)
                     temp_file.seek(0)
                     context['file'] = temp_file.name
                     self.detectors[0](index=0, detectors=self.detectors).detect(context)
