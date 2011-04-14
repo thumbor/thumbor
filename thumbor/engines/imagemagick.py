@@ -16,9 +16,7 @@ from thumbor.vendor.pythonmagickwand.image import Image
 from thumbor.vendor.pythonmagickwand import wand
 from thumbor.engines import BaseEngine
 
-
 define('MAGICKWAND_PATH', default=[])
-
 
 FORMATS = {
     '.jpg': 'JPEG',
