@@ -45,8 +45,6 @@ class CascadeLoaderDetector(BaseDetector):
     def get_features(self, context):
         image = cv.LoadImageM(context['file'], cv.CV_LOAD_IMAGE_GRAYSCALE)
 
-        cv.EqualizeHist(image, image)
-
         haar_scale = 1.1
         min_neighbors = 3
         haar_flags = cv.CV_HAAR_DO_CANNY_PRUNING
