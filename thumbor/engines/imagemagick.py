@@ -36,6 +36,7 @@ class Engine(BaseEngine):
         offset_top = top
         width = right - left
         height = bottom - top
+
         self.image.crop(
             (int(width), int(height)),
             (int(offset_left), int(offset_top))

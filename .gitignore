@@ -7,3 +7,6 @@ dist/
 .pydevprojectthumbor/tests/visual_test/img
 .coverage
 tests/visual_test/img/
+*.swo
+*.swm
+*.swn
