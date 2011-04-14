@@ -6,3 +6,4 @@ dist/
 .project
 .pydevprojectthumbor/tests/visual_test/img
 .coverage
+tests/visual_test/img/
