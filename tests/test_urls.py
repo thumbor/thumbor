@@ -122,8 +122,7 @@ def test_parse_urls_without_image():
 
     assert options['smart'] == True
 
-def test_returns_route_regex_with_filters():
-
+#def test_returns_route_regex_with_filters():
 
 def test_parse_urls_with_image():
 
