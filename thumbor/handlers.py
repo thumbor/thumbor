@@ -121,7 +121,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
             if self.detectors and should_be_smart:
                 with tempfile.NamedTemporaryFile() as temp_file:
-                    temp_file.write(context['buffer'])
+                    temp_file.write(self.engine.read('jpg'))
                     temp_file.seek(0)
                     context['file'] = temp_file.name
                     self.detectors[0](index=0, detectors=self.detectors).detect(context)
