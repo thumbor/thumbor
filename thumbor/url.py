@@ -21,7 +21,7 @@ class Url(object):
     image = r'(?P<image>.+)'
 
     @classmethod
-    def regex(cls, with_unsafe=True, include_image=True):
+    def regex(cls, with_unsafe=True, include_image=True, filters=[]):
         reg = ['/?']
 
         if with_unsafe:
@@ -34,10 +34,13 @@ class Url(object):
         reg.append(cls.valign)
         reg.append(cls.smart)
 
+        for filter_class in filters:
+            reg.append(filter_class.regex)
+
         if include_image:
             reg.append(cls.image)
 
-        return "".join(reg)
+        return ''.join(reg)
 
     @classmethod
     def parse_options(cls, url):
@@ -57,7 +60,7 @@ class Url(object):
 
         int_or_0 = lambda value: 0 if value is None else int(value)
         values = {
-            'meta': result['meta'] == "meta",
+            'meta': result['meta'] == 'meta',
             'crop': {
                 'left': int_or_0(result['crop_left']),
                 'top': int_or_0(result['crop_top']),
@@ -68,8 +71,8 @@ class Url(object):
             'height': int_or_0(result['height']),
             'horizontal_flip': result['horizontal_flip'] == '-',
             'vertical_flip': result['vertical_flip'] == '-',
-            'halign': result['halign'] or "center",
-            'valign': result['valign'] or "middle",
+            'halign': result['halign'] or 'center',
+            'valign': result['valign'] or 'middle',
             'smart': result['smart'] == 'smart',
             'image': 'image' in result and result['image'] or None
         }
@@ -84,8 +87,8 @@ class Url(object):
                          meta=False,
                          horizontal_flip=False,
                          vertical_flip=False,
-                         halign="center",
-                         valign="middle",
+                         halign='center',
+                         valign='middle',
                          crop_left=None,
                          crop_top=None,
                          crop_right=None,
@@ -120,4 +123,4 @@ class Url(object):
         if smart:
             url.append('smart')
 
-        return "/".join(url)
+        return '/'.join(url)
