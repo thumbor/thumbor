@@ -8,14 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from cStringIO import StringIO
-
-import cv
-from PIL import Image
 from tornado.options import options, define
 
 from thumbor.detectors import CascadeLoaderDetector
-from thumbor.point import FocalPoint
 
 
 define('PROFILE_DETECTOR_CASCADE_FILE', default='haarcascade_profileface.xml')
@@ -26,4 +21,3 @@ class Detector(CascadeLoaderDetector):
     def __init__(self, index, detectors):
         self.load_cascade_file(__file__, options.PROFILE_DETECTOR_CASCADE_FILE)
         super(Detector, self).__init__(index, detectors)
-

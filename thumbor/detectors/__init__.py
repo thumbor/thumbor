@@ -52,7 +52,7 @@ class CascadeLoaderDetector(BaseDetector):
         haar_flags = cv.CV_HAAR_DO_CANNY_PRUNING
         min_size = (20, 20)
         faces = cv.HaarDetectObjects(image, self.__class__.cascade, cv.CreateMemStorage(0),
-                                     haar_scale, min_neighbors, haar_flags, min_size) 
+                                     haar_scale, min_neighbors, haar_flags, min_size)
         return faces
 
     def detect(self, context):
