@@ -24,7 +24,10 @@ FORMATS = {
 }
 
 class Engine(BaseEngine):
-    
+
+    def reset_image(self):
+        self.load(self.read())
+
     def create_image(self, buffer):
         return Image(StringIO(buffer))
 
@@ -38,9 +41,11 @@ class Engine(BaseEngine):
         height = bottom - top
 
         self.image.crop(
-            (int(width), int(height)),
-            (int(offset_left), int(offset_top))
+            (width, height),
+            (offset_left, offset_top)
         )
+
+        self.reset_image()
 
     def flip_vertically(self):
         self.image.flip()
@@ -48,12 +53,17 @@ class Engine(BaseEngine):
     def flip_horizontally(self):
         self.image.flop()
     
-    def read(self, extension):
+    def read(self, extension=None):
         #returns image buffer in byte format.
         img_buffer = StringIO()
-        self.image.format = FORMATS[extension]
-        self.image.compression_quality = options.QUALITY
+
+        if extension:
+            self.image.format = FORMATS[extension]
+            self.image.compression_quality = options.QUALITY
+
         self.image.save(img_buffer)
+
         results = img_buffer.getvalue()
         img_buffer.close()
+
         return results

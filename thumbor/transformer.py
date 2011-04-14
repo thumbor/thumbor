@@ -72,6 +72,7 @@ class Transformer(object):
                 return
 
             self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
+            self.calculate_target_dimensions()
 
     def auto_crop(self):
         source_width, source_height = self.engine.size
@@ -100,6 +101,10 @@ class Transformer(object):
         crop_height_amount = source_height - crop_height
         crop_top = int(crop_height_amount * focal_y_percentage)
         crop_bottom = int(source_height - crop_height_amount + crop_top)
+
+        if crop_bottom > source_height or \
+           crop_right > source_width:
+               return
 
         self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
 
