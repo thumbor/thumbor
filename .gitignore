@@ -5,3 +5,4 @@ dist/
 *.egg-info
 .project
 .pydevprojectthumbor/tests/visual_test/img
+.coverage

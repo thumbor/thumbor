@@ -1,5 +1,5 @@
 run:
-	PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug
+	@PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug
 
 test:
-	PYTHONPATH=.:$$PYTHONPATH nosetests -v -s tests
+	@PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests

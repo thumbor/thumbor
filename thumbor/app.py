@@ -24,6 +24,8 @@ define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
 define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
+define('FILTERS', default=['thumbor.filters.drop_shadow',], multiple=True)
+
 define('ALLOW_UNSAFE_URL', type=bool, default=True)
 
 class ThumborServiceApp(tornado.web.Application):
@@ -40,6 +42,7 @@ class ThumborServiceApp(tornado.web.Application):
         storage = real_import(options.STORAGE)
         engine = real_import(options.ENGINE)
         detectors = [real_import(detector_name).Detector for detector_name in options.DETECTORS]
+        filters = [real_import(filter_name).Filter for filter_name in options.FILTERS]
 
         # run again to overwrite the default settings on the
         # imported modules with the ones defined into the config file
@@ -52,7 +55,8 @@ class ThumborServiceApp(tornado.web.Application):
             'loader': loader,
             'storage': storage,
             'engine': engine,
-            'detectors': detectors
+            'detectors': detectors,
+            'filters': filters
         }
 
         handlers = [
