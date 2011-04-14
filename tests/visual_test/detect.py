@@ -15,7 +15,6 @@ import sys
 from os.path import dirname, abspath, join, basename, splitext, exists
 
 import cv
-from PIL import Image as PILImage
 from tornado.options import define
 
 define('MAGICKWAND_PATH', [])

@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import os
 from os.path import join, abspath, dirname, exists
 
 from tornado.testing import AsyncHTTPTestCase

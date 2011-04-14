@@ -1,12 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import re
 import base64
 import hashlib
 import urlparse
 
-from Crypto.Cipher import *
+from Crypto.Cipher import AES
 
 from thumbor.url import Url
 

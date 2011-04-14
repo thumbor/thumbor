@@ -546,13 +546,6 @@ class Image(object):
 
         self._check_wand_error(api.MagickSigmoidalContrastImage(self._wand, sharpen, contrast, mid_point))
 
-    def median_filter(self, radius):
-        ''' Applies a digital filter that improves the quality of a noisy image. 
-            Each pixel is replaced by the median in a set of neighboring pixels
-            as defined by radius.'''
-
-        self._check_wand_error(api.MagickMedianFilterImage(self._wand, radius))
-
     def evaluate(self, operator, value, channel=None):
         ''' Applies an arithmetic, relational, or logical expression to an
             image.  Use these operators to lighten or darken an image, to

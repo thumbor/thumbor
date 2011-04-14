@@ -8,8 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import sys
-from ctypes import *
+#from ctypes import *
+from ctypes import c_char_p, CDLL, c_wchar_p, c_int, Structure, POINTER
+from ctypes import c_uint, c_double, c_ulong, c_long, c_ubyte, c_ushort
+from ctypes import c_void_p, c_char, CFUNCTYPE, c_ulonglong, c_longlong
 from ctypes.util import find_library
 
 from tornado.options import options

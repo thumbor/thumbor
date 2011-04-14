@@ -9,12 +9,10 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import optparse
-import logging
 
 from tornado.options import options, parse_config_file
 
 from thumbor import __version__
-from thumbor.utils import logger
 from thumbor.crypto import Crypto
 from thumbor.app import ThumborServiceApp
 

@@ -10,8 +10,6 @@
 
 import json
 
-from tornado.options import options
-
 from thumbor.engines import BaseEngine
 
 class JSONEngine(BaseEngine):

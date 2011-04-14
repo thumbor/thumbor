@@ -169,17 +169,19 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class EncryptedHandler(BaseHandler):
 
-    def initialize(self, loader, storage, engine, detectors):
+    def initialize(self, loader, storage, engine, detectors, filters):
         self.loader = loader
         self.storage = storage
         self.engine = engine
         self.detectors = detectors
+        self.filters = filters
 
     @tornado.web.asynchronous
     def get(self,
             crypto,
             image,
-            security_key=None):
+            security_key=None,
+            **kw):
 
         try:
             cr = Crypto(security_key or options.SECURITY_KEY)
@@ -207,11 +209,12 @@ class EncryptedHandler(BaseHandler):
 
 class MainHandler(BaseHandler):
 
-    def initialize(self, loader, storage, engine, detectors):
+    def initialize(self, loader, storage, engine, detectors, filters):
         self.loader = loader
         self.storage = storage
         self.engine = engine
         self.detectors = detectors
+        self.filters = filters
 
     @tornado.web.asynchronous
     def get(self,
@@ -227,7 +230,8 @@ class MainHandler(BaseHandler):
             halign,
             valign,
             smart,
-            image):
+            image,
+            **kw):
 
         if not self.validate(image):
             self._error(404)
