@@ -48,10 +48,10 @@ class CascadeLoaderDetector(BaseDetector):
             image,
             self.__class__.cascade,
             cv.CreateMemStorage(0),
-            scaleFactor=1.1,
-            minNeighbors=3,
+            scale_factor=1.1,
+            min_neighbors=3,
             flags=cv.CV_HAAR_DO_CANNY_PRUNING,
-            minSize=(20, 20)
+            min_size=(20, 20)
         )
         return faces
 
