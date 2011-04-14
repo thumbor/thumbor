@@ -21,6 +21,7 @@ class Transformer(object):
 
     def calculate_target_dimensions(self):
         source_width, source_height = self.engine.size
+
         if not self.context['width'] and not self.context['height']:
             self.target_width = source_width
             self.target_height = source_height
@@ -37,6 +38,7 @@ class Transformer(object):
 
     def calculate_focal_points(self):
         source_width, source_height = self.engine.size
+
         if self.context['focal_points']:
             self.focal_points = self.context['focal_points']
         else:
@@ -54,10 +56,11 @@ class Transformer(object):
         self.flip()
 
     def manual_crop(self):
-        limit= lambda dimension, maximum: min(max(dimension, 0), maximum)
-
-        source_width, source_height = self.engine.size
         if self.context['should_crop']:
+            limit= lambda dimension, maximum: min(max(dimension, 0), maximum)
+
+            source_width, source_height = self.engine.size
+
             crop_left = limit(self.context['crop_left'], source_width)
             crop_top = limit(self.context['crop_top'], source_height)
             crop_right = limit(self.context['crop_right'], source_width)
@@ -71,7 +74,7 @@ class Transformer(object):
     def auto_crop(self):
         source_width, source_height = self.engine.size
 
-        source_ratio = round(source_width / source_height, 2)
+        source_ratio = round(float(source_width) / float(source_height), 2)
         target_ratio = round(self.target_width / self.target_height, 2)
 
         if source_ratio == target_ratio:
