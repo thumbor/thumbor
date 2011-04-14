@@ -48,7 +48,7 @@ class Engine(BaseEngine):
     def read(self, extension):
         #returns image buffer in byte format.
         img_buffer = StringIO()
-        self.image.save(img_buffer, FORMATS[extension], quality=options.QUALITY)
+        self.image.convert('RGB').save(img_buffer, FORMATS[extension], quality=options.QUALITY)
         results = img_buffer.getvalue()
         img_buffer.close()
         return results
