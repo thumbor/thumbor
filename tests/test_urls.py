@@ -122,6 +122,9 @@ def test_parse_urls_without_image():
 
     assert options['smart'] == True
 
+def test_returns_route_regex_with_filters():
+
+
 def test_parse_urls_with_image():
 
     image_url = 's.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg'
@@ -132,8 +135,7 @@ def test_parse_urls_with_image():
     assert options['image'] == image_url
 
     options = Url.parse('unsafe/meta/10x11:12x13/-300x-200/left/top/smart/%s' % image_url)
- 
+
     assert options['image']
     assert options['image'] == image_url
-
 
