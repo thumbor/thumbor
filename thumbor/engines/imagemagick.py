@@ -10,7 +10,7 @@
 
 from cStringIO import StringIO
 
-from tornado import options
+from tornado.options import options
 
 from thumbor.vendor.pythonmagickwand.image import Image
 from thumbor.vendor.pythonmagickwand import wand
