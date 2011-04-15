@@ -12,9 +12,9 @@ from cStringIO import StringIO
 
 from tornado.options import options
 
+from thumbor.engines import BaseEngine
 from thumbor.vendor.pythonmagickwand.image import Image
 from thumbor.vendor.pythonmagickwand import wand
-from thumbor.engines import BaseEngine
 
 FORMATS = {
     '.jpg': 'JPEG',
