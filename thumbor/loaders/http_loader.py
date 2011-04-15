@@ -12,11 +12,12 @@ import re
 from urlparse import urlparse
 import urllib2
 
-from tornado.httpclient import HTTPClient
+from tornado.httpclient import HTTPClient, HTTPRequest
 from tornado.options import define, options
 
 define('ALLOWED_SOURCES', default=['www.globo.com', 's.glbimg.com'], multiple=True)
 define('MAX_SOURCE_SIZE', type=int, default=0)
+define('REQUEST_TIMEOUT_SECONDS', type=int, default=120)
 
 def __normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
@@ -42,7 +43,8 @@ def load(url):
 
     url = __normalize_url(url)
     http = HTTPClient()
-    response = http.fetch(url)
+    request = HTTPRequest(url=url, request_timeout=options.REQUEST_TIMEOUT_SECONDS)
+    response = http.fetch(request)
     if response.code == 200:
         return response.body
     else:

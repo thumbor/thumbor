@@ -26,7 +26,7 @@ class BaseEngine(object):
         return self.image.size
 
     def normalize(self):
-        width, height = self.image.size
+        width, height = self.size
         if width > options.MAX_WIDTH or height > options.MAX_HEIGHT:
             width_diff = width - options.MAX_WIDTH
             height_diff = height - options.MAX_HEIGHT
