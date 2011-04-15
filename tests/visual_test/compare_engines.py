@@ -34,6 +34,7 @@ def main():
 
     originals = []
     resized = []
+    qualities = {}
 
     for key, engine_class_name in engines:
         engine_class = get_engine(engine_class_name)
@@ -50,10 +51,18 @@ def main():
         file(join(build_dir, filename), 'w').write(engine.read('.jpg'))
         resized.append((key, '300x300', filename))
 
+        qualities[key] = []
+        for quality in range(10):
+            if quality == 0:
+                continue
+            filename = 'flower_%s_300x300_%d.jpg' % (key, quality)
+            file(join(build_dir, filename), 'w').write(engine.read('.jpg', quality=quality * 10))
+            qualities[key].append(('300x300', quality, filename))
+
     loader = FileSystemLoader(root)
     env = Environment(loader=loader)
     template = env.get_template('template.html')
-    file(join(build_dir, 'results.html'), 'w').write(template.render(no_resized=originals, resized=resized))
+    file(join(build_dir, 'results.html'), 'w').write(template.render(no_resized=originals, resized=resized, qualities=qualities))
 
 if __name__ == '__main__':
     main()

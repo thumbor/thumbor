@@ -53,13 +53,13 @@ class Engine(BaseEngine):
     def flip_horizontally(self):
         self.image.flop()
     
-    def read(self, extension=None):
+    def read(self, extension=None, quality=options.QUALITY):
         #returns image buffer in byte format.
         img_buffer = StringIO()
 
         if extension:
             self.image.format = FORMATS[extension]
-            self.image.compression_quality = options.QUALITY
+            self.image.compression_quality = quality
 
         self.image.save(img_buffer)
 

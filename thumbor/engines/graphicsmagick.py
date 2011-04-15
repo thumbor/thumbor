@@ -56,14 +56,14 @@ class Engine(BaseEngine):
     def flip_horizontally(self):
         self.image.flop()
 
-    def read(self, extension=None):
+    def read(self, extension=None, quality=options.QUALITY):
         #returns image buffer in byte format.
         img_buffer = Blob()
 
         if extension:
             self.image.magick(FORMATS[extension])
 
-        self.image.quality(options.QUALITY)
+        self.image.quality(quality)
 
         #available_filters = ['BesselFilter', 'BlackmanFilter', 'BoxFilter', 'CatromFilter', 
                              #'CubicFilter', 'GaussianFilter', 'HammingFilter', 'HanningFilter',

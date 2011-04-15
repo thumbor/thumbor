@@ -7,6 +7,10 @@
         .resized {
             float: left;
             margin-right: 10px;
+            overflow: hidden;
+        }
+        h3 {
+            clear: left;
         }
     </style>
 </head>
@@ -29,6 +33,33 @@
         <img src="{{ image.2 }}" />
     </div>
     {% endfor %}
+
+    <h3>Diferenças de Qualidade</h3>
+
+    <h3>PIL</h3>
+    {% for image in qualities.PIL %}
+    <div class="resized">
+        <h4>{{ image.0 }} ({{ image.1 }})</h4>
+        <img src="{{ image.2 }}" />
+    </div>
+    {% endfor %}
+    <h3>ImageMagick</h3>
+    {% for image in qualities.ImageMagick %}
+    <div class="resized">
+        <h4>{{ image.0 }} ({{ image.1 }})</h4>
+        <img src="{{ image.2 }}" />
+    </div>
+    {% endfor %}
+    <h3>GraphicsMagick</h3>
+    {% for image in qualities.GraphicsMagick %}
+    <div class="resized">
+        <h4>{{ image.0 }} ({{ image.1 }})</h4>
+        <img src="{{ image.2 }}" />
+    </div>
+    {% endfor %}
+
+
+
 
 </body>
 </html>
