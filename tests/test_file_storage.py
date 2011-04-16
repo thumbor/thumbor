@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import os
 import shutil
 from os.path import join, abspath, dirname, exists
 
@@ -92,3 +91,19 @@ class FileStorageStoringCryptoKeyFindsSecurityFile(AsyncHTTPTestCase):
 
         assert file(crypto_file).read() == options.SECURITY_KEY
 
+    def test_get_crypto_for_url(self):
+        rm_storage()
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        http_loaded = http.load(image_url)
+        storage = file_storage.Storage()
+
+        storage.put(image_url, http_loaded)
+
+        assert storage.get_crypto(image_url) == options.SECURITY_KEY
+
+    def test_get_crypto_for_url_returns_None_if_urls_was_never_seen(self):
+        rm_storage()
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        storage = file_storage.Storage()
+
+        assert not storage.get_crypto(image_url)

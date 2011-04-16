@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -40,6 +40,14 @@ class Storage(BaseStorage):
             crypto_path = '%s.txt' % splitext(file_abspath)[0]
             with open(crypto_path, 'w') as _file:
                 _file.write(options.SECURITY_KEY)
+
+    def get_crypto(self, path):
+        file_abspath = self.__normalize_path(path)
+        crypto_file = "%s.txt" % (splitext(file_abspath)[0])
+
+        if not exists(crypto_file):
+            return None
+        return file(crypto_file).read()
 
     def get(self, path):
         file_abspath = self.__normalize_path(path)
