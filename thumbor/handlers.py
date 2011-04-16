@@ -184,6 +184,9 @@ class EncryptedHandler(BaseHandler):
             security_key=None,
             **kw):
 
+        if not security_key and options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            security_key = self.storage.get_crypto(image)
+
         try:
             cr = Crypto(security_key or options.SECURITY_KEY)
             opt = cr.decrypt(crypto)
