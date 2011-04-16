@@ -23,7 +23,7 @@ from thumbor.utils import logger
 define('MAX_WIDTH', type=int, default=1280)
 define('MAX_HEIGHT', type=int, default=1024)
 define('QUALITY', type=int, default=80)
-define('SECURITY_KEY')
+define('SECURITY_KEY', type=str)
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',

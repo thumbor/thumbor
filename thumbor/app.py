@@ -23,6 +23,7 @@ define('ENGINE',  default='thumbor.engines.pil')
 define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
+define('STORES_CRYPTO_KEY_FOR_EACH_IMAGE', type=bool, default=False)
 define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
 define('FILTERS', default=['thumbor.filters.drop_shadow',], multiple=True)
 define('MAGICKWAND_PATH', default=[], multiple=True)

@@ -11,6 +11,7 @@
 import os
 import tempfile
 from datetime import datetime
+from os.path import splitext
 
 from tornado.options import options, define
 from os.path import exists, dirname, join, getmtime
@@ -30,6 +31,15 @@ class Storage(BaseStorage):
 
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
+
+        if options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+
+            if not options.SECURITY_KEY:
+                raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+
+            crypto_path = '%s.txt' % splitext(file_abspath)[0]
+            with open(crypto_path, 'w') as _file:
+                _file.write(options.SECURITY_KEY)
 
     def get(self, path):
         file_abspath = self.__normalize_path(path)
