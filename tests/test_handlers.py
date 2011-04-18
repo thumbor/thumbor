@@ -8,16 +8,17 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import unittest
+import os
 from os.path import join, abspath, dirname
 from cStringIO import StringIO
+import unittest
 
 from PIL import Image
 from tornado.testing import AsyncHTTPTestCase
 
 from thumbor.app import ThumborServiceApp
 
-get_conf_path = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
+get_conf_path = lambda filename: abspath(join(os.environ.get('test_path', dirname(__file__)), 'fixtures', filename))
 
 class MainHandlerSourcePathTest(AsyncHTTPTestCase):
     
