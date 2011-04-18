@@ -200,7 +200,7 @@ class EncryptedHandler(BaseHandler):
 
         if not image_hash or image_hash != path_hash:
             self._error(404, 'Request denied because the specified image hash "%s" does not match the given image path hash "%s"' %(
-                image_hash,
+                unicode(image_hash, errors='replace'),
                 path_hash
             ))
             return
