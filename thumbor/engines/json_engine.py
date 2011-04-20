@@ -44,7 +44,24 @@ class JSONEngine(BaseEngine):
     def flip_horizontally(self):
         self.operations.append({ "type": "flip_horizontally" })
 
+    def get_target_dimensions(self):
+        width = self.width
+        height = self.height
+
+        for operation in self.operations:
+            if operation['type'] == 'crop':
+                width = operation['right'] - operation['left']
+                height= operation['bottom'] - operation['top']
+
+            if operation['type'] == 'resize':
+                width = operation['width']
+                height = operation['height']
+
+        return (width, height)
+
     def read(self, extension):
+        target_width, target_height= self.get_target_dimensions()
+
         return json.dumps({
             "thumbor": {
                 "source": {
@@ -52,7 +69,11 @@ class JSONEngine(BaseEngine):
                     "width": self.width,
                     "height": self.height,
                 },
-                "operations": self.operations
+                "operations": self.operations,
+                "target": {
+                    "width": target_width,
+                    "height": target_height
+                }
             }
         })
 
