@@ -68,6 +68,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.get_image(opt['meta'], should_crop, crop_left,
                        crop_top, crop_right, crop_bottom,
+                       opt['fit_in'],
                        opt['horizontal_flip'], width, opt['vertical_flip'],
                        height, halign, valign, extension,
                        opt['smart'], image)
@@ -79,6 +80,7 @@ class BaseHandler(tornado.web.RequestHandler):
                   crop_top,
                   crop_right,
                   crop_bottom,
+                  fit_in,
                   horizontal_flip,
                   width,
                   vertical_flip,
@@ -104,7 +106,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 crop_top=crop_top,
                 crop_right=crop_right,
                 crop_bottom=crop_bottom,
-                fit_in=False,
+                fit_in=fit_in,
                 should_flip_horizontal=horizontal_flip,
                 width=width,
                 should_flip_vertical=vertical_flip,
@@ -228,6 +230,7 @@ class MainHandler(BaseHandler):
             crop_top,
             crop_right,
             crop_bottom,
+            fit_in,
             horizontal_flip,
             width,
             vertical_flip,
@@ -252,6 +255,7 @@ class MainHandler(BaseHandler):
                 'right': int_or_0(crop_right),
                 'bottom': int_or_0(crop_bottom)
             },
+            'fit_in': fit_in,
             'width': int_or_0(width),
             'height': int_or_0(height),
             'horizontal_flip': horizontal_flip == '-',
