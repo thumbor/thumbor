@@ -10,4 +10,4 @@
 
 '''This is the main module in thumbor'''
 
-__version__ = "0.6.5"
+__version__ = "0.7.0"
