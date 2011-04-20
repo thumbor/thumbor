@@ -56,9 +56,9 @@ class BaseHandler(tornado.web.RequestHandler):
         width = opt['width']
         height = opt['height']
 
-        if width > options.MAX_WIDTH:
+        if options.MAX_WIDTH and width > options.MAX_WIDTH:
             width = options.MAX_WIDTH
-        if height > options.MAX_HEIGHT:
+        if options.MAX_HEIGHT and height > options.MAX_HEIGHT:
             height = options.MAX_HEIGHT
 
         halign = opt['halign']
