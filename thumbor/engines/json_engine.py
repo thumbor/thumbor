@@ -10,6 +10,8 @@
 
 import json
 
+from tornado.options import options
+
 from thumbor.engines import BaseEngine
 
 class JSONEngine(BaseEngine):
@@ -62,7 +64,7 @@ class JSONEngine(BaseEngine):
     def read(self, extension):
         target_width, target_height= self.get_target_dimensions()
 
-        return json.dumps({
+        thumbor_json = json.dumps({
             "thumbor": {
                 "source": {
                     "url": self.path,
@@ -76,4 +78,9 @@ class JSONEngine(BaseEngine):
                 }
             }
         })
+
+        if options.META_CALLBACK_NAME:
+            return "%s(%s);" % (options.META_CALLBACK_NAME, thumbor_json)
+
+        return thumbor_json
 
