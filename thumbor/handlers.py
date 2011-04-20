@@ -104,6 +104,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 crop_top=crop_top,
                 crop_right=crop_right,
                 crop_bottom=crop_bottom,
+                fit_in=False,
                 should_flip_horizontal=horizontal_flip,
                 width=width,
                 should_flip_vertical=vertical_flip,

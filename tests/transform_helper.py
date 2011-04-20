@@ -88,6 +88,7 @@ class TestData(object):
             crop_top=None,
             crop_right=None,
             crop_bottom=None,
+            fit_in=False,
             should_flip_horizontal=False,
             width=self.target_width,
             should_flip_vertical=False,
