@@ -15,7 +15,6 @@ from tornado.options import options
 
 from thumbor.engines import BaseEngine
 
-
 FORMATS = {
     '.jpg': 'JPEG',
     '.jpeg': 'JPEG',
@@ -45,10 +44,13 @@ class Engine(BaseEngine):
     def flip_horizontally(self):
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
 
-    def read(self, extension, quality=options.QUALITY):
+    def read(self, extension=None, quality=options.QUALITY):
         #returns image buffer in byte format.
         img_buffer = StringIO()
-        self.image.convert('RGB').save(img_buffer, FORMATS[extension], quality=quality)
+
+        ext = extension or self.extension
+        self.image.save(img_buffer, FORMATS[ext], quality=quality)
+
         results = img_buffer.getvalue()
         img_buffer.close()
         return results

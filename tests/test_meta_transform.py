@@ -80,6 +80,20 @@ class MetaHandlerTestCase(AsyncHTTPTestCase):
         assert operations[1]['width'] == 300
         assert operations[1]['height'] == 200
 
+    def test_meta_returns_proper_json_for_resize_and_manual_crop(self):
+        options.META_CALLBACK_NAME = None
+        image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"
+        self.http_client.fetch(self.get_url('/unsafe/meta/0x0:100x100/50x0/%s' % image_url), self.stop)
+        response = self.wait()
+
+        text = response.body
+        thumbor_json = json.loads(text)
+
+        target = thumbor_json['thumbor']['target']
+
+        assert target['width'] == 50
+        assert target['height'] == 50, target['height']
+
     def test_meta_returns_proper_target_for_resize_and_crop(self):
         options.META_CALLBACK_NAME = None
         image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"

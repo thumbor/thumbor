@@ -57,9 +57,9 @@ class Engine(BaseEngine):
         #returns image buffer in byte format.
         img_buffer = StringIO()
 
-        if extension:
-            self.image.format = FORMATS[extension]
-            self.image.compression_quality = quality
+        ext = extension or self.extension
+        self.image.format = FORMATS[extension]
+        self.image.compression_quality = quality
 
         self.image.save(img_buffer)
 

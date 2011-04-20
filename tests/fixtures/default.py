@@ -17,6 +17,8 @@ MAX_WIDTH = 1280
 # the max height of the resized image
 MAX_HEIGHT = 800
 
+ENGINE = 'thumbor.engines.pil'
+
 LOADER = 'thumbor.loaders.http_loader'
 
 STORAGE = 'thumbor.storages.file_storage'

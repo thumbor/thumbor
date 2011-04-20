@@ -16,9 +16,11 @@ class BaseEngine(object):
 
     def __init__(self):
         self.image = None
+        self.extension = None
 
-    def load(self, buffer):
+    def load(self, buffer, extension):
         #loads image buffer in byte format.
+        self.extension = extension
         self.image = self.create_image(buffer)
 
     @property

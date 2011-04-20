@@ -117,7 +117,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 focal_points=[]
             )
 
-            self.engine.load(buffer)
+            self.engine.load(buffer, extension)
 
             if meta:
                 context['engine'] = JSONEngine(self.engine, image)
@@ -164,9 +164,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 callback(None)
                 return
 
-            self.engine.load(buffer)
+            self.engine.load(buffer, extension)
             self.engine.normalize()
-            buffer = self.engine.read(extension)
+            buffer = self.engine.read()
             self.storage.put(url, buffer)
             callback(buffer)
 
