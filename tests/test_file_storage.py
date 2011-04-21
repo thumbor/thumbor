@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import time
 import shutil
 from os.path import join, abspath, dirname, exists
 
@@ -107,3 +108,29 @@ class FileStorageStoringCryptoKeyFindsSecurityFile(AsyncHTTPTestCase):
         storage = file_storage.Storage()
 
         assert not storage.get_crypto(image_url)
+
+class StorageExpirationTime(AsyncHTTPTestCase):
+
+    def get_app(self):
+        return ThumborServiceApp(join(fixtures_folder, 'file_storage_conf.py'))
+
+    def test_before_expiration_returns_something(self):
+        rm_storage()
+        options.STORAGE_EXPIRATION_SECONDS = 1000
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        http_loaded = http.load(image_url)
+        storage = file_storage.Storage()
+        storage.put(image_url, http_loaded)
+        assert storage.get(image_url)
+
+    def test_after_expiration_returns_none(self):
+        rm_storage()
+        options.STORAGE_EXPIRATION_SECONDS = 1
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        http_loaded = http.load(image_url)
+        storage = file_storage.Storage()
+        storage.put(image_url, http_loaded)
+        time.sleep(2)
+        assert storage.get(image_url) is None
+
+
