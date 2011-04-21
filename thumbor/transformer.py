@@ -53,8 +53,12 @@ class Transformer(object):
 
     def transform(self):
         self.manual_crop()
-        self.auto_crop()
-        self.resize()
+        
+        if self.context['fit_in']:
+            self.fit_in_resize()
+        else:
+            self.auto_crop()
+            self.resize()
         self.flip()
 
     def manual_crop(self):
@@ -132,3 +136,17 @@ class Transformer(object):
             return
         self.engine.resize(self.target_width, self.target_height)
 
+    def fit_in_resize(self):
+        source_width, source_height = self.engine.size
+
+        if self.target_width == source_width and self.target_height == source_height:
+            return
+
+        if source_width / self.target_width >= source_height / self.target_height:
+            resize_height = source_height * self.target_width / source_width
+            resize_width = self.target_width
+        else:
+            resize_height = self.target_height
+            resize_width = source_width * self.target_height / source_height
+
+        self.engine.resize(resize_width, resize_height)

@@ -15,6 +15,7 @@ def test_crypto_encrypts():
     encrypted = crypto.encrypt(width=300,
                                height=300,
                                smart=True,
+                               fit_in=False,
                                flip_horizontal=True,
                                flip_vertical=True,
                                halign="center",
@@ -33,6 +34,7 @@ def test_decrypt():
     encrypted = crypto.encrypt(width=300,
                                height=200,
                                smart=True,
+                               fit_in=False,
                                flip_horizontal=True,
                                flip_vertical=True,
                                halign="center",
@@ -56,6 +58,7 @@ def test_decrypting_with_wrong_key_fails():
     encrypted = crypto.encrypt(width=300,
                                height=200,
                                smart=True,
+                               fit_in=False,
                                flip_horizontal=True,
                                flip_vertical=True,
                                halign="center",
@@ -79,6 +82,7 @@ def test_encdec_with_extra_args():
     encrypted = crypto.encrypt(width=300,
                                height=200,
                                smart=False,
+                               fit_in=True,
                                flip_horizontal=True,
                                flip_vertical=True,
                                halign="center",
@@ -94,6 +98,7 @@ def test_encdec_with_extra_args():
     assert decrypted['width'] == 300
     assert decrypted['height'] == 200
     assert not decrypted['smart']
+    assert decrypted['fit_in']
     assert decrypted['horizontal_flip']
     assert decrypted['vertical_flip']
 

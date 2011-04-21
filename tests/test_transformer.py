@@ -686,6 +686,27 @@ TESTITEMS = [
     )
 ]
 
+FIT_IN_CROP_DATA = [
+    (TestData(
+        source_width=800, source_height=400,
+        target_width=400, target_height=100,
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+        fit_in=True
+    ), (200, 100)),
+
+    (TestData(
+        source_width=1000, source_height=250,
+        target_width=500, target_height=200,
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+        fit_in=True
+    ), (500, 125))
+
+]
+
 def test_transformer():
     for data in TESTITEMS:
         yield assert_proper_operations, data
@@ -696,3 +717,21 @@ def assert_proper_operations(data):
 
     assert data.has_cropped_properly(), data.crop_error_message
     assert data.has_resized_properly(), data.resize_error_message
+
+def test_fit_in():
+    for data in FIT_IN_CROP_DATA:
+        yield assert_fit_in_resize, data
+
+def assert_fit_in_resize(data):
+    data, expectations = data
+
+    trans = Transformer(data.to_context())
+    trans.transform()
+
+    assert not data.engine.calls['crop']
+
+    assert data.engine.calls['resize']
+    assert len(data.engine.calls['resize']) == 1
+
+    assert data.engine.calls['resize'][0]['width'] == expectations[0]
+    assert data.engine.calls['resize'][0]['height'] == expectations[1]

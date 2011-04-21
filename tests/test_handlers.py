@@ -12,6 +12,7 @@ import os
 from os.path import join, abspath, dirname
 from cStringIO import StringIO
 import unittest
+import math
 
 from PIL import Image
 from tornado.testing import AsyncHTTPTestCase
@@ -70,6 +71,17 @@ class MainHandlerImagesTest(ImageTestCase):
         reversed_pixels_flipped = list(reversed(pixels_flipped))
 
         self.assertEqual(pixels, reversed_pixels_flipped, 'did not flip the image')
+
+class MainHandlerFitInImagesTest(ImageTestCase):
+
+    def test_fits_in_image_horizontally(self):
+        #620x470
+        image = self.fetch_image('/unsafe/fit-in/200x300/s.glbimg.com/es/ge/f/original/2011/04/19/adriano_ae62.jpg')
+
+        width, height = image.size
+
+        assert width == 200, width
+        assert height == 151, height
 
 if __name__ == '__main__':
     unittest.main()

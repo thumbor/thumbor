@@ -88,7 +88,7 @@ def test_complete_url():
 def test_returns_route_regex_with_default_filters():
     url = Url.regex()
 
-    assert url == '/?unsafe/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?(?P<image>.+)'
+    assert url == '/?unsafe/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<fit_in>fit-in)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?(?P<image>.+)'
 
 def test_returns_route_regex_with_filters():
     class TestFilter(object):
@@ -96,12 +96,12 @@ def test_returns_route_regex_with_filters():
 
     url = Url.regex(filters=[TestFilter])
 
-    assert url == '/?unsafe/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?some-filter-fake-regex(?P<image>.+)'
+    assert url == '/?unsafe/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<fit_in>fit-in)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?some-filter-fake-regex(?P<image>.+)'
 
 def test_returns_route_regex_without_image():
     url = Url.regex(include_image=False)
 
-    assert url == '/?unsafe/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?'
+    assert url == '/?unsafe/(?:(?P<meta>meta)/)?(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?(?:(?P<fit_in>fit-in)/)?(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?(?:(?P<halign>left|right|center)/)?(?:(?P<valign>top|bottom|middle)/)?(?:(?P<smart>smart)/)?'
 
 def test_parse_urls_without_result():
     options = Url.parse_options("some fake url")

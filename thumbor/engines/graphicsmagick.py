@@ -9,10 +9,9 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from cStringIO import StringIO
-import random
 
 from tornado.options import options
-from pgmagick import Image, Geometry, Blob, FilterTypes, DrawableText
+from pgmagick import Image, Geometry, Blob, FilterTypes
 from PIL import Image as PIL_Image
 
 from thumbor.engines import BaseEngine
@@ -60,8 +59,8 @@ class Engine(BaseEngine):
         #returns image buffer in byte format.
         img_buffer = Blob()
 
-        if extension:
-            self.image.magick(FORMATS[extension])
+        ext = extension or self.extension
+        self.image.magick(FORMATS[ext])
 
         self.image.quality(quality)
 

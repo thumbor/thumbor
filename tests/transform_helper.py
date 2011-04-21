@@ -44,7 +44,8 @@ class TestData(object):
             source_width, source_height,
             target_width, target_height,
             halign, valign, focal_points,
-            crop_left, crop_top, crop_right, crop_bottom):
+            crop_left, crop_top, crop_right, crop_bottom,
+            fit_in=False):
         self.source_width = source_width
         self.source_height = source_height
         self.target_width = target_width
@@ -56,6 +57,7 @@ class TestData(object):
         self.crop_top = crop_top
         self.crop_right = crop_right
         self.crop_bottom = crop_bottom
+        self.fit_in = fit_in
 
     def __repr__(self):
         return self.__str__()
@@ -88,6 +90,7 @@ class TestData(object):
             crop_top=None,
             crop_right=None,
             crop_bottom=None,
+            fit_in=self.fit_in,
             should_flip_horizontal=False,
             width=self.target_width,
             should_flip_vertical=False,
