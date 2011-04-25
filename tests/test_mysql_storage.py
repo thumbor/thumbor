@@ -13,38 +13,50 @@ from os.path import join, abspath, dirname
 
 from tornado.testing import AsyncHTTPTestCase
 from tornado.options import options
-from pymongo import Connection
+import MySQLdb as mysql
 
 import thumbor.loaders.http_loader as http
 from thumbor.app import ThumborServiceApp
-from thumbor.storages.mongo_storage import Storage
+from thumbor.storages.mysql_storage import Storage
 
 fixtures_folder = join(abspath(dirname(__file__)), 'fixtures')
 
-connection = Connection('localhost', 27017)
-collection = connection['thumbor_test']['images']
+def get_image_by_path(image_url):
+    db = mysql.connect(host="localhost", user="root", passwd="", db="thumbor_tests")
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM images where url=%s", image_url)
 
-def rm_storage():
-    connection.drop_database('thumbor_test')
+    register = cursor.fetchone()
+    if not register:
+        return None
+    return {
+        'url': register[0],
+        'contents': register[1],
+        'security_key': register[2],
+        'last_update': register[3]
+    }
+    db.close()
 
 class StorageTest(AsyncHTTPTestCase):
 
     def get_app(self):
-        return ThumborServiceApp(join(fixtures_folder, 'mongo_storage_conf.py'))
+        return ThumborServiceApp(join(fixtures_folder, 'mysql_storage_conf.py'))
 
     def test_stores_image(self):
-        rm_storage()
         options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = False
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?1'
         http_loaded = http.load(image_url)
         storage = Storage()
         storage.put(image_url, http_loaded)
-        assert collection.find_one({'path': image_url}), 'image not found into the storage'
+
+        image = get_image_by_path(image_url)
+        assert image['url'] == image_url
+        assert image['contents']
+        assert image['last_update']
 
     def test_gets_image(self):
-        rm_storage()
         options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = False
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?2'
         http_loaded = http.load(image_url)
         storage = Storage()
         storage.put(image_url, http_loaded)
@@ -55,27 +67,28 @@ class StorageTest(AsyncHTTPTestCase):
 class StorageWithFalseStoreCryptoTest(AsyncHTTPTestCase):
 
     def get_app(self):
-        return ThumborServiceApp(join(fixtures_folder, 'mongo_storage_conf.py'))
+        return ThumborServiceApp(join(fixtures_folder, 'mysql_storage_conf.py'))
 
     def test_stores_image_does_not_store_crypt_key_if_not_in_options(self):
-        rm_storage()
         options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = False
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?3'
         http_loaded = http.load(image_url)
         storage = Storage()
         storage.put(image_url, http_loaded)
-        assert not collection.find_one({'path': image_url}).has_key('crypto'), 'crypto key should not be found into the storage'
+
+        image = get_image_by_path(image_url)
+
+        assert not image['security_key']
 
 class StorageStoringCryptoKeyRaisesTest(AsyncHTTPTestCase):
 
     def get_app(self):
-        return ThumborServiceApp(join(fixtures_folder, 'mongo_storage_conf.py'))
+        return ThumborServiceApp(join(fixtures_folder, 'mysql_storage_conf.py'))
 
     def test_storing_an_empty_key_raises(self):
-        rm_storage()
         options.SECURITY_KEY = False
         options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?4'
         http_loaded = http.load(image_url)
         storage = Storage()
 
@@ -90,23 +103,23 @@ class StorageStoringCryptoKeyRaisesTest(AsyncHTTPTestCase):
 class StorageStoringCryptoKeyFindsSecurityFile(AsyncHTTPTestCase):
 
     def get_app(self):
-        return ThumborServiceApp(join(fixtures_folder, 'mongo_storage_conf.py'))
+        return ThumborServiceApp(join(fixtures_folder, 'mysql_storage_conf.py'))
 
     def test_finding_crypto_file(self):
-        rm_storage()
         options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
-        options.SECURITY_KEY = 'MY-SECURITY-KEY'
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        options.SECURITY_KEY = 'MY-SECURITY-KEY-5'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?5'
         http_loaded = http.load(image_url)
         storage = Storage()
 
         storage.put(image_url, http_loaded)
 
-        stored_crypto_key = collection.find_one({'path': image_url}).get('crypto')
-        assert stored_crypto_key == options.SECURITY_KEY, '%s crypto key should be equal %s' % (stored_crypto_key, options.SECURITY_KEY)
+        image = get_image_by_path(image_url)
+
+        assert image['security_key'] == options.SECURITY_KEY
+
     def test_get_crypto_for_url(self):
-        rm_storage()
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?6'
         http_loaded = http.load(image_url)
         storage = Storage()
 
@@ -115,31 +128,27 @@ class StorageStoringCryptoKeyFindsSecurityFile(AsyncHTTPTestCase):
         assert storage.get_crypto(image_url) == options.SECURITY_KEY
 
     def test_get_crypto_for_url_returns_None_if_urls_was_never_seen(self):
-        rm_storage()
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?7'
         storage = Storage()
-
         assert not storage.get_crypto(image_url)
 
 
 class StorageExpirationTime(AsyncHTTPTestCase):
 
     def get_app(self):
-        return ThumborServiceApp(join(fixtures_folder, 'mongo_storage_conf.py'))
+        return ThumborServiceApp(join(fixtures_folder, 'mysql_storage_conf.py'))
 
     def test_before_expiration_returns_something(self):
-        rm_storage()
         options.STORAGE_EXPIRATION_SECONDS = 1000
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?8'
         http_loaded = http.load(image_url)
         storage = Storage()
         storage.put(image_url, http_loaded)
         assert storage.get(image_url)
 
     def test_after_expiration_returns_none(self):
-        rm_storage()
         options.STORAGE_EXPIRATION_SECONDS = 1
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
+        image_url = 'www.globo.com/media/globocom/img/sprite1.png?9'
         http_loaded = http.load(image_url)
         storage = Storage()
         storage.put(image_url, http_loaded)
