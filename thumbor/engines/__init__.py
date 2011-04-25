@@ -41,11 +41,11 @@ class BaseEngine(object):
 
     def get_proportional_width(self, new_height):
         width, height = self.size
-        return math.ceil(float(new_height) * width / height)
+        return round(float(new_height) * width / height, 0)
 
     def get_proportional_height(self, new_width):
         width, height = self.size
-        return math.ceil(float(new_width) * height / width)
+        return round(float(new_width) * height / width, 0)
 
     def create_image(self):
         raise NotImplementedError()

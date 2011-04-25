@@ -53,7 +53,7 @@ TESTITEMS = [
         target_width=180, target_height=100,
         halign="center", valign="middle",
         focal_points=[],
-        crop_left=0, crop_top=14, crop_right=200, crop_bottom=126
+        crop_left=0, crop_top=14, crop_right=200, crop_bottom=125
     ),
     
     # tests with focal points
