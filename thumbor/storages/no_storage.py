@@ -15,5 +15,8 @@ class Storage(BaseStorage):
     def put(self, path, bytes):
         pass
 
+    def get_crypto(self, path):
+        return None
+
     def get(self, path):
         return None
