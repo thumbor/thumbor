@@ -57,9 +57,19 @@
         <img src="{{ image.2 }}" />
     </div>
     {% endfor %}
+    <h3>OpenCV</h3>
+    {% for image in qualities.OpenCV%}
+    <div class="resized">
+        <h4>{{ image.0 }} ({{ image.1 }})</h4>
+        <img src="{{ image.2 }}" />
+    </div>
+    {% endfor %}
 
+    <h3>Benchmarking</h3>
 
-
+    {% for key in times.keys() %}
+    <p>{{ key }} - {{ times[key] }}s</p>
+    {% endfor %}
 
 </body>
 </html>
