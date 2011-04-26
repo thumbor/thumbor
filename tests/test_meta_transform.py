@@ -122,6 +122,41 @@ class MetaHandlerTestCase(AsyncHTTPTestCase):
         assert target['width'] == 100
         assert target['height'] == 100
 
+    def test_meta_returns_proper_target_for_crop_and_resize(self):
+        options.META_CALLBACK_NAME = None
+        image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"
+        self.http_client.fetch(self.get_url('/unsafe/meta/0x0:200x250/200x0/%s' % image_url), self.stop)
+        response = self.wait()
+
+        text = response.body
+        thumbor_json = json.loads(text)
+
+        target = thumbor_json['thumbor']['target']
+
+        image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"
+        self.http_client.fetch(self.get_url('/unsafe/meta/50x40:250x290/200x0/%s' % image_url), self.stop)
+        response = self.wait()
+
+        text = response.body
+        thumbor_json = json.loads(text)
+
+        target_2 = thumbor_json['thumbor']['target']
+
+        image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"
+        self.http_client.fetch(self.get_url('/unsafe/meta/250x80:450x330/200x0/%s' % image_url), self.stop)
+        response = self.wait()
+
+        text = response.body
+        thumbor_json = json.loads(text)
+
+        target_3 = thumbor_json['thumbor']['target']
+
+        assert target['width'] == target_2['width']
+        assert target['height'] == target_2['height']
+
+        assert target['width'] == target_3['width']
+        assert target['height'] == target_3['height']
+
     def test_meta_returns_proper_json_for_flip(self):
         options.META_CALLBACK_NAME = None
         image_url = "s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg"
