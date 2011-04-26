@@ -9,10 +9,11 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from datetime import datetime
+from cStringIO import StringIO
 
 from pymongo import Connection
+import gridfs
 from tornado.options import options, define
-from bson.binary import Binary
 
 from thumbor.storages import BaseStorage
 
@@ -23,35 +24,53 @@ define('MONGO_STORAGE_SERVER_COLLECTION', type=str, default='images')
 
 class Storage(BaseStorage):
 
-    def __init__(self):
-        self.connection = Connection(options.MONGO_STORAGE_SERVER_HOST, options.MONGO_STORAGE_SERVER_PORT)
-        self.db = self.connection[options.MONGO_STORAGE_SERVER_DB]
-        self.storage = self.db[options.MONGO_STORAGE_SERVER_COLLECTION]
+    def __conn__(self):
+        connection = Connection(options.MONGO_STORAGE_SERVER_HOST, options.MONGO_STORAGE_SERVER_PORT)
+        db = connection[options.MONGO_STORAGE_SERVER_DB]
+        storage = db[options.MONGO_STORAGE_SERVER_COLLECTION]
+
+        return connection, db, storage
 
     def put(self, path, bytes):
-        store = {
+        connection, db, storage = self.__conn__()
+
+        doc = {
             'path': path,
-            'bytes': Binary(bytes, 128),
             'created_at': datetime.now()
         }
+
+        doc_with_crypto = dict(doc)
         if options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             if not options.SECURITY_KEY:
                 raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
-            store['crypto'] = options.SECURITY_KEY
+            doc_with_crypto['crypto'] = options.SECURITY_KEY
         
-        self.storage.insert(store)
+
+        fs = gridfs.GridFS(db)
+        file_data = fs.put(StringIO(bytes), **doc)
+
+        doc_with_crypto['file_id'] = file_data
+        storage.insert(doc_with_crypto)
 
     def get_crypto(self, path):
-        crypto = self.storage.find_one({'path': path})
+        connection, db, storage = self.__conn__()
+
+        crypto = storage.find_one({'path': path})
         return crypto.get('crypto') if crypto else None
 
     def get(self, path):
-        stored = self.storage.find_one({'path': path})
+        connection, db, storage = self.__conn__()
+
+        stored = storage.find_one({'path': path})
 
         if not stored or self.__is_expired(stored):
             return None
 
-        return str(stored.get('bytes'))
+        fs = gridfs.GridFS(db)
+
+        contents = fs.get(stored['file_id']).read()
+
+        return str(contents)
 
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')
