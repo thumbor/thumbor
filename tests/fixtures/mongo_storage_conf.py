@@ -8,15 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from thumbor.storages import BaseStorage
+STORAGE = 'thumbor.storages.mongo_storage'
 
-class Storage(BaseStorage):
-
-    def put(self, path, bytes):
-        pass
-
-    def get_crypto(self, path):
-        return None
-
-    def get(self, path):
-        return None
+MONGO_STORAGE_SERVER_HOST = 'localhost'
+MONGO_STORAGE_SERVER_PORT = 27017
+MONGO_STORAGE_SERVER_DB = 'thumbor_test'
+MONGO_STORAGE_SERVER_COLLECTION = 'images'

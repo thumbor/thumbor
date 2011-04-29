@@ -15,8 +15,8 @@ from tornado.options import options, define
 
 from thumbor.storages import BaseStorage
 
-define('REDIS_STORAGE_SERVER_PORT', type=int, default=6379)
 define('REDIS_STORAGE_SERVER_HOST', type=str, default='localhost')
+define('REDIS_STORAGE_SERVER_PORT', type=int, default=6379)
 define('REDIS_STORAGE_SERVER_DB', type=int, default=0)
 
 class Storage(BaseStorage):

@@ -29,6 +29,7 @@ define('FILTERS', default=['thumbor.filters.drop_shadow',], multiple=True)
 define('MAGICKWAND_PATH', default=[], multiple=True)
 
 define('ALLOW_UNSAFE_URL', type=bool, default=True)
+define('META_CALLBACK_NAME', type=str, default=None)
 
 class ThumborServiceApp(tornado.web.Application):
 

@@ -51,6 +51,7 @@ class Storage(BaseStorage):
 
     def get(self, path):
         file_abspath = self.__normalize_path(path)
+
         if not exists(file_abspath) or self.__is_expired(file_abspath):
             return None
         return open(file_abspath, 'r').read()

@@ -26,7 +26,7 @@ FORMATS = {
 class Engine(BaseEngine):
 
     def reset_image(self):
-        self.load(self.read())
+        self.load(self.read(), self.extension)
 
     def create_image(self, buffer):
         return Image(StringIO(buffer))
@@ -57,9 +57,9 @@ class Engine(BaseEngine):
         #returns image buffer in byte format.
         img_buffer = StringIO()
 
-        if extension:
-            self.image.format = FORMATS[extension]
-            self.image.compression_quality = quality
+        ext = extension or self.extension
+        self.image.format = FORMATS[ext]
+        self.image.compression_quality = quality
 
         self.image.save(img_buffer)
 

@@ -11,3 +11,4 @@ tests/visual_test/img/
 *.swm
 *.swn
 tests/visual_test/build
+build

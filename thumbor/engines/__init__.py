@@ -16,9 +16,11 @@ class BaseEngine(object):
 
     def __init__(self):
         self.image = None
+        self.extension = None
 
-    def load(self, buffer):
+    def load(self, buffer, extension):
         #loads image buffer in byte format.
+        self.extension = extension
         self.image = self.create_image(buffer)
 
     @property
@@ -30,20 +32,20 @@ class BaseEngine(object):
         if width > options.MAX_WIDTH or height > options.MAX_HEIGHT:
             width_diff = width - options.MAX_WIDTH
             height_diff = height - options.MAX_HEIGHT
-            if width_diff > height_diff:
+            if options.MAX_WIDTH and width_diff > height_diff:
                 height = self.get_proportional_height(options.MAX_WIDTH)
                 self.resize(options.MAX_WIDTH, height)
-            else:
+            elif options.MAX_HEIGHT and height_diff > width_diff:
                 width = self.get_proportional_width(options.MAX_HEIGHT)
                 self.resize(width, options.MAX_HEIGHT)
 
     def get_proportional_width(self, new_height):
         width, height = self.size
-        return math.ceil(float(new_height) * width / height)
+        return round(float(new_height) * width / height, 0)
 
     def get_proportional_height(self, new_width):
         width, height = self.size
-        return math.ceil(float(new_width) * height / width)
+        return round(float(new_width) * height / width, 0)
 
     def create_image(self):
         raise NotImplementedError()

@@ -89,9 +89,9 @@ class Transformer(object):
 
         if self.target_width / source_width > self.target_height / source_height:
             crop_width = source_width
-            crop_height = math.ceil(source_width * self.target_height / self.target_width)
+            crop_height = round(source_width * self.target_height / self.target_width, 0)
         else:
-            crop_width = math.ceil(self.target_width * source_height / self.target_height)
+            crop_width = round(math.ceil(self.target_width * source_height / self.target_height), 0)
             crop_height = source_height
 
         focal_x, focal_y = self.get_center_of_mass()

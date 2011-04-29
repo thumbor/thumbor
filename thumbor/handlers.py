@@ -20,8 +20,8 @@ from thumbor.engines.json_engine import JSONEngine
 from thumbor.crypto import Crypto
 from thumbor.utils import logger
 
-define('MAX_WIDTH', type=int, default=1280)
-define('MAX_HEIGHT', type=int, default=1024)
+define('MAX_WIDTH', type=int, default=0)
+define('MAX_HEIGHT', type=int, default=0)
 define('QUALITY', type=int, default=80)
 define('SECURITY_KEY', type=str)
 
@@ -56,9 +56,9 @@ class BaseHandler(tornado.web.RequestHandler):
         width = opt['width']
         height = opt['height']
 
-        if width > options.MAX_WIDTH:
+        if options.MAX_WIDTH and width > options.MAX_WIDTH:
             width = options.MAX_WIDTH
-        if height > options.MAX_HEIGHT:
+        if options.MAX_HEIGHT and height > options.MAX_HEIGHT:
             height = options.MAX_HEIGHT
 
         halign = opt['halign']
@@ -117,7 +117,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 focal_points=[]
             )
 
-            self.engine.load(buffer)
+            self.engine.load(buffer, extension)
 
             if meta:
                 context['engine'] = JSONEngine(self.engine, image)
@@ -164,9 +164,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 callback(None)
                 return
 
-            self.engine.load(buffer)
+            self.engine.load(buffer, extension)
             self.engine.normalize()
-            buffer = self.engine.read(extension)
+            buffer = self.engine.read()
             self.storage.put(url, buffer)
             callback(buffer)
 
