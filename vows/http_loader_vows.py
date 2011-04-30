@@ -21,69 +21,7 @@ fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filen
 def to_match_contents_of(topic, filepath):
     assert file(filepath).read() == topic, "Expected body of %s to match topic, but it didn't" % filepath
 
-@Vows.batch
 class HttpLoader(Vows.Context):
-    class Options(Vows.Context):
-
-        class FirstDefaults(Vows.Context):
-            class AllowedSources(Vows.Context):
-                def topic(self):
-                    return options.ALLOWED_SOURCES
-
-                def should_be_empty(self, topic):
-                    expect(topic).to_be_empty()
-
-            class MaxSourceSize(Vows.Context):
-                def topic(self):
-                    return options.MAX_SOURCE_SIZE
-
-                def should_be_numeric(self, topic):
-                    expect(topic).to_be_numeric()
-
-                def should_be_zero(self, topic):
-                    expect(topic).to_equal(0)
-
-            class RequestTimeoutSeconds(Vows.Context):
-                def topic(self):
-                    return options.REQUEST_TIMEOUT_SECONDS
-
-                def should_be_numeric(self, topic):
-                    expect(topic).to_be_numeric()
-
-                def should_be_two_minutes(self, topic):
-                    expect(topic).to_equal(120)
-
-            class ThenSpecified(Vows.Context):
-                def topic(self):
-                    parse_config_file(fixture_for('http_loader_options.py'))
-
-                class AllowedSources(Vows.Context):
-                    def topic(self):
-                        return options.ALLOWED_SOURCES
-
-                    def should_be_equal_to_something(self, topic):
-                        expect(topic).to_be_like(['s.glbimg.com'])
-
-                class MaxSourceSize(Vows.Context):
-                    def topic(self):
-                        return options.MAX_SOURCE_SIZE
-
-                    def should_be_numeric(self, topic):
-                        expect(topic).to_be_numeric()
-
-                    def should_be_zero(self, topic):
-                        expect(topic).to_equal(5000)
-
-                class RequestTimeoutSeconds(Vows.Context):
-                    def topic(self):
-                        return options.REQUEST_TIMEOUT_SECONDS
-
-                    def should_be_numeric(self, topic):
-                        expect(topic).to_be_numeric()
-
-                    def should_be_three_minutes(self, topic):
-                        expect(topic).to_equal(180)
-
     class LoadAndVerifyImage(Vows.Context):
         def topic(self):
             return 'http://s.glbimg.com/jo/g1/f/original/2011/04/29/conselheira_tutelar.jpg'

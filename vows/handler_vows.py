@@ -32,6 +32,29 @@ class HandlerVows(TornadoContext):
 
     class CryptoUrl(TornadoSubContext):
 
+        class WhenInvalidDomain(TornadoSubContext):
+            def topic(self):
+                url = get_encrypted_url('ego.globo.com/Gente/foto/0,,48162393-EXH,00.jpg', 300, 200)
+
+                self._http_client.fetch(self._get_url(url), self._stop)
+                response = self._wait()
+
+                return (response.code, response.body)
+
+            class StatusCode(TornadoSubContext):
+                def topic(self, response):
+                    return response[0]
+
+                def should_be_an_error_code(self, topic):
+                    expect(topic).to_equal(404)
+
+            class Body(TornadoSubContext):
+                def topic(self, response):
+                    return response[1]
+
+                def should_be_empty(self, topic):
+                    expect(topic).to_be_empty()
+
         class WhenInvalidSecurityKey(TornadoSubContext):
             def topic(self):
                 url = get_encrypted_url(image_url, 300, 200, 'fake-key')

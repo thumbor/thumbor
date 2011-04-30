@@ -8,4 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+ALLOWED_SOURCES = ['s.glbimg.com']
+
 SECURITY_KEY = 'HandlerVows'

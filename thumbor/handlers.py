@@ -166,49 +166,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 callback(buffer)
             self.loader.load(url, handle_loader_loaded)
 
-class EncryptedHandler(BaseHandler):
-
-    def initialize(self, loader, storage, engine, detectors, filters):
-        self.loader = loader
-        self.storage = storage
-        self.engine = engine
-        self.detectors = detectors
-        self.filters = filters
-
-    @tornado.web.asynchronous
-    def get(self,
-            crypto,
-            image,
-            security_key=None,
-            **kw):
-
-        if not security_key and options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            security_key = self.storage.get_crypto(image)
-
-        try:
-            cr = Crypto(security_key or options.SECURITY_KEY)
-            opt = cr.decrypt(crypto)
-        except TypeError:
-            self._error(404, 'Request denied because the specified encrypted url "%s" could not be decripted' % crypto)
-            return
-
-        image_hash = opt and opt.get('image_hash')
-        image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash
-        path_hash = hashlib.md5(image).hexdigest()
-
-        if not image_hash or image_hash != path_hash:
-            self._error(404, 'Request denied because the specified image hash "%s" does not match the given image path hash "%s"' %(
-                unicode(image_hash, errors='replace'),
-                path_hash
-            ))
-            return
-
-        if not self.validate(image):
-            self._error(404)
-            return
-
-        return self.execute_image_operations(opt, image)
-
 class MainHandler(BaseHandler):
 
     def initialize(self, loader, storage, engine, detectors, filters):
