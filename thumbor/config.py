@@ -22,6 +22,9 @@ define('LOADER',  default='thumbor.loaders.http_loader')
 define('STORAGE', default='thumbor.storages.file_storage')
 define('ENGINE', default='thumbor.engines.pil')
 
+define('SECURITY_KEY', type=str)
+define('ALLOW_UNSAFE_URL', type=bool, default=True)
+
 # FILE LOADER OPTIONS
 define('FILE_LOADER_ROOT_PATH')
 
@@ -63,6 +66,9 @@ define('META_CALLBACK_NAME', type=str, default=None)
 
 # DETECTORS OPTIONS
 define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
+
+# FACE DETECTOR CASCADE FILE
+define('FACE_DETECTOR_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
 
 class ConfigWrapper(object):
 

@@ -38,6 +38,16 @@ class Configuration(Vows.Context):
 
     class Defaults(Vows.Context):
 
+        class SecurityKey(ConfigContext):
+
+            def defaults_to_null(self, topic):
+                expect(topic).to_be_null()
+
+        class AllowUnsafeUrl(ConfigContext):
+
+            def defaults_to_true(self, topic):
+                expect(topic).to_be_true()
+
         class MaxWidth(NumericConfigContext):
 
             def defaults_to_0(self, topic):
@@ -196,4 +206,10 @@ class Configuration(Vows.Context):
 
             def default_includes_feature_detector(self, topic):
                 expect(topic).to_include('thumbor.detectors.feature_detector')
+
+            class FaceDetector(Vows.Context):
+                class FaceDetectorCascadeFile(ConfigContext):
+
+                    def defaults_to_haarcascade_frontalface_alt(self, topic):
+                        expect(topic).to_equal('haarcascade_frontalface_alt.xml')
 
