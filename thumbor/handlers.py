@@ -159,17 +159,17 @@ class BaseHandler(tornado.web.RequestHandler):
         if buffer is not None:
             callback(buffer)
         else:
-            buffer = self.loader.load(url)
-            if buffer is None:
-                callback(None)
-                return
+            def handle_loader_loaded(buffer):
+                if buffer is None:
+                    callback(None)
+                    return
 
-            self.engine.load(buffer, extension)
-            self.engine.normalize()
-            buffer = self.engine.read()
-            self.storage.put(url, buffer)
-            callback(buffer)
-
+                self.engine.load(buffer, extension)
+                self.engine.normalize()
+                buffer = self.engine.read()
+                self.storage.put(url, buffer)
+                callback(buffer)
+            self.loader.load(url, handle_loader_loaded)
 
 class EncryptedHandler(BaseHandler):
 
