@@ -12,8 +12,7 @@ import re
 from urlparse import urlparse
 
 import eventlet
-from eventlet.green import urllib2
-from tornado.httpclient import HTTPClient, HTTPRequest
+import urllib2
 from tornado.options import define, options
 
 define('ALLOWED_SOURCES', default=[], multiple=True)
@@ -36,18 +35,22 @@ def validate(url):
             return True
     return False
 
-def verify_size(url, max_size):
-    def verify(options):
-        source, size = options
-
+def verify_size(url, max_size, callback):
+    def verify(source, size):
         usock = urllib2.urlopen(source)
         actual = usock.info().get('Content-Length')
         if actual is None:
             actual = 0
         return (float(actual) / 1024) <= size
 
-    for verified in pool.imap(verify, [(__normalize_url(url), max_size)]):
-        return verified
+    func = pool.spawn(verify, url, max_size)
+
+    def return_verified(gt, url, callback):
+        is_valid = gt.wait()
+
+        callback(is_valid)
+
+    func.link(return_verified, url, callback)
 
 def load(url, callback):
     if options.MAX_SOURCE_SIZE and not verify_size(url, options.MAX_SOURCE_SIZE):
