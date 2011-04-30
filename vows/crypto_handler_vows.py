@@ -24,7 +24,7 @@ fixture_for = lambda path: abspath(join(dirname(__file__), 'fixtures', path))
 image_url = 's.glbimg.com/jo/g1/f/original/2011/04/30/alabama1_ap620.jpg'
 
 @Vows.batch
-class HandlerVows(TornadoContext):
+class CryptoHandlerVows(TornadoContext):
     def _get_app(self):
         application = ThumborServiceApp(fixture_for('encrypted_handler_conf.py'))
         loader.http = self._http_client
