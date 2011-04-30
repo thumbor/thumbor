@@ -182,6 +182,13 @@ class Configuration(Vows.Context):
                     def defaults_to_empty(self, topic):
                         expect(topic).to_be_empty()
 
+            class Json(Vows.Context):
+
+                class MetaCallbackName(ConfigContext):
+
+                    def defaults_to_null(self, topic):
+                        expect(topic).to_be_null()
+
         class Detectors(ConfigContext):
 
             def default_includes_face_detector(self, topic):

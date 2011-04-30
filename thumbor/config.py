@@ -58,6 +58,9 @@ define('MYSQL_STORAGE_SERVER_TABLE', type=str, default='images')
 # ImageMagick ENGINE OPTIONS
 define('MAGICKWAND_PATH', default=[], multiple=True)
 
+# JSON META ENGINE OPTIONS
+define('META_CALLBACK_NAME', type=str, default=None)
+
 # DETECTORS OPTIONS
 define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
 
