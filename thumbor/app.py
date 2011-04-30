@@ -13,39 +13,29 @@ from os.path import join, abspath, dirname, expanduser, exists
 
 import tornado.web
 import tornado.ioloop
-from tornado.options import define, options, parse_config_file
+from tornado.options import parse_config_file
 
-from thumbor.handlers import MainHandler, HealthcheckHandler, EncryptedHandler
+from thumbor.config import conf
+from thumbor.handlers import MainHandler, HealthcheckHandler
+from thumbor.handler import CryptoHandler
 from thumbor.utils import real_import, logger
 from thumbor.url import Url
-
-define('ENGINE',  default='thumbor.engines.pil')
-define('LOADER',  default='thumbor.loaders.http_loader')
-define('STORAGE', default='thumbor.storages.file_storage')
-define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
-define('STORES_CRYPTO_KEY_FOR_EACH_IMAGE', type=bool, default=False)
-define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
-define('FILTERS', default=['thumbor.filters.drop_shadow',], multiple=True)
-define('MAGICKWAND_PATH', default=[], multiple=True)
-
-define('ALLOW_UNSAFE_URL', type=bool, default=True)
-define('META_CALLBACK_NAME', type=str, default=None)
 
 class ThumborServiceApp(tornado.web.Application):
 
     def __init__(self, conf_file=None, custom_handlers=None):
-
         if conf_file is None:
             conf_file = ThumborServiceApp.get_conf_file(conf_file)
 
         logger.info('Config file: %s' % conf_file)
         parse_config_file(conf_file)
 
-        loader = real_import(options.LOADER)
-        storage = real_import(options.STORAGE)
-        engine = real_import(options.ENGINE)
-        detectors = [real_import(detector_name).Detector for detector_name in options.DETECTORS]
-        filters = [real_import(filter_name).Filter for filter_name in options.FILTERS]
+        loader = real_import(conf.LOADER)
+        storage = real_import(conf.STORAGE)
+        engine = real_import(conf.ENGINE)
+        detectors = [real_import(detector_name).Detector for detector_name in conf.DETECTORS]
+        #filters = [real_import(filter_name).Filter for filter_name in conf.FILTERS]
+        filters = []
 
         # run again to overwrite the default settings on the
         # imported modules with the ones defined into the config file
@@ -66,7 +56,7 @@ class ThumborServiceApp(tornado.web.Application):
             (r'/healthcheck', HealthcheckHandler)
         ]
 
-        if options.ALLOW_UNSAFE_URL:
+        if conf.ALLOW_UNSAFE_URL:
             handlers.append(
                 (Url.regex(), MainHandler, handler_context),
             )
@@ -76,7 +66,7 @@ class ThumborServiceApp(tornado.web.Application):
                 handlers.append((handler[0], handler[1], handler_context))
         else:
             handlers.append(
-                (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', EncryptedHandler, handler_context)
+                (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', CryptoHandler, handler_context)
             )
 
         super(ThumborServiceApp, self).__init__(handlers)

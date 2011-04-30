@@ -12,20 +12,22 @@ import re
 from urlparse import urlparse
 import urllib2
 
-from tornado.options import define, options
 import tornado.httpclient
 
+from thumbor.config import conf
+
+http = tornado.httpclient.AsyncHTTPClient()
 
 def __normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
 
 def validate(url):
-    if not options.ALLOWED_SOURCES:
+    if not conf.ALLOWED_SOURCES:
         return True
 
     url = __normalize_url(url)
     res = urlparse(url)
-    for pattern in options.ALLOWED_SOURCES:
+    for pattern in conf.ALLOWED_SOURCES:
         if re.match('^%s$' % pattern, res.hostname):
             return True
     return False
@@ -38,14 +40,13 @@ def verify_size(url, max_size):
     return (float(actual) / 1024) <= max_size
 
 def load(url, callback):
-    if options.MAX_SOURCE_SIZE and not verify_size(url, options.MAX_SOURCE_SIZE):
+    if conf.MAX_SOURCE_SIZE and not verify_size(url, conf.MAX_SOURCE_SIZE):
         return None
 
     def return_contents(response):
         if response.error: callback(None)
         callback(response.body)
 
-    http = tornado.httpclient.AsyncHTTPClient()
     url = __normalize_url(url)
     http.fetch(url, callback=return_contents)
 

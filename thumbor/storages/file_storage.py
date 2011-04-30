@@ -9,16 +9,13 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import os
-import tempfile
 from datetime import datetime
 from os.path import splitext
 
-from tornado.options import options, define
+from tornado.options import options
 from os.path import exists, dirname, join, getmtime
 
 from thumbor.storages import BaseStorage
-
-define('FILE_STORAGE_ROOT_PATH', default=join(tempfile.gettempdir(), 'thumbor', 'storage'))
 
 class Storage(BaseStorage):
 

@@ -8,14 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from tornado.options import options, define
+from tornado.options import options
 
 from thumbor.detectors import CascadeLoaderDetector
 from thumbor.point import FocalPoint
-
-
-define('FACE_DETECTOR_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
-
 
 HAIR_OFFSET = 0.12
 

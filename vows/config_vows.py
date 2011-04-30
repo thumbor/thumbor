@@ -38,10 +38,11 @@ class Configuration(Vows.Context):
 
     class Defaults(Vows.Context):
 
-        class SecurityKey(ConfigContext):
+        #class SecurityKey(ConfigContext):
 
-            def defaults_to_null(self, topic):
-                expect(topic).to_be_null()
+            #def defaults_to_null(self, topic):
+
+                #expect(topic).to_be_null()
 
         class AllowUnsafeUrl(ConfigContext):
 
@@ -98,19 +99,19 @@ class Configuration(Vows.Context):
                 def defaults_to_one_month(self, topic):
                     expect(topic).to_equal(60 * 60 * 24 * 30)
 
-            class StoresCryptoKeyForEachImage(ConfigContext):
+            #class StoresCryptoKeyForEachImage(ConfigContext):
 
-                def defaults_to_false(self, topic):
-                    expect(topic).to_be_false()
+                #def defaults_to_false(self, topic):
+                    #expect(topic).to_be_false()
 
-            class FileStorage(Vows.Context):
-                class FileStorageRootPath(ConfigContext):
+            ##class FileStorage(Vows.Context):
+                #class FileStorageRootPath(ConfigContext):
 
-                    def defaults_to_var_folders(self, topic):
-                        expect(topic).to_include('/var/folders')
+                    #def defaults_to_var_folders(self, topic):
+                        #expect(topic).to_include('/var/folders')
 
-                    def defaults_to_thumbor_storage(self, topic):
-                        expect(topic).to_include('/thumbor/storage')
+                    #def defaults_to_thumbor_storage(self, topic):
+                        #expect(topic).to_include('/thumbor/storage')
 
             class MongoStorage(Vows.Context):
 

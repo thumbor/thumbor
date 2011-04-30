@@ -13,17 +13,12 @@ import hashlib
 import tempfile
 
 import tornado.web
-from tornado.options import define, options
+from tornado.options import options
 
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.crypto import Crypto
 from thumbor.utils import logger
-
-define('MAX_WIDTH', type=int, default=0)
-define('MAX_HEIGHT', type=int, default=0)
-define('QUALITY', type=int, default=80)
-define('SECURITY_KEY', type=str)
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
