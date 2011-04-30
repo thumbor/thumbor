@@ -4,12 +4,11 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license:
+# Licensed under the MIT license: 
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import splitext
-import hashlib
 import tempfile
 
 import tornado.web
@@ -17,7 +16,6 @@ from tornado.options import options
 
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
-from thumbor.crypto import Crypto
 from thumbor.utils import logger
 
 CONTENT_TYPE = {
@@ -166,103 +164,4 @@ class BaseHandler(tornado.web.RequestHandler):
                 callback(buffer)
             self.loader.load(url, handle_loader_loaded)
 
-class EncryptedHandler(BaseHandler):
-
-    def initialize(self, loader, storage, engine, detectors, filters):
-        self.loader = loader
-        self.storage = storage
-        self.engine = engine
-        self.detectors = detectors
-        self.filters = filters
-
-    @tornado.web.asynchronous
-    def get(self,
-            crypto,
-            image,
-            security_key=None,
-            **kw):
-
-        if not security_key and options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            security_key = self.storage.get_crypto(image)
-
-        try:
-            cr = Crypto(security_key or options.SECURITY_KEY)
-            opt = cr.decrypt(crypto)
-        except TypeError:
-            self._error(404, 'Request denied because the specified encrypted url "%s" could not be decripted' % crypto)
-            return
-
-        image_hash = opt and opt.get('image_hash')
-        image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash
-        path_hash = hashlib.md5(image).hexdigest()
-
-        if not image_hash or image_hash != path_hash:
-            self._error(404, 'Request denied because the specified image hash "%s" does not match the given image path hash "%s"' %(
-                unicode(image_hash, errors='replace'),
-                path_hash
-            ))
-            return
-
-        if not self.validate(image):
-            self._error(404)
-            return
-
-        return self.execute_image_operations(opt, image)
-
-class MainHandler(BaseHandler):
-
-    def initialize(self, loader, storage, engine, detectors, filters):
-        self.loader = loader
-        self.storage = storage
-        self.engine = engine
-        self.detectors = detectors
-        self.filters = filters
-
-    @tornado.web.asynchronous
-    def get(self,
-            meta,
-            crop_left,
-            crop_top,
-            crop_right,
-            crop_bottom,
-            fit_in,
-            horizontal_flip,
-            width,
-            vertical_flip,
-            height,
-            halign,
-            valign,
-            smart,
-            image,
-            **kw):
-
-        if not self.validate(image):
-            self._error(404)
-            return
-
-        int_or_0 = lambda value: 0 if value is None else int(value)
-
-        opt = {
-            'meta': meta == 'meta',
-            'crop': {
-                'left': int_or_0(crop_left),
-                'top': int_or_0(crop_top),
-                'right': int_or_0(crop_right),
-                'bottom': int_or_0(crop_bottom)
-            },
-            'fit_in': fit_in,
-            'width': int_or_0(width),
-            'height': int_or_0(height),
-            'horizontal_flip': horizontal_flip == '-',
-            'vertical_flip': vertical_flip == '-',
-            'halign': halign or 'center',
-            'valign': valign or 'middle',
-            'smart': smart == 'smart'
-        }
-
-        return self.execute_image_operations(opt, image)
-
-class HealthcheckHandler(BaseHandler):
-    def get(self):
-        self.write('working')
 
