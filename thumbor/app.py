@@ -42,7 +42,7 @@ class ThumborServiceApp(tornado.web.Application):
         # imported modules with the ones defined into the config file
         parse_config_file(conf_file)
 
-        storage = storage.Storage()
+        #storage = storage.Storage()
         engine = engine.Engine()
 
         handler_context = {

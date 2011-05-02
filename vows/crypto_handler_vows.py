@@ -124,5 +124,5 @@ class CryptoHandlerVows(TornadoContext):
                     return response[1]
 
                 def should_equal_image(self, topic):
-                    expect(topic).not_to_be_empty()
+                    expect(topic != '').to_be_true()
 

@@ -16,7 +16,7 @@ class MainHandler(BaseHandler):
 
     def initialize(self, loader, storage, engine, detectors, filters):
         self.loader = loader
-        self.storage = storage
+        self.storage = storage.Storage()
         self.engine = engine
         self.detectors = detectors
         self.filters = filters
