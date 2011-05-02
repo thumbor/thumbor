@@ -62,12 +62,7 @@ class Crypto(object):
         debased = base64.urlsafe_b64decode(encrypted)
         decrypted = cipher.decrypt(debased).rstrip('{')
 
-        if not decrypted or not urlparse.urlparse(decrypted):
-            return None
-
         result = Url.parse('/%s' % decrypted, with_unsafe=False)
-        if not result:
-            return None
 
         result['image_hash'] = result['image']
         del result['image']

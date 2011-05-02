@@ -25,6 +25,14 @@ class CryptoVows(Vows.Context):
     def should_calculate_salt(self, topic):
         expect(topic.salt).to_equal('somethingsomethi')
 
+    class DecryptInvalidString(Vows.Context):
+
+        def topic(self, crypto):
+            return crypto.decrypt('some string')
+
+        def should_be_null(self, topic):
+            expect(topic).not_to_be_null()
+
     class Encrypt(Vows.Context):
         def topic(self, crypto):
             return crypto.encrypt(width=300,

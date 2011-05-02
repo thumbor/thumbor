@@ -10,23 +10,6 @@
 
 from thumbor.url import Url
 
-def test_url_generate_min():
-    url = Url.generate_options(
-        width=300,
-        height=200
-    )
-
-    assert url == '300x200'
-
-def test_url_generate_with_smart():
-    url = Url.generate_options(
-        width=300,
-        height=200,
-        smart=True
-    )
-
-    assert url == '300x200/smart'
-
 def test_url_generate_with_alignments():
     url = Url.generate_options(
         halign='left',
