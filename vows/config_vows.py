@@ -59,10 +59,10 @@ class Configuration(Vows.Context):
             def defaults_to_0(self, topic):
                 expect(topic).to_equal(0)
 
-        class AllowedSources(ConfigContext):
+        #class AllowedSources(ConfigContext):
 
-            def defaults_to_empty(self, topic):
-                expect(topic).to_be_empty()
+            #def defaults_to_empty(self, topic):
+                #expect(topic).to_be_empty()
 
         class Quality(NumericConfigContext):
 

@@ -33,12 +33,8 @@ class CryptoHandler(BaseHandler):
         if not security_key and conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             security_key = self.storage.get_crypto(image)
 
-        try:
-            cr = Crypto(security_key or conf.SECURITY_KEY)
-            opt = cr.decrypt(crypto)
-        except TypeError:
-            self._error(404, 'Request denied because the specified encrypted url "%s" could not be decripted' % crypto)
-            return
+        cr = Crypto(security_key or conf.SECURITY_KEY)
+        opt = cr.decrypt(crypto)
 
         image_hash = opt and opt.get('image_hash')
         image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash
