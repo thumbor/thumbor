@@ -37,4 +37,13 @@ class UrlVows(Vows.Context):
         def should_return_proper_url(self, topic):
             expect(topic).to_equal('left/top')
 
+    class Flipping(ctx(width=300, height=200, smart=True, horizontal_flip=True, vertical_flip=True)):
+
+        def should_return_proper_url(self, topic):
+            expect(topic).to_equal('-300x-200/smart')
+
+    class Crop(ctx(width=300, height=200, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13)):
+
+        def should_return_proper_url(self, topic):
+            expect(topic).to_equal('10x11:12x13/300x200')
 

@@ -120,7 +120,8 @@ class Url(object):
         if vertical_flip:
             height = height * -1
 
-        url.append('%sx%s' % (width, height))
+        if width or height:
+            url.append('%sx%s' % (width, height))
 
         if halign != 'center':
             url.append(halign)

@@ -10,25 +10,6 @@
 
 from thumbor.url import Url
 
-def test_url_generate_with_alignments():
-    url = Url.generate_options(
-        halign='left',
-        valign='top'
-    )
-
-    assert url == '0x0/left/top', url
-
-def test_url_generate_with_flipping():
-    url = Url.generate_options(
-        width=300,
-        height=200,
-        smart=True,
-        horizontal_flip=True,
-        vertical_flip=True
-    )
-
-    assert url == '-300x-200/smart'
-
 def test_url_generate_with_manual_crop():
     url = Url.generate_options(
         width=300,
