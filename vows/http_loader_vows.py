@@ -13,6 +13,7 @@ from os.path import abspath, join, dirname
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoContext, TornadoSubContext
 import tornado.web
+from tornado.options import options
 
 import thumbor.loaders.http_loader as loader
 
@@ -30,6 +31,24 @@ application = tornado.web.Application([
 
 @Vows.batch
 class HttpLoader(Vows.Context):
+    class ValidateURL(Vows.Context):
+        def topic(self):
+            return loader.validate('http://www.google.com/logo.jpg')
+
+        def should_not_validate(self, topic):
+            expect(topic).to_be_false()
+
+        class AllowAll(Vows.Context):
+            def topic(self):
+                old_sources = options.ALLOWED_SOURCES
+                options.ALLOWED_SOURCES = []
+                is_valid = loader.validate('http://www.google.com/logo.jpg')
+                options.ALLOWED_SOURCES = old_sources
+                return is_valid
+
+            def should_validate(self, topic):
+                expect(topic).to_be_true()
+
     class NormalizeURL(Vows.Context):
         class WhenStartsWithHttp(Vows.Context):
             def topic(self):
