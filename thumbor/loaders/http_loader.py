@@ -17,6 +17,9 @@ from thumbor.config import conf
 
 http = tornado.httpclient.AsyncHTTPClient()
 
+def fetch(url, callback):
+    http.fetch(url, callback=callback)
+
 def _normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
 
@@ -47,6 +50,5 @@ def load(url, callback):
         callback(response.body)
 
     url = _normalize_url(url)
-    import ipdb;ipdb.set_trace()
-    http.fetch(url, callback=return_contents)
+    fetch(url, callback=return_contents)
 

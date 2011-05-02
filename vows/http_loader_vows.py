@@ -18,18 +18,15 @@ import thumbor.loaders.http_loader as loader
 
 fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
 
-@Vows.assertion
-def to_match_contents_of(topic, filepath):
-    assert file(filepath).read() == topic, "Expected body of %s to match topic, but it didn't" % filepath
-
 class MainHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
-        path = fixture_for('conselheira_tutelar.jpg')
-        contents = open(path.read())
-        self.write(contents)
-        self.set_header("Content-Type", "image/jpeg")
+        self.write('Hello')
         self.finish()
+
+application = tornado.web.Application([
+    (r"/", MainHandler),
+])
 
 @Vows.batch
 class HttpLoader(Vows.Context):
@@ -50,10 +47,10 @@ class HttpLoader(Vows.Context):
 
     class LoadAndVerifyImage(TornadoContext):
         def _get_app(self):
-            application = tornado.web.Application([
-                (r"/", MainHandler),
-            ])
-            loader.http = self._http_client
+            def fetch(url, callback):
+                contents = self._fetch(url)
+                callback(contents)
+            loader.fetch = fetch
             return application
 
         #class Verify(Vows.Context):
@@ -73,11 +70,18 @@ class HttpLoader(Vows.Context):
 
         class Load(TornadoSubContext):
             def topic(self):
-                loader.load(self._get_url('/'), self._stop)
+                self.async_topic = ''
+                def get_contents(contents):
+                    self.async_topic = contents
+                url = self._get_url('/')
+                loader.load(url, get_contents)
 
-                result = self._wait()
+                return self.async_topic
 
-                return result
+            def should_equal_hello(self, topic):
+                expect(topic).to_equal('Hello')
 
-            def should_equal_regular_http_get(self, topic):
-                expect(topic).to_match_contents_of(fixture_for('conselheira_tutelar.jpg'))
+if __name__ == '__main__':
+    application.listen(8888)
+    tornado.ioloop.IOLoop.instance().start()
+
