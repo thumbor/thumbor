@@ -16,8 +16,9 @@ import tornado.ioloop
 from tornado.options import parse_config_file
 
 from thumbor.config import conf
-from thumbor.handlers import MainHandler, HealthcheckHandler
-from thumbor.handler import CryptoHandler
+from thumbor.handlers.unsafe import MainHandler
+from thumbor.handlers.healthcheck import HealthcheckHandler
+from thumbor.handlers.crypto import CryptoHandler
 from thumbor.utils import real_import, logger
 from thumbor.url import Url
 

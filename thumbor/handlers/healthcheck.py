@@ -8,3 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from thumbor.handlers import BaseHandler
+
+class HealthcheckHandler(BaseHandler):
+    def get(self):
+        self.write('working')
+

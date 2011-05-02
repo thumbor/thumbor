@@ -24,7 +24,7 @@ fixture_for = lambda path: abspath(join(dirname(__file__), 'fixtures', path))
 image_url = 's.glbimg.com/jo/g1/f/original/2011/04/30/alabama1_ap620.jpg'
 
 @Vows.batch
-class HandlerVows(TornadoContext):
+class CryptoHandlerVows(TornadoContext):
     def _get_app(self):
         application = ThumborServiceApp(fixture_for('encrypted_handler_conf.py'))
         loader.http = self._http_client
@@ -77,6 +77,31 @@ class HandlerVows(TornadoContext):
 
                 def should_be_empty(self, topic):
                     expect(topic).to_be_empty()
+
+        class WhenInvalidUrl(TornadoSubContext):
+            def topic(self):
+                other_domain_image = "some.other.domain.com/image.jpg"
+                url = get_encrypted_url(other_domain_image, 300, 200)
+
+                self._http_client.fetch(self._get_url(url), self._stop)
+                response = self._wait()
+
+                return (response.code, response.body)
+
+            class StatusCode(TornadoSubContext):
+                def topic(self, response):
+                    return response[0]
+
+                def should_be_an_error_code(self, topic):
+                    expect(topic).to_equal(404)
+
+            class Body(TornadoSubContext):
+                def topic(self, response):
+                    return response[1]
+
+                def should_be_empty(self, topic):
+                    expect(topic).to_be_empty()
+
 
         class WhenProperUrl(TornadoSubContext):
             def topic(self):

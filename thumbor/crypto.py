@@ -1,6 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# thumbor imaging service
+# https://github.com/globocom/thumbor/wiki
+
+# Licensed under the MIT license:
+# http://www.opensource.org/licenses/mit-license
+# Copyright (c) 2011 globo.com timehome@corp.globo.com
+
 import base64
 import hashlib
 import urlparse
@@ -55,12 +62,7 @@ class Crypto(object):
         debased = base64.urlsafe_b64decode(encrypted)
         decrypted = cipher.decrypt(debased).rstrip('{')
 
-        if not decrypted or not urlparse.urlparse(decrypted):
-            return None
-
         result = Url.parse('/%s' % decrypted, with_unsafe=False)
-        if not result:
-            return None
 
         result['image_hash'] = result['image']
         del result['image']

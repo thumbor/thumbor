@@ -10,7 +10,6 @@
 
 import re
 from urlparse import urlparse
-import urllib2
 
 import tornado.httpclient
 
@@ -18,35 +17,36 @@ from thumbor.config import conf
 
 http = tornado.httpclient.AsyncHTTPClient()
 
-def __normalize_url(url):
+def _normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
 
 def validate(url):
     if not conf.ALLOWED_SOURCES:
         return True
 
-    url = __normalize_url(url)
+    url = _normalize_url(url)
     res = urlparse(url)
     for pattern in conf.ALLOWED_SOURCES:
         if re.match('^%s$' % pattern, res.hostname):
             return True
     return False
 
-def verify_size(url, max_size):
-    usock = urllib2.urlopen(url)
-    actual = usock.info().get('Content-Length')
-    if actual is None:
-        actual = 0
-    return (float(actual) / 1024) <= max_size
+#def verify_size(url, max_size):
+    #usock = urllib2.urlopen(url)
+    #actual = usock.info().get('Content-Length')
+    #if actual is None:
+        #actual = 0
+    #return (float(actual) / 1024) <= max_size
 
 def load(url, callback):
-    if conf.MAX_SOURCE_SIZE and not verify_size(url, conf.MAX_SOURCE_SIZE):
-        return None
+    #if conf.MAX_SOURCE_SIZE and not verify_size(url, conf.MAX_SOURCE_SIZE):
+        #return None
 
     def return_contents(response):
         if response.error: callback(None)
         callback(response.body)
 
-    url = __normalize_url(url)
+    url = _normalize_url(url)
+    import ipdb;ipdb.set_trace()
     http.fetch(url, callback=return_contents)
 
