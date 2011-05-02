@@ -22,28 +22,159 @@ def ctx(**kw):
 @Vows.batch
 class UrlVows(Vows.Context):
 
-    class Minimum(ctx(width=300, height=200)):
+    class UrlGeneration(Vows.Context):
 
-        def should_return_proper_url(self, topic):
-            expect(topic).to_equal('300x200')
+        class Default(ctx()):
 
-    class Smart(ctx(width=300, height=200, smart=True)):
+            def should_return_empty_url(self, topic):
+                expect(topic).to_be_empty()
 
-        def should_return_proper_url(self, topic):
-            expect(topic).to_equal('300x200/smart')
+        class Minimum(ctx(width=300, height=200)):
 
-    class Alignments(ctx(halign='left', valign='top')):
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('300x200')
 
-        def should_return_proper_url(self, topic):
-            expect(topic).to_equal('left/top')
+        class Smart(ctx(width=300, height=200, smart=True)):
 
-    class Flipping(ctx(width=300, height=200, smart=True, horizontal_flip=True, vertical_flip=True)):
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('300x200/smart')
 
-        def should_return_proper_url(self, topic):
-            expect(topic).to_equal('-300x-200/smart')
+        class Alignments(ctx(halign='left', valign='top')):
 
-    class Crop(ctx(width=300, height=200, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13)):
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('left/top')
 
-        def should_return_proper_url(self, topic):
-            expect(topic).to_equal('10x11:12x13/300x200')
+        class Flipping(ctx(width=300, height=200, smart=True, horizontal_flip=True, vertical_flip=True)):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('-300x-200/smart')
+
+        class Crop(ctx(width=300, height=200, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13)):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('10x11:12x13/300x200')
+
+        class Meta(ctx(meta=True)):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('meta')
+
+        class FitIn(ctx(fit_in=True)):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('fit-in')
+
+        class Complete(ctx(width=300, height=200, smart=True, fit_in=True, meta=True, horizontal_flip=True, vertical_flip=True, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13)):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('meta/10x11:12x13/fit-in/-300x-200/smart')
+
+    class Regex(Vows.Context):
+        def topic(self):
+            return Url.regex()
+
+        def should_contain_unsafe(self, topic):
+            expect(topic).to_include('/?unsafe/')
+
+        def should_contain_meta(self, topic):
+            expect(topic).to_include('(?:(?P<meta>meta)/)?')
+
+        def should_contain_crop(self, topic):
+            expect(topic).to_include('(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?')
+
+        def should_contain_fit_in(self, topic):
+            expect(topic).to_include('(?:(?P<fit_in>fit-in)/)?')
+
+        def should_contain_dimensions(self, topic):
+            expect(topic).to_include('(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?')
+
+        def should_contain_halign(self, topic):
+            expect(topic).to_include('(?:(?P<halign>left|right|center)/)?')
+
+        def should_contain_valign(self, topic):
+            expect(topic).to_include('(?:(?P<valign>top|bottom|middle)/)?')
+
+        def should_contain_smart(self, topic):
+            expect(topic).to_include('(?:(?P<smart>smart)/)?')
+
+        def should_contain_image(self, topic):
+            expect(topic).to_include('(?P<image>.+)')
+
+        class WithoutImage(Vows.Context):
+            def topic(self):
+                return Url.regex(include_image=False)
+
+            def should_not_include_image(self, topic):
+                expect(topic).not_to_include('(?P<image>.+)')
+
+    class Parse(Vows.Context):
+        class WithoutInitialSlash(Vows.Context):
+            def topic(self):
+                return Url.parse_options('unsafe/meta/10x11:12x13/-300x-200/left/top/smart/')
+
+            def should_not_be_null(self, topic):
+                expect(topic).not_to_be_null()
+
+        class WithoutResult(Vows.Context):
+            def topic(self):
+                return Url.parse_options("some fake url")
+
+            def should_be_null(self, topic):
+                expect(topic).to_be_null()
+
+        class WithoutImage(Vows.Context):
+            def topic(self):
+                return Url.parse_options('/unsafe/meta/10x11:12x13/fit-in/-300x-200/left/top/smart/')
+
+            def should_have_meta(self, topic):
+                expect(topic['meta']).to_be_true()
+
+            def should_have_crop_left_of_10(self, topic):
+                expect(topic['crop']['left']).to_equal(10)
+
+            def should_have_crop_top_of_11(self, topic):
+                expect(topic['crop']['top']).to_equal(11)
+
+            def should_have_crop_right_of_12(self, topic):
+                expect(topic['crop']['right']).to_equal(12)
+
+            def should_have_crop_bottom_of_13(self, topic):
+                expect(topic['crop']['bottom']).to_equal(13)
+
+            def should_have_width_of_300(self, topic):
+                expect(topic['width']).to_equal(300)
+
+            def should_have_height_of_200(self, topic):
+                expect(topic['height']).to_equal(200)
+
+            def should_have_horizontal_flip(self, topic):
+                expect(topic['horizontal_flip']).to_be_true()
+
+            def should_have_vertical_flip(self, topic):
+                expect(topic['vertical_flip']).to_be_true()
+
+            def should_have_halign_of_left(self, topic):
+                expect(topic['halign']).to_equal('left')
+
+            def should_have_valign_of_top(self, topic):
+                expect(topic['valign']).to_equal('top')
+
+            def should_have_smart(self, topic):
+                expect(topic['smart']).to_be_true()
+
+            def should_have_fit_in(self, topic):
+                expect(topic['fit_in']).to_be_true()
+
+        class WithImage(Vows.Context):
+            def topic(self):
+                image_url = 's.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg'
+
+                return Url.parse('/unsafe/meta/10x11:12x13/-300x-200/left/top/smart/%s' % image_url)
+
+            def should_have_image(self, topic):
+                expect(topic).to_include('image')
+
+            def should_have_image_like_url(self, topic):
+                image_url = 's.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg'
+                expect(topic).to_equal(image_url)
 

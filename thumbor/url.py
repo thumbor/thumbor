@@ -36,9 +36,6 @@ class Url(object):
         reg.append(cls.valign)
         reg.append(cls.smart)
 
-        for filter_class in filters:
-            reg.append(filter_class.regex)
-
         if include_image:
             reg.append(cls.image)
 
