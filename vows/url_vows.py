@@ -176,5 +176,5 @@ class UrlVows(Vows.Context):
 
             def should_have_image_like_url(self, topic):
                 image_url = 's.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg'
-                expect(topic).to_equal(image_url)
+                expect(topic['image']).to_equal(image_url)
 
