@@ -43,17 +43,52 @@ class CascadeLoaderDetector(BaseDetector):
             setattr(self.__class__, 'cascade', cv.Load(cascade_file))
 
     def get_features(self, context):
-        image = cv.LoadImageM(context['file'], cv.CV_LOAD_IMAGE_GRAYSCALE)
-        faces = cv.HaarDetectObjects(
-            image,
-            self.__class__.cascade,
-            cv.CreateMemStorage(0),
-            scale_factor=1.1,
-            min_neighbors=3,
-            flags=cv.CV_HAAR_DO_CANNY_PRUNING,
-            min_size=(20, 20)
-        )
-        return faces
+        image = cv.LoadImageM(context['file'])
+
+        min_size = (20, 20)
+        image_scale = 2.0
+        haar_scale = 1.2
+        min_neighbors = 2
+
+        thumbnail = cv.CreateMat(int(round(image.height / image_scale, 0)), int(round(image.width / image_scale, 0)), cv.CV_8UC3)
+        cv.Resize(image, thumbnail)
+
+        gray = cv.CreateImage((thumbnail.width, thumbnail.height), 8, 1)
+
+        cv.CvtColor(thumbnail, gray, cv.CV_BGR2GRAY)
+
+        cv.EqualizeHist(gray, gray)
+
+        faces = cv.HaarDetectObjects(gray,
+                                     self.__class__.cascade, cv.CreateMemStorage(0),
+                                     haar_scale, min_neighbors,
+                                     cv.CV_HAAR_DO_CANNY_PRUNING, min_size)
+
+        #faces = cv.HaarDetectObjects(
+            #image,
+            #self.__class__.cascade,
+            #cv.CreateMemStorage(0),
+            #scale_factor=1.1,
+            #min_neighbors=3,
+            #flags=cv.CV_HAAR_DO_CANNY_PRUNING,
+            #min_size=(40, 40)
+        #)
+
+        #print faces
+        faces_scaled = []
+
+        for ((x, y, w, h), n) in faces:
+            # the input to cv.HaarDetectObjects was resized, so scale the
+            # bounding box of each face and convert it to two CvPoints
+            pt1 = (int(x * image_scale), int(y * image_scale))
+            pt2 = (int((x + w) * image_scale), int((y + h) * image_scale))
+            x1 = pt1[0]
+            x2 = pt2[0]
+            y1 = pt1[1]
+            y2 = pt2[1]
+            faces_scaled.append(((x1, y1, x2-x1, y2-y1), None))
+
+        return faces_scaled
 
     def detect(self, context):
         features = self.get_features(context)
@@ -63,3 +98,4 @@ class CascadeLoaderDetector(BaseDetector):
                 context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
         else:
             self.next(context)
+
