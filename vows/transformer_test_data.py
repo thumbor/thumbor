@@ -858,7 +858,7 @@ FIT_IN_CROP_DATA = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True
-    ), (200, 100)),
+    ), (200, 100, 1)),
 
     (TestData(
         source_width=1000, source_height=250,
@@ -867,7 +867,16 @@ FIT_IN_CROP_DATA = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True
-    ), (500, 125))
+    ), (500, 125, 1)),
+
+    (TestData(
+        source_width=200, source_height=250,
+        target_width=500, target_height=400,
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+        fit_in=True
+    ), (200, 250, 0))
 
 ]
 

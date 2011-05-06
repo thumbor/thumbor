@@ -106,16 +106,26 @@ class TransformerVows(Vows.Context):
 
         def should_have_resize(self, topic):
             engine = self._get_engine(topic)
+
+            if not topic[1][2]:
+                expect(engine.calls['resize']).to_be_empty()
+                return
+
             expect(engine.calls['resize']).not_to_be_empty()
 
-        def should_have_only_one_resize_call(self, topic):
+        def should_have_proper_resize_calls(self, topic):
             engine = self._get_engine(topic)
-            expect(engine.calls['resize']).to_length(1)
+            length = topic[1][2]
+            expect(engine.calls['resize']).to_length(length)
 
         def should_have_proper_width(self, topic):
+            if not topic[1][2]:
+                return
             engine = self._get_engine(topic)
             expect(engine.calls['resize'][0]['width']).to_equal(topic[1][0])
 
         def should_have_proper_height(self, topic):
+            if not topic[1][2]:
+                return
             engine = self._get_engine(topic)
             expect(engine.calls['resize'][0]['height']).to_equal(topic[1][1])

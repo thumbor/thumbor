@@ -135,7 +135,7 @@ class Transformer(object):
     def fit_in_resize(self):
         source_width, source_height = self.engine.size
 
-        if self.target_width == source_width and self.target_height == source_height:
+        if self.target_width >= source_width and self.target_height >= source_height:
             return
 
         if source_width / self.target_width >= source_height / self.target_height:

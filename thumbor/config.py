@@ -58,7 +58,7 @@ define('MYSQL_STORAGE_SERVER_PASSWORD', type=str, default='')
 define('MYSQL_STORAGE_SERVER_DB', type=str, default='thumbor')
 define('MYSQL_STORAGE_SERVER_TABLE', type=str, default='images')
 
-# MYSQL STORAGE OPTIONS
+# MIXED STORAGE OPTIONS
 define('MIXED_STORAGE_FILE_STORAGE', type=str, default='thumbor.storages.no_storage')
 define('MIXED_STORAGE_CRYPTO_STORAGE', type=str, default='thumbor.storages.no_storage')
 

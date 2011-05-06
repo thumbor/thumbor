@@ -10,9 +10,7 @@
 
 from os.path import join
 
-from tornado.options import options, define
-
-define('FILE_LOADER_ROOT_PATH')
+from thumbor.config import conf
 
 def load(path):
-    return open(join(options.FILE_LOADER_ROOT_PATH, path)).read()
+    return open(join(conf.FILE_LOADER_ROOT_PATH, path)).read()
