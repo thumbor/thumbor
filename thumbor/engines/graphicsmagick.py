@@ -8,11 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from cStringIO import StringIO
-
 from tornado.options import options
 from pgmagick import Image, Geometry, Blob, FilterTypes
-from PIL import Image as PIL_Image
 
 from thumbor.engines import BaseEngine
 
@@ -25,10 +22,9 @@ FORMATS = {
 
 class Engine(BaseEngine):
     def create_image(self, buffer):
-        img = PIL_Image.open(StringIO(buffer))
-
         blob = Blob(buffer)
-        return Image(blob, Geometry(*img.size))
+        img = Image(blob)
+        return img
 
     @property
     def size(self):

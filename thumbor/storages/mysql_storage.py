@@ -10,44 +10,58 @@
 
 from datetime import datetime
 
-from tornado.options import options, define
 import MySQLdb as mysql
 
 from thumbor.storages import BaseStorage
-
-define('MYSQL_STORAGE_SERVER_HOST', type=str, default='localhost')
-define('MYSQL_STORAGE_SERVER_PORT', type=int, default=3306)
-define('MYSQL_STORAGE_SERVER_USER', type=str, default='root')
-define('MYSQL_STORAGE_SERVER_PASSWORD', type=str, default='')
-define('MYSQL_STORAGE_SERVER_DB', type=str, default='thumbor')
-define('MYSQL_STORAGE_SERVER_TABLE', type=str, default='images')
+from thumbor.config import conf
 
 class Storage(BaseStorage):
 
     def __conn__(self):
-        return mysql.connect(host=options.MYSQL_STORAGE_SERVER_HOST,
-                             user=options.MYSQL_STORAGE_SERVER_USER,
-                             passwd=options.MYSQL_STORAGE_SERVER_PASSWORD,
-                             db=options.MYSQL_STORAGE_SERVER_DB)
+        return mysql.connect(host=conf.MYSQL_STORAGE_SERVER_HOST,
+                             user=conf.MYSQL_STORAGE_SERVER_USER,
+                             passwd=conf.MYSQL_STORAGE_SERVER_PASSWORD,
+                             db=conf.MYSQL_STORAGE_SERVER_DB)
 
 
     def put(self, path, bytes):
         connection = self.__conn__()
         try:
-            sql = "INSERT INTO images(url, contents, security_key) VALUES(%s, %s, %s)"
+            sql = "INSERT INTO images(url, contents) VALUES(%s, %s)"
 
             security_key = ''
-            if options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-                if not options.SECURITY_KEY:
+            if conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+                if not conf.SECURITY_KEY:
                     raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
-                security_key = options.SECURITY_KEY
+                security_key = conf.SECURITY_KEY
 
             cursor = connection.cursor()
             cursor.execute(sql, (path, bytes, security_key))
         finally:
             connection.close()
 
+    def put_crypto(self, path):
+        if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            return
+
+        connection = self.__conn__()
+        try:
+            security_key = ''
+            if not conf.SECURITY_KEY:
+                raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+            security_key = conf.SECURITY_KEY
+
+            sql = "UPDATE images set security_key=%s WHERE path=%s"
+
+            cursor = connection.cursor()
+            cursor.execute(sql, (security_key, path))
+        finally:
+            connection.close()
+
     def get_crypto(self, path):
+        if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            return None
+
         connection = self.__conn__()
         try:
             sql = "SELECT security_key FROM images where url=%s"
@@ -78,5 +92,5 @@ class Storage(BaseStorage):
 
     def __is_expired(self, last_update):
         timediff = datetime.now() - last_update
-        return timediff.seconds > options.STORAGE_EXPIRATION_SECONDS
+        return timediff.seconds > conf.STORAGE_EXPIRATION_SECONDS
 

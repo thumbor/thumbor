@@ -12,10 +12,10 @@ import os
 from datetime import datetime
 from os.path import splitext
 
-from tornado.options import options
 from os.path import exists, dirname, join, getmtime
 
 from thumbor.storages import BaseStorage
+from thumbor.config import conf
 
 class Storage(BaseStorage):
 
@@ -29,14 +29,18 @@ class Storage(BaseStorage):
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
 
-        if options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+    def put_crypto(self, path):
+        if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            return
 
-            if not options.SECURITY_KEY:
-                raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+        file_abspath = self.__normalize_path(path)
 
-            crypto_path = '%s.txt' % splitext(file_abspath)[0]
-            with open(crypto_path, 'w') as _file:
-                _file.write(options.SECURITY_KEY)
+        if not conf.SECURITY_KEY:
+            raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+
+        crypto_path = '%s.txt' % splitext(file_abspath)[0]
+        with open(crypto_path, 'w') as _file:
+            _file.write(conf.SECURITY_KEY)
 
     def get_crypto(self, path):
         file_abspath = self.__normalize_path(path)
@@ -57,8 +61,8 @@ class Storage(BaseStorage):
         if path.startswith('/'):
             path = path[1:]
 
-        return join(options.FILE_STORAGE_ROOT_PATH, path)
+        return join(conf.FILE_STORAGE_ROOT_PATH, path)
 
     def __is_expired(self, path):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
-        return timediff.seconds > options.STORAGE_EXPIRATION_SECONDS
+        return timediff.seconds > conf.STORAGE_EXPIRATION_SECONDS

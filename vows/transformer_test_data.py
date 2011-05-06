@@ -867,17 +867,7 @@ FIT_IN_CROP_DATA = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True
-    ), (500, 125)),
-
-    (TestData(
-        source_width=1000, source_height=250,
-        target_width=1000, target_height=250,
-        halign="middle", valign="middle",
-        focal_points=[],
-        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
-        fit_in=True
-    ), (1000, 250))
-
+    ), (500, 125))
 
 ]
 

@@ -13,21 +13,16 @@ from cStringIO import StringIO
 
 from pymongo import Connection
 import gridfs
-from tornado.options import options, define
 
 from thumbor.storages import BaseStorage
-
-define('MONGO_STORAGE_SERVER_HOST', type=str, default='localhost')
-define('MONGO_STORAGE_SERVER_PORT', type=int, default=27017)
-define('MONGO_STORAGE_SERVER_DB', type=str, default='thumbor')
-define('MONGO_STORAGE_SERVER_COLLECTION', type=str, default='images')
+from thumbor.config import conf
 
 class Storage(BaseStorage):
 
     def __conn__(self):
-        connection = Connection(options.MONGO_STORAGE_SERVER_HOST, options.MONGO_STORAGE_SERVER_PORT)
-        db = connection[options.MONGO_STORAGE_SERVER_DB]
-        storage = db[options.MONGO_STORAGE_SERVER_COLLECTION]
+        connection = Connection(conf.MONGO_STORAGE_SERVER_HOST, conf.MONGO_STORAGE_SERVER_PORT)
+        db = connection[conf.MONGO_STORAGE_SERVER_DB]
+        storage = db[conf.MONGO_STORAGE_SERVER_COLLECTION]
 
         return connection, db, storage
 
@@ -40,10 +35,10 @@ class Storage(BaseStorage):
         }
 
         doc_with_crypto = dict(doc)
-        if options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            if not options.SECURITY_KEY:
+        if conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            if not conf.SECURITY_KEY:
                 raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
-            doc_with_crypto['crypto'] = options.SECURITY_KEY
+            doc_with_crypto['crypto'] = conf.SECURITY_KEY
         
 
         fs = gridfs.GridFS(db)
@@ -51,6 +46,20 @@ class Storage(BaseStorage):
 
         doc_with_crypto['file_id'] = file_data
         storage.insert(doc_with_crypto)
+
+    def put_crypto(self, path):
+        if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            return
+
+        connection, db, storage = self.__conn__()
+
+        if not conf.SECURITY_KEY:
+            raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+
+        crypto = storage.find_one({'path': path})
+
+        crypto['crypto'] = conf.SECURITY_KEY
+        storage.update(crypto)
 
     def get_crypto(self, path):
         connection, db, storage = self.__conn__()
@@ -74,5 +83,5 @@ class Storage(BaseStorage):
 
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')
-        return timediff.seconds > options.STORAGE_EXPIRATION_SECONDS
+        return timediff.seconds > conf.STORAGE_EXPIRATION_SECONDS
 
