@@ -28,7 +28,6 @@ class Storage(BaseStorage):
         self.file_storage.put(path, bytes)
 
     def put_crypto(self, path):
-        import ipdb;ipdb.set_trace()
         self.crypto_storage.put_crypto(path)
 
     def get_crypto(self, path):
