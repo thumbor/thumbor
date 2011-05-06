@@ -19,12 +19,15 @@ from thumbor.config import conf
 
 class Storage(BaseStorage):
 
+    def __ensure_dir(self, path):
+        if not exists(path):
+            os.makedirs(path)
+
     def put(self, path, bytes):
         file_abspath = self.__normalize_path(path)
         file_dir_abspath = dirname(file_abspath)
 
-        if not exists(file_dir_abspath):
-            os.makedirs(file_dir_abspath)
+        self.__ensure_dir(file_dir_abspath)
 
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
@@ -34,6 +37,9 @@ class Storage(BaseStorage):
             return
 
         file_abspath = self.__normalize_path(path)
+        file_dir_abspath = dirname(file_abspath)
+
+        self.__ensure_dir(file_dir_abspath)
 
         if not conf.SECURITY_KEY:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")

@@ -165,6 +165,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.storage.put_crypto(url)
 
                 callback(buffer)
+
             self.loader.load(url, handle_loader_loaded)
 
 
