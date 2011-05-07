@@ -8,8 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import math
-
 from tornado.options import options
 
 class BaseEngine(object):
@@ -19,7 +17,6 @@ class BaseEngine(object):
         self.extension = None
 
     def load(self, buffer, extension):
-        #loads image buffer in byte format.
         self.extension = extension
         self.image = self.create_image(buffer)
 

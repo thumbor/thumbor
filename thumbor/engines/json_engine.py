@@ -27,6 +27,10 @@ class JSONEngine(BaseEngine):
     def refresh_image(self):
         self.image = self.engine.image
 
+    @property
+    def size(self):
+        return self.engine.size
+
     def resize(self, width, height):
         self.operations.append({
             "type": "resize",
