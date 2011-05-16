@@ -16,13 +16,6 @@ from thumbor.crypto import Crypto
 from thumbor.handlers import BaseHandler
 
 class CryptoHandler(BaseHandler):
-    def initialize(self, loader, storage, engine, detectors, filters):
-        self.loader = loader
-        self.storage = storage.Storage()
-        self.engine = engine
-        self.detectors = detectors
-        self.filters = filters
-
     @tornado.web.asynchronous
     def get(self,
             crypto,
@@ -31,7 +24,7 @@ class CryptoHandler(BaseHandler):
             **kw):
 
         if not security_key and conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            security_key = self.storage.get_crypto(image)
+            security_key = self.storage().get_crypto(image)
 
         cr = Crypto(security_key or conf.SECURITY_KEY)
         opt = cr.decrypt(crypto)
@@ -52,3 +45,4 @@ class CryptoHandler(BaseHandler):
             return
 
         return self.execute_image_operations(opt, image)
+

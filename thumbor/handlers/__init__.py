@@ -26,6 +26,13 @@ CONTENT_TYPE = {
 }
 
 class BaseHandler(tornado.web.RequestHandler):
+    def initialize(self, loader, storage, engine, detectors, filters):
+        self.loader = loader
+        self.storage = storage.Storage
+        self.engine = engine
+        self.detectors = detectors
+        self.filters = filters
+
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
@@ -92,7 +99,7 @@ class BaseHandler(tornado.web.RequestHandler):
             context = dict(
                 loader=self.loader,
                 engine=self.engine,
-                storage=self.storage,
+                storage=self.storage(),
                 buffer=buffer,
                 should_crop=should_crop,
                 crop_left=crop_left,
@@ -147,7 +154,8 @@ class BaseHandler(tornado.web.RequestHandler):
         return is_valid
 
     def _fetch(self, url, extension, callback):
-        buffer = self.storage.get(url)
+        storage = self.storage()
+        buffer = storage.get(url)
 
         if buffer is not None:
             callback(buffer)
@@ -161,8 +169,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.engine.normalize()
                 buffer = self.engine.read()
 
-                self.storage.put(url, buffer)
-                self.storage.put_crypto(url)
+                storage.put(url, buffer)
+                storage.put_crypto(url)
 
                 callback(buffer)
 

@@ -24,6 +24,7 @@ def main():
     parser.add_option('-k', '--key', dest='key', default=None, help = 'The security key to encrypt the url with [default: %default].' )
     parser.add_option('-w', '--width', dest='width', type='int', default=0, help = 'The target width for the image [default: %default].' )
     parser.add_option('-e', '--height', dest='height', type='int', default=0, help = 'The target height for the image [default: %default].' )
+    parser.add_option('-n', '--fitin', dest='fitin', action='store_true', default=False, help = 'Indicates that fit-in resizing should be performed.' )
     parser.add_option('-s', '--smart', action='store_true', dest='smart', default=False, help = 'Indicates that smart cropping should be used.' )
     parser.add_option('-f', '--horizontal-flip', action='store_true', dest='horizontal_flip', default=False, help = 'Indicates that the image should be horizontally flipped.' )
     parser.add_option('-v', '--vertical-flip', action='store_true', dest='vertical_flip', default=False, help = 'Indicates that the image should be vertically flipped.')
@@ -66,6 +67,7 @@ def main():
     opt = crypt.encrypt(parsed_options.width,
                         parsed_options.height,
                         parsed_options.smart,
+                        parsed_options.fitin,
                         parsed_options.horizontal_flip,
                         parsed_options.vertical_flip,
                         parsed_options.halign,
