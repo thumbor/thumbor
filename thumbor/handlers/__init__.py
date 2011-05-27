@@ -26,13 +26,6 @@ CONTENT_TYPE = {
 }
 
 class BaseHandler(tornado.web.RequestHandler):
-    def initialize(self, loader, storage, engine, detectors, filters):
-        self.loader = loader
-        self.storage = storage.Storage
-        self.engine = engine
-        self.detectors = detectors
-        self.filters = filters
-
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
@@ -175,5 +168,13 @@ class BaseHandler(tornado.web.RequestHandler):
                 callback(buffer)
 
             self.loader.load(url, handle_loader_loaded)
+
+class ContextHandler(BaseHandler):
+    def initialize(self, loader, storage, engine, detectors, filters):
+        self.loader = loader
+        self.storage = storage.Storage
+        self.engine = engine
+        self.detectors = detectors
+        self.filters = filters
 
 

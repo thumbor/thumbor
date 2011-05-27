@@ -10,9 +10,9 @@
 
 import tornado.web
 
-from thumbor.handlers import BaseHandler
+from thumbor.handlers import ContextHandler
 
-class MainHandler(BaseHandler):
+class MainHandler(ContextHandler):
 
     @tornado.web.asynchronous
     def get(self,

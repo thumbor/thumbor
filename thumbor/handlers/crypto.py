@@ -13,9 +13,9 @@ import hashlib
 
 from thumbor.config import conf
 from thumbor.crypto import Crypto
-from thumbor.handlers import BaseHandler
+from thumbor.handlers import ContextHandler
 
-class CryptoHandler(BaseHandler):
+class CryptoHandler(ContextHandler):
     @tornado.web.asynchronous
     def get(self,
             crypto,

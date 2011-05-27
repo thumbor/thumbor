@@ -46,7 +46,7 @@ class CascadeLoaderDetector(BaseDetector):
         image = cv.LoadImageM(context['file'])
 
         min_size = (20, 20)
-        image_scale = 2.0
+        image_scale = 1.0
         haar_scale = 1.2
         min_neighbors = 2
 
