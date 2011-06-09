@@ -23,22 +23,25 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.write('Hello')
 
-application = tornado.web.Application([
-    (r"/", MainHandler),
-])
-
 @Vows.batch
 class HttpLoader(TornadoContext):
     def _get_app(self):
-        loader.http_client = self._http_client
+        application = tornado.web.Application([
+            (r"/", MainHandler),
+        ])
+
         return application
 
     class ValidateURL(TornadoSubContext):
         def topic(self):
-            return loader.validate('http://www.google.com/logo.jpg')
+            old_sources = options.ALLOWED_SOURCES
+            options.ALLOWED_SOURCES = ['s.glbimg.com']
+            is_valid = loader.validate('http://www.google.com/logo.jpg')
+            options.ALLOWED_SOURCES = old_sources
+            return is_valid
 
         def should_default_to_none(self, topic):
-            expect(topic).to_be_true()
+            expect(topic).to_be_false()
 
         class AllowAll(TornadoSubContext):
             def topic(self):
@@ -67,24 +70,10 @@ class HttpLoader(TornadoContext):
                 expect(topic).to_equal('http://some.url')
 
     class LoadAndVerifyImage(TornadoSubContext):
-        #class Verify(Vows.Context):
-            #class WhenInMaxSize(Vows.Context):
-                #def topic(self, url):
-                    #return verify_size(url, 50 * 1024)
-
-                #def should_return_true_to_fifty_megs(self, topic):
-                    #expect(topic).to_be_true()
-
-            #class WhenOutOfMaxSize(Vows.Context):
-                #def topic(self, url):
-                    #return verify_size(url, 1)
-
-                #def should_return_false_to_one_kb(self, topic):
-                    #expect(topic).to_be_false()
-
         class Load(TornadoSubContext):
             def topic(self):
                 url = self._get_url('/')
+                loader.http_client = self._http_client
                 loader.load(url, self._stop)
                 result = self._wait()
 
