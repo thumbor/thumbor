@@ -25,6 +25,9 @@ class Storage(BaseStorage):
     def __key_for(self, url):
         return 'crypto-%s' % url
 
+    def __detector_key_for(self, url):
+        return 'detector-%s' % url
+
     def put(self, path, bytes):
         self.storage.set(path, bytes)
         self.storage.expireat(path, datetime.now() + timedelta(seconds=conf.STORAGE_EXPIRATION_SECONDS))
@@ -38,6 +41,9 @@ class Storage(BaseStorage):
 
         self.storage.set(self.__key_for(path), conf.SECURITY_KEY)
 
+    def put_detector_data(self, path, data):
+        self.storage.set(self.__detector_key_for(path), data)
+
     def get_crypto(self, path):
         if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return None
@@ -47,6 +53,13 @@ class Storage(BaseStorage):
         if not crypto:
             return None
         return crypto
+
+    def get_detector_data(self, path):
+        data = self.storage.get(self.__detector_key_for(path))
+
+        if not data:
+            return None
+        return data
 
     def get(self, path):
         return self.storage.get(path)

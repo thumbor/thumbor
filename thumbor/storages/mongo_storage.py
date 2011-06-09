@@ -61,11 +61,24 @@ class Storage(BaseStorage):
         crypto['crypto'] = conf.SECURITY_KEY
         storage.update(crypto)
 
+    def put_detector_data(self, path, data):
+        connection, db, storage = self.__conn__()
+
+        doc = storage.find_one({'path': path})
+        doc['detector_data'] = data
+        storage.update(doc)
+
     def get_crypto(self, path):
         connection, db, storage = self.__conn__()
 
         crypto = storage.find_one({'path': path})
         return crypto.get('crypto') if crypto else None
+
+    def get_detector_data(self, path):
+        connection, db, storage = self.__conn__()
+
+        doc = storage.find_one({'path': path})
+        return doc.get('detector_data') if doc else None
 
     def get(self, path):
         connection, db, storage = self.__conn__()

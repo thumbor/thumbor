@@ -13,25 +13,36 @@ from thumbor.config import conf
 from thumbor.utils import real_import
 
 class Storage(BaseStorage):
-    def __init__(self, file_storage=None, crypto_storage=None):
+    def __init__(self, file_storage=None, crypto_storage=None, detector_storage=None):
         if file_storage:
             self.file_storage = file_storage
         else:
             self.file_storage = real_import(conf.MIXED_STORAGE_FILE_STORAGE).Storage()
 
-        if file_storage:
+        if crypto_storage:
             self.crypto_storage = crypto_storage
         else:
             self.crypto_storage = real_import(conf.MIXED_STORAGE_CRYPTO_STORAGE).Storage()
 
+        if detector_storage:
+            self.detector_storage = detector_storage
+        else:
+            self.detector_storage = real_import(conf.MIXED_STORAGE_DETECTOR_STORAGE).Storage()
+
     def put(self, path, bytes):
         self.file_storage.put(path, bytes)
+
+    def put_detector_data(self, path, data):
+        self.detector_storage.put_detector_data(path, data)
 
     def put_crypto(self, path):
         self.crypto_storage.put_crypto(path)
 
     def get_crypto(self, path):
         return self.crypto_storage.get_crypto(path)
+
+    def get_detector_data(self, path):
+        return self.detector_storage.get_detector_data(path)
 
     def get(self, path):
         return self.file_storage.get(path)

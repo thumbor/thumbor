@@ -61,6 +61,7 @@ define('MYSQL_STORAGE_SERVER_TABLE', type=str, default='images')
 # MIXED STORAGE OPTIONS
 define('MIXED_STORAGE_FILE_STORAGE', type=str, default='thumbor.storages.no_storage')
 define('MIXED_STORAGE_CRYPTO_STORAGE', type=str, default='thumbor.storages.no_storage')
+define('MIXED_STORAGE_DETECTOR_STORAGE', type=str, default='thumbor.storages.no_storage')
 
 # ImageMagick ENGINE OPTIONS
 define('MAGICKWAND_PATH', default=[], multiple=True)

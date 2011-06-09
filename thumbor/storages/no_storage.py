@@ -18,7 +18,13 @@ class Storage(BaseStorage):
     def put_crypto(self, path):
         pass
 
+    def put_detector_data(self, path, data):
+        pass
+
     def get_crypto(self, path):
+        return None
+
+    def get_detector_data(self, path):
         return None
 
     def get(self, path):

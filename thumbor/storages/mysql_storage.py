@@ -23,7 +23,6 @@ class Storage(BaseStorage):
                              passwd=conf.MYSQL_STORAGE_SERVER_PASSWORD,
                              db=conf.MYSQL_STORAGE_SERVER_DB)
 
-
     def put(self, path, bytes):
         connection = self.__conn__()
         try:
@@ -58,6 +57,17 @@ class Storage(BaseStorage):
         finally:
             connection.close()
 
+    def put_detector_data(self, path, data):
+        connection = self.__conn__()
+        try:
+            sql = "UPDATE images set detector_data=%s WHERE path=%s"
+
+            cursor = connection.cursor()
+            cursor.execute(sql, (data, path))
+        finally:
+            connection.close()
+
+ 
     def get_crypto(self, path):
         if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return None
@@ -65,6 +75,19 @@ class Storage(BaseStorage):
         connection = self.__conn__()
         try:
             sql = "SELECT security_key FROM images where url=%s"
+
+            cursor = connection.cursor()
+            cursor.execute(sql, path)
+            image = cursor.fetchone()
+
+            return image[0] if image else ''
+        finally:
+            connection.close()
+
+    def get_detector_data(self, path):
+        connection = self.__conn__()
+        try:
+            sql = "SELECT detector_data FROM images where url=%s"
 
             cursor = connection.cursor()
             cursor.execute(sql, path)
