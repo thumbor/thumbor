@@ -17,6 +17,7 @@ from tornado.options import options
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
+from thumbor.point import FocalPoint
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -92,7 +93,7 @@ class BaseHandler(tornado.web.RequestHandler):
             context = dict(
                 loader=self.loader,
                 engine=self.engine,
-                storage=self.storage(),
+                storage=self.storage,
                 buffer=buffer,
                 should_crop=should_crop,
                 crop_left=crop_left,
@@ -116,12 +117,25 @@ class BaseHandler(tornado.web.RequestHandler):
                 context['engine'] = JSONEngine(self.engine, image)
 
             if self.detectors and should_be_smart:
-                with tempfile.NamedTemporaryFile(suffix='.jpg') as temp_file:
-                    jpg_buffer = buffer if extension in ('.jpg', '.jpeg') else self.engine.read('.jpg')
-                    temp_file.write(jpg_buffer)
-                    temp_file.seek(0)
-                    context['file'] = temp_file.name
-                    self.detectors[0](index=0, detectors=self.detectors).detect(context)
+                focal_points = self.storage.get_detector_data(image)
+                if focal_points:
+                    context['focal_points'] = []
+                    for point in focal_points:
+                        context['focal_points'].append(FocalPoint.from_dict(point))
+                else:
+                    with tempfile.NamedTemporaryFile(suffix='.jpg') as temp_file:
+                        jpg_buffer = buffer if extension in ('.jpg', '.jpeg') else self.engine.read('.jpg')
+                        temp_file.write(jpg_buffer)
+                        temp_file.seek(0)
+                        context['file'] = temp_file.name
+                        self.detectors[0](index=0, detectors=self.detectors).detect(context)
+
+                    points = []
+                    focal_points = context['focal_points']
+
+                    for point in focal_points:
+                        points.append(point.to_dict())
+                    self.storage.put_detector_data(image, points)
 
             Transformer(context).transform()
 
@@ -147,7 +161,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return is_valid
 
     def _fetch(self, url, extension, callback):
-        storage = self.storage()
+        storage = self.storage
         buffer = storage.get(url)
 
         if buffer is not None:
@@ -172,7 +186,7 @@ class BaseHandler(tornado.web.RequestHandler):
 class ContextHandler(BaseHandler):
     def initialize(self, loader, storage, engine, detectors, filters):
         self.loader = loader
-        self.storage = storage.Storage
+        self.storage = storage.Storage()
         self.engine = engine
         self.detectors = detectors
         self.filters = filters

@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import os
+from json import dumps, loads
 from datetime import datetime
 from os.path import splitext
 
@@ -48,6 +49,13 @@ class Storage(BaseStorage):
         with open(crypto_path, 'w') as _file:
             _file.write(conf.SECURITY_KEY)
 
+    def put_detector_data(self, path, data):
+        file_abspath = self.__normalize_path(path)
+
+        path = '%s.detectors.txt' % splitext(file_abspath)[0]
+        with open(path, 'w') as _file:
+            _file.write(dumps(data))
+
     def get_crypto(self, path):
         file_abspath = self.__normalize_path(path)
         crypto_file = "%s.txt" % (splitext(file_abspath)[0])
@@ -62,6 +70,15 @@ class Storage(BaseStorage):
         if not exists(file_abspath) or self.__is_expired(file_abspath):
             return None
         return open(file_abspath, 'r').read()
+
+    def get_detector_data(self, path):
+        file_abspath = self.__normalize_path(path)
+        path = '%s.detectors.txt' % splitext(file_abspath)[0]
+
+        if not exists(path) or self.__is_expired(path):
+            return None
+
+        return loads(open(path, 'r').read())
 
     def __normalize_path(self, path):
         if path.startswith('/'):

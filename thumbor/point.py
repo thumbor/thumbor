@@ -18,6 +18,17 @@ class FocalPoint(object):
         'bottom': 1.0
     }
 
+    def to_dict(self):
+        return {
+            'x': self.x,
+            'y': self.y,
+            'z': self.weight
+        }
+
+    @classmethod
+    def from_dict(cls, values):
+        return cls(values['x'], values['y'], values['z'])
+
     def __init__(self, x, y, weight=1.0):
         self.x = x
         self.y = y
