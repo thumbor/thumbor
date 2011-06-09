@@ -20,25 +20,27 @@ import thumbor.loaders.http_loader as loader
 fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
 
 class MainHandler(tornado.web.RequestHandler):
-    @tornado.web.asynchronous
     def get(self):
         self.write('Hello')
-        self.finish()
 
 application = tornado.web.Application([
     (r"/", MainHandler),
 ])
 
 @Vows.batch
-class HttpLoader(Vows.Context):
-    class ValidateURL(Vows.Context):
+class HttpLoader(TornadoContext):
+    def _get_app(self):
+        loader.http_client = self._http_client
+        return application
+
+    class ValidateURL(TornadoSubContext):
         def topic(self):
             return loader.validate('http://www.google.com/logo.jpg')
 
-        def should_not_validate(self, topic):
-            expect(topic).to_be_false()
+        def should_default_to_none(self, topic):
+            expect(topic).to_be_true()
 
-        class AllowAll(Vows.Context):
+        class AllowAll(TornadoSubContext):
             def topic(self):
                 old_sources = options.ALLOWED_SOURCES
                 options.ALLOWED_SOURCES = []
@@ -49,29 +51,22 @@ class HttpLoader(Vows.Context):
             def should_validate(self, topic):
                 expect(topic).to_be_true()
 
-    class NormalizeURL(Vows.Context):
-        class WhenStartsWithHttp(Vows.Context):
+    class NormalizeURL(TornadoSubContext):
+        class WhenStartsWithHttp(TornadoSubContext):
             def topic(self):
                 return loader._normalize_url('http://some.url')
 
             def should_return_same_url(self, topic):
                 expect(topic).to_equal('http://some.url')
 
-        class WhenDoesNotStartWithHttp(Vows.Context):
+        class WhenDoesNotStartWithHttp(TornadoSubContext):
             def topic(self):
                 return loader._normalize_url('some.url')
 
             def should_return_normalized_url(self, topic):
                 expect(topic).to_equal('http://some.url')
 
-    class LoadAndVerifyImage(TornadoContext):
-        def _get_app(self):
-            def fetch(url, callback):
-                contents = self._fetch(url)
-                callback(contents)
-            loader.fetch = fetch
-            return application
-
+    class LoadAndVerifyImage(TornadoSubContext):
         #class Verify(Vows.Context):
             #class WhenInMaxSize(Vows.Context):
                 #def topic(self, url):
@@ -89,18 +84,12 @@ class HttpLoader(Vows.Context):
 
         class Load(TornadoSubContext):
             def topic(self):
-                self.async_topic = ''
-                def get_contents(contents):
-                    self.async_topic = contents
                 url = self._get_url('/')
-                loader.load(url, get_contents)
+                loader.load(url, self._stop)
+                result = self._wait()
 
-                return self.async_topic
+                return result
 
             def should_equal_hello(self, topic):
                 expect(topic).to_equal('Hello')
-
-if __name__ == '__main__':
-    application.listen(8888)
-    tornado.ioloop.IOLoop.instance().start()
 
