@@ -24,7 +24,7 @@ class CryptoHandler(ContextHandler):
             **kw):
 
         if not security_key and conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            security_key = self.storage().get_crypto(image)
+            security_key = self.storage.get_crypto(image)
 
         cr = Crypto(security_key or conf.SECURITY_KEY)
         opt = cr.decrypt(crypto)

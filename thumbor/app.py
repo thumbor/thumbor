@@ -31,10 +31,10 @@ class ThumborServiceApp(tornado.web.Application):
         logger.info('Config file: %s' % conf_file)
         parse_config_file(conf_file)
 
-        loader = real_import(conf.LOADER)
-        storage = real_import(conf.STORAGE)
-        engine = real_import(conf.ENGINE)
-        detectors = [real_import(detector_name).Detector for detector_name in conf.DETECTORS]
+        self.loader = real_import(conf.LOADER)
+        self.storage = real_import(conf.STORAGE)
+        self.engine = real_import(conf.ENGINE)
+        self.detectors = [real_import(detector_name).Detector for detector_name in conf.DETECTORS]
         #filters = [real_import(filter_name).Filter for filter_name in conf.FILTERS]
         filters = []
 
@@ -43,13 +43,13 @@ class ThumborServiceApp(tornado.web.Application):
         parse_config_file(conf_file)
 
         #storage = storage.Storage()
-        engine = engine.Engine()
+        #self.engine = self.engine.Engine()
 
         handler_context = {
-            'loader': loader,
-            'storage': storage,
-            'engine': engine,
-            'detectors': detectors,
+            'loader': self.loader,
+            'storage': self.storage,
+            'engine': self.engine,
+            'detectors': self.detectors,
             'filters': filters
         }
 
@@ -86,7 +86,6 @@ class ThumborServiceApp(tornado.web.Application):
                 return conf_path_file
 
         raise ConfFileNotFoundError('thumbor.conf file not passed and not found on the lookup paths %s' % lookup_conf_file_paths)
-
 
 class ConfFileNotFoundError(RuntimeError):
     pass

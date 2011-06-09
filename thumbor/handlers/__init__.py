@@ -187,7 +187,7 @@ class ContextHandler(BaseHandler):
     def initialize(self, loader, storage, engine, detectors, filters):
         self.loader = loader
         self.storage = storage.Storage()
-        self.engine = engine
+        self.engine = engine.Engine()
         self.detectors = detectors
         self.filters = filters
 
