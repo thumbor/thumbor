@@ -22,6 +22,7 @@ class JSONEngine(BaseEngine):
         self.width, self.height = self.engine.size
         self.path = path
         self.operations = []
+        self.focal_points = []
         self.refresh_image()
 
     def refresh_image(self):
@@ -51,6 +52,10 @@ class JSONEngine(BaseEngine):
         self.engine.crop(left, top, right, bottom)
         self.refresh_image()
 
+    def focus(self, points):
+        for point in points:
+            self.focal_points.append(point.to_dict())
+
     def flip_vertically(self):
         self.operations.append({ "type": "flip_vertically" })
 
@@ -74,8 +79,7 @@ class JSONEngine(BaseEngine):
 
     def read(self, extension):
         target_width, target_height= self.get_target_dimensions()
-
-        thumbor_json = json.dumps({
+        thumbor_json = {
             "thumbor": {
                 "source": {
                     "url": self.path,
@@ -88,7 +92,12 @@ class JSONEngine(BaseEngine):
                     "height": target_height
                 }
             }
-        })
+        }
+
+        if self.focal_points:
+            thumbor_json["thumbor"]["focal_points"] = self.focal_points
+
+        thumbor_json = json.dumps(thumbor_json)
 
         if options.META_CALLBACK_NAME:
             return "%s(%s);" % (options.META_CALLBACK_NAME, thumbor_json)

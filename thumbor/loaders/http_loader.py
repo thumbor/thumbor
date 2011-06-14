@@ -40,7 +40,7 @@ def validate(url):
 def load(url, callback):
     client = http_client
     if client is None:
-        client = tornado.httpclient.AsyncHTTPClient
+        client = tornado.httpclient.AsyncHTTPClient()
     #if conf.MAX_SOURCE_SIZE and not verify_size(url, conf.MAX_SOURCE_SIZE):
         #return None
 

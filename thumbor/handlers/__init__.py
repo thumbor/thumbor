@@ -119,7 +119,6 @@ class BaseHandler(tornado.web.RequestHandler):
             if self.detectors and should_be_smart:
                 focal_points = self.storage.get_detector_data(image)
                 if focal_points:
-                    context['focal_points'] = []
                     for point in focal_points:
                         context['focal_points'].append(FocalPoint.from_dict(point))
                 else:
@@ -135,6 +134,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
                     for point in focal_points:
                         points.append(point.to_dict())
+
                     self.storage.put_detector_data(image, points)
 
             Transformer(context).transform()

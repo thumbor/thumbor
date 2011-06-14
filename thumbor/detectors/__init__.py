@@ -74,7 +74,6 @@ class CascadeLoaderDetector(BaseDetector):
             #min_size=(40, 40)
         #)
 
-        #print faces
         faces_scaled = []
 
         for ((x, y, w, h), n) in faces:

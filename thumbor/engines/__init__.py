@@ -53,6 +53,9 @@ class BaseEngine(object):
     def resize(self):
         raise NotImplementedError()
 
+    def focus(self, points):
+        pass
+
     def flip_horizontally(self):
         raise NotImplementedError()
     

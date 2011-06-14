@@ -51,6 +51,8 @@ class Transformer(object):
                                           source_height)
             ]
 
+        self.engine.focus(self.focal_points)
+
     def transform(self):
         self.manual_crop()
         

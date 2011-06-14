@@ -36,8 +36,8 @@ class FocalPoint(object):
 
     @classmethod
     def from_square(cls, x, y, width, height):
-        center_x = (x + width) / 2
-        center_y = (y + height) / 2
+        center_x = x + (width / 2)
+        center_y = y + (height / 2)
         return cls(center_x, center_y, width * height)
 
     @classmethod
