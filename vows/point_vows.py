@@ -59,16 +59,16 @@ class FocalPointVows(Vows.Context):
     class SquarePoint(Vows.Context):
 
         def topic(self):
-            return FocalPoint.from_square(0, 300, 300, 300)
+            return FocalPoint.from_square(350, 50, 110, 110)
+
+        def should_have_x_of_450(self, topic):
+            expect(topic.x).to_equal(405)
 
         def should_have_x_of_150(self, topic):
-            expect(topic.x).to_equal(150)
+            expect(topic.y).to_equal(105)
 
-        def should_have_x_of_300(self, topic):
-            expect(topic.y).to_equal(300)
-
-        def should_have_weight_of_90000(self, topic):
-            expect(topic.weight).to_equal(90000)
+        def should_have_weight_of_12100(self, topic):
+            expect(topic.weight).to_equal(12100)
 
     class AlignedPoint(Vows.Context):
 
