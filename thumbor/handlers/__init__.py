@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -139,7 +139,11 @@ class BaseHandler(tornado.web.RequestHandler):
 
             Transformer(context).transform()
 
-            content_type = "application/json" if meta else CONTENT_TYPE[context['extension']]
+            if meta:
+                content_type = 'text/javascript' if options.META_CALLBACK_NAME else 'application/json'
+            else:
+                content_type = CONTENT_TYPE[context['extension']]
+
             self.set_header('Content-Type', content_type)
 
             results = context['engine'].read(context['extension'])
