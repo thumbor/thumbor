@@ -1,3 +1,3 @@
 pyvows
-tornado=1.2.1
+tornado==1.2.1
 tornado-pyvows
