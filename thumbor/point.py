@@ -27,7 +27,7 @@ class FocalPoint(object):
 
     @classmethod
     def from_dict(cls, values):
-        return cls(values['x'], values['y'], values['z'])
+        return cls(int(values['x']), int(values['y']), int(values['z']))
 
     def __init__(self, x, y, weight=1.0):
         self.x = x
