@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from json import loads, dumps
 from datetime import datetime, timedelta
 
 import redis
@@ -42,7 +43,7 @@ class Storage(BaseStorage):
         self.storage.set(self.__key_for(path), conf.SECURITY_KEY)
 
     def put_detector_data(self, path, data):
-        self.storage.set(self.__detector_key_for(path), data)
+        self.storage.set(self.__detector_key_for(path), dumps(data))
 
     def get_crypto(self, path):
         if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
@@ -59,7 +60,7 @@ class Storage(BaseStorage):
 
         if not data:
             return None
-        return data
+        return loads(data)
 
     def get(self, path):
         return self.storage.get(path)
