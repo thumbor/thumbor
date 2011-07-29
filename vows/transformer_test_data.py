@@ -19,6 +19,7 @@ class MockEngine(object):
             'vertical_flip': 0,
             'horizontal_flip': 0
         }
+        self.focal_points = None
 
     def resize(self, width, height):
         self.calls['resize'].append({
@@ -47,6 +48,9 @@ class MockEngine(object):
     def get_proportional_height(self, new_width):
         width, height = self.size
         return float(new_width) * height / width
+
+    def focus(self, focal_points):
+        self.focal_points = focal_points
 
 class TestData(object):
     def __init__(self,

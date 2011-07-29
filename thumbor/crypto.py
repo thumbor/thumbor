@@ -51,14 +51,14 @@ class Crypto(object):
 
         pad = lambda s: s + (16 - len(s) % 16) * "{"
         cipher = AES.new(self.salt)
-        encrypted = base64.urlsafe_b64encode(cipher.encrypt(pad(url)))
+        encrypted = base64.urlsafe_b64encode(cipher.encrypt(pad(url.encode('utf-8'))))
 
         return encrypted
 
     def decrypt(self, encrypted):
         cipher = AES.new(self.salt)
 
-        debased = base64.urlsafe_b64decode(encrypted)
+        debased = base64.urlsafe_b64decode(encrypted.encode("utf-8"))
         decrypted = cipher.decrypt(debased).rstrip('{')
 
         result = Url.parse('/%s' % decrypted, with_unsafe=False)

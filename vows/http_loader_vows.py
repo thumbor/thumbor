@@ -11,7 +11,7 @@
 from os.path import abspath, join, dirname
 
 from pyvows import Vows, expect
-from tornado_pyvows.context import TornadoContext, TornadoSubContext
+from tornado_pyvows.context import TornadoHTTPContext
 import tornado.web
 from tornado.options import options
 
@@ -24,7 +24,7 @@ class MainHandler(tornado.web.RequestHandler):
         self.write('Hello')
 
 @Vows.batch
-class HttpLoader(TornadoContext):
+class HttpLoader(TornadoHTTPContext):
     def _get_app(self):
         application = tornado.web.Application([
             (r"/", MainHandler),
@@ -32,7 +32,7 @@ class HttpLoader(TornadoContext):
 
         return application
 
-    class ValidateURL(TornadoSubContext):
+    class ValidateURL(TornadoHTTPContext):
         def topic(self):
             old_sources = options.ALLOWED_SOURCES
             options.ALLOWED_SOURCES = ['s.glbimg.com']
@@ -43,7 +43,7 @@ class HttpLoader(TornadoContext):
         def should_default_to_none(self, topic):
             expect(topic).to_be_false()
 
-        class AllowAll(TornadoSubContext):
+        class AllowAll(TornadoHTTPContext):
             def topic(self):
                 old_sources = options.ALLOWED_SOURCES
                 options.ALLOWED_SOURCES = []
@@ -54,23 +54,23 @@ class HttpLoader(TornadoContext):
             def should_validate(self, topic):
                 expect(topic).to_be_true()
 
-    class NormalizeURL(TornadoSubContext):
-        class WhenStartsWithHttp(TornadoSubContext):
+    class NormalizeURL(TornadoHTTPContext):
+        class WhenStartsWithHttp(TornadoHTTPContext):
             def topic(self):
                 return loader._normalize_url('http://some.url')
 
             def should_return_same_url(self, topic):
                 expect(topic).to_equal('http://some.url')
 
-        class WhenDoesNotStartWithHttp(TornadoSubContext):
+        class WhenDoesNotStartWithHttp(TornadoHTTPContext):
             def topic(self):
                 return loader._normalize_url('some.url')
 
             def should_return_normalized_url(self, topic):
                 expect(topic).to_equal('http://some.url')
 
-    class LoadAndVerifyImage(TornadoSubContext):
-        class Load(TornadoSubContext):
+    class LoadAndVerifyImage(TornadoHTTPContext):
+        class Load(TornadoHTTPContext):
             def topic(self):
                 url = self._get_url('/')
                 loader.http_client = self._http_client

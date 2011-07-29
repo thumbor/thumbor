@@ -9,31 +9,31 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from pyvows import Vows, expect
-from tornado_pyvows.context import TornadoContext, TornadoSubContext
+from tornado_pyvows.context import TornadoHTTPContext
 
 from thumbor.app import ThumborServiceApp
 
 @Vows.batch
-class HealthCheck(TornadoContext):
+class HealthCheck(TornadoHTTPContext):
     def _get_app(self):
         application = ThumborServiceApp()
         return application
 
-    class WhenRunning(TornadoSubContext):
+    class WhenRunning(TornadoHTTPContext):
         def topic(self):
             self._http_client.fetch(self._get_url('/healthcheck'), self._stop)
             response = self._wait()
 
             return (response.code, response.body)
 
-        class StatusCode(TornadoSubContext):
+        class StatusCode(TornadoHTTPContext):
             def topic(self, response):
                 return response[0]
 
             def should_not_be_an_error(self, topic):
                 expect(topic).to_equal(200)
 
-        class Body(TornadoSubContext):
+        class Body(TornadoHTTPContext):
             def topic(self, response):
                 return response[1]
 
