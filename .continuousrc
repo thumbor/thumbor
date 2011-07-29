@@ -12,12 +12,12 @@
 # The pip reqirements file relative to your project root directory.
 # (Optional, but most likely needed for all but the simplest projects)
 # Example: "requirements.txt"
-PIP_REQUIREMENTS=""
+PIP_REQUIREMENTS="test_requeriments.txt"
 
 # A space separated list of extra packages to be installed. 
 # This will be passed to the system package manager, normally apt-get.
 # Example: "subversion libjpeg-dev"
-EXTRA_PACKAGES="libcurl"
+EXTRA_PACKAGES="curl libcurl3 libcurl3-dev"
 
 ################################
 ### Python-specific settings ###
@@ -27,7 +27,7 @@ EXTRA_PACKAGES="libcurl"
 # will override MANAGE_COMMAND.
 # Example: "./runmytests.py"
 # (Will attempt to auto-detect if blank)
-TEST_COMMAND=""
+TEST_COMMAND="make test"
 
 ################################
 ### Django-specific settings ###
