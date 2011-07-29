@@ -1,0 +1,46 @@
+# Example .continuousrc file for use with http://continuous.io
+# This example file has been created for use with either a 
+# Python or a Django project.
+
+# Put this in your project root. It will be used to configure the build 
+# script for your project.
+
+#######################
+### Common settings ###
+#######################
+
+# The pip reqirements file relative to your project root directory.
+# (Optional, but most likely needed for all but the simplest projects)
+# Example: "requirements.txt"
+PIP_REQUIREMENTS=""
+
+# A space separated list of extra packages to be installed. 
+# This will be passed to the system package manager, normally apt-get.
+# Example: "subversion libjpeg-dev"
+EXTRA_PACKAGES="libcurl"
+
+################################
+### Python-specific settings ###
+################################
+
+# The command used to run this project's tests. If specified, this setting 
+# will override MANAGE_COMMAND.
+# Example: "./runmytests.py"
+# (Will attempt to auto-detect if blank)
+TEST_COMMAND=""
+
+################################
+### Django-specific settings ###
+################################
+
+# The path to the django manage.py command
+# (Will attempt to auto-detect if blank)
+# Example: "./manage.py"
+MANAGE_COMMAND=""
+
+# Tells Django where to find the setting file to be used for this build
+# See: https://docs.djangoproject.com/en/dev/topics/settings/#designating-the-settings
+# (Will attempt to auto-detect if blank)
+# Example: "myapp.settings_test"
+DJANGO_SETTINGS_MODULE=""
+
