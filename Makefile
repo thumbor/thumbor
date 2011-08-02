@@ -1,6 +1,11 @@
 run:
 	@PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug
 
+db:
+	@mysql -u root -e 'DROP DATABASE IF EXISTS thumbor'
+	@mysql -u root -e 'CREATE DATABASE IF NOT EXISTS thumbor'
+	@mysql -u root -e 'CREATE TABLE IF NOT EXISTS images (id int NOT NULL PRIMARY KEY, url VARCHAR(1000) NOT NULL, contents BLOB NOT NULL, security_key VARCHAR(100) NULL, detector_data VARCHAR(2000) NULL, last_update TIMESTAMP);' thumbor
+
 pretest:
 	@mysql -u root -e 'DROP DATABASE IF EXISTS thumbor_tests'
 	@mysql -u root -e 'CREATE DATABASE IF NOT EXISTS thumbor_tests'

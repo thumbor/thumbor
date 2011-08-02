@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from datetime import datetime
+from json import dumps, loads
 
 import MySQLdb as mysql
 
@@ -27,15 +28,8 @@ class Storage(BaseStorage):
         connection = self.__conn__()
         try:
             sql = "INSERT INTO images(url, contents) VALUES(%s, %s)"
-
-            security_key = ''
-            if conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-                if not conf.SECURITY_KEY:
-                    raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
-                security_key = conf.SECURITY_KEY
-
             cursor = connection.cursor()
-            cursor.execute(sql, (path, bytes, security_key))
+            cursor.execute(sql, (path, bytes))
         finally:
             connection.close()
 
@@ -50,7 +44,7 @@ class Storage(BaseStorage):
                 raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
             security_key = conf.SECURITY_KEY
 
-            sql = "UPDATE images set security_key=%s WHERE path=%s"
+            sql = "UPDATE images set security_key=%s WHERE url=%s"
 
             cursor = connection.cursor()
             cursor.execute(sql, (security_key, path))
@@ -60,14 +54,14 @@ class Storage(BaseStorage):
     def put_detector_data(self, path, data):
         connection = self.__conn__()
         try:
-            sql = "UPDATE images set detector_data=%s WHERE path=%s"
+            sql = "UPDATE images set detector_data=%s WHERE url=%s"
 
             cursor = connection.cursor()
-            cursor.execute(sql, (data, path))
+            cursor.execute(sql, (dumps(data), path))
         finally:
             connection.close()
 
- 
+
     def get_crypto(self, path):
         if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return None
@@ -93,7 +87,7 @@ class Storage(BaseStorage):
             cursor.execute(sql, path)
             image = cursor.fetchone()
 
-            return image[0] if image else ''
+            return loads(image[0]) if image else ''
         finally:
             connection.close()
 
