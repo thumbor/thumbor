@@ -44,7 +44,16 @@ class Storage(BaseStorage):
                 raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
             security_key = conf.SECURITY_KEY
 
-            sql = "UPDATE images set security_key=%s WHERE url=%s"
+            cursor = connection.cursor()
+
+            sql = "SELECT count(*) From images WHERE url=%s"
+            cursor.execute(sql, path)
+            count = cursor.fetchone()
+
+            if not int(count[0]):
+                sql = "INSERT INTO images(security_key, url) VALUES(%s, %s)"
+            else:
+                sql = "UPDATE images set security_key=%s WHERE url=%s"
 
             cursor = connection.cursor()
             cursor.execute(sql, (security_key, path))
@@ -54,9 +63,17 @@ class Storage(BaseStorage):
     def put_detector_data(self, path, data):
         connection = self.__conn__()
         try:
-            sql = "UPDATE images set detector_data=%s WHERE url=%s"
-
             cursor = connection.cursor()
+
+            sql = "SELECT count(*) From images WHERE url=%s"
+            cursor.execute(sql, path)
+            count = cursor.fetchone()
+
+            if not int(count[0]):
+                sql = "INSERT INTO images(detector_data, url) VALUES(%s, %s)"
+            else:
+                sql = "UPDATE images set detector_data=%s WHERE url=%s"
+
             cursor.execute(sql, (dumps(data), path))
         finally:
             connection.close()
