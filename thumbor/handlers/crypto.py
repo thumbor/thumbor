@@ -23,26 +23,23 @@ class CryptoHandler(ContextHandler):
             security_key=None,
             **kw):
 
-        if not security_key and conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+        cr = Crypto(conf.SECURITY_KEY)
+        try:
+            opt = cr.decrypt(crypto)
+        except ValueError:
+            opt = None
+
+        if not opt and not security_key and conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             security_key = self.storage.get_crypto(image)
+            cr = Crypto(security_key)
+            opt = cr.decrypt(crypto)
 
-        cr = Crypto(security_key or conf.SECURITY_KEY)
-        opt = cr.decrypt(crypto)
+        if opt:
+            image_hash = opt and opt.get('image_hash')
+            image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash
+            path_hash = hashlib.md5(image).hexdigest()
 
-        image_hash = opt and opt.get('image_hash')
-        image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash
-        path_hash = hashlib.md5(image).hexdigest()
+            if image_hash and image_hash == path_hash and self.validate(image):
+                return self.execute_image_operations(opt, image)
 
-        if not image_hash or image_hash != path_hash:
-            self._error(404, 'Request denied because the specified image hash "%s" does not match the given image path hash "%s"' %(
-                unicode(image_hash, errors='replace'),
-                path_hash
-            ))
-            return
-
-        if not self.validate(image):
-            self._error(404)
-            return
-
-        return self.execute_image_operations(opt, image)
-
+        self._error(404, 'Request denied because the specified image hash is not valid')
