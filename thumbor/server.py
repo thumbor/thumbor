@@ -96,7 +96,7 @@ def run_app(ip, port, conf, log_level, app):
 
     server = HTTPServer(application)
     server.bind(port, ip)
-    server.start()
+    server.start(1)
 
     try:
         tornado.ioloop.IOLoop.instance().start()
