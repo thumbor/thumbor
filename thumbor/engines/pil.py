@@ -10,7 +10,7 @@
 
 from cStringIO import StringIO
 
-from PIL import Image
+from PIL import Image, ImageFile 
 from tornado.options import options
 
 from thumbor.engines import BaseEngine
@@ -21,6 +21,8 @@ FORMATS = {
     '.gif': 'GIF',
     '.png': 'PNG'
 }
+
+ImageFile.MAXBLOCK = 2**20
 
 class Engine(BaseEngine):
 
@@ -49,7 +51,14 @@ class Engine(BaseEngine):
         img_buffer = StringIO()
 
         ext = extension or self.extension
-        self.image.save(img_buffer, FORMATS[ext], quality=quality)
+        options = {
+            'quality': quality
+        }
+        if ext == '.jpg' or ext == '.jpeg':
+            options['optimize'] = True
+            options['progressive'] = True
+
+        self.image.save(img_buffer, FORMATS[ext], **options)
 
         results = img_buffer.getvalue()
         img_buffer.close()
