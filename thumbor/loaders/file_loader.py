@@ -13,4 +13,4 @@ from os.path import join
 from thumbor.config import conf
 
 def load(path,callback):
-    callback(open(join(conf.FILE_LOADER_ROOT_PATH, path)).read())
+    callback(open(join(conf.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))).read())
