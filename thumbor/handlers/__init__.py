@@ -26,6 +26,10 @@ CONTENT_TYPE = {
     '.png': 'image/png'
 }
 
+RCONTENT_TYPE = {}
+for k,v in CONTENT_TYPE.iteritems():
+    RCONTENT_TYPE[v] = k
+    
 class BaseHandler(tornado.web.RequestHandler):
     def _error(self, status, msg=None):
         self.set_status(status)
@@ -64,7 +68,7 @@ class BaseHandler(tornado.web.RequestHandler):
                        crop_top, crop_right, crop_bottom,
                        opt['fit_in'],
                        opt['horizontal_flip'], width, opt['vertical_flip'],
-                       height, halign, valign, extension,
+                       height, halign, valign,
                        opt['smart'], image)
 
     def get_image(self,
@@ -81,11 +85,10 @@ class BaseHandler(tornado.web.RequestHandler):
                   height,
                   halign,
                   valign,
-                  extension,
                   should_be_smart,
                   image
                   ):
-        def callback(buffer):
+        def callback(buffer, mimetype):
             if buffer is None:
                 self._error(404)
                 return
@@ -107,10 +110,10 @@ class BaseHandler(tornado.web.RequestHandler):
                 height=height,
                 halign=halign,
                 valign=valign,
-                extension=extension,
                 focal_points=[]
             )
 
+            extension = RCONTENT_TYPE[mimetype]
             self.engine.load(buffer, extension)
 
             if meta:
@@ -142,16 +145,16 @@ class BaseHandler(tornado.web.RequestHandler):
             if meta:
                 content_type = 'text/javascript' if options.META_CALLBACK_NAME else 'application/json'
             else:
-                content_type = CONTENT_TYPE[context['extension']]
+                content_type = mimetype
 
             self.set_header('Content-Type', content_type)
 
-            results = context['engine'].read(context['extension'])
+            results = context['engine'].read(RCONTENT_TYPE[mimetype])
 
             self.write(results)
             self.finish()
 
-        self._fetch(image, extension, callback)
+        self._fetch(image, callback)
 
     def validate(self, path):
         if not hasattr(self.loader, 'validate'):
@@ -164,26 +167,26 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return is_valid
 
-    def _fetch(self, url, extension, callback):
+    def _fetch(self, url, callback):
         storage = self.storage
-        buffer = storage.get(url)
+        buffer, mimetype = storage.get(url)
 
         if buffer is not None:
-            callback(buffer)
+            callback(buffer, mimetype)
         else:
-            def handle_loader_loaded(buffer):
+            def handle_loader_loaded(buffer, mimetype):
                 if buffer is None:
-                    callback(None)
+                    callback(None, None)
                     return
 
-                self.engine.load(buffer, extension)
+                self.engine.load(buffer, RCONTENT_TYPE[mimetype])
                 self.engine.normalize()
                 buffer = self.engine.read()
 
                 storage.put(url, buffer)
                 storage.put_crypto(url)
 
-                callback(buffer)
+                callback(buffer, mimetype)
 
             self.loader.load(url, handle_loader_loaded)
 
@@ -194,5 +197,3 @@ class ContextHandler(BaseHandler):
         self.engine = engine.Engine()
         self.detectors = detectors
         self.filters = filters
-
-

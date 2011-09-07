@@ -68,8 +68,8 @@ class Storage(BaseStorage):
         file_abspath = self.__normalize_path(path)
 
         if not exists(file_abspath) or self.__is_expired(file_abspath):
-            return None
-        return open(file_abspath, 'r').read()
+            return None, None
+        return open(file_abspath, 'r').read(), 'image/jpeg' #FIXME
 
     def get_detector_data(self, path):
         file_abspath = self.__normalize_path(path)
