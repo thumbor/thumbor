@@ -183,7 +183,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.engine.normalize()
                 buffer = self.engine.read()
 
-                storage.put(url, buffer)
+                storage.put(url, buffer, mimetype)
                 storage.put_crypto(url)
 
                 callback(buffer, mimetype)
