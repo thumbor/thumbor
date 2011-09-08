@@ -26,12 +26,13 @@ class Storage(BaseStorage):
 
         return connection, db, storage
 
-    def put(self, path, bytes):
+    def put(self, path, bytes, mimetype):
         connection, db, storage = self.__conn__()
 
         doc = {
             'path': path,
-            'created_at': datetime.now()
+            'created_at': datetime.now(),
+            'mimetype': mimetype
         }
 
         doc_with_crypto = dict(doc)
@@ -90,9 +91,10 @@ class Storage(BaseStorage):
 
         fs = gridfs.GridFS(db)
 
+        mimetype = stored['mimetype']
         contents = fs.get(stored['file_id']).read()
 
-        return str(contents)
+        return str(contents), mimetype
 
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')
