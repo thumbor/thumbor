@@ -57,17 +57,14 @@ class Storage(BaseStorage):
         if not conf.SECURITY_KEY:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
-        crypto = storage.find_one({'path': path})
-
-        crypto['crypto'] = conf.SECURITY_KEY
-        storage.update(crypto)
+        storage.update({'path': path}, 
+                       { 'crypto':  conf.SECURITY_KEY } )
 
     def put_detector_data(self, path, data):
         connection, db, storage = self.__conn__()
 
-        doc = storage.find_one({'path': path})
-        doc['detector_data'] = data
-        storage.update(doc)
+        storage.update({'path': path},
+                       { 'detector_data':data})
 
     def get_crypto(self, path):
         connection, db, storage = self.__conn__()
@@ -87,7 +84,7 @@ class Storage(BaseStorage):
         stored = storage.find_one({'path': path})
 
         if not stored or self.__is_expired(stored):
-            return None
+            return None, None
 
         fs = gridfs.GridFS(db)
 
