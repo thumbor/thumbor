@@ -64,9 +64,7 @@ class Storage(BaseStorage):
     def put_detector_data(self, path, data):
         connection, db, storage = self.__conn__()
 
-        doc = storage.find_one({'path': path})
-        doc['detector_data'] = data
-        storage.update(doc)
+        storage.update({'path': path}, {"$set": {"detector_data": data}})
 
     def get_crypto(self, path):
         connection, db, storage = self.__conn__()
