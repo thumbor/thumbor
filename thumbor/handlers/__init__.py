@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import splitext
 import tempfile
 
 import tornado.web
@@ -61,8 +60,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
         halign = opt['halign']
         valign = opt['valign']
-
-        extension = splitext(image)[-1].lower()
 
         self.get_image(opt['meta'], should_crop, crop_left,
                        crop_top, crop_right, crop_bottom,
