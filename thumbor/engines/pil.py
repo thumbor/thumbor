@@ -14,6 +14,7 @@ from PIL import Image, ImageFile
 from tornado.options import options
 
 from thumbor.engines import BaseEngine
+from thumbor.utils import logger
 
 FORMATS = {
     '.jpg': 'JPEG',
@@ -58,7 +59,11 @@ class Engine(BaseEngine):
             options['optimize'] = True
             options['progressive'] = True
 
-        self.image.save(img_buffer, FORMATS[ext], **options)
+        try:
+            self.image.save(img_buffer, FORMATS[ext], **options)
+        except IOError, e:
+            logger.warning('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
+            self.image.save(img_buffer, FORMATS[ext])
 
         results = img_buffer.getvalue()
         img_buffer.close()
