@@ -18,6 +18,7 @@ from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
 from thumbor.point import FocalPoint
+from thumbor.filters import BaseFilter
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -65,7 +66,7 @@ class BaseHandler(tornado.web.RequestHandler):
                        opt['fit_in'],
                        opt['horizontal_flip'], width, opt['vertical_flip'],
                        height, halign, valign, extension,
-                       opt['smart'], image)
+                       opt['smart'], opt['filters'], image)
 
     def get_image(self,
                   meta,
@@ -83,6 +84,7 @@ class BaseHandler(tornado.web.RequestHandler):
                   valign,
                   extension,
                   should_be_smart,
+                  filters,
                   image
                   ):
         def callback(buffer):
@@ -108,6 +110,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 halign=halign,
                 valign=valign,
                 extension=extension,
+                filters=[],
                 focal_points=[]
             )
 
@@ -136,6 +139,9 @@ class BaseHandler(tornado.web.RequestHandler):
                         points.append(point.to_dict())
 
                     self.storage.put_detector_data(image, points)
+
+            if self.filters and filters:
+                context['filters'] = BaseFilter.initialize(self.filters, filters)
 
             Transformer(context).transform()
 

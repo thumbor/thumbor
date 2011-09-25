@@ -75,6 +75,9 @@ define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detecto
 # FACE DETECTOR CASCADE FILE
 define('FACE_DETECTOR_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
 
+# AVAILABLE FILTERS
+define('FILTERS', default=[])
+
 class ConfigWrapper(object):
 
     def __getattr__(self, name):

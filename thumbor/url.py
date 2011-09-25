@@ -19,10 +19,11 @@ class Url(object):
     halign = r'(?:(?P<halign>left|right|center)/)?'
     valign = r'(?:(?P<valign>top|bottom|middle)/)?'
     smart = r'(?:(?P<smart>smart)/)?'
+    filters = r'(?:filters:(?P<filters>.+?)/)?'
     image = r'(?P<image>.+)'
 
     @classmethod
-    def regex(cls, with_unsafe=True, include_image=True, filters=[]):
+    def regex(cls, with_unsafe=True, include_image=True):
         reg = ['/?']
 
         if with_unsafe:
@@ -35,6 +36,7 @@ class Url(object):
         reg.append(cls.halign)
         reg.append(cls.valign)
         reg.append(cls.smart)
+        reg.append(cls.filters)
 
         if include_image:
             reg.append(cls.image)

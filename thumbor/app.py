@@ -35,8 +35,7 @@ class ThumborServiceApp(tornado.web.Application):
         self.storage = real_import(conf.STORAGE)
         self.engine = real_import(conf.ENGINE)
         self.detectors = [real_import(detector_name).Detector for detector_name in conf.DETECTORS]
-        #filters = [real_import(filter_name).Filter for filter_name in conf.FILTERS]
-        filters = []
+        self.filters = [real_import(filter_name).Filter for filter_name in conf.FILTERS]
 
         # run again to overwrite the default settings on the
         # imported modules with the ones defined into the config file
@@ -50,7 +49,7 @@ class ThumborServiceApp(tornado.web.Application):
             'storage': self.storage,
             'engine': self.engine,
             'detectors': self.detectors,
-            'filters': filters
+            'filters': self.filters
         }
 
         handlers = [

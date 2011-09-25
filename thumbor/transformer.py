@@ -62,6 +62,7 @@ class Transformer(object):
             self.auto_crop()
             self.resize()
         self.flip()
+        self.filter()
 
     def manual_crop(self):
         if self.context['should_crop']:
@@ -148,3 +149,10 @@ class Transformer(object):
             resize_width = source_width * self.target_height / source_height
 
         self.engine.resize(resize_width, resize_height)
+
+    def filter(self):
+        for f in self.context['filters']:
+            imgdata = self.engine.get_image_data()
+            newdata = f.run_filter(imgdata)
+            self.engine.set_image_data(newdata)
+

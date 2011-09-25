@@ -16,6 +16,8 @@ from tornado.options import options
 from thumbor.engines import BaseEngine
 from thumbor.utils import logger
 
+import numpy
+
 FORMATS = {
     '.jpg': 'JPEG',
     '.jpeg': 'JPEG',
@@ -69,3 +71,8 @@ class Engine(BaseEngine):
         img_buffer.close()
         return results
 
+    def get_image_data(self):
+        return numpy.array(self.image)
+
+    def set_image_data(self, data):
+        self.image = Image.fromarray(data)

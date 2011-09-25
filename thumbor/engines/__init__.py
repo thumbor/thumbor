@@ -64,3 +64,10 @@ class BaseEngine(object):
 
     def read(self):
         raise NotImplementedError()
+
+    def get_image_data(self):
+        raise NotImplementedError()
+
+    def set_image_data(self, data):
+        raise NotImplementedError()
+

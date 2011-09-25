@@ -29,6 +29,7 @@ class MainHandler(ContextHandler):
             halign,
             valign,
             smart,
+            filters,
             image,
             **kw):
 
@@ -53,7 +54,8 @@ class MainHandler(ContextHandler):
             'vertical_flip': vertical_flip == '-',
             'halign': halign or 'center',
             'valign': valign or 'middle',
-            'smart': smart == 'smart'
+            'smart': smart == 'smart',
+            'filters': filters or ''
         }
 
         return self.execute_image_operations(opt, image)
