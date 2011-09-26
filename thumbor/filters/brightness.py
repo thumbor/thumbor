@@ -16,19 +16,24 @@ class Filter(BaseFilter):
 
     def run_filter(self, imgdata):
         delta = int(math.floor(255 * (int(self.params['value']) / 100.0)))
-        for line in imgdata:
-            for p in line:
-                r = p[0] + delta
-                g = p[1] + delta
-                b = p[2] + delta
-                if r > 255: r = 255
-                if r < 0: r = 0
-                if g > 255: g = 255
-                if g < 0: g = 0
-                if b > 255: b = 255
-                if b < 0: b = 0
-                p[0] = r
-                p[1] = g
-                p[2] = b
-        return imgdata
+        l = list(imgdata)
+        sz = len(l)
+        for i in xrange(0, sz, 3):
+            r = ord(l[i])
+            g = ord(l[i + 1])
+            b = ord(l[i + 2])
+
+            r += delta
+            g += delta
+            b += delta
+            if r > 255: r = 255
+            if r < 0: r = 0
+            if g > 255: g = 255
+            if g < 0: g = 0
+            if b > 255: b = 255
+            if b < 0: b = 0
+            l[i] = chr(r)
+            l[i + 1] = chr(g)
+            l[i + 2] = chr(b)
+        return ''.join(l)
     

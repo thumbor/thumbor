@@ -72,7 +72,7 @@ class Engine(BaseEngine):
         return results
 
     def get_image_data(self):
-        return numpy.array(self.image)
+        return self.image.tostring()
 
     def set_image_data(self, data):
-        self.image = Image.fromarray(data)
+        self.image.fromstring(data)
