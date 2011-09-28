@@ -153,6 +153,7 @@ class Transformer(object):
     def filter(self):
         for f in self.context['filters']:
             imgdata = self.engine.get_image_data()
-            newdata = f.run_filter(imgdata)
-            self.engine.set_image_data(newdata)
+            newdata = f.run_filter(imgdata, self.engine)
+            if newdata:
+                self.engine.set_image_data(newdata)
 

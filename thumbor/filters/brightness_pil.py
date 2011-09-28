@@ -13,8 +13,8 @@ from thumbor.ext.filters import _brightness
 import math
 
 class Filter(BaseFilter):
-    regex = r'(?:brightness\((?P<value>[-]?[\d]+)\))'
+    regex = r'(?:brightness_pil\((?P<value>[-]?[\d]+)\))'
 
     def run_filter(self, imgdata, engine):
-        delta = int(math.floor(255 * (int(self.params['value']) / 100.0)))
-        return _brightness.apply(delta, imgdata)
+        delta = (int(self.params['value']) + 100.0) / 100.0
+        engine.brightness(delta)

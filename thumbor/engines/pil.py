@@ -16,7 +16,7 @@ from tornado.options import options
 from thumbor.engines import BaseEngine
 from thumbor.utils import logger
 
-import numpy
+import ImageEnhance
 
 FORMATS = {
     '.jpg': 'JPEG',
@@ -76,3 +76,11 @@ class Engine(BaseEngine):
 
     def set_image_data(self, data):
         self.image.fromstring(data)
+
+    def brightness(self, delta):
+        enhancer = ImageEnhance.Brightness(self.image)
+        self.image = enhancer.enhance(delta)
+    
+    def contrast(self, delta):
+        enhancer = ImageEnhance.Contrast(self.image)
+        self.image = enhancer.enhance(delta)

@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from setuptools import setup
+from setuptools import setup, Extension
 from thumbor import __version__
 
 setup(
@@ -61,6 +61,10 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
         ],
     },
 
+    ext_modules = [
+      Extension('thumbor.ext.filters._brightness', ['thumbor/ext/filters/_brightness.c']),
+      Extension('thumbor.ext.filters._contrast', ['thumbor/ext/filters/_contrast.c'])
+    ]
 )
 
 

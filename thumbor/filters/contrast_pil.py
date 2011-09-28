@@ -9,12 +9,12 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.filters import BaseFilter
-from thumbor.ext.filters import _brightness
+from thumbor.ext.filters import _contrast
 import math
 
 class Filter(BaseFilter):
-    regex = r'(?:brightness\((?P<value>[-]?[\d]+)\))'
+    regex = r'(?:contrast_pil\((?P<value>[-]?[\d]+)\))'
 
     def run_filter(self, imgdata, engine):
-        delta = int(math.floor(255 * (int(self.params['value']) / 100.0)))
-        return _brightness.apply(delta, imgdata)
+        delta = (int(self.params['value']) + 100.0) / 100.0
+        engine.contrast(delta)
