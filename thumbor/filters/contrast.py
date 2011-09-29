@@ -10,7 +10,6 @@
 
 from thumbor.filters import BaseFilter
 from thumbor.ext.filters import _contrast
-import math
 
 class Filter(BaseFilter):
     regex = r'(?:contrast\((?P<value>[-]?[\d]+)\))'

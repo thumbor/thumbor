@@ -5,8 +5,8 @@
 
 #define ADJUST_COLOR(c) ((c > 255) ? 255 : ((c < 0) ? 0 : c))
 
-#define FILTER_MODULE(NAME) static PyMethodDef NAME ## _methods[] = { \
-                                {"apply", NAME ## _apply, METH_VARARGS, "Apply " #NAME " filter"}, \
+#define FILTER_MODULE(NAME, DOC) static PyMethodDef NAME ## _methods[] = { \
+                                {"apply", NAME ## _apply, METH_VARARGS, DOC}, \
                                 {NULL, NULL} \
                             }; \
                             PyMODINIT_FUNC init ## NAME(void) { \

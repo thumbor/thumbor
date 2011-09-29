@@ -55,7 +55,7 @@ class Transformer(object):
 
     def transform(self):
         self.manual_crop()
-        
+
         if self.context['fit_in']:
             self.fit_in_resize()
         else:

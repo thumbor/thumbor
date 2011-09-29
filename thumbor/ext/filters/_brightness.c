@@ -11,7 +11,9 @@ _brightness_apply(PyObject *self, PyObject *args)
 
     Py_ssize_t size = PyString_Size(buffer);
     unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
-    long long_delta = PyInt_AsLong(delta);
+    int delta_int = (int) PyInt_AsLong(delta);
+
+    delta_int = (255 * delta_int) / 100;
 
     int i = 0, r, g, b;
     size -= 3;
@@ -20,9 +22,9 @@ _brightness_apply(PyObject *self, PyObject *args)
         g = ptr[i + 1];
         b = ptr[i + 2];
 
-        r += long_delta;
-        g += long_delta;
-        b += long_delta;
+        r += delta_int;
+        g += delta_int;
+        b += delta_int;
 
         ptr[i] = ADJUST_COLOR(r);
         ptr[i + 1] = ADJUST_COLOR(g);
@@ -33,4 +35,8 @@ _brightness_apply(PyObject *self, PyObject *args)
     return buffer;
 }
 
-FILTER_MODULE(_brightness)
+FILTER_MODULE(_brightness,
+    "apply(delta, buffer) -> string\n"
+    "Applies a brightness filter assuming 'delta' as an integer value between -100 and 100, "
+    "and 'buffer' as a Python string. Returns the received buffer."
+)

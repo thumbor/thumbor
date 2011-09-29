@@ -3,7 +3,7 @@
 static PyObject*
 _contrast_apply(PyObject *self, PyObject *args)
 {
-    PyObject *buffer = NULL, *delta = NULL;
+    PyObject *delta = NULL, *buffer = NULL;
 
     if (!PyArg_UnpackTuple(args, "apply", 2, 2, &delta, &buffer)) {
         return NULL;
@@ -36,4 +36,8 @@ _contrast_apply(PyObject *self, PyObject *args)
     return buffer;
 }
 
-FILTER_MODULE(_contrast)
+FILTER_MODULE(_contrast,
+    "apply(delta, buffer) -> string\n"
+    "Applies a contrast filter assuming 'delta' as an integer value between -100 and 100, "
+    "and 'buffer' as a Python string. Returns the received buffer."
+)
