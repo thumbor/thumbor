@@ -63,7 +63,8 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
 
     ext_modules = [
       Extension('thumbor.ext.filters._brightness', ['thumbor/ext/filters/_brightness.c']),
-      Extension('thumbor.ext.filters._contrast', ['thumbor/ext/filters/_contrast.c'])
+      Extension('thumbor.ext.filters._contrast', ['thumbor/ext/filters/_contrast.c']),
+      Extension('thumbor.ext.filters._rgb', ['thumbor/ext/filters/_rgb.c'])
     ]
 )
 
