@@ -12,3 +12,4 @@ tests/visual_test/img/
 *.swn
 tests/visual_test/build
 build
+*.so
