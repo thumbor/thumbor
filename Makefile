@@ -1,5 +1,8 @@
-run:
+run: compile_ext
 	@PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug
+
+compile_ext:
+	python setup.py build_ext -i
 
 db:
 	@mysql -u root -e 'DROP DATABASE IF EXISTS thumbor'
