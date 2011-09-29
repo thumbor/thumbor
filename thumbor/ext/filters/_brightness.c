@@ -24,13 +24,9 @@ _brightness_apply(PyObject *self, PyObject *args)
         g += long_delta;
         b += long_delta;
 
-        r = ADJUST_COLOR(r);
-        g = ADJUST_COLOR(g);
-        b = ADJUST_COLOR(b);
-
-        ptr[i] = r;
-        ptr[i + 1] = g;
-        ptr[i + 2] = b;
+        ptr[i] = ADJUST_COLOR(r);
+        ptr[i + 1] = ADJUST_COLOR(g);
+        ptr[i + 2] = ADJUST_COLOR(b);
     }
 
     Py_INCREF(buffer);

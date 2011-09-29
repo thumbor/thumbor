@@ -1,5 +1,4 @@
 #include "filter.h"
-#include <math.h>
 
 static PyObject*
 _contrast_apply(PyObject *self, PyObject *args)
@@ -12,43 +11,25 @@ _contrast_apply(PyObject *self, PyObject *args)
 
     Py_ssize_t size = PyString_Size(buffer);
     unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
-    long delta_int = PyInt_AsLong(delta);
+    int delta_int = (int) PyInt_AsLong(delta);
 
-    double delta_double = pow((delta_int + 100) / 100.0, 2);
+    delta_int = delta_int + 100;
+    delta_int = (delta_int * delta_int) / 100;
 
-    int i = 0;
-    double r, g, b;
+    int i = 0, r, g, b;
     size -= 3;
     for (; i <= size; i += 3) {
         r = ptr[i];
         g = ptr[i + 1];
         b = ptr[i + 2];
 
-        r = r / 255.0;
-        r -= 0.5;
-        r *= delta_double;
-        r += 0.5;
-        r *= 255;
+        r = ((delta_int * (r - 128)) / 100) + 128;
+        g = ((delta_int * (g - 128)) / 100) + 128;
+        b = ((delta_int * (b - 128)) / 100) + 128;
 
-        g = g / 255.0;
-        g -= 0.5;
-        g *= delta_double;
-        g += 0.5;
-        g *= 255;
-
-        b = b / 255.0;
-        b -= 0.5;
-        b *= delta_double;
-        b += 0.5;
-        b *= 255;
-
-        r = ADJUST_COLOR(r);
-        g = ADJUST_COLOR(g);
-        b = ADJUST_COLOR(b);
-
-        ptr[i] = r;
-        ptr[i + 1] = g;
-        ptr[i + 2] = b;
+        ptr[i] = ADJUST_COLOR(r);
+        ptr[i + 1] = ADJUST_COLOR(g);
+        ptr[i + 2] = ADJUST_COLOR(b);
     }
 
     Py_INCREF(buffer);
