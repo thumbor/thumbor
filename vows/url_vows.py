@@ -64,10 +64,15 @@ class UrlVows(Vows.Context):
             def should_return_proper_url(self, topic):
                 expect(topic).to_equal('fit-in')
 
-        class Complete(ctx(width=300, height=200, smart=True, fit_in=True, meta=True, horizontal_flip=True, vertical_flip=True, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13)):
+        class Filters(ctx(filters='brightness(-10):contrast(5)')):
 
             def should_return_proper_url(self, topic):
-                expect(topic).to_equal('meta/10x11:12x13/fit-in/-300x-200/smart')
+                expect(topic).to_equal('filters:brightness(-10):contrast(5)')
+
+        class Complete(ctx(width=300, height=200, smart=True, fit_in=True, meta=True, horizontal_flip=True, vertical_flip=True, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13, filters="a(10):b(-10)")):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('meta/10x11:12x13/fit-in/-300x-200/smart/filters:a(10):b(-10)')
 
     class Regex(Vows.Context):
         def topic(self):
@@ -97,6 +102,9 @@ class UrlVows(Vows.Context):
         def should_contain_smart(self, topic):
             expect(topic).to_include('(?:(?P<smart>smart)/)?')
 
+        def should_contain_filters(self, topic):
+            expect(topic).to_include('(?:filters:(?P<filters>.+?)/)?')
+
         def should_contain_image(self, topic):
             expect(topic).to_include('(?P<image>.+)')
 
@@ -110,7 +118,7 @@ class UrlVows(Vows.Context):
     class Parse(Vows.Context):
         class WithoutInitialSlash(Vows.Context):
             def topic(self):
-                return Url.parse_options('unsafe/meta/10x11:12x13/-300x-200/left/top/smart/')
+                return Url.parse_options('unsafe/meta/10x11:12x13/-300x-200/left/top/smart/filters:some_filter()/')
 
             def should_not_be_null(self, topic):
                 expect(topic).not_to_be_null()
@@ -124,7 +132,7 @@ class UrlVows(Vows.Context):
 
         class WithoutImage(Vows.Context):
             def topic(self):
-                return Url.parse_options('/unsafe/meta/10x11:12x13/fit-in/-300x-200/left/top/smart/')
+                return Url.parse_options('/unsafe/meta/10x11:12x13/fit-in/-300x-200/left/top/smart/filters:some_filter()/')
 
             def should_have_meta(self, topic):
                 expect(topic['meta']).to_be_true()
@@ -164,6 +172,9 @@ class UrlVows(Vows.Context):
 
             def should_have_fit_in(self, topic):
                 expect(topic['fit_in']).to_be_true()
+
+            def should_have_filters(self, topic):
+                expect(topic['filters']).to_equal('some_filter()')
 
         class WithImage(Vows.Context):
             def topic(self):

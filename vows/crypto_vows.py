@@ -47,11 +47,11 @@ class CryptoVows(Vows.Context):
                                   crop_top=11,
                                   crop_right=12,
                                   crop_bottom=13,
-                                  filters='',
+                                  filters='some_filter()',
                                   image="/some/image.jpg")
 
         def should_equal_encrypted_string(self, topic):
-            encrypted_str = "OI8j7z9h88_IVzYLiq9UWPkBPBwwJ1pMKQw1UVrL7odTcog5UT4PBBrzoehKm7WUNxU5oq8mV59xMJJUc2aKWA=="
+            encrypted_str = "OI8j7z9h88_IVzYLiq9UWOJqjpxTs4Mk3wCCrAcEqs_rMl--rB9iYial5QYfSaaMt6VQVjOfFELvDVClTKNFfb19lheMGJVPmRFum9B7pGjkPzyAIdNFVbKHv_LslBU4"
             expect(topic).to_equal(encrypted_str)
 
         class Decrypt(Vows.Context):
@@ -100,6 +100,9 @@ class CryptoVows(Vows.Context):
 
             def should_have_crop_bottom_of_13(self, topic):
                 expect(topic['crop']['bottom']).to_equal(13)
+
+            def should_have_filter_as_some_filter(self, topic):
+                expect(topic['filters']).to_equal('some_filter()')
 
             def should_have_image_hash(self, topic):
                 image_hash = hashlib.md5('/some/image.jpg').hexdigest()
