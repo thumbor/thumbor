@@ -18,7 +18,7 @@ from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
 from thumbor.point import FocalPoint
-from thumbor.filters import BaseFilter
+from thumbor import filters as filters_module
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -141,7 +141,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     self.storage.put_detector_data(image, points)
 
             if self.filters and filters:
-                context['filters'] = BaseFilter.initialize(self.filters, filters)
+                context['filters'] = filters_module.create_instances(self.filters, filters)
 
             Transformer(context).transform()
 

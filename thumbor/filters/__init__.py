@@ -17,21 +17,28 @@ def firstValid(f, it):
             return obj
     return None
 
+def compile_filters(filter_classes):
+    for cls in filter_classes:
+        cls.regex = re.compile(cls.regex)
+
+def create_instances(filter_classes, filter_params):
+    filter_params = filter_params.split(':')
+    filter_objs = []
+    for param in filter_params:
+        filter_instance = firstValid(lambda f: f.init_if_valid(param), filter_classes)
+        if filter_instance:
+            filter_objs.append(filter_instance)
+    return filter_objs
+
 class BaseFilter(object):
 
     def __init__(self, params):
-        self.params = re.match(self.regex, params)
+        self.params = self.regex.match(params)
         if self.params:
             self.params = self.params.groupdict()
 
     def is_valid(self):
         return bool(self.params)
-
-    @classmethod
-    def initialize(cls, filters, filter_params):
-        filter_params = filter_params.split(':')
-        filter_objs = map(lambda param: firstValid(lambda f: f.init_if_valid(param), filters), filter_params)
-        return filter(lambda f: f, filter_objs)
 
     @classmethod
     def init_if_valid(cls, param):

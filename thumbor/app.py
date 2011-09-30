@@ -21,6 +21,7 @@ from thumbor.handlers.healthcheck import HealthcheckHandler
 from thumbor.handlers.crypto import CryptoHandler
 from thumbor.utils import real_import, logger
 from thumbor.url import Url
+from thumbor import filters
 
 class ThumborServiceApp(tornado.web.Application):
 
@@ -36,6 +37,7 @@ class ThumborServiceApp(tornado.web.Application):
         self.engine = real_import(conf.ENGINE)
         self.detectors = [real_import(detector_name).Detector for detector_name in conf.DETECTORS]
         self.filters = [real_import(filter_name).Filter for filter_name in conf.FILTERS]
+        filters.compile_filters(self.filters)
 
         # run again to overwrite the default settings on the
         # imported modules with the ones defined into the config file
