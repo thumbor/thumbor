@@ -25,7 +25,7 @@ _round_corner_apply(PyObject *self, PyObject *args)
 
     float a_rad = (float)a_radius, b_rad = (float)b_radius;
     float x, y;
-    for (y = 0; y <= b_rad; y += 0.2f) {
+    for (y = 0; y <= b_rad; y += 1.0f) {
         x = -(a_rad * sqrt((b_rad * b_rad) - (y * y))) / b_rad;
 
         int pixel_x = 0,
