@@ -32,6 +32,7 @@ class Crypto(object):
                 crop_top,
                 crop_right,
                 crop_bottom,
+                filters,
                 image):
 
         url = "%s/%s" % (Url.generate_options(width,
@@ -46,7 +47,8 @@ class Crypto(object):
                                               crop_left,
                                               crop_top,
                                               crop_right,
-                                              crop_bottom),
+                                              crop_bottom,
+                                              filters),
                         hashlib.md5(image).hexdigest())
 
         pad = lambda s: s + (16 - len(s) % 16) * "{"

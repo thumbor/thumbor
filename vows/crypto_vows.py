@@ -47,6 +47,7 @@ class CryptoVows(Vows.Context):
                                   crop_top=11,
                                   crop_right=12,
                                   crop_bottom=13,
+                                  filters='',
                                   image="/some/image.jpg")
 
         def should_equal_encrypted_string(self, topic):

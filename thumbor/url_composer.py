@@ -30,6 +30,7 @@ def main():
     parser.add_option('-v', '--vertical-flip', action='store_true', dest='vertical_flip', default=False, help = 'Indicates that the image should be vertically flipped.')
     parser.add_option('-a', '--halign', dest='halign', default='center', help = 'The horizontal alignment to use for cropping [default: %default].' )
     parser.add_option('-i', '--valign', dest='valign', default='middle', help = 'The vertical alignment to use for cropping [default: %default].' )
+    parser.add_option('',   '--filters', dest='filters', default='', help = 'Filters to be applied to the image, e.g. brightness(10) [default: %default].' )
 
     parser.add_option('-c', '--crop', dest='crop', default=None, help = 'The coordinates of the points to manual cropping in the format leftxtop:rightxbottom (100x200:400x500) [default: %default].' )
 
@@ -76,6 +77,7 @@ def main():
                         crop_top,
                         crop_right,
                         crop_bottom,
+                        parsed_options.filters,
                         image_url)
     url = '/%s/%s' % (opt, image_url)
 

@@ -76,6 +76,7 @@ class Url(object):
             'halign': result['halign'] or 'center',
             'valign': result['valign'] or 'middle',
             'smart': result['smart'] == 'smart',
+            'filters': result['filters'] or '',
             'image': 'image' in result and result['image'] or None
         }
 
@@ -95,7 +96,8 @@ class Url(object):
                          crop_left=None,
                          crop_top=None,
                          crop_right=None,
-                         crop_bottom=None):
+                         crop_bottom=None,
+                         filters=None):
 
         url = []
 
@@ -129,5 +131,8 @@ class Url(object):
 
         if smart:
             url.append('smart')
+
+        if filters:
+            url.append('filters:%s' % filters)
 
         return '/'.join(url)
