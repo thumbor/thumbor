@@ -67,3 +67,12 @@ class Engine(BaseEngine):
             temp_file.seek(0)
             return temp_file.read()
 
+    def get_image_data(self):
+        return self.image.tostring()
+
+    def set_image_data(self, data):
+        cv.SetData(self.image, data)
+
+    def get_image_mode(self):
+        # TODO: Handle pngs with alpha channel
+        return 'BGR'

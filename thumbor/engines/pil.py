@@ -74,3 +74,7 @@ class Engine(BaseEngine):
 
     def set_image_data(self, data):
         self.image.fromstring(data)
+
+    def get_image_mode(self):
+        # TODO: Handle pngs with alpha channel
+        return 'RGB'

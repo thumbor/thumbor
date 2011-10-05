@@ -71,3 +71,6 @@ class BaseEngine(object):
     def set_image_data(self, data):
         raise NotImplementedError()
 
+    def get_image_mode(self):
+        """ Possible return values should be: RGB, RBG, GRB, GBR, BRG, BGR, RGBA, AGBR, ...  """
+        raise NotImplementedError()
