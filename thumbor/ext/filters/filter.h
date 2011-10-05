@@ -18,9 +18,8 @@
 static inline int
 rgb_order(char *mode, char color)
 {
-    char *aux = mode;
     int i = 0;
-    while (*aux != color && *(++aux)) {
+    while (*mode != color && *(++mode)) {
         ++i;
     }
     return i;
