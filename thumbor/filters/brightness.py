@@ -14,5 +14,5 @@ from thumbor.ext.filters import _brightness
 class Filter(BaseFilter):
     regex = r'(?:brightness\((?P<value>[-]?[\d]+)\))'
 
-    def run_filter(self, imgdata, engine):
+    def run_filter(self, imgdata):
         return _brightness.apply(int(self.params['value']), imgdata)

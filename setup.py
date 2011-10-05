@@ -19,7 +19,7 @@ def filter_extension_module(name):
         ['thumbor/ext/filters/%s.c' % name],
         libraries = ['m'],
         depends = ['thumbor/ext/filters/filter.h', 'setup.py'],
-        extra_compile_args = ['-ansi', '-Wall', '-Wextra', '-Werror', '-Wno-unused-parameter'])
+        extra_compile_args = ['-Wall', '-Wextra', '-Werror', '-Wno-unused-parameter'])
 
 def gather_filter_extensions():
     files = glob.glob('thumbor/ext/filters/*.c')

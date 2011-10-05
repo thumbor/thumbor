@@ -141,7 +141,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     self.storage.put_detector_data(image, points)
 
             if self.filters and filters:
-                context['filters'] = filters_module.create_instances(self.filters, filters)
+                context['filters'] = filters_module.create_instances(self.engine, self.filters, filters)
 
             Transformer(context).transform()
 

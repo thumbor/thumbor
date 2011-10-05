@@ -15,4 +15,15 @@
                                         Py_InitModule3(#NAME, NAME ## _methods, #NAME " native module"); \
                                     }
 
+static inline int
+rgb_order(char *mode, char color)
+{
+    char *aux = mode;
+    int i = 0;
+    while (*aux != color && *(++aux)) {
+        ++i;
+    }
+    return i;
+}
+
 #endif
