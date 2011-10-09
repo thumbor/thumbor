@@ -59,13 +59,8 @@ class Engine(BaseEngine):
         raise NotImplementedError()
 
     def read(self, extension=None, quality=options.QUALITY):
-        with tempfile.NamedTemporaryFile(suffix=self.extension) as temp_file:
-            img = self.image
-            if FORMATS[self.extension] == 'JPEG':
-                img = cv.DecodeImage(cv.EncodeImage(".jpeg", img, [cv.CV_IMWRITE_JPEG_QUALITY, quality]))
-            cv.SaveImage(temp_file.name, img)
-            temp_file.seek(0)
-            return temp_file.read()
+        enc_img = cv.EncodeImage(".%s" % FORMATS[self.extension], self.image, [cv.CV_IMWRITE_JPEG_QUALITY, quality])
+        return enc_img.tostring()
 
     def get_image_data(self):
         return self.image.tostring()
