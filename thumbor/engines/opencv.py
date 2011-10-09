@@ -25,6 +25,11 @@ FORMATS = {
 class Engine(BaseEngine):
 
     def create_image(self, buffer):
+        # FIXME: opencv doesn't support gifs, even worse, the library
+        # segfaults when trying to decoding a gif. An exception is a
+        # less drastic measure.
+        if FORMATS[self.extension] == 'GIF':
+            raise ValueError("opencv doesn't support gifs")
         imagefiledata = cv.CreateMatHeader(1, len(buffer), cv.CV_8UC1)
         cv.SetData(imagefiledata, buffer, len(buffer))
         img0 = cv.DecodeImage(imagefiledata, cv.CV_LOAD_IMAGE_COLOR)
