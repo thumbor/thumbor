@@ -59,8 +59,11 @@ class Engine(BaseEngine):
         raise NotImplementedError()
 
     def read(self, extension=None, quality=options.QUALITY):
-        enc_img = cv.EncodeImage(".%s" % FORMATS[self.extension], self.image, [cv.CV_IMWRITE_JPEG_QUALITY, quality])
-        return enc_img.tostring()
+        options = None
+        extension = extension or self.extension
+        if FORMATS[extension] == 'JPEG':
+            options = [cv.CV_IMWRITE_JPEG_QUALITY, quality]
+        return cv.EncodeImage(extension, self.image, options or []).tostring()
 
     def get_image_data(self):
         return self.image.tostring()
