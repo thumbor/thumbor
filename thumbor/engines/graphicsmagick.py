@@ -10,6 +10,7 @@
 
 from tornado.options import options
 from pgmagick import Image, Geometry, Blob, FilterTypes
+from pgmagick._pgmagick import get_blob_data
 
 from thumbor.engines import BaseEngine
 
@@ -74,3 +75,19 @@ class Engine(BaseEngine):
         results = img_buffer.data
 
         return results
+
+    def get_image_data(self):
+        self.image.magick("RGB")
+        blob = Blob()
+        self.image.write(blob)
+        data = get_blob_data(blob)
+        return data
+
+    def set_image_data(self, data):
+        self.image.magick("RGB")
+        blob = Blob(data)
+        self.image.size(self.image.size())
+        self.image.read(blob)
+
+    def get_image_mode(self):
+        return "RGB"
