@@ -43,19 +43,25 @@ class CascadeLoaderDetector(BaseDetector):
             setattr(self.__class__, 'cascade', cv.Load(cascade_file))
 
     def get_features(self, context):
-        image = cv.LoadImageM(context['file'])
+        engine = context['engine']
+        sz = engine.size
+        mode = engine.get_image_mode()
+        image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
+        cv.SetData(image, engine.get_image_data())
+
+        gray = cv.CreateImage(sz, 8, 1);
+        convert_mode = getattr(cv, 'CV_%s2GRAY' % mode)
+        cv.CvtColor(image, gray, convert_mode)
 
         min_size = (20, 20)
         image_scale = 1.0
         haar_scale = 1.2
         min_neighbors = 2
 
-        thumbnail = cv.CreateMat(int(round(image.height / image_scale, 0)), int(round(image.width / image_scale, 0)), cv.CV_8UC3)
-        cv.Resize(image, thumbnail)
-
-        gray = cv.CreateImage((thumbnail.width, thumbnail.height), 8, 1)
-
-        cv.CvtColor(thumbnail, gray, cv.CV_BGR2GRAY)
+        if image_scale != 1.0:
+            thumbnail = cv.CreateMat(int(round(image.height / image_scale, 0)), int(round(image.width / image_scale, 0)), cv.CV_8UC1)
+            cv.Resize(gray, thumbnail)
+            gray = thumbnail
 
         cv.EqualizeHist(gray, gray)
 

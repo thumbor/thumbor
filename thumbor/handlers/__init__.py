@@ -125,12 +125,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     for point in focal_points:
                         context['focal_points'].append(FocalPoint.from_dict(point))
                 else:
-                    with tempfile.NamedTemporaryFile(suffix='.jpg') as temp_file:
-                        jpg_buffer = buffer if extension in ('.jpg', '.jpeg') else self.engine.read('.jpg')
-                        temp_file.write(jpg_buffer)
-                        temp_file.seek(0)
-                        context['file'] = temp_file.name
-                        self.detectors[0](index=0, detectors=self.detectors).detect(context)
+                    self.detectors[0](index=0, detectors=self.detectors).detect(context)
 
                     points = []
                     focal_points = context['focal_points']
