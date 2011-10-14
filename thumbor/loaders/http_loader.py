@@ -45,8 +45,11 @@ def load(url, callback):
         #return None
 
     def return_contents(response):
-        if response.error: callback(None)
-        callback(response.body)
+        if response.error:
+            callback(None, None)
+        else:
+            mimetype = response.headers.get_list('Content-type')[0].split(';')[0]
+            callback(response.body, mimetype)
 
     url = _normalize_url(url)
     client.fetch(url, callback=return_contents)
