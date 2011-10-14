@@ -29,8 +29,8 @@ class Storage(BaseStorage):
         else:
             self.detector_storage = real_import(conf.MIXED_STORAGE_DETECTOR_STORAGE).Storage()
 
-    def put(self, path, bytes):
-        self.file_storage.put(path, bytes)
+    def put(self, path, bytes, mimetype):
+        self.file_storage.put(path, bytes, mimetype)
 
     def put_detector_data(self, path, data):
         self.detector_storage.put_detector_data(path, data)
