@@ -5,6 +5,8 @@
 
 #include <math.h>
 
+#define RGB_LENGTH 3
+
 #define ADJUST_COLOR(c) ((c > 255) ? 255 : ((c < 0) ? 0 : c))
 
 #define FILTER_MODULE(NAME, DOC)    static PyMethodDef NAME ## _methods[] = { \

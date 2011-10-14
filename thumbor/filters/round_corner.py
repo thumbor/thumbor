@@ -12,7 +12,7 @@ from thumbor.filters import BaseFilter
 from thumbor.ext.filters import _round_corner
 
 class Filter(BaseFilter):
-    regex = r'(?:round_corner\((?P<a_radius>[\d]+)(\|(?P<b_radius>[\d]+))?,(?P<r>[\d]+),(?P<g>[\d]+),(?P<b>[\d]+)\))'
+    regex = r'(?:round_corner\((?P<a_radius>[\d]+)(?:\|(?P<b_radius>[\d]+))?,(?P<r>[\d]+),(?P<g>[\d]+),(?P<b>[\d]+)\))'
 
     def run_filter(self, imgdata):
         width, height = self.engine.size
@@ -23,4 +23,4 @@ class Filter(BaseFilter):
         else:
             b_radius = a_radius
 
-        return _round_corner.apply(self.engine.get_image_mode(), a_radius, b_radius, int(self.params['r']), int(self.params['g']), int(self.params['b']), width, height, imgdata)
+        return _round_corner.apply(1, self.engine.get_image_mode(), a_radius, b_radius, int(self.params['r']), int(self.params['g']), int(self.params['b']), width, height, imgdata)
