@@ -17,7 +17,6 @@ class Transformer(object):
         self.context = context
         self.engine = self.context['engine']
         self.calculate_target_dimensions()
-        self.calculate_focal_points()
 
     def calculate_target_dimensions(self):
         source_width, source_height = self.engine.size
@@ -55,7 +54,9 @@ class Transformer(object):
 
     def transform(self):
         self.manual_crop()
-        
+
+        self.calculate_focal_points()
+
         if self.context['fit_in']:
             self.fit_in_resize()
         else:

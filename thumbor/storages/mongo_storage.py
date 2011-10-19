@@ -26,13 +26,12 @@ class Storage(BaseStorage):
 
         return connection, db, storage
 
-    def put(self, path, bytes, mimetype):
+    def put(self, path, bytes):
         connection, db, storage = self.__conn__()
 
         doc = {
             'path': path,
-            'created_at': datetime.now(),
-            'mimetype': mimetype
+            'created_at': datetime.now()
         }
 
         doc_with_crypto = dict(doc)
@@ -57,14 +56,15 @@ class Storage(BaseStorage):
         if not conf.SECURITY_KEY:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
-        storage.update({'path': path}, 
-                       { 'crypto':  conf.SECURITY_KEY } )
+        crypto = storage.find_one({'path': path})
+
+        crypto['crypto'] = conf.SECURITY_KEY
+        storage.update(crypto)
 
     def put_detector_data(self, path, data):
         connection, db, storage = self.__conn__()
 
-        storage.update({'path': path},
-                       { 'detector_data':data})
+        storage.update({'path': path}, {"$set": {"detector_data": data}})
 
     def get_crypto(self, path):
         connection, db, storage = self.__conn__()
@@ -84,14 +84,13 @@ class Storage(BaseStorage):
         stored = storage.find_one({'path': path})
 
         if not stored or self.__is_expired(stored):
-            return None, None
+            return None
 
         fs = gridfs.GridFS(db)
 
-        mimetype = stored['mimetype']
         contents = fs.get(stored['file_id']).read()
 
-        return str(contents), mimetype
+        return str(contents)
 
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')

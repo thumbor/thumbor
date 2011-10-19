@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from os.path import splitext
 import tempfile
 
 import tornado.web
@@ -25,10 +26,6 @@ CONTENT_TYPE = {
     '.png': 'image/png'
 }
 
-RCONTENT_TYPE = {}
-for k,v in CONTENT_TYPE.iteritems():
-    RCONTENT_TYPE[v] = k
-    
 class BaseHandler(tornado.web.RequestHandler):
     def _error(self, status, msg=None):
         self.set_status(status)
@@ -61,11 +58,13 @@ class BaseHandler(tornado.web.RequestHandler):
         halign = opt['halign']
         valign = opt['valign']
 
+        extension = splitext(image)[-1].lower()
+
         self.get_image(opt['meta'], should_crop, crop_left,
                        crop_top, crop_right, crop_bottom,
                        opt['fit_in'],
                        opt['horizontal_flip'], width, opt['vertical_flip'],
-                       height, halign, valign,
+                       height, halign, valign, extension,
                        opt['smart'], image)
 
     def get_image(self,
@@ -82,10 +81,11 @@ class BaseHandler(tornado.web.RequestHandler):
                   height,
                   halign,
                   valign,
+                  extension,
                   should_be_smart,
                   image
                   ):
-        def callback(buffer, mimetype):
+        def callback(buffer):
             if buffer is None:
                 self._error(404)
                 return
@@ -107,10 +107,10 @@ class BaseHandler(tornado.web.RequestHandler):
                 height=height,
                 halign=halign,
                 valign=valign,
+                extension=extension,
                 focal_points=[]
             )
 
-            extension = RCONTENT_TYPE[mimetype]
             self.engine.load(buffer, extension)
 
             if meta:
@@ -142,16 +142,16 @@ class BaseHandler(tornado.web.RequestHandler):
             if meta:
                 content_type = 'text/javascript' if options.META_CALLBACK_NAME else 'application/json'
             else:
-                content_type = mimetype
+                content_type = CONTENT_TYPE[context['extension']]
 
             self.set_header('Content-Type', content_type)
 
-            results = context['engine'].read(RCONTENT_TYPE[mimetype])
+            results = context['engine'].read(context['extension'])
 
             self.write(results)
             self.finish()
 
-        self._fetch(image, callback)
+        self._fetch(image, extension, callback)
 
     def validate(self, path):
         if not hasattr(self.loader, 'validate'):
@@ -164,26 +164,26 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return is_valid
 
-    def _fetch(self, url, callback):
+    def _fetch(self, url, extension, callback):
         storage = self.storage
-        buffer, mimetype = storage.get(url)
+        buffer = storage.get(url)
 
         if buffer is not None:
-            callback(buffer, mimetype)
+            callback(buffer)
         else:
-            def handle_loader_loaded(buffer, mimetype):
+            def handle_loader_loaded(buffer):
                 if buffer is None:
-                    callback(None, None)
+                    callback(None)
                     return
 
-                self.engine.load(buffer, RCONTENT_TYPE[mimetype])
+                self.engine.load(buffer, extension)
                 self.engine.normalize()
                 buffer = self.engine.read()
 
-                storage.put(url, buffer, mimetype)
+                storage.put(url, buffer)
                 storage.put_crypto(url)
 
-                callback(buffer, mimetype)
+                callback(buffer)
 
             self.loader.load(url, handle_loader_loaded)
 
@@ -194,3 +194,5 @@ class ContextHandler(BaseHandler):
         self.engine = engine.Engine()
         self.detectors = detectors
         self.filters = filters
+
+

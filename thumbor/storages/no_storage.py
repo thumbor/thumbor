@@ -12,7 +12,7 @@ from thumbor.storages import BaseStorage
 
 class Storage(BaseStorage):
 
-    def put(self, path, bytes, mimetype):
+    def put(self, path, bytes):
         pass
 
     def put_crypto(self, path):
@@ -28,4 +28,4 @@ class Storage(BaseStorage):
         return None
 
     def get(self, path):
-        return None, None
+        return None

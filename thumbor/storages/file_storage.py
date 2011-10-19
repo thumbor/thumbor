@@ -24,18 +24,14 @@ class Storage(BaseStorage):
         if not exists(path):
             os.makedirs(path)
 
-    def put(self, path, bytes, mimetype):
+    def put(self, path, bytes):
         file_abspath = self.__normalize_path(path)
         file_dir_abspath = dirname(file_abspath)
-        file_mimepath = self.__mimepath(path)
-        
+
         self.__ensure_dir(file_dir_abspath)
 
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
-        with open(file_mimepath, 'w') as _file:
-            _file.write(mimetype)
-
 
     def put_crypto(self, path):
         if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
@@ -70,12 +66,10 @@ class Storage(BaseStorage):
 
     def get(self, path):
         file_abspath = self.__normalize_path(path)
-        file_mimepath = self.__mimepath(path)
-
 
         if not exists(file_abspath) or self.__is_expired(file_abspath):
-            return None, None
-        return open(file_abspath, 'r').read(), open(file_mimepath, 'r').read()
+            return None
+        return open(file_abspath, 'r').read()
 
     def get_detector_data(self, path):
         file_abspath = self.__normalize_path(path)
@@ -95,8 +89,3 @@ class Storage(BaseStorage):
     def __is_expired(self, path):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
         return timediff.seconds > conf.STORAGE_EXPIRATION_SECONDS
-
-    def __mimepath(self, path):
-        file_abspath = self.__normalize_path(path)
-        path = '%s.mimetype.txt' % splitext(file_abspath)[0]
-        return path
