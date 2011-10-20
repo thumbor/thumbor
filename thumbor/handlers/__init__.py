@@ -88,8 +88,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 self._error(404)
                 return
 
+            new_crops = None
             if normalized and should_crop:
-                crop_left, crop_top, crop_right, crop_bottom = self.translate_crop_coordinates()
+                new_crops = self.translate_crop_coordinates()
 
             context = dict(
                 loader=self.loader,
@@ -99,10 +100,10 @@ class BaseHandler(tornado.web.RequestHandler):
                 normalized=normalized,
                 buffer=buffer,
                 should_crop=should_crop,
-                crop_left=crop_left,
-                crop_top=crop_top,
-                crop_right=crop_right,
-                crop_bottom=crop_bottom,
+                crop_left=new_crops and new_crops[0] or crop_left,
+                crop_top=new_crops and new_crops[1] or crop_top,
+                crop_right=new_crops and new_crops[2] or crop_right,
+                crop_bottom=new_crops and new_crops[3] or crop_bottom,
                 fit_in=fit_in,
                 should_flip_horizontal=horizontal_flip,
                 width=width,
@@ -166,7 +167,7 @@ class BaseHandler(tornado.web.RequestHandler):
         buffer = storage.get(url)
 
         if buffer is not None:
-            callback(buffer)
+            callback(False, buffer)
         else:
             def handle_loader_loaded(buffer):
                 if buffer is None:

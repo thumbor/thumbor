@@ -71,7 +71,7 @@ class Transformer(object):
         if self.context['detectors'] and self.context['smart']:
             storage = self.context['storage']
             engine = self.context['engine']
-            storage_key = '%dx%d_%s' % (engine.size[0], engine.size[1], self.context['image_url'])
+            storage_key = '%s_%d_%d' % (self.context['image_url'], engine.size[0], engine.size[1])
             if self.context['crop_left']:
                 storage_key = storage_key + '_%d_%d_%d_%d' % (self.context['crop_left'],
                                                               self.context['crop_top'],
