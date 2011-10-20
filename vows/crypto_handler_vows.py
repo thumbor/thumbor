@@ -103,11 +103,7 @@ class CryptoHandlerVows(TornadoHTTPContext):
 
         class WhenProperUrl(TornadoHTTPContext):
             def topic(self):
-                url = self._get_url(get_encrypted_url(image_url, 300, 200))
-
-                self._http_client.fetch(url, self._stop)
-                response = self._wait()
-
+                response = self.get(get_encrypted_url(image_url, 300, 200))
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):

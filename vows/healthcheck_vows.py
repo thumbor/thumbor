@@ -38,5 +38,5 @@ class HealthCheck(TornadoHTTPContext):
                 return response[1]
 
             def should_equal_working(self, topic):
-                expect(topic).to_equal('working')
+                expect(topic.lower().strip()).to_equal('working')
 
