@@ -72,6 +72,12 @@ class Transformer(object):
             storage = self.context['storage']
             engine = self.context['engine']
             storage_key = '%dx%d_%s' % (engine.size[0], engine.size[1], self.context['image_url'])
+            if self.context['crop_left']:
+                storage_key = storage_key + '_%d_%d_%d_%d' % (self.context['crop_left'],
+                                                              self.context['crop_top'],
+                                                              self.context['crop_right'],
+                                                              self.context['crop_bottom']
+                                                             )
             focal_points = storage.get_detector_data(storage_key)
             if focal_points:
                 for point in focal_points:
