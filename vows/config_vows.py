@@ -66,8 +66,8 @@ class Configuration(Vows.Context):
 
         class Quality(NumericConfigContext):
 
-            def defaults_to_80(self, topic):
-                expect(topic).to_equal(80)
+            def defaults_to_85(self, topic):
+                expect(topic).to_equal(85)
 
         class Loader(ConfigContext):
 

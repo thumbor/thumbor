@@ -83,16 +83,20 @@ class BaseHandler(tornado.web.RequestHandler):
                   should_be_smart,
                   image
                   ):
-        def callback(buffer):
+        def callback(normalized, buffer):
             if buffer is None:
                 self._error(404)
                 return
+
+            if normalized and should_crop:
+                crop_left, crop_top, crop_right, crop_bottom = self.translate_crop_coordinates()
 
             context = dict(
                 loader=self.loader,
                 engine=self.engine,
                 storage=self.storage,
                 detectors=self.detectors,
+                normalized=normalized,
                 buffer=buffer,
                 should_crop=should_crop,
                 crop_left=crop_left,
@@ -133,6 +137,19 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self._fetch(image, extension, callback)
 
+    @classmethod
+    def translate_crop_coordinates(cls, original_width, original_height, width, height, crop_left, crop_top, crop_right, crop_bottom):
+        if original_width == width and original_height == height:
+            return
+
+        crop_left = crop_left * width / original_width
+        crop_top = crop_top * height / original_height
+
+        crop_right = crop_right * width / original_width
+        crop_bottom = crop_bottom * height / original_height
+
+        return (crop_left, crop_top, crop_right, crop_bottom)
+
     def validate(self, path):
         if not hasattr(self.loader, 'validate'):
             return True
@@ -157,13 +174,13 @@ class BaseHandler(tornado.web.RequestHandler):
                     return
 
                 self.engine.load(buffer, extension)
-                self.engine.normalize()
+                normalized = self.engine.normalize()
                 buffer = self.engine.read()
 
                 storage.put(url, buffer)
                 storage.put_crypto(url)
 
-                callback(buffer)
+                callback(normalized, buffer)
 
             self.loader.load(url, handle_loader_loaded)
 

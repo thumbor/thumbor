@@ -25,7 +25,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 @Vows.batch
 class HttpLoader(TornadoHTTPContext):
-    def _get_app(self):
+    def get_app(self):
         application = tornado.web.Application([
             (r"/", MainHandler),
         ])
@@ -71,13 +71,11 @@ class HttpLoader(TornadoHTTPContext):
 
     class LoadAndVerifyImage(TornadoHTTPContext):
         class Load(TornadoHTTPContext):
-            def topic(self):
-                url = self._get_url('/')
+            @Vows.asyncTopic
+            def topic(self, callback):
+                url = self.get_url('/')
                 loader.http_client = self._http_client
-                loader.load(url, self._stop)
-                result = self._wait()
-
-                return result
+                loader.load(url, callback)
 
             def should_equal_hello(self, topic):
                 expect(topic).to_equal('Hello')

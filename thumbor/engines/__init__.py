@@ -32,9 +32,13 @@ class BaseEngine(object):
             if options.MAX_WIDTH and width_diff > height_diff:
                 height = self.get_proportional_height(options.MAX_WIDTH)
                 self.resize(options.MAX_WIDTH, height)
+                return True
             elif options.MAX_HEIGHT and height_diff > width_diff:
                 width = self.get_proportional_width(options.MAX_HEIGHT)
                 self.resize(width, options.MAX_HEIGHT)
+                return True
+
+        return False
 
     def get_proportional_width(self, new_height):
         width, height = self.size

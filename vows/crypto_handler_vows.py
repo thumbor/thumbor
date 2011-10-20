@@ -24,7 +24,7 @@ image_url = 's.glbimg.com/jo/g1/f/original/2011/04/30/alabama1_ap620.jpg'
 
 @Vows.batch
 class CryptoHandlerVows(TornadoHTTPContext):
-    def _get_app(self):
+    def get_app(self):
         application = ThumborServiceApp(fixture_for('encrypted_handler_conf.py'))
         application.loader.http_client = self._http_client
         return application
@@ -33,11 +33,7 @@ class CryptoHandlerVows(TornadoHTTPContext):
 
         class WhenInvalidDomain(TornadoHTTPContext):
             def topic(self):
-                url = get_encrypted_url('ego.globo.com/Gente/foto/0,,48162393-EXH,00.jpg', 300, 200)
-
-                self._http_client.fetch(self._get_url(url), self._stop)
-                response = self._wait()
-
+                response = self.get(get_encrypted_url('ego.globo.com/Gente/foto/0,,48162393-EXH,00.jpg', 300, 200))
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):
@@ -56,11 +52,7 @@ class CryptoHandlerVows(TornadoHTTPContext):
 
         class WhenInvalidSecurityKey(TornadoHTTPContext):
             def topic(self):
-                url = get_encrypted_url(image_url, 300, 200, 'fake-key')
-
-                self._http_client.fetch(self._get_url(url), self._stop)
-                response = self._wait()
-
+                response = self.get(get_encrypted_url(image_url, 300, 200, 'fake-key'))
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):
@@ -80,11 +72,7 @@ class CryptoHandlerVows(TornadoHTTPContext):
         class WhenInvalidUrl(TornadoHTTPContext):
             def topic(self):
                 other_domain_image = "some.other.domain.com/image.jpg"
-                url = get_encrypted_url(other_domain_image, 300, 200)
-
-                self._http_client.fetch(self._get_url(url), self._stop)
-                response = self._wait()
-
+                response = self.get(get_encrypted_url(other_domain_image, 300, 200))
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):
@@ -103,7 +91,8 @@ class CryptoHandlerVows(TornadoHTTPContext):
 
         class WhenProperUrl(TornadoHTTPContext):
             def topic(self):
-                response = self.get(get_encrypted_url(image_url, 300, 200))
+                url = get_encrypted_url(image_url, 300, 200)
+                response = self.get(url)
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):
