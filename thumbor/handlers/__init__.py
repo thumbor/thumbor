@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import splitext
-import tempfile
 
 import tornado.web
 from tornado.options import options
@@ -17,7 +16,6 @@ from tornado.options import options
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
-from thumbor.point import FocalPoint
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -94,6 +92,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 loader=self.loader,
                 engine=self.engine,
                 storage=self.storage,
+                detectors=self.detectors,
                 buffer=buffer,
                 should_crop=should_crop,
                 crop_left=crop_left,
@@ -107,6 +106,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 height=height,
                 halign=halign,
                 valign=valign,
+                smart=should_be_smart,
+                image_url=image,
                 extension=extension,
                 focal_points=[]
             )
@@ -115,27 +116,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
             if meta:
                 context['engine'] = JSONEngine(self.engine, image)
-
-            if self.detectors and should_be_smart:
-                focal_points = self.storage.get_detector_data(image)
-                if focal_points:
-                    for point in focal_points:
-                        context['focal_points'].append(FocalPoint.from_dict(point))
-                else:
-                    with tempfile.NamedTemporaryFile(suffix='.jpg') as temp_file:
-                        jpg_buffer = buffer if extension in ('.jpg', '.jpeg') else self.engine.read('.jpg')
-                        temp_file.write(jpg_buffer)
-                        temp_file.seek(0)
-                        context['file'] = temp_file.name
-                        self.detectors[0](index=0, detectors=self.detectors).detect(context)
-
-                    points = []
-                    focal_points = context['focal_points']
-
-                    for point in focal_points:
-                        points.append(point.to_dict())
-
-                    self.storage.put_detector_data(image, points)
 
             Transformer(context).transform()
 

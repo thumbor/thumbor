@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import math
+import tempfile
 
 from thumbor.point import FocalPoint
 
@@ -55,6 +56,8 @@ class Transformer(object):
     def transform(self):
         self.manual_crop()
 
+        self.smart_detect()
+
         self.calculate_focal_points()
 
         if self.context['fit_in']:
@@ -63,6 +66,31 @@ class Transformer(object):
             self.auto_crop()
             self.resize()
         self.flip()
+
+    def smart_detect(self):
+        if self.context['detectors'] and self.context['smart']:
+            storage = self.context['storage']
+            engine = self.context['engine']
+            storage_key = '%dx%d_%s' % (engine.size[0], engine.size[1], self.context['image_url'])
+            focal_points = storage.get_detector_data(storage_key)
+            if focal_points:
+                for point in focal_points:
+                    self.context['focal_points'].append(FocalPoint.from_dict(point))
+            else:
+                with tempfile.NamedTemporaryFile(suffix='.jpg') as temp_file:
+                    jpg_buffer = engine.read() if self.context['extension'] in ('.jpg', '.jpeg') else engine.read('.jpg')
+                    temp_file.write(jpg_buffer)
+                    temp_file.seek(0)
+                    self.context['file'] = temp_file.name
+                    self.context['detectors'][0](index=0, detectors=self.context['detectors']).detect(self.context)
+
+                points = []
+                focal_points = self.context['focal_points']
+
+                for point in focal_points:
+                    points.append(point.to_dict())
+
+                storage.put_detector_data(storage_key, points)
 
     def manual_crop(self):
         if self.context['should_crop']:
