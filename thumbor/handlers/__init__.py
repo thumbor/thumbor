@@ -171,7 +171,7 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             def handle_loader_loaded(buffer):
                 if buffer is None:
-                    callback(None)
+                    callback(False, None)
                     return
 
                 self.engine.load(buffer, extension)
