@@ -1,5 +1,5 @@
 run:
-	@PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug
+	@PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug -k thumbor/default.key
 
 db:
 	@mysql -u root -e 'DROP DATABASE IF EXISTS thumbor'
