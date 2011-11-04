@@ -17,7 +17,6 @@ class Transformer(object):
     def __init__(self, context):
         self.context = context
         self.engine = self.context['engine']
-        self.calculate_target_dimensions()
 
     def calculate_target_dimensions(self):
         source_width, source_height = self.engine.size
@@ -55,6 +54,8 @@ class Transformer(object):
 
     def transform(self):
         self.manual_crop()
+
+        self.calculate_target_dimensions()
 
         self.smart_detect()
 
@@ -113,6 +114,7 @@ class Transformer(object):
                 return
 
             self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
+
             self.calculate_target_dimensions()
 
     def auto_crop(self):

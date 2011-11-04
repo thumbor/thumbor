@@ -90,7 +90,26 @@ class BaseHandler(tornado.web.RequestHandler):
 
             new_crops = None
             if normalized and should_crop:
-                new_crops = self.translate_crop_coordinates()
+                actual_width, actual_height = self.engine.size
+
+                if not width and not height:
+                    actual_width = self.engine.size[0]
+                    actual_height = self.engine.size[1]
+                elif width:
+                    actual_height = self.engine.get_proportional_height(self.engine.size[0])
+                elif height:
+                    actual_width = self.engine.get_proportional_width(self.engine.size[1])
+
+                new_crops = self.translate_crop_coordinates(
+                    self.engine.source_width, 
+                    self.engine.source_height, 
+                    actual_width, 
+                    actual_height, 
+                    crop_left, 
+                    crop_top, 
+                    crop_right, 
+                    crop_bottom
+                )
 
             context = dict(
                 loader=self.loader,

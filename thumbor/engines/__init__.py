@@ -15,10 +15,16 @@ class BaseEngine(object):
     def __init__(self):
         self.image = None
         self.extension = None
+        self.source_width = None
+        self.source_height = None
 
     def load(self, buffer, extension):
         self.extension = extension
         self.image = self.create_image(buffer)
+        if self.source_width is None:
+            self.source_width = self.size[0]
+        if self.source_height is None:
+            self.source_height = self.size[1]
 
     @property
     def size(self):
@@ -26,6 +32,9 @@ class BaseEngine(object):
 
     def normalize(self):
         width, height = self.size
+        self.source_width = width
+        self.source_height = height
+
         if width > options.MAX_WIDTH or height > options.MAX_HEIGHT:
             width_diff = width - options.MAX_WIDTH
             height_diff = height - options.MAX_HEIGHT
