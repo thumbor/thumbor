@@ -15,7 +15,7 @@ test: pretest
 	@PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests
 
 pyvows:
-	@PYTHONPATH=.:$$PYTHONPATH pyvows --cover --cover_package=thumbor --cover_omit=thumbor/vendor/* --cover_threshold=90 vows/
+	@PYTHONPATH=.:$$PYTHONPATH pyvows -v --profile --cover --cover_package=thumbor --cover_omit=thumbor/vendor/* --cover_threshold=90 vows/
 
 mysql_test: pretest
 	@PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py

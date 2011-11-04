@@ -11,3 +11,6 @@
 ALLOWED_SOURCES = ['s.glbimg.com']
 
 SECURITY_KEY = 'HandlerVows'
+
+LOADER = 'thumbor.loaders.file_loader'
+FILE_LOADER_ROOT_PATH = './vows/fixtures'

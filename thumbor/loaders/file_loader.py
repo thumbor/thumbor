@@ -8,9 +8,15 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import join
+from os.path import join, exists
 
 from thumbor.config import conf
 
 def load(path, callback):
-    callback(open(join(conf.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))).read())
+    file_path = join(conf.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+
+    if not exists(file_path):
+        callback(None)
+    else:
+        with open(file_path, 'r') as f:
+            callback(f.read())

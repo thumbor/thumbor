@@ -69,10 +69,10 @@ class Configuration(Vows.Context):
             def defaults_to_85(self, topic):
                 expect(topic).to_equal(85)
 
-        class Loader(ConfigContext):
+        #class Loader(ConfigContext):
 
-            def defaults_to_http_loader(self, topic):
-                expect(topic).to_equal('thumbor.loaders.http_loader')
+            #def defaults_to_http_loader(self, topic):
+                #expect(topic).to_equal('thumbor.loaders.http_loader')
 
         class MaxSourceSize(NumericConfigContext):
 
