@@ -85,12 +85,8 @@ class Transformer(object):
                 for point in focal_points:
                     self.context['focal_points'].append(FocalPoint.from_dict(point))
             else:
-                with tempfile.NamedTemporaryFile(suffix='.jpg') as temp_file:
-                    jpg_buffer = engine.read() if self.context['extension'] in ('.jpg', '.jpeg') else engine.read('.jpg')
-                    temp_file.write(jpg_buffer)
-                    temp_file.seek(0)
-                    self.context['file'] = temp_file.name
-                    self.context['detectors'][0](index=0, detectors=self.context['detectors']).detect(self.context)
+                detectors = self.context['detectors']
+                detectors[0](index=0, detectors=detectors).detect(self.context)
 
                 points = []
                 focal_points = self.context['focal_points']
