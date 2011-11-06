@@ -15,15 +15,13 @@ from thumbor.app import ThumborServiceApp
 
 @Vows.batch
 class HealthCheck(TornadoHTTPContext):
-    def _get_app(self):
+    def get_app(self):
         application = ThumborServiceApp()
         return application
 
     class WhenRunning(TornadoHTTPContext):
         def topic(self):
-            self._http_client.fetch(self._get_url('/healthcheck'), self._stop)
-            response = self._wait()
-
+            response = self.get('/healthcheck')
             return (response.code, response.body)
 
         class StatusCode(TornadoHTTPContext):
@@ -38,5 +36,5 @@ class HealthCheck(TornadoHTTPContext):
                 return response[1]
 
             def should_equal_working(self, topic):
-                expect(topic).to_equal('working')
+                expect(topic.lower().strip()).to_equal('working')
 

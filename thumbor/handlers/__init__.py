@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import splitext
-import tempfile
 
 import tornado.web
 from tornado.options import options
@@ -17,7 +16,6 @@ from tornado.options import options
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
-from thumbor.point import FocalPoint
 from thumbor import filters as filters_module
 
 CONTENT_TYPE = {
@@ -87,21 +85,46 @@ class BaseHandler(tornado.web.RequestHandler):
                   filters,
                   image
                   ):
-        def callback(buffer):
+        def callback(normalized, buffer):
             if buffer is None:
                 self._error(404)
                 return
+
+            new_crops = None
+            if normalized and should_crop:
+                actual_width, actual_height = self.engine.size
+
+                if not width and not height:
+                    actual_width = self.engine.size[0]
+                    actual_height = self.engine.size[1]
+                elif width:
+                    actual_height = self.engine.get_proportional_height(self.engine.size[0])
+                elif height:
+                    actual_width = self.engine.get_proportional_width(self.engine.size[1])
+
+                new_crops = self.translate_crop_coordinates(
+                    self.engine.source_width, 
+                    self.engine.source_height, 
+                    actual_width, 
+                    actual_height, 
+                    crop_left, 
+                    crop_top, 
+                    crop_right, 
+                    crop_bottom
+                )
 
             context = dict(
                 loader=self.loader,
                 engine=self.engine,
                 storage=self.storage,
+                detectors=self.detectors,
+                normalized=normalized,
                 buffer=buffer,
                 should_crop=should_crop,
-                crop_left=crop_left,
-                crop_top=crop_top,
-                crop_right=crop_right,
-                crop_bottom=crop_bottom,
+                crop_left=new_crops and new_crops[0] or crop_left,
+                crop_top=new_crops and new_crops[1] or crop_top,
+                crop_right=new_crops and new_crops[2] or crop_right,
+                crop_bottom=new_crops and new_crops[3] or crop_bottom,
                 fit_in=fit_in,
                 should_flip_horizontal=horizontal_flip,
                 width=width,
@@ -109,6 +132,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 height=height,
                 halign=halign,
                 valign=valign,
+                smart=should_be_smart,
+                image_url=image,
                 extension=extension,
                 filters=[],
                 focal_points=[]
@@ -118,22 +143,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
             if meta:
                 context['engine'] = JSONEngine(self.engine, image)
-
-            if self.detectors and should_be_smart:
-                focal_points = self.storage.get_detector_data(image)
-                if focal_points:
-                    for point in focal_points:
-                        context['focal_points'].append(FocalPoint.from_dict(point))
-                else:
-                    self.detectors[0](index=0, detectors=self.detectors).detect(context)
-
-                    points = []
-                    focal_points = context['focal_points']
-
-                    for point in focal_points:
-                        points.append(point.to_dict())
-
-                    self.storage.put_detector_data(image, points)
 
             if self.filters and filters:
                 context['filters'] = filters_module.create_instances(self.engine, self.filters, filters)
@@ -154,6 +163,19 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self._fetch(image, extension, callback)
 
+    @classmethod
+    def translate_crop_coordinates(cls, original_width, original_height, width, height, crop_left, crop_top, crop_right, crop_bottom):
+        if original_width == width and original_height == height:
+            return
+
+        crop_left = crop_left * width / original_width
+        crop_top = crop_top * height / original_height
+
+        crop_right = crop_right * width / original_width
+        crop_bottom = crop_bottom * height / original_height
+
+        return (crop_left, crop_top, crop_right, crop_bottom)
+
     def validate(self, path):
         if not hasattr(self.loader, 'validate'):
             return True
@@ -170,21 +192,21 @@ class BaseHandler(tornado.web.RequestHandler):
         buffer = storage.get(url)
 
         if buffer is not None:
-            callback(buffer)
+            callback(False, buffer)
         else:
             def handle_loader_loaded(buffer):
                 if buffer is None:
-                    callback(None)
+                    callback(False, None)
                     return
 
                 self.engine.load(buffer, extension)
-                self.engine.normalize()
+                normalized = self.engine.normalize()
                 buffer = self.engine.read()
 
                 storage.put(url, buffer)
                 storage.put_crypto(url)
 
-                callback(buffer)
+                callback(normalized, buffer)
 
             self.loader.load(url, handle_loader_loaded)
 

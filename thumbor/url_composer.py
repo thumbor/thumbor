@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import sys
 import optparse
 
 from tornado.options import options, parse_config_file
@@ -16,7 +17,7 @@ from thumbor import __version__
 from thumbor.crypto import Crypto
 from thumbor.app import ThumborServiceApp
 
-def main():
+def main(arguments=[]):
     '''Converts a given url with the specified arguments.'''
 
     parser = optparse.OptionParser(usage='thumbor-url [options] imageurl or type thumbor-url -h (--help) for help', description=__doc__, version=__version__)
@@ -34,7 +35,7 @@ def main():
 
     parser.add_option('-c', '--crop', dest='crop', default=None, help = 'The coordinates of the points to manual cropping in the format leftxtop:rightxbottom (100x200:400x500) [default: %default].' )
 
-    (parsed_options, arguments) = parser.parse_args()
+    (parsed_options, arguments) = parser.parse_args(arguments)
 
     if not arguments:
         print 'Error: The image argument is mandatory. For more information type thumbor-url -h'
@@ -84,4 +85,4 @@ def main():
     print 'Encrypted URL: "%s" (without quotes)' % url
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)

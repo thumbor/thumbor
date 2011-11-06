@@ -13,7 +13,7 @@ from os.path import join, abspath, dirname, expanduser, exists
 
 import tornado.web
 import tornado.ioloop
-from tornado.options import parse_config_file
+from tornado.options import parse_config_file, options
 
 from thumbor.config import conf
 from thumbor.handlers.unsafe import MainHandler
@@ -25,7 +25,7 @@ from thumbor import filters
 
 class ThumborServiceApp(tornado.web.Application):
 
-    def __init__(self, conf_file=None, custom_handlers=None):
+    def __init__(self, conf_file=None, security_key=None, custom_handlers=None):
         if conf_file is None:
             conf_file = ThumborServiceApp.get_conf_file(conf_file)
 
@@ -45,6 +45,9 @@ class ThumborServiceApp(tornado.web.Application):
 
         #storage = storage.Storage()
         #self.engine = self.engine.Engine()
+
+        if security_key:
+            options.SECURITY_KEY = security_key
 
         handler_context = {
             'loader': self.loader,

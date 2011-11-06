@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import math
+import tempfile
 
 from thumbor.point import FocalPoint
 
@@ -16,8 +17,6 @@ class Transformer(object):
     def __init__(self, context):
         self.context = context
         self.engine = self.context['engine']
-        self.calculate_target_dimensions()
-        self.calculate_focal_points()
 
     def calculate_target_dimensions(self):
         source_width, source_height = self.engine.size
@@ -56,6 +55,12 @@ class Transformer(object):
     def transform(self):
         self.manual_crop()
 
+        self.calculate_target_dimensions()
+
+        self.smart_detect()
+
+        self.calculate_focal_points()
+
         if self.context['fit_in']:
             self.fit_in_resize()
         else:
@@ -63,6 +68,37 @@ class Transformer(object):
             self.resize()
         self.flip()
         self.filter()
+
+    def smart_detect(self):
+        if self.context['detectors'] and self.context['smart']:
+            storage = self.context['storage']
+            engine = self.context['engine']
+            storage_key = '%s_%d_%d' % (self.context['image_url'], engine.size[0], engine.size[1])
+            if self.context['crop_left']:
+                storage_key = storage_key + '_%d_%d_%d_%d' % (self.context['crop_left'],
+                                                              self.context['crop_top'],
+                                                              self.context['crop_right'],
+                                                              self.context['crop_bottom']
+                                                             )
+            focal_points = storage.get_detector_data(storage_key)
+            if focal_points:
+                for point in focal_points:
+                    self.context['focal_points'].append(FocalPoint.from_dict(point))
+            else:
+                with tempfile.NamedTemporaryFile(suffix='.jpg') as temp_file:
+                    jpg_buffer = engine.read() if self.context['extension'] in ('.jpg', '.jpeg') else engine.read('.jpg')
+                    temp_file.write(jpg_buffer)
+                    temp_file.seek(0)
+                    self.context['file'] = temp_file.name
+                    self.context['detectors'][0](index=0, detectors=self.context['detectors']).detect(self.context)
+
+                points = []
+                focal_points = self.context['focal_points']
+
+                for point in focal_points:
+                    points.append(point.to_dict())
+
+                storage.put_detector_data(storage_key, points)
 
     def manual_crop(self):
         if self.context['should_crop']:
@@ -79,6 +115,7 @@ class Transformer(object):
                 return
 
             self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
+
             self.calculate_target_dimensions()
 
     def auto_crop(self):

@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from os.path import abspath, exists
 import signal
 import optparse
 import logging
@@ -64,6 +65,7 @@ def main():
     parser.add_option("-p", "--port", type="int", dest="port", default=8888, help = "The port to run this thumbor instance at [default: %default]." )
     parser.add_option("-i", "--ip", dest="ip", default="0.0.0.0", help = "The host address to run this thumbor instance at [default: %default]." )
     parser.add_option("-c", "--conf", dest="conf", default="", help = "The path of the configuration file to use for this thumbor instance [default: %default]." )
+    parser.add_option("-k", "--keyfile", dest="keyfile", default="", help = "The path of the security key file to use for this thumbor instance [default: %default]." )
     parser.add_option("-l", "--log-level", dest="log_level", default="warning", help = "The log level to be used. Possible values are: debug, info, warning, error, critical or notset. [default: %default]." )
     parser.add_option("-a", "--app", dest="app", default=None, help = "A custom app to use for this thumbor server in case you subclassed ThumborServiceApp [default: %default]." )
 
@@ -77,22 +79,32 @@ def main():
     port = options.port
     ip = options.ip
     conf = options.conf or None
+    keyfile = options.keyfile or None
     log_level = options.log_level
 
-    run_app(ip, port, conf, log_level, options.app)
+    run_app(ip, port, conf, keyfile, log_level, options.app)
 
-def run_app(ip, port, conf, log_level, app):
+def run_app(ip, port, conf, keyfile, log_level, app):
     global server
 
     logging.basicConfig(level=getattr(logging, log_level.upper()))
 
+    security_key = None
+    if keyfile:
+        path = abspath(keyfile)
+        if not exists(path):
+            raise RuntimeError('Could not find security key file at %s' % path)
+
+        with open(path, 'r') as f:
+            security_key = f.read().strip()
+
     if app:
         try:
-            application = __import_class(app)(conf)
+            application = __import_class(app)(conf, security_key=security_key)
         except Exception, err:
             raise RuntimeError('Could not import your custom application "%s" because of error: %s' % (app, str(err)))
     else:
-        application = ThumborServiceApp(conf)
+        application = ThumborServiceApp(conf, security_key=security_key)
 
     server = HTTPServer(application)
     server.bind(port, ip)

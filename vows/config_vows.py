@@ -66,13 +66,13 @@ class Configuration(Vows.Context):
 
         class Quality(NumericConfigContext):
 
-            def defaults_to_80(self, topic):
-                expect(topic).to_equal(80)
+            def defaults_to_85(self, topic):
+                expect(topic).to_equal(85)
 
-        class Loader(ConfigContext):
+        #class Loader(ConfigContext):
 
-            def defaults_to_http_loader(self, topic):
-                expect(topic).to_equal('thumbor.loaders.http_loader')
+            #def defaults_to_http_loader(self, topic):
+                #expect(topic).to_equal('thumbor.loaders.http_loader')
 
         class MaxSourceSize(NumericConfigContext):
 
@@ -91,27 +91,13 @@ class Configuration(Vows.Context):
 
         class Storage(ConfigContext):
 
-            def defaults_to_http_loader(self, topic):
+            def defaults_to_file_storage(self, topic):
                 expect(topic).to_equal('thumbor.storages.file_storage')
 
             class StorageExpirationSeconds(NumericConfigContext):
 
                 def defaults_to_one_month(self, topic):
                     expect(topic).to_equal(60 * 60 * 24 * 30)
-
-            #class StoresCryptoKeyForEachImage(ConfigContext):
-
-                #def defaults_to_false(self, topic):
-                    #expect(topic).to_be_false()
-
-            ##class FileStorage(Vows.Context):
-                #class FileStorageRootPath(ConfigContext):
-
-                    #def defaults_to_var_folders(self, topic):
-                        #expect(topic).to_include('/var/folders')
-
-                    #def defaults_to_thumbor_storage(self, topic):
-                        #expect(topic).to_include('/thumbor/storage')
 
             class MongoStorage(Vows.Context):
 
