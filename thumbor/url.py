@@ -12,6 +12,7 @@ import re
 
 class Url(object):
 
+    debug = '(?:(?P<debug>debug)/)?'
     meta = '(?:(?P<meta>meta)/)?'
     crop = '(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?'
     fit_in = '(?:(?P<fit_in>fit-in)/)?'
@@ -29,6 +30,7 @@ class Url(object):
         if with_unsafe:
             reg.append('unsafe/')
 
+        reg.append(cls.debug)
         reg.append(cls.meta)
         reg.append(cls.crop)
         reg.append(cls.fit_in)
@@ -61,6 +63,7 @@ class Url(object):
 
         int_or_0 = lambda value: 0 if value is None else int(value)
         values = {
+            'debug': result['debug'] == 'debug',
             'meta': result['meta'] == 'meta',
             'crop': {
                 'left': int_or_0(result['crop_left']),
@@ -84,6 +87,7 @@ class Url(object):
 
     @classmethod
     def generate_options(cls,
+                         debug=False,
                          width=0,
                          height=0,
                          smart=False,
@@ -100,6 +104,9 @@ class Url(object):
                          filters=None):
 
         url = []
+
+        if debug:
+            url.append('debug')
 
         if meta:
             url.append('meta')

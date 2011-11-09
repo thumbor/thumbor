@@ -16,6 +16,7 @@ class MainHandler(ContextHandler):
 
     @tornado.web.asynchronous
     def get(self,
+            debug,
             meta,
             crop_left,
             crop_top,
@@ -40,6 +41,7 @@ class MainHandler(ContextHandler):
         int_or_0 = lambda value: 0 if value is None else int(value)
 
         opt = {
+            'debug': debug == 'debug',
             'meta': meta == 'meta',
             'crop': {
                 'left': int_or_0(crop_left),

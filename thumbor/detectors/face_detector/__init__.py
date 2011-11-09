@@ -31,7 +31,7 @@ class Detector(CascadeLoaderDetector):
         if features:
             for (left, top, width, height), neighbors in features:
                 top = self.__add_hair_offset(top, height)
-                context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
+                context['focal_points'].append(FocalPoint.from_square(left, top, width, height, origin="Face Detection"))
         else:
             self.next(context)
 

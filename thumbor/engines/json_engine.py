@@ -77,6 +77,15 @@ class JSONEngine(BaseEngine):
 
         return (width, height)
 
+    def get_image_mode(self):
+        return self.engine.get_image_mode()
+
+    def get_image_data(self):
+        return self.engine.get_image_data()
+
+    def set_image_data(self, data):
+        return self.engine.set_image_data(data)
+
     def read(self, extension):
         target_width, target_height= self.get_target_dimensions()
         thumbor_json = {

@@ -59,7 +59,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         extension = splitext(image)[-1].lower()
 
-        self.get_image(opt['meta'], should_crop, crop_left,
+        self.get_image(opt['debug'], opt['meta'], should_crop, crop_left,
                        crop_top, crop_right, crop_bottom,
                        opt['fit_in'],
                        opt['horizontal_flip'], width, opt['vertical_flip'],
@@ -67,6 +67,7 @@ class BaseHandler(tornado.web.RequestHandler):
                        opt['smart'], opt['filters'], image)
 
     def get_image(self,
+                  debug,
                   meta,
                   should_crop,
                   crop_left,
@@ -119,6 +120,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 storage=self.storage,
                 detectors=self.detectors,
                 normalized=normalized,
+                debug=debug,
                 buffer=buffer,
                 should_crop=should_crop,
                 crop_left=new_crops and new_crops[0] or crop_left,

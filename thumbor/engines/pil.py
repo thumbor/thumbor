@@ -10,7 +10,7 @@
 
 from cStringIO import StringIO
 
-from PIL import Image, ImageFile 
+from PIL import Image, ImageFile, ImageDraw
 from tornado.options import options
 
 from thumbor.engines import BaseEngine
@@ -29,6 +29,11 @@ class Engine(BaseEngine):
 
     def create_image(self, buffer):
         return Image.open(StringIO(buffer))
+
+    def draw_rectangle(self, x, y, width, height):
+        d = ImageDraw.Draw(self.image)
+        d.rectangle([x, y, x + width, y + height])
+        del d
 
     def resize(self, width, height):
         self.image = self.image.resize((int(width), int(height)), Image.ANTIALIAS)

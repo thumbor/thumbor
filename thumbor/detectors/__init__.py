@@ -42,6 +42,10 @@ class CascadeLoaderDetector(BaseDetector):
                 cascade_file = join(abspath(dirname(module_path)), cascade_file_path)
             setattr(self.__class__, 'cascade', cv.Load(cascade_file))
 
+    def get_min_size_for(self, size):
+        ratio = int(min(size[0], size[1])/ 6)
+        return (ratio, ratio)
+
     def get_features(self, context):
         engine = context['engine']
         sz = engine.size
@@ -53,15 +57,10 @@ class CascadeLoaderDetector(BaseDetector):
         convert_mode = getattr(cv, 'CV_%s2GRAY' % mode)
         cv.CvtColor(image, gray, convert_mode)
 
-        min_size = (20, 20)
-        image_scale = 1.0
-        haar_scale = 1.2
-        min_neighbors = 2
-
-        if image_scale != 1.0:
-            thumbnail = cv.CreateMat(int(round(image.height / image_scale, 0)), int(round(image.width / image_scale, 0)), cv.CV_8UC1)
-            cv.Resize(gray, thumbnail)
-            gray = thumbnail
+        #min_size = (20, 20)
+        min_size = self.get_min_size_for(sz)
+        haar_scale = 1.1
+        min_neighbors = 1
 
         cv.EqualizeHist(gray, gray)
 
@@ -85,8 +84,8 @@ class CascadeLoaderDetector(BaseDetector):
         for ((x, y, w, h), n) in faces:
             # the input to cv.HaarDetectObjects was resized, so scale the
             # bounding box of each face and convert it to two CvPoints
-            pt1 = (int(x * image_scale), int(y * image_scale))
-            pt2 = (int((x + w) * image_scale), int((y + h) * image_scale))
+            pt1 = (x, y)
+            pt2 = ((x + w), (y + h))
             x1 = pt1[0]
             x2 = pt2[0]
             y1 = pt1[1]

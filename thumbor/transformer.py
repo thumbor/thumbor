@@ -61,6 +61,10 @@ class Transformer(object):
 
         self.calculate_focal_points()
 
+        if self.context['debug']:
+            self.debug()
+            return
+
         if self.context['fit_in']:
             self.fit_in_resize()
         else:
@@ -193,4 +197,11 @@ class Transformer(object):
             newdata = f.run_filter(imgdata)
             if newdata:
                 self.engine.set_image_data(newdata)
+
+    def debug(self):
+        for point in self.focal_points:
+            self.engine.draw_rectangle(int(point.x - (point.width / 2)),
+                                       int(point.y - (point.height / 2)),
+                                       point.width,
+                                       point.height)
 
