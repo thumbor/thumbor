@@ -32,10 +32,10 @@ class FocalPoint(object):
     def from_dict(cls, values):
         return cls(x = float(values['x']),
                    y = float(values['y']),
-                   z = float(values['z']),
-                   width = float(values['width']),
-                   height = float(values['height']),
-                   origin=values['origin'])
+                   weight = float(values['z']),
+                   width = float(values.get('width', 1)),
+                   height = float(values.get('height', 1)),
+                   origin=values.get('origin', 'alignment'))
 
     def __init__(self, x, y, height=1, width=1, weight=1.0, origin="alignment"):
         self.x = x

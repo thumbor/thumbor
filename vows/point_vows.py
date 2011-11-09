@@ -51,7 +51,7 @@ class FocalPointVows(Vows.Context):
 
         class Weighted(Vows.Context):
             def topic(self):
-                return FocalPoint(10, 20, 3.0)
+                return FocalPoint(x=10, y=20, height=1.0, width=3.0, weight=3.0)
 
             def should_have_weight_of_three(self, topic):
                 expect(topic.weight).to_equal(3.0)
@@ -74,12 +74,12 @@ class FocalPointVows(Vows.Context):
                     return prev_topic.to_dict()
 
                 def should_create_the_original_dictionary(self, topic):
-                    expect(topic).to_equal({'x': 10.1, 'y': 20.1, 'z': 5.1})
+                    expect(topic).to_be_like({'x': 10.1, 'y': 20.1, 'z': 5.1, 'origin': 'alignment', 'width': 1.0, 'height': 1.0})
 
     class SquarePoint(Vows.Context):
 
         def topic(self):
-            return FocalPoint.from_square(350, 50, 110, 110)
+            return FocalPoint.from_square(x=350, y=50, width=110, height=110)
 
         def should_have_x_of_450(self, topic):
             expect(topic.x).to_equal(405)

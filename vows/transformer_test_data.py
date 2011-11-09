@@ -105,6 +105,7 @@ class TestData(object):
             engine=self.engine,
             storage=None,
             buffer=None,
+            debug=False,
             detectors=[],
             should_crop=should_crop,
             crop_left=self.crop_left,
