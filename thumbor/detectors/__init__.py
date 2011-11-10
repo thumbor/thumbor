@@ -43,7 +43,8 @@ class CascadeLoaderDetector(BaseDetector):
             setattr(self.__class__, 'cascade', cv.Load(cascade_file))
 
     def get_min_size_for(self, size):
-        ratio = int(min(size[0], size[1])/ 6)
+        ratio = int(min(size[0], size[1]) / 15)
+        ratio = max(20, ratio)
         return (ratio, ratio)
 
     def get_features(self, context):
@@ -57,9 +58,9 @@ class CascadeLoaderDetector(BaseDetector):
         convert_mode = getattr(cv, 'CV_%s2GRAY' % mode)
         cv.CvtColor(image, gray, convert_mode)
 
-        #min_size = (20, 20)
+        # min_size = (20, 20)
         min_size = self.get_min_size_for(sz)
-        haar_scale = 1.1
+        haar_scale = 1.2
         min_neighbors = 1
 
         cv.EqualizeHist(gray, gray)

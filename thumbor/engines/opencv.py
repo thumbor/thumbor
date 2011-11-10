@@ -79,3 +79,6 @@ class Engine(BaseEngine):
     def get_image_mode(self):
         # TODO: Handle pngs with alpha channel
         return 'BGR'
+
+    def draw_rectangle(self, x, y, width, height):
+        cv.Rectangle(self.image, (x, y), (x + width, y + height), cv.Scalar(255, 255, 255, 1.0))

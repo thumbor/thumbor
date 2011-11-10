@@ -188,7 +188,7 @@ TESTITEMS = [
         target_width=400, target_height=150,
         halign="center", valign="middle",
         focal_points=[],
-        crop_left=0, crop_top=150, crop_right=800, crop_bottom=450
+        crop_left=0, crop_top=75, crop_right=800, crop_bottom=375
     ),
     TestData(
         source_width=600, source_height=800,
@@ -223,7 +223,7 @@ TESTITEMS = [
         target_width=180, target_height=100,
         halign="center", valign="middle",
         focal_points=[],
-        crop_left=0, crop_top=14, crop_right=200, crop_bottom=125
+        crop_left=0, crop_top=3, crop_right=200, crop_bottom=114
     ),
 
     # tests with focal points
@@ -369,7 +369,7 @@ TESTITEMS = [
         target_width=200, target_height=300,
         halign="center", valign="bottom",
         focal_points=[],
-        crop_left=0, crop_top=350, crop_right=300, crop_bottom=800
+        crop_left=0, crop_top=251, crop_right=300, crop_bottom=701
     ),
 
     TestData(
@@ -377,7 +377,7 @@ TESTITEMS = [
         target_width=200, target_height=300,
         halign="left", valign="bottom",
         focal_points=[],
-        crop_left=0, crop_top=350, crop_right=300, crop_bottom=800
+        crop_left=0, crop_top=251, crop_right=300, crop_bottom=701
     ),
 
     TestData(
@@ -385,7 +385,7 @@ TESTITEMS = [
         target_width=200, target_height=300,
         halign="right", valign="bottom",
         focal_points=[],
-        crop_left=0, crop_top=350, crop_right=300, crop_bottom=800
+        crop_left=0, crop_top=251, crop_right=300, crop_bottom=701
     ),
 
     TestData(
@@ -393,7 +393,7 @@ TESTITEMS = [
         target_width=300, target_height=250,
         halign="center", valign="bottom",
         focal_points=[],
-        crop_left=0, crop_top=183, crop_right=500, crop_bottom=600
+        crop_left=0, crop_top=119, crop_right=500, crop_bottom=536
     ),
 
     TestData(
@@ -401,7 +401,7 @@ TESTITEMS = [
         target_width=300, target_height=250,
         halign="left", valign="bottom",
         focal_points=[],
-        crop_left=0, crop_top=183, crop_right=500, crop_bottom=600
+        crop_left=0, crop_top=119, crop_right=500, crop_bottom=536
     ),
 
     TestData(
@@ -409,7 +409,7 @@ TESTITEMS = [
         target_width=300, target_height=250,
         halign="right", valign="bottom",
         focal_points=[],
-        crop_left=0, crop_top=183, crop_right=500, crop_bottom=600
+        crop_left=0, crop_top=119, crop_right=500, crop_bottom=536
     ),
 
     ##Height na proporçao#
@@ -515,7 +515,7 @@ TESTITEMS = [
         target_width=400, target_height=150,
         halign="center", valign="middle",
         focal_points=[],
-        crop_left=0, crop_top=150, crop_right=800, crop_bottom=450
+        crop_left=0, crop_top=75, crop_right=800, crop_bottom=375
     ),
 
     TestData(
@@ -619,7 +619,7 @@ TESTITEMS = [
         target_width=300, target_height=250,
         halign="left", valign="middle",
         focal_points=[],
-        crop_left=0, crop_top=91, crop_right=500, crop_bottom=508
+        crop_left=0, crop_top=27, crop_right=500, crop_bottom=444
     ),
 
     TestData(
@@ -627,7 +627,7 @@ TESTITEMS = [
         target_width=300, target_height=250,
         halign="center", valign="middle",
         focal_points=[],
-        crop_left=0, crop_top=91, crop_right=500, crop_bottom=508
+        crop_left=0, crop_top=27, crop_right=500, crop_bottom=444
     ),
 
     TestData(
@@ -635,7 +635,7 @@ TESTITEMS = [
         target_width=300, target_height=250,
         halign="right", valign="middle",
         focal_points=[],
-        crop_left=0, crop_top=91, crop_right=500, crop_bottom=508
+        crop_left=0, crop_top=27, crop_right=500, crop_bottom=444
     ),
 
     TestData(
