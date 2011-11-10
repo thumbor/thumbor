@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import math
-import tempfile
 
 from thumbor.point import FocalPoint
 
@@ -127,16 +126,18 @@ class Transformer(object):
         if source_ratio == target_ratio:
             return
 
+        focal_x, focal_y = self.get_center_of_mass()
+        focal_x_percentage = 1.0
+        focal_y_percentage = 1.0
+
         if self.target_width / source_width > self.target_height / source_height:
             crop_width = source_width
             crop_height = round(source_width * self.target_height / self.target_width, 0)
+            focal_y_percentage = max(focal_y - (crop_height / 2), 0.0) / source_height
         else:
             crop_width = round(math.ceil(self.target_width * source_height / self.target_height), 0)
             crop_height = source_height
-
-        focal_x, focal_y = self.get_center_of_mass()
-        focal_x_percentage = focal_x / source_width
-        focal_y_percentage = focal_y / source_height
+            focal_x_percentage = max(focal_x - (crop_width / 2), 0.0) / source_width
 
         crop_width_amount = source_width - crop_width
         crop_left = int(crop_width_amount * focal_x_percentage)
