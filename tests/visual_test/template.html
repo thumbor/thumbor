@@ -2,7 +2,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-    <title>Comparação das Engines</title>
+    <title>Comparacao das Engines</title>
     <style>
         .resized {
             float: left;
@@ -16,16 +16,16 @@
 </head>
 <body>
     <h1>Imagem Original</h1>
-    <img src="../flower.jpg" />
+    <img src="../{{ image_name }}.jpg" />
 
-    <h2>Conversão sem Resize</h2>
+    <h2>Conversao sem Resize</h2>
 
     {% for image in no_resized %}
     <h3>{{ image.0 }}</h3>
     <img src="{{ image.1 }}" />
     {% endfor %}
 
-    <h3>Conversão com Resize</h3>
+    <h3>Conversao com Resize</h3>
 
     {% for image in resized %}
     <div class="resized">
@@ -34,7 +34,7 @@
     </div>
     {% endfor %}
 
-    <h3>Diferenças de Qualidade</h3>
+    <h3>Diferencas de Qualidade</h3>
 
     <h3>PIL</h3>
     {% for image in qualities.PIL %}

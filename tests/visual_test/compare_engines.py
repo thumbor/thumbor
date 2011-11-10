@@ -9,10 +9,13 @@ import time
 from jinja2 import FileSystemLoader, Environment
 from tornado.options import parse_config_file
 
+#required for importing configuration
 import thumbor.app
 import thumbor.handlers
 
+
 REPETITIONS = 200
+IMAGE_NAME = 'fred'
 
 def get_engine(engine_name):
     module_name = 'thumbor.engines.%s' % engine_name
@@ -21,7 +24,7 @@ def get_engine(engine_name):
 
 def main():
     root = abspath(dirname(__file__))
-    image = join(root, 'flower.jpg')
+    image = join(root, '%s.jpg' % IMAGE_NAME)
 
     conf_file = join(root, 'thumbor.conf')
     parse_config_file(conf_file)
@@ -45,13 +48,13 @@ def main():
         engine = engine_class()
         engine.load(source, '.jpg')
 
-        filename = 'flower_%s.jpg' % key
+        filename = '%s_%s.jpg' % (IMAGE_NAME, key)
         file(join(build_dir, filename), 'w').write(engine.read('.jpg'))
         originals.append((key, filename))
 
         engine.resize(300, 300)
 
-        filename = 'flower_%s_300x300.jpg' % key
+        filename = '%s_%s_300x300.jpg' % (IMAGE_NAME, key)
         file(join(build_dir, filename), 'w').write(engine.read('.jpg'))
         resized.append((key, '300x300', filename))
 
@@ -59,7 +62,7 @@ def main():
         for quality in range(10):
             if quality == 0:
                 continue
-            filename = 'flower_%s_300x300_%d.jpg' % (key, quality)
+            filename = '%s_%s_300x300_%d.jpg' % (IMAGE_NAME, key, quality)
             file(join(build_dir, filename), 'w').write(engine.read('.jpg', quality=quality * 10))
             qualities[key].append(('300x300', quality, filename))
 
@@ -86,7 +89,7 @@ def main():
     loader = FileSystemLoader(root)
     env = Environment(loader=loader)
     template = env.get_template('template.html')
-    file(join(build_dir, 'results.html'), 'w').write(template.render(no_resized=originals, resized=resized, qualities=qualities, times=times))
+    file(join(build_dir, 'results.html'), 'w').write(template.render(no_resized=originals, resized=resized, qualities=qualities, times=times, image_name=IMAGE_NAME))
 
 if __name__ == '__main__':
     main()
