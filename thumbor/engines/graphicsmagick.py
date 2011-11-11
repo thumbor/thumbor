@@ -10,6 +10,7 @@
 
 from tornado.options import options
 from pgmagick import Image, Geometry, Blob, FilterTypes
+from pgmagick.api import Draw
 from pgmagick._pgmagick import get_blob_data
 
 from thumbor.engines import BaseEngine
@@ -61,7 +62,7 @@ class Engine(BaseEngine):
 
         self.image.quality(quality)
 
-        #available_filters = ['BesselFilter', 'BlackmanFilter', 'BoxFilter', 'CatromFilter', 
+        #available_filters = ['BesselFilter', 'BlackmanFilter', 'BoxFilter', 'CatromFilter',
                              #'CubicFilter', 'GaussianFilter', 'HammingFilter', 'HanningFilter',
                              #'HermiteFilter', 'LanczosFilter', 'MitchellFilter',
                              #'PointFilter', 'QuadraticFilter', 'SincFilter', 'TriangleFilter']
@@ -91,3 +92,13 @@ class Engine(BaseEngine):
 
     def get_image_mode(self):
         return "RGB"
+
+    def draw_rectangle(self, x, y, width, height):
+        draw = Draw()
+        draw.fill_opacity(0.0)
+        draw.stroke_color('white')
+        draw.stroke_width(1)
+
+        draw.rectangle(x, y, x + width, y + height)
+        self.image.draw(draw.drawer)
+
