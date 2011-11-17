@@ -10,17 +10,16 @@
 
 import json
 
-from tornado.options import options
-
 from thumbor.engines import BaseEngine
 
 class JSONEngine(BaseEngine):
 
-    def __init__(self, engine, path):
+    def __init__(self, engine, path, callback_name=None):
         super(JSONEngine, self).__init__()
         self.engine = engine
         self.width, self.height = self.engine.size
         self.path = path
+        self.callback_name = callback_name
         self.operations = []
         self.focal_points = []
         self.refresh_image()
@@ -108,8 +107,8 @@ class JSONEngine(BaseEngine):
 
         thumbor_json = json.dumps(thumbor_json)
 
-        if options.META_CALLBACK_NAME:
-            return "%s(%s);" % (options.META_CALLBACK_NAME, thumbor_json)
+        if self.callback_name:
+            return "%s(%s);" % (self.callback_name, thumbor_json)
 
         return thumbor_json
 

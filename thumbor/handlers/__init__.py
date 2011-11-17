@@ -58,13 +58,14 @@ class BaseHandler(tornado.web.RequestHandler):
         valign = opt['valign']
 
         extension = splitext(image)[-1].lower()
+        callback_name = options.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
 
         self.get_image(opt['debug'], opt['meta'], should_crop, crop_left,
                        crop_top, crop_right, crop_bottom,
                        opt['fit_in'],
                        opt['horizontal_flip'], width, opt['vertical_flip'],
                        height, halign, valign, extension,
-                       opt['smart'], opt['filters'], image)
+                       opt['smart'], opt['filters'], callback_name, image)
 
     def get_image(self,
                   debug,
@@ -84,6 +85,7 @@ class BaseHandler(tornado.web.RequestHandler):
                   extension,
                   should_be_smart,
                   filters,
+                  callback_name,
                   image
                   ):
         def callback(normalized, buffer):
@@ -144,7 +146,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.engine.load(buffer, extension)
 
             if meta:
-                context['engine'] = JSONEngine(self.engine, image)
+                context['engine'] = JSONEngine(self.engine, image, callback_name)
 
             if self.filters and filters:
                 context['filters'] = filters_module.create_instances(self.engine, self.filters, filters)
@@ -152,7 +154,7 @@ class BaseHandler(tornado.web.RequestHandler):
             Transformer(context).transform()
 
             if meta:
-                content_type = 'text/javascript' if options.META_CALLBACK_NAME else 'application/json'
+                content_type = 'text/javascript' if callback_name else 'application/json'
             else:
                 content_type = CONTENT_TYPE[context['extension']]
 
