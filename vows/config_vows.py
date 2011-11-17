@@ -51,13 +51,13 @@ class Configuration(Vows.Context):
 
         class MaxWidth(NumericConfigContext):
 
-            def defaults_to_800(self, topic):
-                expect(topic).to_equal(800)
+            def defaults_to_0(self, topic):
+                expect(topic).to_equal(0)
 
         class MaxHeight(NumericConfigContext):
 
-            def defaults_to_600(self, topic):
-                expect(topic).to_equal(600)
+            def defaults_to_0(self, topic):
+                expect(topic).to_equal(0)
 
         #class AllowedSources(ConfigContext):
 
