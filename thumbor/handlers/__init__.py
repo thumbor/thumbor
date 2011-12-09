@@ -140,7 +140,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 image_url=image,
                 extension=extension,
                 filters=[],
-                focal_points=[]
+                focal_points=[],
+                quality=options.QUALITY
             )
 
             self.engine.load(buffer, extension)
@@ -149,7 +150,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 context['engine'] = JSONEngine(self.engine, image, callback_name)
 
             if self.filters and filters:
-                context['filters'] = filters_module.create_instances(self.engine, self.filters, filters)
+                context['filters'] = filters_module.create_instances(context, self.filters, filters)
 
             Transformer(context).transform()
 
@@ -160,7 +161,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
             self.set_header('Content-Type', content_type)
 
-            results = context['engine'].read(context['extension'])
+            results = context['engine'].read(context['extension'], context['quality'])
 
             self.write(results)
             self.finish()

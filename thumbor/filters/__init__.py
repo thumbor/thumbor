@@ -21,13 +21,13 @@ def compile_filters(filter_classes):
     for cls in filter_classes:
         cls.regex = re.compile(cls.regex)
 
-def create_instances(engine, filter_classes, filter_params):
+def create_instances(context, filter_classes, filter_params):
     filter_params = filter_params.split(':')
     filter_objs = []
     for param in filter_params:
         filter_instance = firstValid(lambda f: f.init_if_valid(param), filter_classes)
         if filter_instance:
-            filter_instance.engine = engine
+            filter_instance.context = context
             filter_objs.append(filter_instance)
     return filter_objs
 

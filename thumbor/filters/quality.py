@@ -9,11 +9,10 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.filters import BaseFilter
-from thumbor.ext.filters import _rgb
+from thumbor.ext.filters import _brightness
 
 class Filter(BaseFilter):
-    regex = r'(?:rgb\((?P<r>[-]?[\d]+),(?P<g>[-]?[\d]+),(?P<b>[-]?[\d]+)\))'
+    regex = r'(?:quality\((?P<value>[\d]+)\))'
 
     def run_filter(self, imgdata):
-        engine = self.context['engine']
-        return _rgb.apply(engine.get_image_mode(), int(self.params['r']), int(self.params['g']), int(self.params['b']), imgdata)
+        self.context['quality'] = int(self.params['value'])

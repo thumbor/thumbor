@@ -75,7 +75,7 @@ class BaseEngine(object):
     def flip_vertically(self):
         raise NotImplementedError()
 
-    def read(self):
+    def read(self, extension, quality):
         raise NotImplementedError()
 
     def get_image_data(self):
