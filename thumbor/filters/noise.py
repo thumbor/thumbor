@@ -16,4 +16,4 @@ class Filter(BaseFilter):
 
     def run_filter(self, imgdata):
         engine = self.context['engine']
-        return _noise.apply(int(self.params['amount']), imgdata)
+        return _noise.apply(engine.get_image_mode(), int(self.params['amount']), imgdata)

@@ -18,6 +18,12 @@
                                     }
 
 static inline int
+bytes_per_pixel(char *mode)
+{
+    return strlen(mode);
+}
+
+static inline int
 rgb_order(char *mode, char color)
 {
     int i = 0;

@@ -16,6 +16,8 @@ _rgb_apply(PyObject *self, PyObject *args)
         delta_g_int = (int) PyInt_AsLong(delta_g),
         delta_b_int = (int) PyInt_AsLong(delta_b);
 
+    int num_bytes = bytes_per_pixel(image_mode_str);
+
     delta_r_int = (255 * delta_r_int) / 100;
     delta_g_int = (255 * delta_g_int) / 100;
     delta_b_int = (255 * delta_b_int) / 100;
@@ -25,8 +27,8 @@ _rgb_apply(PyObject *self, PyObject *args)
         b_idx = rgb_order(image_mode_str, 'B'),
         i = 0, r, g, b;
 
-    size -= 3;
-    for (; i <= size; i += 3) {
+    size -= num_bytes;
+    for (; i <= size; i += num_bytes) {
         r = ptr[i + r_idx];
         g = ptr[i + g_idx];
         b = ptr[i + b_idx];

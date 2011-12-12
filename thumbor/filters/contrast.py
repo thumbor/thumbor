@@ -15,4 +15,5 @@ class Filter(BaseFilter):
     regex = r'(?:contrast\((?P<value>[-]?[\d]+)\))'
 
     def run_filter(self, imgdata):
-        return _contrast.apply(int(self.params['value']), imgdata)
+        engine = self.context['engine']
+        return _contrast.apply(engine.get_image_mode(), int(self.params['value']), imgdata)
