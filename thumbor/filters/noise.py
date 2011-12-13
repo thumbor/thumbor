@@ -14,6 +14,6 @@ from thumbor.ext.filters import _noise
 class Filter(BaseFilter):
     regex = r'(?:noise\((?P<amount>[\d]+)\))'
 
-    def run_filter(self, imgdata):
-        engine = self.context['engine']
-        return _noise.apply(engine.get_image_mode(), int(self.params['amount']), imgdata)
+    def run_filter(self):
+        imgdata = _noise.apply(self.engine.get_image_mode(), int(self.params['amount']), self.engine.get_image_data())
+        self.engine.set_image_data(imgdata)

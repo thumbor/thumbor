@@ -70,7 +70,6 @@ class Transformer(object):
             self.auto_crop()
             self.resize()
         self.flip()
-        self.filter()
 
     def smart_detect(self):
         if self.context['detectors'] and self.context['smart']:
@@ -187,17 +186,6 @@ class Transformer(object):
             resize_width = source_width * self.target_height / source_height
 
         self.engine.resize(resize_width, resize_height)
-
-    def filter(self):
-        filters = self.context.get('filters', None)
-        if not filters:
-            return
-
-        for f in filters:
-            imgdata = self.engine.get_image_data()
-            newdata = f.run_filter(imgdata)
-            if newdata:
-                self.engine.set_image_data(newdata)
 
     def debug(self):
         for point in self.focal_points:

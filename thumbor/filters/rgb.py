@@ -14,6 +14,6 @@ from thumbor.ext.filters import _rgb
 class Filter(BaseFilter):
     regex = r'(?:rgb\((?P<r>[-]?[\d]+),(?P<g>[-]?[\d]+),(?P<b>[-]?[\d]+)\))'
 
-    def run_filter(self, imgdata):
-        engine = self.context['engine']
-        return _rgb.apply(engine.get_image_mode(), int(self.params['r']), int(self.params['g']), int(self.params['b']), imgdata)
+    def run_filter(self):
+        imgdata = _rgb.apply(self.engine.get_image_mode(), int(self.params['r']), int(self.params['g']), int(self.params['b']), self.engine.get_image_data())
+        self.engine.set_image_data(imgdata)

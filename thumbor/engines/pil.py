@@ -82,3 +82,16 @@ class Engine(BaseEngine):
 
     def get_image_mode(self):
         return self.image.mode
+
+    def paste(self, other_engine, pos):
+        image = self.image
+        if image.mode != 'RGBA':
+            image = image.convert('RGBA')
+
+        other_image = other_engine.image
+        if other_image.mode != 'RGBA':
+            other_image = other_image.convert('RGBA')
+
+        layer = Image.new('RGBA', image.size, (0,0,0,0))
+        layer.paste(other_image, pos)
+        self.image = Image.composite(layer, image, layer)

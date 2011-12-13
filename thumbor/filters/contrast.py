@@ -14,6 +14,6 @@ from thumbor.ext.filters import _contrast
 class Filter(BaseFilter):
     regex = r'(?:contrast\((?P<value>[-]?[\d]+)\))'
 
-    def run_filter(self, imgdata):
-        engine = self.context['engine']
-        return _contrast.apply(engine.get_image_mode(), int(self.params['value']), imgdata)
+    def run_filter(self):
+        imgdata = _contrast.apply(self.engine.get_image_mode(), int(self.params['value']), self.engine.get_image_data())
+        self.engine.set_image_data(imgdata)

@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import functools
 from os.path import splitext
 
 import tornado.web
@@ -84,7 +85,7 @@ class BaseHandler(tornado.web.RequestHandler):
                   valign,
                   extension,
                   should_be_smart,
-                  filters,
+                  filters_params,
                   callback_name,
                   image
                   ):
@@ -117,6 +118,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 )
 
             context = dict(
+                meta=meta,
                 loader=self.loader,
                 engine=self.engine,
                 storage=self.storage,
@@ -141,7 +143,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 extension=extension,
                 filters=[],
                 focal_points=[],
-                quality=options.QUALITY
+                quality=options.QUALITY,
+                handler=self
             )
 
             self.engine.load(buffer, extension)
@@ -149,24 +152,47 @@ class BaseHandler(tornado.web.RequestHandler):
             if meta:
                 context['engine'] = JSONEngine(self.engine, image, callback_name)
 
-            if self.filters and filters:
-                context['filters'] = filters_module.create_instances(context, self.filters, filters)
-
             Transformer(context).transform()
 
-            if meta:
-                content_type = 'text/javascript' if callback_name else 'application/json'
+            finish_callback = functools.partial(self.finish_request, context)
+
+            if self.filters and filters_params:
+                self.apply_filters(filters_module.create_instances(context, self.filters, filters_params), finish_callback)
             else:
-                content_type = CONTENT_TYPE[context['extension']]
-
-            self.set_header('Content-Type', content_type)
-
-            results = context['engine'].read(context['extension'], context['quality'])
-
-            self.write(results)
-            self.finish()
+                finish_callback()
 
         self._fetch(image, extension, callback)
+
+    def apply_filters(self, filters, callback):
+        if not filters:
+            callback()
+            return
+
+        def exec_one_filter():
+            if len(filters) == 0:
+                callback()
+                return
+
+            f = filters.pop(0)
+            if hasattr(f, 'run_filter'):
+                f.run_filter()
+                exec_one_filter()
+            elif hasattr(f, 'run_filter_async'):
+                f.run_filter_async(exec_one_filter)
+        exec_one_filter()
+
+    def finish_request(self, context):
+        if context['meta']:
+            content_type = 'text/javascript' if callback_name else 'application/json'
+        else:
+            content_type = CONTENT_TYPE[context['extension']]
+
+        self.set_header('Content-Type', content_type)
+
+        results = context['engine'].read(context['extension'], context['quality'])
+
+        self.write(results)
+        self.finish()
 
     @classmethod
     def translate_crop_coordinates(cls, original_width, original_height, width, height, crop_left, crop_top, crop_right, crop_bottom):
@@ -217,9 +243,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class ContextHandler(BaseHandler):
     def initialize(self, loader, storage, engine, detectors, filters):
+        self.engine_class = engine.Engine
         self.loader = loader
         self.storage = storage.Storage()
-        self.engine = engine.Engine()
+        self.engine = self.engine_class()
         self.detectors = detectors
         self.filters = filters
 

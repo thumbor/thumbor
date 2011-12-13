@@ -103,7 +103,7 @@ class UrlVows(Vows.Context):
             expect(topic).to_include('(?:(?P<smart>smart)/)?')
 
         def should_contain_filters(self, topic):
-            expect(topic).to_include('(?:filters:(?P<filters>.+?)/)?')
+            expect(topic).to_include('(?:filters:(?P<filters>.+\))/)?')
 
         def should_contain_image(self, topic):
             expect(topic).to_include('(?P<image>.+)')
