@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.filters import BaseFilter
-from thumbor.ext.filters import _brightness
 
 class Filter(BaseFilter):
     regex = r'(?:quality\((?P<value>[\d]+)\))'
