@@ -87,4 +87,4 @@ def main(arguments=[]):
     print 'Encrypted URL: "%s" (without quotes)' % url
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])
