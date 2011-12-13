@@ -19,6 +19,8 @@ from thumbor.app import ThumborServiceApp
 
 def main(arguments=[]):
     '''Converts a given url with the specified arguments.'''
+    if not arguments:
+        arguments = sys.argv[1:]
 
     parser = optparse.OptionParser(usage='thumbor-url [options] imageurl or type thumbor-url -h (--help) for help', description=__doc__, version=__version__)
 
@@ -85,4 +87,4 @@ def main(arguments=[]):
     print 'Encrypted URL: "%s" (without quotes)' % url
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])
