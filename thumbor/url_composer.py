@@ -17,9 +17,9 @@ from thumbor import __version__
 from thumbor.crypto import Crypto
 from thumbor.app import ThumborServiceApp
 
-def main(arguments=[]):
+def main(arguments=None):
     '''Converts a given url with the specified arguments.'''
-    if not arguments:
+    if arguments is None:
         arguments = sys.argv[1:]
 
     parser = optparse.OptionParser(usage='thumbor-url [options] imageurl or type thumbor-url -h (--help) for help', description=__doc__, version=__version__)

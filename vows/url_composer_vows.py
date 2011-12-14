@@ -17,7 +17,7 @@ class AppVows(Vows.Context):
 
     class ErrorsWhenNoArguments(Vows.Context):
         def topic(self):
-            return main()
+            return main([])
 
         def should_be_null(self, topic):
             expect(topic).to_be_null()
