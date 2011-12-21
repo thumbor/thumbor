@@ -59,14 +59,14 @@ class BaseHandler(tornado.web.RequestHandler):
         valign = opt['valign']
 
         extension = splitext(image)[-1].lower()
-        callback_name = options.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
+        meta_callback = options.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
 
         self.get_image(opt['debug'], opt['meta'], should_crop, crop_left,
                        crop_top, crop_right, crop_bottom,
                        opt['fit_in'],
                        opt['horizontal_flip'], width, opt['vertical_flip'],
                        height, halign, valign, extension,
-                       opt['smart'], opt['filters'], callback_name, image)
+                       opt['smart'], opt['filters'], meta_callback, image)
 
     def get_image(self,
                   debug,
@@ -86,7 +86,7 @@ class BaseHandler(tornado.web.RequestHandler):
                   extension,
                   should_be_smart,
                   filters_params,
-                  callback_name,
+                  meta_callback,
                   image
                   ):
         def callback(normalized, buffer):
@@ -144,13 +144,14 @@ class BaseHandler(tornado.web.RequestHandler):
                 filters=[],
                 focal_points=[],
                 quality=options.QUALITY,
+                meta_callback=meta_callback,
                 handler=self
             )
 
             self.engine.load(buffer, extension)
 
             if meta:
-                context['engine'] = JSONEngine(self.engine, image, callback_name)
+                context['engine'] = JSONEngine(self.engine, image, meta_callback)
 
             Transformer(context).transform()
 
@@ -183,7 +184,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def finish_request(self, context):
         if context['meta']:
-            content_type = 'text/javascript' if callback_name else 'application/json'
+            content_type = 'text/javascript' if context['meta_callback'] else 'application/json'
         else:
             content_type = CONTENT_TYPE[context['extension']]
 
