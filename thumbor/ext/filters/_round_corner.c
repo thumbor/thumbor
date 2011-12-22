@@ -25,6 +25,8 @@ _round_corner_apply(PyObject *self, PyObject *args)
                   g = (unsigned char) PyInt_AsLong(g_py),
                   b = (unsigned char) PyInt_AsLong(b_py);
 
+    int num_bytes = bytes_per_pixel(image_mode_str);
+
     int r_idx = rgb_order(image_mode_str, 'R'),
         g_idx = rgb_order(image_mode_str, 'G'),
         b_idx = rgb_order(image_mode_str, 'B');
@@ -51,10 +53,10 @@ _round_corner_apply(PyObject *self, PyObject *args)
         int end_x = x + a_rad;
 
         for (; curr_x < end_x; ++curr_x) {
-            int top_left = RGB_LENGTH * ((y_top * width) + curr_x),
-                bottom_left = RGB_LENGTH * ((y_bottom * width) + curr_x),
-                top_right = RGB_LENGTH * ((y_top * width) + (width - curr_x)),
-                bottom_right = RGB_LENGTH * ((y_bottom * width) + (width - curr_x));
+            int top_left = num_bytes * ((y_top * width) + curr_x),
+                bottom_left = num_bytes * ((y_bottom * width) + curr_x),
+                top_right = num_bytes * ((y_top * width) + (width - curr_x)),
+                bottom_right = num_bytes * ((y_bottom * width) + (width - curr_x));
 
             ptr[top_left + r_idx] = ptr[bottom_left + r_idx] =
                 ptr[top_right + r_idx] = ptr[bottom_right + r_idx] = r;
@@ -70,10 +72,10 @@ _round_corner_apply(PyObject *self, PyObject *args)
             continue;
         }
 
-        int last_top_left = RGB_LENGTH * ((y_top * width) + end_x),
-            last_bottom_left = RGB_LENGTH * ((y_bottom * width) + end_x),
-            last_top_right = RGB_LENGTH * ((y_top * width) + (width - end_x)),
-            last_bottom_right = RGB_LENGTH * ((y_bottom * width) + (width - end_x));
+        int last_top_left = num_bytes * ((y_top * width) + end_x),
+            last_bottom_left = num_bytes * ((y_bottom * width) + end_x),
+            last_top_right = num_bytes * ((y_top * width) + (width - end_x)),
+            last_bottom_right = num_bytes * ((y_bottom * width) + (width - end_x));
 
         int idx = 1;
         int aa_x = x - 1;
@@ -102,10 +104,10 @@ _round_corner_apply(PyObject *self, PyObject *args)
         idx = 1;
         for (; aa_x < x; ++aa_x, ++idx) {
             int aa_x_adj = aa_x + a_rad;
-            int top_left = RGB_LENGTH * ((y_top * width) + aa_x_adj),
-                bottom_left = RGB_LENGTH * ((y_bottom * width) + aa_x_adj),
-                top_right = RGB_LENGTH * ((y_top * width) + (width - aa_x_adj)),
-                bottom_right = RGB_LENGTH * ((y_bottom * width) + (width - aa_x_adj));
+            int top_left = num_bytes * ((y_top * width) + aa_x_adj),
+                bottom_left = num_bytes * ((y_bottom * width) + aa_x_adj),
+                top_right = num_bytes * ((y_top * width) + (width - aa_x_adj)),
+                bottom_right = num_bytes * ((y_bottom * width) + (width - aa_x_adj));
 
 
             float aa = 1.f - ((idx / (float)pixel_count_x) * aa_amount);
@@ -151,10 +153,10 @@ _round_corner_apply(PyObject *self, PyObject *args)
         int y_top = b_rad - y;
         int y_bottom = (height - b_rad) + y - 1;
 
-        int last_top_left = RGB_LENGTH * ((y_top * width) + end_x),
-            last_bottom_left = RGB_LENGTH * ((y_bottom * width) + end_x),
-            last_top_right = RGB_LENGTH * ((y_top * width) + (width - end_x)),
-            last_bottom_right = RGB_LENGTH * ((y_bottom * width) + (width - end_x));
+        int last_top_left = num_bytes * ((y_top * width) + end_x),
+            last_bottom_left = num_bytes * ((y_bottom * width) + end_x),
+            last_top_right = num_bytes * ((y_top * width) + (width - end_x)),
+            last_bottom_right = num_bytes * ((y_bottom * width) + (width - end_x));
 
         unsigned char *color_top_left = ptr + last_top_left,
                       *color_bottom_left = ptr + last_bottom_left,
@@ -170,10 +172,10 @@ _round_corner_apply(PyObject *self, PyObject *args)
             aa_y -= 1;
         }
         for (; aa_y > y; --aa_y, ++idx) {
-            int top_left = RGB_LENGTH * (((b_rad - aa_y) * width) + left_x),
-                bottom_left = RGB_LENGTH * ((((height - b_rad) + aa_y - 1) * width) + left_x),
-                top_right = RGB_LENGTH * (((b_rad - aa_y) * width) + right_x),
-                bottom_right = RGB_LENGTH * ((((height - b_rad) + aa_y - 1) * width) + right_x);
+            int top_left = num_bytes * (((b_rad - aa_y) * width) + left_x),
+                bottom_left = num_bytes * ((((height - b_rad) + aa_y - 1) * width) + left_x),
+                top_right = num_bytes * (((b_rad - aa_y) * width) + right_x),
+                bottom_right = num_bytes * ((((height - b_rad) + aa_y - 1) * width) + right_x);
 
             float aa = 1.f - ((idx / (float)pixel_count_y) * aa_amount);
 
