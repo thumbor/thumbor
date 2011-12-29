@@ -16,6 +16,7 @@ import math
 
 from PIL import Image
 from tornado.testing import AsyncHTTPTestCase
+from tornado.options import options
 
 from thumbor.app import ThumborServiceApp
 
@@ -40,6 +41,16 @@ class MainHandlerTest(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url('/unsafe/www.globo.com/media/globocom/img/sprite1.png'), self.stop)
         response = self.wait(timeout=20)
         self.assertEqual(200, response.code)
+
+    def test_returns_cache_control_header(self):
+        options.MAX_AGE = 3600
+        self.http_client.fetch(self.get_url('/unsafe/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop)
+        response = self.wait()
+        d = datetime.datetime.now() + datetime.timedelta(seconds=3600)
+
+        assert response.code == 200
+        self.assertEqual("max-age=3600,public", response.headers['Cache-Control'] )
+        self.assertEqual(d, datetime.strptime(response.headers['Cache-Control'],"%a, %d %b %Y %H:%M:00 GMT"))
 
 class ImageTestCase(AsyncHTTPTestCase):
 

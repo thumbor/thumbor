@@ -12,6 +12,7 @@ import functools
 from os.path import splitext
 
 import tornado.web
+import datetime
 from tornado.options import options
 
 from thumbor.transformer import Transformer
@@ -189,6 +190,10 @@ class BaseHandler(tornado.web.RequestHandler):
             content_type = CONTENT_TYPE[context['extension']]
 
         self.set_header('Content-Type', content_type)
+
+        if options.MAX_AGE:
+                self.set_header('Cache-Control', 'max-age=' + str(options.MAX_AGE) + ',public')
+                self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=options.MAX_AGE))
 
         results = context['engine'].read(context['extension'], context['quality'])
 
