@@ -29,6 +29,7 @@ class Engine(BaseEngine):
 
     def create_image(self, buffer):
         img = Image.open(StringIO(buffer))
+        self.icc_profile = img.info.get('icc_profile', None)
         return img
 
     def draw_rectangle(self, x, y, width, height):
@@ -65,9 +66,8 @@ class Engine(BaseEngine):
             options['optimize'] = True
             options['progressive'] = True
 
-        icc_profile = self.image.info.get('icc_profile', None)
-        if icc_profile is not None:
-            options['icc_profile'] = icc_profile
+        if self.icc_profile is not None:
+            options['icc_profile'] = self.icc_profile
 
         try:
             self.image.save(img_buffer, FORMATS[ext], **options)
