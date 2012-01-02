@@ -17,6 +17,7 @@ class BaseEngine(object):
         self.extension = None
         self.source_width = None
         self.source_height = None
+        self.icc_profile = None
 
     def load(self, buffer, extension):
         self.extension = extension
