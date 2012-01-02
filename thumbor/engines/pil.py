@@ -23,12 +23,13 @@ FORMATS = {
     '.png': 'PNG'
 }
 
-ImageFile.MAXBLOCK = 2**20
+ImageFile.MAXBLOCK = 2**25
 
 class Engine(BaseEngine):
 
     def create_image(self, buffer):
-        return Image.open(StringIO(buffer))
+        img = Image.open(StringIO(buffer))
+        return img
 
     def draw_rectangle(self, x, y, width, height):
         d = ImageDraw.Draw(self.image)
@@ -64,9 +65,13 @@ class Engine(BaseEngine):
             options['optimize'] = True
             options['progressive'] = True
 
+        icc_profile = self.image.info.get('icc_profile', None)
+        if icc_profile is not None:
+            options['icc_profile'] = icc_profile
+
         try:
             self.image.save(img_buffer, FORMATS[ext], **options)
-        except IOError, e:
+        except IOError:
             logger.warning('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
             self.image.save(img_buffer, FORMATS[ext])
 
