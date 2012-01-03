@@ -43,9 +43,6 @@ class ThumborServiceApp(tornado.web.Application):
         # imported modules with the ones defined into the config file
         parse_config_file(conf_file)
 
-        #storage = storage.Storage()
-        #self.engine = self.engine.Engine()
-
         if security_key:
             options.SECURITY_KEY = security_key
 
@@ -71,7 +68,7 @@ class ThumborServiceApp(tornado.web.Application):
                 handlers.append((handler[0], handler[1], handler_context))
         else:
             handlers.append(
-                (r'/(?P<crypto>[^/]+)/(?P<image>(.+))', CryptoHandler, handler_context)
+                (r'/(?P<crypto>[^/]+)/(?P<image>(?:.+))', CryptoHandler, handler_context)
             )
 
         super(ThumborServiceApp, self).__init__(handlers)

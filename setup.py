@@ -62,11 +62,10 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
       },
 
       install_requires=[
-          "tornado==1.2.1",
-          "redis",
-          "pyCrypto",
-          "pycurl",
-          "pillow"
+          "tornado>=2.1.1,<2.2.0",
+          "pyCrypto>=2.4.1,<2.5.0",
+          "pycurl>=7.19.0,<7.20.0",
+          "Pillow>=1.7.5,<1.8.0"
       ],
 
       entry_points = {
