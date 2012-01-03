@@ -10,14 +10,16 @@
 
 from pyvows import Vows, expect
 
-from thumbor.filters import create_instances
+from thumbor.filters import create_instances, compile_filters
 from thumbor.filters.quality import Filter
 
 @Vows.batch
 class QualityFilterVows(Vows.Context):
     def topic(self):
         ctx = { 'quality': 100, 'engine': None }
-        filter_instances = create_instances(ctx, [Filter], "quality(10)")
+        filters = [Filter]
+        compile_filters(filters)
+        filter_instances = create_instances(ctx, filters, "quality(10)")
         filter_instances[0].run_filter()
         return ctx['quality']
 
