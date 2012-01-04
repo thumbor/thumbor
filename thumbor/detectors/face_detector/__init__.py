@@ -25,13 +25,14 @@ class Detector(CascadeLoaderDetector):
         top = max(0, top - height * HAIR_OFFSET)
         return top
 
-    def detect(self, context):
+    def detect(self, context, callback):
         features = self.get_features(context)
 
         if features:
             for (left, top, width, height), neighbors in features:
                 top = self.__add_hair_offset(top, height)
                 context['focal_points'].append(FocalPoint.from_square(left, top, width, height, origin="Face Detection"))
+            callback()
         else:
-            self.next(context)
+            self.next(context, callback)
 

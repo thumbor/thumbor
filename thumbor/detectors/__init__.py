@@ -10,10 +10,16 @@
 
 from os.path import join, dirname, abspath, isabs
 
+from tornado import iostream, ioloop
+from tornado.options import options
+
 import cv
 
-from thumbor.point import FocalPoint
+import bson
+import zmq
+from zmq.eventloop import zmqstream
 
+from thumbor.point import FocalPoint
 
 class BaseDetector(object):
 
@@ -21,16 +27,52 @@ class BaseDetector(object):
         self.index = index
         self.detectors = detectors
 
-    def detect(self, context):
+    def detect(self, context, callback):
         raise NotImplementedError()
 
-    def next(self, context):
+    def next(self, context, callback):
         if self.index >= len(self.detectors) - 1:
+            callback()
             return
 
-        next_detector = self.detectors[self.index + 1](self.index + 1, context)
-        return next_detector.detect(context)
+        next_detector = self.detectors[self.index + 1](self.index + 1, self.detectors)
+        next_detector.detect(context, callback)
 
+class RemoteDetector(BaseDetector):
+    zmq_ctx = None
+
+    def get_context(self):
+        if RemoteDetector.zmq_ctx is None:
+            RemoteDetector.zmq_ctx = zmq.Context()
+
+        return RemoteDetector.zmq_ctx
+
+    def detect(self, context, callback):
+        self.get_features(context, callback)
+
+    def get_features(self, context, callback):
+        engine = context['engine']
+        image = engine.get_image_data()
+
+        ctx = self.get_context()    
+        socket = ctx.socket(zmq.REQ)
+        socket.connect('tcp://%s:%s' % (options.OPENCV_SOCKET_ADDRESS, options.OPENCV_SOCKET_PORT))
+
+        stream = zmqstream.ZMQStream(socket, ioloop.IOLoop.instance())
+
+        stream.send(bson.dumps({ 'type': self.detection_type, 'size': engine.size, 'mode': engine.get_image_mode(), 'image': image }))
+
+        def on_result(data):
+            stream.close()
+            features = bson.loads(data[0])['points']
+            if features:
+                for (left, top, width, height) in features:
+                    context['focal_points'].append(FocalPoint.from_square(left, top, width, height, origin="Face Detection"))
+                callback()
+            else:
+                self.next(context, callback)
+
+        stream.on_recv(on_result)
 
 class CascadeLoaderDetector(BaseDetector):
 
@@ -95,12 +137,13 @@ class CascadeLoaderDetector(BaseDetector):
 
         return faces_scaled
 
-    def detect(self, context):
+    def detect(self, context, callback):
         features = self.get_features(context)
 
         if features:
             for (left, top, width, height), neighbors in features:
                 context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
+            callback()
         else:
-            self.next(context)
+            self.next(context, callback)
 

@@ -51,52 +51,60 @@ class Transformer(object):
 
         self.engine.focus(self.focal_points)
 
-    def transform(self):
+    def transform(self, callback):
+        self.done_callback = callback
         self.manual_crop()
-
         self.calculate_target_dimensions()
-
         self.smart_detect()
+
+    @property
+    def smart_storage_key(self):
+        engine = self.context['engine']
+        key = '%s_%d_%d' % (self.context['image_url'], engine.size[0], engine.size[1])
+        if self.context['crop_left']:
+            key += '_%d_%d_%d_%d' % (self.context['crop_left'],
+                                      self.context['crop_top'],
+                                      self.context['crop_right'],
+                                      self.context['crop_bottom'])
+        return key
+
+    def smart_detect(self):
+        if self.context['detectors'] and self.context['smart']:
+            storage = self.context['storage']
+            focal_points = storage.get_detector_data(self.smart_storage_key)
+            if focal_points:
+                for point in focal_points:
+                    self.context['focal_points'].append(FocalPoint.from_dict(point))
+                self.after_smart_detect()
+            else:
+                detectors = self.context['detectors']
+                detectors[0](index=0, detectors=detectors).detect(self.context, self.after_smart_detect)
+        else:
+            self.after_smart_detect()
+
+    def after_smart_detect(self):
+        focal_points = self.context['focal_points']
+        if focal_points:
+            storage = self.context['storage']
+            points = []
+            for point in focal_points:
+                points.append(point.to_dict())
+
+            storage.put_detector_data(self.smart_storage_key, points)
 
         self.calculate_focal_points()
 
         if self.context['debug']:
             self.debug()
-            return
-
-        if self.context['fit_in']:
-            self.fit_in_resize()
         else:
-            self.auto_crop()
-            self.resize()
-        self.flip()
-
-    def smart_detect(self):
-        if self.context['detectors'] and self.context['smart']:
-            storage = self.context['storage']
-            engine = self.context['engine']
-            storage_key = '%s_%d_%d' % (self.context['image_url'], engine.size[0], engine.size[1])
-            if self.context['crop_left']:
-                storage_key = storage_key + '_%d_%d_%d_%d' % (self.context['crop_left'],
-                                                              self.context['crop_top'],
-                                                              self.context['crop_right'],
-                                                              self.context['crop_bottom']
-                                                             )
-            focal_points = storage.get_detector_data(storage_key)
-            if focal_points:
-                for point in focal_points:
-                    self.context['focal_points'].append(FocalPoint.from_dict(point))
+            if self.context['fit_in']:
+                self.fit_in_resize()
             else:
-                detectors = self.context['detectors']
-                detectors[0](index=0, detectors=detectors).detect(self.context)
+                self.auto_crop()
+                self.resize()
+            self.flip()
 
-                points = []
-                focal_points = self.context['focal_points']
-
-                for point in focal_points:
-                    points.append(point.to_dict())
-
-                storage.put_detector_data(storage_key, points)
+        self.done_callback()
 
     def manual_crop(self):
         if self.context['should_crop']:
@@ -188,7 +196,14 @@ class Transformer(object):
         self.engine.resize(resize_width, resize_height)
 
     def debug(self):
-        for point in self.focal_points:
+        if not self.context['focal_points']:
+            return
+
+        for point in self.context['focal_points']:
+            if point.width <= 1:
+                point.width = 10
+            if point.height <= 1:
+                point.height = 10
             self.engine.draw_rectangle(int(point.x - (point.width / 2)),
                                        int(point.y - (point.height / 2)),
                                        point.width,

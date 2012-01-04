@@ -10,20 +10,17 @@
 
 import cv
 
-from thumbor.detectors import BaseDetector
-from thumbor.point import FocalPoint
+from detectors import BaseDetector
 
+class FeatureDetector(BaseDetector):
 
-class Detector(BaseDetector):
-
-    def detect(self, context, callback):
-        engine = context['engine']
-        sz = engine.size
+    def detect(self, width, height, mode, img_data):
+        sz = (width, height)
         image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(image, engine.get_image_data())
+        cv.SetData(image, img_data)
 
-        gray_image = cv.CreateImage(engine.size, 8, 1);
-        convert_mode = getattr(cv, 'CV_%s2GRAY' % engine.get_image_mode())
+        gray_image = cv.CreateImage(sz, 8, 1);
+        convert_mode = getattr(cv, 'CV_%s2GRAY' % mode)
         cv.CvtColor(image, gray_image, convert_mode)
         image = gray_image
         rows = sz[0]
@@ -34,8 +31,6 @@ class Detector(BaseDetector):
         points = cv.GoodFeaturesToTrack(image, eig_image, temp_image, 20, 0.04, 1.0, useHarris = False)
 
         if points:
-            for x, y in points:
-                context['focal_points'].append(FocalPoint(x, y, 1))
-            callback()
-        else:
-            self.next(context, callback)
+            return [[x, y, 1, 1] for x, y in points]
+
+        return None

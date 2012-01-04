@@ -153,16 +153,18 @@ class BaseHandler(tornado.web.RequestHandler):
             if meta:
                 context['engine'] = JSONEngine(self.engine, image, meta_callback)
 
-            Transformer(context).transform()
-
-            finish_callback = functools.partial(self.finish_request, context)
-
-            if self.filters and filters_params:
-                self.apply_filters(filters_module.create_instances(context, self.filters, filters_params), finish_callback)
-            else:
-                finish_callback()
+            after_transform_cb = functools.partial(self.after_transform, filters_params, context)
+            Transformer(context).transform(after_transform_cb)
 
         self._fetch(image, extension, callback)
+
+    def after_transform(self, filters_params, context):
+        finish_callback = functools.partial(self.finish_request, context)
+
+        if self.filters and filters_params:
+            self.apply_filters(filters_module.create_instances(context, self.filters, filters_params), finish_callback)
+        else:
+            finish_callback()
 
     def apply_filters(self, filters, callback):
         if not filters:
