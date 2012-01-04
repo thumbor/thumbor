@@ -75,9 +75,10 @@ define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detecto
 # FACE DETECTOR CASCADE FILE
 define('FACE_DETECTOR_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
 
-# SOCKET FACE DETECTION
-define('OPENCV_SOCKET_ADDRESS', type=str, default="localhost")
-define('OPENCV_SOCKET_PORT', type=str, default=13337)
+# REMOTE FACE DETECTION
+define('REMOTECV_HOST', type=str, default="localhost")
+define('REMOTECV_PORT', type=int, default=13337)
+define('REMOTECV_TIMEOUT', type=int, default=5)
 
 # AVAILABLE FILTERS
 define('FILTERS', default=[], multiple=True)

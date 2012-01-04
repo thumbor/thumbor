@@ -194,6 +194,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
         results = context['engine'].read(context['extension'], context['quality'])
 
+        if 'detector_error' in context:
+            self.set_status(404)
+
         self.write(results)
         self.finish()
 

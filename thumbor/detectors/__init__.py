@@ -9,8 +9,9 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import join, dirname, abspath, isabs
+import datetime
 
-from tornado import iostream, ioloop
+from tornado import iostream, ioloop, web
 from tornado.options import options
 
 import cv
@@ -20,6 +21,7 @@ import zmq
 from zmq.eventloop import zmqstream
 
 from thumbor.point import FocalPoint
+from thumbor.utils import logger
 
 class BaseDetector(object):
 
@@ -48,31 +50,44 @@ class RemoteDetector(BaseDetector):
         return RemoteDetector.zmq_ctx
 
     def detect(self, context, callback):
-        self.get_features(context, callback)
+        self.context = context
+        self.callback = callback
+        self.ioloop = ioloop.IOLoop.instance()
+        self.get_features()
 
-    def get_features(self, context, callback):
-        engine = context['engine']
+    def on_result(self, data):
+        self.ioloop.remove_timeout(self.timeout_handle)
+        self.stream.close()
+        features = bson.loads(data[0])['points']
+        if features:
+            for (left, top, width, height) in features:
+                self.context['focal_points'].append(FocalPoint.from_square(left, top, width, height, origin="Face Detection"))
+            self.callback()
+        else:
+            self.next(self.context, self.callback)
+
+    def on_timeout(self):
+        logger.warning('timeout for remote detector %s' % self.__class__.__module__)
+        self.stream.close()
+        self.context['detector_error'] = True
+        self.callback()
+
+    def get_features(self):
+        engine = self.context['engine']
         image = engine.get_image_data()
 
-        ctx = self.get_context()    
+        ctx = self.get_context()
+
         socket = ctx.socket(zmq.REQ)
-        socket.connect('tcp://%s:%s' % (options.OPENCV_SOCKET_ADDRESS, options.OPENCV_SOCKET_PORT))
+        socket.connect('tcp://%s:%s' % (options.REMOTECV_HOST, options.REMOTECV_PORT))
+        socket.setsockopt(zmq.LINGER, 0)
 
-        stream = zmqstream.ZMQStream(socket, ioloop.IOLoop.instance())
+        self.timeout_handle = self.ioloop.add_timeout(datetime.timedelta(seconds=options.REMOTECV_TIMEOUT), self.on_timeout)
+        self.stream = zmqstream.ZMQStream(socket, self.ioloop)
+        self.stream.on_recv(self.on_result)
 
-        stream.send(bson.dumps({ 'type': self.detection_type, 'size': engine.size, 'mode': engine.get_image_mode(), 'image': image }))
+        self.stream.send(bson.dumps({ 'type': self.detection_type, 'size': engine.size, 'mode': engine.get_image_mode(), 'image': image }))
 
-        def on_result(data):
-            stream.close()
-            features = bson.loads(data[0])['points']
-            if features:
-                for (left, top, width, height) in features:
-                    context['focal_points'].append(FocalPoint.from_square(left, top, width, height, origin="Face Detection"))
-                callback()
-            else:
-                self.next(context, callback)
-
-        stream.on_recv(on_result)
 
 class CascadeLoaderDetector(BaseDetector):
 
