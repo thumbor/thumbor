@@ -9,6 +9,7 @@ from zmq.eventloop import zmqstream
 
 from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
+from thumbor.utils import logger
 
 class RemoteDetector(BaseDetector):
     zmq_ctx = None
