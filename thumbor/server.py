@@ -19,9 +19,11 @@ from tornado.httpserver import HTTPServer
 from thumbor import __version__
 from thumbor.app import ThumborServiceApp
 
-from zmq.eventloop import ioloop
-
-ioloop.install()
+try:
+    from zmq.eventloop import ioloop
+    ioloop.install()
+except ImportError:
+    pass
 
 ip = "0.0.0.0"
 port = 8888

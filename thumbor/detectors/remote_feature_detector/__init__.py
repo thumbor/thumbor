@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from thumbor.detectors import RemoteDetector
+from thumbor.detectors.remote_detector import RemoteDetector
 
 class Detector(RemoteDetector):
     detection_type = 'feat'

@@ -78,7 +78,8 @@ define('FACE_DETECTOR_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
 # REMOTE FACE DETECTION
 define('REMOTECV_HOST', type=str, default="localhost")
 define('REMOTECV_PORT', type=int, default=13337)
-define('REMOTECV_TIMEOUT', type=int, default=5)
+define('REMOTECV_TIMEOUT', type=int, default=20)
+define('REMOTECV_SEND_IMAGE', type=bool, default=True)
 
 # AVAILABLE FILTERS
 define('FILTERS', default=[], multiple=True)
