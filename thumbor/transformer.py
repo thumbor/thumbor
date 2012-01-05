@@ -84,7 +84,7 @@ class Transformer(object):
 
     def after_smart_detect(self):
         focal_points = self.context['focal_points']
-        if focal_points:
+        if focal_points and self.context['storage']:
             storage = self.context['storage']
             points = []
             for point in focal_points:

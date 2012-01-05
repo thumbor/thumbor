@@ -15,12 +15,13 @@ from vows.transformer_test_data import TESTITEMS, FIT_IN_CROP_DATA, TestData
 from thumbor.transformer import Transformer
 
 class EngineContext(Vows.Context):
-    def _get_engine(self, topic):
+    def _prepare_engine(self, topic, callback):
         context = topic[0].to_context()
-        trans = Transformer(context)
-        trans.transform()
+        self.engine = context['engine']
+        self.test_data = topic
 
-        return context['engine']
+        trans = Transformer(context)
+        trans.transform(callback)
 
 @Vows.assertion
 def to_be_resized(topic):
@@ -34,27 +35,28 @@ def to_be_cropped(topic):
 class TransformerVows(Vows.Context):
 
     class InvalidCrop(Vows.Context):
-        class InvalidCropPoints(Vows.Context):
-            def topic(self):
-                data = TestData(
-                    source_width=800, source_height=600,
-                    target_width=800, target_height=600,
-                    halign="right", valign="top",
-                    focal_points=[],
-                    crop_left=200, crop_top=0, crop_right=100, crop_bottom=100
-                )
+        @Vows.async_topic
+        def topic(self, callback):
+            data = TestData(
+                source_width=800, source_height=600,
+                target_width=800, target_height=600,
+                halign="right", valign="top",
+                focal_points=[],
+                crop_left=200, crop_top=0, crop_right=100, crop_bottom=100
+            )
 
-                ctx = data.to_context()
-                trans = Transformer(ctx)
-                trans.transform()
+            ctx = data.to_context()
+            self.engine = ctx['engine']
 
-                return ctx['engine']
+            trans = Transformer(ctx)
+            trans.transform(callback)
 
-            def should_not_crop(self, topic):
-                expect(topic.calls['crop']).to_be_empty()
+        def should_not_crop(self, topic):
+            expect(self.engine.calls['crop']).to_be_empty()
 
     class Flip(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             data = TestData(
                         source_width=800, source_height=600,
                         target_width=-800, target_height=-600,
@@ -64,68 +66,71 @@ class TransformerVows(Vows.Context):
                     )
 
             ctx = data.to_context()
-            trans = Transformer(ctx)
-            trans.transform()
+            self.engine = ctx['engine']
 
-            return ctx['engine']
+            trans = Transformer(ctx)
+            trans.transform(callback)
 
         def should_do_horizontal_flip(self, topic):
-            expect(topic.calls['horizontal_flip']).to_equal(1)
+            expect(self.engine.calls['horizontal_flip']).to_equal(1)
 
         def should_do_vertical_flip(self, topic):
-            expect(topic.calls['vertical_flip']).to_equal(1)
+            expect(self.engine.calls['vertical_flip']).to_equal(1)
 
     class ResizeCrop(Vows.Context):
-
         def topic(self):
             for item in TESTITEMS:
                 yield item
 
-        def should_resize_properly(self, topic):
-            context = topic.to_context()
-            trans = Transformer(context)
-            trans.transform()
+        class AsyncResizeCrop(Vows.Context):
+            @Vows.async_topic
+            def topic(self, callback, topic):
+                self.test_data = topic
+                context = topic.to_context()
+                trans = Transformer(context)
+                trans.transform(callback)
 
-            expect(topic).to_be_resized()
+            def should_resize_properly(self, topic):
+                expect(self.test_data).to_be_resized()
 
-        def should_crop_properly(self, topic):
-            context = topic.to_context()
-            trans = Transformer(context)
-            trans.transform()
+            def should_crop_properly(self, topic):
+                expect(self.test_data).to_be_cropped()
 
-            expect(topic).to_be_cropped()
-
-    class FitIn(EngineContext):
-        def topic(self):
+    class FitIn(Vows.Context):
+        def topic(self, callback):
             for item in FIT_IN_CROP_DATA:
                 yield item
 
-        def should_not_have_crop(self, topic):
-            engine = self._get_engine(topic)
-            expect(engine.calls['crop']).to_be_empty()
+        class AsyncFitIn(EngineContext):
+            @Vows.async_topic
+            def topic(self, callback, topic):
+                self._prepare_engine(topic, callback)
 
-        def should_have_resize(self, topic):
-            engine = self._get_engine(topic)
+            def should_have_proper_height(self, topic):
+                if not self.test_data[1][2]:
+                    return
+                expect(self.engine.calls['resize'][0]['height']).to_equal(self.test_data[1][1])
 
-            if not topic[1][2]:
-                expect(engine.calls['resize']).to_be_empty()
-                return
+            def should_not_have_crop(self, topic):
+                expect(self.engine.calls['crop']).to_be_empty()
 
-            expect(engine.calls['resize']).not_to_be_empty()
+            def should_have_resize(self, topic):
+                if not self.test_data[1][2]:
+                    expect(self.engine.calls['resize']).to_be_empty()
+                    return
 
-        def should_have_proper_resize_calls(self, topic):
-            engine = self._get_engine(topic)
-            length = topic[1][2]
-            expect(engine.calls['resize']).to_length(length)
+                expect(self.engine.calls['resize']).not_to_be_empty()
 
-        def should_have_proper_width(self, topic):
-            if not topic[1][2]:
-                return
-            engine = self._get_engine(topic)
-            expect(engine.calls['resize'][0]['width']).to_equal(topic[1][0])
+            def should_have_proper_resize_calls(self, topic):
+                length = self.test_data[1][2]
+                expect(self.engine.calls['resize']).to_length(length)
 
-        def should_have_proper_height(self, topic):
-            if not topic[1][2]:
-                return
-            engine = self._get_engine(topic)
-            expect(engine.calls['resize'][0]['height']).to_equal(topic[1][1])
+            def should_have_proper_width(self, topic):
+                if not self.test_data[1][2]:
+                    return
+                expect(self.engine.calls['resize'][0]['width']).to_equal(self.test_data[1][0])
+
+            def should_have_proper_height(self, topic):
+                if not self.test_data[1][2]:
+                    return
+                expect(self.engine.calls['resize'][0]['height']).to_equal(self.test_data[1][1])
