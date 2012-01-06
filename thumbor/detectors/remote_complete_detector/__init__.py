@@ -12,8 +12,13 @@ from thumbor.detectors.remote_detector import RemoteDetector
 from thumbor.point import FocalPoint
 
 class Detector(RemoteDetector):
-    detection_type = 'feat'
+    detection_type = 'all'
 
     def format_point(self, point):
-        x, y = point
-        return FocalPoint(x, y, 1, origin='Feature Detection').to_dict()
+        if len(point) == 2:
+            x, y = point
+            return FocalPoint(x, y, 1, origin='Complete Detection').to_dict()
+        else:
+            left, top, width, height = point
+            return FocalPoint.from_square(left, top, width, height, origin="Complete Detection").to_dict()
+ 
