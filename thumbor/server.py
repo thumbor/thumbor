@@ -15,15 +15,13 @@ import logging
 
 import tornado.ioloop
 from tornado.httpserver import HTTPServer
+from pyremotecv import tornado_extensions
+
+tornado_extensions.install_io_loop()
 
 from thumbor import __version__
 from thumbor.app import ThumborServiceApp
 
-try:
-    from zmq.eventloop import ioloop
-    ioloop.install()
-except ImportError:
-    pass
 
 ip = "0.0.0.0"
 port = 8888

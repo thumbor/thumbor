@@ -9,6 +9,12 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.detectors.remote_detector import RemoteDetector
+from thumbor.point import FocalPoint
 
 class Detector(RemoteDetector):
     detection_type = 'face'
+
+    def format_point(self, point):
+        left, top, width, height = point
+        return FocalPoint.from_square(left, top, width, height, origin="Face Detection").to_dict()
+ 

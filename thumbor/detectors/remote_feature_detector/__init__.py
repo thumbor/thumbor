@@ -9,6 +9,12 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.detectors.remote_detector import RemoteDetector
+from thumbor.point import FocalPoint
 
 class Detector(RemoteDetector):
     detection_type = 'feat'
+
+    def format_point(self, point):
+        x, y = point
+        return FocalPoint(x, y, 1, origin='Feature Detection').to_dict()
+ 
