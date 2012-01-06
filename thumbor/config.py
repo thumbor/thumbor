@@ -15,6 +15,7 @@ from tornado.options import options, define
 
 define('MAX_WIDTH', type=int, default=0)
 define('MAX_HEIGHT', type=int, default=0)
+define('MAX_AGE',type=int, default=0)
 define('ALLOWED_SOURCES', default=[], multiple=True)
 define('QUALITY', type=int, default=80)
 
