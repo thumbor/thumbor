@@ -78,7 +78,7 @@ class Transformer(object):
                 detectors = self.context['detectors']
                 detectors[0](index=0, detectors=detectors).detect(self.context, self.after_smart_detect)
         else:
-            self.after_smart_detect()
+            self.after_smart_detect([])
 
     def after_smart_detect(self, focal_points):
         for point in focal_points:
