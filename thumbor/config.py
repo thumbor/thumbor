@@ -90,3 +90,17 @@ class ConfigWrapper(object):
         return getattr(options, name)
 
 conf = ConfigWrapper()
+
+class ConfigurationError(RuntimeError):
+    pass
+
+class Config(object):
+    def __init__(self, **kw):
+        for key, value in kw.iteritems():
+            setattr(self, key, value)
+
+    def validates_presence_of(self, *args):
+        for arg in args:
+            if not hasattr(self, arg):
+                raise ConfigurationError('Configuration %s was not found and does not have a default value. Please verify your thumbor.conf file' % arg)
+
