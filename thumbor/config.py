@@ -11,91 +11,33 @@
 from os.path import join
 import tempfile
 
-from tornado.options import options, define
+#from tornado.options import options, define
 
-define('MAX_WIDTH', type=int, default=0)
-define('MAX_HEIGHT', type=int, default=0)
-define('ALLOWED_SOURCES', default=[], multiple=True)
-define('QUALITY', type=int, default=80)
+#class ConfigWrapper(object):
 
-define('LOADER',  default='thumbor.loaders.http_loader')
-define('STORAGE', default='thumbor.storages.file_storage')
-define('ENGINE', default='thumbor.engines.pil')
+    #def __getattr__(self, name):
+        #return getattr(options, name)
 
-define('SECURITY_KEY', type=str)
-define('ALLOW_UNSAFE_URL', type=bool, default=True)
-
-# FILE LOADER OPTIONS
-define('FILE_LOADER_ROOT_PATH')
-
-# HTTP LOADER OPTIONS
-define('MAX_SOURCE_SIZE', type=int, default=0)
-define('REQUEST_TIMEOUT_SECONDS', type=int, default=120)
-
-# FILE STORAGE GENERIC OPTIONS
-define('STORAGE_EXPIRATION_SECONDS', type=int, default=60 * 60 * 24 * 30) # default one month
-define('STORES_CRYPTO_KEY_FOR_EACH_IMAGE', type=bool, default=False)
-
-# FILE STORAGE OPTIONS
-define('FILE_STORAGE_ROOT_PATH', default=join(tempfile.gettempdir(), 'thumbor', 'storage'))
-
-# MONGO STORAGE OPTIONS
-define('MONGO_STORAGE_SERVER_HOST', type=str, default='localhost')
-define('MONGO_STORAGE_SERVER_PORT', type=int, default=27017)
-define('MONGO_STORAGE_SERVER_DB', type=str, default='thumbor')
-define('MONGO_STORAGE_SERVER_COLLECTION', type=str, default='images')
-
-# REDIS STORAGE OPTIONS
-define('REDIS_STORAGE_SERVER_HOST', type=str, default='localhost')
-define('REDIS_STORAGE_SERVER_PORT', type=int, default=6379)
-define('REDIS_STORAGE_SERVER_DB', type=int, default=0)
-
-# MYSQL STORAGE OPTIONS
-define('MYSQL_STORAGE_SERVER_HOST', type=str, default='localhost')
-define('MYSQL_STORAGE_SERVER_PORT', type=int, default=3306)
-define('MYSQL_STORAGE_SERVER_USER', type=str, default='root')
-define('MYSQL_STORAGE_SERVER_PASSWORD', type=str, default='')
-define('MYSQL_STORAGE_SERVER_DB', type=str, default='thumbor')
-define('MYSQL_STORAGE_SERVER_TABLE', type=str, default='images')
-
-# MIXED STORAGE OPTIONS
-define('MIXED_STORAGE_FILE_STORAGE', type=str, default='thumbor.storages.no_storage')
-define('MIXED_STORAGE_CRYPTO_STORAGE', type=str, default='thumbor.storages.no_storage')
-define('MIXED_STORAGE_DETECTOR_STORAGE', type=str, default='thumbor.storages.no_storage')
-
-# ImageMagick ENGINE OPTIONS
-define('MAGICKWAND_PATH', default=[], multiple=True)
-
-# JSON META ENGINE OPTIONS
-define('META_CALLBACK_NAME', type=str, default=None)
-
-# DETECTORS OPTIONS
-define('DETECTORS', default=['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'], multiple=True)
-
-# FACE DETECTOR CASCADE FILE
-define('FACE_DETECTOR_CASCADE_FILE', default='haarcascade_frontalface_alt.xml')
-
-# REMOTE FACE DETECTION
-define('REMOTECV_HOST', type=str, default="localhost")
-define('REMOTECV_PORT', type=int, default=13337)
-define('REMOTECV_TIMEOUT', type=int, default=20)
-define('REMOTECV_SEND_IMAGE', type=bool, default=True)
-
-# AVAILABLE FILTERS
-define('FILTERS', default=[], multiple=True)
-
-class ConfigWrapper(object):
-
-    def __getattr__(self, name):
-        return getattr(options, name)
-
-conf = ConfigWrapper()
+#conf = ConfigWrapper()
 
 class ConfigurationError(RuntimeError):
     pass
 
 class Config(object):
+    class_defaults = {}
+
+    @classmethod
+    def define(cls, key, value):
+        cls.class_defaults[key] = value
+
+    @classmethod
+    def load(cls, path):
+        pass
+
     def __init__(self, **kw):
+        if 'defaults' in kw:
+            self.defaults = kw['defaults']
+
         for key, value in kw.iteritems():
             setattr(self, key, value)
 
@@ -103,4 +45,83 @@ class Config(object):
         for arg in args:
             if not hasattr(self, arg):
                 raise ConfigurationError('Configuration %s was not found and does not have a default value. Please verify your thumbor.conf file' % arg)
+
+    def __getattr__(self, name):
+        if name in self.__dict__:
+            return self.__dict__[name]
+
+        if 'defaults' in self.__dict__ and name in self.__dict__['defaults']:
+            return self.__dict__['defaults'][name]
+
+        if name in Config.class_defaults:
+            return Config.class_defaults[name]
+
+        raise AttributeError(name)
+
+Config.define('MAX_WIDTH', 0)
+Config.define('MAX_HEIGHT', 0)
+Config.define('ALLOWED_SOURCES', [])
+Config.define('QUALITY', 80)
+
+Config.define('LOADER',  'thumbor.loaders.http_loader')
+Config.define('STORAGE', 'thumbor.storages.file_storage')
+Config.define('ENGINE', 'thumbor.engines.pil')
+
+Config.define('ALLOW_UNSAFE_URL', True)
+
+# FILE LOADER OPTIONS
+Config.define('FILE_LOADER_ROOT_PATH', '/tmp')
+
+# HTTP LOADER OPTIONS
+Config.define('MAX_SOURCE_SIZE', 0)
+Config.define('REQUEST_TIMEOUT_SECONDS', 120)
+
+# FILE STORAGE GENERIC OPTIONS
+Config.define('STORAGE_EXPIRATION_SECONDS', 60 * 60 * 24 * 30) # default one month
+Config.define('STORES_CRYPTO_KEY_FOR_EACH_IMAGE', False)
+
+# FILE STORAGE OPTIONS
+Config.define('FILE_STORAGE_ROOT_PATH', join(tempfile.gettempdir(), 'thumbor', 'storage'))
+
+# MONGO STORAGE OPTIONS
+Config.define('MONGO_STORAGE_SERVER_HOST', 'localhost')
+Config.define('MONGO_STORAGE_SERVER_PORT', 27017)
+Config.define('MONGO_STORAGE_SERVER_DB', 'thumbor')
+Config.define('MONGO_STORAGE_SERVER_COLLECTION', 'images')
+
+# REDIS STORAGE OPTIONS
+Config.define('REDIS_STORAGE_SERVER_HOST', 'localhost')
+Config.define('REDIS_STORAGE_SERVER_PORT', 6379)
+Config.define('REDIS_STORAGE_SERVER_DB', 0)
+
+# MYSQL STORAGE OPTIONS
+Config.define('MYSQL_STORAGE_SERVER_HOST', 'localhost')
+Config.define('MYSQL_STORAGE_SERVER_PORT', 3306)
+Config.define('MYSQL_STORAGE_SERVER_USER', 'root')
+Config.define('MYSQL_STORAGE_SERVER_PASSWORD', '')
+Config.define('MYSQL_STORAGE_SERVER_DB', 'thumbor')
+Config.define('MYSQL_STORAGE_SERVER_TABLE', 'images')
+
+# MIXED STORAGE OPTIONS
+Config.define('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage')
+Config.define('MIXED_STORAGE_CRYPTO_STORAGE', 'thumbor.storages.no_storage')
+Config.define('MIXED_STORAGE_DETECTOR_STORAGE', 'thumbor.storages.no_storage')
+
+# JSON META ENGINE OPTIONS
+Config.define('META_CALLBACK_NAME', None)
+
+# DETECTORS OPTIONS
+Config.define('DETECTORS', ['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'])
+
+# FACE DETECTOR CASCADE FILE
+Config.define('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml')
+
+# REMOTE FACE DETECTION
+Config.define('REMOTECV_HOST', "localhost")
+Config.define('REMOTECV_PORT', 13337)
+Config.define('REMOTECV_TIMEOUT', 20)
+Config.define('REMOTECV_SEND_IMAGE', True)
+
+# AVAILABLE FILTERS
+Config.define('FILTERS', [])
 

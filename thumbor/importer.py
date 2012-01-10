@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from thumbor import filters
+
 class Importer:
     def __init__(self, config):
         self.config = config
@@ -30,20 +32,23 @@ class Importer:
         self.import_item('ENGINE', 'Engine')
         self.import_item('LOADER')
         self.import_item('STORAGE', 'Storage')
-        self.import_item('DETECTORS', 'Detector')
-        self.import_item('FILTERS', 'Filter')
+        self.import_item('DETECTORS', 'Detector', is_multiple=True)
+        self.import_item('FILTERS', 'Filter', is_multiple=True)
 
-    def import_item(self, config_key, class_name=None):
+        filters.compile_filters(self.filters)
+
+    def import_item(self, config_key, class_name=None, is_multiple=False):
         conf_value = getattr(self.config, config_key)
 
-        if isinstance(conf_value, (tuple, list)):
+        if is_multiple:
             modules = []
-            for module_name in conf_value:
-                if class_name is not None:
-                    module = self.import_class('%s.%s' % (module_name, class_name))
-                else:
-                    module = self.import_class(module_name)
-                modules.append(module)
+            if conf_value:
+                for module_name in conf_value:
+                    if class_name is not None:
+                        module = self.import_class('%s.%s' % (module_name, class_name))
+                    else:
+                        module = self.import_class(module_name)
+                    modules.append(module)
             setattr(self, config_key.lower(), tuple(modules))
         else:
             if class_name is not None:

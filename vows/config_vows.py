@@ -12,191 +12,250 @@ import re
 
 from pyvows import Vows, expect
 
-from thumbor.config import conf
+from thumbor.config import Config
 
-class ConfigContext(Vows.Context):
-    def _camel_split(self, string):
-        return re.sub('((?=[A-Z][a-z])|(?<=[a-z])(?=[A-Z])|(?=[0-9]\b))', ' ', string).strip()
+TEST_DATA = (
+    ('MAX_WIDTH', 0),
+    ('MAX_HEIGHT', 0),
+    ('ALLOWED_SOURCES', []),
+    ('QUALITY', 80),
+    ('LOADER',  'thumbor.loaders.http_loader'),
+    ('STORAGE', 'thumbor.storages.file_storage'),
+    ('ENGINE', 'thumbor.engines.pil'),
+    ('ALLOW_UNSAFE_URL', True),
+    ('FILE_LOADER_ROOT_PATH', '/tmp'),
+    ('MAX_SOURCE_SIZE', 0),
+    ('REQUEST_TIMEOUT_SECONDS', 120),
+    ('STORAGE_EXPIRATION_SECONDS', 60 * 60 * 24 * 30),
+    ('STORES_CRYPTO_KEY_FOR_EACH_IMAGE', False),
+    ('MONGO_STORAGE_SERVER_HOST', 'localhost'),
+    ('MONGO_STORAGE_SERVER_PORT', 27017),
+    ('MONGO_STORAGE_SERVER_DB', 'thumbor'),
+    ('MONGO_STORAGE_SERVER_COLLECTION', 'images'),
+    ('REDIS_STORAGE_SERVER_HOST', 'localhost'),
+    ('REDIS_STORAGE_SERVER_PORT', 6379),
+    ('REDIS_STORAGE_SERVER_DB', 0),
+    ('MYSQL_STORAGE_SERVER_HOST', 'localhost'),
+    ('MYSQL_STORAGE_SERVER_PORT', 3306),
+    ('MYSQL_STORAGE_SERVER_USER', 'root'),
+    ('MYSQL_STORAGE_SERVER_PASSWORD', ''),
+    ('MYSQL_STORAGE_SERVER_DB', 'thumbor'),
+    ('MYSQL_STORAGE_SERVER_TABLE', 'images'),
+    ('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage'),
+    ('MIXED_STORAGE_CRYPTO_STORAGE', 'thumbor.storages.no_storage'),
+    ('MIXED_STORAGE_DETECTOR_STORAGE', 'thumbor.storages.no_storage'),
+    ('DETECTORS', ['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector']),
+    ('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml'),
+    ('REMOTECV_HOST', "localhost"),
+    ('REMOTECV_PORT', 13337),
+    ('REMOTECV_TIMEOUT', 20),
+    ('REMOTECV_SEND_IMAGE', True),
+    ('FILTERS', [])
+)
 
-    def _config_name(self):
-        return '_'.join(self._camel_split(self.__class__.__name__).split(' ')).upper()
-
-    def topic(self):
-        config = self._config_name()
-        return getattr(conf, config)
-
-    def is_not_an_error(self, topic):
-        expect(topic).not_to_be_an_error()
-
-class NumericConfigContext(ConfigContext):
-
-    def is_numeric(self, topic):
-        expect(topic).to_be_numeric()
 
 @Vows.batch
 class Configuration(Vows.Context):
 
-    class Defaults(Vows.Context):
+    class DefaultThumborConf(Vows.Context):
+        def topic(self):
+            for data in TEST_DATA:
+                yield data
 
-        #class SecurityKey(ConfigContext):
+        class VerifyDefaultValueContext(Vows.Context):
+            def topic(self, data):
+                key, default_value = data
+                cfg = Config()
+                return (getattr(cfg, key), default_value)
 
-            #def defaults_to_null(self, topic):
+            def should_have_default_value(self, topic):
+                actual, expected = topic
+                expect(actual).not_to_be_null()
+                expect(actual).to_equal(expected)
 
-                #expect(topic).to_be_null()
+#class ConfigContext(Vows.Context):
+    #def _camel_split(self, string):
+        #return re.sub('((?=[A-Z][a-z])|(?<=[a-z])(?=[A-Z])|(?=[0-9]\b))', ' ', string).strip()
 
-        class AllowUnsafeUrl(ConfigContext):
+    #def _config_name(self):
+        #return '_'.join(self._camel_split(self.__class__.__name__).split(' ')).upper()
 
-            def defaults_to_true(self, topic):
-                expect(topic).to_be_true()
+    #def topic(self):
+        #config = self._config_name()
+        #return getattr(conf, config)
 
-        class MaxWidth(NumericConfigContext):
+    #def is_not_an_error(self, topic):
+        #expect(topic).not_to_be_an_error()
 
-            def defaults_to_0(self, topic):
-                expect(topic).to_equal(0)
+#class NumericConfigContext(ConfigContext):
 
-        class MaxHeight(NumericConfigContext):
+    #def is_numeric(self, topic):
+        #expect(topic).to_be_numeric()
 
-            def defaults_to_0(self, topic):
-                expect(topic).to_equal(0)
+#@Vows.batch
+#class Configuration(Vows.Context):
 
-        #class AllowedSources(ConfigContext):
+    #class Defaults(Vows.Context):
 
-            #def defaults_to_empty(self, topic):
-                #expect(topic).to_be_empty()
+        ##class SecurityKey(ConfigContext):
 
-        class Quality(NumericConfigContext):
+            ##def defaults_to_null(self, topic):
 
-            def defaults_to_85(self, topic):
-                expect(topic).to_equal(85)
+                ##expect(topic).to_be_null()
 
-        #class Loader(ConfigContext):
+        #class AllowUnsafeUrl(ConfigContext):
 
-            #def defaults_to_http_loader(self, topic):
-                #expect(topic).to_equal('thumbor.loaders.http_loader')
+            #def defaults_to_true(self, topic):
+                #expect(topic).to_be_true()
 
-        class MaxSourceSize(NumericConfigContext):
+        #class MaxWidth(NumericConfigContext):
 
-            def defaults_to_0(self, topic):
-                expect(topic).to_equal(0)
+            #def defaults_to_0(self, topic):
+                #expect(topic).to_equal(0)
 
-        class RequestTimeoutSeconds(NumericConfigContext):
+        #class MaxHeight(NumericConfigContext):
 
-            def defaults_to_120(self, topic):
-                expect(topic).to_equal(120)
+            #def defaults_to_0(self, topic):
+                #expect(topic).to_equal(0)
 
-        class Engine(ConfigContext):
+        ##class AllowedSources(ConfigContext):
 
-            def defaults_to_pil(self, topic):
-                expect(topic).to_equal('thumbor.engines.pil')
+            ##def defaults_to_empty(self, topic):
+                ##expect(topic).to_be_empty()
 
-        class Storage(ConfigContext):
+        #class Quality(NumericConfigContext):
 
-            def defaults_to_file_storage(self, topic):
-                expect(topic).to_equal('thumbor.storages.file_storage')
+            #def defaults_to_85(self, topic):
+                #expect(topic).to_equal(85)
 
-            class StorageExpirationSeconds(NumericConfigContext):
+        ##class Loader(ConfigContext):
 
-                def defaults_to_one_month(self, topic):
-                    expect(topic).to_equal(60 * 60 * 24 * 30)
+            ##def defaults_to_http_loader(self, topic):
+                ##expect(topic).to_equal('thumbor.loaders.http_loader')
 
-            class MongoStorage(Vows.Context):
+        #class MaxSourceSize(NumericConfigContext):
 
-                class MongoStorageServerHost(ConfigContext):
+            #def defaults_to_0(self, topic):
+                #expect(topic).to_equal(0)
 
-                    def defaults_to_localhost(self, topic):
-                        expect(topic).to_equal('localhost')
+        #class RequestTimeoutSeconds(NumericConfigContext):
 
-                class MongoStorageServerPort(NumericConfigContext):
+            #def defaults_to_120(self, topic):
+                #expect(topic).to_equal(120)
 
-                    def defaults_to_27017(self, topic):
-                        expect(topic).to_equal(27017)
+        #class Engine(ConfigContext):
 
-                class MongoStorageServerDb(ConfigContext):
+            #def defaults_to_pil(self, topic):
+                #expect(topic).to_equal('thumbor.engines.pil')
 
-                    def defaults_to_thumbor(self, topic):
-                        expect(topic).to_equal('thumbor')
+        #class Storage(ConfigContext):
 
-                class MongoStorageServerCollection(ConfigContext):
+            #def defaults_to_file_storage(self, topic):
+                #expect(topic).to_equal('thumbor.storages.file_storage')
 
-                    def defaults_to_images(self, topic):
-                        expect(topic).to_equal('images')
+            #class StorageExpirationSeconds(NumericConfigContext):
 
-            class RedisStorage(Vows.Context):
+                #def defaults_to_one_month(self, topic):
+                    #expect(topic).to_equal(60 * 60 * 24 * 30)
 
-                class RedisStorageServerHost(ConfigContext):
+            #class MongoStorage(Vows.Context):
 
-                    def defaults_to_localhost(self, topic):
-                        expect(topic).to_equal('localhost')
+                #class MongoStorageServerHost(ConfigContext):
 
-                class RedisStorageServerPort(NumericConfigContext):
+                    #def defaults_to_localhost(self, topic):
+                        #expect(topic).to_equal('localhost')
 
-                    def defaults_to_6379(self, topic):
-                        expect(topic).to_equal(6379)
+                #class MongoStorageServerPort(NumericConfigContext):
 
-                class RedisStorageServerDb(NumericConfigContext):
+                    #def defaults_to_27017(self, topic):
+                        #expect(topic).to_equal(27017)
 
-                    def defaults_to_0(self, topic):
-                        expect(topic).to_equal(0)
+                #class MongoStorageServerDb(ConfigContext):
 
-            class MySqlStorage(Vows.Context):
+                    #def defaults_to_thumbor(self, topic):
+                        #expect(topic).to_equal('thumbor')
 
-                class MysqlStorageServerHost(ConfigContext):
+                #class MongoStorageServerCollection(ConfigContext):
 
-                    def defaults_to_localhost(self, topic):
-                        expect(topic).to_equal('localhost')
+                    #def defaults_to_images(self, topic):
+                        #expect(topic).to_equal('images')
 
-                class MysqlStorageServerPort(NumericConfigContext):
+            #class RedisStorage(Vows.Context):
 
-                    def defaults_to_3306(self, topic):
-                        expect(topic).to_equal(3306)
+                #class RedisStorageServerHost(ConfigContext):
 
-                class MysqlStorageServerUser(ConfigContext):
+                    #def defaults_to_localhost(self, topic):
+                        #expect(topic).to_equal('localhost')
 
-                    def defaults_to_root(self, topic):
-                        expect(topic).to_equal('root')
+                #class RedisStorageServerPort(NumericConfigContext):
 
-                class MysqlStorageServerPassword(ConfigContext):
+                    #def defaults_to_6379(self, topic):
+                        #expect(topic).to_equal(6379)
 
-                    def defaults_to_empty(self, topic):
-                        expect(topic).to_be_empty()
+                #class RedisStorageServerDb(NumericConfigContext):
 
-                class MysqlStorageServerDb(ConfigContext):
+                    #def defaults_to_0(self, topic):
+                        #expect(topic).to_equal(0)
 
-                    def defaults_to_thumbor(self, topic):
-                        expect(topic).to_equal('thumbor')
+            #class MySqlStorage(Vows.Context):
 
-                class MysqlStorageServerTable(ConfigContext):
+                #class MysqlStorageServerHost(ConfigContext):
 
-                    def defaults_to_images(self, topic):
-                        expect(topic).to_equal('images')
+                    #def defaults_to_localhost(self, topic):
+                        #expect(topic).to_equal('localhost')
 
-        class Engines(Vows.Context):
+                #class MysqlStorageServerPort(NumericConfigContext):
 
-            class ImageMagick(Vows.Context):
+                    #def defaults_to_3306(self, topic):
+                        #expect(topic).to_equal(3306)
 
-                class MagickwandPath(ConfigContext):
+                #class MysqlStorageServerUser(ConfigContext):
 
-                    def defaults_to_empty(self, topic):
-                        expect(topic).to_be_empty()
+                    #def defaults_to_root(self, topic):
+                        #expect(topic).to_equal('root')
 
-            class Json(Vows.Context):
+                #class MysqlStorageServerPassword(ConfigContext):
 
-                class MetaCallbackName(ConfigContext):
+                    #def defaults_to_empty(self, topic):
+                        #expect(topic).to_be_empty()
 
-                    def defaults_to_null(self, topic):
-                        expect(topic).to_be_null()
+                #class MysqlStorageServerDb(ConfigContext):
 
-        class Detectors(ConfigContext):
+                    #def defaults_to_thumbor(self, topic):
+                        #expect(topic).to_equal('thumbor')
 
-            def default_includes_face_detector(self, topic):
-                expect(topic).to_include('thumbor.detectors.face_detector')
+                #class MysqlStorageServerTable(ConfigContext):
 
-            def default_includes_feature_detector(self, topic):
-                expect(topic).to_include('thumbor.detectors.feature_detector')
+                    #def defaults_to_images(self, topic):
+                        #expect(topic).to_equal('images')
 
-            class FaceDetector(Vows.Context):
-                class FaceDetectorCascadeFile(ConfigContext):
+        #class Engines(Vows.Context):
 
-                    def defaults_to_haarcascade_frontalface_alt(self, topic):
-                        expect(topic).to_equal('haarcascade_frontalface_alt.xml')
+            #class ImageMagick(Vows.Context):
+
+                #class MagickwandPath(ConfigContext):
+
+                    #def defaults_to_empty(self, topic):
+                        #expect(topic).to_be_empty()
+
+            #class Json(Vows.Context):
+
+                #class MetaCallbackName(ConfigContext):
+
+                    #def defaults_to_null(self, topic):
+                        #expect(topic).to_be_null()
+
+        #class Detectors(ConfigContext):
+
+            #def default_includes_face_detector(self, topic):
+                #expect(topic).to_include('thumbor.detectors.face_detector')
+
+            #def default_includes_feature_detector(self, topic):
+                #expect(topic).to_include('thumbor.detectors.feature_detector')
+
+            #class FaceDetector(Vows.Context):
+                #class FaceDetectorCascadeFile(ConfigContext):
+
+                    #def defaults_to_haarcascade_frontalface_alt(self, topic):
+                        #expect(topic).to_equal('haarcascade_frontalface_alt.xml')
 
