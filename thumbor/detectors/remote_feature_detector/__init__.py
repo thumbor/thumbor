@@ -15,5 +15,5 @@ class Detector(RemoteDetector):
     detection_type = 'feat'
 
     def format_point(self, point):
-        x, y = point
+        x, y = point[:2]
         return FocalPoint(x, y, 1, origin='Feature Detection').to_dict()
