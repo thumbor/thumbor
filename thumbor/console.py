@@ -26,7 +26,7 @@ def get_server_parameters(arguments=None):
     parser.add_option("-l", "--log-level", dest="log_level", default="warning", help = "The log level to be used. Possible values are: debug, info, warning, error, critical or notset. [default: %default]." )
     parser.add_option("-a", "--app", dest="app", default=None, help = "A custom app to use for this thumbor server in case you subclassed ThumborServiceApp [default: %default]." )
 
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args(arguments)
 
     port = options.port
     ip = options.ip

@@ -26,3 +26,6 @@ class ConsoleVows(Vows.Context):
 
         def should_be_console(self, topic):
             expect(topic).to_be_instance_of(ServerParameters)
+
+        def should_have_specific_port(self, topic):
+            expect(topic.port).to_equal(2000)
