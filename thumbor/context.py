@@ -24,7 +24,10 @@ class Context:
     def __init__(self, server=None, config=None, importer=None):
         self.server = server
         self.config = config
-        self.modules = ContextImporter(self, importer)
+        if importer:
+            self.modules = ContextImporter(self, importer)
+        else:
+            self.modules = None
 
 
 class ServerParameters:
@@ -65,7 +68,12 @@ class RequestParameters:
                  filters,
                  smart,
                  quality,
-                 image_url):
+                 image_url,
+                 extension=None,
+                 buffer=None,
+                 should_crop=False,
+                 focal_points=[],
+                 image_hash=None):
         self.debug = debug
         self.meta = meta
         self.crop = crop
@@ -82,14 +90,26 @@ class RequestParameters:
         self.focal_points = []
         self.detection_error = None
         self.quality = quality
+        self.buffer = None
+        self.extension = extension
+        self.should_crop = should_crop
+        self.focal_points = focal_points
+        self.image_hash = image_hash
 
 class ContextImporter:
     def __init__(self, context, importer):
         self.context = context
         self.importer = importer
-        self.engine = importer.engine(context)
+
+        self.engine = None
+        if importer.engine:
+            self.engine = importer.engine(context)
+
+        self.storage = None
+        if importer.storage:
+            self.storage = importer.storage(context)
+
         self.loader = importer.loader
-        self.storage = importer.storage(context)
         self.detectors = importer.detectors
         self.filters = importer.filters
 

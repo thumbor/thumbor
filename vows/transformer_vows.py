@@ -17,7 +17,7 @@ from thumbor.transformer import Transformer
 class EngineContext(Vows.Context):
     def _prepare_engine(self, topic, callback):
         context = topic[0].to_context()
-        self.engine = context['engine']
+        self.engine = context.modules.engine
         self.test_data = topic
 
         trans = Transformer(context)
@@ -46,7 +46,7 @@ class TransformerVows(Vows.Context):
             )
 
             ctx = data.to_context()
-            self.engine = ctx['engine']
+            self.engine = ctx.modules.engine
 
             trans = Transformer(ctx)
             trans.transform(callback)
@@ -66,7 +66,7 @@ class TransformerVows(Vows.Context):
                     )
 
             ctx = data.to_context()
-            self.engine = ctx['engine']
+            self.engine = ctx.modules.engine
 
             trans = Transformer(ctx)
             trans.transform(callback)

@@ -15,6 +15,9 @@ from tornado_pyvows.context import TornadoHTTPContext
 
 from thumbor.crypto import Crypto
 from thumbor.app import ThumborServiceApp
+from thumbor.importer import Importer
+from thumbor.config import Config
+from thumbor.context import Context
 
 get_encrypted_url = lambda url, width, height, security_key='HandlerVows': '/%s/%s' % (Crypto(security_key).encrypt(width, height, False, False, False, False, 'center', 'middle', None, None, None, None, '', url), url)
 
@@ -25,7 +28,11 @@ image_url = 'alabama1_ap620.jpg'
 @Vows.batch
 class CryptoHandlerVows(TornadoHTTPContext):
     def get_app(self):
-        application = ThumborServiceApp(fixture_for('encrypted_handler_conf.py'))
+        cfg = Config.load(fixture_for('encrypted_handler_conf.py'))
+        importer = Importer(cfg)
+        importer.import_modules()
+        ctx = Context(None, cfg, importer)
+        application = ThumborServiceApp(ctx)
         return application
 
     class CryptoUrl(TornadoHTTPContext):

@@ -13,7 +13,11 @@ from thumbor import filters
 class Importer:
     def __init__(self, config):
         self.config = config
-        self.config.validates_presence_of('ENGINE', 'LOADER', 'STORAGE', 'DETECTORS', 'FILTERS')
+        self.engine = None
+        self.loader = None
+        self.storage = None
+        self.detectors = []
+        self.filters = []
 
     def import_class(self, name, get_module=False):
         if not '.' in name:
@@ -29,6 +33,7 @@ class Importer:
         return get_module and module or getattr(module, klass)
 
     def import_modules(self):
+        self.config.validates_presence_of('ENGINE', 'LOADER', 'STORAGE', 'DETECTORS', 'FILTERS')
         self.import_item('ENGINE', 'Engine')
         self.import_item('LOADER')
         self.import_item('STORAGE', 'Storage')
@@ -37,8 +42,11 @@ class Importer:
 
         filters.compile_filters(self.filters)
 
-    def import_item(self, config_key, class_name=None, is_multiple=False):
-        conf_value = getattr(self.config, config_key)
+    def import_item(self, config_key=None, class_name=None, is_multiple=False, item_value=None):
+        if item_value is None:
+            conf_value = getattr(self.config, config_key)
+        else:
+            conf_value = item_value
 
         if is_multiple:
             modules = []

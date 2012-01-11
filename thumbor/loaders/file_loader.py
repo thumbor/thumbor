@@ -10,10 +10,8 @@
 
 from os.path import join, exists
 
-from thumbor.config import conf
-
-def load(path, callback):
-    file_path = join(conf.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+def load(context, path, callback):
+    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
 
     if not exists(file_path):
         callback(None)

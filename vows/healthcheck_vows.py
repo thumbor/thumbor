@@ -12,11 +12,15 @@ from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
 
 from thumbor.app import ThumborServiceApp
+from thumbor.config import Config
+from thumbor.context import Context
 
 @Vows.batch
 class HealthCheck(TornadoHTTPContext):
     def get_app(self):
-        application = ThumborServiceApp()
+        cfg = Config()
+        ctx = Context(None, cfg, None)
+        application = ThumborServiceApp(ctx)
         return application
 
     class WhenRunning(TornadoHTTPContext):

@@ -9,6 +9,8 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.point import FocalPoint as fp
+from thumbor.context import Context, RequestParameters
+from thumbor.importer import Importer
 
 class MockEngine(object):
     def __init__(self, size):
@@ -100,31 +102,37 @@ class TestData(object):
         self.target_width = abs(self.target_width)
         self.target_height = abs(self.target_height)
 
-        context = dict(
-            loader=None,
-            engine=self.engine,
-            storage=None,
+        importer = Importer(None)
+        ctx = Context(server=None, config=None, importer=importer)
+        ctx.modules.engine = self.engine
+
+        ctx.request = RequestParameters(
             buffer=None,
             debug=False,
-            detectors=[],
+            meta=False,
             should_crop=should_crop,
-            crop_left=self.crop_left,
-            crop_top=self.crop_top,
-            crop_right=self.crop_right,
-            crop_bottom=self.crop_bottom,
+            crop = {
+                'left': self.crop_left,
+                'top': self.crop_top,
+                'right': self.crop_right,
+                'bottom': self.crop_bottom
+            },
             fit_in=self.fit_in,
-            should_flip_horizontal=flip_horizontally,
+            horizontal_flip=flip_horizontally,
+            vertical_flip=flip_vertically,
             width=self.target_width,
-            should_flip_vertical=flip_vertically,
             height=self.target_height,
             halign=self.halign,
             valign=self.valign,
             focal_points=self.focal_points,
-            should_be_smart=True,
-            extension="JPEG"
+            smart=True,
+            extension="JPEG",
+            filters=[],
+            quality=80,
+            image_url="some.jpeg"
         )
 
-        return context
+        return ctx
 
     @property
     def resize_error_message(self):

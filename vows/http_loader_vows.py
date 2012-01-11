@@ -75,7 +75,7 @@ class HttpLoader(TornadoHTTPContext):
             def topic(self, callback):
                 url = self.get_url('/')
                 loader.http_client = self._http_client
-                loader.load(url, callback)
+                loader.load(None, url, callback)
 
             def should_equal_hello(self, topic):
                 expect(topic).to_equal('Hello')
