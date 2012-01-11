@@ -8,9 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import tempfile
-
-from tornado.options import options
 import cv
 
 from thumbor.engines import BaseEngine
@@ -63,7 +60,8 @@ class Engine(BaseEngine):
     def flip_horizontally(self):
         raise NotImplementedError()
 
-    def read(self, extension=None, quality=options.QUALITY):
+    def read(self, extension=None, quality=None):
+        if quality is None: quality = self.context.request.QUALITY
         options = None
         extension = extension or self.extension
         if FORMATS[extension] == 'JPEG':

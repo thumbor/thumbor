@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from tornado.options import options
 from pgmagick import Image, Geometry, Blob, FilterTypes
 from pgmagick.api import Draw
 from pgmagick._pgmagick import get_blob_data
@@ -53,7 +52,9 @@ class Engine(BaseEngine):
     def flip_horizontally(self):
         self.image.flop()
 
-    def read(self, extension=None, quality=options.QUALITY):
+    def read(self, extension=None, quality=None):
+        if quality is None: quality = self.context.request.QUALITY
+
         #returns image buffer in byte format.
         img_buffer = Blob()
 
