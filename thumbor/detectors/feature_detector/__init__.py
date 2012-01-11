@@ -16,8 +16,8 @@ from thumbor.point import FocalPoint
 
 class Detector(BaseDetector):
 
-    def detect(self, context, callback):
-        engine = context['engine']
+    def detect(self, callback):
+        engine = self.context.modules.engine
         sz = engine.size
         image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image, engine.get_image_data())
@@ -35,7 +35,7 @@ class Detector(BaseDetector):
 
         if points:
             for x, y in points:
-                context['focal_points'].append(FocalPoint(x, y, 1))
+                self.context.request.focal_points.append(FocalPoint(x, y, 1))
             callback()
         else:
-            self.next(context, callback)
+            self.next(callback)

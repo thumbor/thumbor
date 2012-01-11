@@ -15,36 +15,36 @@ from thumbor.point import FocalPoint
 class Transformer(object):
     def __init__(self, context):
         self.context = context
-        self.engine = self.context['engine']
+        self.engine = self.context.modules.engine
 
     def calculate_target_dimensions(self):
         source_width, source_height = self.engine.size
         source_width = float(source_width)
         source_height = float(source_height)
 
-        if not self.context['width'] and not self.context['height']:
+        if not self.context.request.width and not self.context.request.height:
             self.target_width = source_width
             self.target_height = source_height
         else:
-            if self.context['width']:
-                self.target_width = float(self.context['width'])
+            if self.context.request.width:
+                self.target_width = float(self.context.request.width)
             else:
-                self.target_width = self.engine.get_proportional_width(self.context['height'])
+                self.target_width = self.engine.get_proportional_width(self.context.request.height)
 
-            if self.context['height']:
-                self.target_height = float(self.context['height'])
+            if self.context.request.height:
+                self.target_height = float(self.context.request.height)
             else:
-                self.target_height = self.engine.get_proportional_height(self.context['width'])
+                self.target_height = self.engine.get_proportional_height(self.context.request.width)
 
     def calculate_focal_points(self):
         source_width, source_height = self.engine.size
 
-        if self.context['focal_points']:
-            self.focal_points = self.context['focal_points']
+        if self.context.request.focal_points:
+            self.focal_points = self.context.request.focal_points
         else:
             self.focal_points = [
-                FocalPoint.from_alignment(self.context['halign'],
-                                          self.context['valign'],
+                FocalPoint.from_alignment(self.context.request.halign,
+                                          self.context.request.valign,
                                           source_width,
                                           source_height)
             ]
@@ -59,45 +59,44 @@ class Transformer(object):
 
     @property
     def smart_storage_key(self):
-        engine = self.context['engine']
-        key = '%s_%d_%d' % (self.context['image_url'], engine.size[0], engine.size[1])
-        if self.context['crop_left']:
-            key += '_%d_%d_%d_%d' % (self.context['crop_left'],
-                                      self.context['crop_top'],
-                                      self.context['crop_right'],
-                                      self.context['crop_bottom'])
+        key = '%s_%d_%d' % (self.context.request.image_url, self.engine.size[0], self.engine.size[1])
+        if self.context.request.crop['left']:
+            key += '_%d_%d_%d_%d' % (self.context.request.crop['left'],
+                                     self.context.request.crop['top'],
+                                     self.context.request.crop['right'],
+                                     self.context.request.crop['bottom'])
         return key
 
     def smart_detect(self):
-        if self.context['detectors'] and self.context['smart']:
-            storage = self.context['storage']
+        if self.context.modules.detectors and self.context.request.smart:
+            storage = self.context.modules.storage
             focal_points = storage.get_detector_data(self.smart_storage_key)
             if focal_points:
                 self.after_smart_detect(focal_points)
             else:
-                detectors = self.context['detectors']
-                detectors[0](index=0, detectors=detectors).detect(self.context, self.after_smart_detect)
+                detectors = self.context.modules.detectors
+                detectors[0](self.context, index=0, detectors=detectors).detect(self.after_smart_detect)
         else:
             self.after_smart_detect([])
 
-    def after_smart_detect(self, focal_points):
+    def after_smart_detect(self, focal_points=[]):
         for point in focal_points:
-            self.context['focal_points'].append(FocalPoint.from_dict(point))
+            self.context.request.focal_points.append(FocalPoint.from_dict(point))
 
-        if focal_points and self.context['storage']:
-            storage = self.context['storage']
+        if self.context.request.focal_points and self.context.modules.storage:
+            storage = self.context.modules.storage
             points = []
-            for point in self.context['focal_points']:
+            for point in self.context.request.focal_points:
                 points.append(point.to_dict())
 
             storage.put_detector_data(self.smart_storage_key, points)
 
         self.calculate_focal_points()
 
-        if self.context['debug']:
+        if self.context.request.debug:
             self.debug()
         else:
-            if self.context['fit_in']:
+            if self.context.request.fit_in:
                 self.fit_in_resize()
             else:
                 self.auto_crop()
@@ -107,15 +106,15 @@ class Transformer(object):
         self.done_callback()
 
     def manual_crop(self):
-        if self.context['should_crop']:
+        if self.context.request.should_crop:
             limit = lambda dimension, maximum: min(max(dimension, 0), maximum)
 
             source_width, source_height = self.engine.size
 
-            crop_left = limit(self.context['crop_left'], source_width)
-            crop_top = limit(self.context['crop_top'], source_height)
-            crop_right = limit(self.context['crop_right'], source_width)
-            crop_bottom = limit(self.context['crop_bottom'], source_height)
+            crop_left = limit(self.context.request.crop['left'], source_width)
+            crop_top = limit(self.context.request.crop['top'], source_height)
+            crop_right = limit(self.context.request.crop['right'], source_width)
+            crop_bottom = limit(self.context.request.crop['bottom'], source_height)
 
             if crop_left >= crop_right or crop_top >= crop_bottom:
                 return
@@ -157,9 +156,9 @@ class Transformer(object):
         self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
 
     def flip(self):
-        if self.context['should_flip_horizontal']:
+        if self.context.request.horizontal_flip:
             self.engine.flip_horizontally()
-        if self.context['should_flip_vertical']:
+        if self.context.request.vertical_flip:
             self.engine.flip_vertically()
 
     def get_center_of_mass(self):
@@ -196,10 +195,10 @@ class Transformer(object):
         self.engine.resize(resize_width, resize_height)
 
     def debug(self):
-        if not self.context['focal_points']:
+        if not self.context.request.focal_points:
             return
 
-        for point in self.context['focal_points']:
+        for point in self.context.request.focal_points:
             if point.width <= 1:
                 point.width = 10
             if point.height <= 1:

@@ -16,7 +16,6 @@ from os.path import splitext
 from os.path import exists, dirname, join, getmtime
 
 from thumbor.storages import BaseStorage
-from thumbor.config import conf
 
 class Storage(BaseStorage):
 
@@ -34,7 +33,7 @@ class Storage(BaseStorage):
             _file.write(bytes)
 
     def put_crypto(self, path):
-        if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+        if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return
 
         file_abspath = self.__normalize_path(path)
@@ -42,12 +41,12 @@ class Storage(BaseStorage):
 
         self.__ensure_dir(file_dir_abspath)
 
-        if not conf.SECURITY_KEY:
+        if not self.context.config.SECURITY_KEY:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
         crypto_path = '%s.txt' % splitext(file_abspath)[0]
         with open(crypto_path, 'w') as _file:
-            _file.write(conf.SECURITY_KEY)
+            _file.write(self.context.config.SECURITY_KEY)
 
     def put_detector_data(self, path, data):
         file_abspath = self.__normalize_path(path)
@@ -84,8 +83,8 @@ class Storage(BaseStorage):
         if path.startswith('/'):
             path = path[1:]
 
-        return join(conf.FILE_STORAGE_ROOT_PATH, path)
+        return join(self.context.config.FILE_STORAGE_ROOT_PATH, path)
 
     def __is_expired(self, path):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
-        return timediff.seconds > conf.STORAGE_EXPIRATION_SECONDS
+        return timediff.seconds > self.context.config.STORAGE_EXPIRATION_SECONDS

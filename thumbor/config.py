@@ -8,17 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import join
+import os
+from os.path import join, exists, expanduser, dirname, abspath
+import imp
 import tempfile
-
-#from tornado.options import options, define
-
-#class ConfigWrapper(object):
-
-    #def __getattr__(self, name):
-        #return getattr(options, name)
-
-#conf = ConfigWrapper()
 
 class ConfigurationError(RuntimeError):
     pass
@@ -31,8 +24,36 @@ class Config(object):
         cls.class_defaults[key] = value
 
     @classmethod
+    def get_conf_file(cls, conf_file):
+        lookup_conf_file_paths = [
+            os.curdir,
+            expanduser('~'),
+            '/etc/',
+            dirname(__file__)
+        ]
+        for conf_path in lookup_conf_file_paths:
+            conf_path_file = abspath(join(conf_path, 'thumbor.conf'))
+            if exists(conf_path_file):
+                return conf_path_file
+
+        raise ConfigurationError('thumbor.conf file not passed and not found on the lookup paths %s' % lookup_conf_file_paths)
+
+    @classmethod
     def load(cls, path):
-        pass
+        if path is None:
+            path = cls.get_conf_file(path)
+
+        with open(path) as config_file:
+            name='configuration'
+            code = config_file.read()
+            module = imp.new_module(name)
+            exec code in module.__dict__
+
+            conf = cls()
+            for name, value in module.__dict__.iteritems():
+                setattr(conf, name, value)
+
+            return conf
 
     def __init__(self, **kw):
         if 'defaults' in kw:

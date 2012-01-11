@@ -9,32 +9,28 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import join, dirname, abspath, isabs
-import datetime
-
-from tornado import iostream, ioloop, web
-from tornado.options import options
 
 import cv
 
 from thumbor.point import FocalPoint
-from thumbor.utils import logger
 
 class BaseDetector(object):
 
-    def __init__(self, index, detectors):
+    def __init__(self, context, index, detectors):
+        self.context = context
         self.index = index
         self.detectors = detectors
 
-    def detect(self, context, callback):
+    def detect(self, callback):
         raise NotImplementedError()
 
-    def next(self, context, callback):
+    def next(self, callback):
         if self.index >= len(self.detectors) - 1:
             callback()
             return
 
-        next_detector = self.detectors[self.index + 1](self.index + 1, self.detectors)
-        next_detector.detect(context, callback)
+        next_detector = self.detectors[self.index + 1](self.context, self.index + 1, self.detectors)
+        next_detector.detect(callback)
 
 class CascadeLoaderDetector(BaseDetector):
 
@@ -51,8 +47,8 @@ class CascadeLoaderDetector(BaseDetector):
         ratio = max(20, ratio)
         return (ratio, ratio)
 
-    def get_features(self, context):
-        engine = context['engine']
+    def get_features(self):
+        engine = self.context.modules.engine
         sz = engine.size
         mode = engine.get_image_mode()
         image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
@@ -62,7 +58,6 @@ class CascadeLoaderDetector(BaseDetector):
         convert_mode = getattr(cv, 'CV_%s2GRAY' % mode)
         cv.CvtColor(image, gray, convert_mode)
 
-        # min_size = (20, 20)
         min_size = self.get_min_size_for(sz)
         haar_scale = 1.2
         min_neighbors = 1
@@ -73,16 +68,6 @@ class CascadeLoaderDetector(BaseDetector):
                                      self.__class__.cascade, cv.CreateMemStorage(0),
                                      haar_scale, min_neighbors,
                                      cv.CV_HAAR_DO_CANNY_PRUNING, min_size)
-
-        #faces = cv.HaarDetectObjects(
-            #image,
-            #self.__class__.cascade,
-            #cv.CreateMemStorage(0),
-            #scale_factor=1.1,
-            #min_neighbors=3,
-            #flags=cv.CV_HAAR_DO_CANNY_PRUNING,
-            #min_size=(40, 40)
-        #)
 
         faces_scaled = []
 
@@ -99,13 +84,13 @@ class CascadeLoaderDetector(BaseDetector):
 
         return faces_scaled
 
-    def detect(self, context, callback):
-        features = self.get_features(context)
+    def detect(self, callback):
+        features = self.get_features()
 
         if features:
             for (left, top, width, height), neighbors in features:
-                context['focal_points'].append(FocalPoint.from_square(left, top, width, height))
+                self.context.request.focal_points.append(FocalPoint.from_square(left, top, width, height))
             callback()
         else:
-            self.next(context, callback)
+            self.next(callback)
 

@@ -8,11 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from tornado.options import options
-
 class BaseEngine(object):
 
-    def __init__(self):
+    def __init__(self, context):
+        self.context = context
         self.image = None
         self.extension = None
         self.source_width = None
@@ -36,16 +35,16 @@ class BaseEngine(object):
         self.source_width = width
         self.source_height = height
 
-        if width > options.MAX_WIDTH or height > options.MAX_HEIGHT:
-            width_diff = width - options.MAX_WIDTH
-            height_diff = height - options.MAX_HEIGHT
-            if options.MAX_WIDTH and width_diff > height_diff:
-                height = self.get_proportional_height(options.MAX_WIDTH)
-                self.resize(options.MAX_WIDTH, height)
+        if width > self.context.config.MAX_WIDTH or height > self.context.config.MAX_HEIGHT:
+            width_diff = width - self.context.config.MAX_WIDTH
+            height_diff = height - self.context.config.MAX_HEIGHT
+            if self.context.config.MAX_WIDTH and width_diff > height_diff:
+                height = self.get_proportional_height(self.context.config.MAX_WIDTH)
+                self.resize(self.context.config.MAX_WIDTH, height)
                 return True
-            elif options.MAX_HEIGHT and height_diff > width_diff:
-                width = self.get_proportional_width(options.MAX_HEIGHT)
-                self.resize(width, options.MAX_HEIGHT)
+            elif self.context.config.MAX_HEIGHT and height_diff > width_diff:
+                width = self.get_proportional_width(self.context.config.MAX_HEIGHT)
+                self.resize(width, self.context.config.MAX_HEIGHT)
                 return True
 
         return False

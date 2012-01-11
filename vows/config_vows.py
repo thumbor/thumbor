@@ -8,8 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import re
-
 from pyvows import Vows, expect
 
 from thumbor.config import Config

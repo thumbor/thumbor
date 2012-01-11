@@ -11,6 +11,7 @@
 import tornado.web
 
 from thumbor.handlers import ContextHandler
+from thumbor.context import RequestParameters
 
 class MainHandler(ContextHandler):
 
@@ -57,8 +58,11 @@ class MainHandler(ContextHandler):
             'halign': halign or 'center',
             'valign': valign or 'middle',
             'smart': smart == 'smart',
-            'filters': filters or ''
+            'filters': filters or '',
+            'image_url': image
         }
 
-        return self.execute_image_operations(opt, image)
+        params = RequestParameters(**opt)
+        self.context.request = params
+        return self.execute_image_operations()
 

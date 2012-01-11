@@ -9,5 +9,5 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 class BaseStorage(object):
-    def __init__(self):
-        pass
+    def __init__(self, context):
+        self.context = context
