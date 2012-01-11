@@ -106,10 +106,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def after_transform(self, context):
         finish_callback = functools.partial(self.finish_request, context)
 
-        #if context.modules.filters and context.request.filters:
-            #self.apply_filters(filters_module.create_instances(context, self.filters, filters_params), finish_callback)
-        #else:
-        finish_callback()
+        if context.modules.filters and context.request.filters:
+            self.apply_filters(filters_module.create_instances(context, context.modules.filters, context.request.filters), finish_callback)
+        else:
+            finish_callback()
 
     def apply_filters(self, filters, callback):
         if not filters:
@@ -137,7 +137,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_header('Content-Type', content_type)
 
-        results = context.modules.engine.read(context.request.extension, context.config.QUALITY)
+        results = context.modules.engine.read(context.request.extension, context.request.quality)
 
         if context.request.detection_error is not None:
             self.set_status(404)

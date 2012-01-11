@@ -28,7 +28,7 @@ def create_instances(context, filter_classes, filter_params):
         filter_instance = firstValid(lambda f: f.init_if_valid(param), filter_classes)
         if filter_instance:
             filter_instance.context = context
-            filter_instance.engine = context['engine']
+            filter_instance.engine = context.modules.engine
             filter_objs.append(filter_instance)
     return filter_objs
 

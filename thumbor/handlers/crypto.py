@@ -45,6 +45,7 @@ class CryptoHandler(ContextHandler):
             return
 
         opt['image_url'] = image
+        opt['quality'] = self.context.config.QUALITY
 
         params = RequestParameters(**opt)
         self.context.request = params

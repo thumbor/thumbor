@@ -59,7 +59,8 @@ class MainHandler(ContextHandler):
             'valign': valign or 'middle',
             'smart': smart == 'smart',
             'filters': filters or '',
-            'image_url': image
+            'image_url': image,
+            'quality': self.context.config.QUALITY
         }
 
         params = RequestParameters(**opt)

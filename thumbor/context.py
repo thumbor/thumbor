@@ -64,6 +64,7 @@ class RequestParameters:
                  valign,
                  filters,
                  smart,
+                 quality,
                  image_url):
         self.debug = debug
         self.meta = meta
@@ -80,6 +81,7 @@ class RequestParameters:
         self.image_url = image_url
         self.focal_points = []
         self.detection_error = None
+        self.quality = quality
 
 class ContextImporter:
     def __init__(self, context, importer):

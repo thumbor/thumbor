@@ -14,4 +14,4 @@ class Filter(BaseFilter):
     regex = r'(?:quality\((?P<value>[\d]+)\))'
 
     def run_filter(self):
-        self.context['quality'] = int(self.params['value'])
+        self.context.request.quality = int(self.params['value'])
