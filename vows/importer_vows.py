@@ -60,11 +60,3 @@ class ImporterVows(Vows.Context):
                 expect(topic[0]).not_to_be_null()
                 expect(topic[0]).to_equal(topic[1])
 
-    class ValidatesPresenceOfItem(Vows.Context):
-        def topic(self, test_item):
-            test_data, config = test_item
-            delattr(config, test_data[0])
-            Importer(config)
-
-        def should_be_error(self, topic):
-            expect(topic).to_be_an_error_like(ConfigurationError)

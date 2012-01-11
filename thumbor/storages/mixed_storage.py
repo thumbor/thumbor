@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.storages import BaseStorage
-from thumbor.utils import real_import
 
 class Storage(BaseStorage):
     def __init__(self, context, file_storage=None, crypto_storage=None, detector_storage=None):
@@ -34,7 +33,7 @@ class Storage(BaseStorage):
             self.detector_storage = self.context.modules.detector_storage = self.context.modules.importer.detector_storage(self.context)
 
     def put(self, path, bytes):
-        self.context.file_storage.put(path, bytes)
+        self.file_storage.put(path, bytes)
 
     def put_detector_data(self, path, data):
         self.detector_storage.put_detector_data(path, data)

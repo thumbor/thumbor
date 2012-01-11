@@ -41,36 +41,36 @@ class Storage(object):
 @Vows.batch
 class MixedStorageVows(Vows.Context):
     def topic(self):
-        return (Storage('security-key'), Storage('security-key'))
+        return (Storage('security-key'), Storage('security-key'), Storage('detector'))
 
     class Put(Vows.Context):
         def topic(self, storages):
-            file_storage, crypto_storage = storages
-            storage = MixedStorage(file_storage, crypto_storage)
+            file_storage, crypto_storage, detector_storage = storages
+            storage = MixedStorage(None, file_storage, crypto_storage, detector_storage)
             storage.put('path1', 'contents')
             storage.put_crypto('path1')
 
-            return storages
+            return storage
 
         class IncludesPath(Vows.Context):
             def should_record_path(self, topic):
-                file_storage, crypto_storage = topic
+                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
                 expect(file_storage.storage['path1']['path']).to_equal('path1')
 
             def should_record_contents_on_file_storage(self, topic):
-                file_storage, crypto_storage = topic
+                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
                 expect(file_storage.storage['path1']['contents']).to_equal('contents')
 
             def should_not_record_crypto_on_file_storage(self, topic):
-                file_storage, crypto_storage = topic
+                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
                 expect(file_storage.storage['path1']).not_to_include('crypto')
 
             def should_not_record_contents_on_crypto_storage(self, topic):
-                file_storage, crypto_storage = topic
+                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
                 expect(crypto_storage.storage['path1']).not_to_include('contents')
 
             def should_record_crypto_on_crypto_storage(self, topic):
-                file_storage, crypto_storage = topic
+                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
                 expect(crypto_storage.storage['path1']['crypto']).to_equal('security-key')
 
 

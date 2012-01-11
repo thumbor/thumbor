@@ -13,9 +13,10 @@ from os.path import abspath, join, dirname
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
 import tornado.web
-from tornado.options import options
 
 import thumbor.loaders.http_loader as loader
+from thumbor.context import Context
+from thumbor.config import Config
 
 fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
 
@@ -34,10 +35,10 @@ class HttpLoader(TornadoHTTPContext):
 
     class ValidateURL(TornadoHTTPContext):
         def topic(self):
-            old_sources = options.ALLOWED_SOURCES
-            options.ALLOWED_SOURCES = ['s.glbimg.com']
-            is_valid = loader.validate('http://www.google.com/logo.jpg')
-            options.ALLOWED_SOURCES = old_sources
+            config = Config()
+            config.ALLOWED_SOURCES = ['s.glbimg.com']
+            ctx = Context(None, config, None)
+            is_valid = loader.validate(ctx, 'http://www.google.com/logo.jpg')
             return is_valid
 
         def should_default_to_none(self, topic):
@@ -45,10 +46,10 @@ class HttpLoader(TornadoHTTPContext):
 
         class AllowAll(TornadoHTTPContext):
             def topic(self):
-                old_sources = options.ALLOWED_SOURCES
-                options.ALLOWED_SOURCES = []
-                is_valid = loader.validate('http://www.google.com/logo.jpg')
-                options.ALLOWED_SOURCES = old_sources
+                config = Config()
+                config.ALLOWED_SOURCES = []
+                ctx = Context(None, config, None)
+                is_valid = loader.validate(ctx, 'http://www.google.com/logo.jpg')
                 return is_valid
 
             def should_validate(self, topic):
