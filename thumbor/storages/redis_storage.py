@@ -14,14 +14,15 @@ from datetime import datetime, timedelta
 import redis
 
 from thumbor.storages import BaseStorage
-from thumbor.config import conf
 
 class Storage(BaseStorage):
 
-    def __init__(self):
-        self.storage = redis.Redis(port=conf.REDIS_STORAGE_SERVER_PORT,
-                                   host=conf.REDIS_STORAGE_SERVER_HOST,
-                                   db=conf.REDIS_STORAGE_SERVER_DB)
+    def __init__(self, context):
+        BaseStorage.__init__(self, context)
+
+        self.storage = redis.Redis(port=self.context.config.REDIS_STORAGE_SERVER_PORT,
+                                   host=self.context.config.REDIS_STORAGE_SERVER_HOST,
+                                   db=self.context.config.REDIS_STORAGE_SERVER_DB)
 
     def __key_for(self, url):
         return 'crypto-%s' % url
@@ -31,22 +32,22 @@ class Storage(BaseStorage):
 
     def put(self, path, bytes):
         self.storage.set(path, bytes)
-        self.storage.expireat(path, datetime.now() + timedelta(seconds=conf.STORAGE_EXPIRATION_SECONDS))
+        self.storage.expireat(path, datetime.now() + timedelta(seconds=self.context.config.STORAGE_EXPIRATION_SECONDS))
 
     def put_crypto(self, path):
-        if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+        if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return
 
-        if not conf.SECURITY_KEY:
+        if not self.context.server.security_key:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
-        self.storage.set(self.__key_for(path), conf.SECURITY_KEY)
+        self.storage.set(self.__key_for(path), self.context.request.security_key)
 
     def put_detector_data(self, path, data):
         self.storage.set(self.__detector_key_for(path), dumps(data))
 
     def get_crypto(self, path):
-        if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+        if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return None
 
         crypto = self.storage.get(self.__key_for(path))

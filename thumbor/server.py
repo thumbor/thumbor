@@ -32,7 +32,7 @@ def main(arguments=None):
     importer = Importer(config)
     importer.import_modules()
 
-    if not server_parameters.security_key:
+    if not server_parameters.security_key is None:
         if config.SECURITY_KEY:
             server_parameters.security_key = config.SECURITY_KEY
         else:

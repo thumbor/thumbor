@@ -61,7 +61,7 @@ class Engine(BaseEngine):
         raise NotImplementedError()
 
     def read(self, extension=None, quality=None):
-        if quality is None: quality = self.context.request.QUALITY
+        if quality is None: quality = self.context.request.quality
         options = None
         extension = extension or self.extension
         if FORMATS[extension] == 'JPEG':

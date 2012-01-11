@@ -54,7 +54,7 @@ class Engine(BaseEngine):
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
 
     def read(self, extension=None, quality=None):
-        if quality is None: quality = self.context.request.QUALITY
+        if quality is None: quality = self.context.request.quality
         #returns image buffer in byte format.
         img_buffer = StringIO()
 
