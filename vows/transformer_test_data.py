@@ -129,7 +129,7 @@ class TestData(object):
             extension="JPEG",
             filters=[],
             quality=80,
-            image_url="some.jpeg"
+            image="some.jpeg"
         )
 
         return ctx

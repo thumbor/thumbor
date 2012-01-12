@@ -54,15 +54,15 @@ class ServerParameters:
 
 
 class RequestParameters:
+
     def __init__(self,
                  debug=False,
                  meta=False,
-                 crop={
-                    'left': None,
-                    'top': None,
-                    'right': None,
-                    'bottom': None
-                 },
+                 crop_left=None,
+                 crop_top=None,
+                 crop_right=None,
+                 crop_bottom=None,
+                 crop=None,
                  fit_in=False,
                  width=0,
                  height=0,
@@ -70,38 +70,60 @@ class RequestParameters:
                  vertical_flip=False,
                  halign='center',
                  valign='middle',
-                 filters=[],
+                 filters=None,
                  smart=False,
                  quality=80,
-                 image_url=None,
+                 image=None,
                  url=None,
                  extension=None,
                  buffer=None,
                  should_crop=False,
-                 focal_points=[],
+                 focal_points=None,
                  image_hash=None):
-        self.debug = debug
-        self.meta = meta
-        self.crop = crop
-        self.fit_in = fit_in
-        self.width = width
-        self.height = height
-        self.horizontal_flip = horizontal_flip
-        self.vertical_flip = vertical_flip
+
+        self.debug = bool(debug)
+        self.meta = bool(meta)
+        if crop is not None:
+            self.crop = crop
+        else:
+            self.crop = {
+                'left': self.int_or_0(crop_left),
+                'right': self.int_or_0(crop_right),
+                'top': self.int_or_0(crop_top),
+                'bottom': self.int_or_0(crop_bottom)
+            }
+
+        self.fit_in = bool(fit_in)
+        self.width = self.int_or_0(width)
+        self.height = self.int_or_0(height)
+        self.horizontal_flip = bool(horizontal_flip)
+        self.vertical_flip = bool(vertical_flip)
         self.halign = halign
         self.valign = valign
-        self.smart = smart
+        self.smart = bool(smart)
+
+        if filters is None:
+            filters = []
+
         self.filters = filters
-        self.image_url = image_url
+        self.image_url = image
         self.url = url
-        self.focal_points = []
         self.detection_error = None
         self.quality = quality
         self.buffer = None
         self.extension = extension
         self.should_crop = should_crop
+
+        if focal_points is None:
+            focal_points = []
+
         self.focal_points = focal_points
         self.image_hash = image_hash
+
+    def int_or_0(self, value):
+        return 0 if value is None else int(value)
+
+
 
 class ContextImporter:
     def __init__(self, context, importer):

@@ -44,11 +44,9 @@ class CryptoHandler(ContextHandler):
             self._error(404, 'Request denied because the specified image hash is not valid.')
             return
 
-        opt['image_url'] = image
-        opt['quality'] = self.context.config.QUALITY
+        opt['image'] = image
 
-        params = RequestParameters(**opt)
-        self.context.request = params
+        self.context.request = RequestParameters(**opt)
 
         return self.execute_image_operations()
 
