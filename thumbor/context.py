@@ -39,6 +39,7 @@ class ServerParameters:
         self.log_level = log_level
         self.app_class = app_class
         self.security_key = None
+        self.load_security_key()
 
     def load_security_key(self):
         if not self.keyfile: return
