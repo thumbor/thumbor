@@ -8,4 +8,5 @@ class QueuedDetector(BaseDetector):
 
     def detect(self, callback):
         self.queue.enqueue(pyres_tasks.DetectTask, self.detection_type, self.context.request.image_url)
+        self.context.prevent_result_storage = True
         callback([])

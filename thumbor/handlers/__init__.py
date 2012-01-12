@@ -158,7 +158,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if result is None:
             results = context.modules.engine.read(context.request.extension, context.request.quality)
-            if context.modules.result_storage: 
+            if context.modules.result_storage and not context.request.prevent_result_storage:
                 context.modules.result_storage.put(results)
         else:
             results = result
