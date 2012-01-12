@@ -1,5 +1,5 @@
 run: compile_ext
-	@PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug -k thumbor/default.key
+	@PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug
 
 compile_ext:
 	python setup.py build_ext -i
