@@ -11,6 +11,8 @@
 import sys
 import optparse
 
+from config import Config
+
 from tornado.options import options, parse_config_file
 
 from thumbor import __version__
@@ -47,7 +49,7 @@ def main(arguments=None):
     if image_url.startswith('/'):
         image_url = image_url[1:]
 
-    conf_file = ThumborServiceApp.get_conf_file('')
+    conf_file = Config.get_conf_file('')
     if conf_file:
         print
         print "USING CONFIGURATION FILE AT %s" % conf_file
