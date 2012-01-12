@@ -98,8 +98,8 @@ class RequestParameters:
         self.height = self.int_or_0(height)
         self.horizontal_flip = bool(horizontal_flip)
         self.vertical_flip = bool(vertical_flip)
-        self.halign = halign
-        self.valign = valign
+        self.halign = halign or 'center'
+        self.valign = valign or 'middle'
         self.smart = bool(smart)
 
         if filters is None:
