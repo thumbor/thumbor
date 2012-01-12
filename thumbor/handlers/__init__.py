@@ -37,6 +37,15 @@ class BaseHandler(tornado.web.RequestHandler):
         req = self.context.request
         conf = self.context.config
 
+        req.extension = splitext(req.image_url)[-1].lower()
+
+        if self.context.modules.result_storage:
+            result = self.context.modules.result_storage.get()
+            if result is not None:
+                logger.debug('[RESULT_STORAGE] IMAGE FOUND: %s' % req.url)
+                self.finish_request(self.context, result)
+                return
+
         req.should_crop = req.crop['left'] > 0 or \
                           req.crop['top'] > 0 or \
                           req.crop['right'] > 0 or \
@@ -47,7 +56,6 @@ class BaseHandler(tornado.web.RequestHandler):
         if conf.MAX_HEIGHT and req.height > conf.MAX_HEIGHT:
             req.height = conf.MAX_HEIGHT
 
-        req.extension = splitext(req.image_url)[-1].lower()
         req.meta_callback = conf.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
 
         self.get_image()
@@ -129,7 +137,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 f.run_filter_async(exec_one_filter)
         exec_one_filter()
 
-    def finish_request(self, context):
+    def finish_request(self, context, result=None):
         if context.request.meta:
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
         else:
@@ -137,7 +145,12 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_header('Content-Type', content_type)
 
-        results = context.modules.engine.read(context.request.extension, context.request.quality)
+        if result is None:
+            results = context.modules.engine.read(context.request.extension, context.request.quality)
+            if context.modules.result_storage: 
+                context.modules.result_storage.put(results)
+        else:
+            results = result
 
         if context.request.detection_error is not None:
             self.set_status(404)

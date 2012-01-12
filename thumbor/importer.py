@@ -16,6 +16,7 @@ class Importer:
         self.engine = None
         self.loader = None
         self.storage = None
+        self.result_storage = None
         self.detectors = []
         self.filters = []
 
@@ -39,6 +40,9 @@ class Importer:
         self.import_item('STORAGE', 'Storage')
         self.import_item('DETECTORS', 'Detector', is_multiple=True)
         self.import_item('FILTERS', 'Filter', is_multiple=True)
+
+        if self.config.RESULT_STORAGE:
+            self.import_item('RESULT_STORAGE', 'Storage')
 
         filters.compile_filters(self.filters)
 

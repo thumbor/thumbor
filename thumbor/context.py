@@ -74,6 +74,7 @@ class RequestParameters:
                  smart=False,
                  quality=80,
                  image_url=None,
+                 url=None,
                  extension=None,
                  buffer=None,
                  should_crop=False,
@@ -92,6 +93,7 @@ class RequestParameters:
         self.smart = smart
         self.filters = filters
         self.image_url = image_url
+        self.url = url
         self.focal_points = []
         self.detection_error = None
         self.quality = quality
@@ -113,6 +115,10 @@ class ContextImporter:
         self.storage = None
         if importer.storage:
             self.storage = importer.storage(context)
+
+        self.result_storage = None
+        if importer.result_storage:
+            self.result_storage = importer.result_storage(context)
 
         self.loader = importer.loader
         self.detectors = importer.detectors

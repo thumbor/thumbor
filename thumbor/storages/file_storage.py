@@ -80,10 +80,7 @@ class Storage(BaseStorage):
         return loads(open(path, 'r').read())
 
     def __normalize_path(self, path):
-        if path.startswith('/'):
-            path = path[1:]
-
-        return join(self.context.config.FILE_STORAGE_ROOT_PATH, path)
+        return join(self.context.config.FILE_STORAGE_ROOT_PATH.rstrip('/'), path.lstrip('/'))
 
     def __is_expired(self, path):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))

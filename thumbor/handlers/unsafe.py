@@ -60,7 +60,8 @@ class MainHandler(ContextHandler):
             'smart': smart == 'smart',
             'filters': filters or '',
             'image_url': image,
-            'quality': self.context.config.QUALITY
+            'quality': self.context.config.QUALITY,
+            'url': self.request.path
         }
 
         params = RequestParameters(**opt)
