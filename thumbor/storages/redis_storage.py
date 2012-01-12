@@ -25,10 +25,10 @@ class Storage(BaseStorage):
                                    db=self.context.config.REDIS_STORAGE_SERVER_DB)
 
     def __key_for(self, url):
-        return 'crypto-%s' % url
+        return 'thumbor-crypto-%s' % url
 
     def __detector_key_for(self, url):
-        return 'detector-%s' % url
+        return 'thumbor-detector-%s' % url
 
     def put(self, path, bytes):
         self.storage.set(path, bytes)
