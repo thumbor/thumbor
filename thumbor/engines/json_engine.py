@@ -15,7 +15,7 @@ from thumbor.engines import BaseEngine
 class JSONEngine(BaseEngine):
 
     def __init__(self, engine, path, callback_name=None):
-        super(JSONEngine, self).__init__()
+        super(JSONEngine, self).__init__(engine.context)
         self.engine = engine
         self.width, self.height = self.engine.size
         self.path = path
