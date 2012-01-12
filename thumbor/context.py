@@ -77,7 +77,6 @@ class RequestParameters:
                  url=None,
                  extension=None,
                  buffer=None,
-                 should_crop=False,
                  focal_points=None,
                  image_hash=None):
 
@@ -92,6 +91,11 @@ class RequestParameters:
                 'top': self.int_or_0(crop_top),
                 'bottom': self.int_or_0(crop_bottom)
             }
+
+        self.should_crop = self.crop['left'] > 0 or \
+                           self.crop['top'] > 0 or \
+                           self.crop['right'] > 0 or \
+                           self.crop['bottom'] > 0
 
         self.fit_in = bool(fit_in)
         self.width = self.int_or_0(width)
@@ -112,7 +116,6 @@ class RequestParameters:
         self.quality = quality
         self.buffer = None
         self.extension = extension
-        self.should_crop = should_crop
 
         if focal_points is None:
             focal_points = []

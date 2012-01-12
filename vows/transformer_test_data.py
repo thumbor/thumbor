@@ -95,8 +95,6 @@ class TestData(object):
     def to_context(self):
         self.engine = MockEngine((self.source_width, self.source_height))
 
-        should_crop = self.crop_left
-
         flip_horizontally = self.target_width < 0
         flip_vertically = self.target_height < 0
         self.target_width = abs(self.target_width)
@@ -110,7 +108,6 @@ class TestData(object):
             buffer=None,
             debug=False,
             meta=False,
-            should_crop=should_crop,
             crop = {
                 'left': self.crop_left,
                 'top': self.crop_top,

@@ -53,11 +53,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.finish_request(self.context, result)
                 return
 
-        req.should_crop = req.crop['left'] > 0 or \
-                          req.crop['top'] > 0 or \
-                          req.crop['right'] > 0 or \
-                          req.crop['bottom'] > 0
-
         if conf.MAX_WIDTH and req.width > conf.MAX_WIDTH:
             req.width = conf.MAX_WIDTH
         if conf.MAX_HEIGHT and req.height > conf.MAX_HEIGHT:

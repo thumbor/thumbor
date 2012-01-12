@@ -59,8 +59,8 @@ class Transformer(object):
 
     @property
     def smart_storage_key(self):
-        key = '%s_%d_%d' % (self.context.request.image_url, self.engine.size[0], self.engine.size[1])
-        if self.context.request.crop['left']:
+        key = self.context.request.image_url
+        if self.context.request.should_crop:
             key += '_%d_%d_%d_%d' % (self.context.request.crop['left'],
                                      self.context.request.crop['top'],
                                      self.context.request.crop['right'],
