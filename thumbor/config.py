@@ -24,7 +24,7 @@ class Config(object):
         cls.class_defaults[key] = value
 
     @classmethod
-    def get_conf_file(cls, conf_file):
+    def get_conf_file(cls):
         lookup_conf_file_paths = [
             os.curdir,
             expanduser('~'),
@@ -41,7 +41,7 @@ class Config(object):
     @classmethod
     def load(cls, path):
         if path is None:
-            path = cls.get_conf_file(path)
+            path = cls.get_conf_file()
 
         with open(path) as config_file:
             name='configuration'
@@ -50,6 +50,7 @@ class Config(object):
             exec code in module.__dict__
 
             conf = cls()
+            conf.config_file = config_file
             for name, value in module.__dict__.iteritems():
                 setattr(conf, name, value)
 

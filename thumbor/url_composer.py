@@ -11,11 +11,10 @@
 import sys
 import optparse
 
-from tornado.options import options, parse_config_file
-
 from thumbor import __version__
 from thumbor.crypto import Crypto
 from thumbor.app import ThumborServiceApp
+from thumbor.config import Config
 
 def main(arguments=None):
     '''Converts a given url with the specified arguments.'''
@@ -47,18 +46,21 @@ def main(arguments=None):
     if image_url.startswith('/'):
         image_url = image_url[1:]
 
-    conf_file = ThumborServiceApp.get_conf_file('')
-    if conf_file:
-        print
-        print "USING CONFIGURATION FILE AT %s" % conf_file
-        print
-        parse_config_file(conf_file)
+    try:
+        config = Config.load(None)
+    except:
+        config = None
 
-    if not parsed_options.key and not conf_file:
+    if config:
+        print
+        print "USING CONFIGURATION FILE AT %s" % config.config_file
+        print
+
+    if not parsed_options.key and not config:
         print 'Error: The -k or --key argument is mandatory. For more information type thumbor-url -h'
         return
 
-    security_key = options.SECURITY_KEY if not parsed_options.key else parsed_options.key
+    security_key = config.SECURITY_KEY if not parsed_options.key else parsed_options.key
 
     crypt = Crypto(security_key)
 
