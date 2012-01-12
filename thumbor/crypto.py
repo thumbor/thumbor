@@ -59,8 +59,11 @@ class Crypto(object):
 
     def decrypt(self, encrypted):
         cipher = AES.new(self.salt)
+        
+        b64_string = encrypted.encode("utf-8")
+        b64_string += "=" * ((4 - len(b64_string) % 4) % 4)
 
-        debased = base64.urlsafe_b64decode(encrypted.encode("utf-8"))
+        debased = base64.urlsafe_b64decode(b64_string)
         decrypted = cipher.decrypt(debased).rstrip('{')
 
         result = Url.parse('/%s' % decrypted, with_unsafe=False)
