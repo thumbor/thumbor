@@ -39,6 +39,12 @@ class UrlVows(Vows.Context):
             def should_return_proper_url(self, topic):
                 expect(topic).to_equal('300x200/smart')
 
+        class Debug(ctx(debug=True, smart=True)):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('debug/smart')
+
+
         class Alignments(ctx(halign='left', valign='top')):
 
             def should_return_proper_url(self, topic):

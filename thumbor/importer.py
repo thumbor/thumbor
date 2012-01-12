@@ -21,9 +21,6 @@ class Importer:
         self.filters = []
 
     def import_class(self, name, get_module=False):
-        if not '.' in name:
-            return __import__(name)
-
         module_name = get_module and name or '.'.join(name.split('.')[:-1])
         klass = name.split('.')[-1]
 

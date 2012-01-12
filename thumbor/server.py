@@ -8,13 +8,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import sys
 import logging
 
 import tornado.ioloop
 from tornado.httpserver import HTTPServer
-from pyremotecv import tornado_extensions
-
-tornado_extensions.install_io_loop()
+#from pyremotecv import tornado_extensions
+#tornado_extensions.install_io_loop()
 
 from thumbor.app import ThumborServiceApp
 from thumbor.console import get_server_parameters
@@ -52,4 +52,4 @@ def main(arguments=None):
         print "-- thumbor closed by user interruption --"
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

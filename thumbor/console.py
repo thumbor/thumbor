@@ -8,16 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import sys
 import optparse
 
 from thumbor.context import ServerParameters
 from thumbor import __version__
 
 def get_server_parameters(arguments=None):
-    if arguments is None:
-        arguments = sys.argv[1:]
-
     parser = optparse.OptionParser(usage="thumbor or type thumbor -h (--help) for help", description=__doc__, version=__version__)
     parser.add_option("-p", "--port", type="int", dest="port", default=8888, help = "The port to run this thumbor instance at [default: %default]." )
     parser.add_option("-i", "--ip", dest="ip", default="0.0.0.0", help = "The host address to run this thumbor instance at [default: %default]." )
