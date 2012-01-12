@@ -34,7 +34,13 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.error(msg)
         self.finish()
 
+    def init_request_params(self):
+        self.context.request.quality = self.context.config.QUALITY
+        self.context.request.url = self.request.path
+
     def execute_image_operations(self):
+        self.init_request_params()
+
         req = self.context.request
         conf = self.context.config
 
