@@ -83,6 +83,7 @@ Config.define('MAX_WIDTH', 0)
 Config.define('MAX_HEIGHT', 0)
 Config.define('ALLOWED_SOURCES', [])
 Config.define('QUALITY', 80)
+Config.define('MAX_AGE', 0)
 
 Config.define('LOADER',  'thumbor.loaders.http_loader')
 Config.define('STORAGE', 'thumbor.storages.file_storage')
@@ -115,14 +116,6 @@ Config.define('MONGO_STORAGE_SERVER_COLLECTION', 'images')
 Config.define('REDIS_STORAGE_SERVER_HOST', 'localhost')
 Config.define('REDIS_STORAGE_SERVER_PORT', 6379)
 Config.define('REDIS_STORAGE_SERVER_DB', 0)
-
-# MYSQL STORAGE OPTIONS
-Config.define('MYSQL_STORAGE_SERVER_HOST', 'localhost')
-Config.define('MYSQL_STORAGE_SERVER_PORT', 3306)
-Config.define('MYSQL_STORAGE_SERVER_USER', 'root')
-Config.define('MYSQL_STORAGE_SERVER_PASSWORD', '')
-Config.define('MYSQL_STORAGE_SERVER_DB', 'thumbor')
-Config.define('MYSQL_STORAGE_SERVER_TABLE', 'images')
 
 # MIXED STORAGE OPTIONS
 Config.define('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage')

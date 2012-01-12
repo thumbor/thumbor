@@ -10,7 +10,7 @@
 
 import re
 
-def firstValid(f, it):
+def first_valid(f, it):
     for el in it:
         obj = f(el)
         if obj:
@@ -25,7 +25,7 @@ def create_instances(context, filter_classes, filter_params):
     filter_params = filter_params.split(':')
     filter_objs = []
     for param in filter_params:
-        filter_instance = firstValid(lambda f: f.init_if_valid(param), filter_classes)
+        filter_instance = first_valid(lambda f: f.init_if_valid(param), filter_classes)
         if filter_instance:
             filter_instance.context = context
             if context.modules and context.modules.engine:
@@ -50,3 +50,4 @@ class BaseFilter(object):
             return instance
         else:
             return None
+

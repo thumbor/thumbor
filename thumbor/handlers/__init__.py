@@ -10,6 +10,7 @@
 
 import functools
 from os.path import splitext
+import datetime
 
 import tornado.web
 
@@ -144,6 +145,10 @@ class BaseHandler(tornado.web.RequestHandler):
             content_type = CONTENT_TYPE[context.request.extension]
 
         self.set_header('Content-Type', content_type)
+
+        if self.context.config.MAX_AGE:
+            self.set_header('Cache-Control', 'max-age=' + str(self.context.config.MAX_AGE) + ',public')
+            self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=self.context.config.MAX_AGE))
 
         if result is None:
             results = context.modules.engine.read(context.request.extension, context.request.quality)
