@@ -7,8 +7,9 @@ class QueuedDetector(BaseDetector):
     queue = UniqueQueue()
 
     def detect(self, callback):
-        self.queue.enqueue(pyres_tasks.DetectTask, self.detection_type, self.context.request.image_url,
-            self.context.request.crop['left'], self.context.request.crop['top'],
-            self.context.request.crop['right'], self.context.request.crop['bottom'])
+        engine = self.context.modules.engine
+        self.queue.enqueue_unique(pyres_tasks.DetectTask,
+                args=[self.detection_type, self.context.request.image_url],
+                key=self.context.request.image_url)
         self.context.prevent_result_storage = True
         callback([])
