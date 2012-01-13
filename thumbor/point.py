@@ -57,3 +57,7 @@ class FocalPoint(object):
         y = height * cls.ALIGNMENT_PERCENTAGES[valign]
 
         return cls(x, y)
+
+    def __repr__(self):
+        return 'FocalPoint(x: %d, y: %d, width: %d, height: %d, weight: %d, origin: %s)' % (
+                self.x, self.y, self.width, self.height, self.weight, self.origin)
