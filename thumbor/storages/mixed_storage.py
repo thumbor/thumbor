@@ -42,11 +42,11 @@ class Storage(BaseStorage):
         self.detector_storage.put_detector_data(path, data)
 
     def put_crypto(self, path):
-        self._init_detector_storage()
+        self._init_crypto_storage()
         self.crypto_storage.put_crypto(path)
 
     def get_crypto(self, path):
-        self._init_detector_storage()
+        self._init_crypto_storage()
         return self.crypto_storage.get_crypto(path)
 
     def get_detector_data(self, path):
