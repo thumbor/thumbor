@@ -68,6 +68,11 @@ class Config(object):
             if not hasattr(self, arg):
                 raise ConfigurationError('Configuration %s was not found and does not have a default value. Please verify your thumbor.conf file' % arg)
 
+    def get(self, name, default=None):
+        if hasattr(self, name):
+            return getattr(self, name)
+        return default
+
     def __getattr__(self, name):
         if name in self.__dict__:
             return self.__dict__[name]
