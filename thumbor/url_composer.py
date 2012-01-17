@@ -13,7 +13,6 @@ import optparse
 
 from thumbor import __version__
 from thumbor.crypto import Crypto
-from thumbor.app import ThumborServiceApp
 from thumbor.config import Config
 
 def main(arguments=None):

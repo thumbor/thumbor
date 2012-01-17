@@ -12,7 +12,6 @@ import os
 from os.path import join, abspath, dirname
 from cStringIO import StringIO
 import unittest
-import math
 
 from PIL import Image
 from tornado.testing import AsyncHTTPTestCase

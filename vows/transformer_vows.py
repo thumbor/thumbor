@@ -106,11 +106,6 @@ class TransformerVows(Vows.Context):
             def topic(self, callback, topic):
                 self._prepare_engine(topic, callback)
 
-            def should_have_proper_height(self, topic):
-                if not self.test_data[1][2]:
-                    return
-                expect(self.engine.calls['resize'][0]['height']).to_equal(self.test_data[1][1])
-
             def should_not_have_crop(self, topic):
                 expect(self.engine.calls['crop']).to_be_empty()
 
