@@ -149,5 +149,5 @@ Config.define('REMOTECV_SEND_IMAGE', True)
 Config.define('FILTERS', [])
 
 # RESULT STORAGE
-Config.define('RESULT_STORAGE_EXPIRATION_SECONDS', 60 * 60 * 24) # one day
+Config.define('RESULT_STORAGE_EXPIRATION_SECONDS', 0) # Never expires
 Config.define('RESULT_STORAGE_FILE_STORAGE_ROOT_PATH', join(tempfile.gettempdir(), 'thumbor', 'result_storage'))
