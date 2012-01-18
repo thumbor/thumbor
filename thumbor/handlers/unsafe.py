@@ -23,5 +23,7 @@ class MainHandler(ContextHandler):
             return
 
         self.context.request = RequestParameters(**kw)
+        self.context.request.unsafe = True
+
         return self.execute_image_operations()
 

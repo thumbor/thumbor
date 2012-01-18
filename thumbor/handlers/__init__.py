@@ -46,7 +46,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
         req.extension = splitext(req.image_url)[-1].lower()
 
-        if self.context.modules.result_storage:
+        should_store = self.context.config.RESULT_STORAGE_STORES_UNSAFE or not self.context.request.unsafe
+        if self.context.modules.result_storage and should_store:
             result = self.context.modules.result_storage.get()
             if result is not None:
                 logger.debug('[RESULT_STORAGE] IMAGE FOUND: %s' % req.url)
@@ -151,10 +152,9 @@ class BaseHandler(tornado.web.RequestHandler):
             self.set_header('Cache-Control', 'max-age=' + str(self.context.config.MAX_AGE) + ',public')
             self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=self.context.config.MAX_AGE))
 
+        should_store = result is None and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
         if result is None:
             results = context.modules.engine.read(context.request.extension, context.request.quality)
-            if context.modules.result_storage and not context.request.prevent_result_storage:
-                context.modules.result_storage.put(results)
         else:
             results = result
 
@@ -163,6 +163,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.write(results)
         self.finish()
+
+        if should_store:
+            if context.modules.result_storage and not context.request.prevent_result_storage:
+                context.modules.result_storage.put(results)
 
     @classmethod
     def translate_crop_coordinates(cls, original_width, original_height, width, height, crop_left, crop_top, crop_right, crop_bottom):

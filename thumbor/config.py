@@ -151,3 +151,4 @@ Config.define('FILTERS', [])
 # RESULT STORAGE
 Config.define('RESULT_STORAGE_EXPIRATION_SECONDS', 0) # Never expires
 Config.define('RESULT_STORAGE_FILE_STORAGE_ROOT_PATH', join(tempfile.gettempdir(), 'thumbor', 'result_storage'))
+Config.define('RESULT_STORAGE_STORES_UNSAFE', False)

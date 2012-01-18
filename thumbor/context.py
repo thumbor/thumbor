@@ -79,6 +79,7 @@ class RequestParameters:
                  extension=None,
                  buffer=None,
                  focal_points=None,
+                 unsafe=False,
                  image_hash=None):
 
         self.debug = bool(debug)
@@ -124,6 +125,7 @@ class RequestParameters:
         self.focal_points = focal_points
         self.image_hash = image_hash
         self.prevent_result_storage = False
+        self.unsafe = unsafe
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)
