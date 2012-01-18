@@ -44,7 +44,7 @@ def load(context, url, callback):
         #return None
 
     def return_contents(response):
-        if response.error:
+        if response.error or not response.headers['Content-Type'][:6] == 'image/':
             callback(None)
         else:
             callback(response.body)
