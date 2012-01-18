@@ -40,7 +40,8 @@ class Storage(BaseStorage):
         if not exists(file_abspath) or self.is_expired(file_abspath):
             logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
             return None
-        return open(file_abspath, 'r').read()
+        with open(file_abspath, 'r') as f:
+            return f.read()
 
     def normalize_path(self, path):
         path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), path.lstrip('/'))
