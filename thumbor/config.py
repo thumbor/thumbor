@@ -132,6 +132,12 @@ Config.define('REDIS_STORAGE_SERVER_PORT', 6379)
 Config.define('REDIS_STORAGE_SERVER_DB', 0)
 Config.define('REDIS_STORAGE_SERVER_PASSWORD', None)
 
+# HBASE STORAGE OPTIONS
+Config.define('HBASE_STORAGE_SERVER_HOST', 'localhost')
+Config.define('HBASE_STORAGE_SERVER_PORT', 9090)
+Config.define('HBASE_STORAGE_TABLE', 'thumbor')
+Config.define('HBASE_STORAGE_FAMILLY', 'images')
+
 # MIXED STORAGE OPTIONS
 Config.define('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage')
 Config.define('MIXED_STORAGE_CRYPTO_STORAGE', 'thumbor.storages.no_storage')
