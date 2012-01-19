@@ -139,25 +139,19 @@ class Transformer(object):
             return
 
         focal_x, focal_y = self.get_center_of_mass()
-        focal_x_percentage = 1.0
-        focal_y_percentage = 1.0
 
         if self.target_width / source_width > self.target_height / source_height:
             crop_width = source_width
             crop_height = round(source_width * self.target_height / self.target_width, 0)
-            focal_y_percentage = max(focal_y - (crop_height / 2), 0.0) / source_height
         else:
             crop_width = round(math.ceil(self.target_width * source_height / self.target_height), 0)
             crop_height = source_height
-            focal_x_percentage = max(focal_x - (crop_width / 2), 0.0) / source_width
 
-        crop_width_amount = source_width - crop_width
-        crop_left = int(crop_width_amount * focal_x_percentage)
-        crop_right = int(source_width - crop_width_amount + crop_left)
+        crop_left = max(focal_x - (crop_width / 2), 0.0)
+        crop_right = crop_left + crop_width
 
-        crop_height_amount = source_height - crop_height
-        crop_top = int(crop_height_amount * focal_y_percentage)
-        crop_bottom = int(source_height - crop_height_amount + crop_top)
+        crop_top = max(focal_y - (crop_height / 2), 0.0)
+        crop_bottom = crop_top + crop_height
 
         self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
 
