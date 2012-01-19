@@ -148,10 +148,10 @@ class Transformer(object):
             crop_height = source_height
 
         crop_left = max(focal_x - (crop_width / 2), 0.0)
-        crop_right = crop_left + crop_width
+        crop_right = min(crop_left + crop_width, source_width)
 
         crop_top = max(focal_y - (crop_height / 2), 0.0)
-        crop_bottom = crop_top + crop_height
+        crop_bottom = min(crop_top + crop_height, source_height)
 
         self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
 
