@@ -74,10 +74,10 @@ class Engine(BaseEngine):
         except IOError:
             logger.warning('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
             self.image.save(img_buffer, FORMATS[ext])
-	except KeyError:
+        except KeyError:
             #extension is not present or could not help determine format => force JPEG
             #TODO : guess format by image headers maybe
-	    self.image.save(img_buffer, FORMATS['.jpg'])
+            self.image.save(img_buffer, FORMATS['.jpg'])
 
         results = img_buffer.getvalue()
         img_buffer.close()

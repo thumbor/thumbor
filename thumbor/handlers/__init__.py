@@ -146,10 +146,10 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             try:
                 content_type = CONTENT_TYPE[context.request.extension]
-	    except KeyError:
+            except KeyError:
                 #extension is not present or could not help determine format => force JPEG
                 #TODO : guess format by image headers maybe
-		content_type = CONTENT_TYPE['.jpg']
+                content_type = CONTENT_TYPE['.jpg']
 
         self.set_header('Content-Type', content_type)
 
