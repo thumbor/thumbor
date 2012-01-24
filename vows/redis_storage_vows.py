@@ -18,7 +18,7 @@ from fixtures.redis_storage_fixture import IMAGE_URL, IMAGE_BYTES
 
 class RedisDBContext(Vows.Context):
     def setup(self):
-        self.connection = redis.Redis(port=6379,
+        self.connection = redis.Redis(port=7778,
                                       host='localhost',
                                       db=0)
 
@@ -26,7 +26,7 @@ class RedisDBContext(Vows.Context):
 class RedisStorageVows(RedisDBContext):
     class CanStoreImage(Vows.Context):
         def topic(self):
-            storage = RedisStorage(Context(config=Config()))
+            storage = RedisStorage(Context(config=Config(REDIS_STORAGE_SERVER_HOST=7778)))
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
             return self.parent.connection.get(IMAGE_URL % 1)
 
@@ -36,7 +36,7 @@ class RedisStorageVows(RedisDBContext):
 
     class CanGetImage(Vows.Context):
         def topic(self):
-            storage = RedisStorage(Context(config=Config()))
+            storage = RedisStorage(Context(config=Config(REDIS_STORAGE_SERVER_HOST=7778)))
             storage.put(IMAGE_URL % 2, IMAGE_BYTES)
             return storage.get(IMAGE_URL % 2)
 

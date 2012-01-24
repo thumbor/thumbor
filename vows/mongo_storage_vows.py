@@ -23,7 +23,7 @@ class MongoDBContext(Vows.Context):
     def setup(self):
         self.fixtures_folder = join(abspath(dirname(__file__)), 'fixtures')
 
-        self.connection = Connection('localhost', 27017)
+        self.connection = Connection('localhost', 7777)
         self.collection = self.connection['thumbor']['images']
 
     def teardown(self):
@@ -33,7 +33,7 @@ class MongoDBContext(Vows.Context):
 class MongoStorageVows(MongoDBContext):
     class CanStoreImage(Vows.Context):
         def topic(self):
-            storage = MongoStorage(Context(config=Config()))
+            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
             return self.parent.collection.find_one({'path': IMAGE_URL % 1})
 
@@ -43,7 +43,7 @@ class MongoStorageVows(MongoDBContext):
 
     class CanGetImage(Vows.Context):
         def topic(self):
-            storage = MongoStorage(Context(config=Config()))
+            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
             storage.put(IMAGE_URL % 2, IMAGE_BYTES)
             return storage.get(IMAGE_URL % 2)
 
@@ -57,7 +57,7 @@ class MongoStorageVows(MongoDBContext):
     class StoresCrypto(Vows.Context):
         class DoesNotStoreWhenConfigIsFalseInPutMethod(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)))
+                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)))
                 storage.put(IMAGE_URL % 3, IMAGE_BYTES)
 
                 return self.parent.parent.collection.find_one({'path': IMAGE_URL % 3})
@@ -71,7 +71,7 @@ class MongoStorageVows(MongoDBContext):
 
         class StoringEmptyKeyRaises(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='')))
+                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='')))
                 storage.put(IMAGE_URL % 4, IMAGE_BYTES)
 
             def should_be_an_error(self, topic):
@@ -80,7 +80,7 @@ class MongoStorageVows(MongoDBContext):
 
         class StoringProperKey(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
+                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
                 storage.put(IMAGE_URL % 5, IMAGE_BYTES)
 
                 return self.parent.parent.collection.find_one({'path': IMAGE_URL % 5})
@@ -95,7 +95,7 @@ class MongoStorageVows(MongoDBContext):
 
         class GetProperKey(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
+                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
                 storage.put(IMAGE_URL % 6, IMAGE_BYTES)
 
                 return storage.get_crypto(IMAGE_URL % 6)
@@ -109,7 +109,7 @@ class MongoStorageVows(MongoDBContext):
 
         class GetNoKey(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
+                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
                 return storage.get_crypto(IMAGE_URL % 7)
 
             def should_not_be_in_catalog(self, topic):
@@ -117,7 +117,7 @@ class MongoStorageVows(MongoDBContext):
 
         class GetProperKeyBeforeExpiration(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=5000)))
+                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=5000)))
                 storage.put(IMAGE_URL % 8, IMAGE_BYTES)
                 return storage.get(IMAGE_URL % 8)
 
@@ -130,7 +130,7 @@ class MongoStorageVows(MongoDBContext):
 
         class GetNothingAfterExpiration(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=0)))
+                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=0)))
                 storage.put(IMAGE_URL % 10, IMAGE_BYTES)
 
                 item = storage.get(IMAGE_URL % 10)
@@ -141,7 +141,7 @@ class MongoStorageVows(MongoDBContext):
 
         class StoresCryptoAfterStoringImage(Vows.Context):
             def topic(self):
-                conf = Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='ACME-SEC')
+                conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='ACME-SEC')
                 storage = MongoStorage(Context(config=conf))
                 storage.put(IMAGE_URL % 11, IMAGE_BYTES)
 
@@ -157,7 +157,7 @@ class MongoStorageVows(MongoDBContext):
 
         class DoesNotStoreCryptoIfNoNeed(Vows.Context):
             def topic(self):
-                conf = Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='ACME-SEC')
+                conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='ACME-SEC')
                 storage = MongoStorage(Context(config=conf))
                 storage.put(IMAGE_URL % 12, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 12)
@@ -170,7 +170,7 @@ class MongoStorageVows(MongoDBContext):
 
         class RaisesIfWrongConfig(Vows.Context):
             def topic(self):
-                conf = Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='')
+                conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='')
                 storage = MongoStorage(Context(config=conf))
                 storage.put(IMAGE_URL % 13, IMAGE_BYTES)
 
@@ -183,7 +183,7 @@ class MongoStorageVows(MongoDBContext):
 
     class DetectorData(Vows.Context):
         def topic(self):
-            conf = Config()
+            conf = Config(MONGO_STORAGE_SERVER_PORT=7777)
             storage = MongoStorage(Context(config=conf))
             storage.put(IMAGE_URL % 14, IMAGE_BYTES)
             storage.put_detector_data(IMAGE_URL % 14, "some data")

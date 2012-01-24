@@ -11,9 +11,10 @@ mysql_test: pretest
 	@PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py
 
 mongo:
+	@ps aux | egrep mongod | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
 	@rm -rf /tmp/thumbor/mongodata && mkdir -p /tmp/thumbor/mongodata
-	@mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --quiet &
+	@mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet &
 
 redis:
-	@ps aux | egrep redis | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
+	@ps aux | egrep redis-server | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
 	@redis-server redis.conf &
