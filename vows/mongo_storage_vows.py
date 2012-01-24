@@ -53,6 +53,14 @@ class MongoStorageVows(MongoDBContext):
         def should_have_proper_bytes(self, topic):
             expect(topic).to_equal(IMAGE_BYTES)
 
+    class GettingReturnsNoneWhenImageDoesNotExist(Vows.Context):
+        def topic(self):
+            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+            return storage.get(IMAGE_URL % 99)
+
+        def should_be_null(self, topic):
+            expect(topic).to_be_null()
+
     class StoresCrypto(Vows.Context):
         class DoesNotStoreWhenConfigIsFalseInPutMethod(Vows.Context):
             def topic(self):
