@@ -20,7 +20,6 @@ from fixtures.mongo_storage_fixture import IMAGE_URL, IMAGE_BYTES
 
 class MongoDBContext(Vows.Context):
     def setup(self):
-        self.storage = MongoStorage(Context(config=Config()))
         self.fixtures_folder = join(abspath(dirname(__file__)), 'fixtures')
 
         self.connection = Connection('localhost', 27017)
@@ -33,10 +32,39 @@ class MongoDBContext(Vows.Context):
 class MongoStorageVows(MongoDBContext):
     class CanStoreImage(Vows.Context):
         def topic(self):
-            self.parent.storage.put(IMAGE_URL, IMAGE_BYTES)
-            return self.parent.collection.find_one({'path': IMAGE_URL})
+            storage = MongoStorage(Context(config=Config()))
+            storage.put(IMAGE_URL % 1, IMAGE_BYTES)
+            return self.parent.collection.find_one({'path': IMAGE_URL % 1})
 
         def should_be_in_catalog(self, topic):
             expect(topic).not_to_be_null()
             expect(topic).not_to_be_an_error()
+
+    class CanGetImage(Vows.Context):
+        def topic(self):
+            storage = MongoStorage(Context(config=Config()))
+            storage.put(IMAGE_URL % 2, IMAGE_BYTES)
+            return storage.get(IMAGE_URL % 2)
+
+        def should_not_be_null(self, topic):
+            expect(topic).not_to_be_null()
+            expect(topic).not_to_be_an_error()
+
+        def should_have_proper_bytes(self, topic):
+            expect(topic).to_equal(IMAGE_BYTES)
+
+    class StoresCrypto(Vows.Context):
+        class DoesNotStoreWhenConfigIsFalseInPutMethod(Vows.Context):
+            def topic(self):
+                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)))
+                storage.put(IMAGE_URL % 3, IMAGE_BYTES)
+
+                return self.parent.parent.collection.find_one({'path': IMAGE_URL % 3})
+
+            def should_be_in_catalog(self, topic):
+                expect(topic).not_to_be_null()
+                expect(topic).not_to_be_an_error()
+
+            def should_not_have_crypto_key(self, topic):
+                expect(topic.has_key('crypto')).to_be_false()
 

@@ -27,31 +27,6 @@ collection = connection['thumbor_test']['images']
 def rm_storage():
     connection.drop_database('thumbor_test')
 
-class StorageTest(AsyncHTTPTestCase):
-
-    def get_app(self):
-        return ThumborServiceApp(join(fixtures_folder, 'mongo_storage_conf.py'))
-
-    def test_stores_image(self):
-        rm_storage()
-        options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = False
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
-        http_loaded = http.load(image_url)
-        storage = Storage()
-        storage.put(image_url, http_loaded)
-        assert collection.find_one({'path': image_url}), 'image not found into the storage'
-
-    def test_gets_image(self):
-        rm_storage()
-        options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = False
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
-        http_loaded = http.load(image_url)
-        storage = Storage()
-        storage.put(image_url, http_loaded)
-        stored_image = storage.get(image_url)
-        assert stored_image and not isinstance(stored_image, dict), 'image not found into the storage'
-        assert http_loaded == stored_image, 'stored image did not match the loaded one'
-
 class StorageWithFalseStoreCryptoTest(AsyncHTTPTestCase):
 
     def get_app(self):
