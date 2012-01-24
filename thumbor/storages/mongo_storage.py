@@ -15,14 +15,13 @@ from pymongo import Connection
 import gridfs
 
 from thumbor.storages import BaseStorage
-from thumbor.config import conf
 
 class Storage(BaseStorage):
 
     def __conn__(self):
-        connection = Connection(conf.MONGO_STORAGE_SERVER_HOST, conf.MONGO_STORAGE_SERVER_PORT)
-        db = connection[conf.MONGO_STORAGE_SERVER_DB]
-        storage = db[conf.MONGO_STORAGE_SERVER_COLLECTION]
+        connection = Connection(self.context.config.MONGO_STORAGE_SERVER_HOST, self.context.config.MONGO_STORAGE_SERVER_PORT)
+        db = connection[self.context.config.MONGO_STORAGE_SERVER_DB]
+        storage = db[self.context.config.MONGO_STORAGE_SERVER_COLLECTION]
 
         return connection, db, storage
 
@@ -35,11 +34,10 @@ class Storage(BaseStorage):
         }
 
         doc_with_crypto = dict(doc)
-        if conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            if not conf.SECURITY_KEY:
+        if self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            if not self.context.config.SECURITY_KEY:
                 raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
-            doc_with_crypto['crypto'] = conf.SECURITY_KEY
-        
+            doc_with_crypto['crypto'] = self.context.config.SECURITY_KEY
 
         fs = gridfs.GridFS(db)
         file_data = fs.put(StringIO(bytes), **doc)
@@ -48,17 +46,17 @@ class Storage(BaseStorage):
         storage.insert(doc_with_crypto)
 
     def put_crypto(self, path):
-        if not conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+        if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return
 
         connection, db, storage = self.__conn__()
 
-        if not conf.SECURITY_KEY:
+        if not self.context.config.SECURITY_KEY:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
         crypto = storage.find_one({'path': path})
 
-        crypto['crypto'] = conf.SECURITY_KEY
+        crypto['crypto'] = self.context.config.SECURITY_KEY
         storage.update(crypto)
 
     def put_detector_data(self, path, data):
@@ -94,5 +92,5 @@ class Storage(BaseStorage):
 
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')
-        return timediff.seconds > conf.STORAGE_EXPIRATION_SECONDS
+        return timediff.seconds > self.context.config.STORAGE_EXPIRATION_SECONDS
 
