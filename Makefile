@@ -4,8 +4,7 @@ run: compile_ext
 compile_ext:
 	python setup.py build_ext -i
 
-test pyvows: compile_ext
-	@make mongo > /dev/null
+test pyvows: compile_ext redis mongo
 	@PYTHONPATH=.:$$PYTHONPATH pyvows -v --profile --cover --cover_package=thumbor --cover_threshold=90 vows/
 
 mysql_test: pretest
@@ -14,3 +13,7 @@ mysql_test: pretest
 mongo:
 	@rm -rf /tmp/thumbor/mongodata && mkdir -p /tmp/thumbor/mongodata
 	@mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --quiet &
+
+redis:
+	@ps aux | egrep redis | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
+	@redis-server redis.conf &

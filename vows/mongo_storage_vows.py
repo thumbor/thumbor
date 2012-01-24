@@ -168,3 +168,28 @@ class MongoStorageVows(MongoDBContext):
             def should_be_null(self, topic):
                 expect(topic).to_be_null()
 
+        class RaisesIfWrongConfig(Vows.Context):
+            def topic(self):
+                conf = Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='')
+                storage = MongoStorage(Context(config=conf))
+                storage.put(IMAGE_URL % 13, IMAGE_BYTES)
+
+                conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
+                storage.put_crypto(IMAGE_URL % 13)
+
+            def should_be_an_error(self, topic):
+                expect(topic).to_be_an_error_like(RuntimeError)
+                expect(topic).to_have_an_error_message_of("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+
+    class DetectorData(Vows.Context):
+        def topic(self):
+            conf = Config()
+            storage = MongoStorage(Context(config=conf))
+            storage.put(IMAGE_URL % 14, IMAGE_BYTES)
+            storage.put_detector_data(IMAGE_URL % 14, "some data")
+
+            return storage.get_detector_data(IMAGE_URL % 14)
+
+        def should_be_some_data(self, topic):
+            expect(topic).to_equal('some data')
+
