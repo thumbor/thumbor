@@ -155,4 +155,16 @@ class MongoStorageVows(MongoDBContext):
                 expect(topic).not_to_be_null()
                 expect(topic).to_equal('ACME-SEC')
 
+        class DoesNotStoreCryptoIfNoNeed(Vows.Context):
+            def topic(self):
+                conf = Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='ACME-SEC')
+                storage = MongoStorage(Context(config=conf))
+                storage.put(IMAGE_URL % 12, IMAGE_BYTES)
+                storage.put_crypto(IMAGE_URL % 12)
+
+                item = storage.get_crypto(IMAGE_URL % 12)
+                return item
+
+            def should_be_null(self, topic):
+                expect(topic).to_be_null()
 
