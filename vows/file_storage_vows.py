@@ -8,28 +8,34 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import redis
+from os.path import exists
+import random
+
 from pyvows import Vows, expect
 
-from thumbor.storages.redis_storage import Storage as RedisStorage
+from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.context import Context
 from thumbor.config import Config
 from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES, get_server
 
-class RedisDBContext(Vows.Context):
-    def setup(self):
-        self.connection = redis.Redis(port=7778,
-                                      host='localhost',
-                                      db=0)
-
 @Vows.batch
-class RedisStorageVows(RedisDBContext):
+class FileStorageVows(Vows.Context):
+    class CreatesRootPathIfNoneFound(Vows.Context):
+        def topic(self):
+            config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/%s" % random.randint(1, 10000000))
+            storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
+            storage.ensure_dir(config.FILE_STORAGE_ROOT_PATH)
+            return exists(config.FILE_STORAGE_ROOT_PATH)
+
+        def should_exist(self, topic):
+            expect(topic).to_be_true()
+
     class CanStoreImage(Vows.Context):
         def topic(self):
-            config = Config(REDIS_STORAGE_SERVER_PORT=7778)
-            storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+            config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
+            storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
-            return self.parent.connection.get(IMAGE_URL % 1)
+            return storage.get(IMAGE_URL % 1)
 
         def should_be_in_catalog(self, topic):
             expect(topic).not_to_be_null()
@@ -37,8 +43,8 @@ class RedisStorageVows(RedisDBContext):
 
     class CanGetImage(Vows.Context):
         def topic(self):
-            config = Config(REDIS_STORAGE_SERVER_PORT=7778)
-            storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+            config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
+            storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
 
             storage.put(IMAGE_URL % 2, IMAGE_BYTES)
             return storage.get(IMAGE_URL % 2)
@@ -53,8 +59,8 @@ class RedisStorageVows(RedisDBContext):
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
-                storage = RedisStorage(Context(config=config, server=get_server('')))
+                config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/", STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                storage = FileStorage(Context(config=config, server=get_server('')))
                 storage.put(IMAGE_URL % 3, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 3)
 
@@ -64,8 +70,8 @@ class RedisStorageVows(RedisDBContext):
 
         class GettingCryptoForANewImageReturnsNone(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
-                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/", STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
                 return storage.get_crypto(IMAGE_URL % 9999)
 
             def should_be_null(self, topic):
@@ -73,8 +79,8 @@ class RedisStorageVows(RedisDBContext):
 
         class DoesNotStoreIfConfigSaysNotTo(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778)
-                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
+                storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.put(IMAGE_URL % 5, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 5)
                 return storage.get_crypto(IMAGE_URL % 5)
@@ -84,8 +90,8 @@ class RedisStorageVows(RedisDBContext):
 
         class CanStoreCrypto(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
-                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/", STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
 
                 storage.put(IMAGE_URL % 6, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 6)
@@ -101,8 +107,8 @@ class RedisStorageVows(RedisDBContext):
     class DetectorVows(Vows.Context):
         class CanStoreDetectorData(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778)
-                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
+                storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.put(IMAGE_URL % 7, IMAGE_BYTES)
                 storage.put_detector_data(IMAGE_URL % 7, 'some-data')
                 return storage.get_detector_data(IMAGE_URL % 7)
@@ -116,8 +122,8 @@ class RedisStorageVows(RedisDBContext):
 
         class ReturnsNoneIfNoDetectorData(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778)
-                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
+                storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
                 return storage.get_detector_data(IMAGE_URL % 10000)
 
             def should_not_be_null(self, topic):

@@ -16,7 +16,7 @@ from pyvows import Vows, expect
 from thumbor.storages.mongo_storage import Storage as MongoStorage
 from thumbor.context import Context
 from thumbor.config import Config
-from fixtures.mongo_storage_fixture import IMAGE_URL, IMAGE_BYTES, get_server
+from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES, get_server
 
 class MongoDBContext(Vows.Context):
     def setup(self):
