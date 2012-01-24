@@ -41,7 +41,7 @@ class Storage(BaseStorage):
         if not self.context.server.security_key:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
-        self.storage.set(self.__key_for(path), self.context.request.security_key)
+        self.storage.set(self.__key_for(path), self.context.server.security_key)
 
     def put_detector_data(self, path, data):
         self.storage.set(self.__detector_key_for(path), dumps(data))

@@ -35,9 +35,9 @@ class Storage(BaseStorage):
 
         doc_with_crypto = dict(doc)
         if self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            if not self.context.config.SECURITY_KEY:
+            if not self.context.server.security_key:
                 raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
-            doc_with_crypto['crypto'] = self.context.config.SECURITY_KEY
+            doc_with_crypto['crypto'] = self.context.server.security_key
 
         fs = gridfs.GridFS(db)
         file_data = fs.put(StringIO(bytes), **doc)
@@ -51,12 +51,12 @@ class Storage(BaseStorage):
 
         connection, db, storage = self.__conn__()
 
-        if not self.context.config.SECURITY_KEY:
+        if not self.context.server.security_key:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
         crypto = storage.find_one({'path': path})
 
-        crypto['crypto'] = self.context.config.SECURITY_KEY
+        crypto['crypto'] = self.context.server.security_key
         storage.update({'path': path}, crypto)
 
     def put_detector_data(self, path, data):
