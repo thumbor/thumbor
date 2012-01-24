@@ -64,13 +64,12 @@ class RedisStorageVows(RedisDBContext):
 
         class GettingCryptoForANewImageReturnsNone(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778)
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
-                return storage.get_crypto(IMAGE_URL % 4)
+                return storage.get_crypto(IMAGE_URL % 9999)
 
             def should_be_null(self, topic):
                 expect(topic).to_be_null()
-
 
         class DoesNotStoreIfConfigSaysNotTo(Vows.Context):
             def topic(self):
@@ -114,4 +113,13 @@ class RedisStorageVows(RedisDBContext):
 
             def should_equal_some_data(self, topic):
                 expect(topic).to_equal('some-data')
+
+        class ReturnsNoneIfNoDetectorData(Vows.Context):
+            def topic(self):
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778)
+                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                return storage.get_detector_data(IMAGE_URL % 10000)
+
+            def should_not_be_null(self, topic):
+                expect(topic).to_be_null()
 
