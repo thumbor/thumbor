@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from cStringIO import StringIO
 
 from pymongo import Connection
@@ -57,7 +57,7 @@ class Storage(BaseStorage):
         crypto = storage.find_one({'path': path})
 
         crypto['crypto'] = self.context.config.SECURITY_KEY
-        storage.update(crypto)
+        storage.update({'path': path}, crypto)
 
     def put_detector_data(self, path, data):
         connection, db, storage = self.__conn__()
@@ -92,5 +92,5 @@ class Storage(BaseStorage):
 
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')
-        return timediff.seconds > self.context.config.STORAGE_EXPIRATION_SECONDS
+        return timediff > timedelta(seconds=self.context.config.STORAGE_EXPIRATION_SECONDS)
 

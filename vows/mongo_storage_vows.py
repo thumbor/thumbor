@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import abspath, join, dirname
+import time
 
 from pymongo import Connection
 from pyvows import Vows, expect
@@ -91,4 +92,67 @@ class MongoStorageVows(MongoDBContext):
             def should_have_crypto_key(self, topic):
                 expect(topic.has_key('crypto')).to_be_true()
                 expect(topic['crypto']).to_equal('ACME-SEC')
+
+        class GetProperKey(Vows.Context):
+            def topic(self):
+                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
+                storage.put(IMAGE_URL % 6, IMAGE_BYTES)
+
+                return storage.get_crypto(IMAGE_URL % 6)
+
+            def should_be_in_catalog(self, topic):
+                expect(topic).not_to_be_null()
+                expect(topic).not_to_be_an_error()
+
+            def should_have_crypto_key(self, topic):
+                expect(topic).to_equal('ACME-SEC')
+
+        class GetNoKey(Vows.Context):
+            def topic(self):
+                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
+                return storage.get_crypto(IMAGE_URL % 7)
+
+            def should_not_be_in_catalog(self, topic):
+                expect(topic).to_be_null()
+
+        class GetProperKeyBeforeExpiration(Vows.Context):
+            def topic(self):
+                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=5000)))
+                storage.put(IMAGE_URL % 8, IMAGE_BYTES)
+                return storage.get(IMAGE_URL % 8)
+
+            def should_be_in_catalog(self, topic):
+                expect(topic).not_to_be_null()
+                expect(topic).not_to_be_an_error()
+
+            def should_have_crypto_key(self, topic):
+                expect(topic).to_equal(IMAGE_BYTES)
+
+        class GetNothingAfterExpiration(Vows.Context):
+            def topic(self):
+                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=0)))
+                storage.put(IMAGE_URL % 10, IMAGE_BYTES)
+
+                item = storage.get(IMAGE_URL % 10)
+                return item is None
+
+            def should_be_expired(self, topic):
+                expect(topic).to_be_true()
+
+        class StoresCryptoAfterStoringImage(Vows.Context):
+            def topic(self):
+                conf = Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='ACME-SEC')
+                storage = MongoStorage(Context(config=conf))
+                storage.put(IMAGE_URL % 11, IMAGE_BYTES)
+
+                conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
+                storage.put_crypto(IMAGE_URL % 11)
+
+                item = storage.get_crypto(IMAGE_URL % 11)
+                return item
+
+            def should_be_acme_sec(self, topic):
+                expect(topic).not_to_be_null()
+                expect(topic).to_equal('ACME-SEC')
+
 
