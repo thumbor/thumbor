@@ -68,3 +68,27 @@ class MongoStorageVows(MongoDBContext):
             def should_not_have_crypto_key(self, topic):
                 expect(topic.has_key('crypto')).to_be_false()
 
+        class StoringEmptyKeyRaises(Vows.Context):
+            def topic(self):
+                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='')))
+                storage.put(IMAGE_URL % 4, IMAGE_BYTES)
+
+            def should_be_an_error(self, topic):
+                expect(topic).to_be_an_error_like(RuntimeError)
+                expect(topic).to_have_an_error_message_of("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+
+        class StoringProperKey(Vows.Context):
+            def topic(self):
+                storage = MongoStorage(Context(config=Config(STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
+                storage.put(IMAGE_URL % 5, IMAGE_BYTES)
+
+                return self.parent.parent.collection.find_one({'path': IMAGE_URL % 5})
+
+            def should_be_in_catalog(self, topic):
+                expect(topic).not_to_be_null()
+                expect(topic).not_to_be_an_error()
+
+            def should_have_crypto_key(self, topic):
+                expect(topic.has_key('crypto')).to_be_true()
+                expect(topic['crypto']).to_equal('ACME-SEC')
+

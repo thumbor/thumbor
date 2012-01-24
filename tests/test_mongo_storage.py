@@ -27,41 +27,6 @@ collection = connection['thumbor_test']['images']
 def rm_storage():
     connection.drop_database('thumbor_test')
 
-class StorageWithFalseStoreCryptoTest(AsyncHTTPTestCase):
-
-    def get_app(self):
-        return ThumborServiceApp(join(fixtures_folder, 'mongo_storage_conf.py'))
-
-    def test_stores_image_does_not_store_crypt_key_if_not_in_options(self):
-        rm_storage()
-        options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = False
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
-        http_loaded = http.load(image_url)
-        storage = Storage()
-        storage.put(image_url, http_loaded)
-        assert not collection.find_one({'path': image_url}).has_key('crypto'), 'crypto key should not be found into the storage'
-
-class StorageStoringCryptoKeyRaisesTest(AsyncHTTPTestCase):
-
-    def get_app(self):
-        return ThumborServiceApp(join(fixtures_folder, 'mongo_storage_conf.py'))
-
-    def test_storing_an_empty_key_raises(self):
-        rm_storage()
-        options.SECURITY_KEY = False
-        options.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
-        image_url = 'www.globo.com/media/globocom/img/sprite1.png'
-        http_loaded = http.load(image_url)
-        storage = Storage()
-
-        try:
-            storage.put(image_url, http_loaded)
-        except RuntimeError, err:
-            assert str(err) == "STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
-            return
-
-        assert False, "should not have gotten this far"
-
 class StorageStoringCryptoKeyFindsSecurityFile(AsyncHTTPTestCase):
 
     def get_app(self):
