@@ -12,7 +12,9 @@ from collections import defaultdict
 
 from pyvows import Vows, expect
 
+from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.storages.mixed_storage import Storage as MixedStorage
+from fixtures.storage_fixture import get_context
 
 class Storage(object):
     def __init__(self, security_key):
@@ -26,11 +28,20 @@ class Storage(object):
     def put_crypto(self, path):
         self.storage[path]['crypto'] = self.security_key
 
+    def put_detector_data(self, path, data):
+        self.storage[path]['detector'] = data
+
     def get_crypto(self, path):
         if path not in self.storage:
             raise RuntimeError('%s was not found in storage' % path)
 
         return self.storage[path]['crypto']
+
+    def get_detector_data(self, path):
+        if path not in self.storage or 'detector' not in self.storage[path]:
+            return None
+
+        return self.storage[path]['detector']
 
     def get(self, path):
         if path not in self.storage:
@@ -47,8 +58,10 @@ class MixedStorageVows(Vows.Context):
         def topic(self, storages):
             file_storage, crypto_storage, detector_storage = storages
             storage = MixedStorage(None, file_storage, crypto_storage, detector_storage)
+
             storage.put('path1', 'contents')
             storage.put_crypto('path1')
+            storage.put_detector_data('path1', 'detector')
 
             return storage
 
@@ -60,6 +73,10 @@ class MixedStorageVows(Vows.Context):
             def should_record_contents_on_file_storage(self, topic):
                 file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
                 expect(file_storage.storage['path1']['contents']).to_equal('contents')
+
+            def should_get_contents(self, topic):
+                contents = topic.get('path1')
+                expect(contents).to_equal('contents')
 
             def should_not_record_crypto_on_file_storage(self, topic):
                 file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
@@ -73,4 +90,41 @@ class MixedStorageVows(Vows.Context):
                 file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
                 expect(crypto_storage.storage['path1']['crypto']).to_equal('security-key')
 
+            def should_get_crypto(self, topic):
+                contents = topic.get_crypto('path1')
+                expect(contents).to_equal('security-key')
 
+            def should_get_detector_data(self, topic):
+                contents = topic.get_detector_data('path1')
+                expect(contents).to_equal('detector')
+
+    class GetFromConfig(Vows.Context):
+        def topic(self, storages):
+            context = get_context()
+            file_storage, crypto_storage, detector_storage = storages
+            storage = MixedStorage(context)
+
+            return storage
+
+        def should_have_proper_file_storage(self, topic):
+            expect(topic.file_storage).to_be_instance_of(NoStorage)
+
+        def should_have_proper_crypto_storage(self, topic):
+            expect(topic.crypto_storage).to_be_instance_of(NoStorage)
+
+        def should_have_proper_detector_storage(self, topic):
+            expect(topic.detector_storage).to_be_instance_of(NoStorage)
+
+        class GetDetectorData(Vows.Context):
+            def topic(self, storage):
+                return storage.get_detector_data('path')
+
+            def should_be_null(self, topic):
+                expect(topic).to_be_null()
+
+        class GetCrypto(Vows.Context):
+            def topic(self, storage):
+                return storage.get_crypto('path')
+
+            def should_be_null(self, topic):
+                expect(topic).to_be_null()
