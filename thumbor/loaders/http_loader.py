@@ -10,6 +10,7 @@
 
 import re
 from urlparse import urlparse
+from functools import partial
 
 import tornado.httpclient
 
@@ -29,26 +30,17 @@ def validate(context, url):
             return True
     return False
 
-#def verify_size(url, max_size):
-    #usock = urllib2.urlopen(url)
-    #actual = usock.info().get('Content-Length')
-    #if actual is None:
-        #actual = 0
-    #return (float(actual) / 1024) <= max_size
+def return_contents(callback, response):
+    if response.error or not response.headers['Content-Type'][:6] == 'image/':
+        callback(None)
+    else:
+        callback(response.body)
 
 def load(context, url, callback):
     client = http_client
     if client is None:
         client = tornado.httpclient.AsyncHTTPClient()
-    #if conf.MAX_SOURCE_SIZE and not verify_size(url, conf.MAX_SOURCE_SIZE):
-        #return None
-
-    def return_contents(response):
-        if response.error or not response.headers['Content-Type'][:6] == 'image/':
-            callback(None)
-        else:
-            callback(response.body)
 
     url = _normalize_url(url)
-    client.fetch(url, callback=return_contents)
+    client.fetch(url, callback=partial(return_contents, callback=callback))
 
