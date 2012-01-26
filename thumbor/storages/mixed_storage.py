@@ -15,13 +15,10 @@ class Storage(BaseStorage):
         BaseStorage.__init__(self, context)
 
         self.file_storage = file_storage
-        self._init_file_storage()
 
         self.crypto_storage = crypto_storage
-        self._init_crypto_storage()
 
         self.detector_storage = detector_storage
-        self._init_detector_storage()
 
     def _init_file_storage(self):
         if self.file_storage is None:
@@ -51,19 +48,25 @@ class Storage(BaseStorage):
             self.detector_storage = self.context.modules.detector_storage = self.context.modules.importer.detector_storage(self.context)
 
     def put(self, path, bytes):
+        self._init_file_storage()
         self.file_storage.put(path, bytes)
 
     def put_detector_data(self, path, data):
+        self._init_detector_storage()
         self.detector_storage.put_detector_data(path, data)
 
     def put_crypto(self, path):
+        self._init_crypto_storage()
         self.crypto_storage.put_crypto(path)
 
     def get_crypto(self, path):
+        self._init_crypto_storage()
         return self.crypto_storage.get_crypto(path)
 
     def get_detector_data(self, path):
+        self._init_detector_storage()
         return self.detector_storage.get_detector_data(path)
 
     def get(self, path):
+        self._init_file_storage()
         return self.file_storage.get(path)
