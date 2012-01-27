@@ -106,25 +106,32 @@ class MixedStorageVows(Vows.Context):
 
             return storage
 
-        def should_have_proper_file_storage(self, topic):
-            expect(topic.file_storage).to_be_instance_of(NoStorage)
+        class GetData(Vows.Context):
+            def topic(self, storage):
+                return (storage, storage.get('path'))
 
-        def should_have_proper_crypto_storage(self, topic):
-            expect(topic.crypto_storage).to_be_instance_of(NoStorage)
+            def should_have_proper_file_storage(self, topic):
+                expect(topic[0].file_storage).to_be_instance_of(NoStorage)
 
-        def should_have_proper_detector_storage(self, topic):
-            expect(topic.detector_storage).to_be_instance_of(NoStorage)
+            def should_be_null(self, topic):
+                expect(topic[1]).to_be_null()
 
         class GetDetectorData(Vows.Context):
             def topic(self, storage):
-                return storage.get_detector_data('path')
+                return (storage, storage.get_detector_data('path'))
+
+            def should_have_proper_detector_storage(self, topic):
+                expect(topic[0].detector_storage).to_be_instance_of(NoStorage)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[1]).to_be_null()
 
         class GetCrypto(Vows.Context):
             def topic(self, storage):
-                return storage.get_crypto('path')
+                return (storage, storage.get_crypto('path'))
+
+            def should_have_proper_crypto_storage(self, topic):
+                expect(topic[0].crypto_storage).to_be_instance_of(NoStorage)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[1]).to_be_null()

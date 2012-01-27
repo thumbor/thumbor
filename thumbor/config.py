@@ -124,6 +124,7 @@ Config.define('MONGO_STORAGE_SERVER_COLLECTION', 'images')
 Config.define('REDIS_STORAGE_SERVER_HOST', 'localhost')
 Config.define('REDIS_STORAGE_SERVER_PORT', 6379)
 Config.define('REDIS_STORAGE_SERVER_DB', 0)
+Config.define('REDIS_STORAGE_SERVER_PASSWORD', None)
 
 # MIXED STORAGE OPTIONS
 Config.define('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage')

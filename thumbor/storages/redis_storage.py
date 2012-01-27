@@ -22,7 +22,8 @@ class Storage(BaseStorage):
 
         self.storage = redis.Redis(port=self.context.config.REDIS_STORAGE_SERVER_PORT,
                                    host=self.context.config.REDIS_STORAGE_SERVER_HOST,
-                                   db=self.context.config.REDIS_STORAGE_SERVER_DB)
+                                   db=self.context.config.REDIS_STORAGE_SERVER_DB,
+                                   password=self.context.config.REDIS_STORAGE_SERVER_PASSWORD)
 
     def __key_for(self, url):
         return 'thumbor-crypto-%s' % url
