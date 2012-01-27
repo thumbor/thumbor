@@ -20,13 +20,14 @@ class RedisDBContext(Vows.Context):
     def setup(self):
         self.connection = redis.Redis(port=7778,
                                       host='localhost',
-                                      db=0)
+                                      db=0,
+                                      password='hey_you')
 
 @Vows.batch
 class RedisStorageVows(RedisDBContext):
     class CanStoreImage(Vows.Context):
         def topic(self):
-            config = Config(REDIS_STORAGE_SERVER_PORT=7778)
+            config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
             storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
             return self.parent.connection.get(IMAGE_URL % 1)
@@ -37,7 +38,7 @@ class RedisStorageVows(RedisDBContext):
 
     class CanGetImage(Vows.Context):
         def topic(self):
-            config = Config(REDIS_STORAGE_SERVER_PORT=7778)
+            config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
             storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
 
             storage.put(IMAGE_URL % 2, IMAGE_BYTES)
@@ -53,7 +54,7 @@ class RedisStorageVows(RedisDBContext):
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you', STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = RedisStorage(Context(config=config, server=get_server('')))
                 storage.put(IMAGE_URL % 3, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 3)
@@ -64,7 +65,7 @@ class RedisStorageVows(RedisDBContext):
 
         class GettingCryptoForANewImageReturnsNone(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you', STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
                 return storage.get_crypto(IMAGE_URL % 9999)
 
@@ -73,7 +74,7 @@ class RedisStorageVows(RedisDBContext):
 
         class DoesNotStoreIfConfigSaysNotTo(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778)
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.put(IMAGE_URL % 5, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 5)
@@ -84,7 +85,7 @@ class RedisStorageVows(RedisDBContext):
 
         class CanStoreCrypto(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you', STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
 
                 storage.put(IMAGE_URL % 6, IMAGE_BYTES)
@@ -101,7 +102,7 @@ class RedisStorageVows(RedisDBContext):
     class DetectorVows(Vows.Context):
         class CanStoreDetectorData(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778)
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.put(IMAGE_URL % 7, IMAGE_BYTES)
                 storage.put_detector_data(IMAGE_URL % 7, 'some-data')
@@ -116,7 +117,7 @@ class RedisStorageVows(RedisDBContext):
 
         class ReturnsNoneIfNoDetectorData(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778)
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
                 return storage.get_detector_data(IMAGE_URL % 10000)
 
