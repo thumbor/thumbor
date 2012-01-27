@@ -32,10 +32,10 @@ def main(arguments=None):
     importer = Importer(config)
     importer.import_modules()
 
-    if server_parameters.security_key is not None:
-        config.SECURITY_KEY = server_parameters.security_key
+    if server_parameters.security_key is None:
+        server_parameters.security_key = config.SECURITY_KEY
 
-    if not isinstance(config.SECURITY_KEY, basestring):
+    if not isinstance(server_parameters.security_key, basestring):
         raise RuntimeError('No security key was found for this instance of thumbor. Please provide one using the conf file or a security key file.')
 
     context = Context(server=server_parameters, config=config, importer=importer)

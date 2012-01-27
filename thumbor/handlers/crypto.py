@@ -23,7 +23,7 @@ class CryptoHandler(ContextHandler):
             security_key=None,
             **kw):
 
-        cr = Crypto(security_key or self.context.config.SECURITY_KEY)
+        cr = Crypto(security_key or self.context.server.security_key)
 
         try:
             opt = cr.decrypt(crypto)
@@ -33,7 +33,7 @@ class CryptoHandler(ContextHandler):
         if not opt and not security_key and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             security_key = self.storage.get_crypto(image)
 
-            cr = Crypto(security_key or self.context.config.SECURITY_KEY)
+            cr = Crypto(security_key or self.context.server.security_key)
             opt = cr.decrypt(crypto)
 
         image_hash = opt and opt.get('image_hash')

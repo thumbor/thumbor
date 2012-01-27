@@ -30,7 +30,7 @@ def validate(context, url):
             return True
     return False
 
-def return_contents(callback, response):
+def return_contents(response, callback):
     if response.error or not response.headers['Content-Type'][:6] == 'image/':
         callback(None)
     else:

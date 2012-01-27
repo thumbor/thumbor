@@ -17,7 +17,7 @@ from thumbor.crypto import Crypto
 from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
 from thumbor.config import Config
-from thumbor.context import Context
+from thumbor.context import Context, ServerParameters
 
 get_encrypted_url = lambda url, width, height, security_key='HandlerVows': '/%s/%s' % (Crypto(security_key).encrypt(width, height, False, False, False, False, 'center', 'middle', None, None, None, None, '', url), url)
 
@@ -29,9 +29,11 @@ image_url = 'alabama1_ap620.jpg'
 class CryptoHandlerVows(TornadoHTTPContext):
     def get_app(self):
         cfg = Config.load(fixture_for('encrypted_handler_conf.py'))
+        server_params = ServerParameters(None, None, None, None, None, None)
+        server_params.security_key = 'HandlerVows'
         importer = Importer(cfg)
         importer.import_modules()
-        ctx = Context(None, cfg, importer)
+        ctx = Context(server_params, cfg, importer)
         application = ThumborServiceApp(ctx)
         return application
 
