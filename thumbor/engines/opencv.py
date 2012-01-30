@@ -25,10 +25,10 @@ class Engine(BaseEngine):
         # FIXME: opencv doesn't support gifs, even worse, the library
         # segfaults when trying to decoding a gif. An exception is a
         # less drastic measure.
-	try:
+        try:
             if FORMATS[self.extension] == 'GIF':
                 raise ValueError("opencv doesn't support gifs")
-	except KeyError:
+        except KeyError:
             pass
 
         imagefiledata = cv.CreateMatHeader(1, len(buffer), cv.CV_8UC1)
@@ -68,9 +68,9 @@ class Engine(BaseEngine):
         if quality is None: quality = self.context.request.quality
         options = None
         extension = extension or self.extension
-	try:
+        try:
             if FORMATS[extension] == 'JPEG':
-                options = [cv.CV_IMWRITE_JPEG_QUALITY, quality]
+               options = [cv.CV_IMWRITE_JPEG_QUALITY, quality]
         except KeyError:
             #default is JPEG so
             options = [cv.CV_IMWRITE_JPEG_QUALITY, quality]
