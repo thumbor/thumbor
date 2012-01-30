@@ -140,12 +140,6 @@ Config.define('DETECTORS', ['thumbor.detectors.face_detector', 'thumbor.detector
 # FACE DETECTOR CASCADE FILE
 Config.define('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml')
 
-# REMOTE FACE DETECTION
-Config.define('REMOTECV_HOST', "localhost")
-Config.define('REMOTECV_PORT', 13337)
-Config.define('REMOTECV_TIMEOUT', 20)
-Config.define('REMOTECV_SEND_IMAGE', True)
-
 # AVAILABLE FILTERS
 Config.define('FILTERS', [])
 
@@ -153,3 +147,9 @@ Config.define('FILTERS', [])
 Config.define('RESULT_STORAGE_EXPIRATION_SECONDS', 0) # Never expires
 Config.define('RESULT_STORAGE_FILE_STORAGE_ROOT_PATH', join(tempfile.gettempdir(), 'thumbor', 'result_storage'))
 Config.define('RESULT_STORAGE_STORES_UNSAFE', False)
+
+# QUEUED DETECTOR REDIS OPTIONS
+Config.define('REDIS_QUEUE_SERVER_HOST', 'localhost')
+Config.define('REDIS_QUEUE_SERVER_PORT', 6379)
+Config.define('REDIS_QUEUE_SERVER_DB', 0)
+Config.define('REDIS_QUEUE_SERVER_PASSWORD', None)
