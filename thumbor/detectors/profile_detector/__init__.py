@@ -10,11 +10,9 @@
 
 from tornado.options import options, define
 
-from thumbor.detectors import CascadeLoaderDetector
-
+from thumbor.detectors.local_detector import CascadeLoaderDetector
 
 define('PROFILE_DETECTOR_CASCADE_FILE', default='haarcascade_profileface.xml')
-
 
 class Detector(CascadeLoaderDetector):
 

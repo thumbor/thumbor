@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from thumbor.detectors import CascadeLoaderDetector
+from thumbor.detectors.local_detector import CascadeLoaderDetector
 from thumbor.point import FocalPoint
 
 HAIR_OFFSET = 0.12

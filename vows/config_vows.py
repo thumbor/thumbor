@@ -38,10 +38,6 @@ TEST_DATA = (
     ('MIXED_STORAGE_DETECTOR_STORAGE', 'thumbor.storages.no_storage'),
     ('DETECTORS', ['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector']),
     ('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml'),
-    ('REMOTECV_HOST', "localhost"),
-    ('REMOTECV_PORT', 13337),
-    ('REMOTECV_TIMEOUT', 20),
-    ('REMOTECV_SEND_IMAGE', True),
     ('FILTERS', [])
 )
 
