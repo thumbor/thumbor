@@ -28,11 +28,11 @@ class HbaseDBContext(Vows.Context):
         protocol = TBinaryProtocol.TBinaryProtocol(transport)
         self.connection = Hbase.Client(protocol)
         self.table='thumbor-test'
-        self.familly='images:'
+        self.family='images:'
 
         columns = []
         col = ttypes.ColumnDescriptor()
-        col.name = self.familly
+        col.name = self.family
         col.maxVersions = 1
         columns.append(col)
 	try:
@@ -50,7 +50,7 @@ class HbaseStorageVows(HbaseDBContext):
             config = Config(HBASE_STORAGE_TABLE=self.parent.table,HBASE_STORAGE_SERVER_PORT=9090,SECURITY_KEY='ACME-SEC')
             storage = Storage(Context(config=config, server=get_server('ACME-SEC')))
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
-            return self.parent.connection.get(self.parent.table,IMAGE_URL % 1,self.parent.familly)
+            return self.parent.connection.get(self.parent.table,IMAGE_URL % 1,self.parent.family)
 
         def should_be_in_catalog(self, topic):
             expect(topic).not_to_be_null()
