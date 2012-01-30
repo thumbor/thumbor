@@ -70,7 +70,7 @@ class Engine(BaseEngine):
         extension = extension or self.extension
         try:
             if FORMATS[extension] == 'JPEG':
-               options = [cv.CV_IMWRITE_JPEG_QUALITY, quality]
+                options = [cv.CV_IMWRITE_JPEG_QUALITY, quality]
         except KeyError:
             #default is JPEG so
             options = [cv.CV_IMWRITE_JPEG_QUALITY, quality]
