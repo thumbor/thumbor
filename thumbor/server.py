@@ -13,8 +13,6 @@ import logging
 
 import tornado.ioloop
 from tornado.httpserver import HTTPServer
-#from pyremotecv import tornado_extensions
-#tornado_extensions.install_io_loop()
 
 from thumbor.app import ThumborServiceApp
 from thumbor.console import get_server_parameters
@@ -46,6 +44,7 @@ def main(arguments=None):
     server.start(1)
 
     try:
+        logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
         print

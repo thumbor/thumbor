@@ -10,6 +10,8 @@
 
 import os
 from datetime import datetime
+from uuid import uuid4
+from shutil import move
 
 from os.path import exists, dirname, join, getmtime
 
@@ -24,13 +26,16 @@ class Storage(BaseStorage):
 
     def put(self, bytes):
         file_abspath = self.normalize_path(self.context.request.url)
+        temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace('-',''))
         file_dir_abspath = dirname(file_abspath)
         logger.debug("[RESULT_STORAGE] putting at %s (%s)" % (file_abspath, file_dir_abspath))
 
         self.__ensure_dir(file_dir_abspath)
 
-        with open(file_abspath, 'w') as _file:
+        with open(temp_abspath, 'w') as _file:
             _file.write(bytes)
+
+        move(temp_abspath, file_abspath)
 
     def get(self):
         path = self.context.request.url
