@@ -35,12 +35,11 @@ class HbaseDBContext(Vows.Context):
         col.name = self.family
         col.maxVersions = 1
         columns.append(col)
-	try:
-		self.connection.disableTable(self.table)
-                self.connection.deleteTable(self.table)
-	except IOError:
+        try:
+            self.connection.disableTable(self.table)
+            self.connection.deleteTable(self.table)
+        except ttypes.IOError:
             pass
-
 	self.connection.createTable(self.table, columns)
 
 @Vows.batch
