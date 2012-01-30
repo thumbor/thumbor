@@ -59,7 +59,10 @@ class Engine(BaseEngine):
         img_buffer = Blob()
 
         ext = extension or self.extension
-        self.image.magick(FORMATS[ext])
+        try:
+            self.image.magick(FORMATS[ext])
+        except KeyError:
+            self.image.magick(FORMATS['.jpg'])
 
         self.image.quality(quality)
 
