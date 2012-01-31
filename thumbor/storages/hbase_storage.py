@@ -65,9 +65,10 @@ class Storage(BaseStorage):
     def get_detector_data(self, path):
         data = self.storage.get(self.table,path,self.data_fam + ':' + self.detector_col)
 
-        if not data:
+        try:
+            return loads(data[0].value)
+        except IndexError:
             return None
-        return loads(data[0].value)
 
     def get(self, path):
         r = self.storage.get(self.table,path,self.data_fam + ':' + self.image_col)
