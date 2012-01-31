@@ -43,7 +43,7 @@ class CascadeLoaderDetector(BaseDetector):
 
         min_size = self.get_min_size_for(sz)
         haar_scale = 1.2
-        min_neighbors = 1
+        min_neighbors = 4
 
         cv.EqualizeHist(gray, gray)
 
