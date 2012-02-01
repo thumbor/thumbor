@@ -14,6 +14,7 @@ from pyvows import Vows, expect
 ctx = Vows.Context
 
 from thumbor.engines.json_engine import JSONEngine
+from thumbor.point import FocalPoint
 
 class MockImage:
     def __init__(self, size, data=None):
@@ -36,6 +37,9 @@ class MockEngine:
 
     def resize(self, width, height):
         self.image.size = (width, height)
+
+    def crop(self, left, top, right, bottom):
+        self.image.size = (right - left, bottom - top)
 
     @property
     def size(self):
@@ -142,6 +146,68 @@ class JsonEngineVows(ctx):
                     "target": {
                         "width": 200, 
                         "height": 300
+                    }
+                }
+            }
+            expect(topic).to_be_like(expected)
+
+    class CropVows(ctx):
+        def topic(self):
+            engine = MockEngine(size=IMAGE_SIZE)
+            json = JSONEngine(engine=engine, path=IMAGE_PATH)
+
+            json.crop(100, 100, 200, 150)
+
+            return loads(json.read('jpg', 100))
+
+        def should_be_proper_json(self, topic):
+            expected = {
+                "thumbor": {
+                    "operations": [
+                        {u'top': 100, u'right': 200, u'type': u'crop', u'left': 100, u'bottom': 150}
+                    ],
+                    "source": {
+                        "url": "/some/image/path.jpg",
+                        "width": 300, 
+                        "height": 200
+                    },
+                    "target": {
+                        "width": 100, 
+                        "height": 50
+                    }
+                }
+            }
+            expect(topic).to_be_like(expected)
+
+    class FocalVows(ctx):
+        def topic(self):
+            engine = MockEngine(size=IMAGE_SIZE)
+            json = JSONEngine(engine=engine, path=IMAGE_PATH)
+
+            json.focus([
+                FocalPoint(100, 100),
+                FocalPoint(200, 200)
+            ])
+
+            return loads(json.read('jpg', 100))
+
+        def should_be_proper_json(self, topic):
+            expected = {
+                "thumbor": {
+                    "operations": [
+                    ],
+                    "focal_points": [
+                        {u'origin': u'alignment', u'height': 1, u'width': 1, u'y': 100, u'x': 100, u'z': 1.0},
+                        {u'origin': u'alignment', u'height': 1, u'width': 1, u'y': 200, u'x': 200, u'z': 1.0}
+                    ],
+                    "source": {
+                        "url": "/some/image/path.jpg",
+                        "width": 300, 
+                        "height": 200
+                    },
+                    "target": {
+                        "width": 300, 
+                        "height": 200
                     }
                 }
             }
