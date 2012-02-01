@@ -77,7 +77,12 @@ class Engine(BaseEngine):
         except KeyError:
             #extension is not present or could not help determine format => force JPEG
             #TODO : guess format by image headers maybe
-            self.image.save(img_buffer, FORMATS['.jpg'])
+            if self.image.mode in ['P','RGBA']:
+                self.image.format = FORMATS['.png'] 
+                self.image.save(img_buffer, FORMATS['.png'])
+            else:
+                self.image.format = FORMATS['.jpg']
+                self.image.save(img_buffer, FORMATS['.jpg'])
 
         results = img_buffer.getvalue()
         img_buffer.close()
