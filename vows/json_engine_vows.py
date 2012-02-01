@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import re
 from json import loads
 
 from pyvows import Vows, expect
@@ -123,6 +124,41 @@ class JsonEngineVows(ctx):
                 }
                 expect(topic).to_be_like(expected)
 
+    class ReadWithCallbackName(ctx):
+        def topic(self):
+            engine = MockEngine(size=IMAGE_SIZE)
+            json = JSONEngine(engine=engine, path=IMAGE_PATH, callback_name="callback")
+
+            jsonp = json.read('jpg', 100)
+            match = re.match('^callback\((.+)\);', jsonp)
+            return match
+
+        def should_not_be_null(self, topic):
+            expect(topic).not_to_be_null()
+
+        class JsonCompare(ctx):
+            def topic(self, match):
+                json = match.groups()[0]
+                return loads(json)
+
+            def should_be_proper_json(self, topic):
+                expected = {
+                    "thumbor": {
+                        "operations": [],
+                        "source": {
+                            "url": "/some/image/path.jpg",
+                            "width": 300, 
+                            "height": 200
+                        },
+                        "target": {
+                            "width": 300, 
+                            "height": 200
+                        }
+                    }
+                }
+                expect(topic).to_be_like(expected)
+
+
     class ResizeVows(ctx):
         def topic(self):
             engine = MockEngine(size=IMAGE_SIZE)
@@ -178,6 +214,38 @@ class JsonEngineVows(ctx):
                 }
             }
             expect(topic).to_be_like(expected)
+
+    class FlipVows(ctx):
+        def topic(self):
+            engine = MockEngine(size=IMAGE_SIZE)
+            json = JSONEngine(engine=engine, path=IMAGE_PATH)
+
+            json.flip_vertically()
+            json.flip_horizontally()
+
+            return loads(json.read('jpg', 100))
+
+        def should_be_proper_json(self, topic):
+            expected = {
+                "thumbor": {
+                    "operations": [
+                        {u'type': u'flip_vertically'},
+                        {u'type': u'flip_horizontally'}
+                    ],
+                    "source": {
+                        "url": "/some/image/path.jpg",
+                        "width": 300, 
+                        "height": 200
+                    },
+                    "target": {
+                        "width": 300, 
+                        "height": 200
+                    }
+                }
+            }
+            expect(topic).to_be_like(expected)
+
+
 
     class FocalVows(ctx):
         def topic(self):
