@@ -46,7 +46,6 @@ class BaseDetectorVows(ctx):
             expect(topic).to_be_an_error_like(NotImplementedError)
 
     class NextVows(ctx):
-
         @Vows.async_topic
         def topic(self, callback):
             detector = BaseDetector("context", 0, [
@@ -57,4 +56,15 @@ class BaseDetectorVows(ctx):
 
         def should_be_detector_b(self, topic):
             expect(topic.args[0]).to_equal("b")
+
+    class LastDetectorVows(ctx):
+        @Vows.async_topic
+        def topic(self, callback):
+            detector = BaseDetector("context", 0, [
+                get_detector("a")
+            ])
+            return detector.next(callback)
+
+        def should_be_null(self, topic):
+            expect(topic.args).to_length(0)
 

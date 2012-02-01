@@ -19,7 +19,7 @@ class BaseDetector(object):
         raise NotImplementedError()
 
     def next(self, callback):
-        if self.index >= len(self.detectors):
+        if self.index > len(self.detectors) - 2:
             callback()
             return
 
