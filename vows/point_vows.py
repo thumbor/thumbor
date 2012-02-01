@@ -56,6 +56,9 @@ class FocalPointVows(Vows.Context):
             def should_have_weight_of_three(self, topic):
                 expect(topic.weight).to_equal(3.0)
 
+            def should_have_proper_representation(self, topic):
+                expect(str(topic)).to_equal('FocalPoint(x: 10, y: 20, width: 3, height: 1, weight: 3, origin: alignment)')
+
         class FromDict(Vows.Context):
             def topic(self):
                 return FocalPoint.from_dict({'x': 10.1, 'y': 20.1, 'z': 5.1})
