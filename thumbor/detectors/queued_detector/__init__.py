@@ -22,6 +22,7 @@ class QueuedDetector(BaseDetector):
                     args=[self.detection_type, self.context.request.image_url],
                     key=self.context.request.image_url)
         except RedisError:
+            self.context.request.detection_error = True
             logger.error(traceback.format_exc())
         finally:
             callback([])

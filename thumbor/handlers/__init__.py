@@ -153,7 +153,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_header('Content-Type', content_type)
 
-        if self.context.config.MAX_AGE:
+        if self.context.config.MAX_AGE and not context.request.detection_error:
             self.set_header('Cache-Control', 'max-age=' + str(self.context.config.MAX_AGE) + ',public')
             self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=self.context.config.MAX_AGE))
 
