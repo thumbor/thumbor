@@ -144,7 +144,12 @@ class BaseHandler(tornado.web.RequestHandler):
         if context.request.meta:
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
         else:
-            content_type = CONTENT_TYPE[context.request.extension]
+            try:
+                content_type = CONTENT_TYPE[context.request.extension]
+            except KeyError:
+                #extension is not present or could not help determine format => force JPEG
+                #TODO : guess format by image headers maybe
+                content_type = CONTENT_TYPE['.jpg']
 
         self.set_header('Content-Type', content_type)
 
