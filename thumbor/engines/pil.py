@@ -26,6 +26,11 @@ ImageFile.MAXBLOCK = 2**25
 
 class Engine(BaseEngine):
 
+    def gen_image(self,size,color):
+	img = Image.new("RGB", size, color)
+	self.icc_profile = img.info.get('icc_profile', None)
+	return img
+
     def create_image(self, buffer):
         img = Image.open(StringIO(buffer))
         self.icc_profile = img.info.get('icc_profile', None)
