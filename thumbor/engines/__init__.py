@@ -57,6 +57,9 @@ class BaseEngine(object):
         width, height = self.size
         return round(float(new_width) * height / width, 0)
 
+    def gen_image(self):
+        raise NotImplementedError()
+
     def create_image(self):
         raise NotImplementedError()
 
@@ -86,4 +89,7 @@ class BaseEngine(object):
 
     def get_image_mode(self):
         """ Possible return values should be: RGB, RBG, GRB, GBR, BRG, BGR, RGBA, AGBR, ...  """
+        raise NotImplementedError()
+
+    def paste(self):
         raise NotImplementedError()
