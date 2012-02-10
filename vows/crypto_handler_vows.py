@@ -19,7 +19,7 @@ from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 
-get_encrypted_url = lambda url, width, height, security_key='HandlerVows': '/%s/%s' % (Crypto(security_key).encrypt(width, height, False, False, False, False, 'center', 'middle', None, None, None, None, '', url), url)
+get_encrypted_url = lambda url, width, height, security_key='HandlerVows': '/%s/%s' % (Crypto(security_key).encrypt(width, height, False, False, False, False, False, 'center', 'middle', None, None, None, None, '', url), url)
 
 fixture_for = lambda path: abspath(join(dirname(__file__), 'fixtures', path))
 

@@ -15,7 +15,7 @@ class Url(object):
     debug = '(?:(?P<debug>debug)/)?'
     meta = '(?:(?P<meta>meta)/)?'
     crop = '(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?'
-    fit_in = '(?:(?P<fit_in>fit-in)/)?'
+    fit_in = '(?:(?P<adaptive>adaptive-)?(?P<fit_in>fit-in)/)?'
     dimensions = '(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?'
     halign = r'(?:(?P<halign>left|right|center)/)?'
     valign = r'(?:(?P<valign>top|bottom|middle)/)?'
@@ -71,6 +71,7 @@ class Url(object):
                 'right': int_or_0(result['crop_right']),
                 'bottom': int_or_0(result['crop_bottom'])
             },
+            'adaptive': result['adaptive'] == 'adaptive',
             'fit_in': result['fit_in'] == 'fit-in',
             'width': int_or_0(result['width']),
             'height': int_or_0(result['height']),
@@ -92,6 +93,7 @@ class Url(object):
                          height=0,
                          smart=False,
                          meta=False,
+                         adaptive=False,
                          fit_in=False,
                          horizontal_flip=False,
                          vertical_flip=False,
@@ -121,7 +123,10 @@ class Url(object):
             ))
 
         if fit_in:
-            url.append('fit-in')
+            if adaptive:
+                url.append('adaptive-fit-in')
+            else:
+                url.append('fit-in')
 
         if horizontal_flip:
             width = width * -1
