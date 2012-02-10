@@ -94,7 +94,7 @@ class UrlVows(Vows.Context):
             expect(topic).to_include('(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?')
 
         def should_contain_fit_in(self, topic):
-            expect(topic).to_include('(?:(?P<fit_in>fit-in)/)?')
+            expect(topic).to_include('(?:(?P<adaptive>adaptive-)?(?P<fit_in>fit-in)/)?')
 
         def should_contain_dimensions(self, topic):
             expect(topic).to_include('(?:(?P<horizontal_flip>-)?(?P<width>\d+)?x(?P<vertical_flip>-)?(?P<height>\d+)?/)?')
