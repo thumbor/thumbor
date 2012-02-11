@@ -38,6 +38,7 @@ class CryptoVows(Vows.Context):
             return crypto.encrypt(width=300,
                                   height=300,
                                   smart=True,
+                                  adaptive=False,
                                   fit_in=False,
                                   flip_horizontal=True,
                                   flip_vertical=True,

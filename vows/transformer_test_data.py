@@ -60,7 +60,7 @@ class TestData(object):
             target_width, target_height,
             halign, valign, focal_points,
             crop_left, crop_top, crop_right, crop_bottom,
-            fit_in=False):
+            fit_in=False, adaptive=False):
         self.source_width = source_width
         self.source_height = source_height
         self.target_width = target_width
@@ -73,6 +73,7 @@ class TestData(object):
         self.crop_right = crop_right
         self.crop_bottom = crop_bottom
         self.fit_in = fit_in
+        self.adaptive = adaptive
 
     def __repr__(self):
         return self.__str__()
@@ -114,6 +115,7 @@ class TestData(object):
                 'right': self.crop_right,
                 'bottom': self.crop_bottom
             },
+            adaptive=self.adaptive,
             fit_in=self.fit_in,
             horizontal_flip=flip_horizontally,
             vertical_flip=flip_vertically,
@@ -887,7 +889,16 @@ FIT_IN_CROP_DATA = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True
-    ), (200, 250, 0))
+    ), (200, 250, 0)),
+
+    (TestData(
+        source_width=800, source_height=400,
+        target_width=100, target_height=400,
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+        fit_in=True, adaptive=True
+    ), (200, 100, 1))
 
 ]
 

@@ -182,6 +182,15 @@ class Transformer(object):
     def fit_in_resize(self):
         source_width, source_height = self.engine.size
 
+        #invert width and height if image orientation is not the same as request orientation and need adaptive
+        if self.context.request.adaptive and ((source_width - source_height < 0 and self.target_width - self.target_height > 0 ) or (source_width - source_height > 0 and self.target_width - self.target_height < 0 )):
+            tmp = self.context.request.width
+            self.context.request.width = self.context.request.height
+            self.context.request.height = tmp
+            tmp = self.target_width
+            self.target_width = self.target_height
+            self.target_height = tmp
+
         if self.target_width >= source_width and self.target_height >= source_height:
             return
 
