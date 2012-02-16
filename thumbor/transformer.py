@@ -147,10 +147,10 @@ class Transformer(object):
             crop_width = round(math.ceil(self.target_width * source_height / self.target_height), 0)
             crop_height = source_height
 
-        crop_left = max(focal_x - (crop_width / 2), 0.0)
+        crop_left = min(max(focal_x - (crop_width / 2), 0.0), source_width - crop_width)
         crop_right = min(crop_left + crop_width, source_width)
 
-        crop_top = max(focal_y - (crop_height / 2), 0.0)
+        crop_top = min(max(focal_y - (crop_height / 2), 0.0), source_height - crop_height)
         crop_bottom = min(crop_top + crop_height, source_height)
 
         self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
@@ -168,10 +168,14 @@ class Transformer(object):
 
         for focal_point in self.focal_points:
             total_weight += focal_point.weight
+
             total_x += focal_point.x * focal_point.weight
             total_y += focal_point.y * focal_point.weight
 
-        return total_x / total_weight, total_y / total_weight
+        x = total_x / total_weight
+        y = total_y / total_weight
+
+        return x, y
 
     def resize(self):
         source_width, source_height = self.engine.size
