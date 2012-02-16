@@ -10,6 +10,7 @@
 
 from json import loads, dumps
 from datetime import datetime, timedelta
+from hashlib import md5
 
 from thrift.transport.TSocket import TSocket
 from thrift.transport.TTransport import TBufferedTransport
@@ -36,7 +37,7 @@ class Storage(BaseStorage):
 
     def put(self, path, bytes):
         r = [Mutation(column=self.data_fam + ':' + self.image_col, value=bytes)]
-        self.storage.mutateRow(self.table, path, r)
+        self.storage.mutateRow(self.table, md5(path).hexdigest() + '-' + path, r)
 
     def put_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
@@ -46,24 +47,24 @@ class Storage(BaseStorage):
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
         r = [Mutation(column=self.data_fam + ':' + self.crypto_col, value=self.context.config.SECURITY_KEY)]
-        self.storage.mutateRow(self.table, path, r)
+        self.storage.mutateRow(self.table, md5(path).hexdigest() + '-' + path, r)
 
     def put_detector_data(self, path, data):
         r = [Mutation(column=self.data_fam + ':' + self.detector_col, value=dumps(data))]
-        self.storage.mutateRow(self.table, path, r)
+        self.storage.mutateRow(self.table, md5(path).hexdigest() + '-' + path, r)
 
     def get_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return None
 
-        crypto = self.storage.get(self.table,path,self.data_fam + ':' + self.crypto_col)
+        crypto = self.storage.get(self.table, md5(path).hexdigest() + '-' + path, self.data_fam + ':' + self.crypto_col)
 
         if not crypto:
             return None
         return crypto[0].value
 
     def get_detector_data(self, path):
-        data = self.storage.get(self.table,path,self.data_fam + ':' + self.detector_col)
+        data = self.storage.get(self.table, md5(path).hexdigest() + '-' + path, self.data_fam + ':' + self.detector_col)
 
         try:
             return loads(data[0].value)
@@ -71,7 +72,7 @@ class Storage(BaseStorage):
             return None
 
     def get(self, path):
-        r = self.storage.get(self.table,path,self.data_fam + ':' + self.image_col)
+        r = self.storage.get(self.table, md5(path).hexdigest() + '-' + path, self.data_fam + ':' + self.image_col)
         try:
             return r[0].value
         except IndexError: 
