@@ -82,7 +82,7 @@ class Engine(BaseEngine):
         except KeyError:
             #extension is not present or could not help determine format => force JPEG
             #TODO : guess format by image headers maybe
-            if self.image.mode in ['P','RGBA']:
+            if self.image.mode in ['P','RGBA','LA']:
                 self.image.format = FORMATS['.png'] 
                 self.image.save(img_buffer, FORMATS['.png'])
             else:
