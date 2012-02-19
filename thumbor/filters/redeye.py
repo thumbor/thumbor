@@ -17,10 +17,11 @@ from thumbor.filters import BaseFilter
 FACE_ORIGIN = 'Face Detection'
 CASCADE_FILE_PATH = abspath(join(dirname(__file__), 'haarcascade_eye.xml'))
 
-HAAR_SCALE = 1.1
-MIN_NEIGHBORS = 2
+MIN_SIZE = (20, 20)
+HAAR_SCALE = 1.2
+MIN_NEIGHBORS = 3
 HAAR_FLAGS = 0
-RED_THRESHOLD = 2.1
+RED_THRESHOLD = 2.0
 
 class Filter(BaseFilter):
     regex = r'(?P<filtername>red-eye\(\))'
@@ -72,7 +73,7 @@ class Filter(BaseFilter):
                     HAAR_SCALE,
                     MIN_NEIGHBORS,
                     HAAR_FLAGS,
-                    (10,10))
+                    MIN_SIZE)
 
                 for (x, y, w, h), other in eyes:
                     # Set the image Region of interest to be the eye area [this reduces processing time]
@@ -89,8 +90,13 @@ class Filter(BaseFilter):
                         )
 
                     for pixel in self.get_pixels(image, w, h, mode):
-                        # Calculate the intensity compared to blue and green average
-                        red_intensity = pixel['r'] / ((pixel['g'] + pixel['b']) / 2)
+                        green_blue_avg = (pixel['g'] + pixel['b']) / 2
+
+                        if not green_blue_avg:
+                            red_intensity = RED_THRESHOLD
+                        else:
+                            # Calculate the intensity compared to blue and green average
+                            red_intensity = pixel['r'] / green_blue_avg
 
                         # If the red intensity is greater than 2.0, lower the value
                         if red_intensity >= RED_THRESHOLD:
