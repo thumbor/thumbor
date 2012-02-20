@@ -13,7 +13,7 @@ from os.path import abspath, join, dirname
 from pyvows import Vows, expect
 
 from thumbor.storages.no_storage import Storage as NoStorage
-from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES, get_server
+from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES
 
 @Vows.batch
 class NoStorageVows(Vows.Context):
@@ -22,6 +22,22 @@ class NoStorageVows(Vows.Context):
             storage = NoStorage(None)
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
             return storage.get(IMAGE_URL % 1)
+
+        def should_be_null(self, topic):
+            expect(topic).to_be_null()
+
+    class KnowsNoImages(Vows.Context):
+        def topic(self):
+            storage = NoStorage(None)
+            return storage.exists(IMAGE_URL % 1)
+
+        def should_be_false(self, topic):
+            expect(topic).to_be_false()
+
+    class RemovesImage(Vows.Context):
+        def topic(self):
+            storage = NoStorage(None)
+            return storage.remove(IMAGE_URL % 1)
 
         def should_be_null(self, topic):
             expect(topic).to_be_null()

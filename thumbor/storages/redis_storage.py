@@ -34,6 +34,7 @@ class Storage(BaseStorage):
     def put(self, path, bytes):
         self.storage.set(path, bytes)
         self.storage.expireat(path, datetime.now() + timedelta(seconds=self.context.config.STORAGE_EXPIRATION_SECONDS))
+        return path
 
     def put_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
@@ -42,10 +43,14 @@ class Storage(BaseStorage):
         if not self.context.server.security_key:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
-        self.storage.set(self.__key_for(path), self.context.server.security_key)
+        key = self.__key_for(path)
+        self.storage.set(key, self.context.server.security_key)
+        return key
 
     def put_detector_data(self, path, data):
-        self.storage.set(self.__detector_key_for(path), dumps(data))
+        key = self.__detector_key_for(path)
+        self.storage.set(key, dumps(data))
+        return key
 
     def get_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
@@ -63,6 +68,13 @@ class Storage(BaseStorage):
         if not data:
             return None
         return loads(data)
+
+    def exists(self, path):
+        return self.storage.exists(path)
+
+    def remove(self, path):
+        if not self.exists(path): return
+        return self.storage.delete(path)
 
     def get(self, path):
         return self.storage.get(path)

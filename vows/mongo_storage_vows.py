@@ -40,6 +40,46 @@ class MongoStorageVows(MongoDBContext):
             expect(topic).not_to_be_null()
             expect(topic).not_to_be_an_error()
 
+    class KnowsIfImageExists(Vows.Context):
+        def topic(self):
+            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+            storage.put(IMAGE_URL % 10000, IMAGE_BYTES)
+            return storage.exists(IMAGE_URL % 10000)
+
+        def should_exist(self, topic):
+            expect(topic).not_to_be_an_error()
+            expect(topic).to_be_true()
+
+    class KnowsIfImageDoesNotExist(Vows.Context):
+        def topic(self):
+            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+            return storage.exists(IMAGE_URL % 20000)
+
+        def should_not_exist(self, topic):
+            expect(topic).not_to_be_an_error()
+            expect(topic).to_be_false()
+
+    class CanRemoveImage(Vows.Context):
+        def topic(self):
+            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+            storage.put(IMAGE_URL % 9999, IMAGE_BYTES)
+            storage.remove(IMAGE_URL % 9999)
+            return self.parent.collection.find_one({'path': IMAGE_URL % 9999})
+
+        def should_not_be_in_catalog(self, topic):
+            expect(topic).not_to_be_an_error()
+            expect(topic).to_be_null()
+
+        class CanReRemoveImage(Vows.Context):
+            def topic(self):
+                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+                storage.remove(IMAGE_URL % 9999)
+                return self.parent.parent.collection.find_one({'path': IMAGE_URL % 9999})
+
+            def should_not_be_in_catalog(self, topic):
+                expect(topic).not_to_be_an_error()
+                expect(topic).to_be_null()
+
     class CanGetImage(Vows.Context):
         def topic(self):
             storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
