@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import mimetypes
+import urllib
 from os.path import abspath, join, dirname, exists
 from datetime import datetime
 from shutil import rmtree
@@ -65,7 +66,10 @@ to be uploaded as files
 class BaseContext(TornadoHTTPContext):
     def __init__(self, *args, **kw):
         super(BaseContext, self).__init__(*args, **kw)
-        self.ignore('post_files')
+        self.ignore('post_files', 'delete')
+
+    def delete(self, path, data={}):
+        return self.fetch(path, method="DELETE", body=urllib.urlencode(data, doseq=True), allow_nonstandard_methods=True)
 
     def post_files(self, method, path, data={}, files=[]):
         multipart_data = encode_multipart_formdata(data, files)
@@ -154,22 +158,22 @@ class Upload(BaseContext):
                 def should_be_an_error(self, topic):
                     expect(topic).to_equal(500)
 
-        class WhenDeleting(BaseContext):
-            def topic(self):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
-                response = self.post_files('delete', '/upload', {
-                    'path': file_path
-                }, [])
-                return (response.code, response.body)
+            class WhenDeleting(BaseContext):
+                def topic(self):
+                    file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
+                    response = self.delete('/upload', {
+                        'file_path': file_path
+                    })
+                    return (response.code, response.body)
 
-            class StatusCode(TornadoHTTPContext):
-                def topic(self, response):
-                    return response[0]
+                class StatusCode(TornadoHTTPContext):
+                    def topic(self, response):
+                        return response[0]
 
-            def should_not_be_an_error_and_file_should_not_exist(self, topic):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
-                path = join(storage_path, file_path)
-                expect(topic).to_equal(200)
-                expect(exists(path)).to_be_false()
+                    def should_not_be_an_error_and_file_should_not_exist(self, topic):
+                        file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
+                        path = join(storage_path, file_path)
+                        expect(topic).to_equal(200)
+                        expect(exists(path)).to_be_false()
 
 

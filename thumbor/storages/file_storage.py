@@ -91,6 +91,14 @@ class Storage(BaseStorage):
     def resolve_original_photo_path(self, filename):
         return join(datetime.now().strftime('%Y/%m/%d'), filename)
 
+    def exists(self, path):
+        n_path = self.normalize_path(path)
+        return os.path.exists(n_path)
+
+    def remove(self, path):
+        n_path = self.normalize_path(path)
+        return os.remove(n_path)
+
     def __is_expired(self, path):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
         return timediff.seconds > self.context.config.STORAGE_EXPIRATION_SECONDS

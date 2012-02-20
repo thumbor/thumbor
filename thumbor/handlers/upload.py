@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import exists
+import urllib
 
 from thumbor.handlers import ContextHandler
 
@@ -46,3 +47,10 @@ class UploadHandler(ContextHandler):
     def put(self):
         self.save_and_render(overwrite=True)
 
+    def delete(self):
+        path = 'file_path' in self.request.arguments and self.request.arguments['file_path'] or None
+        if path is None and self.request.body is None: raise RuntimeError('The file_path argument is mandatory to delete an image')
+        path = urllib.unquote(self.request.body.split('=')[-1])
+
+        if self.context.modules.storage.exists(path):
+            self.context.modules.storage.remove(path)
