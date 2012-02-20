@@ -89,6 +89,7 @@ class Upload(BaseContext):
         cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
         cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
         cfg.FILE_STORAGE_ROOT_PATH = storage_path
+        cfg.ALLOW_ORIGINAL_PHOTO_DELETION = True
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -191,7 +192,6 @@ class Upload(BaseContext):
                         def should_not_be_an_error_and_file_should_not_exist(self, topic):
                             expect(topic).to_equal(200)
 
-
             class DeletingWithInvalidPathDoesNothing(BaseContext):
                 def topic(self):
                     file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile5.jpg')
@@ -206,5 +206,45 @@ class Upload(BaseContext):
 
                     def should_not_be_an_error_and_file_should_not_exist(self, topic):
                         expect(topic).to_equal(200)
+
+@Vows.batch
+class UploadWithoutDeletingAllowed(BaseContext):
+    def get_app(self):
+        cfg = Config()
+        cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
+        cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.FILE_STORAGE_ROOT_PATH = storage_path
+        cfg.ALLOW_ORIGINAL_PHOTO_DELETION = False
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        ctx = Context(None, cfg, importer)
+        application = ThumborServiceApp(ctx)
+        return application
+
+    class WhenPosting(BaseContext):
+        def topic(self):
+            with open(crocodile_file_path, 'r') as croc:
+                image = ('media', u'crocodile3.jpg', croc.read())
+                response = self.post_files('post', '/upload', {}, (image, ))
+                return (response.code, response.body)
+
+        class ThenDeleting(BaseContext):
+            def topic(self):
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile3.jpg')
+                response = self.delete('/upload', {
+                'file_path': file_path
+                })
+                return (response.code, response.body)
+
+            class StatusCode(TornadoHTTPContext):
+                def topic(self, response):
+                    return response[0]
+
+                def should_not_be_an_error_and_file_should_not_exist(self, topic):
+                    file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile3.jpg')
+                    path = join(storage_path, file_path)
+                    expect(topic).to_equal(200)
+                    expect(exists(path)).to_be_true()
 
 

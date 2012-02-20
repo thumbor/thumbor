@@ -114,6 +114,11 @@ Config.define('STORES_CRYPTO_KEY_FOR_EACH_IMAGE', False)
 # FILE STORAGE OPTIONS
 Config.define('FILE_STORAGE_ROOT_PATH', join(tempfile.gettempdir(), 'thumbor', 'storage'))
 
+# PHOTO UPLOAD OPTIONS
+Config.define('ENABLE_ORIGINAL_PHOTO_UPLOAD', False)
+Config.define('ORIGINAL_PHOTO_STORAGE', 'thumbor.storages.file_storage')
+Config.define('ALLOW_ORIGINAL_PHOTO_DELETION', False)
+
 # MONGO STORAGE OPTIONS
 Config.define('MONGO_STORAGE_SERVER_HOST', 'localhost')
 Config.define('MONGO_STORAGE_SERVER_PORT', 27017)

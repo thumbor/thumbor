@@ -48,6 +48,7 @@ class UploadHandler(ContextHandler):
         self.save_and_render(overwrite=True)
 
     def delete(self):
+        if not self.context.config.ALLOW_ORIGINAL_PHOTO_DELETION: return
         path = 'file_path' in self.request.arguments and self.request.arguments['file_path'] or None
         if path is None and self.request.body is None: raise RuntimeError('The file_path argument is mandatory to delete an image')
         path = urllib.unquote(self.request.body.split('=')[-1])
