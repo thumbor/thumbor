@@ -32,6 +32,8 @@ class Storage(BaseStorage):
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
 
+        return file_abspath
+
     def put_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return
@@ -48,12 +50,16 @@ class Storage(BaseStorage):
         with open(crypto_path, 'w') as _file:
             _file.write(self.context.server.security_key)
 
+        return file_abspath
+
     def put_detector_data(self, path, data):
         file_abspath = self.normalize_path(path)
 
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
         with open(path, 'w') as _file:
             _file.write(dumps(data))
+
+        return file_abspath
 
     def get_crypto(self, path):
         file_abspath = self.normalize_path(path)

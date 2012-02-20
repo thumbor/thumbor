@@ -151,6 +151,11 @@ class ContextImporter:
         if importer.result_storage:
             self.result_storage = importer.result_storage(context)
 
+        self.original_photo_storage = None
+        if importer.original_photo_storage:
+            self.original_photo_storage = importer.original_photo_storage(context)
+
+
         self.loader = importer.loader
         self.detectors = importer.detectors
         self.filters = importer.filters

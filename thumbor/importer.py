@@ -15,6 +15,7 @@ class Importer:
         self.config = config
         self.engine = None
         self.loader = None
+        self.original_photo_storage = None
         self.storage = None
         self.result_storage = None
         self.detectors = []
@@ -40,6 +41,9 @@ class Importer:
 
         if self.config.RESULT_STORAGE:
             self.import_item('RESULT_STORAGE', 'Storage')
+
+        if self.config.ORIGINAL_PHOTO_STORAGE:
+            self.import_item('ORIGINAL_PHOTO_STORAGE', 'Storage')
 
         filters.compile_filters(self.filters)
 
