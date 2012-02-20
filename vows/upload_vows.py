@@ -9,13 +9,12 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import mimetypes
-from cStringIO import StringIO
 from os.path import abspath, join, dirname, exists
 from datetime import datetime
+from shutil import rmtree
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
-import tornado.httpclient
 
 from thumbor.app import ThumborServiceApp
 from thumbor.config import Config
@@ -24,6 +23,8 @@ from thumbor.context import Context
 
 storage_path = '/tmp/thumbor-vows/storage'
 crocodile_file_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
+
+rmtree(storage_path)
 
 def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
@@ -61,8 +62,24 @@ to be uploaded as files
 
     return content_type, body
 
+class BaseContext(TornadoHTTPContext):
+    def __init__(self, *args, **kw):
+        super(BaseContext, self).__init__(*args, **kw)
+        self.ignore('post_files')
+
+    def post_files(self, method, path, data={}, files=[]):
+        multipart_data = encode_multipart_formdata(data, files)
+
+        return self.fetch(path,
+            method=method.upper(),
+            body=multipart_data[1],
+            headers={
+                'Content-Type': multipart_data[0]
+            },
+            allow_nonstandard_methods=True)
+
 @Vows.batch
-class Upload(TornadoHTTPContext):
+class Upload(BaseContext):
     def get_app(self):
         cfg = Config()
         cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
@@ -75,22 +92,11 @@ class Upload(TornadoHTTPContext):
         application = ThumborServiceApp(ctx)
         return application
 
-    class WhenPutting(TornadoHTTPContext):
-        def __put(self, path, data={}, files=[]):
-            multipart_data = encode_multipart_formdata(data, files)
-
-            return self.fetch(path,
-                method="PUT",
-                body=multipart_data[1],
-                headers={
-                    'Content-Type': multipart_data[0]
-                },
-                allow_nonstandard_methods=True)
-
+    class WhenPutting(BaseContext):
         def topic(self):
             with open(crocodile_file_path, 'r') as croc:
                 image = ('media', u'crocodile.jpg', croc.read())
-            response = self.__put('/upload', {}, (image, ))
+            response = self.post_files('put', '/upload', {}, (image, ))
             return (response.code, response.body)
 
         class StatusCode(TornadoHTTPContext):
@@ -108,4 +114,42 @@ class Upload(TornadoHTTPContext):
                 path = join(storage_path, datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
                 expect(topic).to_equal(path)
                 expect(exists(path)).to_be_true()
+
+    class WhenPosting(BaseContext):
+        def topic(self):
+            with open(crocodile_file_path, 'r') as croc:
+                image = ('media', u'crocodile2.jpg', croc.read())
+            response = self.post_files('post', '/upload', {}, (image, ))
+            return (response.code, response.body)
+
+        class StatusCode(TornadoHTTPContext):
+            def topic(self, response):
+                return response[0]
+
+            def should_not_be_an_error(self, topic):
+                expect(topic).to_equal(200)
+
+        class Body(TornadoHTTPContext):
+            def topic(self, response):
+                return response[1]
+
+            def should_be_in_right_path(self, topic):
+                path = join(storage_path, datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
+                expect(topic).to_equal(path)
+                expect(exists(path)).to_be_true()
+
+        class WhenRePosting(BaseContext):
+            def topic(self):
+                with open(crocodile_file_path, 'r') as croc:
+                    image = ('media', u'crocodile2.jpg', croc.read())
+                response = self.post_files('post', '/upload', {}, (image, ))
+                return (response.code, response.body)
+
+            class StatusCode(TornadoHTTPContext):
+                def topic(self, response):
+                    return response[0]
+
+                def should_be_an_error(self, topic):
+                    expect(topic).to_equal(500)
+
 
