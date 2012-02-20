@@ -24,7 +24,7 @@ class UploadHandler(ContextHandler):
 
         storage.put(path, body)
 
-        return normalized_path
+        return path
 
     def extract_file_data(self):
         if not 'media' in self.request.files: raise RuntimeError("File was not uploaded properly.")

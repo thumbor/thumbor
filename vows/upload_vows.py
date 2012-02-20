@@ -41,7 +41,7 @@ to be uploaded as files
     BOUNDARY = '----thumborUploadFormBoundary'
     CRLF = '\r\n'
     L = []
-    for (key, value) in fields:
+    for key, value in fields.iteritems():
         L.append('--' + BOUNDARY)
         L.append('Content-Disposition: form-data; name="%s"' % key)
         L.append('')
@@ -111,8 +111,9 @@ class Upload(BaseContext):
                 return response[1]
 
             def should_be_in_right_path(self, topic):
-                path = join(storage_path, datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
-                expect(topic).to_equal(path)
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
+                path = join(storage_path, file_path)
+                expect(topic).to_equal(file_path)
                 expect(exists(path)).to_be_true()
 
     class WhenPosting(BaseContext):
@@ -134,8 +135,9 @@ class Upload(BaseContext):
                 return response[1]
 
             def should_be_in_right_path(self, topic):
-                path = join(storage_path, datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
-                expect(topic).to_equal(path)
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
+                path = join(storage_path, file_path)
+                expect(topic).to_equal(file_path)
                 expect(exists(path)).to_be_true()
 
         class WhenRePosting(BaseContext):
@@ -151,5 +153,23 @@ class Upload(BaseContext):
 
                 def should_be_an_error(self, topic):
                     expect(topic).to_equal(500)
+
+        class WhenDeleting(BaseContext):
+            def topic(self):
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
+                response = self.post_files('delete', '/upload', {
+                    'path': file_path
+                }, [])
+                return (response.code, response.body)
+
+            class StatusCode(TornadoHTTPContext):
+                def topic(self, response):
+                    return response[0]
+
+            def should_not_be_an_error_and_file_should_not_exist(self, topic):
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
+                path = join(storage_path, file_path)
+                expect(topic).to_equal(200)
+                expect(exists(path)).to_be_false()
 
 
