@@ -35,7 +35,7 @@ class ThumborServiceApp(tornado.web.Application):
             (r'/(?P<crypto>[^/]+)/(?P<image>(?:.+))', CryptoHandler, { 'context': context })
         )
 
-        if context.config.ENABLE_ORIGINAL_PHOTO_UPLOAD:
+        if hasattr(context.config, 'ENABLE_ORIGINAL_PHOTO_UPLOAD') and context.config.ENABLE_ORIGINAL_PHOTO_UPLOAD:
             handlers.append(
                 (r'/upload', UploadHandler, { 'context': context })
             )

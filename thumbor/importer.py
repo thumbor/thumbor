@@ -42,7 +42,7 @@ class Importer:
         if self.config.RESULT_STORAGE:
             self.import_item('RESULT_STORAGE', 'Storage')
 
-        if self.config.ORIGINAL_PHOTO_STORAGE:
+        if hasattr(self.config, 'ORIGINAL_PHOTO_STORAGE') and self.config.ORIGINAL_PHOTO_STORAGE:
             self.import_item('ORIGINAL_PHOTO_STORAGE', 'Storage')
 
         filters.compile_filters(self.filters)
