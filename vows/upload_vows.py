@@ -9,12 +9,13 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import mimetypes
-from cStringIO import StringIO 
+from cStringIO import StringIO
 from os.path import abspath, join, dirname, exists
 from datetime import datetime
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
+import tornado.httpclient
 
 from thumbor.app import ThumborServiceApp
 from thumbor.config import Config
@@ -24,42 +25,41 @@ from thumbor.context import Context
 storage_path = '/tmp/thumbor-vows/storage'
 crocodile_file_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
 
-def get_content_type(filename): 
-    return mimetypes.guess_type(filename)[0] or 'application/octet-stream' 
+def get_content_type(filename):
+    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
-"adapted from: http://code.activestate.com/recipes/146306/" 
-def encode_multipart_formdata(fields, files): 
-    """ 
-    fields is a sequence of (name, value) elements for regular form 
-fields. 
-    files is a sequence of (name, filename, value) elements for data 
-to be uploaded as files 
-    Return (content_type, body) ready for httplib.HTTP instance 
-    """ 
-    BOUNDARY = '-------tHISiStheMulTIFoRMbOUNDaRY' 
-    CRLF = '\r\n' 
-    L = [] 
-    for (key, value) in fields: 
-        L.append('--' + BOUNDARY) 
-        L.append('Content-Disposition: form-data; name="%s"' % key) 
-        L.append('') 
-        L.append(value) 
+"adapted from: http://code.activestate.com/recipes/146306/"
+def encode_multipart_formdata(fields, files):
+    """
+    fields is a sequence of (name, value) elements for regular form
+fields.
+    files is a sequence of (name, filename, value) elements for data
+to be uploaded as files
+    Return (content_type, body) ready for httplib.HTTP instance
+    """
+    BOUNDARY = '----thumborUploadFormBoundary'
+    CRLF = '\r\n'
+    L = []
+    for (key, value) in fields:
+        L.append('--' + BOUNDARY)
+        L.append('Content-Disposition: form-data; name="%s"' % key)
+        L.append('')
+        L.append(value)
+    for (key, filename, value) in files:
+        L.append('--' + BOUNDARY)
+        L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
+        L.append('Content-Type: %s' % get_content_type(filename))
+        L.append('')
+        L.append(value)
+    L.append('')
+    L.append('')
+    L.append(BOUNDARY + '--')
 
-    for (key, filename, value) in files: 
-        L.append('--' + BOUNDARY) 
-        L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename)) 
-        L.append('Content-Type: %s' % get_content_type(filename)) 
-        L.append('') 
-        L.append(value) 
-    L.append('--' + BOUNDARY + '--') 
-    L.append('') 
-    b = StringIO() 
-    for l in L: 
-        b.write(l) 
-        b.write(CRLF) 
-    body = b.getvalue() 
-    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY 
-    return content_type, body 
+    body = CRLF.join([str(item) for item in L])
+
+    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
+
+    return content_type, body
 
 @Vows.batch
 class Upload(TornadoHTTPContext):
@@ -69,13 +69,16 @@ class Upload(TornadoHTTPContext):
         cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
         cfg.FILE_STORAGE_ROOT_PATH = storage_path
 
-        ctx = Context(None, cfg, Importer(cfg))
+        importer = Importer(cfg)
+        importer.import_modules()
+        ctx = Context(None, cfg, importer)
         application = ThumborServiceApp(ctx)
         return application
 
     class WhenPutting(TornadoHTTPContext):
         def __put(self, path, data={}, files=[]):
             multipart_data = encode_multipart_formdata(data, files)
+
             return self.fetch(path,
                 method="PUT",
                 body=multipart_data[1],
@@ -86,8 +89,8 @@ class Upload(TornadoHTTPContext):
 
         def topic(self):
             with open(crocodile_file_path, 'r') as croc:
-                image = ('image', u'crocodile.jpg', croc.read()) 
-            response = self.__put('/upload', {}, [image])
+                image = ('media', u'crocodile.jpg', croc.read())
+            response = self.__put('/upload', {}, (image, ))
             return (response.code, response.body)
 
         class StatusCode(TornadoHTTPContext):
@@ -102,7 +105,7 @@ class Upload(TornadoHTTPContext):
                 return response[1]
 
             def should_be_in_right_path(self, topic):
-                path = join(storage_path, datetime.now().strftime('%Y/%M/%d'), 'crocodile.jpg')
+                path = join(storage_path, datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
                 expect(topic).to_equal(path)
                 expect(exists(path)).to_be_true()
 

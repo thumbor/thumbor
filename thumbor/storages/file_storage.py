@@ -88,6 +88,9 @@ class Storage(BaseStorage):
     def normalize_path(self, path):
         return join(self.context.config.FILE_STORAGE_ROOT_PATH.rstrip('/'), path.lstrip('/'))
 
+    def resolve_original_photo_path(self, filename):
+        return join(datetime.now().strftime('%Y/%m/%d'), filename)
+
     def __is_expired(self, path):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
         return timediff.seconds > self.context.config.STORAGE_EXPIRATION_SECONDS
