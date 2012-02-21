@@ -29,7 +29,7 @@ class Storage(BaseStorage):
     def __init__(self,context):
         self.context=context
         self.table = self.context.config.HBASE_STORAGE_TABLE
-        self.data_fam = self.context.config.HBASE_STORAGE_FAMILLY
+        self.data_fam = self.context.config.HBASE_STORAGE_FAMILY
         transport = TBufferedTransport(TSocket(host=self.context.config.HBASE_STORAGE_SERVER_HOST, port=self.context.config.HBASE_STORAGE_SERVER_PORT))
         transport.open()
         protocol = TBinaryProtocol.TBinaryProtocol(transport)
