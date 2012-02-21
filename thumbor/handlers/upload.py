@@ -18,14 +18,13 @@ class UploadHandler(ContextHandler):
     def write_file(self, filename, body, overwrite):
         storage = self.context.modules.original_photo_storage
         path = storage.resolve_original_photo_path(filename)
-        normalized_path = storage.normalize_path(path)
 
-        if not overwrite and exists(normalized_path):
+        if not overwrite and storage.exists(path):
             raise RuntimeError('File already exists.')
 
-        storage.put(path, body)
+        stored_path = storage.put(path, body)
 
-        return path
+        return stored_path
 
     def extract_file_data(self):
         if not 'media' in self.request.files: raise RuntimeError("File was not uploaded properly.")

@@ -25,7 +25,8 @@ from thumbor.context import Context
 storage_path = '/tmp/thumbor-vows/storage'
 crocodile_file_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
 
-rmtree(storage_path)
+if exists(storage_path):
+    rmtree(storage_path)
 
 def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
@@ -90,6 +91,7 @@ class Upload(BaseContext):
         cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
         cfg.FILE_STORAGE_ROOT_PATH = storage_path
         cfg.ALLOW_ORIGINAL_PHOTO_DELETION = True
+        cfg.ALLOW_ORIGINAL_PHOTO_PUTTING = True
 
         importer = Importer(cfg)
         importer.import_modules()

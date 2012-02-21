@@ -32,7 +32,7 @@ class Storage(BaseStorage):
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
 
-        return file_abspath
+        return path
 
     def put_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
