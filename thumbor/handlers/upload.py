@@ -45,6 +45,7 @@ class UploadHandler(ContextHandler):
         self.save_and_render()
 
     def put(self):
+        if not self.context.config.ALLOW_ORIGINAL_PHOTO_PUTTING: return
         self.save_and_render(overwrite=True)
 
     def delete(self):
