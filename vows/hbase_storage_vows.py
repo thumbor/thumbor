@@ -70,6 +70,41 @@ class HbaseStorageVows(HbaseDBContext):
         def should_have_proper_bytes(self, topic):
             expect(topic).to_equal(IMAGE_BYTES)
 
+    class CanGetImageExistance(Vows.Context):
+        def topic(self):
+            config = Config(HBASE_STORAGE_TABLE=self.parent.table,HBASE_STORAGE_SERVER_PORT=9090)
+            storage = Storage(Context(config=config, server=get_server('ACME-SEC')))
+
+            storage.put(IMAGE_URL % 8, IMAGE_BYTES)
+            return storage.exists(IMAGE_URL % 8)
+
+        def should_exists(self, topic):
+            expect(topic).to_equal(True)
+
+    class CanGetImageInexistance(Vows.Context):
+        def topic(self):
+            config = Config(HBASE_STORAGE_TABLE=self.parent.table,HBASE_STORAGE_SERVER_PORT=9090)
+            storage = Storage(Context(config=config, server=get_server('ACME-SEC')))
+
+            return storage.exists(IMAGE_URL % 9999)
+
+        def should_not_exists(self, topic):
+            expect(topic).to_equal(False)
+
+    class CanRemoveImage(Vows.Context):
+        def topic(self):
+            config = Config(HBASE_STORAGE_TABLE=self.parent.table,HBASE_STORAGE_SERVER_PORT=9090)
+            storage = Storage(Context(config=config, server=get_server('ACME-SEC')))
+
+            storage.put(IMAGE_URL % 9, IMAGE_BYTES)
+            created = storage.exists(IMAGE_URL % 9)
+            storage.remove(IMAGE_URL % 9)
+            return storage.exists(IMAGE_URL % 9) != created
+
+        def should_be_put_and_removed(self, topic):
+            expect(topic).to_equal(True)
+
+
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
             def topic(self):

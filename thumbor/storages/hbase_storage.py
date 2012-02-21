@@ -6,7 +6,8 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2012 globo.com timehome@corp.globo.com
+# copyright (c) 2012 Damien Hardy
 
 from json import loads, dumps
 from datetime import datetime, timedelta
@@ -77,3 +78,11 @@ class Storage(BaseStorage):
             return r[0].value
         except IndexError: 
           return None
+
+    def exists(self, path):
+        r = self.storage.get(self.table, md5(path).hexdigest() + '-' + path, self.data_fam + ':' + self.image_col)
+        return len(r) != 0
+
+    def remove(self,path):
+        r = [Mutation(column=self.data_fam + ':' + self.image_col, isDelete=True)]
+        self.storage.mutateRow(self.table, md5(path).hexdigest() + '-' + path, r)
