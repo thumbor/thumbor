@@ -31,7 +31,7 @@ class CryptoVows(Vows.Context):
             return crypto.decrypt('some string')
 
         def should_be_null(self, topic):
-            expect(topic).not_to_be_null()
+            expect(topic).to_be_null()
 
     class Encrypt(Vows.Context):
         def topic(self, crypto):
