@@ -43,6 +43,23 @@ class Filter(BaseFilter):
 
         return pixels
 
+    def filter_eyes(self, eyes):
+        intersected_eyes = []
+
+        for eye in eyes:
+            #if eye in intersected_eyes: continue
+            (x, y, w, h), other = eye
+            for eye2 in eyes:
+                (x2, y2, w2, h2), other2 = eye2
+                if x == x2 and w == w2 and y == y2 and h == h2: continue
+                #if eye2 in intersected_eyes: continue
+
+                if (y2 >= y and y2 + h2 <= y + h) or (y2 + h2 >= y and y2 <= y + h):
+                    intersected_eyes.append(eye)
+                    #intersected_eyes.append(eye2)
+
+        return intersected_eyes
+
     def run_filter(self):
         self.load_cascade_file()
         faces = [face for face in self.context.request.focal_points if face.origin == 'Face Detection']
@@ -75,7 +92,7 @@ class Filter(BaseFilter):
                     HAAR_FLAGS,
                     MIN_SIZE)
 
-                for (x, y, w, h), other in eyes:
+                for (x, y, w, h), other in self.filter_eyes(eyes):
                     # Set the image Region of interest to be the eye area [this reduces processing time]
                     cv.SetImageROI(image, (face_x + x, face_y + y, w, h))
 
