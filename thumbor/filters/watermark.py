@@ -17,7 +17,12 @@ class Filter(BaseFilter):
 
     def on_image_ready(self, buffer):
         self.watermark_engine.load(buffer, self.extension)
-        imgdata = _alpha.apply(self.watermark_engine.get_image_mode(), int(self.params['alpha']), self.watermark_engine.get_image_data())
+        alpha = int(self.params['alpha'])
+
+        imgdata = _alpha.apply(self.watermark_engine.get_image_mode(),
+                               alpha,
+                               self.watermark_engine.get_image_data())
+
         self.watermark_engine.set_image_data(imgdata)
 
         inv_x = self.params['x'][0] == '-'
@@ -43,13 +48,12 @@ class Filter(BaseFilter):
     def run_filter_async(self, callback):
         self.url = self.params['url']
         self.callback = callback
-        self.handler = self.context['handler']
         self.extension = splitext(self.url)[-1].lower()
-        self.watermark_engine = self.handler.engine_class()
-        self.storage = self.handler.storage
+        self.watermark_engine = self.context.modules.engine.__class__(self.context)
+        self.storage = self.context.modules.storage
 
         buffer = self.storage.get(self.url)
         if buffer is not None:
             self.on_image_ready(buffer)
         else:
-            self.handler.loader.load(self.url, self.on_fetch_done)
+            self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)

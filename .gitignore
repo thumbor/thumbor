@@ -13,3 +13,4 @@ tests/visual_test/img/
 tests/visual_test/build
 build
 *.so
+nohup.out

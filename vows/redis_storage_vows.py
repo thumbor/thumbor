@@ -36,6 +36,49 @@ class RedisStorageVows(RedisDBContext):
             expect(topic).not_to_be_null()
             expect(topic).not_to_be_an_error()
 
+    class KnowsImageExists(Vows.Context):
+        def topic(self):
+            config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
+            storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+            storage.put(IMAGE_URL % 9999, IMAGE_BYTES)
+            return storage.exists(IMAGE_URL % 9999)
+
+        def should_exist(self, topic):
+            expect(topic).not_to_be_an_error()
+            expect(topic).to_be_true()
+
+    class KnowsImageDoesNotExist(Vows.Context):
+        def topic(self):
+            config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
+            storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+            return storage.exists(IMAGE_URL % 10000)
+
+        def should_not_exist(self, topic):
+            expect(topic).not_to_be_an_error()
+            expect(topic).to_be_false()
+
+    class CanRemoveImage(Vows.Context):
+        def topic(self):
+            config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
+            storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+            storage.put(IMAGE_URL % 10001, IMAGE_BYTES)
+            storage.remove(IMAGE_URL % 10001)
+            return self.parent.connection.get(IMAGE_URL % 10001)
+
+        def should_not_be_in_catalog(self, topic):
+            expect(topic).not_to_be_an_error()
+            expect(topic).to_be_null()
+
+        class CanReRemoveImage(Vows.Context):
+            def topic(self):
+                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
+                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                return storage.remove(IMAGE_URL % 10001)
+
+            def should_not_be_in_catalog(self, topic):
+                expect(topic).not_to_be_an_error()
+                expect(topic).to_be_null()
+
     class CanGetImage(Vows.Context):
         def topic(self):
             config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you')

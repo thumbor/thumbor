@@ -24,7 +24,7 @@ class Storage(BaseStorage):
             os.makedirs(path)
 
     def put(self, path, bytes):
-        file_abspath = self.__normalize_path(path)
+        file_abspath = self.normalize_path(path)
         file_dir_abspath = dirname(file_abspath)
 
         self.ensure_dir(file_dir_abspath)
@@ -32,11 +32,13 @@ class Storage(BaseStorage):
         with open(file_abspath, 'w') as _file:
             _file.write(bytes)
 
+        return path
+
     def put_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return
 
-        file_abspath = self.__normalize_path(path)
+        file_abspath = self.normalize_path(path)
         file_dir_abspath = dirname(file_abspath)
 
         self.ensure_dir(file_dir_abspath)
@@ -48,15 +50,19 @@ class Storage(BaseStorage):
         with open(crypto_path, 'w') as _file:
             _file.write(self.context.server.security_key)
 
+        return file_abspath
+
     def put_detector_data(self, path, data):
-        file_abspath = self.__normalize_path(path)
+        file_abspath = self.normalize_path(path)
 
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
         with open(path, 'w') as _file:
             _file.write(dumps(data))
 
+        return file_abspath
+
     def get_crypto(self, path):
-        file_abspath = self.__normalize_path(path)
+        file_abspath = self.normalize_path(path)
         crypto_file = "%s.txt" % (splitext(file_abspath)[0])
 
         if not exists(crypto_file):
@@ -64,14 +70,14 @@ class Storage(BaseStorage):
         return file(crypto_file).read()
 
     def get(self, path):
-        file_abspath = self.__normalize_path(path)
+        file_abspath = self.normalize_path(path)
 
         if not exists(file_abspath) or self.__is_expired(file_abspath):
             return None
         return open(file_abspath, 'r').read()
 
     def get_detector_data(self, path):
-        file_abspath = self.__normalize_path(path)
+        file_abspath = self.normalize_path(path)
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
 
         if not exists(path) or self.__is_expired(path):
@@ -79,8 +85,19 @@ class Storage(BaseStorage):
 
         return loads(open(path, 'r').read())
 
-    def __normalize_path(self, path):
+    def normalize_path(self, path):
         return join(self.context.config.FILE_STORAGE_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+
+    def resolve_original_photo_path(self, filename):
+        return join(datetime.now().strftime('%Y/%m/%d'), filename)
+
+    def exists(self, path):
+        n_path = self.normalize_path(path)
+        return os.path.exists(n_path)
+
+    def remove(self, path):
+        n_path = self.normalize_path(path)
+        return os.remove(n_path)
 
     def __is_expired(self, path):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))

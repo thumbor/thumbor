@@ -90,6 +90,22 @@ class Storage(BaseStorage):
 
         return str(contents)
 
+    def exists(self, path):
+        connection, db, storage = self.__conn__()
+
+        stored = storage.find_one({'path': path})
+
+        if not stored or self.__is_expired(stored):
+            return False
+
+        return True
+
+    def remove(self, path):
+        if not self.exists(path): return
+
+        connection, db, storage = self.__conn__()
+        storage.remove({'path': path})
+
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')
         return timediff > timedelta(seconds=self.context.config.STORAGE_EXPIRATION_SECONDS)

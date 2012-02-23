@@ -64,6 +64,7 @@ class RequestParameters:
                  crop_right=None,
                  crop_bottom=None,
                  crop=None,
+                 adaptive=False,
                  fit_in=False,
                  width=0,
                  height=0,
@@ -99,6 +100,7 @@ class RequestParameters:
                            self.crop['right'] > 0 or \
                            self.crop['bottom'] > 0
 
+        self.adaptive = bool(adaptive)
         self.fit_in = bool(fit_in)
         self.width = self.int_or_0(width)
         self.height = self.int_or_0(height)
@@ -148,6 +150,11 @@ class ContextImporter:
         self.result_storage = None
         if importer.result_storage:
             self.result_storage = importer.result_storage(context)
+
+        self.original_photo_storage = None
+        if importer.original_photo_storage:
+            self.original_photo_storage = importer.original_photo_storage(context)
+
 
         self.loader = importer.loader
         self.detectors = importer.detectors

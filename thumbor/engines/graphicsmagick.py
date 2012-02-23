@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from pgmagick import Image, Geometry, Blob, FilterTypes
+from pgmagick import Image, Geometry, Blob, FilterTypes, Color, CompositeOperator as co
 from pgmagick.api import Draw
 from pgmagick._pgmagick import get_blob_data
 
@@ -22,6 +22,14 @@ FORMATS = {
 }
 
 class Engine(BaseEngine):
+
+    def gen_image(self,size,color):
+        if Color(str(color)).isValid():
+            img = Image(Geometry(size[0], size[1]), Color(str(color)))
+        else:
+            raise ValueError
+        return img
+
     def create_image(self, buffer):
         blob = Blob(buffer)
         img = Image(blob)
@@ -105,4 +113,7 @@ class Engine(BaseEngine):
 
         draw.rectangle(x, y, x + width, y + height)
         self.image.draw(draw.drawer)
+
+    def paste(self, other_engine, pos):
+        self.image.composite(other_engine.image, pos[0],pos[1], co.OverCompositeOp)
 

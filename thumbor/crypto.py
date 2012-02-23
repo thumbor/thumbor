@@ -23,6 +23,7 @@ class Crypto(object):
                 width,
                 height,
                 smart,
+                adaptive,
                 fit_in,
                 flip_horizontal,
                 flip_vertical,
@@ -39,6 +40,7 @@ class Crypto(object):
                                               height=height,
                                               smart=smart,
                                               meta=False,
+                                              adaptive=adaptive,
                                               fit_in=fit_in,
                                               horizontal_flip=flip_horizontal,
                                               vertical_flip=flip_vertical,
@@ -60,8 +62,11 @@ class Crypto(object):
     def decrypt(self, encrypted):
         cipher = AES.new(self.salt)
 
-        debased = base64.urlsafe_b64decode(encrypted.encode("utf-8"))
-        decrypted = cipher.decrypt(debased).rstrip('{')
+        try:
+            debased = base64.urlsafe_b64decode(encrypted.encode("utf-8"))
+            decrypted = cipher.decrypt(debased).rstrip('{')
+        except TypeError:
+            return None
 
         result = Url.parse('/%s' % decrypted, with_unsafe=False)
 
