@@ -12,14 +12,14 @@ mysql_test: pretest
 	@PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py
 
 kill_mongo:
-	@ps aux | egrep mongod | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
+	@ps aux | awk '(/mongod/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
 
 mongo: kill_mongo
 	@rm -rf /tmp/thumbor/mongodata && mkdir -p /tmp/thumbor/mongodata
 	@mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet &
 
 kill_redis:
-	@ps aux | egrep redis-server | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
+	@ps aux | awk '(/redis-server/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
 
 redis: kill_redis
 	@redis-server redis.conf &
