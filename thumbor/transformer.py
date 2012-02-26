@@ -39,17 +39,21 @@ class Transformer(object):
     def adjust_focal_points(self):
         source_width, source_height = self.engine.size
 
-        self.focal_points = []
+        self.focal_points = None
 
         if self.context.request.focal_points:
-            crop = self.context.request.crop
-            for point in self.context.request.focal_points:
-                point.x -= crop['left'] or 0
-                point.y -= crop['top'] or 0
-                if point.x < 0 or point.x > self.target_width or \
-                        point.y < 0 or point.y > self.target_height:
-                    continue
-                self.focal_points.append(point)
+            if self.context.request.should_crop:
+                self.focal_points = []
+                crop = self.context.request.crop
+                for point in self.context.request.focal_points:
+                    if point.x < crop['left'] or point.x > crop['right'] or \
+                       point.y < crop['top']  or point.y > crop['bottom']:
+                        continue
+                    point.x -= crop['left'] or 0
+                    point.y -= crop['top'] or 0
+                    self.focal_points.append(point)
+            else:
+                self.focal_points = self.context.request.focal_points
 
         if not self.focal_points:
             self.focal_points = [
