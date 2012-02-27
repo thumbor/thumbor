@@ -48,7 +48,7 @@ class Engine(BaseEngine):
         return (size.width(), size.height())
 
     def resize(self, width, height):
-        self.image.zoom('%dx%d'% (width,height))
+        self.image.zoom('%dx%d!'% (width,height))
 
     def crop(self, left, top, right, bottom):
         offset_left = left

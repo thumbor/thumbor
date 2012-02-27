@@ -203,11 +203,11 @@ class Transformer(object):
             return
 
         if source_width / self.target_width >= source_height / self.target_height:
-            resize_height = source_height * self.target_width / source_width
+            resize_height = round(source_height * self.target_width / source_width)
             resize_width = self.target_width
         else:
             resize_height = self.target_height
-            resize_width = source_width * self.target_height / source_height
+            resize_width = round(source_width * self.target_height / source_height)
 
         self.engine.resize(resize_width, resize_height)
 
