@@ -17,6 +17,8 @@ class Filter(BaseFilter):
 
     def on_image_ready(self, buffer):
         self.watermark_engine.load(buffer, self.extension)
+        self.watermark_engine.enable_alpha()
+
         alpha = int(self.params['alpha'])
 
         imgdata = _alpha.apply(self.watermark_engine.get_image_mode(),

@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from pgmagick import Image, Geometry, Blob, FilterTypes, Color, CompositeOperator as co
+from pgmagick import Image, ImageType, Geometry, Blob, FilterTypes, Color, CompositeOperator as co
 from pgmagick.api import Draw
 from pgmagick._pgmagick import get_blob_data
 
@@ -20,6 +20,12 @@ FORMATS = {
     '.gif': 'RGBA',
     '.png': 'PNG'
 }
+
+ALPHA_TYPES = [
+    ImageType.GrayscaleMatteType,
+    ImageType.PaletteMatteType,
+    ImageType.TrueColorMatteType
+]
 
 class Engine(BaseEngine):
 
@@ -90,19 +96,21 @@ class Engine(BaseEngine):
         return results
 
     def get_image_data(self):
-        self.image.magick("RGB")
+        self.image.magick(self.get_image_mode())
         blob = Blob()
         self.image.write(blob)
         data = get_blob_data(blob)
         return data
 
     def set_image_data(self, data):
-        self.image.magick("RGB")
+        self.image.magick(self.get_image_mode())
         blob = Blob(data)
         self.image.size(self.image.size())
         self.image.read(blob)
 
     def get_image_mode(self):
+        if self.image.type() in ALPHA_TYPES:
+            return "RGBA"
         return "RGB"
 
     def draw_rectangle(self, x, y, width, height):
@@ -117,3 +125,5 @@ class Engine(BaseEngine):
     def paste(self, other_engine, pos):
         self.image.composite(other_engine.image, pos[0],pos[1], co.OverCompositeOp)
 
+    def enable_alpha(self):
+        self.image.type(ImageType.TrueColorMatteType)

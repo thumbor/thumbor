@@ -101,3 +101,6 @@ class BaseEngine(object):
 
     def paste(self):
         raise NotImplementedError()
+
+    def enable_alpha(self):
+        raise NotImplementedError()

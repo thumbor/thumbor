@@ -103,14 +103,16 @@ class Engine(BaseEngine):
         return self.image.mode
 
     def paste(self, other_engine, pos):
-        image = self.image
-        if image.mode != 'RGBA':
-            image = image.convert('RGBA')
+        self.enable_alpha()
+        other_engine.enable_alpha()
 
+        image = self.image
         other_image = other_engine.image
-        if other_image.mode != 'RGBA':
-            other_image = other_image.convert('RGBA')
 
         layer = Image.new('RGBA', image.size, (0,0,0,0))
         layer.paste(other_image, pos)
         self.image = Image.composite(layer, image, layer)
+
+    def enable_alpha(self):
+        if self.image.mode != 'RGBA':
+            self.image = self.image.convert('RGBA')
