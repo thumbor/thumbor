@@ -14,6 +14,9 @@ _contrast_apply(PyObject *self, PyObject *args)
     unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
     int delta_int = (int) PyInt_AsLong(delta);
     int num_bytes = bytes_per_pixel(image_mode_str);
+    int r_idx = rgb_order(image_mode_str, 'R'),
+        g_idx = rgb_order(image_mode_str, 'G'),
+        b_idx = rgb_order(image_mode_str, 'B');
 
     delta_int = delta_int + 100;
     delta_int = (delta_int * delta_int) / 100;
@@ -21,17 +24,17 @@ _contrast_apply(PyObject *self, PyObject *args)
     int i = 0, r, g, b;
     size -= num_bytes;
     for (; i <= size; i += num_bytes) {
-        r = ptr[i];
-        g = ptr[i + 1];
-        b = ptr[i + 2];
+        r = ptr[i + r_idx];
+        g = ptr[i + g_idx];
+        b = ptr[i + b_idx];
 
         r = ((delta_int * (r - 128)) / 100) + 128;
         g = ((delta_int * (g - 128)) / 100) + 128;
         b = ((delta_int * (b - 128)) / 100) + 128;
 
-        ptr[i] = ADJUST_COLOR(r);
-        ptr[i + 1] = ADJUST_COLOR(g);
-        ptr[i + 2] = ADJUST_COLOR(b);
+        ptr[i + r_idx] = ADJUST_COLOR(r);
+        ptr[i + g_idx] = ADJUST_COLOR(g);
+        ptr[i + b_idx] = ADJUST_COLOR(b);
     }
 
     Py_INCREF(buffer);

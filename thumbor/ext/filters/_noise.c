@@ -14,6 +14,9 @@ _noise_apply(PyObject *self, PyObject *args)
     unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
     int amount_int = (int) PyInt_AsLong(amount);
     int num_bytes = bytes_per_pixel(image_mode_str);
+    int r_idx = rgb_order(image_mode_str, 'R'),
+        g_idx = rgb_order(image_mode_str, 'G'),
+        b_idx = rgb_order(image_mode_str, 'B');
 
     if (amount_int > 0) {
         int i = 0, r, g, b, rand_val;
@@ -21,17 +24,17 @@ _noise_apply(PyObject *self, PyObject *args)
         for (; i <= size; i += num_bytes) {
             rand_val = (rand() % amount_int) - (amount_int >> 1);
 
-            r = ptr[i];
-            g = ptr[i + 1];
-            b = ptr[i + 2];
+            r = ptr[i + r_idx];
+            g = ptr[i + g_idx];
+            b = ptr[i + b_idx];
 
             r += rand_val;
             g += rand_val;
             b += rand_val;
 
-            ptr[i] = ADJUST_COLOR(r);
-            ptr[i + 1] = ADJUST_COLOR(g);
-            ptr[i + 2] = ADJUST_COLOR(b);
+            ptr[i + r_idx] = ADJUST_COLOR(r);
+            ptr[i + g_idx] = ADJUST_COLOR(g);
+            ptr[i + b_idx] = ADJUST_COLOR(b);
         }
     }
 

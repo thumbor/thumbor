@@ -15,23 +15,26 @@ _brightness_apply(PyObject *self, PyObject *args)
     int delta_int = (int) PyInt_AsLong(delta);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
+    int r_idx = rgb_order(image_mode_str, 'R'),
+        g_idx = rgb_order(image_mode_str, 'G'),
+        b_idx = rgb_order(image_mode_str, 'B');
 
     delta_int = (255 * delta_int) / 100;
 
     int i = 0, r, g, b;
     size -= num_bytes;
     for (; i <= size; i += num_bytes) {
-        r = ptr[i];
-        g = ptr[i + 1];
-        b = ptr[i + 2];
+        r = ptr[i + r_idx];
+        g = ptr[i + g_idx];
+        b = ptr[i + b_idx];
 
         r += delta_int;
         g += delta_int;
         b += delta_int;
 
-        ptr[i] = ADJUST_COLOR(r);
-        ptr[i + 1] = ADJUST_COLOR(g);
-        ptr[i + 2] = ADJUST_COLOR(b);
+        ptr[i + r_idx] = ADJUST_COLOR(r);
+        ptr[i + g_idx] = ADJUST_COLOR(g);
+        ptr[i + b_idx] = ADJUST_COLOR(b);
     }
 
     Py_INCREF(buffer);
