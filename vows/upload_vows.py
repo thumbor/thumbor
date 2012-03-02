@@ -111,7 +111,7 @@ class Upload(BaseContext):
                 return response[0]
 
             def should_not_be_an_error(self, topic):
-                expect(topic).to_equal(200)
+                expect(topic).to_equal(201)
 
         class Body(TornadoHTTPContext):
             def topic(self, response):
@@ -135,7 +135,7 @@ class Upload(BaseContext):
                 return response[0]
 
             def should_not_be_an_error(self, topic):
-                expect(topic).to_equal(200)
+                expect(topic).to_equal(201)
 
         class Body(TornadoHTTPContext):
             def topic(self, response):
@@ -159,7 +159,7 @@ class Upload(BaseContext):
                     return response[0]
 
                 def should_be_an_error(self, topic):
-                    expect(topic).to_equal(500)
+                    expect(topic).to_equal(409)
 
             class WhenDeleting(BaseContext):
                 def topic(self):
