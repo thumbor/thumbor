@@ -36,8 +36,13 @@ class UploadHandler(ContextHandler):
         file_data = self.extract_file_data()
         body = file_data['body']
         filename = file_data['filename']
-
-        path = self.write_file(filename, body, overwrite=overwrite)
+        path = ""
+        try:
+            path = self.write_file(filename, body, overwrite=overwrite)
+            self.set_status(201)
+        except RuntimeError:
+            self.set_status(409)
+            path = 'File already exists.'
         self.write(path)
 
     def post(self):
