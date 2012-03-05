@@ -51,17 +51,17 @@ wavelet_sharpen(FLOAT *fimg[CHANNELS], int width, int height,
         for (row = 0; row < height; row++) {
             hat_transform(temp, fimg[hpass] + row * width, 1, width, 1 << lev);
             for (col = 0; col < width; col++) {
-                fimg[lpass][row * width + col] = temp[col] * 0.25;
+                fimg[lpass][row * width + col] = temp[col] * 0.25f;
             }
         }
         for (col = 0; col < width; col++) {
             hat_transform(temp, fimg[lpass] + col, width, height, 1 << lev);
             for (row = 0; row < height; row++) {
-                fimg[lpass][row * width + col] = temp[row] * 0.25;
+                fimg[lpass][row * width + col] = temp[row] * 0.25f;
             }
         }
 
-        amt = amount * exp(-(lev - radius) * (lev - radius) / 1.5) + 1;
+        amt = amount * exp(-(lev - radius) * (lev - radius) / 1.5f) + 1.f;
         for (i = 0; i < size; i++) {
             fimg[hpass][i] -= fimg[lpass][i];
             fimg[hpass][i] *= amt;
@@ -85,7 +85,7 @@ run_sharpen(sharpen_info *info)
 {
     FLOAT *transform_buffer[CHANNELS], *aux_buffer[CHANNELS];
     int image_area = info->width * info->height;
-    int buffer_len = image_area * sizeof(FLOAT);
+    int buffer_len = (int)(image_area * sizeof(FLOAT));
     int i, c, width = info->width, height = info->height, channels = CHANNELS;
 
     // Allocating buffers
@@ -110,7 +110,7 @@ run_sharpen(sharpen_info *info)
             rgb2ycbcr(&pixel[info->color_offset[0]], &pixel[info->color_offset[1]], &pixel[info->color_offset[2]]);
         }
         for (c = 0; c < channels; ++c) {
-            transform_buffer[c][i] = pixel[c] / 255.0;
+            transform_buffer[c][i] = pixel[c] / 255.0f;
         }
     }
 
