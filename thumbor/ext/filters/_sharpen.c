@@ -16,15 +16,15 @@ _sharpen_apply(PyObject *self, PyObject *args)
     double amount_double = PyFloat_AsDouble(amount),
            radius_double = PyFloat_AsDouble(radius);
 
-    int luminance_only_bool = PyBool_Check(luminance_only),
-        width = (int) PyInt_AsLong(width_py),
+    char luminance_only_bool = (char) (luminance_only == Py_True);
+
+    int width = (int) PyInt_AsLong(width_py),
         height = (int) PyInt_AsLong(height_py);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
     int r_idx = rgb_order(image_mode_str, 'R'),
         g_idx = rgb_order(image_mode_str, 'G'),
         b_idx = rgb_order(image_mode_str, 'B');
-
 
     sharpen_info info = {
       amount_double,

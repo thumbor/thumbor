@@ -1,9 +1,6 @@
 #ifndef __SHARPEN__H__
 #define __SHARPEN__H__
 
-// #define TRUE 1
-// #define FALSE 0
-
 #define CHANNELS 3
 
 #define MAX2(x,y) ((x) > (y) ? (x) : (y))
