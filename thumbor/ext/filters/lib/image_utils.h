@@ -8,7 +8,7 @@
 static inline int
 bytes_per_pixel(char *mode)
 {
-    return strlen(mode);
+    return (int) strlen(mode);
 }
 
 static inline int
