@@ -45,7 +45,7 @@ _round_corner_apply(PyObject *self, PyObject *args)
     int y = 0;
 
     for (y = 0; y <= b_rad; y += 1) {
-        x = -(a_rad * sqrt((b_rad * b_rad) - (y * y))) / b_rad;
+        x = (float)(-(a_rad * sqrt((b_rad * b_rad) - (y * y))) / b_rad);
 
         int curr_x = 0,
             y_top = b_rad - y,
@@ -88,7 +88,7 @@ _round_corner_apply(PyObject *self, PyObject *args)
         int pixel_count_x = 0;
 
         for (; aa_x >= (-a_rad); --aa_x) {
-            int aa_y = ((b_rad * sqrt(a_rad * a_rad - aa_x * aa_x)) / a_rad) + 1;
+            int aa_y = (float)(((b_rad * sqrt(a_rad * a_rad - aa_x * aa_x)) / a_rad) + 1.f);
 
             if (aa_y != y) {
                 break;
@@ -136,12 +136,12 @@ _round_corner_apply(PyObject *self, PyObject *args)
     }
 
     for (x = 0.f; x >= -a_rad; x -= 1.f) {
-        float y = (b_rad * sqrt((a_rad * a_rad) - (x * x))) / a_rad;
+        float y = (float)((b_rad * sqrt((a_rad * a_rad) - (x * x))) / a_rad);
 
         int pixel_count_y = 0;
         int aa_y = y + 1;
         for (; aa_y < b_rad; ++aa_y) {
-            int aa_x = -((a_rad * sqrt((b_rad * b_rad) - (aa_y * aa_y))) / b_rad) - 1;
+            int aa_x = (float)(-((a_rad * sqrt((b_rad * b_rad) - (aa_y * aa_y))) / b_rad) - 1.f);
             if (aa_x != (int)x) {
                 break;
             }
