@@ -13,17 +13,21 @@ from thumbor import __version__
 
 import glob
 
-def filter_extension_module(name):
+def filter_extension_module(name, lib_objs, lib_headers):
     return Extension(
         'thumbor.ext.filters.%s' % name,
-        ['thumbor/ext/filters/%s.c' % name],
+        ['thumbor/ext/filters/%s.c' % name] + lib_objs,
         libraries = ['m'],
-        depends = ['thumbor/ext/filters/filter.h', 'setup.py'],
+        include_dirs = ['thumbor/ext/filters/lib'],
+        depends = ['setup.py'] + lib_objs + lib_headers,
         extra_compile_args = ['-Wall', '-Wextra', '-Werror', '-Wno-unused-parameter'])
 
 def gather_filter_extensions():
-    files = glob.glob('thumbor/ext/filters/*.c')
-    return [filter_extension_module(f[0:-2].split('/')[-1]) for f in files]
+    files = glob.glob('thumbor/ext/filters/_*.c')
+    lib_objs = glob.glob('thumbor/ext/filters/lib/*.c')
+    lib_headers = glob.glob('thumbor/ext/filters/lib/*.h')
+
+    return [filter_extension_module(f[0:-2].split('/')[-1], lib_objs, lib_headers) for f in files]
 
 def run_setup(extension_modules = []):
   setup(
