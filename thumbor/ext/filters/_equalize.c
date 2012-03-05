@@ -15,7 +15,7 @@ _equalize_apply(PyObject *self, PyObject *args)
     unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
-    int area = size / num_bytes;
+    int area = (int)(size / num_bytes);
 
     int r_idx = rgb_order(image_mode_str, 'R'),
         g_idx = rgb_order(image_mode_str, 'G'),
