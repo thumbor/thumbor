@@ -61,7 +61,7 @@ wavelet_sharpen(FLOAT *fimg[CHANNELS], int width, int height,
             }
         }
 
-        amt = amount * exp(-(lev - radius) * (lev - radius) / 1.5f) + 1.f;
+        amt = amount * (float)(exp(-(lev - radius) * (lev - radius) / 1.5f)) + 1.f;
         for (i = 0; i < size; i++) {
             fimg[hpass][i] -= fimg[lpass][i];
             fimg[hpass][i] *= amt;
