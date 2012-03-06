@@ -123,6 +123,24 @@ class Upload(BaseContext):
                 expect(topic).to_equal(file_path)
                 expect(exists(path)).to_be_true()
 
+    class WhenPuttingInvalidImage(BaseContext):
+        def topic(self):
+            image = ('media', u'crocodile9999.jpg', 'toto')
+            response = self.post_files('put', '/upload', {}, (image, ))
+            return (response.code, response.body)
+
+        def should_be_an_error(self, topic):
+             expect(topic[0]).to_equal(412)
+
+    class WhenPostingInvalidImage(BaseContext):
+        def topic(self):
+            image = ('media', u'crocodile9999.jpg', 'toto')
+            response = self.post_files('post', '/upload', {}, (image, ))
+            return (response.code, response.body)
+
+        def should_be_an_error(self, topic):
+             expect(topic[0]).to_equal(412)
+
     class WhenPosting(BaseContext):
         def topic(self):
             with open(crocodile_file_path, 'r') as croc:
@@ -249,4 +267,39 @@ class UploadWithoutDeletingAllowed(BaseContext):
                     expect(topic).to_equal(200)
                     expect(exists(path)).to_be_true()
 
+@Vows.batch
+class UploadWithMinWidthAndHeight(BaseContext):
+    def get_app(self):
+        cfg = Config()
+        cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
+        cfg.ALLOW_ORIGINAL_PHOTO_PUTTING = True
+        cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.FILE_STORAGE_ROOT_PATH = storage_path
+        cfg.MIN_WIDTH = 40
+        cfg.MIN_HEIGHT = 40
 
+        importer = Importer(cfg)
+        importer.import_modules()
+        ctx = Context(None, cfg, importer)
+        application = ThumborServiceApp(ctx)
+        return application
+
+    class WhenPuttingTooSmallImage(BaseContext):
+        def topic(self):
+            with open(crocodile_file_path, 'r') as croc:
+                image = ('media', u'crocodile9999.jpg', croc.read())
+            response = self.post_files('put', '/upload', {}, (image, ))
+            return (response.code, response.body)
+
+        def should_be_an_error(self, topic):
+             expect(topic[0]).to_equal(412)
+
+    class WhenPostingTooSmallImage(BaseContext):
+        def topic(self):
+            with open(crocodile_file_path, 'r') as croc:
+                image = ('media', u'crocodile9999.jpg', croc.read())
+            response = self.post_files('post', '/upload', {}, (image, ))
+            return (response.code, response.body)
+
+        def should_be_an_error(self, topic):
+             expect(topic[0]).to_equal(412)
