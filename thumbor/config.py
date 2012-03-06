@@ -87,6 +87,8 @@ class Config(object):
 
 Config.define('MAX_WIDTH', 0)
 Config.define('MAX_HEIGHT', 0)
+Config.define('MIN_WIDTH', 1)
+Config.define('MIN_HEIGHT', 1)
 Config.define('ALLOWED_SOURCES', [])
 Config.define('QUALITY', 80)
 Config.define('MAX_AGE', 0)
