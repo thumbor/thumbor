@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor import filters
+from thumbor.utils import logger
 
 class Importer:
     def __init__(self, config):
@@ -37,7 +38,7 @@ class Importer:
         self.import_item('LOADER')
         self.import_item('STORAGE', 'Storage')
         self.import_item('DETECTORS', 'Detector', is_multiple=True)
-        self.import_item('FILTERS', 'Filter', is_multiple=True)
+        self.import_item('FILTERS', 'Filter', is_multiple=True, ignore_errors=True)
 
         if self.config.RESULT_STORAGE:
             self.import_item('RESULT_STORAGE', 'Storage')
@@ -47,7 +48,7 @@ class Importer:
 
         filters.compile_filters(self.filters)
 
-    def import_item(self, config_key=None, class_name=None, is_multiple=False, item_value=None):
+    def import_item(self, config_key=None, class_name=None, is_multiple=False, item_value=None, ignore_errors=False):
         if item_value is None:
             conf_value = getattr(self.config, config_key)
         else:
@@ -57,11 +58,17 @@ class Importer:
             modules = []
             if conf_value:
                 for module_name in conf_value:
-                    if class_name is not None:
-                        module = self.import_class('%s.%s' % (module_name, class_name))
-                    else:
-                        module = self.import_class(module_name, get_module=True)
-                    modules.append(module)
+                    try:
+                        if class_name is not None:
+                            module = self.import_class('%s.%s' % (module_name, class_name))
+                        else:
+                            module = self.import_class(module_name, get_module=True)
+                        modules.append(module)
+                    except ImportError:
+                        if ignore_errors:
+                            logger.warn('Module %s could not be imported.' % module_name)
+                        else:
+                            raise
             setattr(self, config_key.lower(), tuple(modules))
         else:
             if class_name is not None:
