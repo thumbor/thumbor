@@ -24,6 +24,7 @@ from thumbor.context import Context
 
 storage_path = '/tmp/thumbor-vows/storage'
 crocodile_file_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
+oversized_file_path = abspath(join(dirname(__file__), 'fixtures/image.jpg'))
 
 if exists(storage_path):
     rmtree(storage_path)
@@ -298,6 +299,42 @@ class UploadWithMinWidthAndHeight(BaseContext):
         def topic(self):
             with open(crocodile_file_path, 'r') as croc:
                 image = ('media', u'crocodile9999.jpg', croc.read())
+            response = self.post_files('post', '/upload', {}, (image, ))
+            return (response.code, response.body)
+
+        def should_be_an_error(self, topic):
+             expect(topic[0]).to_equal(412)
+
+@Vows.batch
+class UploadWithMaxSize(BaseContext):
+    def get_app(self):
+        cfg = Config()
+        cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
+        cfg.ALLOW_ORIGINAL_PHOTO_PUTTING = True
+        cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.FILE_STORAGE_ROOT_PATH = storage_path
+        cfg.MAX_SIZE = 40000
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        ctx = Context(None, cfg, importer)
+        application = ThumborServiceApp(ctx)
+        return application
+
+    class WhenPuttingTooBigFile(BaseContext):
+        def topic(self):
+            with open(oversized_file_path, 'r') as croc:
+                image = ('media', u'oversized9999.jpg', croc.read())
+            response = self.post_files('put', '/upload', {}, (image, ))
+            return (response.code, response.body)
+
+        def should_be_an_error(self, topic):
+             expect(topic[0]).to_equal(412)
+
+    class WhenPostingTooBigFile(BaseContext):
+        def topic(self):
+            with open(oversized_file_path, 'r') as croc:
+                image = ('media', u'oversized9999.jpg', croc.read())
             response = self.post_files('post', '/upload', {}, (image, ))
             return (response.code, response.body)
 
