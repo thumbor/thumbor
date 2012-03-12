@@ -85,6 +85,7 @@ class Config(object):
 
         raise AttributeError(name)
 
+Config.define('MAX_SIZE', 0)
 Config.define('MAX_WIDTH', 0)
 Config.define('MAX_HEIGHT', 0)
 Config.define('MIN_WIDTH', 1)
