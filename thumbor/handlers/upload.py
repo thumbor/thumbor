@@ -50,7 +50,7 @@ class UploadHandler(ContextHandler):
             self.save_and_render()
         else:
             self.set_status(412)
-            self.write('Not an image or too small image')
+            self.write('File is too big, not an image or too small image')
 
     def put(self):
         if not self.context.config.ALLOW_ORIGINAL_PHOTO_PUTTING: return
@@ -58,7 +58,7 @@ class UploadHandler(ContextHandler):
             self.save_and_render(overwrite=True)
         else:
             self.set_status(412)
-            self.write('Not an image or too small image')
+            self.write('File is too big, not an image or too small image')
 
     def delete(self):
         if not self.context.config.ALLOW_ORIGINAL_PHOTO_DELETION: return
@@ -72,6 +72,10 @@ class UploadHandler(ContextHandler):
     def validate(self):
         conf = self.context.config
         engine = self.context.modules.engine
+
+        if ( conf.MAX_SIZE != 0 and  len(self.extract_file_data()['body']) > conf.MAX_SIZE ):
+            return False
+
         try:
             engine.load(self.extract_file_data()['body'],None)
         except IOError:
