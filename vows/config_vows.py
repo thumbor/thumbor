@@ -36,7 +36,7 @@ TEST_DATA = (
     ('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage'),
     ('MIXED_STORAGE_CRYPTO_STORAGE', 'thumbor.storages.no_storage'),
     ('MIXED_STORAGE_DETECTOR_STORAGE', 'thumbor.storages.no_storage'),
-    ('DETECTORS', ['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector']),
+    ('DETECTORS', []),
     ('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml'),
     ('FILTERS', [])
 )
