@@ -10,7 +10,7 @@ class QueuedDetector(BaseDetector):
     pyremotecv = None
 
     def detect(self, callback):
-        self.context.prevent_result_storage = True
+        self.context.request.prevent_result_storage = True
         try:
             if not self.pyremotecv:
                 self.pyremotecv = PyRemoteCV(host=self.context.config.REDIS_QUEUE_SERVER_HOST,

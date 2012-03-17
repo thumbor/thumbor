@@ -92,7 +92,8 @@ Config.define('MIN_WIDTH', 1)
 Config.define('MIN_HEIGHT', 1)
 Config.define('ALLOWED_SOURCES', [])
 Config.define('QUALITY', 80)
-Config.define('MAX_AGE', 0)
+Config.define('MAX_AGE', 24 * 60 * 60)
+Config.define('MAX_AGE_TEMP_IMAGE', 0)
 
 Config.define('LOADER',  'thumbor.loaders.http_loader')
 Config.define('STORAGE', 'thumbor.storages.file_storage')
@@ -144,7 +145,7 @@ Config.define('MIXED_STORAGE_DETECTOR_STORAGE', 'thumbor.storages.no_storage')
 Config.define('META_CALLBACK_NAME', None)
 
 # DETECTORS OPTIONS
-Config.define('DETECTORS', ['thumbor.detectors.face_detector', 'thumbor.detectors.feature_detector'])
+Config.define('DETECTORS', [])
 
 # FACE DETECTOR CASCADE FILE
 Config.define('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml')

@@ -153,18 +153,19 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_header('Content-Type', content_type)
 
-        if self.context.config.MAX_AGE and not context.request.detection_error:
-            self.set_header('Cache-Control', 'max-age=' + str(self.context.config.MAX_AGE) + ',public')
-            self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=self.context.config.MAX_AGE))
+        max_age = self.context.config.MAX_AGE
+        if context.request.prevent_result_storage or context.request.detection_error:
+            max_age = self.context.config.MAX_AGE_TEMP_IMAGE
+
+        if max_age:
+            self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
+            self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
 
         should_store = result is None and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
         if result is None:
             results = context.modules.engine.read(context.request.extension, context.request.quality)
         else:
             results = result
-
-        if context.request.detection_error is not None:
-            self.set_status(404)
 
         self.write(results)
         self.finish()
