@@ -17,7 +17,7 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 
 DATA = [ #size requested, resized/croped image size, result size
-	((20, 20), (10, 10), (20, 20)),
+    ((20, 20), (10, 10), (20, 20)),
     ((20, 0),  (10, 10), (20, 10)),
     ((0,  20), (10, 10), (10, 20))
 ]

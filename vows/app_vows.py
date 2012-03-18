@@ -11,13 +11,16 @@
 from pyvows import Vows, expect
 
 from thumbor.app import ThumborServiceApp
+from thumbor.context import Context
+from thumbor.config import Config
 
 @Vows.batch
 class AppVows(Vows.Context):
 
     class CanCreateApp(Vows.Context):
         def topic(self):
-            return ThumborServiceApp()
+            context = Context(None, Config(), None)
+            return ThumborServiceApp(context)
 
         def should_be_ThumborServiceApp(self, topic):
             expect(topic).to_be_instance_of(ThumborServiceApp)

@@ -8,6 +8,9 @@ test pyvows: compile_ext redis mongo
 	@PYTHONPATH=.:$$PYTHONPATH pyvows -v --profile --cover --cover_package=thumbor --cover_threshold=90 vows/
 	@make kill_mongo kill_redis
 
+test-trevis:
+	@PYTHONPATH=.:$$PYTHONPATH pyvows -v vows/
+
 mysql_test: pretest
 	@PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py
 
