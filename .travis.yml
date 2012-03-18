@@ -1,5 +1,3 @@
-before_script: "sudo aptitude -y -q install libevent-dev"
-
 language: python
 
 python:
@@ -8,7 +6,7 @@ python:
   - "3.2"
 
 # command to install dependencies
-install: pip install -r test_requirements.txt --use-mirrors
+install: "sudo aptitude -y -q install libevent-dev; pip install -r test_requirements.txt --use-mirrors"
 
 # command to run tests
 script: make test-trevis
