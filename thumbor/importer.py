@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from thumbor import filters
 from thumbor.utils import logger
 
 class Importer:
@@ -45,8 +44,6 @@ class Importer:
 
         if self.config.ORIGINAL_PHOTO_STORAGE:
             self.import_item('ORIGINAL_PHOTO_STORAGE', 'Storage')
-
-        filters.compile_filters(self.filters)
 
     def import_item(self, config_key=None, class_name=None, is_multiple=False, item_value=None, ignore_errors=False):
         if item_value is None:

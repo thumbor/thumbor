@@ -10,25 +10,23 @@
 
 from pyvows import Vows, expect
 
-from thumbor.filters import create_instances, compile_filters
+from thumbor.filters import create_instances
 from thumbor.filters.quality import Filter
-from thumbor.context import Context, RequestParameters
-from thumbor.config import Config
 
 @Vows.batch
 class QualityFilterVows(Vows.Context):
     def topic(self):
-        conf = Config()
-        req = RequestParameters(quality=100)
-        ctx = Context(None, conf, None)
-        ctx.request = req
+        class Any: pass
+        ctx = Any()
+        ctx.modules = Any()
+        ctx.modules.engine = Any()
+        ctx.request = Any()
+        ctx.request.quality = 0
 
-        filters = [Filter]
-        compile_filters(filters)
-        filter_instances = create_instances(ctx, filters, "quality(10)")
+        filter_instances = create_instances(ctx, [Filter], "quality(10)")
 
-        filter_instances[0].run_filter()
+        filter_instances[0].run()
         return ctx.request.quality
 
-    def should_equal_10(self, topic):
-        expect(topic).to_equal(10)
+    def should_equal_10(self, quality):
+        expect(quality).to_equal(10)

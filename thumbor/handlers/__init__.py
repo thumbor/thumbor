@@ -133,11 +133,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 return
 
             f = filters.pop(0)
-            if hasattr(f, 'run_filter'):
-                f.run_filter()
-                exec_one_filter()
-            elif hasattr(f, 'run_filter_async'):
-                f.run_filter_async(exec_one_filter)
+            f.run(exec_one_filter)
         exec_one_filter()
 
     def finish_request(self, context, result=None):

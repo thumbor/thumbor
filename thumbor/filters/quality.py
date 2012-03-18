@@ -8,10 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from thumbor.filters import BaseFilter
+from thumbor.filters import BaseFilter, filter_method
 
 class Filter(BaseFilter):
-    regex = r'(?:quality\((?P<value>[\d]+)\))'
 
-    def run_filter(self):
-        self.context.request.quality = int(self.params['value'])
+    @filter_method(BaseFilter.PositiveNumber)
+    def quality(self, value):
+        self.context.request.quality = value

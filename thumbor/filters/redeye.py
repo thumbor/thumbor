@@ -12,7 +12,7 @@ from os.path import abspath, dirname, join
 
 import cv
 
-from thumbor.filters import BaseFilter
+from thumbor.filters import BaseFilter, filter_method
 
 FACE_ORIGIN = 'Face Detection'
 CASCADE_FILE_PATH = abspath(join(dirname(__file__), 'haarcascade_eye.xml'))
@@ -24,7 +24,6 @@ HAAR_FLAGS = 0
 RED_THRESHOLD = 2.0
 
 class Filter(BaseFilter):
-    regex = r'(?P<filtername>red-eye\(\))'
 
     def get_pixels(self, image, w, h, mode):
         pixels = []
@@ -60,7 +59,8 @@ class Filter(BaseFilter):
 
         return intersected_eyes
 
-    def run_filter(self):
+    @filter_method()
+    def red_eye(self):
         self.load_cascade_file()
         faces = [face for face in self.context.request.focal_points if face.origin == 'Face Detection']
         if faces:

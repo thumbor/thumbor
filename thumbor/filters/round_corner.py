@@ -8,20 +8,17 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from thumbor.filters import BaseFilter
+from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _round_corner
 
 class Filter(BaseFilter):
-    regex = r'(?:round_corner\((?P<a_radius>[\d]+)(?:\|(?P<b_radius>[\d]+))?,(?P<r>[\d]+),(?P<g>[\d]+),(?P<b>[\d]+)\))'
 
-    def run_filter(self):
+    @filter_method(r'[\d]+(?:\|[\d]+)?', BaseFilter.PositiveNumber, BaseFilter.PositiveNumber, BaseFilter.PositiveNumber)
+    def round_corner(self, radius, r, g, b):
         width, height = self.engine.size
-        a_radius = int(self.params['a_radius'])
-        b_radius = self.params.get('b_radius', None)
-        if b_radius:
-            b_radius = int(b_radius)
-        else:
-            b_radius = a_radius
+        radius_parts = radius.split('|')
+        a_radius = int(radius_parts[0])
+        b_radius = int(radius_parts[1]) if len(radius_parts) > 1 else a_radius
 
-        imgdata = _round_corner.apply(1, self.engine.get_image_mode(), a_radius, b_radius, int(self.params['r']), int(self.params['g']), int(self.params['b']), width, height, self.engine.get_image_data())
+        imgdata = _round_corner.apply(1, self.engine.get_image_mode(), a_radius, b_radius, r, g, b, width, height, self.engine.get_image_data())
         self.engine.set_image_data(imgdata)

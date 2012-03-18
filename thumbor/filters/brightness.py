@@ -8,13 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from thumbor.filters import BaseFilter
+from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _brightness
 
 class Filter(BaseFilter):
-    regex = r'(?:brightness\((?P<value>[-]?[\d]+)\))'
 
-    def run_filter(self):
-        imgdata = _brightness.apply(self.engine.get_image_mode(), int(self.params['value']), self.engine.get_image_data())
+    @filter_method(BaseFilter.Number)
+    def brightness(self, value):
+        imgdata = _brightness.apply(self.engine.get_image_mode(), value, self.engine.get_image_data())
         self.engine.set_image_data(imgdata)
-

@@ -10,20 +10,20 @@
 
 from pyvows import Vows, expect
 
-from thumbor.filters import create_instances, compile_filters
+from thumbor.filters import create_instances
 from thumbor.filters.fill import Filter
 from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
 from thumbor.importer import Importer
 
 DATA = [ #size requested, resized/croped image size, result size
-	((20,20),(10,10),(20,20)),
-        ((20,0),(10,10),(20,10)),
-        ((0,20),(10,10),(10,20)),
+	((20, 20), (10, 10), (20, 20)),
+    ((20, 0),  (10, 10), (20, 10)),
+    ((0,  20), (10, 10), (10, 20))
 ]
 
 @Vows.batch
-class QualityFilterVows(Vows.Context):
+class FillFilterVows(Vows.Context):
     def topic(self):
         conf = Config()
         conf.ENGINE = 'thumbor.engines.pil'
@@ -31,16 +31,14 @@ class QualityFilterVows(Vows.Context):
         imp.import_modules()
         ctx = Context(None, conf, imp)
 
-	for item in DATA:
+        for item in DATA:
             ctx.modules.engine.image = ctx.modules.engine.gen_image(item[1],'#fff')
             req = RequestParameters(fit_in=True,width=item[0][0],height=item[0][1])
             ctx.request = req
 
-            filters = [Filter]
-            compile_filters(filters)
-            filter_instances = create_instances(ctx, filters, "fill(blue)")
+            filter_instances = create_instances(ctx, [Filter], "fill(blue)")
 
-            filter_instances[0].run_filter()
+            filter_instances[0].run()
             yield (filter_instances[0].engine.image.size,item[2])
 
     def image_should_be_filled(self, topic):

@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.ext.filters import _alpha
-from thumbor.filters import BaseFilter
+from thumbor.filters import BaseFilter, filter_method
 from os.path import splitext
 
 class Filter(BaseFilter):
@@ -19,17 +19,15 @@ class Filter(BaseFilter):
         self.watermark_engine.load(buffer, self.extension)
         self.watermark_engine.enable_alpha()
 
-        alpha = int(self.params['alpha'])
-
         imgdata = _alpha.apply(self.watermark_engine.get_image_mode(),
-                               alpha,
+                               self.alpha,
                                self.watermark_engine.get_image_data())
 
         self.watermark_engine.set_image_data(imgdata)
 
-        inv_x = self.params['x'][0] == '-'
-        inv_y = self.params['y'][0] == '-'
-        x, y = int(self.params['x']), int(self.params['y'])
+        inv_x = self.x[0] == '-'
+        inv_y = self.y[0] == '-'
+        x, y = int(self.x), int(self.y)
 
         sz = self.engine.size
         watermark_sz = self.watermark_engine.size
@@ -47,8 +45,12 @@ class Filter(BaseFilter):
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
 
-    def run_filter_async(self, callback):
-        self.url = self.params['url']
+    @filter_method(BaseFilter.String, r'-?[\d]+', r'-?[\d]+', BaseFilter.PositiveNumber, async = True)
+    def watermark(self, callback, url, x, y, alpha):
+        self.url = url
+        self.x = x
+        self.y = y
+        self.alpha = alpha
         self.callback = callback
         self.extension = splitext(self.url)[-1].lower()
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
