@@ -10,7 +10,7 @@
 
 from pyvows import Vows, expect
 
-from thumbor.filters import BaseFilter, filter_method, create_instances
+from thumbor.filters import BaseFilter, FiltersFactory, filter_method
 
 FILTER_PARAMS_DATA = [
     {
@@ -127,24 +127,36 @@ class FilterVows(Vows.Context):
             ctx = Any()
             ctx.modules = Any()
             ctx.modules.engine = Any()
+            fact = FiltersFactory([MyFilter, StringFilter])
+            return (fact, ctx)
 
-            return create_instances(ctx, [MyFilter, StringFilter], 'my_filter(1, 0):my_string_filter(aaaa)')
+        class WithOneValidParam(Vows.Context):
+            def topic(self, (factory, context)):
+                return factory.create_instances(context, 'my_filter(1, 0a):my_string_filter(aaaa)')
 
-        def should_create_two_instances(self, instances):
-            expect(len(instances)).to_equal(2)
-            expect(instances[0].__class__).to_equal(MyFilter)
-            expect(instances[1].__class__).to_equal(StringFilter)
+            def should_create_two_instances(self, instances):
+                expect(len(instances)).to_equal(1)
+                expect(instances[0].__class__).to_equal(StringFilter)
 
-        class WhenRunning(Vows.Context):
-            def topic(self, instances):
-                result = []
-                for instance in instances:
-                    result.append(instance.run())
-                return result
+        class WithValidParams(Vows.Context):
+            def topic(self, (factory, context)):
+                return factory.create_instances(context, 'my_filter(1, 0):my_string_filter(aaaa)')
 
-            def should_create_two_instances(self, result):
-                expect(result[0]).to_equal((1, 0.0))
-                expect(result[1]).to_equal('aaaa')
+            def should_create_two_instances(self, instances):
+                expect(len(instances)).to_equal(2)
+                expect(instances[0].__class__).to_equal(MyFilter)
+                expect(instances[1].__class__).to_equal(StringFilter)
+
+            class WhenRunning(Vows.Context):
+                def topic(self, instances):
+                    result = []
+                    for instance in instances:
+                        result.append(instance.run())
+                    return result
+
+                def should_create_two_instances(self, result):
+                    expect(result[0]).to_equal((1, 0.0))
+                    expect(result[1]).to_equal('aaaa')
 
 
     class WithInvalidFilter(Vows.Context):

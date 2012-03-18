@@ -18,7 +18,6 @@ from thumbor.context import Context
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
-from thumbor import filters as filters_module
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -118,7 +117,7 @@ class BaseHandler(tornado.web.RequestHandler):
         finish_callback = functools.partial(self.finish_request, context)
 
         if context.modules.filters and context.request.filters:
-            self.apply_filters(filters_module.create_instances(context, context.modules.filters, context.request.filters), finish_callback)
+            self.apply_filters(context.filters_factory.create_instances(context, context.request.filters), finish_callback)
         else:
             finish_callback()
 

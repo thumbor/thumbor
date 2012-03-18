@@ -10,7 +10,6 @@
 
 from pyvows import Vows, expect
 
-from thumbor.filters import create_instances
 from thumbor.filters.fill import Filter
 from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
@@ -29,6 +28,7 @@ class FillFilterVows(Vows.Context):
         conf.ENGINE = 'thumbor.engines.pil'
         imp = Importer(conf)
         imp.import_modules()
+        imp.filters = [Filter]
         ctx = Context(None, conf, imp)
 
         for item in DATA:
@@ -36,7 +36,7 @@ class FillFilterVows(Vows.Context):
             req = RequestParameters(fit_in=True,width=item[0][0],height=item[0][1])
             ctx.request = req
 
-            filter_instances = create_instances(ctx, [Filter], "fill(blue)")
+            filter_instances = ctx.filters_factory.create_instances(ctx, "fill(blue)")
 
             filter_instances[0].run()
             yield (filter_instances[0].engine.image.size,item[2])

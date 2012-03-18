@@ -10,23 +10,6 @@
 
 import re
 
-def create_instances(context, filter_classes, filter_params):
-    filter_params = filter_params.split(':')
-    filter_objs = []
-
-    for param in filter_params:
-        for cls in filter_classes:
-            if not cls.compiled: cls.pre_compile()
-            instance = cls.init_if_valid(param)
-            if instance: break
-
-        if instance:
-            instance.context = context
-            if context.modules and context.modules.engine:
-                instance.engine = context.modules.engine
-            filter_objs.append(instance)
-    return filter_objs
-
 def filter_method(*args, **kwargs):
     def _filter_deco(fn):
         def wrapper(self, *args2):
@@ -38,6 +21,29 @@ def filter_method(*args, **kwargs):
         }
         return wrapper
     return _filter_deco
+
+
+class FiltersFactory:
+
+    def __init__(self, filter_classes):
+        self.filter_classes_map = {}
+
+        for cls in filter_classes:
+            filter_name = cls.pre_compile()
+            self.filter_classes_map[filter_name] = cls
+
+    def create_instances(self, context, filter_params):
+        filter_params = filter_params.split(':')
+        filter_objs = []
+
+        for param in filter_params:
+            filter_name = param.split('(')[0]
+            cls = self.filter_classes_map[filter_name]
+            instance = cls.init_if_valid(param, context)
+
+            if instance:
+                filter_objs.append(instance)
+        return filter_objs
 
 
 class BaseFilter(object):
@@ -64,18 +70,17 @@ class BaseFilter(object):
     }
     String = r'[^,]+?'
 
-    compiled = False
-
     @classmethod
     def pre_compile(cls):
-        cls.compiled = True
         meths = filter(lambda f: hasattr(f, 'filter_data'), cls.__dict__.values())
         if len(meths) == 0:
             return
         cls.runnable_method = meths[0]
         filter_data = cls.runnable_method.filter_data
+
         cls.async_filter = filter_data['async']
         cls.compile_regex(filter_data)
+        return filter_data['name']
 
     @classmethod
     def compile_regex(cls, filter_data):
@@ -88,22 +93,24 @@ class BaseFilter(object):
             parsers.append(val[1])
 
         cls.parsers = parsers
-        cls.regex_str = r'%s\(\s*(%s)\s*\)' % (filter_data['name'], r')\s*,\s*('.join(regexes))
+        cls.regex_str = r'%s\(\s*(%s)\s*\)' % (filter_data['name'], ')\\s*,\\s*('.join(regexes))
         cls.regex = re.compile(cls.regex_str)
 
     @classmethod
-    def init_if_valid(cls, param):
-        instance = cls(param)
+    def init_if_valid(cls, param, context):
+        instance = cls(param, context)
         if instance.params is not None:
             return instance
         else:
             return None
 
-    def __init__(self, params):
+    def __init__(self, params, context = None):
         params = self.regex.match(params) if self.regex else None
         if params:
             params = [parser(param) if parser else param for parser, param in zip(self.parsers, params.groups())]
         self.params = params
+        self.context = context
+        self.engine = context.modules.engine if context and context.modules else None
 
     def run(self, callback = None):
         if self.params is not None:

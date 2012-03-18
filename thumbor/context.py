@@ -10,6 +10,8 @@
 
 from os.path import abspath, exists
 
+from thumbor.filters import FiltersFactory
+
 class Context:
     '''
     Class responsible for containing:
@@ -28,6 +30,7 @@ class Context:
             self.modules = ContextImporter(self, importer)
         else:
             self.modules = None
+        self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
 
 
 class ServerParameters:
