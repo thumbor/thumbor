@@ -1,3 +1,5 @@
+before_script: "sudo aptitude -y -q install libevent-dev"
+
 language: python
 
 python:
