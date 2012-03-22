@@ -105,24 +105,33 @@ class Upload(BaseContext):
             with open(crocodile_file_path, 'r') as croc:
                 image = ('media', u'crocodile.jpg', croc.read())
             response = self.post_files('put', '/upload', {}, (image, ))
-            return (response.code, response.body)
+            return response
 
         class StatusCode(TornadoHTTPContext):
             def topic(self, response):
-                return response[0]
+                return response.code
 
             def should_not_be_an_error(self, topic):
                 expect(topic).to_equal(201)
 
         class Body(TornadoHTTPContext):
             def topic(self, response):
-                return response[1]
+                return response.body
 
             def should_be_in_right_path(self, topic):
                 file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
                 path = join(storage_path, file_path)
                 expect(topic).to_equal(file_path)
                 expect(exists(path)).to_be_true()
+
+        class Headers(TornadoHTTPContext):
+            def topic(self, response):
+                return response.headers
+
+            def should_set_correct_location(self, headers):
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
+                expect(headers).to_include('Location')
+                expect(headers['Location']).to_equal(file_path)
 
     class WhenPuttingInvalidImage(BaseContext):
         def topic(self):
@@ -147,24 +156,33 @@ class Upload(BaseContext):
             with open(crocodile_file_path, 'r') as croc:
                 image = ('media', u'crocodile2.jpg', croc.read())
             response = self.post_files('post', '/upload', {}, (image, ))
-            return (response.code, response.body)
+            return response
 
         class StatusCode(TornadoHTTPContext):
             def topic(self, response):
-                return response[0]
+                return response.code
 
             def should_not_be_an_error(self, topic):
                 expect(topic).to_equal(201)
 
         class Body(TornadoHTTPContext):
             def topic(self, response):
-                return response[1]
+                return response.body
 
             def should_be_in_right_path(self, topic):
                 file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
                 path = join(storage_path, file_path)
                 expect(topic).to_equal(file_path)
                 expect(exists(path)).to_be_true()
+
+        class Headers(TornadoHTTPContext):
+            def topic(self, response):
+                return response.headers
+
+            def should_set_correct_location(self, headers):
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
+                expect(headers).to_include('Location')
+                expect(headers['Location']).to_equal(file_path)
 
         class WhenRePosting(BaseContext):
             def topic(self):

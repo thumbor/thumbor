@@ -40,6 +40,7 @@ class UploadHandler(ContextHandler):
         try:
             path = self.write_file(filename, body, overwrite=overwrite)
             self.set_status(201)
+            self.set_header('Location', path)
         except RuntimeError:
             self.set_status(409)
             path = 'File already exists.'
