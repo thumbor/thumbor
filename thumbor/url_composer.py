@@ -93,7 +93,8 @@ def main(arguments=None):
                         image_url)
     url = '/%s/%s' % (opt, image_url)
 
-    print 'Encrypted URL: "%s" (without quotes)' % url
+    print 'Encrypted URL:'
+    print url
 
 if __name__ == '__main__':
     main(sys.argv[1:])
