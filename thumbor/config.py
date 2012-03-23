@@ -101,6 +101,7 @@ Config.define('RESULT_STORAGE', None)
 Config.define('ENGINE', 'thumbor.engines.pil')
 
 Config.define('SECURITY_KEY', 'MY_SECURE_KEY')
+Config.define('URL_PREFIX', '')
 
 Config.define('ALLOW_UNSAFE_URL', True)
 
