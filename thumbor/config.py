@@ -50,7 +50,7 @@ class Config(object):
             exec code in module.__dict__
 
             conf = cls()
-            conf.config_file = config_file
+            conf.config_file = path
             for name, value in module.__dict__.iteritems():
                 setattr(conf, name, value)
 

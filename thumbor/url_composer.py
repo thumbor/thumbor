@@ -22,10 +22,12 @@ def main(arguments=None):
 
     parser = optparse.OptionParser(usage='thumbor-url [options] imageurl or type thumbor-url -h (--help) for help', description=__doc__, version=__version__)
 
+    parser.add_option('-l', '--key_file', dest='key_file', default=None, help = 'The file to read the security key from [default: %default].' )
     parser.add_option('-k', '--key', dest='key', default=None, help = 'The security key to encrypt the url with [default: %default].' )
     parser.add_option('-w', '--width', dest='width', type='int', default=0, help = 'The target width for the image [default: %default].' )
     parser.add_option('-e', '--height', dest='height', type='int', default=0, help = 'The target height for the image [default: %default].' )
     parser.add_option('-n', '--fitin', dest='fitin', action='store_true', default=False, help = 'Indicates that fit-in resizing should be performed.' )
+    parser.add_option('', '--adaptive', action='store_true', dest='adaptive', default=False, help = 'Indicates that adaptive fit-in cropping should be used.' )
     parser.add_option('-s', '--smart', action='store_true', dest='smart', default=False, help = 'Indicates that smart cropping should be used.' )
     parser.add_option('-f', '--horizontal-flip', action='store_true', dest='horizontal_flip', default=False, help = 'Indicates that the image should be horizontally flipped.' )
     parser.add_option('-v', '--vertical-flip', action='store_true', dest='vertical_flip', default=False, help = 'Indicates that the image should be vertically flipped.')
@@ -59,7 +61,12 @@ def main(arguments=None):
         print 'Error: The -k or --key argument is mandatory. For more information type thumbor-url -h'
         return
 
-    security_key = config.SECURITY_KEY if not parsed_options.key else parsed_options.key
+    if parsed_options.key_file:
+        f = open(parsed_options.key_file)
+        security_key = f.read()
+        f.close()
+    else:
+        security_key = config.SECURITY_KEY if not parsed_options.key else parsed_options.key
 
     crypt = Crypto(security_key)
 
@@ -72,6 +79,7 @@ def main(arguments=None):
     opt = crypt.encrypt(parsed_options.width,
                         parsed_options.height,
                         parsed_options.smart,
+                        parsed_options.adaptive,
                         parsed_options.fitin,
                         parsed_options.horizontal_flip,
                         parsed_options.vertical_flip,
