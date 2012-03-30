@@ -872,6 +872,20 @@ TESTITEMS = [
         halign="middle", valign="middle",
         focal_points=[],
         crop_left=200, crop_top=0, crop_right=600, crop_bottom=400
+    ),
+    TestData(
+        source_width=800, source_height=400,
+        target_width="orig", target_height=100,
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=200, crop_top=0, crop_right=600, crop_bottom=400
+    ),
+    TestData(
+        source_width=800, source_height=400,
+        target_width="orig", target_height="orig",
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=200, crop_top=0, crop_right=600, crop_bottom=400
     )
 ]
 
