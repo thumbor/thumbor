@@ -86,7 +86,7 @@ class TestData(object):
                 self.crop_left, self.crop_top,
                 self.crop_right, self.crop_bottom
             )
-        return "For an image of %dx%d resizing to %dx%d, %sit should resize to %dx%d" % (
+        return "For an image of %dx%d resizing to %sx%s, %sit should resize to %sx%s" % (
             self.source_width, self.source_height,
             self.target_width, self.target_height,
             crop_message,
@@ -98,8 +98,8 @@ class TestData(object):
 
         flip_horizontally = self.target_width < 0
         flip_vertically = self.target_height < 0
-        self.target_width = abs(self.target_width)
-        self.target_height = abs(self.target_height)
+        self.target_width = self.target_width == "orig" and "orig" or abs(self.target_width)
+        self.target_height = self.target_height == "orig" and "orig" or abs(self.target_height)
 
         importer = Importer(None)
         ctx = Context(server=None, config=None, importer=importer)
@@ -135,18 +135,21 @@ class TestData(object):
 
     @property
     def resize_error_message(self):
-        message = "The engine resize should have been called with %dx%d" % (self.target_width, self.target_height)
+        message = "The engine resize should have been called with %sx%s" % (self.target_width, self.target_height)
         if not self.engine.calls['resize']:
             return "%s, but was never called" % message
         else:
             last_resize = self.engine.calls['resize'][0]
-            return "%s, but was called with %dx%d" % (message, last_resize['width'], last_resize['height'])
+            return "%s, but was called with %sx%s" % (message, last_resize['width'], last_resize['height'])
 
     def has_resized_properly(self):
         if not self.target_width and not self.target_height:
             return True
 
-        if self.target_width == self.source_width and self.target_height == self.source_height:
+        if (self.target_width == self.source_width and self.target_height == self.source_height) or \
+           (self.target_width == self.source_width and self.target_height == "orig") or \
+           (self.target_width == "orig" and self.target_height == self.source_height) or \
+           (self.target_width == "orig" and self.target_height == "orig"):
             return True
 
         assert self.engine.calls['resize'], self.resize_error_message
@@ -161,8 +164,10 @@ class TestData(object):
             assert self.engine.calls['resize'][0]['height'] == float(self.source_height) * self.target_width / self.source_width, self.resize_error_message
             return True
 
-        assert self.engine.calls['resize'][0]['width'] == self.target_width, self.resize_error_message
-        assert self.engine.calls['resize'][0]['height'] == self.target_height, self.resize_error_message
+        assert self.engine.calls['resize'][0]['width'] == \
+            (self.target_width == "orig" and self.source_width or self.target_width), self.resize_error_message
+        assert self.engine.calls['resize'][0]['height'] == \
+            (self.target_height == "orig" and self.source_height or self.target_height), self.resize_error_message
         return True
 
     @property
@@ -860,6 +865,13 @@ TESTITEMS = [
         halign="right", valign="top",
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+    ),
+    TestData(
+        source_width=800, source_height=400,
+        target_width=400, target_height="orig",
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=200, crop_top=0, crop_right=600, crop_bottom=400
     )
 ]
 

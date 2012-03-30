@@ -27,12 +27,18 @@ class Transformer(object):
             self.target_height = source_height
         else:
             if self.context.request.width:
-                self.target_width = float(self.context.request.width)
+                if self.context.request.width == "orig":
+                    self.target_width = source_width
+                else:
+                    self.target_width = float(self.context.request.width)
             else:
                 self.target_width = self.engine.get_proportional_width(self.context.request.height)
 
             if self.context.request.height:
-                self.target_height = float(self.context.request.height)
+                if self.context.request.height == "orig":
+                    self.target_height = source_height
+                else:
+                    self.target_height = float(self.context.request.height)
             else:
                 self.target_height = self.engine.get_proportional_height(self.context.request.width)
 

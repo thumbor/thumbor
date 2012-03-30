@@ -105,8 +105,9 @@ class RequestParameters:
 
         self.adaptive = bool(adaptive)
         self.fit_in = bool(fit_in)
-        self.width = self.int_or_0(width)
-        self.height = self.int_or_0(height)
+
+        self.width = width == "orig" and "orig" or self.int_or_0(width)
+        self.height = height == "orig" and "orig" or self.int_or_0(height)
         self.horizontal_flip = bool(horizontal_flip)
         self.vertical_flip = bool(vertical_flip)
         self.halign = halign or 'center'
@@ -134,8 +135,6 @@ class RequestParameters:
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)
-
-
 
 class ContextImporter:
     def __init__(self, context, importer):
