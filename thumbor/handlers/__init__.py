@@ -53,9 +53,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.finish_request(self.context, result)
                 return
 
-        if conf.MAX_WIDTH and req.width > conf.MAX_WIDTH:
+        if conf.MAX_WIDTH and (not isinstance(req.width, basestring)) and req.width > conf.MAX_WIDTH:
             req.width = conf.MAX_WIDTH
-        if conf.MAX_HEIGHT and req.height > conf.MAX_HEIGHT:
+        if conf.MAX_HEIGHT and (not isinstance(req.height, basestring)) and req.height > conf.MAX_HEIGHT:
             req.height = conf.MAX_HEIGHT
 
         req.meta_callback = conf.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
