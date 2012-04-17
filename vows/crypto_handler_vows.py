@@ -12,6 +12,7 @@ from os.path import abspath, join, dirname
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
+import urllib
 
 from thumbor.crypto import Crypto
 from thumbor.app import ThumborServiceApp
@@ -23,7 +24,7 @@ get_encrypted_url = lambda url, width, height, security_key='HandlerVows': '/%s/
 
 fixture_for = lambda path: abspath(join(dirname(__file__), 'fixtures', path))
 
-image_url = 'alabama1_ap620.jpg'
+image_url = 'alabama1_ap620é.jpg'
 
 @Vows.batch
 class CryptoHandlerVows(TornadoHTTPContext):
@@ -60,7 +61,7 @@ class CryptoHandlerVows(TornadoHTTPContext):
 
         class WhenInvalidSecurityKey(TornadoHTTPContext):
             def topic(self):
-                response = self.get(get_encrypted_url(image_url, 300, 200, 'fake-key'))
+                response = self.get(urllib.quote(get_encrypted_url(image_url, 300, 200, 'fake-key')))
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):
@@ -99,7 +100,7 @@ class CryptoHandlerVows(TornadoHTTPContext):
 
         class WhenProperUrl(TornadoHTTPContext):
             def topic(self):
-                url = get_encrypted_url(image_url, 300, 200)
+                url = urllib.quote(get_encrypted_url(image_url, 300, 200))
                 response = self.get(url)
                 return (response.code, response.body)
 
