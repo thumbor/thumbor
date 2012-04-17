@@ -75,6 +75,12 @@ class UrlVows(Vows.Context):
             def should_return_proper_url(self, topic):
                 expect(topic).to_equal('filters:brightness(-10):contrast(5)')
 
+        class Adaptive(ctx(fit_in=True, adaptive=True)):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('adaptive-fit-in')
+
+
         class Complete(ctx(width=300, height=200, smart=True, fit_in=True, meta=True, horizontal_flip=True, vertical_flip=True, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13, filters="a(10):b(-10)")):
 
             def should_return_proper_url(self, topic):
