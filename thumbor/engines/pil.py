@@ -26,9 +26,8 @@ ImageFile.MAXBLOCK = 2**25
 
 class Engine(BaseEngine):
 
-    def gen_image(self,size,color):
+    def gen_image(self, size, color):
         img = Image.new("RGB", size, color)
-        self.icc_profile = img.info.get('icc_profile', None)
         return img
 
     def create_image(self, buffer):
@@ -116,3 +115,6 @@ class Engine(BaseEngine):
     def enable_alpha(self):
         if self.image.mode != 'RGBA':
             self.image = self.image.convert('RGBA')
+
+    def strip_icc(self):
+        self.icc_profile = None

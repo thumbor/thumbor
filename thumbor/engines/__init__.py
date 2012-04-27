@@ -104,3 +104,6 @@ class BaseEngine(object):
 
     def enable_alpha(self):
         raise NotImplementedError()
+
+    def strip_icc(self):
+        pass

@@ -127,3 +127,6 @@ class Engine(BaseEngine):
 
     def enable_alpha(self):
         self.image.type(ImageType.TrueColorMatteType)
+
+    def strip_icc(self):
+        self.image.iccColorProfile(Blob())
