@@ -8,10 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import exists
 import urllib
 
 from thumbor.handlers import ContextHandler
+from thumbor.crypto import Crypto
 
 class UploadHandler(ContextHandler):
 
@@ -38,9 +38,10 @@ class UploadHandler(ContextHandler):
         filename = file_data['filename']
         path = ""
         try:
+            cr = Crypto(self.context.config.SECURITY_KEY)
             path = self.write_file(filename, body, overwrite=overwrite)
+            self.set_header("Location", self.context.config.URL_PREFIX + "/%s/%s" % (cr.encrypt(0,0,False,False,False,False,False,'center','middle',None,None,None,None,None,path), path))
             self.set_status(201)
-            self.set_header('Location', path)
         except RuntimeError:
             self.set_status(409)
             path = 'File already exists.'

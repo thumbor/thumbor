@@ -21,6 +21,7 @@ from thumbor.app import ThumborServiceApp
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context
+from thumbor.crypto import Crypto
 
 storage_path = '/tmp/thumbor-vows/storage'
 crocodile_file_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
@@ -93,6 +94,7 @@ class Upload(BaseContext):
         cfg.FILE_STORAGE_ROOT_PATH = storage_path
         cfg.ALLOW_ORIGINAL_PHOTO_DELETION = True
         cfg.ALLOW_ORIGINAL_PHOTO_PUTTING = True
+        cfg.SECURITY_KEY = 'MY_SECURE_KEY'
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -131,7 +133,8 @@ class Upload(BaseContext):
             def should_set_correct_location(self, headers):
                 file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
                 expect(headers).to_include('Location')
-                expect(headers['Location']).to_equal(file_path)
+                encrypted_url = '/%s/%s' % (Crypto('MY_SECURE_KEY').encrypt(0, 0, False, False, False, False, False, 'center', 'middle', None, None, None, None, '', file_path), file_path)
+                expect(headers['Location']).to_equal(encrypted_url)
 
     class WhenPuttingInvalidImage(BaseContext):
         def topic(self):
@@ -140,7 +143,7 @@ class Upload(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
     class WhenPostingInvalidImage(BaseContext):
         def topic(self):
@@ -149,7 +152,7 @@ class Upload(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
     class WhenPosting(BaseContext):
         def topic(self):
@@ -182,7 +185,8 @@ class Upload(BaseContext):
             def should_set_correct_location(self, headers):
                 file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
                 expect(headers).to_include('Location')
-                expect(headers['Location']).to_equal(file_path)
+                encrypted_url = '/%s/%s' % (Crypto('MY_SECURE_KEY').encrypt(0, 0, False, False, False, False, False, 'center', 'middle', None, None, None, None, '', file_path), file_path)
+                expect(headers['Location']).to_equal(encrypted_url)
 
         class WhenRePosting(BaseContext):
             def topic(self):
@@ -311,7 +315,7 @@ class UploadWithMinWidthAndHeight(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
     class WhenPostingTooSmallImage(BaseContext):
         def topic(self):
@@ -321,7 +325,7 @@ class UploadWithMinWidthAndHeight(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
 @Vows.batch
 class UploadWithMaxSize(BaseContext):
@@ -347,7 +351,7 @@ class UploadWithMaxSize(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
     class WhenPostingTooBigFile(BaseContext):
         def topic(self):
@@ -357,4 +361,4 @@ class UploadWithMaxSize(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
