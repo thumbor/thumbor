@@ -1,13 +1,38 @@
 language: python
-
 python:
-  - "2.6"
+  - "2.7"
 
-# command to install dependencies
-install: "sudo aptitude -y -q install libevent-dev python-opencv libcv-dev libcvaux-dev libhighgui-dev; pip install -r test_requirements.txt --use-mirrors"
+install:
+    # update aptitude
+    - sudo apt-get remove -y ffmpeg x264 libx264-dev
+    - sudo apt-get update -y
 
-# command to run tests
-script: make test-trevis
+    # install aptitude packages
+    - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
 
-notifications:
-  email: false
+    # weird travis-ci python paths
+    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
+    - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages
+    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
+    - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
+
+    # verify both requirements were met
+    - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
+    - INSTALLDIR=$(python -c "import os; import scipy; print(os.path.dirname(scipy.__file__))")
+
+    # install python requirements
+    - pip install -r test_requirements.txt --use-mirrors
+
+script:
+    # weird travis-ci python paths
+    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
+    - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages
+    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
+    - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
+
+    # install opencv
+    - ./install-opencv.sh
+
+    # finally run tests
+    - make ci_test
+
