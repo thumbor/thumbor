@@ -83,7 +83,7 @@ class Transformer(object):
         if self.context.modules.detectors and self.context.request.smart:
             storage = self.context.modules.storage
             focal_points = storage.get_detector_data(self.smart_storage_key)
-            if focal_points:
+            if focal_points is not None:
                 self.after_smart_detect(focal_points, points_from_storage=True)
             else:
                 detectors = self.context.modules.detectors
