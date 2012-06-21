@@ -7,3 +7,4 @@ pymongo==2.1.1
 redis==2.4.9
 pyvows
 tornado-pyvows
+coverage
