@@ -60,8 +60,8 @@ libjpeg8-dev
 libjpeg8-dbg
 libjpeg-progs
 libavcodec-dev
-libavcodec
-libavformat
+libavcodec53
+libavformat53
 libavformat-dev
 libxine1-ffmpeg
 libxine-dev
