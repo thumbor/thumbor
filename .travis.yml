@@ -4,7 +4,8 @@ python:
 
 install:
     # update aptitude
-    - sudo apt-get remove -y ffmpeg x264 libx264-dev
+    - sudo apt-get remove -y ffmpeg x264 libx264-dev mongodb redis-server
+    - sudo rm -rf /etc/mongodb.conf
     - sudo apt-get update -y
 
     # install aptitude packages
