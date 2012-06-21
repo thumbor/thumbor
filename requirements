@@ -17,8 +17,8 @@ libpng12-dev
 libpng++-dev
 libpng3
 libpnglite-dev
-libpngwriter0-dev
-libpngwriter0c2
+libpngwriter-dev
+libpngwriter
 libfaac-dev
 libjack-jackd2-dev
 libjasper-dev
@@ -58,10 +58,10 @@ libtiff-tools
 libjpeg8
 libjpeg8-dev
 libjpeg8-dbg
-libjpeg-prog
+libjpeg-progs
 libavcodec-dev
-libavcodec52
-libavformat52
+libavcodec
+libavformat
 libavformat-dev
 libxine1-ffmpeg
 libxine-dev
