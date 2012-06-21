@@ -122,8 +122,12 @@ class Engine(BaseEngine):
         draw.rectangle(x, y, x + width, y + height)
         self.image.draw(draw.drawer)
 
-    def paste(self, other_engine, pos):
-        self.image.composite(other_engine.image, pos[0],pos[1], co.OverCompositeOp)
+    def paste(self, other_engine, pos, merge=True):
+        self.enable_alpha()
+        other_engine.enable_alpha()
+
+        operator = co.OverCompositeOp if merge else co.CopyCompositeOp
+        self.image.composite(other_engine.image, pos[0],pos[1], operator)
 
     def enable_alpha(self):
         self.image.type(ImageType.TrueColorMatteType)

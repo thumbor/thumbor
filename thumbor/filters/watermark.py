@@ -36,7 +36,8 @@ class Filter(BaseFilter):
         if inv_y:
             y = (sz[1] - watermark_sz[1]) + y
 
-        self.engine.paste(self.watermark_engine, (x, y))
+        self.engine.paste(self.watermark_engine, (x, y), merge=True)
+
         self.callback()
 
     def on_fetch_done(self, buffer):

@@ -14,6 +14,7 @@ from PIL import Image, ImageFile, ImageDraw
 
 from thumbor.engines import BaseEngine
 from thumbor.utils import logger
+from thumbor.ext.filters import _composite
 
 FORMATS = {
     '.jpg': 'JPEG',
@@ -27,7 +28,7 @@ ImageFile.MAXBLOCK = 2**25
 class Engine(BaseEngine):
 
     def gen_image(self, size, color):
-        img = Image.new("RGB", size, color)
+        img = Image.new("RGBA", size, color)
         return img
 
     def create_image(self, buffer):
@@ -38,6 +39,7 @@ class Engine(BaseEngine):
     def draw_rectangle(self, x, y, width, height):
         d = ImageDraw.Draw(self.image)
         d.rectangle([x, y, x + width, y + height])
+
         del d
 
     def resize(self, width, height):
@@ -101,16 +103,21 @@ class Engine(BaseEngine):
     def get_image_mode(self):
         return self.image.mode
 
-    def paste(self, other_engine, pos):
+    def paste(self, other_engine, pos, merge=True):
         self.enable_alpha()
         other_engine.enable_alpha()
 
         image = self.image
         other_image = other_engine.image
 
-        layer = Image.new('RGBA', image.size, (0,0,0,0))
-        layer.paste(other_image, pos)
-        self.image = Image.composite(layer, image, layer)
+        if merge:
+            sz = self.size
+            other_size = other_engine.size
+            imgdata = _composite.apply(self.get_image_mode(), self.get_image_data(), sz[0], sz[1],
+                other_engine.get_image_data(), other_size[0], other_size[1], pos[0], pos[1])
+            self.set_image_data(imgdata)
+        else:
+            image.paste(other_image, pos)
 
     def enable_alpha(self):
         if self.image.mode != 'RGBA':

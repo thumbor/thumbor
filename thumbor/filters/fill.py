@@ -17,7 +17,9 @@ class Filter(BaseFilter):
         self.fill_engine = self.engine.__class__(self.context)
         bx = self.context.request.width if self.context.request.width != 0 else self.engine.image.size[0]
         by = self.context.request.height if self.context.request.height != 0 else self.engine.image.size[1]
-        (ix, iy) = self.engine.image.size
+
+        (ix, iy) = self.engine.size
+
         try:
             self.fill_engine.image = self.fill_engine.gen_image((bx,by), value)
         except (ValueError, RuntimeError):
@@ -26,6 +28,5 @@ class Filter(BaseFilter):
         px = ( bx - ix ) / 2 #top left
         py = ( by - iy ) / 2
 
-
-        self.fill_engine.paste(self.engine, (px, py))
+        self.fill_engine.paste(self.engine, (px, py), merge=False)
         self.engine.image = self.fill_engine.image
