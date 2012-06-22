@@ -46,7 +46,7 @@ FILTER_PARAMS_DATA = [
     {
         'type': BaseFilter.String,
         'values': [
-            ('a', 'a'), ('bbbb', 'bbbb'), ('  cccc  ', 'cccc')
+            ('a', 'a'), ('bbbb', 'bbbb'), ('  cccc  ', 'cccc'), ('  cc:cc  ', 'cc:cc')
         ],
         'invalid_values': ['', ',', ',,,,']
     },
@@ -137,6 +137,19 @@ class FilterVows(Vows.Context):
             def should_create_two_instances(self, instances):
                 expect(len(instances)).to_equal(1)
                 expect(instances[0].__class__).to_equal(StringFilter)
+
+        class WithParameterContainingColons(Vows.Context):
+            def topic(self, (factory, context)):
+                return factory.create_instances(context, 'my_string_filter(aaaa):my_string_filter(aa:aa)')
+
+            def should_create_two_instances(self, instances):
+                expect(len(instances)).to_equal(2)
+                expect(instances[0].__class__).to_equal(StringFilter)
+                expect(instances[1].__class__).to_equal(StringFilter)
+
+            def should_understant_parameters(self, instances):
+                expect(instances[0].params).to_equal(["aaaa"])
+                expect(instances[1].params).to_equal(["aa:aa"])
 
         class WithValidParams(Vows.Context):
             def topic(self, (factory, context)):

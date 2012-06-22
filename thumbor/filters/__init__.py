@@ -33,13 +33,13 @@ class FiltersFactory:
             self.filter_classes_map[filter_name] = cls
 
     def create_instances(self, context, filter_params):
-        filter_params = filter_params.split(':')
+        filter_params = filter_params.split('):')
         filter_objs = []
 
         for param in filter_params:
             filter_name = param.split('(')[0]
             cls = self.filter_classes_map[filter_name]
-            instance = cls.init_if_valid(param, context)
+            instance = cls.init_if_valid(param + ')', context)
 
             if instance:
                 filter_objs.append(instance)
