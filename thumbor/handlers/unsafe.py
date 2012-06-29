@@ -17,12 +17,15 @@ class MainHandler(ContextHandler):
 
     @tornado.web.asynchronous
     def get(self, **kw):
-
         if not self.validate(kw['image']):
             self._error(404)
             return
 
         self.context.request = RequestParameters(**kw)
+
+        if (self.request.query):
+            self.context.request.image_url += '?%s' % self.request.query
+
         self.context.request.unsafe = True
 
         return self.execute_image_operations()

@@ -38,6 +38,10 @@ class CryptoHandler(ContextHandler):
 
         image_hash = opt and opt.get('image_hash')
         image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash
+
+        if (self.request.query):
+            image += '?%s' % self.request.query
+
         path_hash = hashlib.md5(image.encode('utf-8')).hexdigest()
 
         if not image_hash or image_hash != path_hash:
