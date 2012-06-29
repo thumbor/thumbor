@@ -8,6 +8,37 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+class MultipleEngine:
+
+    def __init__(self, source_engine):
+        self.frame_engines = []
+        self.source_engine = source_engine
+
+    def add_frame(self, frame):
+        frame_engine = self.source_engine.__class__(self.source_engine.context)
+        frame_engine.extension = self.source_engine.extension
+        frame_engine.source_width = self.source_engine.source_width
+        frame_engine.source_height = self.source_engine.source_height
+        frame_engine.image = frame
+
+        self.frame_engines.append(frame_engine)
+
+    def read(self, extension=None, quality=None):
+        return self.source_engine.read_multiple([frame_engine.image for frame_engine in self.frame_engines], extension)
+
+    def do_many(self, name):
+        def exec_func(*args, **kwargs):
+            result = []
+            for frame_engine in self.frame_engines:
+                result.append(getattr(frame_engine, name)(*args, **kwargs))
+            return result
+        return exec_func
+
+    def __getattr__(self, name):
+        if not name in self.__dict__:
+            return self.do_many(name)
+        return object.__getattr__(self, name)
+
 class BaseEngine(object):
 
     def __init__(self, context):
@@ -17,6 +48,16 @@ class BaseEngine(object):
         self.source_width = None
         self.source_height = None
         self.icc_profile = None
+
+    def wrap(self, multiple_engine):
+        for method_name in ['resize', 'crop', 'read', 'flip_vertically', 'flip_horizontally']:
+            setattr(self, method_name, getattr(multiple_engine, method_name))
+
+    def is_multiple(self):
+        return hasattr(self, 'multiple_engine') and self.multiple_engine is not None
+
+    def frame_engines(self):
+        return self.multiple_engine.frame_engines
 
     def load(self, buffer, extension):
         #magic number detection
@@ -28,7 +69,18 @@ class BaseEngine(object):
             extension = '.jpg'
 
         self.extension = extension
-        self.image = self.create_image(buffer)
+        imageOrFrames = self.create_image(buffer)
+
+        if isinstance(imageOrFrames, (list, tuple)):
+            self.image = imageOrFrames[0]
+            if len(imageOrFrames) > 1:
+                self.multiple_engine = MultipleEngine(self)
+                for frame in imageOrFrames:
+                    self.multiple_engine.add_frame(frame)
+                self.wrap(self.multiple_engine)
+        else:
+            self.image = imageOrFrames
+
         if self.source_width is None:
             self.source_width = self.size[0]
         if self.source_height is None:

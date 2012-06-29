@@ -126,7 +126,10 @@ class FilterVows(Vows.Context):
             class Any: pass
             ctx = Any()
             ctx.modules = Any()
-            ctx.modules.engine = Any()
+            engine = Any()
+            def is_multiple(): return False
+            engine.is_multiple = is_multiple
+            ctx.modules.engine = engine
             fact = FiltersFactory([MyFilter, StringFilter])
             return (fact, ctx)
 
@@ -168,8 +171,8 @@ class FilterVows(Vows.Context):
                     return result
 
                 def should_create_two_instances(self, result):
-                    expect(result[0]).to_equal((1, 0.0))
-                    expect(result[1]).to_equal('aaaa')
+                    expect(result[0]).to_equal([(1, 0.0)])
+                    expect(result[1]).to_equal(['aaaa'])
 
 
     class WithInvalidFilter(Vows.Context):
@@ -194,7 +197,7 @@ class FilterVows(Vows.Context):
                 return f.run()
 
             def sets_correct_result_value(self, topic):
-                expect(topic).to_equal((1, -1.1))
+                expect(topic).to_equal([(1, -1.1)])
 
         class WithInvalidNumber:
             def topic(self, cls):
@@ -220,7 +223,7 @@ class FilterVows(Vows.Context):
             return f.run()
 
         def should_call_filter(self, value):
-            expect(value).to_equal('ok')
+            expect(value).to_equal(['ok'])
 
     class WithAsyncFilter(Vows.Context):
         @Vows.async_topic

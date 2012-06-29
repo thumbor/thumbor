@@ -113,11 +113,26 @@ class BaseFilter(object):
         self.engine = context.modules.engine if context and context.modules else None
 
     def run(self, callback = None):
-        if self.params is not None:
+        if self.params is None:
+            return
+
+        if self.engine:
+            if self.engine.is_multiple():
+                engines_to_run = self.engine.frame_engines()
+            else:
+                engines_to_run = [self.engine]
+        else:
+            engines_to_run = [None]
+
+        results = []
+        for engine in engines_to_run:
+            self.engine = engine
             if self.async_filter:
                 self.runnable_method(callback, *self.params)
             else:
-                ret = self.runnable_method(*self.params)
-                if callback:
-                    callback()
-                return ret 
+                results.append(self.runnable_method(*self.params))
+
+        if (not self.async_filter) and callback:
+            callback()
+
+        return results

@@ -14,6 +14,8 @@ import datetime
 
 import tornado.web
 
+from thumbor.storages.no_storage import Storage as NoStorage
+from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.context import Context
 from thumbor.transformer import Transformer
 from thumbor.engines.json_engine import JSONEngine
@@ -63,13 +65,17 @@ class BaseHandler(tornado.web.RequestHandler):
         self.get_image()
 
     def get_image(self):
-        def callback(normalized, buffer):
-            if buffer is None:
-                self._error(404)
-                return
+        def callback(normalized, buffer=None, engine=None):
 
-            engine = self.context.modules.engine
             req = self.context.request
+
+            if engine is None:
+                if buffer is None:
+                    self._error(404)
+                    return
+
+                engine = self.context.modules.engine
+                engine.load(buffer, req.extension)
 
             new_crops = None
             if normalized and req.should_crop:
@@ -102,8 +108,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 req.crop['top'] = new_crops[1]
                 req.crop['right'] = new_crops[2]
                 req.crop['bottom'] = new_crops[3]
-
-            engine.load(buffer, req.extension)
 
             if req.meta:
                 self.context.modules.engine = JSONEngine(engine, req.image_url, req.meta_callback)
@@ -198,7 +202,7 @@ class BaseHandler(tornado.web.RequestHandler):
         buffer = storage.get(url)
 
         if buffer is not None:
-            callback(False, buffer)
+            callback(False, buffer=buffer)
         else:
             def handle_loader_loaded(buffer):
                 if buffer is None:
@@ -208,12 +212,17 @@ class BaseHandler(tornado.web.RequestHandler):
                 engine = self.context.modules.engine
                 engine.load(buffer, extension)
                 normalized = engine.normalize()
-                buffer = engine.read()
+                is_no_storage = isinstance(storage, NoStorage)
+                is_mixed_storage = isinstance(storage, MixedStorage)
+                is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
-                storage.put(url, buffer)
+                if not (is_no_storage or is_mixed_no_file_storage):
+                    buffer = engine.read()
+                    storage.put(url, buffer)
+
                 storage.put_crypto(url)
 
-                callback(normalized, buffer)
+                callback(normalized, engine=engine)
 
             self.context.modules.loader.load(self.context, url, handle_loader_loaded)
 
