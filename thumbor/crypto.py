@@ -69,8 +69,15 @@ class Cryptor(object):
         if not opt and not self.security_key and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             security_key = self.storage.get_crypto(image_url)
 
-            cr = Crypto(security_key or self.context.server.security_key)
-            opt = cr.decrypt(encrypted_url_part)
+            if security_key is not None:
+                cr = Cryptor(security_key)
+                try:
+                    opt = cr.decrypt(encrypted_url_part)
+                except ValueError:
+                    opt = None
+
+        if opt is None:
+            return None
 
         image_hash = opt and opt.get('image_hash')
         image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash

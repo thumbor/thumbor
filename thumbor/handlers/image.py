@@ -20,7 +20,6 @@ class ImageProcessHandler(ContextHandler):
     @tornado.web.asynchronous
     def get(self, **kw):
         url = self.request.uri
-        signer = Signer(self.context.server.security_key)
 
         if not self.validate(kw['image']):
             self._error(404, 'No original image was specified in the given URL')
@@ -46,8 +45,18 @@ class ImageProcessHandler(ContextHandler):
 
         url_signature = self.context.request.hash
         if url_signature:
+            signer = Signer(self.context.server.security_key)
+
             url_to_validate = url.replace('/%s/' % self.context.request.hash, '')
             valid = signer.validate(url_signature, url_to_validate)
+
+            if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+                # Retrieves security key for this image if it has been seen before
+                security_key = self.context.modules.storage.get_crypto(self.context.request.image_url)
+                if security_key is not None:
+                    signer = Signer(security_key)
+                    valid = signer.validate(url_signature, url_to_validate)
+
             if not valid:
                 is_valid = True
                 if self.context.config.ALLOW_OLD_URLS:
