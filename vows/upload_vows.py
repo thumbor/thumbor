@@ -140,7 +140,7 @@ class Upload(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
     class WhenPostingInvalidImage(BaseContext):
         def topic(self):
@@ -149,7 +149,7 @@ class Upload(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
     class WhenPosting(BaseContext):
         def topic(self):
@@ -311,7 +311,7 @@ class UploadWithMinWidthAndHeight(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
     class WhenPostingTooSmallImage(BaseContext):
         def topic(self):
@@ -321,7 +321,7 @@ class UploadWithMinWidthAndHeight(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
 @Vows.batch
 class UploadWithMaxSize(BaseContext):
@@ -347,7 +347,7 @@ class UploadWithMaxSize(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)
 
     class WhenPostingTooBigFile(BaseContext):
         def topic(self):
@@ -357,4 +357,4 @@ class UploadWithMaxSize(BaseContext):
             return (response.code, response.body)
 
         def should_be_an_error(self, topic):
-             expect(topic[0]).to_equal(412)
+            expect(topic[0]).to_equal(412)

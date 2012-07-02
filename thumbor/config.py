@@ -103,6 +103,7 @@ Config.define('ENGINE', 'thumbor.engines.pil')
 Config.define('SECURITY_KEY', 'MY_SECURE_KEY')
 
 Config.define('ALLOW_UNSAFE_URL', True)
+Config.define('ALLOW_OLD_URLS', True)
 
 # FILE LOADER OPTIONS
 Config.define('FILE_LOADER_ROOT_PATH', '/tmp')

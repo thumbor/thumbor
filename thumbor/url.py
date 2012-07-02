@@ -22,14 +22,15 @@ class Url(object):
     smart = r'(?:(?P<smart>smart)/)?'
     filters = r'(?:filters:(?P<filters>.+\))/)?'
     image = r'(?P<image>.+)'
+    unsafe = r'(?P<unsafe>unsafe/)?'
+    hash_regexp = r'(?:(?P<hash>[^/]{28,}?)/)?'
 
     @classmethod
-    def regex(cls, with_unsafe=True, include_image=True):
+    def regex(cls, include_image=True):
         reg = ['/?']
 
-        if with_unsafe:
-            reg.append('unsafe/')
-
+        reg.append(cls.unsafe)
+        reg.append(cls.hash_regexp)
         reg.append(cls.debug)
         reg.append(cls.meta)
         reg.append(cls.crop)
@@ -50,9 +51,8 @@ class Url(object):
         return cls.parse(url, include_image=False)
 
     @classmethod
-    def parse(cls, url, with_unsafe=True, include_image=True):
-        reg = cls.regex(with_unsafe=with_unsafe,
-                        include_image=include_image)
+    def parse(cls, url, include_image=True):
+        reg = cls.regex(include_image=include_image)
 
         result = re.match(reg, url)
 
@@ -148,3 +148,4 @@ class Url(object):
             url.append('filters:%s' % filters)
 
         return '/'.join(url)
+

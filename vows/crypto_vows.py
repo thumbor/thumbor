@@ -9,21 +9,23 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import hashlib
+import base64
+import hmac
 
 from pyvows import Vows, expect
 
-from thumbor.crypto import Crypto
+from thumbor.crypto import Cryptor, Signer
 
 @Vows.batch
 class CryptoVows(Vows.Context):
     def topic(self):
-        return Crypto(salt="something")
+        return Cryptor(security_key="something")
 
     def should_be_crypto_instance(self, topic):
-        expect(topic).to_be_instance_of(Crypto)
+        expect(topic).to_be_instance_of(Cryptor)
 
     def should_calculate_salt(self, topic):
-        expect(topic.salt).to_equal('somethingsomethi')
+        expect(topic.security_key).to_equal('somethingsomethi')
 
     class DecryptInvalidString(Vows.Context):
 
@@ -112,7 +114,7 @@ class CryptoVows(Vows.Context):
         class DecryptWrongKey(Vows.Context):
 
             def topic(self, encrypted, crypto):
-                crypto2 = Crypto(salt="simething")
+                crypto2 = Cryptor(security_key="simething")
 
                 return (crypto2.decrypt(encrypted), crypto.decrypt(encrypted))
 
@@ -120,4 +122,24 @@ class CryptoVows(Vows.Context):
                 wrong, right = topic
                 expect(wrong['image_hash']).not_to_equal(right['image_hash'])
 
+
+@Vows.batch
+class SignerVows(Vows.Context):
+    def topic(self):
+        return Signer(security_key="something")
+
+    def should_be_signer_instance(self, topic):
+        expect(topic).to_be_instance_of(Signer)
+
+    def should_have_security_key(self, topic):
+        expect(topic.security_key).to_equal('something')
+
+    class Sign(Vows.Context):
+        def topic(self, signer):
+            url = '10x11:12x13/-300x-300/center/middle/smart/some/image.jpg'
+            expected = base64.urlsafe_b64encode(hmac.new('something', unicode(url).encode('utf-8'), hashlib.sha1).digest())
+            return (signer.signature(url), expected)
+
+        def should_equal_encrypted_string(self, (topic, expected)):
+            expect(topic).to_equal(expected)
 

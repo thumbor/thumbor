@@ -91,7 +91,10 @@ class UrlVows(Vows.Context):
             return Url.regex()
 
         def should_contain_unsafe(self, topic):
-            expect(topic).to_include('/?unsafe/')
+            expect(topic).to_include('/?(?P<unsafe>unsafe/)?')
+
+        def should_contain_hash(self, topic):
+            expect(topic).to_include('(?:(?P<hash>[^/]{28,}?)/)?')
 
         def should_contain_meta(self, topic):
             expect(topic).to_include('(?:(?P<meta>meta)/)?')
@@ -140,7 +143,7 @@ class UrlVows(Vows.Context):
                 return Url.parse_options("some fake url")
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic['image']).to_be_null()
 
         class WithoutImage(Vows.Context):
             def topic(self):

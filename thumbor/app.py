@@ -11,9 +11,8 @@
 import tornado.web
 import tornado.ioloop
 
-from thumbor.handlers.unsafe import MainHandler
+from thumbor.handlers.image import ImageProcessHandler
 from thumbor.handlers.healthcheck import HealthcheckHandler
-from thumbor.handlers.crypto import CryptoHandler
 from thumbor.handlers.upload import UploadHandler
 from thumbor.url import Url
 
@@ -23,22 +22,16 @@ class ThumborServiceApp(tornado.web.Application):
         self.context = context
 
         handlers = [
-            (r'/healthcheck', HealthcheckHandler)
+            (r'/healthcheck', HealthcheckHandler),
         ]
-
-        if context.config.ALLOW_UNSAFE_URL:
-            handlers.append(
-                (Url.regex(), MainHandler, { 'context': context }),
-            )
-
-        handlers.append(
-            (r'/(?P<crypto>[^/]+)/(?P<image>(?:.+))', CryptoHandler, { 'context': context })
-        )
 
         if context.config.ENABLE_ORIGINAL_PHOTO_UPLOAD:
             handlers.append(
                 (r'/upload', UploadHandler, { 'context': context })
             )
 
+        handlers.append(
+            (Url.regex(), ImageProcessHandler, { 'context':  context })
+        )
 
         super(ThumborServiceApp, self).__init__(handlers)

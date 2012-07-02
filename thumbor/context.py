@@ -84,7 +84,7 @@ class RequestParameters:
                  buffer=None,
                  focal_points=None,
                  unsafe=False,
-                 image_hash=None):
+                 hash=None):
 
         self.debug = bool(debug)
         self.meta = bool(meta)
@@ -129,7 +129,7 @@ class RequestParameters:
             focal_points = []
 
         self.focal_points = focal_points
-        self.image_hash = image_hash
+        self.hash = hash
         self.prevent_result_storage = False
         self.unsafe = unsafe
 

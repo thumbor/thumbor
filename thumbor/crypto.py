@@ -10,14 +10,15 @@
 
 import base64
 import hashlib
+import hmac
 
 from Crypto.Cipher import AES
 
 from thumbor.url import Url
 
-class Crypto(object):
-    def __init__(self, salt):
-        self.salt = (salt * 16)[:16]
+class Cryptor(object):
+    def __init__(self, security_key):
+        self.security_key = (security_key * 16)[:16]
 
     def encrypt(self, 
                 width,
@@ -54,13 +55,39 @@ class Crypto(object):
                         hashlib.md5(image).hexdigest())
 
         pad = lambda s: s + (16 - len(s) % 16) * "{"
-        cipher = AES.new(self.salt)
+        cipher = AES.new(self.security_key)
         encrypted = base64.urlsafe_b64encode(cipher.encrypt(pad(url.encode('utf-8'))))
 
         return encrypted
 
+    def get_options(self, encrypted_url_part, image_url):
+        try:
+            opt = self.decrypt(encrypted_url_part)
+        except ValueError:
+            opt = None
+
+        if not opt and not self.security_key and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            security_key = self.storage.get_crypto(image_url)
+
+            cr = Crypto(security_key or self.context.server.security_key)
+            opt = cr.decrypt(encrypted_url_part)
+
+        image_hash = opt and opt.get('image_hash')
+        image_hash = image_hash[1:] if image_hash and image_hash.startswith('/') else image_hash
+
+        path_hash = hashlib.md5(image_url.encode('utf-8')).hexdigest()
+
+        if not image_hash or image_hash != path_hash:
+            return None
+
+        opt['image'] = image_url
+        opt['hash'] = opt['image_hash']
+        del opt['image_hash']
+
+        return opt
+
     def decrypt(self, encrypted):
-        cipher = AES.new(self.salt)
+        cipher = AES.new(self.security_key)
 
         try:
             debased = base64.urlsafe_b64decode(encrypted.encode("utf-8"))
@@ -68,10 +95,21 @@ class Crypto(object):
         except TypeError:
             return None
 
-        result = Url.parse('/%s' % decrypted, with_unsafe=False)
+        result = Url.parse('/%s' % decrypted)
 
         result['image_hash'] = result['image']
         del result['image']
 
         return result
+
+class Signer:
+    def __init__(self, security_key):
+        self.security_key = security_key
+
+    def validate(self, actual_signature, url):
+        url_signature = self.signature(url)
+        return url_signature == actual_signature
+
+    def signature(self, url):
+        return base64.urlsafe_b64encode(hmac.new(self.security_key, unicode(url).encode('utf-8'), hashlib.sha1).digest())
 
