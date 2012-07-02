@@ -66,7 +66,7 @@ class ImageProcessHandler(ContextHandler):
                         is_valid = False
                     else:
                         self.context.request = RequestParameters(**options)
-                        logger.warning('OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in upcoming versions. Please start using the new format as soon as possible. More info at http://xxx.xx.xx')
+                        logger.warning('OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in upcoming versions. Please start using the new format as soon as possible. More info at https://github.com/globocom/thumbor/wiki/3.0.0-release-changes')
                 else:
                     is_valid = False
 

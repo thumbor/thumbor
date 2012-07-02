@@ -123,31 +123,31 @@ class UrlVows(Vows.Context):
         def should_contain_image(self, topic):
             expect(topic).to_include('(?P<image>.+)')
 
-        class WithoutImage(Vows.Context):
+        class WithOldFormat(Vows.Context):
             def topic(self):
-                return Url.regex(include_image=False)
+                return Url.regex(old_format=True)
 
             def should_not_include_image(self, topic):
-                expect(topic).not_to_include('(?P<image>.+)')
+                expect(topic).not_to_include('(?:(?P<hash>[^/]{28,}?)/)?')
 
     class Parse(Vows.Context):
         class WithoutInitialSlash(Vows.Context):
             def topic(self):
-                return Url.parse_options('unsafe/meta/10x11:12x13/-300x-200/left/top/smart/filters:some_filter()/')
+                return Url.parse('unsafe/meta/10x11:12x13/-300x-200/left/top/smart/filters:some_filter()/img')
 
             def should_not_be_null(self, topic):
                 expect(topic).not_to_be_null()
 
         class WithoutResult(Vows.Context):
             def topic(self):
-                return Url.parse_options("some fake url")
+                return Url.parse("some fake url")
 
             def should_be_null(self, topic):
-                expect(topic['image']).to_be_null()
+                expect(topic['image']).to_equal("some fake url")
 
         class WithoutImage(Vows.Context):
             def topic(self):
-                return Url.parse_options('/unsafe/meta/10x11:12x13/fit-in/-300x-200/left/top/smart/filters:some_filter()/')
+                return Url.parse('/unsafe/meta/10x11:12x13/fit-in/-300x-200/left/top/smart/filters:some_filter()/img')
 
             def should_have_meta(self, topic):
                 expect(topic['meta']).to_be_true()

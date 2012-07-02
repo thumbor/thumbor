@@ -12,6 +12,8 @@ import re
 
 class Url(object):
 
+    unsafe = r'(?P<unsafe>unsafe/)?'
+    hash_regexp = r'(?:(?P<hash>[^/]{28,}?)/)?'
     debug = '(?:(?P<debug>debug)/)?'
     meta = '(?:(?P<meta>meta)/)?'
     crop = '(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?'
@@ -22,15 +24,18 @@ class Url(object):
     smart = r'(?:(?P<smart>smart)/)?'
     filters = r'(?:filters:(?P<filters>.+\))/)?'
     image = r'(?P<image>.+)'
-    unsafe = r'(?P<unsafe>unsafe/)?'
-    hash_regexp = r'(?:(?P<hash>[^/]{28,}?)/)?'
+
+    compiled_regex = None
 
     @classmethod
-    def regex(cls, include_image=True):
+    def regex(cls, old_format=False):
         reg = ['/?']
 
         reg.append(cls.unsafe)
-        reg.append(cls.hash_regexp)
+
+        if not old_format:
+            reg.append(cls.hash_regexp)
+
         reg.append(cls.debug)
         reg.append(cls.meta)
         reg.append(cls.crop)
@@ -40,21 +45,18 @@ class Url(object):
         reg.append(cls.valign)
         reg.append(cls.smart)
         reg.append(cls.filters)
-
-        if include_image:
-            reg.append(cls.image)
+        reg.append(cls.image)
 
         return ''.join(reg)
 
     @classmethod
-    def parse_options(cls, url):
-        return cls.parse(url, include_image=False)
+    def parse(cls, url):
+        if cls.compiled_regex:
+            reg = cls.compiled_regex
+        else:
+            reg = cls.compiled_regex = re.compile(cls.regex(old_format=True))
 
-    @classmethod
-    def parse(cls, url, include_image=True):
-        reg = cls.regex(include_image=include_image)
-
-        result = re.match(reg, url)
+        result = reg.match(url)
 
         if not result:
             return None
