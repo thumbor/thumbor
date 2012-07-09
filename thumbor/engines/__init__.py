@@ -26,6 +26,9 @@ class MultipleEngine:
     def read(self, extension=None, quality=None):
         return self.source_engine.read_multiple([frame_engine.image for frame_engine in self.frame_engines], extension)
 
+    def size(self):
+        return self.frame_engines[0].size
+
     def do_many(self, name):
         def exec_func(*args, **kwargs):
             result = []
@@ -33,11 +36,6 @@ class MultipleEngine:
                 result.append(getattr(frame_engine, name)(*args, **kwargs))
             return result
         return exec_func
-
-    def __getattr__(self, name):
-        if not name in self.__dict__:
-            return self.do_many(name)
-        return object.__getattr__(self, name)
 
 class BaseEngine(object):
 
@@ -50,8 +48,9 @@ class BaseEngine(object):
         self.icc_profile = None
 
     def wrap(self, multiple_engine):
-        for method_name in ['resize', 'crop', 'read', 'flip_vertically', 'flip_horizontally']:
-            setattr(self, method_name, getattr(multiple_engine, method_name))
+        for method_name in ['resize', 'crop', 'flip_vertically', 'flip_horizontally']:
+            setattr(self, method_name, multiple_engine.do_many(method_name))
+        setattr(self, 'read', multiple_engine.read)
 
     def is_multiple(self):
         return hasattr(self, 'multiple_engine') and self.multiple_engine is not None
@@ -88,6 +87,8 @@ class BaseEngine(object):
 
     @property
     def size(self):
+        if self.is_multiple():
+            return self.multiple_engine.size()
         return self.image.size
 
     def normalize(self):
