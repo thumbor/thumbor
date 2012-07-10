@@ -12,8 +12,7 @@ import re
 
 class Url(object):
 
-    unsafe = r'(?P<unsafe>unsafe/)?'
-    hash_regexp = r'(?:(?P<hash>[^/]{28,}?)/)?'
+    unsafe_or_hash = r'(?:(?:(?P<unsafe>unsafe)|(?P<hash>[^/]{28,}?))/)?'
     debug = '(?:(?P<debug>debug)/)?'
     meta = '(?:(?P<meta>meta)/)?'
     crop = '(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?'
@@ -28,14 +27,10 @@ class Url(object):
     compiled_regex = None
 
     @classmethod
-    def regex(cls, old_format=False):
+    def regex(cls):
         reg = ['/?']
 
-        reg.append(cls.unsafe)
-
-        if not old_format:
-            reg.append(cls.hash_regexp)
-
+        reg.append(cls.unsafe_or_hash)
         reg.append(cls.debug)
         reg.append(cls.meta)
         reg.append(cls.crop)
@@ -54,7 +49,7 @@ class Url(object):
         if cls.compiled_regex:
             reg = cls.compiled_regex
         else:
-            reg = cls.compiled_regex = re.compile(cls.regex(old_format=True))
+            reg = cls.compiled_regex = re.compile(cls.regex())
 
         result = reg.match(url)
 

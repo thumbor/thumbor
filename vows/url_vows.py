@@ -90,11 +90,8 @@ class UrlVows(Vows.Context):
         def topic(self):
             return Url.regex()
 
-        def should_contain_unsafe(self, topic):
-            expect(topic).to_include('/?(?P<unsafe>unsafe/)?')
-
-        def should_contain_hash(self, topic):
-            expect(topic).to_include('(?:(?P<hash>[^/]{28,}?)/)?')
+        def should_contain_unsafe_or_hash(self, topic):
+            expect(topic).to_include('(?:(?:(?P<unsafe>unsafe)|(?P<hash>[^/]{28,}?))/)?')
 
         def should_contain_meta(self, topic):
             expect(topic).to_include('(?:(?P<meta>meta)/)?')
@@ -204,3 +201,12 @@ class UrlVows(Vows.Context):
                 image_url = 's.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg'
                 expect(topic['image']).to_equal(image_url)
 
+        class WithoutFilters(Vows.Context):
+            def topic(self):
+                return Url.parse('/unsafe/filters:watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0)/img')
+
+            def should_have_image(self, topic):
+                expect(topic['image']).to_equal('img')
+
+            def should_have_filters(self, topic):
+                expect(topic['filters']).to_equal('watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0)')

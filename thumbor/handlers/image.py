@@ -27,7 +27,7 @@ class ImageProcessHandler(ContextHandler):
 
         self.context.request = RequestParameters(**kw)
 
-        self.context.request.unsafe = self.context.request.unsafe == 'unsafe/'
+        self.context.request.unsafe = self.context.request.unsafe == 'unsafe'
 
         if (self.request.query):
             self.context.request.image_url += '?%s' % self.request.query
