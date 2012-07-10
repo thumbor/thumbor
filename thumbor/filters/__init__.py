@@ -10,6 +10,8 @@
 
 import re
 
+STRIP_QUOTE = re.compile(r"^'(.+)'$")
+
 def filter_method(*args, **kwargs):
     def _filter_deco(fn):
         def wrapper(self, *args2):
@@ -45,7 +47,6 @@ class FiltersFactory:
                 filter_objs.append(instance)
         return filter_objs
 
-
 class BaseFilter(object):
 
     PositiveNumber = {
@@ -68,7 +69,10 @@ class BaseFilter(object):
         'regex': r'[Tt]rue|[Ff]alse|1|0',
         'parse': lambda v: v == 'true' or v == 'True' or v == '1'
     }
-    String = r'[^,]+?'
+    String = {
+        'regex': r"(?:'.+?')|(?:[^,]+?)",
+        'parse': lambda v: STRIP_QUOTE.sub(r'\1', v)
+    }
 
     @classmethod
     def pre_compile(cls):

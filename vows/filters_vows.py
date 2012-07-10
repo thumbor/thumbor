@@ -46,7 +46,7 @@ FILTER_PARAMS_DATA = [
     {
         'type': BaseFilter.String,
         'values': [
-            ('a', 'a'), ('bbbb', 'bbbb'), ('  cccc  ', 'cccc'), ('  cc:cc  ', 'cc:cc')
+            ('a', 'a'), ('bbbb', 'bbbb'), ('  cccc  ', 'cccc'), ('  cc:cc  ', 'cc:cc'), ('\'a,b\'', 'a,b')
         ],
         'invalid_values': ['', ',', ',,,,']
     },
@@ -116,6 +116,11 @@ class AsyncFilter(BaseFilter):
 class InvalidFilter(BaseFilter):
     def my_invalid_filter(self, value):
         return value
+
+class DoubleStringFilter(BaseFilter):
+    @filter_method(BaseFilter.String, BaseFilter.String)
+    def my_string_filter(self, value1, value2):
+        return (value1, value2)
 
 
 @Vows.batch
@@ -215,6 +220,39 @@ class FilterVows(Vows.Context):
 
             def calls_callback(self, topic):
                 expect(topic.args).to_equal(())
+
+    class DoubleStringFilter(Vows.Context):
+        def topic(self):
+            DoubleStringFilter.pre_compile()
+            return DoubleStringFilter;
+
+        class WithTwoNormalStrings:
+            def topic(self, cls):
+                f = cls("my_string_filter(a, b)")
+                return f.run()
+
+            def sets_correct_values(self, topic):
+                expect(topic).to_equal([('a', 'b')])
+
+        class WithStringsWithCommas:
+            def topic(self, cls):
+                tests = [
+                    ("my_string_filter(a,'b, c')", [('a', 'b, c')]),
+                    ("my_string_filter('a,b', c)", [('a,b', 'c')]),
+                    ("my_string_filter('ab', c)", [('ab', 'c')]),
+                    ("my_string_filter('ab,', c)", [('ab,', 'c')]),
+                    ("my_string_filter('ab,', ',c')", [('ab,', ',c')]),
+                    ("my_string_filter('ab, c)", [('\'ab', 'c')]),
+                    ("my_string_filter('ab, c',d)", [('ab, c', 'd')]),
+                    ("my_string_filter('a,b, c)", None),
+                    ("my_string_filter('a,b, c')", None),
+                ]
+                for (test, expected) in tests:
+                    f = cls(test)
+                    yield f.run(), expected
+
+            def sets_correct_values(self, (result, expected)):
+                expect(result).to_equal(expected)
 
     class WithEmptyFilter(Vows.Context):
         def topic(self):
