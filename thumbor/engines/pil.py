@@ -134,7 +134,7 @@ class Engine(BaseEngine):
         f.write(results)
         f.close()
 
-        popen = Popen("gifsicle -O2 --colors 256 %s" % tmp_file_path, shell=True, stdout=PIPE)
+        popen = Popen("gifsicle --colors 256 %s" % tmp_file_path, shell=True, stdout=PIPE)
         pipe = popen.stdout
         pipe_output = pipe.read()
         pipe.close()
