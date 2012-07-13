@@ -44,35 +44,32 @@ class ImageProcessHandler(ContextHandler):
             return
 
         url_signature = self.context.request.hash
+
         if url_signature:
-            signer = Signer(self.context.server.security_key)
-
             url_to_validate = url.replace('/%s/' % self.context.request.hash, '')
-            valid = signer.validate(url_signature, url_to_validate)
+            security_key = None
+            valid = False
 
-            if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-                # Retrieves security key for this image if it has been seen before
+            if self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
                 security_key = self.context.modules.storage.get_crypto(self.context.request.image_url)
-                if security_key is not None:
-                    signer = Signer(security_key)
-                    valid = signer.validate(url_signature, url_to_validate)
+            else
+                security_key = self.context.server.security_key
+
+            if security_key is not None:
+                valid = Signer(security_key).validate(url_signature, url_to_validate)
 
             if not valid:
-                is_valid = True
                 if self.context.config.ALLOW_OLD_URLS:
                     cr = Cryptor(self.context.server.security_key)
                     options = cr.get_options(self.context.request.hash, self.context.request.image_url)
-                    if options is None:
-                        is_valid = False
-                    else:
-                        self.context.request = RequestParameters(**options)
-                        logger.warning('OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in upcoming versions. Please start using the new format as soon as possible. More info at https://github.com/globocom/thumbor/wiki/3.0.0-release-changes')
-                else:
-                    is_valid = False
 
-                if not is_valid:
-                    self._error(404, 'Malformed URL: %s' % url)
-                    return
+                    if options is not None:
+                        self.context.request = RequestParameters(**options)
+                        valid = True
+                        logger.warning('OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in upcoming versions. Please start using the new format as soon as possible. More info at https://github.com/globocom/thumbor/wiki/3.0.0-release-changes')
+
+            if not valid:
+                self._error(404, 'Malformed URL: %s' % url)
+                return
 
         return self.execute_image_operations()
-
