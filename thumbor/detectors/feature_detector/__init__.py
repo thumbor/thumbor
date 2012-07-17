@@ -20,10 +20,12 @@ class Detector(BaseDetector):
         engine = self.context.modules.engine
         sz = engine.size
         image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(image, engine.get_image_data())
+
+        image_mode, image_data = engine.convert_to_rgb()
+        cv.SetData(image, image_data)
 
         gray_image = cv.CreateImage(engine.size, 8, 1);
-        convert_mode = getattr(cv, 'CV_%s2GRAY' % engine.get_image_mode())
+        convert_mode = getattr(cv, 'CV_%s2GRAY' % image_mode)
         cv.CvtColor(image, gray_image, convert_mode)
         image = gray_image
         rows = sz[0]

@@ -159,10 +159,7 @@ class Engine(BaseEngine):
         return self.image.mode
 
     def convert_to_rgb(self):
-        if self.image.mode.lower() != 'p':
-            return self.get_image_mode(), self.get_image_data()
-
-        converted_image = self.image.convert()
+        converted_image = self.image.convert('RGB')
         return converted_image.mode, self.get_image_data(converted_image)
 
     def paste(self, other_engine, pos, merge=True):
