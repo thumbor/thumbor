@@ -96,7 +96,7 @@ class Engine(BaseEngine):
             #extension is not present or could not help determine format => force JPEG
             #TODO : guess format by image headers maybe
             if self.image.mode in ['P','RGBA','LA']:
-                self.image.format = FORMATS['.png'] 
+                self.image.format = FORMATS['.png']
                 self.image.save(img_buffer, FORMATS['.png'])
             else:
                 self.image.format = FORMATS['.jpg']
@@ -146,14 +146,24 @@ class Engine(BaseEngine):
 
         return results
 
-    def get_image_data(self):
-        return self.image.tostring()
+    def get_image_data(self, image=None):
+        if image is None:
+            return self.image.tostring()
+        else:
+            return image.tostring()
 
     def set_image_data(self, data):
         self.image.fromstring(data)
 
     def get_image_mode(self):
         return self.image.mode
+
+    def convert_to_rgb(self):
+        if self.image.mode.lower() != 'p':
+            return self.get_image_mode(), self.get_image_data()
+
+        converted_image = self.image.convert()
+        return converted_image.mode, self.get_image_data(converted_image)
 
     def paste(self, other_engine, pos, merge=True):
         self.enable_alpha()

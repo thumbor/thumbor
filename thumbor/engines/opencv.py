@@ -83,9 +83,12 @@ class Engine(BaseEngine):
     def set_image_data(self, data):
         cv.SetData(self.image, data)
 
+    def convert_to_rgb(self):
+        return self.get_image_mode(), self.get_image_data()
+
     def get_image_mode(self):
         # TODO: Handle pngs with alpha channel
         return 'BGR'
 
     def draw_rectangle(self, x, y, width, height):
-        cv.Rectangle(self.image, (x, y), (x + width, y + height), cv.Scalar(255, 255, 255, 1.0))
+        cv.Rectangle(self.image, (int(x), int(y)), (int(x + width), int(y + height)), cv.Scalar(255, 255, 255, 1.0))

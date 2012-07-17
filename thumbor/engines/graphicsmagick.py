@@ -95,6 +95,9 @@ class Engine(BaseEngine):
 
         return results
 
+    def convert_to_rgb(self):
+        return self.get_image_mode(), self.get_image_data()
+
     def get_image_data(self):
         self.image.magick(self.get_image_mode())
         blob = Blob()
