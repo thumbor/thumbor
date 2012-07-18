@@ -66,7 +66,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def get_image(self):
         def callback(normalized, buffer=None, engine=None):
-
             req = self.context.request
 
             if engine is None:

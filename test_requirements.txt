@@ -5,6 +5,7 @@ pillow>=1.7.5,<1.8.0
 simplejson>=2.1.6,<2.2.0
 pymongo==2.1.1
 redis==2.4.9
+http://gevent.googlecode.com/files/gevent-1.0b2.tar.gz
 pyvows
 tornado-pyvows
 coverage

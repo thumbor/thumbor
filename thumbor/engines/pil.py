@@ -13,6 +13,7 @@ from tempfile import mkstemp
 from subprocess import Popen, PIPE
 from cStringIO import StringIO
 
+from PIL.ExifTags import TAGS
 from PIL import Image, ImageFile, ImageDraw, ImageSequence
 
 from thumbor.engines import BaseEngine
@@ -54,6 +55,18 @@ class Engine(BaseEngine):
 
         del d
 
+    @property
+    def exif(self):
+        """Get embedded EXIF data from image file."""
+        ret = {}
+        if hasattr(self.image, '_getexif' ):
+            exifinfo = self.image._getexif()
+            if exifinfo != None:
+                for tag, value in exifinfo.items():
+                    decoded = TAGS.get(tag, tag)
+                    ret[decoded] = value
+        return ret
+
     def resize(self, width, height):
         self.image = self.image.resize((int(width), int(height)), Image.ANTIALIAS)
 
@@ -64,6 +77,9 @@ class Engine(BaseEngine):
             int(right),
             int(bottom))
         )
+
+    def rotate(self, degrees):
+        self.image = self.image.rotate(degrees)
 
     def flip_vertically(self):
         self.image = self.image.transpose(Image.FLIP_TOP_BOTTOM)
