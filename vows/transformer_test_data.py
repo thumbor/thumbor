@@ -10,6 +10,7 @@
 
 from thumbor.point import FocalPoint as fp
 from thumbor.context import Context, RequestParameters
+from thumbor.config import Config
 from thumbor.importer import Importer
 
 class MockEngine(object):
@@ -102,7 +103,7 @@ class TestData(object):
         self.target_height = self.target_height == "orig" and "orig" or abs(self.target_height)
 
         importer = Importer(None)
-        ctx = Context(server=None, config=None, importer=importer)
+        ctx = Context(server=None, config=Config(), importer=importer)
         ctx.modules.engine = self.engine
 
         ctx.request = RequestParameters(
