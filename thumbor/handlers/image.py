@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from urllib import quote
+
 import tornado.web
 
 from thumbor.handlers import ContextHandler
@@ -31,6 +33,7 @@ class ImageProcessHandler(ContextHandler):
 
         if (self.request.query):
             self.context.request.image_url += '?%s' % self.request.query
+        self.context.request.image_url = quote(self.context.request.image_url, '/:?%=&')
 
         has_none = not self.context.request.unsafe and not self.context.request.hash
         has_both = self.context.request.unsafe and self.context.request.hash
