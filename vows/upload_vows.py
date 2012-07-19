@@ -26,6 +26,9 @@ storage_path = '/tmp/thumbor-vows/storage'
 crocodile_file_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
 oversized_file_path = abspath(join(dirname(__file__), 'fixtures/image.jpg'))
 
+with open(crocodile_file_path, 'r') as croc:
+    croc_content= croc.read()
+
 if exists(storage_path):
     rmtree(storage_path)
 
@@ -102,8 +105,7 @@ class Upload(BaseContext):
 
     class WhenPutting(BaseContext):
         def topic(self):
-            with open(crocodile_file_path, 'r') as croc:
-                image = ('media', u'crocodile.jpg', croc.read())
+            image = ('media', u'crocodile.jpg', croc_content)
             response = self.post_files('put', '/upload', {}, (image, ))
             return response
 
@@ -153,9 +155,10 @@ class Upload(BaseContext):
 
     class WhenPosting(BaseContext):
         def topic(self):
-            with open(crocodile_file_path, 'r') as croc:
-                image = ('media', u'crocodile2.jpg', croc.read())
+            image = ('media', u'crocodile2.jpg', croc_content)
+
             response = self.post_files('post', '/upload', {}, (image, ))
+
             return response
 
         class StatusCode(TornadoHTTPContext):
@@ -184,67 +187,70 @@ class Upload(BaseContext):
                 expect(headers).to_include('Location')
                 expect(headers['Location']).to_equal(file_path)
 
-        class WhenRePosting(BaseContext):
+            class WhenRePosting(BaseContext):
+                def topic(self):
+                    image = ('media', u'crocodile2.jpg', croc_content)
+                    response = self.post_files('post', '/upload', {}, (image, ))
+                    return (response.code, response.body)
+
+                class StatusCode(TornadoHTTPContext):
+                    def topic(self, response):
+                        return response[0]
+
+                    def should_be_an_error(self, topic):
+                        expect(topic).to_equal(409)
+
+    class WhenDeleting(BaseContext):
+        def topic(self):
+            image = ('media', u'crocodile-delete.jpg', croc_content)
+
+            response = self.post_files('post', '/upload', {}, (image, ))
+
+            file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile-delete.jpg')
+            response = self.delete('/upload', {
+                'file_path': file_path
+            })
+            return (response.code, response.body)
+
+        class StatusCode(TornadoHTTPContext):
+            def topic(self, response):
+                return response[0]
+
+            def should_not_be_an_error_and_file_should_not_exist(self, topic):
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile-delete.jpg')
+                path = join(storage_path, file_path)
+                expect(topic).to_equal(200)
+                expect(exists(path)).to_be_false()
+
+            class DeletingAgainDoesNothing(BaseContext):
+                def topic(self):
+                    file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile-delete.jpg')
+                    response = self.delete('/upload', {
+                        'file_path': file_path
+                        })
+                    return (response.code, response.body)
+
+                class StatusCode(TornadoHTTPContext):
+                    def topic(self, response):
+                        return response[0]
+
+                    def should_not_be_an_error_and_file_should_not_exist(self, topic):
+                        expect(topic).to_equal(200)
+
+        class DeletingWithInvalidPathDoesNothing(BaseContext):
             def topic(self):
-                with open(crocodile_file_path, 'r') as croc:
-                    image = ('media', u'crocodile2.jpg', croc.read())
-                response = self.post_files('post', '/upload', {}, (image, ))
+                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile5.jpg')
+                response = self.delete('/upload', {
+                    'file_path': file_path
+                })
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):
                 def topic(self, response):
                     return response[0]
 
-                def should_be_an_error(self, topic):
-                    expect(topic).to_equal(409)
-
-            class WhenDeleting(BaseContext):
-                def topic(self):
-                    file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
-                    response = self.delete('/upload', {
-                        'file_path': file_path
-                    })
-                    return (response.code, response.body)
-
-                class StatusCode(TornadoHTTPContext):
-                    def topic(self, response):
-                        return response[0]
-
-                    def should_not_be_an_error_and_file_should_not_exist(self, topic):
-                        file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
-                        path = join(storage_path, file_path)
-                        expect(topic).to_equal(200)
-                        expect(exists(path)).to_be_false()
-
-                class DeletingAgainDoesNothing(BaseContext):
-                    def topic(self):
-                        file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
-                        response = self.delete('/upload', {
-                            'file_path': file_path
-                            })
-                        return (response.code, response.body)
-
-                    class StatusCode(TornadoHTTPContext):
-                        def topic(self, response):
-                            return response[0]
-
-                        def should_not_be_an_error_and_file_should_not_exist(self, topic):
-                            expect(topic).to_equal(200)
-
-            class DeletingWithInvalidPathDoesNothing(BaseContext):
-                def topic(self):
-                    file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile5.jpg')
-                    response = self.delete('/upload', {
-                        'file_path': file_path
-                    })
-                    return (response.code, response.body)
-
-                class StatusCode(TornadoHTTPContext):
-                    def topic(self, response):
-                        return response[0]
-
-                    def should_not_be_an_error_and_file_should_not_exist(self, topic):
-                        expect(topic).to_equal(200)
+                def should_not_be_an_error_and_file_should_not_exist(self, topic):
+                    expect(topic).to_equal(200)
 
 @Vows.batch
 class UploadWithoutDeletingAllowed(BaseContext):
@@ -263,10 +269,9 @@ class UploadWithoutDeletingAllowed(BaseContext):
 
     class WhenPosting(BaseContext):
         def topic(self):
-            with open(crocodile_file_path, 'r') as croc:
-                image = ('media', u'crocodile3.jpg', croc.read())
-                response = self.post_files('post', '/upload', {}, (image, ))
-                return (response.code, response.body)
+            image = ('media', u'crocodile3.jpg', croc_content)
+            response = self.post_files('post', '/upload', {}, (image, ))
+            return (response.code, response.body)
 
         class ThenDeleting(BaseContext):
             def topic(self):
@@ -305,8 +310,7 @@ class UploadWithMinWidthAndHeight(BaseContext):
 
     class WhenPuttingTooSmallImage(BaseContext):
         def topic(self):
-            with open(crocodile_file_path, 'r') as croc:
-                image = ('media', u'crocodile9999.jpg', croc.read())
+            image = ('media', u'crocodile9999.jpg', croc_content)
             response = self.post_files('put', '/upload', {}, (image, ))
             return (response.code, response.body)
 
@@ -315,8 +319,7 @@ class UploadWithMinWidthAndHeight(BaseContext):
 
     class WhenPostingTooSmallImage(BaseContext):
         def topic(self):
-            with open(crocodile_file_path, 'r') as croc:
-                image = ('media', u'crocodile9999.jpg', croc.read())
+            image = ('media', u'crocodile9999.jpg', croc_content)
             response = self.post_files('post', '/upload', {}, (image, ))
             return (response.code, response.body)
 
