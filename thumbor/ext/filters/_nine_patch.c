@@ -148,6 +148,66 @@ void paste_rectangle(bitmap *source, int sx, int sy, int sw, int sh,
     }
 }
 
+void unpack_bitmap(bitmap *bitmap, PyObject *image_mode,
+        PyObject *buffer, PyObject *width, PyObject *height)
+{
+    char *image_mode_str = PyString_AsString(image_mode);
+    bitmap->buffer = (unsigned char *) PyString_AsString(buffer);
+    bitmap->width = (int) PyInt_AsLong(width);
+    bitmap->height = (int) PyInt_AsLong(height);
+    bitmap->stride = bytes_per_pixel(image_mode_str); // typically 4 for 'RGBA'
+    bitmap->alpha_idx = rgb_order(image_mode_str, 'A');
+}
+
+// Returns a tuple of (left, top, right, bottom) containing the padding encoded
+// in the nine patch. The padding is the number of non-black pixels along the
+// right or bottom edge of the image. This does not include the corner pixel.
+static PyObject*
+_get_padding(PyObject *self, PyObject *args)
+{
+    PyObject *image_mode = NULL;
+    PyObject *nine_patch_buffer = NULL;
+    PyObject *nine_patch_w = NULL;
+    PyObject *nine_patch_h = NULL;
+
+    if (!PyArg_UnpackTuple(args, "apply", 4, 4, &image_mode,
+            &nine_patch_buffer, &nine_patch_w, &nine_patch_h)) {
+        return NULL;
+    }
+
+    bitmap nine_patch;
+    unpack_bitmap(&nine_patch, image_mode, nine_patch_buffer, nine_patch_w, nine_patch_h);
+
+    int left = 0, top = 0, right = 0, bottom = 0;
+    int x, y;
+    for (x = 1; x < nine_patch.width - 1; x++) {
+        if (is_stretchy(&nine_patch, x, nine_patch.height - 1)) {
+            left = x - 1;
+            break;
+        }
+    }
+    for (x = nine_patch.width - 2; x >= 1; x--) {
+        if (is_stretchy(&nine_patch, x, nine_patch.height - 1)) {
+            right = nine_patch.width - 2 - x;
+            break;
+        }
+    }
+    for (y = 1; y < nine_patch.height - 1; y++) {
+        if (is_stretchy(&nine_patch, nine_patch.width - 1, y)) {
+            top = y - 1;
+            break;
+        }
+    }
+    for (y = nine_patch.height- 2; y >= 1; y--) {
+        if (is_stretchy(&nine_patch, nine_patch.width - 1, y)) {
+            bottom = nine_patch.height - 2 - y;
+            break;
+        }
+    }
+
+    return Py_BuildValue("iiii", left, top, right, bottom);
+}
+
 static PyObject*
 _nine_patch_apply(PyObject *self, PyObject *args)
 {
@@ -164,39 +224,17 @@ _nine_patch_apply(PyObject *self, PyObject *args)
     PyObject *nine_patch_w = NULL;
     PyObject *nine_patch_h = NULL;
 
-    // The offset of the frame inside target.
-    PyObject *frame_x_py = NULL;
-    PyObject *frame_y_py = NULL;
-    PyObject *frame_w_py = NULL;
-    PyObject *frame_h_py = NULL;
-
-    if (!PyArg_UnpackTuple(args, "apply", 11, 11, &image_mode,
+    if (!PyArg_UnpackTuple(args, "apply", 7, 7, &image_mode,
             &target_buffer, &target_w, &target_h,
-            &nine_patch_buffer, &nine_patch_w, &nine_patch_h,
-            &frame_x_py, &frame_y_py, &frame_w_py, &frame_h_py)) {
+            &nine_patch_buffer, &nine_patch_w, &nine_patch_h)) {
         return NULL;
     }
 
-    char *image_mode_str = PyString_AsString(image_mode);
-
     bitmap target;
-    target.buffer = (unsigned char *) PyString_AsString(target_buffer);
-    target.width = (int) PyInt_AsLong(target_w);
-    target.height = (int) PyInt_AsLong(target_h);
-    target.stride = bytes_per_pixel(image_mode_str); // typically 4 for 'RGBA'
-    target.alpha_idx = rgb_order(image_mode_str, 'A');
+    unpack_bitmap(&target, image_mode, target_buffer, target_w, target_h);
 
     bitmap nine_patch;
-    nine_patch.buffer = (unsigned char *) PyString_AsString(nine_patch_buffer);
-    nine_patch.width = (int) PyInt_AsLong(nine_patch_w);
-    nine_patch.height = (int) PyInt_AsLong(nine_patch_h);
-    nine_patch.stride = bytes_per_pixel(image_mode_str); // typically 4 for 'RGBA'
-    nine_patch.alpha_idx = rgb_order(image_mode_str, 'A');
-
-    int frame_x = (int) PyInt_AsLong(frame_x_py);
-    int frame_y = (int) PyInt_AsLong(frame_y_py);
-    int frame_w = (int) PyInt_AsLong(frame_w_py);
-    int frame_h = (int) PyInt_AsLong(frame_h_py);
+    unpack_bitmap(&nine_patch, image_mode, nine_patch_buffer, nine_patch_w, nine_patch_h);
 
     // The number of stretchy pixels in the source.
     int source_stretchy_width = compute_stretchy_width(&nine_patch);
@@ -207,8 +245,8 @@ _nine_patch_apply(PyObject *self, PyObject *args)
     int fixed_height = nine_patch.height - 2 - source_stretchy_height;
 
     // The number of target pixels to be shared by all stretchy regions.
-    int target_stretchy_width = frame_w - fixed_width;
-    int target_stretchy_height = frame_h - fixed_height;
+    int target_stretchy_width = target.width - fixed_width;
+    int target_stretchy_height = target.height - fixed_height;
     if (target_stretchy_width < 0) {
         target_stretchy_width = 0;
     }
@@ -225,7 +263,7 @@ _nine_patch_apply(PyObject *self, PyObject *args)
      * source image as necessary.
      */
     int source_y = 1;
-    int target_y = frame_y;
+    int target_y = 0;
     while (source_y < nine_patch.height - 1) {
         int row_stretchy = is_stretchy(&nine_patch, 0, source_y);
         int source_height = next_row(&nine_patch, source_y) - source_y;
@@ -234,7 +272,7 @@ _nine_patch_apply(PyObject *self, PyObject *args)
                 : source_height;
 
         int source_x = 1;
-        int target_x = frame_x;
+        int target_x = 0;
         while (source_x < nine_patch.width - 1) {
             int col_stretchy = is_stretchy(&nine_patch, source_x, 0);
             int source_width = next_column(&nine_patch, source_x) - source_x;
@@ -255,7 +293,12 @@ _nine_patch_apply(PyObject *self, PyObject *args)
     return target_buffer;
 }
 
-FILTER_MODULE(_nine_patch,
-    "apply(image_mode, target_buffer, target_w, target_h, nine_patch_buffer, nine_patch_w, nine_patch_h) -> string\n"
-    "Applies a nine patch..."
-)
+static PyMethodDef _nine_patch_methods[] = {
+    {"apply", _nine_patch_apply, METH_VARARGS, NULL},
+    {"get_padding", _get_padding, METH_VARARGS, NULL},
+    { 0, 0, 0, 0 }
+};
+
+PyMODINIT_FUNC init_nine_patch(void) {
+    Py_InitModule3("_nine_patch", _nine_patch_methods, "_nine_patch native module");
+}
