@@ -11,26 +11,20 @@
 from thumbor.ext.filters import _nine_patch
 from thumbor.filters import BaseFilter, filter_method
 from os.path import splitext
-from thumbor.utils import logger
-
-# frame(ninepatch,x,y,w,h)
-# ninepatch: URL
-# x: int; frame top-left corner offset.
-# y: int;
-# w: int; frame width & height.
-# h: int;
 
 class Filter(BaseFilter):
-    regex = r'(?:frame\((?P<url>.*?),(?P<x>-?[\d]*?),(?P<y>-?[\d]*?),(?P<w>-?[\d]*?),(?P<h>-?[\d]*?))'
+    regex = r'(?:frame\((?P<url>.*?),(?P<left>-?[\d]*?),(?P<top>-?[\d]*?),(?P<right>-?[\d]*?),(?P<bottom>-?[\d]*?))'
 
     def on_image_ready(self, buffer):
-        logger.warn('Image ready %d %d.' % (self.x, self.y))
-
-        # TODO: if the bounds of the frame exceed the bounds of the image, resize the image
-
         self.nine_patch_engine.load(buffer, self.extension)
         self.nine_patch_engine.enable_alpha()
         self.engine.enable_alpha()
+        self.handle_padding()
+
+        frame_x = -self.left
+        frame_y = -self.top
+        frame_w = self.engine.size[0] + (self.left + self.right)
+        frame_h = self.engine.size[1] + (self.top + self.bottom)
 
         if self.engine.get_image_mode() != self.nine_patch_engine.get_image_mode():
             raise RuntimeError('Image mode mismatch: %s != %s' % (self.engine.get_image_mode(), self.nine_patch_engine.get_image_mode()))
@@ -41,9 +35,45 @@ class Filter(BaseFilter):
                                     self.engine.size[1],
                                     self.nine_patch_engine.get_image_data(),
                                     self.nine_patch_engine.size[0],
-                                    self.nine_patch_engine.size[1])
+                                    self.nine_patch_engine.size[1],
+                                    frame_x, frame_y, frame_w, frame_h)
         self.engine.set_image_data(imgdata)
         self.callback()
+
+    def handle_padding(self):
+        '''Pads the image with transparent pixels if necessary.'''
+
+        if self.left < 0 and self.top < 0 and self.right < 0 and self.bottom < 0:
+            return
+
+        offset_x = 0
+        offset_y = 0
+        new_width = self.engine.size[0]
+        new_height = self.engine.size[1]
+
+        if self.left > 0:
+            offset_x = self.left
+            new_width += self.left
+            self.left = 0
+
+        if self.top > 0:
+            offset_y = self.top
+            new_height += self.top
+            self.top = 0
+
+        if self.right > 0:
+            new_width += self.right
+            self.right = 0
+
+        if self.bottom > 0:
+            new_height += self.bottom
+            self.bottom = 0
+
+        new_engine = self.context.modules.engine.__class__(self.context)
+        new_engine.image = new_engine.gen_image((new_width, new_height), '#fff')
+        new_engine.enable_alpha()
+        new_engine.image.paste(self.engine.image, (offset_x, offset_y))
+        self.engine.image = new_engine.image
 
     def on_fetch_done(self, buffer):
         self.nine_patch_engine.load(buffer, self.extension)
@@ -52,12 +82,12 @@ class Filter(BaseFilter):
         self.on_image_ready(buffer)
 
     @filter_method(BaseFilter.String, BaseFilter.Number, BaseFilter.Number, BaseFilter.Number, BaseFilter.Number, async = True)
-    def frame(self, callback, url, x, y, w, h):
+    def frame(self, callback, url, left, top, right, bottom):
         self.url = url
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
+        self.left = left
+        self.top = top
+        self.right = right
+        self.bottom = bottom
         self.callback = callback
         self.extension = splitext(self.url)[-1].lower()
         self.nine_patch_engine = self.context.modules.engine.__class__(self.context)

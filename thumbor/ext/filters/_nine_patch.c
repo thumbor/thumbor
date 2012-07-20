@@ -151,17 +151,29 @@ void paste_rectangle(bitmap *source, int sx, int sy, int sw, int sh,
 static PyObject*
 _nine_patch_apply(PyObject *self, PyObject *args)
 {
+    // The image mode, which must apply to both bitmaps.
     PyObject *image_mode = NULL;
+
+    // The target to draw into.
     PyObject *target_buffer = NULL;
     PyObject *target_w = NULL;
     PyObject *target_h = NULL;
+
+    // The nine patch to use as a frame.
     PyObject *nine_patch_buffer = NULL;
     PyObject *nine_patch_w = NULL;
     PyObject *nine_patch_h = NULL;
 
-    if (!PyArg_UnpackTuple(args, "apply", 7, 7, &image_mode,
+    // The offset of the frame inside target.
+    PyObject *frame_x_py = NULL;
+    PyObject *frame_y_py = NULL;
+    PyObject *frame_w_py = NULL;
+    PyObject *frame_h_py = NULL;
+
+    if (!PyArg_UnpackTuple(args, "apply", 11, 11, &image_mode,
             &target_buffer, &target_w, &target_h,
-            &nine_patch_buffer, &nine_patch_w, &nine_patch_h)) {
+            &nine_patch_buffer, &nine_patch_w, &nine_patch_h,
+            &frame_x_py, &frame_y_py, &frame_w_py, &frame_h_py)) {
         return NULL;
     }
 
@@ -181,6 +193,11 @@ _nine_patch_apply(PyObject *self, PyObject *args)
     nine_patch.stride = bytes_per_pixel(image_mode_str); // typically 4 for 'RGBA'
     nine_patch.alpha_idx = rgb_order(image_mode_str, 'A');
 
+    int frame_x = (int) PyInt_AsLong(frame_x_py);
+    int frame_y = (int) PyInt_AsLong(frame_y_py);
+    int frame_w = (int) PyInt_AsLong(frame_w_py);
+    int frame_h = (int) PyInt_AsLong(frame_h_py);
+
     // The number of stretchy pixels in the source.
     int source_stretchy_width = compute_stretchy_width(&nine_patch);
     int source_stretchy_height = compute_stretchy_height(&nine_patch);
@@ -190,8 +207,8 @@ _nine_patch_apply(PyObject *self, PyObject *args)
     int fixed_height = nine_patch.height - 2 - source_stretchy_height;
 
     // The number of target pixels to be shared by all stretchy regions.
-    int target_stretchy_width = target.width - fixed_width;
-    int target_stretchy_height = target.height - fixed_height;
+    int target_stretchy_width = frame_w - fixed_width;
+    int target_stretchy_height = frame_h - fixed_height;
     if (target_stretchy_width < 0) {
         target_stretchy_width = 0;
     }
@@ -208,7 +225,7 @@ _nine_patch_apply(PyObject *self, PyObject *args)
      * source image as necessary.
      */
     int source_y = 1;
-    int target_y = 0;
+    int target_y = frame_y;
     while (source_y < nine_patch.height - 1) {
         int row_stretchy = is_stretchy(&nine_patch, 0, source_y);
         int source_height = next_row(&nine_patch, source_y) - source_y;
@@ -217,7 +234,7 @@ _nine_patch_apply(PyObject *self, PyObject *args)
                 : source_height;
 
         int source_x = 1;
-        int target_x = 0;
+        int target_x = frame_x;
         while (source_x < nine_patch.width - 1) {
             int col_stretchy = is_stretchy(&nine_patch, source_x, 0);
             int source_width = next_column(&nine_patch, source_x) - source_x;
