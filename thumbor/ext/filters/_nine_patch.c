@@ -88,26 +88,60 @@ int next_column(bitmap *b, int x)
     return n;
 }
 
+// Computes a subpixel near (x, y) in bitmap using that pixel and 3 neighboring
+// pixels on the right and below. Fractions are the weight of those neighbors:
+// 0.0 means don't use the neighbor at all; 1.0 means use it completely.
+int interpolate_subpixel(bitmap *bitmap, int x, int y, double x_fraction, double y_fraction, int s)
+{
+    int a = get_subpixel(bitmap,     x,     y, s);
+    int b = get_subpixel(bitmap, x + 1,     y, s);
+    int c = get_subpixel(bitmap,     x, y + 1, s);
+    int d = get_subpixel(bitmap, x + 1, y + 1, s);
+    if (a == b && a == c && a == d) {
+        return a; // Don't do lossy math unless we're actually mixing colors.
+    }
+    double combined
+            = a * (1 - x_fraction) * (1 - y_fraction)
+            + b * (0 + x_fraction) * (1 - y_fraction)
+            + c * (1 - x_fraction) * (0 + y_fraction)
+            + d * (0 + x_fraction) * (0 + y_fraction);
+    return ADJUST_COLOR_DOUBLE(combined);
+}
+
 // Draws a region of source into a region of target, stretching as necessary.
+// This uses bilinear interpolation to scale images.
 void paste_rectangle(bitmap *source, int sx, int sy, int sw, int sh,
         bitmap *target, int tx, int ty, int tw, int th)
 {
-    // TODO: currently this just copies pixels without stretching. Implement stretching!
-    // TODO: don't go out of bounds on either rectangle (security!)
+    if (tx + tw > target->width || ty + th > target->height) {
+        return; // If the region won't fit, give up!
+    }
+
+    double x_ratio = ((double) sw - 1) / tw;
+    double y_ratio = ((double) sh - 1) / th;
+
     int y;
-    int x;
-    int s; // subpixel; either r, g, b, or a
-    for (y = 0; y < sh; y++) {
-        for (x = 0; x < sw; x++) {
-            int source_alpha = 255 - get_subpixel(source, sx + x, sy + y, source->alpha_idx);
+    for (y = 0; y < th; y++) {
+        int source_y = (int) (y_ratio * y);
+        double y_fraction = (y_ratio * y) - source_y;
+        int x;
+        for (x = 0; x < tw; x++) {
+            int source_x = (int) (x_ratio * x);
+            double x_fraction = (x_ratio * x) - source_x;
+
+            int source_alpha = 255 - interpolate_subpixel(
+                    source, sx + source_x, sy + source_y, x_fraction, y_fraction, source->alpha_idx);
             int target_alpha = 255 - get_subpixel(target, tx + x, ty + y, target->alpha_idx);
+
+            int s;
             for (s = 0; s < source->stride; s++) {
                 if (s == source->alpha_idx) {
                     continue;
                 }
-                double pixel = ALPHA_COMPOSITE_COLOR_CHANNEL(
-                        get_subpixel(source, sx + x, sy + y, s), source_alpha,
-                        get_subpixel(target, tx + x, ty + y, s), target_alpha);
+                int source_value = interpolate_subpixel(
+                        source, sx + source_x, sy + source_y, x_fraction, y_fraction, s);
+                int target_value = get_subpixel(target, tx + x, ty + y, s);
+                double pixel = ALPHA_COMPOSITE_COLOR_CHANNEL(source_value, source_alpha, target_value, target_alpha);
                 set_subpixel(target, tx + x, ty + y, s, ADJUST_COLOR_DOUBLE(pixel));
             }
         }
@@ -158,6 +192,12 @@ _nine_patch_apply(PyObject *self, PyObject *args)
     // The number of target pixels to be shared by all stretchy regions.
     int target_stretchy_width = target.width - fixed_width;
     int target_stretchy_height = target.height - fixed_height;
+    if (target_stretchy_width < 0) {
+        target_stretchy_width = 0;
+    }
+    if (target_stretchy_height < 0) {
+        target_stretchy_height = 0;
+    }
 
     /*
      * Cut the image into rows and columns, each axis alternating between
