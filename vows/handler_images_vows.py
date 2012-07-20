@@ -149,7 +149,7 @@ class GetImageWithOLDFormat(BaseContext):
 
     class WithEncryptedRegularImage(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/27m-vYMKohY6nvEt_D3Zwo7apVq63MS8TP-m1j3BXPGTftnrReTOEoScq1xMXe7h/alabama1_ap620%C3%A9.jpg')
+            rsp = self.get('/J4ZFjCICZSwwIKfEKNldBNjcG145LDiD2z-4RlOa5ZG4ZY_-8KoEyDOBDfqDBljH/image.jpg')
             return (rsp.code, rsp.headers)
 
         def should_be_200(self, (code, _)):
