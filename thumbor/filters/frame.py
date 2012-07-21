@@ -44,8 +44,8 @@ class Filter(BaseFilter):
         '''Pads the image with transparent pixels if necessary.'''
         left = padding[0]
         top = padding[1]
-        bottom = padding[2]
-        right = padding[3]
+        right = padding[2]
+        bottom = padding[3]
 
         offset_x = 0
         offset_y = 0
