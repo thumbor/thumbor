@@ -16,9 +16,16 @@ def filter_method(*args, **kwargs):
     def _filter_deco(fn):
         def wrapper(self, *args2):
             return fn(self, *args2)
+
+        defaults = None
+        if fn.func_defaults:
+            default_padding = [None] * (len(args) - (len(fn.func_defaults)))
+            defaults = default_padding + list(fn.func_defaults)
+
         wrapper.filter_data = {
             'name': fn.__name__,
             'params': args,
+            'defaults': defaults,
             'async': kwargs.get('async', False)
         }
         return wrapper
@@ -37,11 +44,14 @@ class FiltersFactory:
     def create_instances(self, context, filter_params):
         filter_params = filter_params.split('):')
         filter_objs = []
+        last_idx = len(filter_params) - 1
 
-        for param in filter_params:
+        for i, param in enumerate(filter_params):
             filter_name = param.split('(')[0]
             cls = self.filter_classes_map[filter_name]
-            instance = cls.init_if_valid(param + ')', context)
+            if i != last_idx:
+                param = param + ')'
+            instance = cls.init_if_valid(param, context)
 
             if instance:
                 filter_objs.append(instance)
@@ -89,15 +99,21 @@ class BaseFilter(object):
     @classmethod
     def compile_regex(cls, filter_data):
         params = filter_data['params']
+        defaults = filter_data.get('defaults', None)
         regexes = []
         parsers = []
-        for f in params:
-            val = (type(f) == dict) and (f['regex'], f['parse']) or (f, None)
-            regexes.append(val[0])
+        for i, param in enumerate(params):
+            val = (type(param) == dict) and (param['regex'], param['parse']) or (param, None)
+            comma = optional = ''
+            if defaults and defaults[i] is not None:
+                optional = '?'
+            if i > 0:
+                comma = ','
+            regexes.append(r'(?:%s\s*(%s)\s*)%s' % (comma, val[0], optional))
             parsers.append(val[1])
 
         cls.parsers = parsers
-        cls.regex_str = r'%s\(\s*(%s)\s*\)' % (filter_data['name'], ')\\s*,\\s*('.join(regexes))
+        cls.regex_str = r'%s\(%s\)' % (filter_data['name'], ''.join(regexes))
         cls.regex = re.compile(cls.regex_str)
 
     @classmethod
@@ -111,7 +127,7 @@ class BaseFilter(object):
     def __init__(self, params, context = None):
         params = self.regex.match(params) if self.regex else None
         if params:
-            params = [parser(param) if parser else param for parser, param in zip(self.parsers, params.groups())]
+            params = [parser(param) if parser else param for parser, param in zip(self.parsers, params.groups()) if param]
         self.params = params
         self.context = context
         self.engine = context.modules.engine if context and context.modules else None

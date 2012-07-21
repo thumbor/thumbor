@@ -122,6 +122,10 @@ class DoubleStringFilter(BaseFilter):
     def my_string_filter(self, value1, value2):
         return (value1, value2)
 
+class OptionalParamFilter(BaseFilter):
+    @filter_method(BaseFilter.String, BaseFilter.String)
+    def my_optional_filter(self, value1, value2="not provided"):
+        return (value1, value2)
 
 @Vows.batch
 class FilterVows(Vows.Context):
@@ -135,7 +139,7 @@ class FilterVows(Vows.Context):
             def is_multiple(): return False
             engine.is_multiple = is_multiple
             ctx.modules.engine = engine
-            fact = FiltersFactory([MyFilter, StringFilter])
+            fact = FiltersFactory([MyFilter, StringFilter, OptionalParamFilter])
             return (fact, ctx)
 
         class WithOneValidParam(Vows.Context):
@@ -179,6 +183,34 @@ class FilterVows(Vows.Context):
                     expect(result[0]).to_equal([(1, 0.0)])
                     expect(result[1]).to_equal(['aaaa'])
 
+        class WithOptionalParamFilter(Vows.Context):
+            def topic(self, (factory, context)):
+                return factory.create_instances(context, 'my_optional_filter(aa, bb)')
+
+            def should_create_two_instances(self, instances):
+                expect(len(instances)).to_equal(1)
+                expect(instances[0].__class__).to_equal(OptionalParamFilter)
+
+            def should_understand_parameters(self, instances):
+                expect(instances[0].run()).to_equal([("aa", "bb")])
+
+        class WithOptionalParamsInOptionalFilter(Vows.Context):
+            def topic(self, (factory, context)):
+                return factory.create_instances(context, 'my_optional_filter(aa)')
+
+            def should_create_two_instances(self, instances):
+                expect(len(instances)).to_equal(1)
+                expect(instances[0].__class__).to_equal(OptionalParamFilter)
+
+            def should_understand_parameters(self, instances):
+                expect(instances[0].run()).to_equal([("aa", "not provided")])
+
+        class WithInvalidOptionalFilter(Vows.Context):
+            def topic(self, (factory, context)):
+                return factory.create_instances(context, 'my_optional_filter()')
+
+            def should_create_two_instances(self, instances):
+                expect(len(instances)).to_equal(0)
 
     class WithInvalidFilter(Vows.Context):
         def topic(self):
