@@ -24,7 +24,7 @@ test_data = [
     ('ENGINE', pil_engine),
     ('LOADER', http_loader),
     ('STORAGE', file_storage),
-    ('ORIGINAL_PHOTO_STORAGE', file_storage),
+    ('UPLOAD_PHOTO_STORAGE', file_storage),
     ('RESULT_STORAGE', result_file_storage),
     ('DETECTORS', (face_detector,)),
     ('FILTERS', (rgb_filter,)),
@@ -40,7 +40,7 @@ class ImporterVows(Vows.Context):
                     ENGINE=r'thumbor.engines.pil',
                     LOADER=r'thumbor.loaders.http_loader',
                     STORAGE=r'thumbor.storages.file_storage',
-                    ORIGINAL_PHOTO_STORAGE=r'thumbor.storages.file_storage',
+                    UPLOAD_PHOTO_STORAGE=r'thumbor.storages.file_storage',
                     RESULT_STORAGE=r'thumbor.result_storages.file_storage',
                     DETECTORS=['thumbor.detectors.face_detector'],
                     FILTERS=['thumbor.filters.rgb']
