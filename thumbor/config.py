@@ -154,6 +154,13 @@ Config.define('UPLOAD_PHOTO_STORAGE', 'thumbor.storages.file_storage', 'The type
 Config.define('UPLOAD_DELETE_ALLOWED', False, 'Indicates whether image deletion should be allowed', 'Upload')
 Config.define('UPLOAD_PUT_ALLOWED', False, 'Indicates whether image overwrite should be allowed', 'Upload')
 
+# ALIASES FOR OLD PHOTO UPLOAD OPTIONS
+Config.alias('MAX_SIZE', 'UPLOAD_MAX_SIZE')
+Config.alias('ENABLE_ORIGINAL_PHOTO_UPLOAD', 'UPLOAD_ENABLED')
+Config.alias('ORIGINAL_PHOTO_STORAGE', 'UPLOAD_PHOTO_STORAGE')
+Config.alias('ALLOW_ORIGINAL_PHOTO_DELETION', 'UPLOAD_DELETE_ALLOWED')
+Config.alias('ALLOW_ORIGINAL_PHOTO_PUTTING', 'UPLOAD_PUT_ALLOWED')
+
 # MONGO STORAGE OPTIONS
 Config.define('MONGO_STORAGE_SERVER_HOST', 'localhost', 'MongoDB storage server host', 'MongoDB Storage')
 Config.define('MONGO_STORAGE_SERVER_PORT', 27017, 'MongoDB storage server port', 'MongoDB Storage')
