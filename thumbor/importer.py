@@ -15,7 +15,7 @@ class Importer:
         self.config = config
         self.engine = None
         self.loader = None
-        self.original_photo_storage = None
+        self.upload_photo_storage = None
         self.storage = None
         self.result_storage = None
         self.detectors = []
@@ -42,8 +42,8 @@ class Importer:
         if self.config.RESULT_STORAGE:
             self.import_item('RESULT_STORAGE', 'Storage')
 
-        if self.config.ORIGINAL_PHOTO_STORAGE:
-            self.import_item('ORIGINAL_PHOTO_STORAGE', 'Storage')
+        if self.config.UPLOAD_PHOTO_STORAGE:
+            self.import_item('UPLOAD_PHOTO_STORAGE', 'Storage')
 
     def import_item(self, config_key=None, class_name=None, is_multiple=False, item_value=None, ignore_errors=False):
         if item_value is None:

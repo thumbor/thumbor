@@ -91,11 +91,11 @@ class BaseContext(TornadoHTTPContext):
 class Upload(BaseContext):
     def get_app(self):
         cfg = Config()
-        cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
-        cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.UPLOAD_ENABLED = True
+        cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
         cfg.FILE_STORAGE_ROOT_PATH = storage_path
-        cfg.ALLOW_ORIGINAL_PHOTO_DELETION = True
-        cfg.ALLOW_ORIGINAL_PHOTO_PUTTING = True
+        cfg.UPLOAD_DELETE_ALLOWED = True
+        cfg.UPLOAD_PUT_ALLOWED = True
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -256,10 +256,10 @@ class Upload(BaseContext):
 class UploadWithoutDeletingAllowed(BaseContext):
     def get_app(self):
         cfg = Config()
-        cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
-        cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.UPLOAD_ENABLED = True
+        cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
         cfg.FILE_STORAGE_ROOT_PATH = storage_path
-        cfg.ALLOW_ORIGINAL_PHOTO_DELETION = False
+        cfg.UPLOAD_DELETE_ALLOWED = False
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -295,9 +295,9 @@ class UploadWithoutDeletingAllowed(BaseContext):
 class UploadWithMinWidthAndHeight(BaseContext):
     def get_app(self):
         cfg = Config()
-        cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
-        cfg.ALLOW_ORIGINAL_PHOTO_PUTTING = True
-        cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.UPLOAD_ENABLED = True
+        cfg.UPLOAD_PUT_ALLOWED = True
+        cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
         cfg.FILE_STORAGE_ROOT_PATH = storage_path
         cfg.MIN_WIDTH = 40
         cfg.MIN_HEIGHT = 40
@@ -330,11 +330,11 @@ class UploadWithMinWidthAndHeight(BaseContext):
 class UploadWithMaxSize(BaseContext):
     def get_app(self):
         cfg = Config()
-        cfg.ENABLE_ORIGINAL_PHOTO_UPLOAD = True
-        cfg.ALLOW_ORIGINAL_PHOTO_PUTTING = True
-        cfg.ORIGINAL_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.UPLOAD_ENABLED = True
+        cfg.UPLOAD_PUT_ALLOWED = True
+        cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
         cfg.FILE_STORAGE_ROOT_PATH = storage_path
-        cfg.MAX_SIZE = 40000
+        cfg.UPLOAD_MAX_SIZE = 40000
 
         importer = Importer(cfg)
         importer.import_modules()

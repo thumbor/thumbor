@@ -25,7 +25,7 @@ class ThumborServiceApp(tornado.web.Application):
             (r'/healthcheck', HealthcheckHandler),
         ]
 
-        if context.config.ENABLE_ORIGINAL_PHOTO_UPLOAD:
+        if context.config.UPLOAD_ENABLED:
             handlers.append(
                 (r'/upload', UploadHandler, { 'context': context })
             )
