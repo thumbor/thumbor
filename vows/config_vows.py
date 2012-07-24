@@ -41,7 +41,6 @@ TEST_DATA = (
     ('FILTERS', [])
 )
 
-
 @Vows.batch
 class Configuration(Vows.Context):
 
@@ -60,6 +59,29 @@ class Configuration(Vows.Context):
                 actual, expected = topic
                 expect(actual).not_to_be_null()
                 expect(actual).to_equal(expected)
+
+    class WhenSettingAnAlias(Vows.Context):
+
+        def topic(self):
+            Config.alias('OTHER_ENGINE', 'ENGINE')
+            return Config(OTHER_ENGINE='x')
+
+        def should_set_engine_attribute(self, config):
+            expect(config.ENGINE).to_equal('x')
+
+        def should_set_other_engine_attribute(self, config):
+            expect(config.OTHER_ENGINE).to_equal('x')
+
+    class WhenSettingAnAliasedKey(Vows.Context):
+        def topic(self):
+            Config.alias('LOADER_ALIAS', 'LOADER')
+            return Config(LOADER='y')
+
+        def should_set_loader_attribute(self, config):
+            expect(config.LOADER).to_equal('y')
+
+        def should_set_loader_alias_attribute(self, config):
+            expect(config.LOADER_ALIAS).to_equal('y')
 
 #class ConfigContext(Vows.Context):
     #def _camel_split(self, string):

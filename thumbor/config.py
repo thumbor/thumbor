@@ -24,6 +24,9 @@ class Config(object):
     class_groups = []
     class_descriptions = {}
 
+    class_aliases = defaultdict(list)
+    class_aliased_items = {}
+
     @classmethod
     def define(cls, key, value, description, group='General'):
         cls.class_defaults[key] = value
@@ -31,6 +34,13 @@ class Config(object):
         cls.class_group_items[group].append(key)
         if not group in cls.class_groups:
             cls.class_groups.append(group)
+
+    @classmethod
+    def alias(cls, new_key, aliased_key):
+        if aliased_key in cls.class_aliased_items:
+            aliased_key = cls.class_aliased_items[aliased_key]
+        cls.class_aliases[aliased_key].append(new_key)
+        cls.class_aliased_items[new_key] = aliased_key
 
     @classmethod
     def get_conf_file(cls):
@@ -82,9 +92,18 @@ class Config(object):
             return getattr(self, name)
         return default
 
+    def __setattr__(self, name, value):
+        if name in Config.class_aliased_items:
+            self.__setattr__(Config.class_aliased_items[name], value)
+        else:
+            super(Config, self).__setattr__(name, value)
+
     def __getattr__(self, name):
         if name in self.__dict__:
             return self.__dict__[name]
+
+        if name in Config.class_aliased_items:
+            return self.__getattr__(Config.class_aliased_items[name])
 
         if 'defaults' in self.__dict__ and name in self.__dict__['defaults']:
             return self.__dict__['defaults'][name]
@@ -193,6 +212,8 @@ def generate_config():
             wrapped = fill(description, width=78, subsequent_indent='## ')
 
             print '## %s' % wrapped
+            if key in Config.class_aliases:
+                print '## Aliases: %s' % ', '.join(Config.class_aliases[key])
             print '## Defaults to: %s' % value
             print '#%s = %s' % (key, format_value(value))
         print
