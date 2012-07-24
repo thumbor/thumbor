@@ -14,6 +14,7 @@ from os.path import join, exists, expanduser, dirname, abspath
 import imp
 import tempfile
 from textwrap import fill
+from thumbor.utils import logger
 
 class ConfigurationError(RuntimeError):
     pass
@@ -94,6 +95,7 @@ class Config(object):
 
     def __setattr__(self, name, value):
         if name in Config.class_aliased_items:
+            logger.warn('Option %s is marked as deprecated please use %s instead.' % (name, Config.class_aliased_items[name]))
             self.__setattr__(Config.class_aliased_items[name], value)
         else:
             super(Config, self).__setattr__(name, value)
@@ -103,6 +105,7 @@ class Config(object):
             return self.__dict__[name]
 
         if name in Config.class_aliased_items:
+            logger.warn('Option %s is marked as deprecated please use %s instead.' % (name, Config.class_aliased_items[name]))
             return self.__getattr__(Config.class_aliased_items[name])
 
         if 'defaults' in self.__dict__ and name in self.__dict__['defaults']:
