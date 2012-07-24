@@ -12,13 +12,15 @@ from pyvows import Vows, expect
 
 from thumbor.config import Config
 
+STORAGE_DEFAULT_VALUE = 'thumbor.storages.file_storage'
+
 TEST_DATA = (
     ('MAX_WIDTH', 0),
     ('MAX_HEIGHT', 0),
     ('ALLOWED_SOURCES', []),
     ('QUALITY', 80),
     ('LOADER',  'thumbor.loaders.http_loader'),
-    ('STORAGE', 'thumbor.storages.file_storage'),
+    ('STORAGE', STORAGE_DEFAULT_VALUE),
     ('ENGINE', 'thumbor.engines.pil'),
     ('ALLOW_UNSAFE_URL', True),
     ('FILE_LOADER_ROOT_PATH', '/tmp'),
@@ -82,6 +84,34 @@ class Configuration(Vows.Context):
 
         def should_set_loader_alias_attribute(self, config):
             expect(config.LOADER_ALIAS).to_equal('y')
+
+    class WithAliasedAliases(Vows.Context):
+        def topic(self):
+            Config.alias('STORAGE_ALIAS', 'STORAGE')
+            Config.alias('STORAGE_ALIAS_ALIAS', 'STORAGE_ALIAS')
+            return Config(STORAGE_ALIAS_ALIAS='z')
+
+        def should_set_storage_attribute(self, config):
+            expect(config.STORAGE).to_equal('z')
+
+        def should_set_storage_alias_attribute(self, config):
+            expect(config.STORAGE_ALIAS).to_equal('z')
+
+        def should_set_storage_alias_alias_attribute(self, config):
+            expect(config.STORAGE_ALIAS_ALIAS).to_equal('z')
+
+        class WithDefaultValues(Vows.Context):
+            def topic(self):
+                return Config()
+
+            def should_set_storage_attribute(self, config):
+                expect(config.STORAGE).to_equal(STORAGE_DEFAULT_VALUE)
+
+            def should_set_storage_alias_attribute(self, config):
+                expect(config.STORAGE_ALIAS).to_equal(STORAGE_DEFAULT_VALUE)
+
+            def should_set_storage_alias_alias_attribute(self, config):
+                expect(config.STORAGE_ALIAS_ALIAS).to_equal(STORAGE_DEFAULT_VALUE)
 
 #class ConfigContext(Vows.Context):
     #def _camel_split(self, string):
