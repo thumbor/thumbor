@@ -6,10 +6,17 @@ install:
     # update aptitude
     - sudo apt-get remove --purge -y ffmpeg x264 libx264-dev
     - sudo apt-get update -y
-    - sudo apt-get autoremove -y
+
+    - df -h
 
     # install aptitude packages
     - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
+
+    - df -h
+
+    - sudo apt-get autoremove -y
+
+    - df -h
 
     # weird travis-ci python paths
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
@@ -30,8 +37,12 @@ script:
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
     - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
 
+    - df -h
+
     # install opencv
     - ./install-opencv.sh
+
+    - df -h
 
     # finally run tests
     - make ci_test
