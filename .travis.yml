@@ -3,19 +3,14 @@ python:
   - "2.7"
 
 install:
-    - echo 'checking installed packages'
-    - dpkg -l
-    - echo 'checking installed packages end'
+    #removing unwanted packages
+    - sudo apt-get purge -y $(< unwanted_packages)
     # update aptitude
-    - sudo apt-get remove --purge -y ffmpeg x264 libx264-dev
     - sudo apt-get update -y
 
-    - df -h
 
     # install aptitude packages
     - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
-
-    - df -h
 
     - sudo apt-get autoremove -y
 
@@ -40,16 +35,10 @@ script:
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
     - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
 
-    - df -h
-
-    - echo 'checking installed packages'
-    - dpkg -l
-    - echo 'checking installed packages end'
-
     # install opencv
     - ./install-opencv.sh
 
-    - df -hg
+    - df -h
 
     # finally run tests
     - make ci_test
