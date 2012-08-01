@@ -4,13 +4,10 @@ libx264-dev
 cassandra
 chromium-browser
 couchdb
-couchdb-bin
-default-jre
 elasticsearch
 firebird-dev
 firefox
 groovy
-libsqlite3-dev
 memcached
 mercurial
 mysql-client
@@ -21,6 +18,3 @@ openjdk-6-jdk
 openjdk-7-jdk
 postgresql
 riak
-sqlite3
-subversion
-zeromq
