@@ -4,7 +4,7 @@ python:
 
 install:
     #removing unwanted packages
-    - sudo apt-get purge -y $(< unwanted_packages)
+    - sudo apt-get remove --purge -y $(< unwanted_packages)
     # update aptitude
     - sudo apt-get update -y
 
