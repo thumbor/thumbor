@@ -4,8 +4,9 @@ python:
 
 install:
     # update aptitude
-    - sudo apt-get remove -y ffmpeg x264 libx264-dev
+    - sudo apt-get remove --purge -y ffmpeg x264 libx264-dev
     - sudo apt-get update -y
+    - sudo apt-get autoremove -y
 
     # install aptitude packages
     - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
