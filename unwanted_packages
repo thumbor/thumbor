@@ -12,9 +12,6 @@ memcached
 mercurial
 mysql-client
 mysql-server
-openjdk-6-jre
-openjdk-7-jre
-openjdk-6-jdk
-openjdk-7-jdk
 postgresql
 riak
+x11-common
