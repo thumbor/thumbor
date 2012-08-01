@@ -9,3 +9,4 @@ http://gevent.googlecode.com/files/gevent-1.0b2.tar.gz
 pyvows
 tornado-pyvows
 coverage
+derpconf>=0.2.0

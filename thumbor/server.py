@@ -10,6 +10,8 @@
 
 import sys
 import logging
+import os
+from os.path import expanduser, dirname
 
 import tornado.ioloop
 from tornado.httpserver import HTTPServer
@@ -26,7 +28,13 @@ def main(arguments=None):
 
     server_parameters = get_server_parameters(arguments)
     logging.basicConfig(level=getattr(logging, server_parameters.log_level.upper()))
-    config = Config.load(server_parameters.config_path)
+
+    lookup_paths = [os.curdir,
+                    expanduser('~'),
+                    '/etc/',
+                    dirname(__file__)]
+
+    config = Config.load(server_parameters.config_path, conf_name='thumbor.conf', lookup_paths=lookup_paths)
     importer = Importer(config)
     importer.import_modules()
 

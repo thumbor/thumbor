@@ -113,6 +113,9 @@ class Configuration(Vows.Context):
             def should_set_storage_alias_alias_attribute(self, config):
                 expect(config.STORAGE_ALIAS_ALIAS).to_equal(STORAGE_DEFAULT_VALUE)
 
+            def should_be_a_derpconf(self, config):
+                expect(config.__class__.__module__).to_equal('derpconf.config')
+
 #class ConfigContext(Vows.Context):
     #def _camel_split(self, string):
         #return re.sub('((?=[A-Z][a-z])|(?<=[a-z])(?=[A-Z])|(?=[0-9]\b))', ' ', string).strip()
