@@ -7,9 +7,6 @@ couchdb
 couchdb-bin
 default-jre
 elasticsearch
-erlang
-erlang-dev
-erlang-base
 firebird-dev
 firefox
 groovy
