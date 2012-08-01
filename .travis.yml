@@ -3,6 +3,9 @@ python:
   - "2.7"
 
 install:
+    - echo 'checking installed packages'
+    - dpkg -l
+    - echo 'checking installed packages end'
     # update aptitude
     - sudo apt-get remove --purge -y ffmpeg x264 libx264-dev
     - sudo apt-get update -y
@@ -39,10 +42,14 @@ script:
 
     - df -h
 
+    - echo 'checking installed packages'
+    - dpkg -l
+    - echo 'checking installed packages end'
+
     # install opencv
     - ./install-opencv.sh
 
-    - df -h
+    - df -hg
 
     # finally run tests
     - make ci_test
