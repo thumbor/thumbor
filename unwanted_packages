@@ -1,0 +1,17 @@
+ffmpeg
+x264
+libx264-dev
+cassandra
+chromium-browser
+couchdb
+elasticsearch
+firebird-dev
+firefox
+groovy
+memcached
+mercurial
+mysql-client
+mysql-server
+postgresql
+riak
+x11-common

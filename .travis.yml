@@ -3,12 +3,18 @@ python:
   - "2.7"
 
 install:
+    #removing unwanted packages
+    - sudo apt-get remove --purge -y $(< unwanted_packages)
     # update aptitude
-    - sudo apt-get remove -y ffmpeg x264 libx264-dev
     - sudo apt-get update -y
+
 
     # install aptitude packages
     - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
+
+    - sudo apt-get autoremove -y
+
+    - df -h
 
     # weird travis-ci python paths
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
@@ -31,6 +37,8 @@ script:
 
     # install opencv
     - ./install-opencv.sh
+
+    - df -h
 
     # finally run tests
     - make ci_test
