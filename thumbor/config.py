@@ -10,6 +10,7 @@
 
 from os.path import join
 import tempfile
+import derpconf.config as config
 from derpconf.config import Config
 
 
@@ -102,7 +103,7 @@ Config.define('REDIS_QUEUE_SERVER_DB', 0, 'Server database index for the queued 
 Config.define('REDIS_QUEUE_SERVER_PASSWORD', None, 'Server password for the queued redis detector', 'Queued Redis Detector')
 
 def generate_config():
-    Config.generate_config()
+    config.generate_config()
 
 def format_value(value):
     if isinstance(value, basestring):
