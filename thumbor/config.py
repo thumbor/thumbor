@@ -102,7 +102,7 @@ Config.define('REDIS_QUEUE_SERVER_DB', 0, 'Server database index for the queued 
 Config.define('REDIS_QUEUE_SERVER_PASSWORD', None, 'Server password for the queued redis detector', 'Queued Redis Detector')
 
 def generate_config():
-    Config.get_config_text()
+    print Config.get_config_text()
 
 def format_value(value):
     if isinstance(value, basestring):
