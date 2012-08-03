@@ -12,6 +12,10 @@ import urllib
 
 from thumbor.handlers import ContextHandler
 
+class BadRequestError(ValueError):
+    pass
+
+
 class UploadHandler(ContextHandler):
 
     def write_file(self, filename, body, overwrite):
@@ -45,6 +49,9 @@ class UploadHandler(ContextHandler):
         except RuntimeError:
             self.set_status(409)
             path = 'File already exists.'
+        except BadRequestError:
+            self.set_status(400)
+            path = 'Invalid request'
         self.write(path)
 
     def post(self):
