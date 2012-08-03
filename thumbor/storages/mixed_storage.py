@@ -70,3 +70,6 @@ class Storage(BaseStorage):
     def get(self, path):
         self._init_file_storage()
         return self.file_storage.get(path)
+
+    def resolve_original_photo_path(self, request, filename):
+        return self.file_storage.resolve_original_photo_path(request, filename)

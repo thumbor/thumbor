@@ -88,7 +88,7 @@ class Storage(BaseStorage):
     def normalize_path(self, path):
         return join(self.context.config.FILE_STORAGE_ROOT_PATH.rstrip('/'), path.lstrip('/'))
 
-    def resolve_original_photo_path(self, filename):
+    def resolve_original_photo_path(self, request, filename):
         return join(datetime.now().strftime('%Y/%m/%d'), filename)
 
     def exists(self, path):

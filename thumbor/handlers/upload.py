@@ -16,7 +16,9 @@ class UploadHandler(ContextHandler):
 
     def write_file(self, filename, body, overwrite):
         storage = self.context.modules.upload_photo_storage
-        path = storage.resolve_original_photo_path(filename)
+        path = filename
+        if hasattr(storage, 'resolve_original_photo_path'):
+            path = storage.resolve_original_photo_path(self.request, filename)
 
         if not overwrite and storage.exists(path):
             raise RuntimeError('File already exists.')
@@ -53,7 +55,10 @@ class UploadHandler(ContextHandler):
             self.write('File is too big, not an image or too small image')
 
     def put(self):
-        if not self.context.config.UPLOAD_PUT_ALLOWED: return
+        if not self.context.config.UPLOAD_PUT_ALLOWED:
+            self.set_status(405)
+            return
+
         if self.validate():
             self.save_and_render(overwrite=True)
         else:
@@ -61,7 +66,10 @@ class UploadHandler(ContextHandler):
             self.write('File is too big, not an image or too small image')
 
     def delete(self):
-        if not self.context.config.UPLOAD_DELETE_ALLOWED: return
+        if not self.context.config.UPLOAD_DELETE_ALLOWED:
+            self.set_status(405)
+            return
+
         path = 'file_path' in self.request.arguments and self.request.arguments['file_path'] or None
         if path is None and self.request.body is None: raise RuntimeError('The file_path argument is mandatory to delete an image')
         path = urllib.unquote(self.request.body.split('=')[-1])

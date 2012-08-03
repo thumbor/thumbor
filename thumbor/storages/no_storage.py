@@ -35,3 +35,4 @@ class Storage(BaseStorage):
 
     def remove(self, path):
         pass
+

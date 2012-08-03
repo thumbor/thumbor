@@ -285,10 +285,10 @@ class UploadWithoutDeletingAllowed(BaseContext):
                 def topic(self, response):
                     return response[0]
 
-                def should_not_be_an_error_and_file_should_not_exist(self, topic):
+                def should_be_an_error_and_file_should_not_exist(self, topic):
                     file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile3.jpg')
                     path = join(storage_path, file_path)
-                    expect(topic).to_equal(200)
+                    expect(topic).to_equal(405)
                     expect(exists(path)).to_be_true()
 
 @Vows.batch
