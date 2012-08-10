@@ -51,10 +51,10 @@ class Engine(BaseEngine):
         self.image.zoom('%dx%d!'% (width,height))
 
     def crop(self, left, top, right, bottom):
-        offset_left = left
-        offset_top = top
-        width = right - left
-        height = bottom - top
+        offset_left = int(left)
+        offset_top = int(top)
+        width = int(right - left)
+        height = int(bottom - top)
 
         self.image.crop(
             Geometry(width, height, offset_left, offset_top)
