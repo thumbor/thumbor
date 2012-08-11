@@ -29,3 +29,14 @@ class ConsoleVows(Vows.Context):
 
         def should_have_specific_port(self, topic):
             expect(topic.port).to_equal(2000)
+
+        def should_use_the_default_thumbor_app(self, topic):
+            expect(topic.app_class).to_equal('thumbor.app.ThumborServiceApp')
+
+    class CanUseACustomApp(Vows.Context):
+        def topic(self):
+            server_parameters = thumbor.console.get_server_parameters(['-a', 'vows.fixtures.custom_app.MyCustomApp'])
+            return server_parameters
+
+        def should_have_my_custom_app_value(self, topic):
+            expect(topic.app_class).to_equal('vows.fixtures.custom_app.MyCustomApp')
