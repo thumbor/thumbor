@@ -16,7 +16,6 @@ from os.path import expanduser, dirname
 import tornado.ioloop
 from tornado.httpserver import HTTPServer
 
-from thumbor.app import ThumborServiceApp
 from thumbor.console import get_server_parameters
 from thumbor.config import Config
 from thumbor.importer import Importer
