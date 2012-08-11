@@ -14,6 +14,7 @@ import datetime
 
 import tornado.web
 
+from thumbor import __version__
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.context import Context
@@ -150,6 +151,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 content_type = CONTENT_TYPE['.jpg']
 
         self.set_header('Content-Type', content_type)
+        self.set_header('Server', 'Thumbor/%s' % __version__)
 
         max_age = self.context.config.MAX_AGE
         if context.request.prevent_result_storage or context.request.detection_error:
