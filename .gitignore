@@ -14,3 +14,5 @@ tests/visual_test/build
 build
 *.so
 nohup.out
+*.idea
+*.iml
