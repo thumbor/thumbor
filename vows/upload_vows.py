@@ -10,6 +10,7 @@
 
 import mimetypes
 import urllib
+import hashlib
 from os.path import abspath, join, dirname, exists
 from datetime import datetime
 from shutil import rmtree
@@ -22,15 +23,15 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context
 
-storage_path = '/tmp/thumbor-vows/storage'
+file_storage_root_path = '/tmp/thumbor-vows/storage'
 crocodile_file_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
 oversized_file_path = abspath(join(dirname(__file__), 'fixtures/image.jpg'))
 
 with open(crocodile_file_path, 'r') as croc:
     croc_content= croc.read()
 
-if exists(storage_path):
-    rmtree(storage_path)
+if exists(file_storage_root_path):
+    rmtree(file_storage_root_path)
 
 def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
@@ -68,6 +69,11 @@ to be uploaded as files
 
     return content_type, body
 
+def path_on_filesystem(path):
+    digest = hashlib.sha1(path).hexdigest()
+    return join(file_storage_root_path.rstrip('/'), digest[:2] + '/' + digest[2:])
+
+
 class BaseContext(TornadoHTTPContext):
     def __init__(self, *args, **kw):
         super(BaseContext, self).__init__(*args, **kw)
@@ -93,7 +99,7 @@ class Upload(BaseContext):
         cfg = Config()
         cfg.UPLOAD_ENABLED = True
         cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
-        cfg.FILE_STORAGE_ROOT_PATH = storage_path
+        cfg.FILE_STORAGE_ROOT_PATH = file_storage_root_path
         cfg.UPLOAD_DELETE_ALLOWED = True
         cfg.UPLOAD_PUT_ALLOWED = True
 
@@ -121,9 +127,8 @@ class Upload(BaseContext):
                 return response.body
 
             def should_be_in_right_path(self, topic):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
-                path = join(storage_path, file_path)
-                expect(topic).to_equal(file_path)
+                path = path_on_filesystem('crocodile.jpg')
+                expect(topic).to_equal('crocodile.jpg')
                 expect(exists(path)).to_be_true()
 
         class Headers(TornadoHTTPContext):
@@ -131,9 +136,8 @@ class Upload(BaseContext):
                 return response.headers
 
             def should_set_correct_location(self, headers):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile.jpg')
                 expect(headers).to_include('Location')
-                expect(headers['Location']).to_equal(file_path)
+                expect(headers['Location']).to_equal('crocodile.jpg')
 
     class WhenPuttingInvalidImage(BaseContext):
         def topic(self):
@@ -173,9 +177,8 @@ class Upload(BaseContext):
                 return response.body
 
             def should_be_in_right_path(self, topic):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
-                path = join(storage_path, file_path)
-                expect(topic).to_equal(file_path)
+                path = path_on_filesystem('crocodile2.jpg')
+                expect(topic).to_equal('crocodile2.jpg')
                 expect(exists(path)).to_be_true()
 
         class Headers(TornadoHTTPContext):
@@ -183,9 +186,8 @@ class Upload(BaseContext):
                 return response.headers
 
             def should_set_correct_location(self, headers):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile2.jpg')
                 expect(headers).to_include('Location')
-                expect(headers['Location']).to_equal(file_path)
+                expect(headers['Location']).to_equal('crocodile2.jpg')
 
             class WhenRePosting(BaseContext):
                 def topic(self):
@@ -205,11 +207,7 @@ class Upload(BaseContext):
             image = ('media', u'crocodile-delete.jpg', croc_content)
 
             response = self.post_files('post', '/upload', {}, (image, ))
-
-            file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile-delete.jpg')
-            response = self.delete('/upload', {
-                'file_path': file_path
-            })
+            response = self.delete('/upload', {'file_path': 'crocodile-delete.jpg'})
             return (response.code, response.body)
 
         class StatusCode(TornadoHTTPContext):
@@ -217,17 +215,14 @@ class Upload(BaseContext):
                 return response[0]
 
             def should_not_be_an_error_and_file_should_not_exist(self, topic):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile-delete.jpg')
-                path = join(storage_path, file_path)
+                path = path_on_filesystem('crocodile-delete.jpg')
                 expect(topic).to_equal(200)
                 expect(exists(path)).to_be_false()
 
+
             class DeletingAgainDoesNothing(BaseContext):
                 def topic(self):
-                    file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile-delete.jpg')
-                    response = self.delete('/upload', {
-                        'file_path': file_path
-                        })
+                    response = self.delete('/upload', {'file_path': 'crocodile-delete.jpg'})
                     return (response.code, response.body)
 
                 class StatusCode(TornadoHTTPContext):
@@ -239,10 +234,7 @@ class Upload(BaseContext):
 
         class DeletingWithInvalidPathDoesNothing(BaseContext):
             def topic(self):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile5.jpg')
-                response = self.delete('/upload', {
-                    'file_path': file_path
-                })
+                response = self.delete('/upload', {'file_path': 'crocodile5.jpg'})
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):
@@ -258,7 +250,7 @@ class UploadWithoutDeletingAllowed(BaseContext):
         cfg = Config()
         cfg.UPLOAD_ENABLED = True
         cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
-        cfg.FILE_STORAGE_ROOT_PATH = storage_path
+        cfg.FILE_STORAGE_ROOT_PATH = file_storage_root_path
         cfg.UPLOAD_DELETE_ALLOWED = False
 
         importer = Importer(cfg)
@@ -275,10 +267,7 @@ class UploadWithoutDeletingAllowed(BaseContext):
 
         class ThenDeleting(BaseContext):
             def topic(self):
-                file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile3.jpg')
-                response = self.delete('/upload', {
-                'file_path': file_path
-                })
+                response = self.delete('/upload', {'file_path': 'crocodile3.jpg'})
                 return (response.code, response.body)
 
             class StatusCode(TornadoHTTPContext):
@@ -286,10 +275,11 @@ class UploadWithoutDeletingAllowed(BaseContext):
                     return response[0]
 
                 def should_be_an_error_and_file_should_not_exist(self, topic):
-                    file_path = join(datetime.now().strftime('%Y/%m/%d'), 'crocodile3.jpg')
-                    path = join(storage_path, file_path)
+                    path = path_on_filesystem('crocodile3.jpg')
                     expect(topic).to_equal(405)
                     expect(exists(path)).to_be_true()
+
+
 
 @Vows.batch
 class UploadWithMinWidthAndHeight(BaseContext):
@@ -298,7 +288,7 @@ class UploadWithMinWidthAndHeight(BaseContext):
         cfg.UPLOAD_ENABLED = True
         cfg.UPLOAD_PUT_ALLOWED = True
         cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
-        cfg.FILE_STORAGE_ROOT_PATH = storage_path
+        cfg.FILE_STORAGE_ROOT_PATH = file_storage_root_path
         cfg.MIN_WIDTH = 40
         cfg.MIN_HEIGHT = 40
 
@@ -333,7 +323,7 @@ class UploadWithMaxSize(BaseContext):
         cfg.UPLOAD_ENABLED = True
         cfg.UPLOAD_PUT_ALLOWED = True
         cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
-        cfg.FILE_STORAGE_ROOT_PATH = storage_path
+        cfg.FILE_STORAGE_ROOT_PATH = file_storage_root_path
         cfg.UPLOAD_MAX_SIZE = 40000
 
         importer = Importer(cfg)

@@ -7,7 +7,9 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
+from thumbor.storages.file_storage import Storage as FileStorage
 from os.path import abspath, join, dirname
+import shutil
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
@@ -47,7 +49,7 @@ class GetImage(BaseContext):
 
         def should_be_200(self, (code, _)):
             expect(code).to_equal(200)
-    
+
     class WithSignedRegularImage(TornadoHTTPContext):
         def topic(self):
             rsp = self.get('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
@@ -170,21 +172,25 @@ class GetImageWithOLDFormat(BaseContext):
 @Vows.batch
 class GetImageWithStoredKeys(BaseContext):
     def get_app(self):
-        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg = Config(SECURITY_KEY='MYKEY')
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = storage_path
         cfg.ALLOW_UNSAFE_URL = False
         cfg.ALLOW_OLD_URLS = True
-        cfg.STORAGE="thumbor.storages.file_storage"
-        cfg.FILE_STORAGE_ROOT_PATH=storage_path
         cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
 
         importer = Importer(cfg)
         importer.import_modules()
         server = ServerParameters(8891, 'localhost', 'thumbor.conf', None, 'info', None)
-        server.security_key = 'ACME-SEC'
+        server.security_key = 'MYKEY'
         ctx = Context(server, cfg, importer)
         application = ThumborServiceApp(ctx)
+
+        storage = FileStorage(Context(config=cfg, server=server))
+
+        # Store fixtures (image.jpg and image.txt) into the file storage
+        storage.put('image.jpg', file(join(storage_path, 'image.jpg')).read())
+        storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
 
         return application
 
