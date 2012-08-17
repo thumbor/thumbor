@@ -11,6 +11,15 @@
 import math
 
 from thumbor.point import FocalPoint
+from thumbor.utils import logger
+
+trim_enabled = True
+try:
+    from thumbor.ext.filters import _bounding_box
+except ImportError:
+    logger.warn("Error importing bounding_box filter, trimming won't work")
+    trim_enabled = False
+
 
 class Transformer(object):
     def __init__(self, context):
@@ -74,7 +83,23 @@ class Transformer(object):
     def transform(self, callback):
         self.done_callback = callback
         self.reorientate()
+        self.trim()
         self.smart_detect()
+
+    def trim(self):
+        if self.context.request.trim is None or not trim_enabled:
+            return
+        box = _bounding_box.apply(self.engine.get_image_mode(), self.engine.size[0], self.engine.size[1], self.context.request.trim_pos, self.context.request.trim_tolerance, self.engine.get_image_data())
+        if box[2] < box[0] or box[3] < box[1]:
+            logger.warn("Ignoring trim, there wouldn't be any image left, check the tolerance.")
+            return
+
+        self.engine.crop(box[0], box[1], box[2] + 1, box[3] + 1)
+        if self.context.request.should_crop:
+            self.context.request.crop['left'] -= box[0]
+            self.context.request.crop['top'] -= box[1]
+            self.context.request.crop['right'] -= box[0]
+            self.context.request.crop['bottom'] -= box[1]
 
     def reorientate(self):
         if self.context.config.RESPECT_ORIENTATION:

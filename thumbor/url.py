@@ -15,6 +15,7 @@ class Url(object):
     unsafe_or_hash = r'(?:(?:(?P<unsafe>unsafe)|(?P<hash>[^/]{28,}?))/)?'
     debug = '(?:(?P<debug>debug)/)?'
     meta = '(?:(?P<meta>meta)/)?'
+    trim = '(?:(?P<trim>trim(?::(?:top-left|bottom-right))?(?::\d+)?)/)?'
     crop = '(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?'
     fit_in = '(?:(?P<adaptive>adaptive-)?(?P<fit_in>fit-in)/)?'
     dimensions = '(?:(?P<horizontal_flip>-)?(?P<width>(?:\d+|orig))?x(?P<vertical_flip>-)?(?P<height>(?:\d+|orig))?/)?'
@@ -33,6 +34,7 @@ class Url(object):
         reg.append(cls.unsafe_or_hash)
         reg.append(cls.debug)
         reg.append(cls.meta)
+        reg.append(cls.trim)
         reg.append(cls.crop)
         reg.append(cls.fit_in)
         reg.append(cls.dimensions)
@@ -62,6 +64,7 @@ class Url(object):
         values = {
             'debug': result['debug'] == 'debug',
             'meta': result['meta'] == 'meta',
+            'trim': result['trim'],
             'crop': {
                 'left': int_or_0(result['crop_left']),
                 'top': int_or_0(result['crop_top']),
@@ -90,6 +93,7 @@ class Url(object):
                          height=0,
                          smart=False,
                          meta=False,
+                         trim=None,
                          adaptive=False,
                          fit_in=False,
                          horizontal_flip=False,
@@ -109,6 +113,9 @@ class Url(object):
 
         if meta:
             url.append('meta')
+
+        if trim:
+            url.append(trim)
 
         crop = crop_left or crop_top or crop_right or crop_bottom
         if crop:
