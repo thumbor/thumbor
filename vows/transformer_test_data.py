@@ -61,7 +61,7 @@ class TestData(object):
             target_width, target_height,
             halign, valign, focal_points,
             crop_left, crop_top, crop_right, crop_bottom,
-            fit_in=False, adaptive=False):
+            fit_in=False, adaptive=False, meta=False):
         self.source_width = source_width
         self.source_height = source_height
         self.target_width = target_width
@@ -75,6 +75,7 @@ class TestData(object):
         self.crop_bottom = crop_bottom
         self.fit_in = fit_in
         self.adaptive = adaptive
+        self.meta = meta
 
     def __repr__(self):
         return self.__str__()
@@ -109,7 +110,7 @@ class TestData(object):
         ctx.request = RequestParameters(
             buffer=None,
             debug=False,
-            meta=False,
+            meta=self.meta,
             crop = {
                 'left': self.crop_left,
                 'top': self.crop_top,

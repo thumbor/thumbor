@@ -54,6 +54,29 @@ class TransformerVows(Vows.Context):
         def should_not_crop(self, topic):
             expect(self.engine.calls['crop']).to_be_empty()
 
+    class MetaWithOrientation(Vows.Context):
+        @Vows.async_topic
+        def topic(self, callback):
+            data = TestData(
+                        source_width=800, source_height=600,
+                        target_width=100, target_height=100,
+                        halign="right", valign="top",
+                        focal_points=[],
+                        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+                        meta=True
+                    )
+
+            ctx = data.to_context()
+            ctx.config.RESPECT_ORIENTATION = True
+            self.engine = ctx.modules.engine
+
+            trans = Transformer(ctx)
+            trans.transform(callback)
+
+        def should_work_well(self, topic):
+            expect(topic).to_be_true()
+
+
     class Flip(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
