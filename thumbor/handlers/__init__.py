@@ -9,8 +9,10 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import functools
+import mimetypes
 from os.path import splitext
 import datetime
+import magic
 
 import tornado.web
 
@@ -95,13 +97,13 @@ class BaseHandler(tornado.web.RequestHandler):
                     actual_width = engine.get_proportional_width(engine.size[1])
 
                 new_crops = self.translate_crop_coordinates(
-                    engine.source_width, 
-                    engine.source_height, 
-                    actual_width, 
-                    actual_height, 
-                    crop_left, 
-                    crop_top, 
-                    crop_right, 
+                    engine.source_width,
+                    engine.source_height,
+                    actual_width,
+                    actual_height,
+                    crop_left,
+                    crop_top,
+                    crop_right,
                     crop_bottom
                 )
                 req.crop['left'] = new_crops[0]
@@ -114,6 +116,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
             after_transform_cb = functools.partial(self.after_transform, self.context)
             Transformer(self.context).transform(after_transform_cb)
+
+
 
         self._fetch(self.context.request.image_url, self.context.request.extension, callback)
 
@@ -144,6 +148,7 @@ class BaseHandler(tornado.web.RequestHandler):
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
         else:
             try:
+                # TODO replace by mimetypes.guess_type(context.request.extension, True)
                 content_type = CONTENT_TYPE[context.request.extension]
             except KeyError:
                 #extension is not present or could not help determine format => force JPEG
@@ -231,4 +236,39 @@ class ContextHandler(BaseHandler):
     def initialize(self, context):
         self.context = Context(context.server, context.config, context.modules.importer)
 
+
+##
+# Base handler for Image API operations
+##
+class ImageApiHandler(ContextHandler):
+
+    def get_mimetype(self, body):
+        return magic.from_buffer(body, True)
+
+    def validate(self, body):
+        conf = self.context.config
+        engine = self.context.modules.engine
+
+        # Check if image is valid
+        try:
+            engine.load(body, None)
+        except IOError:
+            self._error(415, 'Unsupported Media Type')
+            return False
+
+        # Check weight constraints
+        if (conf.UPLOAD_MAX_SIZE != 0 and  len(self.request.body) > conf.UPLOAD_MAX_SIZE):
+            self._error(412, 'Image exceed max weight (Expected : %s, Actual : %s)' % (conf.UPLOAD_MAX_SIZE, len(self.request.body)))
+            return False
+
+        # Check size constraints
+        size = engine.size
+        if (conf.MIN_WIDTH > size[0] or conf.MIN_HEIGHT > size[1]):
+            self._error(412, 'Image is too small (Expected: %s/%s , Actual : %s/%s) % (conf.MIN_WIDTH, conf.MIN_HEIGHT, size[0], size[1])')
+            return False
+        return True
+
+    def write_file(self, id, body):
+        storage = self.context.modules.upload_photo_storage
+        storage.put(id, body)
 
