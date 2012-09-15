@@ -12,6 +12,7 @@ from setuptools import setup, Extension
 from thumbor import __version__
 
 import glob
+import os
 
 def filter_extension_module(name, lib_objs, lib_headers):
     return Extension(
@@ -30,7 +31,9 @@ def gather_filter_extensions():
     return [filter_extension_module(f[0:-2].split('/')[-1], lib_objs, lib_headers) for f in files]
 
 def run_setup(extension_modules = []):
-  setup(
+    if not 'CFLAGS' in os.environ:
+        os.environ['CFLAGS'] = ''
+    setup(
       name = 'thumbor',
       version = __version__,
       description = "thumbor is an open-source photo thumbnail service by globo.com",
@@ -82,7 +85,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
       },
 
       ext_modules = extension_modules
-  )
+    )
 
 try:
     run_setup(gather_filter_extensions())
