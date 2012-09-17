@@ -203,15 +203,15 @@ class Transformer(object):
 
         if self.target_width / source_width > self.target_height / source_height:
             crop_width = source_width
-            crop_height = round(source_width * self.target_height / self.target_width, 0)
+            crop_height = int(round(source_width * self.target_height / self.target_width, 0))
         else:
-            crop_width = round(math.ceil(self.target_width * source_height / self.target_height), 0)
+            crop_width = int(round(math.ceil(self.target_width * source_height / self.target_height), 0))
             crop_height = source_height
 
-        crop_left = min(max(focal_x - (crop_width / 2), 0.0), source_width - crop_width)
+        crop_left = int(round(min(max(focal_x - (crop_width / 2), 0.0), source_width - crop_width)))
         crop_right = min(crop_left + crop_width, source_width)
 
-        crop_top = min(max(focal_y - (crop_height / 2), 0.0), source_height - crop_height)
+        crop_top = int(round(min(max(focal_y - (crop_height / 2), 0.0), source_height - crop_height)))
         crop_bottom = min(crop_top + crop_height, source_height)
 
         self.engine.crop(crop_left, crop_top, crop_right, crop_bottom)
