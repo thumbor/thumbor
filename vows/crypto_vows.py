@@ -11,6 +11,7 @@
 import hashlib
 import base64
 import hmac
+import copy
 
 from pyvows import Vows, expect
 
@@ -143,3 +144,95 @@ class SignerVows(Vows.Context):
         def should_equal_encrypted_string(self, (topic, expected)):
             expect(topic).to_equal(expected)
 
+
+BASE_IMAGE_URL = 'my.domain.com/some/image/url.jpg'
+BASE_IMAGE_MD5 = 'f33af67e41168e80fcc5b00f8bd8061a'
+
+BASE_PARAMS = {
+    'width': 0,
+    'height': 0,
+    'smart': False,
+    'adaptive': False,
+    'fit_in': False,
+    'flip_horizontal': False,
+    'flip_vertical': False,
+    'halign': 'center',
+    'valign': 'middle',
+    'crop_left': 0,
+    'crop_top': 0,
+    'crop_right': 0,
+    'crop_bottom': 0,
+    'filters': '',
+    'image': ''
+}
+
+DECRYPT_TESTS = [
+    {
+        'params': {
+            'width': 300, 'height': 200, 'image': BASE_IMAGE_URL
+        },
+        'result': {
+            "horizontal_flip": False,
+            "vertical_flip": False,
+            "smart": False,
+            "meta": False,
+            "fit_in": False,
+            "crop": {
+                "left": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0
+            },
+            "valign": 'middle',
+            "halign": 'center',
+            "image_hash": BASE_IMAGE_MD5,
+            "width": 300,
+            "height": 200,
+            'filters': '',
+            'debug': False,
+            'adaptive': False,
+            'trim': None
+        }
+    },
+    {
+        'params': {
+            'filters': "quality(20):brightness(10)",
+            'image': BASE_IMAGE_URL
+        },
+        'result': {
+            "horizontal_flip": False,
+            "vertical_flip": False,
+            "smart": False,
+            "meta": False,
+            "fit_in": False,
+            "crop": {
+                "left": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0
+            },
+            "valign": 'middle',
+            "halign": 'center',
+            "image_hash": BASE_IMAGE_MD5,
+            "width": 0,
+            "height": 0,
+            'filters': 'quality(20):brightness(10)',
+            'debug': False,
+            'adaptive': False,
+            'trim': None
+        }
+    }
+]
+
+@Vows.batch
+class CryptoDecryptVows(Vows.Context):
+    def topic(self):
+        cryptor = Cryptor('my-security-key')
+        for test in DECRYPT_TESTS:
+            base_copy = copy.copy(BASE_PARAMS)
+            base_copy.update(test['params'])
+            encrypted = cryptor.encrypt(**base_copy)
+            yield(cryptor.decrypt(encrypted), test['result'])
+
+    def decrypted_result_should_match(self, (decrypted, expected)):
+        expect(decrypted).to_be_like(expected)

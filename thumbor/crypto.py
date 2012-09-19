@@ -102,7 +102,7 @@ class Cryptor(object):
         except TypeError:
             return None
 
-        result = Url.parse('/%s' % decrypted)
+        result = Url.parse_decrypted('/%s' % decrypted)
 
         result['image_hash'] = result['image']
         del result['image']

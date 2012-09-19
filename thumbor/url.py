@@ -28,10 +28,11 @@ class Url(object):
     compiled_regex = None
 
     @classmethod
-    def regex(cls):
+    def regex(cls, has_unsafe_or_hash=True):
         reg = ['/?']
 
-        reg.append(cls.unsafe_or_hash)
+        if has_unsafe_or_hash:
+            reg.append(cls.unsafe_or_hash)
         reg.append(cls.debug)
         reg.append(cls.meta)
         reg.append(cls.trim)
@@ -47,11 +48,11 @@ class Url(object):
         return ''.join(reg)
 
     @classmethod
-    def parse(cls, url):
+    def parse_decrypted(cls, url):
         if cls.compiled_regex:
             reg = cls.compiled_regex
         else:
-            reg = cls.compiled_regex = re.compile(cls.regex())
+            reg = cls.compiled_regex = re.compile(cls.regex(has_unsafe_or_hash=False))
 
         result = reg.match(url)
 

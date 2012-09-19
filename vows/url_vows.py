@@ -130,21 +130,21 @@ class UrlVows(Vows.Context):
     class Parse(Vows.Context):
         class WithoutInitialSlash(Vows.Context):
             def topic(self):
-                return Url.parse('unsafe/meta/10x11:12x13/-300x-200/left/top/smart/filters:some_filter()/img')
+                return Url.parse_decrypted('meta/10x11:12x13/-300x-200/left/top/smart/filters:some_filter()/img')
 
             def should_not_be_null(self, topic):
                 expect(topic).not_to_be_null()
 
         class WithoutResult(Vows.Context):
             def topic(self):
-                return Url.parse("some fake url")
+                return Url.parse_decrypted("some fake url")
 
             def should_be_null(self, topic):
                 expect(topic['image']).to_equal("some fake url")
 
         class WithoutImage(Vows.Context):
             def topic(self):
-                return Url.parse('/unsafe/meta/10x11:12x13/fit-in/-300x-200/left/top/smart/filters:some_filter()/img')
+                return Url.parse_decrypted('/meta/10x11:12x13/fit-in/-300x-200/left/top/smart/filters:some_filter()/img')
 
             def should_have_meta(self, topic):
                 expect(topic['meta']).to_be_true()
@@ -192,7 +192,7 @@ class UrlVows(Vows.Context):
             def topic(self):
                 image_url = 's.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg'
 
-                return Url.parse('/unsafe/meta/10x11:12x13/-300x-200/left/top/smart/%s' % image_url)
+                return Url.parse_decrypted('/meta/10x11:12x13/-300x-200/left/top/smart/%s' % image_url)
 
             def should_have_image(self, topic):
                 expect(topic).to_include('image')
@@ -203,7 +203,7 @@ class UrlVows(Vows.Context):
 
         class WithoutFilters(Vows.Context):
             def topic(self):
-                return Url.parse('/unsafe/filters:watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0)/img')
+                return Url.parse_decrypted('/filters:watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0)/img')
 
             def should_have_image(self, topic):
                 expect(topic['image']).to_equal('img')
