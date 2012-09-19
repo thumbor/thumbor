@@ -16,7 +16,7 @@ _sharpen_apply(PyObject *self, PyObject *args)
     double amount_double = PyFloat_AsDouble(amount),
            radius_double = PyFloat_AsDouble(radius);
 
-    char luminance_only_bool = (char) (luminance_only == Py_True);
+    char luminance_only_bool = (char) PyObject_IsTrue(luminance_only);
 
     int width = (int) PyInt_AsLong(width_py),
         height = (int) PyInt_AsLong(height_py);
