@@ -17,14 +17,17 @@ binary-arch: build-arch
 	dh_testroot
 	dh_prep
 	python$(PYTHON2) setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb
+	install -d -o root -g root -m 755 debian/thumbor/etc
+	install -p -o root -g root -m 644 debian/thumbor.conf debian/thumbor/etc
 	dh_install --exclude=.c
+	dh_python2
 	dh_strip
 	dh_shlibdeps
 	dh_installdirs
 	dh_installdocs README.mkd
+	dh_installinit --restart-after-upgrade
 	dh_installchangelogs
 	dh_lintian
-	dh_python2
 	dh_compress
 	dh_fixperms
 	dh_installdeb

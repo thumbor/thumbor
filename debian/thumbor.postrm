@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "purge" ] ; then
+	if ! getent passwd thumbor | grep -q thumbor; then
+		userdel -r thumbor
+	fi
+fi
+
+#DEBHELPER#

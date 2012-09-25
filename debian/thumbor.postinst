@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "configure" ] ; then
+	if ! getent passwd thumbor | grep -q thumbor; then
+		useradd --system --user-group --home /var/lib/thumbor thumbor
+		mkdir -p /var/lib/thumbor/storage
+		chmod -R 755 /var/lib/thumbor/storage
+		chown -R thumbor:thumbor /var/lib/thumbor
+	fi
+fi
+
+#DEBHELPER#
