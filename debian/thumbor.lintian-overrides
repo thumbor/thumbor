@@ -1,0 +1,2 @@
+thumbor: new-package-should-close-itp-bug
+thumbor: script-not-executable usr/share/pyshared/thumbor/thumbor.conf

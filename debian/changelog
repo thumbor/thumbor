@@ -1,0 +1,5 @@
+thumbor (3.6.2) precise; urgency=low
+
+  * First packaging
+
+ -- Wichert Akkerman <wichert@wiggy.net>  Tue, 25 Sep 2012 10:53:30 +0200

@@ -17,3 +17,12 @@ nohup.out
 *.idea
 *.iml
 opencv
+
+# Debian packaging
+/debian/files
+/debian/thumbor.debhelper.log
+/debian/thumbor.postinst.debhelper
+/debian/thumbor.prerm.debhelper
+/debian/thumbor.substvars
+/debian/thumbor/
+/debian/tmp/
