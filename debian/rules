@@ -17,7 +17,7 @@ binary-arch: build-arch
 	dh_testroot
 	dh_prep
 	python$(PYTHON2) setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb
-	dh_install
+	dh_install --exclude=.c
 	dh_strip
 	dh_shlibdeps
 	dh_installdirs
