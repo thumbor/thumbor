@@ -9,6 +9,12 @@ if [ "$1" = "configure" ] ; then
 		chmod -R 755 /var/lib/thumbor/storage
 		chown -R thumbor:thumbor /var/lib/thumbor
 	fi
+
+	if [ ! -e /etc/thumbor.key ] ; then
+		umask 077
+		dd if=/dev/urandom of=- bs=1024 count=1 2>/dev/null | md5sum -b - | cut -d' ' -f1 >/etc/thumbor.key
+		chown thumbor:thumbor /etc/thumbor.key
+	fi
 fi
 
 #DEBHELPER#

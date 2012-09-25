@@ -12,6 +12,7 @@ setuid thumbor
 setgid thumbor
 
 env conffile=/etc/thumbor.conf
+env keyfile=/etc/thumbor.key
 env ip=0.0.0.0
 env port=8888
 
@@ -22,4 +23,4 @@ pre-start script
     [ "$enabled" = "1" ] || [ "$force_start" = "1" ] || exit 0
 end script
 
-exec /usr/bin/thumbor -c "${conffile}" -i "${ip}" -p "${port}"
+exec /usr/bin/thumbor -c "${conffile}" -i "${ip}" -p "${port}" -k "${keyfile}"

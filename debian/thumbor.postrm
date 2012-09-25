@@ -6,6 +6,7 @@ if [ "$1" = "purge" ] ; then
 	if ! getent passwd thumbor | grep -q thumbor; then
 		userdel -r thumbor
 	fi
+	[ -f /etc/thumbor.key ] && rm /etc/thumbor.key
 fi
 
 #DEBHELPER#
