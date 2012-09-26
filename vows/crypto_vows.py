@@ -47,6 +47,7 @@ class CryptoVows(Vows.Context):
                                   flip_vertical=True,
                                   halign="center",
                                   valign="middle",
+                                  trim=True,
                                   crop_left=10,
                                   crop_top=11,
                                   crop_right=12,
