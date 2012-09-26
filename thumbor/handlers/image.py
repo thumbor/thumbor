@@ -20,7 +20,7 @@ from thumbor.utils import logger
 class ImageProcessHandler(ContextHandler):
 
     def encode_url(self, url):
-        return quote(url, '/:?%=&()",\' ')
+        return quote(url, '/:?%=&()",\'')
 
     @tornado.web.asynchronous
     def get(self, **kw):
