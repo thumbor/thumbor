@@ -56,7 +56,7 @@ class CryptoVows(Vows.Context):
                                   image="/some/image.jpg")
 
         def should_equal_encrypted_string(self, topic):
-            encrypted_str = "OI8j7z9h88_IVzYLiq9UWOJqjpxTs4Mk3wCCrAcEqs_rMl--rB9iYial5QYfSaaMt6VQVjOfFELvDVClTKNFfb19lheMGJVPmRFum9B7pGjkPzyAIdNFVbKHv_LslBU4"
+            encrypted_str = "hELdyDzyYtjXU5GhGxJVHjRvGrSP_iYKnIQbq_MuVq86rSObCeJvo2iXFRUjLgsU9wDzhqK9J_SHmpxDJHW_rBD8eilO26x2M_hzJfGB-V9cGF65GO_7CgJXI8Ktw188"
             expect(topic).to_equal(encrypted_str)
 
         class Decrypt(Vows.Context):
