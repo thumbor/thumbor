@@ -16,6 +16,6 @@ define('GLASSES_DETECTOR_CASCADE_FILE', default='haarcascade_eye_tree_eyeglasses
 
 class Detector(CascadeLoaderDetector):
 
-    def __init__(self, index, detectors):
+    def __init__(self, context, index, detectors):
+        super(Detector, self).__init__(context, index, detectors)
         self.load_cascade_file(__file__, options.GLASSES_DETECTOR_CASCADE_FILE)
-        super(Detector, self).__init__(index, detectors)
