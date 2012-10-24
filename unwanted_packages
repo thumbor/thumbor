@@ -12,5 +12,4 @@ mercurial
 mysql-client
 mysql-server
 postgresql
-riak
 x11-common
