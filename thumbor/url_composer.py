@@ -56,11 +56,6 @@ def main(arguments=None):
     except:
         config = None
 
-    if config:
-        print
-        print "USING CONFIGURATION FILE AT %s" % config.config_file
-        print
-
     if not parsed_options.key and not config:
         print 'Error: The -k or --key argument is mandatory. For more information type thumbor-url -h'
         return
