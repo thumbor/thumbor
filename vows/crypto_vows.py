@@ -159,6 +159,7 @@ BASE_PARAMS = {
     'flip_vertical': False,
     'halign': 'center',
     'valign': 'middle',
+    'trim': '',
     'crop_left': 0,
     'crop_top': 0,
     'crop_right': 0,

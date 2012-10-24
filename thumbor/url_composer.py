@@ -85,6 +85,7 @@ def main(arguments=None):
                             parsed_options.vertical_flip,
                             parsed_options.halign,
                             parsed_options.valign,
+                            parsed_options.trim,
                             crop_left,
                             crop_top,
                             crop_right,
@@ -125,6 +126,7 @@ def main(arguments=None):
         print 'Signed URL:'
 
     print url
+    return url
 
 if __name__ == '__main__':
     main(sys.argv[1:])
