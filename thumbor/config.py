@@ -54,6 +54,7 @@ Config.define('UPLOAD_ENABLED', False, 'Indicates whether thumbor should enable 
 Config.define('UPLOAD_PHOTO_STORAGE', 'thumbor.storages.file_storage', 'The type of storage to store uploaded images with', 'Upload')
 Config.define('UPLOAD_DELETE_ALLOWED', False, 'Indicates whether image deletion should be allowed', 'Upload')
 Config.define('UPLOAD_PUT_ALLOWED', False, 'Indicates whether image overwrite should be allowed', 'Upload')
+Config.define('UPLOAD_DEFAULT_FILENAME', 'image', 'Default filename for image uploaded', 'Upload')
 
 # ALIASES FOR OLD PHOTO UPLOAD OPTIONS
 Config.alias('MAX_SIZE', 'UPLOAD_MAX_SIZE')
