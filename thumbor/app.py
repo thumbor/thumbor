@@ -10,7 +10,6 @@
 import tornado.web
 import tornado.ioloop
 
-from thumbor.handlers.image_process import ImageProcessHandler
 from thumbor.handlers.healthcheck import HealthcheckHandler
 from thumbor.handlers.upload import UploadHandler
 from thumbor.handlers.images import ImagesHandler
