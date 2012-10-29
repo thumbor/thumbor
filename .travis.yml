@@ -35,9 +35,6 @@ script:
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
     - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
 
-    # install opencv
-    # - ./install-opencv.sh
-
     - df -h
 
     # finally run tests
