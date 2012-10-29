@@ -87,7 +87,7 @@ class Storage(BaseStorage):
         return loads(open(path, 'r').read())
 
     def path_on_filesystem(self, path):
-        digest = hashlib.sha1(path).hexdigest()
+        digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
         return join(self.context.config.FILE_STORAGE_ROOT_PATH.rstrip('/'), digest[:2] + '/' + digest[2:])
 
     def exists(self, path):

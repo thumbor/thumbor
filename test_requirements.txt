@@ -10,3 +10,4 @@ pyvows
 tornado-pyvows
 coverage
 derpconf>=0.2.0
+python-magic>=0.4.3
