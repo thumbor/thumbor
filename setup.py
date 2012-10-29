@@ -73,7 +73,8 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
           "pyCrypto>=2.4.1,<2.5.0",
           "pycurl>=7.19.0,<7.20.0",
           "Pillow>=1.7.5,<1.8.0",
-          "derpconf>=0.2.0"
+          "derpconf>=0.2.0",
+          "python-magic>=0.4.3"
       ],
 
       entry_points = {
