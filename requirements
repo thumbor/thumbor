@@ -82,3 +82,5 @@ libgtk2.0-dev
 gtk2-engines-pixbuf
 python-numpy
 python-opencv
+mongodb
+redis-server
