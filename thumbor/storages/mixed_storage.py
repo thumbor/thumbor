@@ -71,5 +71,9 @@ class Storage(BaseStorage):
         self._init_file_storage()
         return self.file_storage.get(path)
 
+    def exists(self, path):
+        self._init_file_storage()
+        return self.file_storage.exists(path)
+
     def resolve_original_photo_path(self, request, filename):
         return self.file_storage.resolve_original_photo_path(request, filename)
