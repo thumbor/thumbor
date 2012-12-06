@@ -116,7 +116,10 @@ class Url(object):
             url.append('meta')
 
         if trim:
-            url.append(trim)
+            if isinstance(trim, bool):
+                url.append('trim')
+            else:
+                url.append('trim:%s' % trim)
 
         crop = crop_left or crop_top or crop_right or crop_bottom
         if crop:

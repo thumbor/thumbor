@@ -31,6 +31,7 @@ def main(arguments=None):
     parser.add_option('-m', '--meta', dest='meta', action='store_true', default=False, help = 'Indicates that meta information should be retrieved.' )
     parser.add_option('', '--adaptive', action='store_true', dest='adaptive', default=False, help = 'Indicates that adaptive fit-in cropping should be used.' )
     parser.add_option('-s', '--smart', action='store_true', dest='smart', default=False, help = 'Indicates that smart cropping should be used.' )
+    parser.add_option('-t', '--trim', action='store_true', default=False, help='Indicate that surrounding whitespace should be trimmed.')
     parser.add_option('-f', '--horizontal-flip', action='store_true', dest='horizontal_flip', default=False, help = 'Indicates that the image should be horizontally flipped.' )
     parser.add_option('-v', '--vertical-flip', action='store_true', dest='vertical_flip', default=False, help = 'Indicates that the image should be vertically flipped.')
     parser.add_option('-a', '--halign', dest='halign', default='center', help = 'The horizontal alignment to use for cropping [default: %default].' )
@@ -54,11 +55,6 @@ def main(arguments=None):
         config = Config.load(None)
     except:
         config = None
-
-    if config:
-        print
-        print "USING CONFIGURATION FILE AT %s" % config.config_file
-        print
 
     if not parsed_options.key and not config:
         print 'Error: The -k or --key argument is mandatory. For more information type thumbor-url -h'
@@ -89,6 +85,7 @@ def main(arguments=None):
                             parsed_options.vertical_flip,
                             parsed_options.halign,
                             parsed_options.valign,
+                            parsed_options.trim,
                             crop_left,
                             crop_top,
                             crop_right,
@@ -111,6 +108,7 @@ def main(arguments=None):
             vertical_flip=parsed_options.vertical_flip,
             halign=parsed_options.halign,
             valign=parsed_options.valign,
+            trim=parsed_options.trim,
             crop_left=crop_left,
             crop_top=crop_top,
             crop_right=crop_right,
@@ -128,6 +126,7 @@ def main(arguments=None):
         print 'Signed URL:'
 
     print url
+    return url
 
 if __name__ == '__main__':
     main(sys.argv[1:])

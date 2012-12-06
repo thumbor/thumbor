@@ -98,6 +98,15 @@ class GetImage(BaseContext):
         def should_be_404(self, (code, _)):
             expect(code).to_equal(404)
 
+    class with_spaces_on_url(TornadoHTTPContext):
+        def topic(self):
+            rsp = self.get(u'/unsafe/image%20space.jpg')
+            return (rsp.code, rsp.headers)
+
+        def should_be_200(self, (code, _)):
+            expect(code).to_equal(200)
+
+
 @Vows.batch
 class GetImageWithoutUnsafe(BaseContext):
     def get_app(self):

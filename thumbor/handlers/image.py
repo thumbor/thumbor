@@ -7,78 +7,54 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
+import datetime
 
-from urllib import quote
+from thumbor.handlers import ContextHandler, ImageApiHandler
 
-import tornado.web
 
-from thumbor.handlers import ContextHandler
-from thumbor.context import RequestParameters
-from thumbor.crypto import Cryptor, Signer
-from thumbor.utils import logger
+##
+# Handler to retrieve or modify existing images
+# This handler support GET, PUT and DELETE method to manipulate existing images
+##
+class ImageHandler(ImageApiHandler):
 
-class ImageProcessHandler(ContextHandler):
-
-    def encode_url(self, url):
-        return quote(url, '/:?%=&()",\' ')
-
-    @tornado.web.asynchronous
-    def get(self, **kw):
-        url = self.request.uri
-
-        if not self.validate(kw['image']):
-            self._error(404, 'No original image was specified in the given URL')
+    def put(self, id):
+        id = id[:32]
+        # Check if image overwriting is allowed
+        if not self.context.config.UPLOAD_PUT_ALLOWED:
+            self._error(405, 'Unable to modify an uploaded image')
             return
 
-        self.context.request = RequestParameters(**kw)
+        # Check if the image uploaded is valid
+        if self.validate(self.request.body):
+            self.write_file(id, self.request.body)
+            self.set_status(204)
 
-        self.context.request.unsafe = self.context.request.unsafe == 'unsafe'
-
-        if (self.request.query):
-            self.context.request.image_url += '?%s' % self.request.query
-        self.context.request.image_url = self.encode_url(self.context.request.image_url.encode('utf-8'))
-
-        has_none = not self.context.request.unsafe and not self.context.request.hash
-        has_both = self.context.request.unsafe and self.context.request.hash
-
-        if has_none or has_both:
-            self._error(404, 'URL does not have hash or unsafe, or has both: %s' % url)
+    def delete(self, id):
+        id = id[:32]
+        # Check if image deleting is allowed
+        if not self.context.config.UPLOAD_DELETE_ALLOWED:
+            self._error(405, 'Unable to delete an uploaded image')
             return
 
-        if self.context.request.unsafe and not self.context.config.ALLOW_UNSAFE_URL:
-            self._error(404, 'URL has unsafe but unsafe is not allowed by the config: %s' % url)
-            return
+        # Check if image exists
+        if self.context.modules.storage.exists(id):
+            self.context.modules.storage.remove(id)
+            self.set_status(204)
+        else:
+            self._error(404, 'Image not found at the given URL')
 
-        url_signature = self.context.request.hash
-        if url_signature:
-            signer = Signer(self.context.server.security_key)
-
-            url_to_validate = self.encode_url(url).replace('/%s/' % self.context.request.hash, '')
-            valid = signer.validate(url_signature, url_to_validate)
-
-            if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-                # Retrieves security key for this image if it has been seen before
-                security_key = self.context.modules.storage.get_crypto(self.context.request.image_url)
-                if security_key is not None:
-                    signer = Signer(security_key)
-                    valid = signer.validate(url_signature, url_to_validate)
-
-            if not valid:
-                is_valid = True
-                if self.context.config.ALLOW_OLD_URLS:
-                    cr = Cryptor(self.context.server.security_key)
-                    options = cr.get_options(self.context.request.hash, self.context.request.image_url)
-                    if options is None:
-                        is_valid = False
-                    else:
-                        self.context.request = RequestParameters(**options)
-                        logger.warning('OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in upcoming versions. Please start using the new format as soon as possible. More info at https://github.com/globocom/thumbor/wiki/3.0.0-release-changes')
-                else:
-                    is_valid = False
-
-                if not is_valid:
-                    self._error(404, 'Malformed URL: %s' % url)
-                    return
-
-        return self.execute_image_operations()
-
+    def get(self, id):
+        id = id[:32]
+        # Check if image exists
+        if self.context.modules.storage.exists(id):
+            body = self.context.modules.storage.get(id)
+            self.set_status(200)
+            self.set_header('Content-Type', self.get_mimetype(body))
+            max_age = self.context.config.MAX_AGE
+            if max_age:
+                self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
+                self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
+            self.write(body)
+        else:
+            self._error(404, 'Image not found at the given URL')
