@@ -24,7 +24,8 @@ mongo: kill_mongo
 	mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet &
 
 kill_redis:
-	ps aux | awk '(/redis-server/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
+	-redis-cli -p 7788 shutdown
 
 redis: kill_redis
-	redis-server redis.conf &
+	redis-server redis.conf ; sleep 1
+	redis-cli -p 7788 info
