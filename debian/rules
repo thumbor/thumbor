@@ -47,4 +47,4 @@ clean:
 	rm -f debsetup.py
 	rm -rf build
 	rm -rf *.egg-info
-	find . -name \*.pyc -print0 | xargs -0 rm
+	find . -name \*.pyc -exec rm {} \;
