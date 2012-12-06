@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "configure" ] ; then
+	if ! getent passwd thumbor | grep -q thumbor; then
+		useradd --system --user-group --home /var/lib/thumbor thumbor
+		mkdir -p /var/lib/thumbor/storage
+		chmod -R 755 /var/lib/thumbor/storage
+		chown -R thumbor:thumbor /var/lib/thumbor
+	fi
+
+	if [ ! -e /etc/thumbor.key ] ; then
+		umask 077
+		dd if=/dev/urandom of=- bs=1024 count=1 2>/dev/null | md5sum -b - | cut -d' ' -f1 >/etc/thumbor.key
+		umask 002
+		chown thumbor:thumbor /etc/thumbor.key
+	fi
+fi
+
+#DEBHELPER#
