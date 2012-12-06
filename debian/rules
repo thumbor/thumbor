@@ -10,7 +10,7 @@ build build-arch: debsetup.py
 # This is necessary to work around broken packaging for those two packages on
 # Ubuntu.
 debsetup.py: setup.py
-	sed -e '/install_requires/,/\]/ { /\(tornado\|Pillow\)/d }' $^ > $@
+	sed -e '/install_requires/,/\]/ { /\(tornado\|Pillow\|python-magic\)/d }' $^ > $@
 
 build-indep:
 	@echo Nothing to do
