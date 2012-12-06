@@ -19,6 +19,7 @@ nohup.out
 opencv
 
 # Debian packaging
+/debsetup.py
 /debian/files
 /debian/thumbor/
 /debian/thumbor.debhelper.log
