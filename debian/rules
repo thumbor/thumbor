@@ -1,0 +1,50 @@
+#!/usr/bin/make -f
+
+PYTHON2		?= $(shell pyversions -vr)
+
+
+build build-arch: debsetup.py
+	python$(PYTHON2) debsetup.py build
+
+# Create a special setup.py which skips the tornado and Pillow dependencies.
+# This is necessary to work around broken packaging for those two packages on
+# Ubuntu.
+debsetup.py: setup.py
+	sed -e '/install_requires/,/\]/ { /\(tornado\|Pillow\|python-magic\)/d }' $^ > $@
+
+build-indep:
+	@echo Nothing to do
+
+binary: binary-arch
+
+binary-indep:
+	@echo Nothing to do
+
+binary-arch: build-arch
+	dh_testroot
+	dh_prep
+	python$(PYTHON2) debsetup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb
+	install -d -o root -g root -m 755 debian/thumbor/etc
+	install -p -o root -g root -m 644 debian/thumbor.conf debian/thumbor/etc
+	dh_install --exclude=.c
+	dh_python2
+	dh_strip
+	dh_shlibdeps
+	dh_installdirs
+	dh_installdocs README.mkd
+	dh_installinit --restart-after-upgrade
+	dh_installchangelogs
+	dh_lintian
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+clean:
+	dh_clean
+	rm -f debsetup.py
+	rm -rf build
+	rm -rf *.egg-info
+	find . -name \*.pyc -exec rm {} \;

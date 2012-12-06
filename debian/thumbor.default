@@ -1,0 +1,16 @@
+# set this to 0 to disable thumboer, or to 1 to enable it
+# you can temporarily override this with
+# sudo service thumbor start force_start=1
+enabled=0
+
+# Location of the configuration file
+conffile=/etc/thumbor.conf
+
+# Location of the keyfile which contains the signing secret used in URLs
+#keyfile=/etc/thumbor.key
+
+# IP address to bind to. Defaults to all IP addresses
+# ip=127.0.0.1
+
+# TCP port to bind to. Defaults to port 8888
+# port=8888
