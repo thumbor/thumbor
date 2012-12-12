@@ -9,10 +9,13 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import functools
-import mimetypes
 from os.path import splitext
 import datetime
-import magic
+try:
+    import magic
+    LIBMAGIC_AVAILABLE = True
+except ImportError:
+    LIBMAGIC_AVAILABLE = False
 
 import tornado.web
 
@@ -147,13 +150,7 @@ class BaseHandler(tornado.web.RequestHandler):
         if context.request.meta:
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
         else:
-            try:
-                # TODO replace by mimetypes.guess_type(context.request.extension, True)
-                content_type = CONTENT_TYPE[context.request.extension]
-            except KeyError:
-                #extension is not present or could not help determine format => force JPEG
-                #TODO : guess format by image headers maybe
-                content_type = CONTENT_TYPE['.jpg']
+            content_type = CONTENT_TYPE.get(context.request.extension, CONTENT_TYPE['.jpg'])
 
         self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)
@@ -232,6 +229,13 @@ class BaseHandler(tornado.web.RequestHandler):
 
             self.context.modules.loader.load(self.context, url, handle_loader_loaded)
 
+    def get_mimetype(self, body):
+        if LIBMAGIC_AVAILABLE:
+            return magic.from_buffer(body, True)
+
+        return None
+
+
 class ContextHandler(BaseHandler):
     def initialize(self, context):
         self.context = Context(context.server, context.config, context.modules.importer)
@@ -241,9 +245,6 @@ class ContextHandler(BaseHandler):
 # Base handler for Image API operations
 ##
 class ImageApiHandler(ContextHandler):
-
-    def get_mimetype(self, body):
-        return magic.from_buffer(body, True)
 
     def validate(self, body):
         conf = self.context.config

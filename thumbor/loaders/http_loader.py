@@ -35,9 +35,6 @@ def return_contents(response, callback):
     if response.error:
         logging.error("ERROR retrieving image {0}: {1}".format(response.effective_url, str(response.error)))
         callback(None)
-    elif not response.headers['Content-Type'][:5] == 'image':
-        logging.error("ERROR retrieving image {0}: Expected response type starting with 'image', found {1}".format(response.effective_url, response.headers['Content-Type']))
-        callback(None)
     elif len(response.body) == 0:
         logging.error("ERROR retrieving image {0}: Empty response.".format(response.effective_url))
         callback(None)

@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 import datetime
 
-from thumbor.handlers import ContextHandler, ImageApiHandler
+from thumbor.handlers import ImageApiHandler
 
 
 ##
@@ -50,7 +50,11 @@ class ImageHandler(ImageApiHandler):
         if self.context.modules.storage.exists(id):
             body = self.context.modules.storage.get(id)
             self.set_status(200)
-            self.set_header('Content-Type', self.get_mimetype(body))
+
+            mime = self.get_mimetype(body)
+            if mime:
+                self.set_header('Content-Type',  mime)
+
             max_age = self.context.config.MAX_AGE
             if max_age:
                 self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
