@@ -42,23 +42,17 @@ class ReturnContentVows(Vows.Context):
     class ShouldReturnNoneOnError(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
-            return loader.return_contents(ResponseMock(error='Error'), callback)
+            mock = ResponseMock(error='Error')
+            return loader.return_contents(mock, 'some-url', callback)
 
         def should_be_none(self, topic):
             expect(topic.args[0]).to_be_null()
  
-    class ShouldReturnNoneOnInvalidContentType(Vows.Context):
-        @Vows.async_topic
-        def topic(self, callback):
-            return loader.return_contents(ResponseMock(content_type='application/json'), callback)
-
-        def should_be_none(self, topic):
-            expect(topic.args[0]).to_be_null()
-
     class ShouldReturnBodyIfValid(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
-            return loader.return_contents(ResponseMock(body='body'), callback)
+            mock = ResponseMock(body='body')
+            return loader.return_contents(mock, 'some-url', callback)
 
         def should_be_none(self, topic):
             expect(topic.args[0]).to_equal('body')

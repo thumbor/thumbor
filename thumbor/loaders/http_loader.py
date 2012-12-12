@@ -31,12 +31,12 @@ def validate(context, url):
             return True
     return False
 
-def return_contents(response, callback):
+def return_contents(response, url, callback):
     if response.error:
-        logging.error("ERROR retrieving image {0}: {1}".format(response.effective_url, str(response.error)))
+        logging.error("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
         callback(None)
-    elif len(response.body) == 0:
-        logging.error("ERROR retrieving image {0}: Empty response.".format(response.effective_url))
+    elif response.body is None or len(response.body) == 0:
+        logging.error("ERROR retrieving image {0}: Empty response.".format(url))
         callback(None)
     else:
         callback(response.body)
@@ -47,5 +47,5 @@ def load(context, url, callback):
         client = tornado.httpclient.AsyncHTTPClient()
 
     url = _normalize_url(url)
-    client.fetch(url, callback=partial(return_contents, callback=callback))
+    client.fetch(url, callback=partial(return_contents, url=url, callback=callback))
 
