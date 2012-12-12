@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import logging
 import re
 from urlparse import urlparse
 from functools import partial
@@ -31,7 +32,14 @@ def validate(context, url):
     return False
 
 def return_contents(response, callback):
-    if response.error or not response.headers['Content-Type'][:5] == 'image' or len(response.body) == 0:
+    if response.error:
+        logging.error("ERROR retrieving image {0}: {1}".format(response.effective_url, str(response.error)))
+        callback(None)
+    elif not response.headers['Content-Type'][:5] == 'image':
+        logging.error("ERROR retrieving image {0}: Expected response type starting with 'image', found {1}".format(response.effective_url, response.headers['Content-Type']))
+        callback(None)
+    elif len(response.body) == 0:
+        logging.error("ERROR retrieving image {0}: Empty response.".format(response.effective_url))
         callback(None)
     else:
         callback(response.body)
