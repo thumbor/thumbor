@@ -19,7 +19,13 @@ from PIL import Image, ImageFile, ImageDraw, ImageSequence
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
 from thumbor.utils import logger
-from thumbor.ext.filters import _composite
+
+try:
+    from thumbor.ext.filters import _composite
+    FILTERS_AVAILABLE = True
+except ImportError:
+    FILTERS_AVAILABLE = False
+
 
 FORMATS = {
     '.jpg': 'JPEG',
@@ -179,6 +185,9 @@ class Engine(BaseEngine):
         return converted_image.mode, self.get_image_data(converted_image)
 
     def paste(self, other_engine, pos, merge=True):
+        if merge and not FILTERS_AVAILABLE:
+            raise RuntimeError('You need filters enabled to use paste with merge. Please reinstall thumbor with proper compilation of its filters.')
+
         self.enable_alpha()
         other_engine.enable_alpha()
 
