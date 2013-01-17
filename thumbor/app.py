@@ -26,21 +26,21 @@ class ThumborServiceApp(tornado.web.Application):
             (r'/healthcheck', HealthcheckHandler),
         ]
 
-        # TODO Old handler to upload images
         if context.config.UPLOAD_ENABLED:
+            # TODO Old handler to upload images
             handlers.append(
                 (r'/upload', UploadHandler, { 'context': context })
             )
 
-        # Handler to upload images (POST).
-        handlers.append(
-            (r'/image', ImagesHandler, { 'context': context })
-        )
+            # Handler to upload images (POST).
+            handlers.append(
+                (r'/image', ImagesHandler, { 'context': context })
+            )
 
-        # Handler to retrieve or modify existing images  (GET, PUT, DELETE)
-        handlers.append(
-            (r'/image/(.*)', ImageHandler, { 'context': context })
-        )
+            # Handler to retrieve or modify existing images  (GET, PUT, DELETE)
+            handlers.append(
+                (r'/image/(.*)', ImageHandler, { 'context': context })
+            )
 
         # Imaging handler (GET)
         handlers.append(
