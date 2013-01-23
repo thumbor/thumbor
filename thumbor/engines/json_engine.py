@@ -76,6 +76,36 @@ class JSONEngine(BaseEngine):
 
         return (width, height)
 
+    def gen_image(self, size, color):
+        return self.engine.gen_image(size, color)
+
+    def create_image(self, buffer):
+        return self.engine.create_image(buffer)
+
+    def draw_rectangle(self, x, y, width, height):
+        return self.engine.draw_rectangle(x, y, width, height)
+
+    def exif(self):
+        return self.engine.exif()
+
+    def rotate(self, degrees):
+        return self.engine.rotate(degrees)
+
+    def read_multiple(self, images, extension=None):
+        return self.engine.read_multiple(images, extension)
+
+    def convert_to_rgb(self):
+        return self.engine.convert_to_rgb()
+
+    def paste(self, other_engine, pos, merge=True):
+        return self.engine.paste(other_engine, pos, merge)
+
+    def enable_alpha(self):
+        return self.engine.enable_alpha()
+
+    def strip_icc(self):
+        return self.engine.strip_icc()
+
     def get_image_mode(self):
         return self.engine.get_image_mode()
 
