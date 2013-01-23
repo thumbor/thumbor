@@ -1,4 +1,15 @@
 
+3.6.10 / 2013-01-23 
+===================
+
+  * Implementing methods that were missing in the json engine
+  * Merge pull request #143 from nhuray/master
+  * Disable REST Upload by default
+  * Merge pull request #142 from morpheu/master
+  * Merge branch 'master' of https://github.com/globocom/thumbor
+  * Adding python-dev as build-dependency
+  * Other detector options in thumbor.conf
+
 3.6.6 / 2012-10-24 
 ==================
 
