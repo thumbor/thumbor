@@ -1,5 +1,5 @@
 
-3.6.10 / 2013-01-23 
+3.6.11 / 2013-01-23 
 ===================
 
   * Implementing methods that were missing in the json engine
