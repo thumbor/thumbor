@@ -43,6 +43,7 @@ fi
 #
 do_start()
 {
+  mkdir -p $PIDDIR
   #Loop on all conf for ports
   for p in `echo $port | tr ',' ' '`; do
     start-stop-daemon --start --quiet -b -m -c $USER --pidfile $PIDDIR/$p.pid --exec $DAEMON -- $DAEMON_ARGS -p $p || return 2
