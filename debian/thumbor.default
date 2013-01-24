@@ -1,6 +1,6 @@
-# set this to 0 to disable thumboer, or to 1 to enable it
+# set this to 0 to disable thumbor, remove or set anything else to enable it
 # you can temporarily override this with
-# sudo service thumbor start force_start=1
+# sudo service thumbor start force=1
 enabled=0
 
 # Location of the configuration file
@@ -12,5 +12,9 @@ conffile=/etc/thumbor.conf
 # IP address to bind to. Defaults to all IP addresses
 # ip=127.0.0.1
 
-# TCP port to bind to. Defaults to port 8888
-# port=8888
+# TCP port to bind to. Defaults to port 8888.
+# multiple instances of thumbor can be started by putting several ports coma separeted
+# Ex:
+# port=8888,8889,8890
+# or
+# port=8888 #Default

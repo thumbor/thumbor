@@ -24,8 +24,9 @@ binary-arch: build-arch
 	dh_testroot
 	dh_prep
 	python$(PYTHON2) debsetup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb
-	install -d -o root -g root -m 755 debian/thumbor/etc
+	install -d -o root -g root -m 755 debian/thumbor/etc debian/thumbor/etc/init/
 	install -p -o root -g root -m 644 debian/thumbor.conf debian/thumbor/etc
+	install -p -o root -g root -m 644 debian/thumbor-worker.upstart debian/thumbor/etc/init/thumbor-worker.conf
 	dh_install --exclude=.c
 	dh_python2
 	dh_strip
