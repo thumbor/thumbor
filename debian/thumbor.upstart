@@ -4,23 +4,18 @@ author "Wichert Akkerman <wichert@wiggy.net>"
 start on filesystem and runlevel [2345]
 stop on runlevel [!2345]
 
-respawn
-respawn limit 5 10 
-umask 022
+console output
 
-setuid thumbor
-setgid thumbor
-
-env conffile=/etc/thumbor.conf
-env keyfile=/etc/thumbor.key
-env ip=0.0.0.0
 env port=8888
-
-chdir /var/lib/thumbor
 
 pre-start script
     [ -r /etc/default/thumbor ] && . /etc/default/thumbor
-    [ "$enabled" = "1" ] || [ "$force_start" = "1" ] || exit 0
+    if [ "$enabled" = "0" ] && [ "$force" != "1" ] ; then
+        logger -is -t "$UPSTART_JOB" "Thumbor is disabled by /etc/default/thumbor, add force=1 to your service command"
+        stop
+        exit 0
+    fi
+    for p in `echo ${port} | tr ',' ' '`; do
+        start thumbor-worker p=$p
+    done
 end script
-
-exec /usr/bin/thumbor -c "${conffile}" -i "${ip}" -p "${port}" -k "${keyfile}"
