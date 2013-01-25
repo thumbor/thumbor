@@ -19,6 +19,9 @@ from thumbor.utils import logger
 
 class ImagingHandler(ContextHandler):
 
+    def encode_url(self, url):
+        return quote(url, '/:?%=&()",\'')
+
     @tornado.web.asynchronous
     def get(self, **kw):
 
@@ -38,7 +41,7 @@ class ImagingHandler(ContextHandler):
 
         if (self.request.query):
             self.context.request.image_url += '?%s' % self.request.query
-        self.context.request.image_url = quote(self.context.request.image_url.encode('utf-8'), '/:?%=&')
+        self.context.request.image_url = self.encode_url(self.context.request.image_url.encode('utf-8'))
 
         has_none = not self.context.request.unsafe and not self.context.request.hash
         has_both = self.context.request.unsafe and self.context.request.hash
@@ -55,7 +58,7 @@ class ImagingHandler(ContextHandler):
         if url_signature:
             signer = Signer(self.context.server.security_key)
 
-            url_to_validate = quote(url, '/:?%=&').replace('/%s/' % self.context.request.hash, '')
+            url_to_validate = self.encode_url(url).replace('/%s/' % self.context.request.hash, '')
             valid = signer.validate(url_signature, url_to_validate)
 
             if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
