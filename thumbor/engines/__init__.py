@@ -60,11 +60,11 @@ class BaseEngine(object):
 
     def load(self, buffer, extension):
         #magic number detection
-        if ( buffer[:4] == 'GIF8'):
+        if buffer.startswith('GIF8'):
             extension = '.gif'
-        elif ( buffer[:8] == '\x89PNG\r\n\x1a\n'):
+        elif buffer.startswith('\x89PNG\r\n\x1a\n'):
             extension = '.png'
-        elif ( buffer[:2] == '\xff\xd8'):
+        elif buffer.startswith('\xff\xd8'):
             extension = '.jpg'
 
         self.extension = extension
