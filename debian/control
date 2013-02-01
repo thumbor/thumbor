@@ -11,7 +11,7 @@ Vcs-Browser: https://github.com/globocom/thumbor
 
 Package: thumbor
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python2.7 | python2.6, python (>= 2.6), python (<< 3), python-crypto, python-pycurl, python-derpconf, python-imaging, python-tornado, python-numpy, python-opencv, python-magic
+Depends: ${shlibs:Depends}, ${misc:Depends}, python2.7 | python2.6, python (>= 2.6), python (<< 3), python-crypto, python-pycurl, python-derpconf, python-imaging, python-tornado (>= 2.1.0), python-numpy, python-opencv, python-magic
 Recommends: python-redis
 Provides: ${python:Provides}
 Description: Smart imaging service enabling on-demand crop image manipluation.
