@@ -1,3 +1,10 @@
+3.7.1 / 2013-02-06 
+==================
+
+* Fix bug with quoting valid characters in URL (by cdemonchy);
+* Fix in debian packaging for Debian Squeeze (by dhardy92);
+* Fix in the mongo storage (by phpconnect);
+* Auto option for the fill filter (by fabiomcosta).
 
 3.7.0 / 2013-01-24 
 ==================
