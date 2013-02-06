@@ -44,6 +44,7 @@ class Storage(BaseStorage):
 
         doc_with_crypto['file_id'] = file_data
         storage.insert(doc_with_crypto)
+        return path
 
     def put_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
@@ -58,11 +59,13 @@ class Storage(BaseStorage):
 
         crypto['crypto'] = self.context.server.security_key
         storage.update({'path': path}, crypto)
+        return path
 
     def put_detector_data(self, path, data):
         connection, db, storage = self.__conn__()
 
         storage.update({'path': path}, {"$set": {"detector_data": data}})
+        return path
 
     def get_crypto(self, path):
         connection, db, storage = self.__conn__()
