@@ -2,6 +2,14 @@
 
 PYTHON2		?= $(shell pyversions -vr)
 
+# copy good script for upstart capable system or not
+ifeq ($(shell dpkg-vendor --derives-from Ubuntu && echo yes),yes)
+	PREPINITSRC='debian/thumbor.ubuntu.upstart'
+	PREPINITDST='debian/thumbor.upstart'
+else
+	PREPINITSRC='debian/thumbor.debian.init'
+	PREPINITDST='debian/thumbor.init'
+endif
 
 build build-arch: debsetup.py
 	python$(PYTHON2) debsetup.py build
@@ -27,12 +35,15 @@ binary-arch: build-arch
 	install -d -o root -g root -m 755 debian/thumbor/etc debian/thumbor/etc/init/
 	install -p -o root -g root -m 644 debian/thumbor.conf debian/thumbor/etc
 	install -p -o root -g root -m 644 debian/thumbor-worker.upstart debian/thumbor/etc/init/thumbor-worker.conf
+	rm -f  debian/thumbor.upstart debian/thumbor.init
+	cp $(PREPINITSRC) $(PREPINITDST)
 	dh_install --exclude=.c
 	dh_python2
 	dh_strip
 	dh_shlibdeps
 	dh_installdirs
 	dh_installdocs README.mkd
+	$(PREPINIT)
 	dh_installinit --restart-after-upgrade
 	dh_installchangelogs
 	dh_lintian
@@ -45,6 +56,7 @@ binary-arch: build-arch
 
 clean:
 	dh_clean
+	rm -f  debian/thumbor.upstart debian/thumbor.init
 	rm -f debsetup.py
 	rm -rf build
 	rm -rf *.egg-info

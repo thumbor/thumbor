@@ -25,6 +25,7 @@ opencv
 /debian/thumbor.debhelper.log
 /debian/thumbor.postinst.debhelper
 /debian/thumbor.preinst.debhelper
+/debian/thumbor.postrm.debhelper
 /debian/thumbor.prerm.debhelper
 /debian/thumbor.substvars
 /debian/tmp/
