@@ -108,7 +108,7 @@ class GetImage(BaseContext):
 
     class with_filter(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/VONFlQofX_4VJyejqS7U64nMpRE=/filters:filters:fill(blue)/image.jpg')
+            rsp = self.get('/5YRxzS2yxZxj9SZ50SoZ11eIdDI=/filters:fill(blue)/image.jpg')
             return (rsp.code, rsp.headers)
         
         def should_be_200(self, (code, _)):
