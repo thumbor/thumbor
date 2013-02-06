@@ -106,6 +106,13 @@ class GetImage(BaseContext):
         def should_be_200(self, (code, _)):
             expect(code).to_equal(200)
 
+    class with_filter(TornadoHTTPContext):
+        def topic(self):
+            rsp = self.get('/5YRxzS2yxZxj9SZ50SoZ11eIdDI=/filters:fill(blue)/image.jpg')
+            return (rsp.code, rsp.headers)
+        
+        def should_be_200(self, (code, _)):
+            expect(code).to_equal(200)
 
 @Vows.batch
 class GetImageWithoutUnsafe(BaseContext):
