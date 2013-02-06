@@ -26,7 +26,7 @@ install:
     - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
 
     # install python requirements
-    - sudo pip install -r test_requirements.txt --use-mirrors
+    - sudo pip install -U -r test_requirements.txt --use-mirrors
 
 script:
     # weird travis-ci python paths
