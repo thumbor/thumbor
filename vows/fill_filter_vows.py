@@ -15,31 +15,56 @@ from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
 from thumbor.importer import Importer
 
-DATA = [ #size requested, resized/croped image size, result size
-    ((20, 20), (10, 10), (20, 20)),
-    ((20, 0),  (10, 10), (20, 10)),
-    ((0,  20), (10, 10), (10, 20))
+DATA = [
+    # size requested, resized/cropped image size, result size, image color, detected color
+    ((20, 20), (10, 10), (20, 20), '#fff', "ffffff"),
+    ((20, 0),  (10, 10), (20, 10), '#333', "333333"),
+    ((0,  20), (10, 10), (10, 20), '#123103', "123103")
 ]
+
 
 @Vows.batch
 class FillFilterVows(Vows.Context):
-    def topic(self):
-        conf = Config()
-        conf.ENGINE = 'thumbor.engines.pil'
-        imp = Importer(conf)
-        imp.import_modules()
-        imp.filters = [Filter]
-        ctx = Context(None, conf, imp)
 
-        for item in DATA:
-            ctx.modules.engine.image = ctx.modules.engine.gen_image(item[1],'#fff')
-            req = RequestParameters(fit_in=True,width=item[0][0],height=item[0][1])
-            ctx.request = req
+    class withContext():
 
-            filter_instances = ctx.filters_factory.create_instances(ctx, "fill(blue)")
+        def topic(self):
+            conf = Config()
+            conf.ENGINE = 'thumbor.engines.pil'
+            imp = Importer(conf)
+            imp.import_modules()
+            imp.filters = [Filter]
+            return Context(None, conf, imp)
 
-            filter_instances[0].run()
-            yield (filter_instances[0].engine.image.size,item[2])
+        class checkImageSizes():
 
-    def image_should_be_filled(self, topic):
-        expect(topic[0]).to_equal(topic[1])
+            def topic(self, ctx):
+                for item in DATA:
+                    ctx.modules.engine.image = ctx.modules.engine.gen_image(item[1], '#fff')
+                    req = RequestParameters(fit_in=True, width=item[0][0], height=item[0][1])
+                    ctx.request = req
+
+                    filter_instances = ctx.filters_factory.create_instances(ctx, "fill(blue)")
+                    filter_instances[0].run()
+                    yield (filter_instances[0].engine.image.size, item[2])
+
+            def image_should_be_filled(self, topic):
+                expect(topic[0]).to_equal(topic[1])
+
+        class checkAutoDetectedColor():
+
+            def topic(self, ctx):
+                for item in DATA:
+                    (size_requested, size_cropped, size_results,
+                        image_color, detected_color) = item
+
+                    ctx.modules.engine.image = ctx.modules.engine.gen_image(size_cropped, image_color)
+                    req = RequestParameters(fit_in=True, width=size_requested[0], height=size_requested[1])
+                    ctx.request = req
+
+                    filter_instances = ctx.filters_factory.create_instances(ctx, "fill(auto)")
+
+                    yield (filter_instances[0].get_median_color(), detected_color)
+
+            def the_median_color_should_be_detected(self, topic):
+                expect(topic[0]).to_equal(topic[1])
