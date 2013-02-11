@@ -27,14 +27,14 @@ ALPHA_TYPES = [
     ImageType.TrueColorMatteType
 ]
 
+
 class Engine(BaseEngine):
 
-    def gen_image(self,size,color):
-        if Color(str(color)).isValid():
-            img = Image(Geometry(size[0], size[1]), Color(str(color)))
-        else:
-            raise ValueError
-        return img
+    def gen_image(self, size, color_value):
+        color = Color(str(color_value))
+        if not color.isValid():
+            raise ValueError('Color %s is not valid.' % color_value)
+        return Image(Geometry(size[0], size[1]), color)
 
     def create_image(self, buffer):
         blob = Blob(buffer)
@@ -48,7 +48,7 @@ class Engine(BaseEngine):
         return (size.width(), size.height())
 
     def resize(self, width, height):
-        self.image.zoom('%dx%d!'% (width,height))
+        self.image.zoom('%dx%d!' % (width, height))
 
     def crop(self, left, top, right, bottom):
         offset_left = int(left)
