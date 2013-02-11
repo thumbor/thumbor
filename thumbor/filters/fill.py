@@ -13,7 +13,7 @@ from thumbor.filters import BaseFilter, filter_method
 
 class Filter(BaseFilter):
 
-    def detect_most_present_color(self):
+    def get_median_color(self):
         # importing opencv here
         # so thumbor keeps not depending on it
         # for the basic features
@@ -72,7 +72,7 @@ class Filter(BaseFilter):
         # http://docs.opencv.org/modules/core/doc/clustering.html
         # credits to misha http://stackoverflow.com/users/356020/misha
         if value == 'auto':
-            value = self.detect_most_present_color()
+            value = self.get_median_color()
 
         try:
             self.fill_engine.image = self.fill_engine.gen_image((bx, by), value)
