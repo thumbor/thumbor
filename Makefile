@@ -24,8 +24,8 @@ mongo: kill_mongo
 	mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet &
 
 kill_redis:
-	-redis-cli -p 7778 shutdown
+	-redis-cli -p 7778 -a hey_you shutdown
 
 redis: kill_redis
 	redis-server redis.conf ; sleep 1
-	redis-cli -p 7778 info
+	redis-cli -p 7778 -a hey_you info
