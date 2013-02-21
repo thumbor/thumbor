@@ -103,6 +103,11 @@ Config.define('REDIS_QUEUE_SERVER_PORT', 6379, 'Server port for the queued redis
 Config.define('REDIS_QUEUE_SERVER_DB', 0, 'Server database index for the queued redis detector', 'Queued Redis Detector')
 Config.define('REDIS_QUEUE_SERVER_PASSWORD', None, 'Server password for the queued redis detector', 'Queued Redis Detector')
 
+# QUEUED DETECTOR SQS OPTIONS
+Config.define('SQS_QUEUE_KEY_ID', None, 'AWS key id', 'Queued SQS Detector')
+Config.define('SQS_QUEUE_KEY_SECRET', None, 'AWS key secret', 'Queued SQS Detector')
+Config.define('SQS_QUEUE_REGION', 'us-east-1', 'AWS SQS region', 'Queued SQS Detector')
+
 def generate_config():
     config.generate_config()
 
