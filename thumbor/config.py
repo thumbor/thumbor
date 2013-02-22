@@ -75,6 +75,9 @@ Config.define('REDIS_STORAGE_SERVER_PORT', 6379, 'Redis storage server port', 'R
 Config.define('REDIS_STORAGE_SERVER_DB', 0, 'Redis storage database index', 'Redis Storage')
 Config.define('REDIS_STORAGE_SERVER_PASSWORD', None, 'Redis storage server password', 'Redis Storage')
 
+# MEMCACHE STORAGE OPTIONS
+Config.define('MEMCACHE_STORAGE_SERVERS', ['localhost:11211'], 'List of Memcache storage server hosts', 'Memcache Storage')
+
 # MIXED STORAGE OPTIONS
 Config.define('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage', 'Mixed Storage file storage. This must be the full name of a python module (python must be able to import it)', 'Mixed Storage')
 Config.define('MIXED_STORAGE_CRYPTO_STORAGE', 'thumbor.storages.no_storage', 'Mixed Storage signing key storage. This must be the full name of a python module (python must be able to import it)', 'Mixed Storage')
