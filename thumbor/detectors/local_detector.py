@@ -24,10 +24,10 @@ class CascadeLoaderDetector(BaseDetector):
                 cascade_file = cascade_file_path
             else:
                 cascade_file = join(abspath(dirname(module_path)), cascade_file_path)
-            setattr(self.__class__, 'cascade', cv.Load(cascade_file))
+            self.__class__.cascade = cv.Load(cascade_file)
 
     def get_min_size_for(self, size):
-        ratio = int(min(size[0], size[1]) / 15)
+        ratio = int(min(size) / 15)
         ratio = max(20, ratio)
         return (ratio, ratio)
 
@@ -35,25 +35,25 @@ class CascadeLoaderDetector(BaseDetector):
         engine = self.context.modules.engine
 
         mode, converted_image = engine.convert_to_rgb()
-        sz = engine.size
+        size = engine.size
 
-        image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
+        image = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image, converted_image)
 
-        gray = cv.CreateImage(sz, 8, 1)
+        gray = cv.CreateImage(size, 8, 1)
         convert_mode = getattr(cv, 'CV_%s2GRAY' % mode)
         cv.CvtColor(image, gray, convert_mode)
 
-        min_size = self.get_min_size_for(sz)
+        min_size = self.get_min_size_for(size)
         haar_scale = 1.2
         min_neighbors = 3
 
         cv.EqualizeHist(gray, gray)
 
         faces = cv.HaarDetectObjects(gray,
-                                     self.__class__.cascade, cv.CreateMemStorage(0),
-                                     haar_scale, min_neighbors,
-                                     cv.CV_HAAR_DO_CANNY_PRUNING, min_size)
+                    self.__class__.cascade, cv.CreateMemStorage(0),
+                    haar_scale, min_neighbors,
+                    cv.CV_HAAR_DO_CANNY_PRUNING, min_size)
 
         faces_scaled = []
 
@@ -69,8 +69,8 @@ class CascadeLoaderDetector(BaseDetector):
         features = self.get_features()
 
         if features:
-            for (left, top, width, height), neighbors in features:
-                self.context.request.focal_points.append(FocalPoint.from_square(left, top, width, height))
+            for square, neighbors in features:
+                self.context.request.focal_points.append(FocalPoint.from_square(*square))
             callback()
         else:
             self.next(callback)
