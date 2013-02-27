@@ -14,7 +14,7 @@ class BaseStorage(object):
         self.context = context
 
     def put(self, bytes):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get(self):
-        raise NotImplementedError
+        raise NotImplementedError()
