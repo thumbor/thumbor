@@ -65,7 +65,7 @@ class CascadeLoaderDetector(BaseDetector):
             x2 = pt2[0]
             y1 = pt1[1]
             y2 = pt2[1]
-            faces_scaled.append(((x1, y1, x2-x1, y2-y1), None))
+            faces_scaled.append(((x1, y1, x2-x1, y2-y1), n))
 
         return faces_scaled
 
