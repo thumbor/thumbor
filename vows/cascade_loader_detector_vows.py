@@ -13,7 +13,7 @@ from os import path
 from pyvows import Vows, expect
 ctx = Vows.Context
 
-from mock import Mock, call
+from mock import Mock
 from thumbor.detectors.local_detector import CascadeLoaderDetector
 from thumbor.point import FocalPoint
 
