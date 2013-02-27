@@ -15,6 +15,7 @@ import cv
 from thumbor.point import FocalPoint
 from thumbor.detectors import BaseDetector
 
+
 class CascadeLoaderDetector(BaseDetector):
 
     def load_cascade_file(self, module_path, cascade_file_path):
@@ -39,7 +40,7 @@ class CascadeLoaderDetector(BaseDetector):
         image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image, converted_image)
 
-        gray = cv.CreateImage(sz, 8, 1);
+        gray = cv.CreateImage(sz, 8, 1)
         convert_mode = getattr(cv, 'CV_%s2GRAY' % mode)
         cv.CvtColor(image, gray, convert_mode)
 
@@ -59,13 +60,8 @@ class CascadeLoaderDetector(BaseDetector):
         for ((x, y, w, h), n) in faces:
             # the input to cv.HaarDetectObjects was resized, so scale the
             # bounding box of each face and convert it to two CvPoints
-            pt1 = (x, y)
-            pt2 = ((x + w), (y + h))
-            x1 = pt1[0]
-            x2 = pt2[0]
-            y1 = pt1[1]
-            y2 = pt2[1]
-            faces_scaled.append(((x1, y1, x2-x1, y2-y1), n))
+            x2, y2 = (x + w), (y + h)
+            faces_scaled.append(((x, y, x2 - x, y2 - y), n))
 
         return faces_scaled
 
@@ -78,4 +74,3 @@ class CascadeLoaderDetector(BaseDetector):
             callback()
         else:
             self.next(callback)
-
