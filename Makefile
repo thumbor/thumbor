@@ -4,8 +4,9 @@ run: compile_ext
 compile_ext:
 	python setup.py build_ext -i
 
+f ?= "vows/"
 test pyvows: compile_ext redis mongo
-	PYTHONPATH=.:$$PYTHONPATH pyvows -v --profile --cover --cover_package=thumbor --cover_threshold=90 vows/
+	PYTHONPATH=.:$$PYTHONPATH pyvows -vvv --profile --cover --cover_package=thumbor --cover_threshold=90 $f
 	$(MAKE) kill_mongo kill_redis
 
 ci_test: compile_ext
