@@ -66,6 +66,7 @@ FILTER_PARAMS_DATA = [
     }
 ]
 
+
 @Vows.batch
 class FilterParamsVows(Vows.Context):
     def topic(self):
@@ -77,7 +78,8 @@ class FilterParamsVows(Vows.Context):
             for value in test_data['values']:
                 yield(test_data['type'], value[0], value[1])
 
-        def should_correctly_parse_value(self, (type, test_data, expected_data)):
+        def should_correctly_parse_value(self, data):
+            type, test_data, expected_data = data
             BaseFilter.compile_regex({'name': 'x', 'params': [type]})
             f = BaseFilter('x(%s)' % test_data)
             expect(f.params[0]).to_equal(expected_data)
@@ -87,7 +89,8 @@ class FilterParamsVows(Vows.Context):
             for value in test_data['invalid_values']:
                 yield(test_data['type'], value)
 
-        def should_not_parse_invalid_value(self, (type, test_data)):
+        def should_not_parse_invalid_value(self, data):
+            type, test_data = data
             BaseFilter.compile_regex({'name': 'x', 'params': [type]})
             f = BaseFilter('x(%s)' % test_data)
             expect(f.params).to_be_null()
@@ -98,52 +101,61 @@ class MyFilter(BaseFilter):
     def my_filter(self, value1, value2):
         return (value1, value2)
 
+
 class StringFilter(BaseFilter):
     @filter_method(BaseFilter.String)
     def my_string_filter(self, value):
         return value
+
 
 class EmptyFilter(BaseFilter):
     @filter_method()
     def my_empty_filter(self):
         return 'ok'
 
+
 class AsyncFilter(BaseFilter):
-    @filter_method(BaseFilter.String, async = True)
+    @filter_method(BaseFilter.String, async=True)
     def my_async_filter(self, callback, value):
         callback(value)
+
 
 class InvalidFilter(BaseFilter):
     def my_invalid_filter(self, value):
         return value
+
 
 class DoubleStringFilter(BaseFilter):
     @filter_method(BaseFilter.String, BaseFilter.String)
     def my_string_filter(self, value1, value2):
         return (value1, value2)
 
+
 class OptionalParamFilter(BaseFilter):
     @filter_method(BaseFilter.String, BaseFilter.String)
     def my_optional_filter(self, value1, value2="not provided"):
         return (value1, value2)
+
 
 @Vows.batch
 class FilterVows(Vows.Context):
 
     class CreatingFilterInstances(Vows.Context):
         def topic(self):
-            class Any: pass
+            class Any:
+                pass
             ctx = Any()
             ctx.modules = Any()
             engine = Any()
-            def is_multiple(): return False
+            is_multiple = lambda: False
             engine.is_multiple = is_multiple
             ctx.modules.engine = engine
             fact = FiltersFactory([MyFilter, StringFilter, OptionalParamFilter])
             return (fact, ctx)
 
         class WithOneValidParam(Vows.Context):
-            def topic(self, (factory, context)):
+            def topic(self, parent_topic):
+                factory, context = parent_topic
                 return factory.create_instances(context, 'my_filter(1, 0a):my_string_filter(aaaa)')
 
             def should_create_two_instances(self, instances):
@@ -151,7 +163,8 @@ class FilterVows(Vows.Context):
                 expect(instances[0].__class__).to_equal(StringFilter)
 
         class WithParameterContainingColons(Vows.Context):
-            def topic(self, (factory, context)):
+            def topic(self, parent_topic):
+                factory, context = parent_topic
                 return factory.create_instances(context, 'my_string_filter(aaaa):my_string_filter(aa:aa)')
 
             def should_create_two_instances(self, instances):
@@ -164,7 +177,8 @@ class FilterVows(Vows.Context):
                 expect(instances[1].params).to_equal(["aa:aa"])
 
         class WithValidParams(Vows.Context):
-            def topic(self, (factory, context)):
+            def topic(self, parent_topic):
+                factory, context = parent_topic
                 return factory.create_instances(context, 'my_filter(1, 0):my_string_filter(aaaa)')
 
             def should_create_two_instances(self, instances):
@@ -184,7 +198,8 @@ class FilterVows(Vows.Context):
                     expect(result[1]).to_equal(['aaaa'])
 
         class WithOptionalParamFilter(Vows.Context):
-            def topic(self, (factory, context)):
+            def topic(self, parent_topic):
+                factory, context = parent_topic
                 return factory.create_instances(context, 'my_optional_filter(aa, bb)')
 
             def should_create_two_instances(self, instances):
@@ -195,7 +210,8 @@ class FilterVows(Vows.Context):
                 expect(instances[0].run()).to_equal([("aa", "bb")])
 
         class WithOptionalParamsInOptionalFilter(Vows.Context):
-            def topic(self, (factory, context)):
+            def topic(self, parent_topic):
+                factory, context = parent_topic
                 return factory.create_instances(context, 'my_optional_filter(aa)')
 
             def should_create_two_instances(self, instances):
@@ -206,7 +222,8 @@ class FilterVows(Vows.Context):
                 expect(instances[0].run()).to_equal([("aa", "not provided")])
 
         class WithInvalidOptionalFilter(Vows.Context):
-            def topic(self, (factory, context)):
+            def topic(self, parent_topic):
+                factory, context = parent_topic
                 return factory.create_instances(context, 'my_optional_filter()')
 
             def should_create_two_instances(self, instances):
@@ -256,7 +273,7 @@ class FilterVows(Vows.Context):
     class DoubleStringFilter(Vows.Context):
         def topic(self):
             DoubleStringFilter.pre_compile()
-            return DoubleStringFilter;
+            return DoubleStringFilter
 
         class WithTwoNormalStrings:
             def topic(self, cls):
@@ -283,7 +300,8 @@ class FilterVows(Vows.Context):
                     f = cls(test)
                     yield f.run(), expected
 
-            def sets_correct_values(self, (result, expected)):
+            def sets_correct_values(self, test_data):
+                result, expected = test_data
                 expect(result).to_equal(expected)
 
     class WithEmptyFilter(Vows.Context):

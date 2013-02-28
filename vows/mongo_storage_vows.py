@@ -114,7 +114,7 @@ class MongoStorageVows(MongoDBContext):
                 expect(topic).not_to_be_an_error()
 
             def should_not_have_crypto_key(self, topic):
-                expect(topic.has_key('crypto')).to_be_false()
+                expect(topic).Not.to_include('crypto')
 
         class StoringEmptyKeyRaises(Vows.Context):
             def topic(self):
@@ -147,7 +147,7 @@ class MongoStorageVows(MongoDBContext):
                 expect(topic).not_to_be_an_error()
 
             def should_have_crypto_key(self, topic):
-                expect(topic.has_key('crypto')).to_be_true()
+                expect(topic).to_include('crypto')
                 expect(topic['crypto']).to_equal('ACME-SEC')
 
         class GetProperKey(Vows.Context):

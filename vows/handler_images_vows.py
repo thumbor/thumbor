@@ -21,9 +21,11 @@ from thumbor.context import Context, ServerParameters
 
 storage_path = abspath(join(dirname(__file__), 'fixtures/'))
 
+
 class BaseContext(TornadoHTTPContext):
     def __init__(self, *args, **kw):
         super(BaseContext, self).__init__(*args, **kw)
+
 
 @Vows.batch
 class GetImage(BaseContext):
@@ -41,78 +43,87 @@ class GetImage(BaseContext):
 
         return application
 
-
     class WithRegularImage(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/unsafe/smart/image.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/unsafe/smart/image.jpg')
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
     class WithSignedRegularImage(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
     class with_UTF8_URLEncoded_image_name(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620%C3%A9.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620%C3%A9.jpg')
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
     class without_unsafe_url_image(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/alabama1_ap620%C3%A9.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/alabama1_ap620%C3%A9.jpg')
+            return (response.code, response.headers)
 
-        def should_be_404(self, (code, _)):
+        def should_be_404(self, response):
+            code, _ = response
             expect(code).to_equal(404)
 
     class without_image(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/unsafe/')
-            return (rsp.code, rsp.headers)
+            response = self.get('/unsafe/')
+            return (response.code, response.headers)
 
-        def should_be_404(self, (code, _)):
+        def should_be_404(self, response):
+            code, _ = response
             expect(code).to_equal(404)
 
-    class with_UTF8_URLEncoded_image_name(TornadoHTTPContext):
+    class with_UTF8_URLEncoded_image_name_(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get(u'/unsafe/smart/alabama1_ap620é.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get(u'/unsafe/smart/alabama1_ap620é.jpg')
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
-    class with_UTF8_URLEncoded_image_name(TornadoHTTPContext):
+    class with_UTF8_URLEncoded_image_name__(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get(u'/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620é.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get(u'/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620é.jpg')
+            return (response.code, response.headers)
 
-        def should_be_404(self, (code, _)):
+        def should_be_404(self, response):
+            code, _ = response
             expect(code).to_equal(404)
 
     class with_spaces_on_url(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get(u'/unsafe/image%20space.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get(u'/unsafe/image%20space.jpg')
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
     class with_filter(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/5YRxzS2yxZxj9SZ50SoZ11eIdDI=/filters:fill(blue)/image.jpg')
-            return (rsp.code, rsp.headers)
-        
-        def should_be_200(self, (code, _)):
+            response = self.get('/5YRxzS2yxZxj9SZ50SoZ11eIdDI=/filters:fill(blue)/image.jpg')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
+
 
 @Vows.batch
 class GetImageWithoutUnsafe(BaseContext):
@@ -133,19 +144,22 @@ class GetImageWithoutUnsafe(BaseContext):
 
     class WithSignedRegularImage(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
     class WithRegularImage(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/unsafe/smart/image.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/unsafe/smart/image.jpg')
+            return (response.code, response.headers)
 
-        def should_be_404(self, (code, _)):
+        def should_be_404(self, response):
+            code, _ = response
             expect(code).to_equal(404)
+
 
 @Vows.batch
 class GetImageWithOLDFormat(BaseContext):
@@ -167,23 +181,26 @@ class GetImageWithOLDFormat(BaseContext):
 
     class WithEncryptedRegularImage(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/J4ZFjCICZSwwIKfEKNldBNjcG145LDiD2z-4RlOa5ZG4ZY_-8KoEyDOBDfqDBljH/image.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/J4ZFjCICZSwwIKfEKNldBNjcG145LDiD2z-4RlOa5ZG4ZY_-8KoEyDOBDfqDBljH/image.jpg')
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
     class WithBadEncryptedRegularImage(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/27m-vYMKohY6nvEt_D3Zwo7apVq63MS8TP-m1j3BXPGTftnrReTOEoScq1xMXe7h/alabama1_ap620é.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/27m-vYMKohY6nvEt_D3Zwo7apVq63MS8TP-m1j3BXPGTftnrReTOEoScq1xMXe7h/alabama1_ap620é.jpg')
+            return (response.code, response.headers)
 
-        def should_be_404(self, (code, _)):
+        def should_be_404(self, response):
+            code, _ = response
             expect(code).to_equal(404)
 
 #        cfg.STORAGE="thumbor.storages.file_storage"
 #        cfg.FILE_STORAGE_ROOT_PATH=storage_path
 #        cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
+
 
 @Vows.batch
 class GetImageWithStoredKeys(BaseContext):
@@ -193,7 +210,7 @@ class GetImageWithStoredKeys(BaseContext):
         cfg.FILE_LOADER_ROOT_PATH = storage_path
         cfg.ALLOW_UNSAFE_URL = False
         cfg.ALLOW_OLD_URLS = True
-        cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
+        cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -205,16 +222,16 @@ class GetImageWithStoredKeys(BaseContext):
         storage = FileStorage(Context(config=cfg, server=server))
 
         # Store fixtures (image.jpg and image.txt) into the file storage
-        storage.put('image.jpg', file(join(storage_path, 'image.jpg')).read())
+        storage.put('image.jpg', open(join(storage_path, 'image.jpg')).read())
         storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
 
         return application
 
     class WithEncryptedRegularImage(TornadoHTTPContext):
         def topic(self):
-            rsp = self.get('/nty7gpBIRJ3GWtYDLLw6q1PgqTo=/smart/image.jpg')
-            return (rsp.code, rsp.headers)
+            response = self.get('/nty7gpBIRJ3GWtYDLLw6q1PgqTo=/smart/image.jpg')
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
-

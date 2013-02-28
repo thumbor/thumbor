@@ -68,7 +68,7 @@ def encode_multipart_formdata(fields, files):
     BOUNDARY = '----thumborUploadFormBoundary'
     CRLF = '\r\n'
     L = []
-    for key, value in fields.iteritems():
+    for key, value in fields.items():
         L.append('--' + BOUNDARY)
         L.append('Content-Disposition: form-data; name="%s"' % key)
         L.append('')
