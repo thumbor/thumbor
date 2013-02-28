@@ -12,15 +12,16 @@ import re
 
 STRIP_QUOTE = re.compile(r"^'(.+)'$")
 
+
 def filter_method(*args, **kwargs):
     def _filter_deco(fn):
         def wrapper(self, *args2):
             return fn(self, *args2)
 
         defaults = None
-        if fn.func_defaults:
-            default_padding = [None] * (len(args) - (len(fn.func_defaults)))
-            defaults = default_padding + list(fn.func_defaults)
+        if fn.__defaults__:
+            default_padding = [None] * (len(args) - (len(fn.__defaults__)))
+            defaults = default_padding + list(fn.__defaults__)
 
         wrapper.filter_data = {
             'name': fn.__name__,
@@ -57,6 +58,7 @@ class FiltersFactory:
                 filter_objs.append(instance)
         return filter_objs
 
+
 class BaseFilter(object):
 
     PositiveNumber = {
@@ -86,7 +88,7 @@ class BaseFilter(object):
 
     @classmethod
     def pre_compile(cls):
-        meths = filter(lambda f: hasattr(f, 'filter_data'), cls.__dict__.values())
+        meths = [f for f in list(cls.__dict__.values()) if hasattr(f, 'filter_data')]
         if len(meths) == 0:
             return
         cls.runnable_method = meths[0]
@@ -124,7 +126,7 @@ class BaseFilter(object):
         else:
             return None
 
-    def __init__(self, params, context = None):
+    def __init__(self, params, context=None):
         params = self.regex.match(params) if self.regex else None
         if params:
             params = [parser(param) if parser else param for parser, param in zip(self.parsers, params.groups()) if param]
@@ -132,7 +134,7 @@ class BaseFilter(object):
         self.context = context
         self.engine = context.modules.engine if context and context.modules else None
 
-    def run(self, callback = None):
+    def run(self, callback=None):
         if self.params is None:
             return
 

@@ -9,12 +9,13 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from datetime import datetime, timedelta
-from cStringIO import StringIO
+from io import StringIO
 
 from pymongo import Connection
 import gridfs
 
 from thumbor.storages import BaseStorage
+
 
 class Storage(BaseStorage):
 
@@ -104,7 +105,8 @@ class Storage(BaseStorage):
         return True
 
     def remove(self, path):
-        if not self.exists(path): return
+        if not self.exists(path):
+            return
 
         connection, db, storage = self.__conn__()
         storage.remove({'path': path})
