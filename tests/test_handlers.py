@@ -10,7 +10,7 @@
 
 import os
 from os.path import join, abspath, dirname
-from io import StringIO
+from cStringIO import StringIO
 import unittest
 
 from PIL import Image

@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from datetime import datetime, timedelta
-from io import StringIO
+from cStringIO import StringIO
 
 from pymongo import Connection
 import gridfs

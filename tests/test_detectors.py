@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import join, dirname, abspath
-from io import StringIO
+from cStringIO import StringIO
 
 from thumbor.detectors.face_detector import Detector as FaceDetector
 from thumbor.detectors.glasses_detector import Detector as GlassesDetector
