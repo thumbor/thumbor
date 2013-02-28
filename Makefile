@@ -6,7 +6,7 @@ compile_ext:
 
 f ?= "vows/"
 test pyvows: compile_ext redis mongo
-	PYTHONPATH=.:$$PYTHONPATH pyvows -vvv --profile --cover --cover_package=thumbor --cover_threshold=90 $f
+	PYTHONPATH=.:$$PYTHONPATH pyvows -vv --profile --cover --cover_package=thumbor --cover_threshold=90 $f
 	$(MAKE) kill_mongo kill_redis
 
 ci_test: compile_ext
