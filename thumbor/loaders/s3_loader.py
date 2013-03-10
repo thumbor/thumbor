@@ -44,7 +44,7 @@ def load(context, url, callback):
 		name=bucket
 	)
 
-	file_key = bucketLoader.get_key(file_abspath)
+	file_key = bucketLoader.get_key(url)
 	if not file_key:
 		return callback(None)
 
