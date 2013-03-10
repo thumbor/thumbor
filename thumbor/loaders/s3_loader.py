@@ -31,15 +31,16 @@ def load(context, url, callback):
 		if not _validate_bucket(context,bucket):
 			return callback(None)
 
-	if connection is None:
+	conn = connection
+	if conn is None:
 		#Store connection not bucket
-		connection = S3Connection(
+		conn = S3Connection(
 			context.config.AWS_ACCESS_KEY,
 			context.config.AWS_SECRET_KEY
 		)
 
 	bucketLoader = Bucket(
-		connection=connection,
+		connection=conn,
 		name=bucket
 	)
 
