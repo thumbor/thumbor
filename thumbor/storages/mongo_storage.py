@@ -16,6 +16,7 @@ import gridfs
 
 from thumbor.storages import BaseStorage
 
+
 class Storage(BaseStorage):
 
     def __conn__(self):
@@ -104,7 +105,8 @@ class Storage(BaseStorage):
         return True
 
     def remove(self, path):
-        if not self.exists(path): return
+        if not self.exists(path):
+            return
 
         connection, db, storage = self.__conn__()
         storage.remove({'path': path})

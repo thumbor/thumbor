@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -19,6 +19,7 @@ from PIL import Image
 
 __dirname = abspath(dirname(__file__))
 
+
 def get_context_from(image, detectors):
     filename = join(__dirname, 'fixtures', 'img', image)
     buffer = open(filename).read()
@@ -32,9 +33,11 @@ def get_context_from(image, detectors):
     detectors[0](index=0, detectors=detectors).detect(context)
     return context
 
+
 def test_should_not_create_focal_points_on_images_that_has_no_face():
     focal_points = get_context_from('fixture1.png', [FaceDetector])['focal_points']
     assert len(focal_points) == 0
+
 
 def test_should_return_detect_a_face():
     focal_points = get_context_from('face.jpg', [FaceDetector])['focal_points']
@@ -43,13 +46,12 @@ def test_should_return_detect_a_face():
     assert focal_points[0].y == 80.48
     assert focal_points[0].weight == 13689
 
+
 def test_should_not_detect_glasses():
     focal_points = get_context_from('fixture1.png', [GlassesDetector])['focal_points']
     assert len(focal_points) == 0
 
+
 def test_should_detect_glasses():
     focal_points = get_context_from('glasses.jpg', [GlassesDetector])['focal_points']
     assert len(focal_points) == 1
-
-
-

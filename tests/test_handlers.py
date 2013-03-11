@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -20,15 +20,17 @@ from thumbor.app import ThumborServiceApp
 
 get_conf_path = lambda filename: abspath(join(os.environ.get('test_path', dirname(__file__)), 'fixtures', filename))
 
+
 class MainHandlerSourcePathTest(AsyncHTTPTestCase):
-    
+
     def get_app(self):
         return ThumborServiceApp(get_conf_path('conf1.py'))
-    
+
     def test_validates_passed_url_is_in_valid_source(self):
         self.http_client.fetch(self.get_url('/unsafe/www.mydomain.com/logo2.jpg'), self.stop)
         response = self.wait()
         self.assertEqual(404, response.code)
+
 
 class MainHandlerTest(AsyncHTTPTestCase):
 
@@ -40,6 +42,7 @@ class MainHandlerTest(AsyncHTTPTestCase):
         response = self.wait(timeout=20)
         self.assertEqual(200, response.code)
 
+
 class ImageTestCase(AsyncHTTPTestCase):
 
     def get_app(self):
@@ -50,6 +53,7 @@ class ImageTestCase(AsyncHTTPTestCase):
         response = self.wait()
         self.assertEqual(200, response.code)
         return Image.open(StringIO(response.body))
+
 
 class MainHandlerImagesTest(ImageTestCase):
 
@@ -70,6 +74,7 @@ class MainHandlerImagesTest(ImageTestCase):
         reversed_pixels_flipped = list(reversed(pixels_flipped))
 
         self.assertEqual(pixels, reversed_pixels_flipped, 'did not flip the image')
+
 
 class MainHandlerFitInImagesTest(ImageTestCase):
 

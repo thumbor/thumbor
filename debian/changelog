@@ -1,4 +1,31 @@
-thumbor (3.6.10ubuntu1) precise; urgency=low
+thumbor (3.7.1) unstable; urgency=low
+
+  * Fix bug with quoting valid characters in URL (by cdemonchy);
+  * Fix in debian packaging for Debian Squeeze (by dhardy92);
+  * Fix in the mongo storage (by phpconnect);
+  * Auto option for the fill filter (by fabiomcosta).
+
+ -- Paulo Sousa <paulo.sousa@corp.globo.com>  Wed, 6 Feb 2013 00:00:00 -0200
+
+thumbor (3.7.0) unstable; urgency=low
+
+  * Multi-Instance deb support
+
+ -- Paulo Sousa <paulo.sousa@corp.globo.com>  Thu, 24 Jan 2013 00:00:00 -0200
+
+thumbor (3.6.11) unstable; urgency=low
+
+  * Implementing methods that were missing in the json engine
+  * Merge pull request #143 from nhuray/master
+  * Disable REST Upload by default
+  * Merge pull request #142 from morpheu/master
+  * Merge branch 'master' of https://github.com/globocom/thumbor
+  * Adding python-dev as build-dependency
+  * Other detector options in thumbor.conf
+
+ -- Paulo Sousa <paulo.sousa@corp.globo.com>  Wed, 23 Jan 2013 00:00:00 -0200
+
+thumbor (3.6.10) unstable; urgency=low
 
   * Release 3.6.10
 
@@ -6,7 +33,7 @@ thumbor (3.6.10ubuntu1) precise; urgency=low
 
  -- Paulo Sousa <paulo.sousa@corp.globo.com>  Wed, 16 Jan 2013 13:36:19 -0200
 
-thumbor (3.6.2) precise; urgency=low
+thumbor (3.6.2) unstable; urgency=low
 
   * First packaging
 

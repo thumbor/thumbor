@@ -4,8 +4,9 @@ run: compile_ext
 compile_ext:
 	python setup.py build_ext -i
 
+f ?= "vows/"
 test pyvows: compile_ext redis mongo
-	PYTHONPATH=.:$$PYTHONPATH pyvows -v --profile --cover --cover_package=thumbor --cover_threshold=90 vows/
+	PYTHONPATH=.:$$PYTHONPATH pyvows -vv --profile --cover --cover_package=thumbor --cover_threshold=90 $f
 	$(MAKE) kill_mongo kill_redis
 
 ci_test: compile_ext
@@ -24,8 +25,8 @@ mongo: kill_mongo
 	mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet &
 
 kill_redis:
-	-redis-cli -p 7778 shutdown
+	-redis-cli -p 7778 -a hey_you shutdown
 
 redis: kill_redis
 	redis-server redis.conf ; sleep 1
-	redis-cli -p 7778 info
+	redis-cli -p 7778 -a hey_you info

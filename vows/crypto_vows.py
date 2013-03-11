@@ -17,6 +17,7 @@ from pyvows import Vows, expect
 
 from thumbor.crypto import Cryptor, Signer
 
+
 @Vows.batch
 class CryptoVows(Vows.Context):
     def topic(self):
@@ -142,7 +143,8 @@ class SignerVows(Vows.Context):
             expected = base64.urlsafe_b64encode(hmac.new('something', unicode(url).encode('utf-8'), hashlib.sha1).digest())
             return (signer.signature(url), expected)
 
-        def should_equal_encrypted_string(self, (topic, expected)):
+        def should_equal_encrypted_string(self, test_data):
+            topic, expected = test_data
             expect(topic).to_equal(expected)
 
 
@@ -226,6 +228,7 @@ DECRYPT_TESTS = [
     }
 ]
 
+
 @Vows.batch
 class CryptoDecryptVows(Vows.Context):
     def topic(self):
@@ -236,5 +239,6 @@ class CryptoDecryptVows(Vows.Context):
             encrypted = cryptor.encrypt(**base_copy)
             yield(cryptor.decrypt(encrypted), test['result'])
 
-    def decrypted_result_should_match(self, (decrypted, expected)):
+    def decrypted_result_should_match(self, test_data):
+        decrypted, expected = test_data
         expect(decrypted).to_be_like(expected)

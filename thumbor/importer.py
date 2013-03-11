@@ -9,6 +9,8 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.utils import logger
+from functools import reduce
+
 
 class Importer:
     def __init__(self, config):

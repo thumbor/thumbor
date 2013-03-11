@@ -20,10 +20,12 @@ from thumbor.context import Context, ServerParameters
 
 fixture_for = lambda path: abspath(join(dirname(__file__), 'fixtures', path))
 
+
 def get_url():
     return '/unsafe/smart/alabama1_ap620.jpg'
 
-def get_app(prevent_result_storage = False, detection_error = False):
+
+def get_app(prevent_result_storage=False, detection_error=False):
     cfg = Config.load(fixture_for('max_age_conf.py'))
     server_params = ServerParameters(None, None, None, None, None, None)
 
@@ -40,6 +42,7 @@ def get_app(prevent_result_storage = False, detection_error = False):
 
     return application
 
+
 # commented til we fix tornado-pyvows issue
 #@Vows.batch
 class MaxAgeVows(Vows.Context):
@@ -49,50 +52,59 @@ class MaxAgeVows(Vows.Context):
             return get_app()
 
         def topic(self):
-            rsp = self.get(get_url())
-            return (rsp.code, rsp.headers)
+            response = self.get(get_url())
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
-        def should_set_cache_control(self, (_, headers)):
+        def should_set_cache_control(self, response):
+            _, headers = response
             expect(headers['Cache-Control']).to_equal('max-age=2,public')
 
-        def should_set_expires(self, (_, headers)):
+        def should_set_expires(self, response):
+            _, headers = response
             expect(headers).to_include('Expires')
 
 
     class WithNonStoragedImage(TornadoHTTPContext):
         def get_app(self):
-            return get_app(prevent_result_storage = True)
+            return get_app(prevent_result_storage=True)
 
         def topic(self):
-            rsp = self.get(get_url())
-            return (rsp.code, rsp.headers)
+            response = self.get(get_url())
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
-        def should_set_cache_control(self, (_, headers)):
+        def should_set_cache_control(self, response):
+            _, headers = response
             expect(headers['Cache-Control']).to_equal('max-age=1,public')
 
-        def should_set_expires(self, (_, headers)):
+        def should_set_expires(self, response):
+            _, headers = response
             expect(headers).to_include('Expires')
 
 
     class WithDetectionErrorImage(TornadoHTTPContext):
         def get_app(self):
-            return get_app(detection_error = True)
+            return get_app(detection_error=True)
 
         def topic(self):
-            rsp = self.get(get_url())
-            return (rsp.code, rsp.headers)
+            response = self.get(get_url())
+            return (response.code, response.headers)
 
-        def should_be_200(self, (code, _)):
+        def should_be_200(self, response):
+            code, _ = response
             expect(code).to_equal(200)
 
-        def should_set_cache_control(self, (_, headers)):
+        def should_set_cache_control(self, response):
+            _, headers = response
             expect(headers['Cache-Control']).to_equal('max-age=1,public')
 
-        def should_set_expires(self, (_, headers)):
+        def should_set_expires(self, response):
+            _, headers = response
             expect(headers).to_include('Expires')

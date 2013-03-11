@@ -75,6 +75,9 @@ Config.define('REDIS_STORAGE_SERVER_PORT', 6379, 'Redis storage server port', 'R
 Config.define('REDIS_STORAGE_SERVER_DB', 0, 'Redis storage database index', 'Redis Storage')
 Config.define('REDIS_STORAGE_SERVER_PASSWORD', None, 'Redis storage server password', 'Redis Storage')
 
+# MEMCACHE STORAGE OPTIONS
+Config.define('MEMCACHE_STORAGE_SERVERS', ['localhost:11211'], 'List of Memcache storage server hosts', 'Memcache Storage')
+
 # MIXED STORAGE OPTIONS
 Config.define('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage', 'Mixed Storage file storage. This must be the full name of a python module (python must be able to import it)', 'Mixed Storage')
 Config.define('MIXED_STORAGE_CRYPTO_STORAGE', 'thumbor.storages.no_storage', 'Mixed Storage signing key storage. This must be the full name of a python module (python must be able to import it)', 'Mixed Storage')
@@ -102,6 +105,11 @@ Config.define('REDIS_QUEUE_SERVER_HOST', 'localhost', 'Server host for the queue
 Config.define('REDIS_QUEUE_SERVER_PORT', 6379, 'Server port for the queued redis detector', 'Queued Redis Detector')
 Config.define('REDIS_QUEUE_SERVER_DB', 0, 'Server database index for the queued redis detector', 'Queued Redis Detector')
 Config.define('REDIS_QUEUE_SERVER_PASSWORD', None, 'Server password for the queued redis detector', 'Queued Redis Detector')
+
+# QUEUED DETECTOR SQS OPTIONS
+Config.define('SQS_QUEUE_KEY_ID', None, 'AWS key id', 'Queued SQS Detector')
+Config.define('SQS_QUEUE_KEY_SECRET', None, 'AWS key secret', 'Queued SQS Detector')
+Config.define('SQS_QUEUE_REGION', 'us-east-1', 'AWS SQS region', 'Queued SQS Detector')
 
 def generate_config():
     config.generate_config()
