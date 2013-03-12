@@ -55,8 +55,12 @@ class Storage(BaseStorage):
 
     def put_detector_data(self, path, data):
         file_abspath = self.path_on_filesystem(path)
+        
+        file_dir_abspath = dirname(file_abspath)
+        self.ensure_dir(file_dir_abspath)
 
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
+
         with open(path, 'w') as _file:
             _file.write(dumps(data))
 
