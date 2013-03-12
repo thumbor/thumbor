@@ -9,7 +9,7 @@ connection = None
 def _get_bucket(url):
     #first item in URL
     arr = url.lstrip('/').split('/',1)
-    return arr[0],"/"+arr[1]
+    return arr[0],arr[1]
 
 def _validate_bucket(context,bucket):
     if not context.config.S3_ALLOWED_BUCKETS:
