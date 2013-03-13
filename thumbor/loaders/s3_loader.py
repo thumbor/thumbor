@@ -53,8 +53,11 @@ def load(context, url, callback):
             When the first character of a key name is a / boto will generate 
             invalid signing keys with suppress_consec_slashes=False
         """
-        file_key = bucketLoader.get_key(url[1:])
-        
+        if url[0] == "/":
+            file_key = bucketLoader.get_key(url[1:])
+        else:
+            file_key = bucketLoader.get_key(url)
+
     if not file_key:
         return callback(None)
 
