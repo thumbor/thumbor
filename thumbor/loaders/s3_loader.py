@@ -36,7 +36,8 @@ def load(context, url, callback):
         #Store connection not bucket
         conn = S3Connection(
             context.config.AWS_ACCESS_KEY,
-            context.config.AWS_SECRET_KEY
+            context.config.AWS_SECRET_KEY,
+            suppress_consec_slashes=context.config.S3_LOADER_SUPPRESS_SLASHES
         )
 
     bucketLoader = Bucket(
@@ -44,7 +45,16 @@ def load(context, url, callback):
         name=bucket
     )
 
-    file_key = bucketLoader.get_key(url)
+    if context.config.S3_LOADER_SUPPRESS_SLASHES:
+        file_key = bucketLoader.get_key(url)
+    else:
+        """
+            BUG IN BOTO
+            When the first character of a key name is a / boto will generate 
+            invalid signing keys with suppress_consec_slashes=False
+        """
+        file_key = bucketLoader.get_key(url[1:])
+        
     if not file_key:
         return callback(None)
 
