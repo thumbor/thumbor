@@ -111,6 +111,21 @@ Config.define('SQS_QUEUE_KEY_ID', None, 'AWS key id', 'Queued SQS Detector')
 Config.define('SQS_QUEUE_KEY_SECRET', None, 'AWS key secret', 'Queued SQS Detector')
 Config.define('SQS_QUEUE_REGION', 'us-east-1', 'AWS SQS region', 'Queued SQS Detector')
 
+#AWS SETTINGS
+Config.define('AWS_ACCESS_KEY',None,'AWS access key','For AWS loaders/storages/result_storages')
+Config.define('AWS_SECRET_KEY',None,'AWS secret key','For AWS loaders/storages/result_storages')
+
+#S3 STORAGE
+Config.define('STORAGE_BUCKET',None,'Storage bucket','S3 Storage')
+
+#S3 RESULT STORAGE
+Config.define('RESULT_STORAGE_BUCKET',None,'Storage bucket','S3 Result Storage')
+
+#S3 LOADER
+Config.define('S3_LOADER_BUCKET','','Bucket to load paths from','S3 Loader')
+Config.define('S3_ALLOWED_BUCKETS',[],'Buckets allowed to load from','S3 Loader')
+Config.define('S3_LOADER_SUPPRESS_SLASHES',True,'suppress_consec_slashes option for boto','S3 Loader')
+
 def generate_config():
     config.generate_config()
 
