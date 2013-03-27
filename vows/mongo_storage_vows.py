@@ -18,15 +18,15 @@ from thumbor.context import Context
 from thumbor.config import Config
 from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES, get_server
 
+FIXTURES_FOLDER = join(abspath(dirname(__file__)), 'fixtures')
+CONNECTION = Connection('localhost', 7777)
+COLLECTION = CONNECTION['thumbor']['images']
+
+
 class MongoDBContext(Vows.Context):
-    def setup(self):
-        self.fixtures_folder = join(abspath(dirname(__file__)), 'fixtures')
-
-        self.connection = Connection('localhost', 7777)
-        self.collection = self.connection['thumbor']['images']
-
     def teardown(self):
-        self.connection.drop_database('thumbor')
+        CONNECTION.drop_database('thumbor')
+
 
 @Vows.batch
 class MongoStorageVows(MongoDBContext):
@@ -34,7 +34,7 @@ class MongoStorageVows(MongoDBContext):
         def topic(self):
             storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
-            return self.parent.collection.find_one({'path': IMAGE_URL % 1})
+            return COLLECTION.find_one({'path': IMAGE_URL % 1})
 
         def should_be_in_catalog(self, topic):
             expect(topic).not_to_be_null()
@@ -64,7 +64,7 @@ class MongoStorageVows(MongoDBContext):
             storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
             storage.put(IMAGE_URL % 9999, IMAGE_BYTES)
             storage.remove(IMAGE_URL % 9999)
-            return self.parent.collection.find_one({'path': IMAGE_URL % 9999})
+            return COLLECTION.find_one({'path': IMAGE_URL % 9999})
 
         def should_not_be_in_catalog(self, topic):
             expect(topic).not_to_be_an_error()
@@ -74,7 +74,7 @@ class MongoStorageVows(MongoDBContext):
             def topic(self):
                 storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
                 storage.remove(IMAGE_URL % 9999)
-                return self.parent.parent.collection.find_one({'path': IMAGE_URL % 9999})
+                return COLLECTION.find_one({'path': IMAGE_URL % 9999})
 
             def should_not_be_in_catalog(self, topic):
                 expect(topic).not_to_be_an_error()
@@ -107,7 +107,7 @@ class MongoStorageVows(MongoDBContext):
                 storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)))
                 storage.put(IMAGE_URL % 3, IMAGE_BYTES)
 
-                return self.parent.parent.collection.find_one({'path': IMAGE_URL % 3})
+                return COLLECTION.find_one({'path': IMAGE_URL % 3})
 
             def should_be_in_catalog(self, topic):
                 expect(topic).not_to_be_null()
@@ -140,7 +140,7 @@ class MongoStorageVows(MongoDBContext):
 
                 storage.put(IMAGE_URL % 5, IMAGE_BYTES)
 
-                return self.parent.parent.collection.find_one({'path': IMAGE_URL % 5})
+                return COLLECTION.find_one({'path': IMAGE_URL % 5})
 
             def should_be_in_catalog(self, topic):
                 expect(topic).not_to_be_null()

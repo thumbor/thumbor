@@ -9,10 +9,10 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 from thumbor.storages.file_storage import Storage as FileStorage
 from os.path import abspath, join, dirname
-import shutil
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
+import tornado.escape
 
 from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
@@ -61,15 +61,6 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class with_UTF8_URLEncoded_image_name(TornadoHTTPContext):
-        def topic(self):
-            response = self.get('/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620%C3%A9.jpg')
-            return (response.code, response.headers)
-
-        def should_be_200(self, response):
-            code, _ = response
-            expect(code).to_equal(200)
-
     class without_unsafe_url_image(TornadoHTTPContext):
         def topic(self):
             response = self.get('/alabama1_ap620%C3%A9.jpg')
@@ -88,23 +79,24 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(404)
 
-    class with_UTF8_URLEncoded_image_name_(TornadoHTTPContext):
+    class with_UTF8_URLEncoded_image_name_using_encoded_url(TornadoHTTPContext):
         def topic(self):
-            response = self.get(u'/unsafe/smart/alabama1_ap620é.jpg')
+            url = '/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620%C3%A9.jpg'
+            response = self.get(url)
             return (response.code, response.headers)
 
         def should_be_200(self, response):
             code, _ = response
             expect(code).to_equal(200)
 
-    class with_UTF8_URLEncoded_image_name__(TornadoHTTPContext):
+    class with_UTF8_URLEncoded_image_name_using_unsafe(TornadoHTTPContext):
         def topic(self):
-            response = self.get(u'/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620é.jpg')
+            response = self.get(u'/unsafe/smart/alabama1_ap620%C3%A9.jpg')
             return (response.code, response.headers)
 
-        def should_be_404(self, response):
+        def should_be_200(self, response):
             code, _ = response
-            expect(code).to_equal(404)
+            expect(code).to_equal(200)
 
     class with_spaces_on_url(TornadoHTTPContext):
         def topic(self):

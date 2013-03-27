@@ -17,6 +17,7 @@ from thumbor.context import RequestParameters
 from thumbor.crypto import Cryptor, Signer
 from thumbor.utils import logger
 
+
 class ImagingHandler(ContextHandler):
 
     def encode_url(self, url):
@@ -24,7 +25,6 @@ class ImagingHandler(ContextHandler):
 
     @tornado.web.asynchronous
     def get(self, **kw):
-
         # Check if an image with an uuid exists in storage
         if self.context.modules.storage.exists(kw['image'][:32]):
             kw['image'] = kw['image'][:32]
@@ -86,4 +86,3 @@ class ImagingHandler(ContextHandler):
                     return
 
         return self.execute_image_operations()
-

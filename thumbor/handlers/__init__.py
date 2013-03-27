@@ -34,6 +34,7 @@ CONTENT_TYPE = {
     '.png': 'image/png'
 }
 
+
 class BaseHandler(tornado.web.RequestHandler):
     def _error(self, status, msg=None):
         self.set_status(status)
@@ -119,8 +120,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
             after_transform_cb = functools.partial(self.after_transform, self.context)
             Transformer(self.context).transform(after_transform_cb)
-
-
 
         self._fetch(self.context.request.image_url, self.context.request.extension, callback)
 
@@ -258,7 +257,7 @@ class ImageApiHandler(ContextHandler):
             return False
 
         # Check weight constraints
-        if (conf.UPLOAD_MAX_SIZE != 0 and  len(self.request.body) > conf.UPLOAD_MAX_SIZE):
+        if (conf.UPLOAD_MAX_SIZE != 0 and len(self.request.body) > conf.UPLOAD_MAX_SIZE):
             self._error(412, 'Image exceed max weight (Expected : %s, Actual : %s)' % (conf.UPLOAD_MAX_SIZE, len(self.request.body)))
             return False
 
@@ -272,4 +271,3 @@ class ImageApiHandler(ContextHandler):
     def write_file(self, id, body):
         storage = self.context.modules.upload_photo_storage
         storage.put(id, body)
-
