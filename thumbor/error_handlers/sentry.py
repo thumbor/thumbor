@@ -15,7 +15,7 @@ from thumbor import __version__
 
 
 class ErrorHandler(object):
-    def __init__(self, config):
+    def __init__(self, config, client=None):
         import raven
 
         dsn = config.SENTRY_DSN_URL
@@ -25,7 +25,7 @@ class ErrorHandler(object):
                 "then you must specify the Sentry DSN using the SENTRY_DSN_URL configuration."
             )
 
-        self.sentry = raven.Client(dsn)
+        self.sentry = client or raven.Client(dsn)
         self.modules = self.get_modules()
 
     def get_modules(self):
@@ -54,7 +54,9 @@ class ErrorHandler(object):
 
         cookies = {}
         for cookie in extra['Headers']['Cookie'].split(';'):
-            values = cookie.split('=')
+            if not cookie:
+                continue
+            values = cookie.strip().split('=')
             key, val = values[0], "".join(values[1:])
             cookies[key] = val
         extra['Headers']['Cookie'] = cookies
