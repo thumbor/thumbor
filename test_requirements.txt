@@ -12,3 +12,4 @@ coverage
 derpconf>=0.2.0
 python-magic>=0.4.3
 mock==1.0.1
+raven
