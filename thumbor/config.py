@@ -29,6 +29,10 @@ Config.define(
     'Indicates whether thumbor should rotate images that have an Orientation EXIF header', 'Imaging')
 
 Config.define(
+    'ALLOW_ANIMATED_GIFS', True,
+    'Indicates whether thumbor should enable the EXPERIMENTAL support for animated gifs.', 'Imaging')
+
+Config.define(
     'LOADER', 'thumbor.loaders.http_loader',
     'The loader thumbor should use to load the original image. This must be the full name of a python module ' +
     '(python must be able to import it)', 'Extensibility')
@@ -49,6 +53,7 @@ Config.define('SECURITY_KEY', 'MY_SECURE_KEY', 'The security key thumbor uses to
 
 Config.define('ALLOW_UNSAFE_URL', True, 'Indicates if the /unsafe URL should be available', 'Security')
 Config.define('ALLOW_OLD_URLS', True, 'Indicates if encrypted (old style) URLs should be allowed', 'Security')
+
 
 # FILE LOADER OPTIONS
 Config.define('FILE_LOADER_ROOT_PATH', '/tmp', 'The root path where the File Loader will try to find images', 'File Loader')

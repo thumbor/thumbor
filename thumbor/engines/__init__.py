@@ -70,7 +70,7 @@ class BaseEngine(object):
         self.extension = extension
         imageOrFrames = self.create_image(buffer)
 
-        if isinstance(imageOrFrames, (list, tuple)):
+        if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(imageOrFrames, (list, tuple)):
             self.image = imageOrFrames[0]
             if len(imageOrFrames) > 1:
                 self.multiple_engine = MultipleEngine(self)

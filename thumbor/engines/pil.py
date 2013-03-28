@@ -36,6 +36,7 @@ FORMATS = {
 
 ImageFile.MAXBLOCK = 2**25
 
+
 class Engine(BaseEngine):
 
     def gen_image(self, size, color):
@@ -46,7 +47,7 @@ class Engine(BaseEngine):
         img = Image.open(StringIO(buffer))
         self.icc_profile = img.info.get('icc_profile', None)
 
-        if self.extension == '.gif':
+        if self.context.config.ALLOW_ANIMATED_GIFS and self.extension == '.gif':
             frames = []
             for frame in ImageSequence.Iterator(img):
                 frames.append(frame.convert())
@@ -65,9 +66,9 @@ class Engine(BaseEngine):
     def exif(self):
         """Get embedded EXIF data from image file."""
         ret = {}
-        if hasattr(self.image, '_getexif' ):
+        if hasattr(self.image, '_getexif'):
             exifinfo = self.image._getexif()
-            if exifinfo != None:
+            if exifinfo is not None:
                 for tag, value in exifinfo.items():
                     decoded = TAGS.get(tag, tag)
                     ret[decoded] = value
@@ -77,12 +78,12 @@ class Engine(BaseEngine):
         self.image = self.image.resize((int(width), int(height)), Image.ANTIALIAS)
 
     def crop(self, left, top, right, bottom):
-        self.image = self.image.crop(
-            (int(left),
+        self.image = self.image.crop((
+            int(left),
             int(top),
             int(right),
-            int(bottom))
-        )
+            int(bottom)
+        ))
 
     def rotate(self, degrees):
         self.image = self.image.rotate(degrees)
@@ -94,7 +95,8 @@ class Engine(BaseEngine):
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
 
     def read(self, extension=None, quality=None):
-        if quality is None: quality = self.context.request.quality
+        if quality is None:
+            quality = self.context.request.quality
         #returns image buffer in byte format.
         img_buffer = StringIO()
 
@@ -117,7 +119,7 @@ class Engine(BaseEngine):
         except KeyError:
             #extension is not present or could not help determine format => force JPEG
             #TODO : guess format by image headers maybe
-            if self.image.mode in ['P','RGBA','LA']:
+            if self.image.mode in ['P', 'RGBA', 'LA']:
                 self.image.format = FORMATS['.png']
                 self.image.save(img_buffer, FORMATS['.png'])
             else:
@@ -143,7 +145,7 @@ class Engine(BaseEngine):
             xy.append((0, 0))
             dispose.append(1)
 
-        loop =  int(self.image.info.get('loop', 1))
+        loop = int(self.image.info.get('loop', 1))
 
         images = gifWriter.convertImagesToPIL(converted_images, False, None)
         gifWriter.writeGifToFile(img_buffer, images, duration, loop, xy, dispose)
@@ -186,7 +188,9 @@ class Engine(BaseEngine):
 
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:
-            raise RuntimeError('You need filters enabled to use paste with merge. Please reinstall thumbor with proper compilation of its filters.')
+            raise RuntimeError(
+                'You need filters enabled to use paste with merge. Please reinstall ' +
+                'thumbor with proper compilation of its filters.')
 
         self.enable_alpha()
         other_engine.enable_alpha()
@@ -197,7 +201,8 @@ class Engine(BaseEngine):
         if merge:
             sz = self.size
             other_size = other_engine.size
-            imgdata = _composite.apply(self.get_image_mode(), self.get_image_data(), sz[0], sz[1],
+            imgdata = _composite.apply(
+                self.get_image_mode(), self.get_image_data(), sz[0], sz[1],
                 other_engine.get_image_data(), other_size[0], other_size[1], pos[0], pos[1])
             self.set_image_data(imgdata)
         else:
