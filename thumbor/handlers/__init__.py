@@ -8,9 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import sys
 import functools
 from os.path import splitext
 import datetime
+import traceback
+
 try:
     import magic
     LIBMAGIC_AVAILABLE = True
@@ -176,7 +179,17 @@ class BaseHandler(tornado.web.RequestHandler):
                 context.modules.result_storage.put(results)
 
     @classmethod
-    def translate_crop_coordinates(cls, original_width, original_height, width, height, crop_left, crop_top, crop_right, crop_bottom):
+    def translate_crop_coordinates(
+            cls,
+            original_width,
+            original_height,
+            width,
+            height,
+            crop_left,
+            crop_top,
+            crop_right,
+            crop_bottom):
+
         if original_width == width and original_height == height:
             return
 
@@ -239,6 +252,20 @@ class ContextHandler(BaseHandler):
     def initialize(self, context):
         self.context = Context(context.server, context.config, context.modules.importer)
 
+    def _handle_request_exception(self, e):
+        try:
+            exc_info = sys.exc_info()
+            msg = traceback.format_exception(exc_info[0], exc_info[1], exc_info[2])
+
+            if self.context.config.USE_CUSTOM_ERROR_HANDLING:
+                self.context.modules.error_handler.handle_error(context=self.context, handler=self, exception=exc_info)
+
+        finally:
+            del exc_info
+
+        logger.error('ERROR: %s' % "".join(msg))
+        self.send_error(500)
+
 
 ##
 # Base handler for Image API operations
@@ -258,13 +285,17 @@ class ImageApiHandler(ContextHandler):
 
         # Check weight constraints
         if (conf.UPLOAD_MAX_SIZE != 0 and len(self.request.body) > conf.UPLOAD_MAX_SIZE):
-            self._error(412, 'Image exceed max weight (Expected : %s, Actual : %s)' % (conf.UPLOAD_MAX_SIZE, len(self.request.body)))
+            self._error(
+                412,
+                'Image exceed max weight (Expected : %s, Actual : %s)' % (conf.UPLOAD_MAX_SIZE, len(self.request.body)))
             return False
 
         # Check size constraints
         size = engine.size
         if (conf.MIN_WIDTH > size[0] or conf.MIN_HEIGHT > size[1]):
-            self._error(412, 'Image is too small (Expected: %s/%s , Actual : %s/%s) % (conf.MIN_WIDTH, conf.MIN_HEIGHT, size[0], size[1])')
+            self._error(
+                412,
+                'Image is too small (Expected: %s/%s , Actual : %s/%s) % (conf.MIN_WIDTH, conf.MIN_HEIGHT, size[0], size[1])')
             return False
         return True
 

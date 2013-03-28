@@ -22,6 +22,7 @@ class Importer:
         self.result_storage = None
         self.detectors = []
         self.filters = []
+        self.error_handler_class = None
 
     def import_class(self, name, get_module=False):
         module_name = get_module and name or '.'.join(name.split('.')[:-1])
@@ -46,6 +47,10 @@ class Importer:
 
         if self.config.UPLOAD_PHOTO_STORAGE:
             self.import_item('UPLOAD_PHOTO_STORAGE', 'Storage')
+
+        if self.config.USE_CUSTOM_ERROR_HANDLING:
+            self.import_item('ERROR_HANDLER_MODULE', 'ErrorHandler')
+            self.error_handler_class = self.error_handler_module
 
     def import_item(self, config_key=None, class_name=None, is_multiple=False, item_value=None, ignore_errors=False):
         if item_value is None:
@@ -75,4 +80,3 @@ class Importer:
             else:
                 module = self.import_class(conf_value, get_module=True)
             setattr(self, config_key.lower(), module)
-

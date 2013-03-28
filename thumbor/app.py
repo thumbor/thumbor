@@ -17,6 +17,7 @@ from thumbor.handlers.image import ImageHandler
 from thumbor.url import Url
 from thumbor.handlers.imaging import ImagingHandler
 
+
 class ThumborServiceApp(tornado.web.Application):
 
     def __init__(self, context):
@@ -29,22 +30,22 @@ class ThumborServiceApp(tornado.web.Application):
         if context.config.UPLOAD_ENABLED:
             # TODO Old handler to upload images
             handlers.append(
-                (r'/upload', UploadHandler, { 'context': context })
+                (r'/upload', UploadHandler, {'context': self.context})
             )
 
             # Handler to upload images (POST).
             handlers.append(
-                (r'/image', ImagesHandler, { 'context': context })
+                (r'/image', ImagesHandler, {'context': self.context})
             )
 
             # Handler to retrieve or modify existing images  (GET, PUT, DELETE)
             handlers.append(
-                (r'/image/(.*)', ImageHandler, { 'context': context })
+                (r'/image/(.*)', ImageHandler, {'context': self.context})
             )
 
         # Imaging handler (GET)
         handlers.append(
-            (Url.regex(), ImagingHandler, { 'context':  context })
+            (Url.regex(), ImagingHandler, {'context': self.context})
         )
 
         super(ThumborServiceApp, self).__init__(handlers)

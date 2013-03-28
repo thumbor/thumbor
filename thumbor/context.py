@@ -12,6 +12,7 @@ from os.path import abspath, exists
 
 from thumbor.filters import FiltersFactory
 
+
 class Context:
     '''
     Class responsible for containing:
@@ -45,7 +46,8 @@ class ServerParameters:
         self.load_security_key()
 
     def load_security_key(self):
-        if not self.keyfile: return
+        if not self.keyfile:
+            return
 
         path = abspath(self.keyfile)
         if not exists(path):
@@ -143,6 +145,7 @@ class RequestParameters:
     def int_or_0(self, value):
         return 0 if value is None else int(value)
 
+
 class ContextImporter:
     def __init__(self, context, importer):
         self.context = context
@@ -164,8 +167,7 @@ class ContextImporter:
         if importer.upload_photo_storage:
             self.upload_photo_storage = importer.upload_photo_storage(context)
 
-
         self.loader = importer.loader
         self.detectors = importer.detectors
         self.filters = importer.filters
-
+        self.error_handler = importer.error_handler

@@ -37,13 +37,19 @@ def main(arguments=None):
     importer = Importer(config)
     importer.import_modules()
 
+    if importer.error_handler_class is not None:
+        importer.error_handler = importer.error_handler_class(config)
+
     if server_parameters.security_key is None:
         server_parameters.security_key = config.SECURITY_KEY
 
     if not isinstance(server_parameters.security_key, basestring):
-        raise RuntimeError('No security key was found for this instance of thumbor. Please provide one using the conf file or a security key file.')
+        raise RuntimeError(
+            'No security key was found for this instance of thumbor. ' +
+            'Please provide one using the conf file or a security key file.')
 
     context = Context(server=server_parameters, config=config, importer=importer)
+
     application = importer.import_class(server_parameters.app_class)(context)
 
     server = HTTPServer(application)
