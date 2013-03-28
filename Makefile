@@ -23,7 +23,7 @@ kill_mongo:
 mongo: kill_mongo
 	@rm -rf /tmp/thumbor/mongodata && mkdir -p /tmp/thumbor/mongodata
 	@mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet &
-	@sleep 2
+	@sleep 5
 
 kill_redis:
 	@-redis-cli -p 7778 -a hey_you shutdown
