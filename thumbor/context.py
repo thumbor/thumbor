@@ -170,4 +170,3 @@ class ContextImporter:
         self.loader = importer.loader
         self.detectors = importer.detectors
         self.filters = importer.filters
-        self.error_handler = importer.error_handler
