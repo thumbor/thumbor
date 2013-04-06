@@ -8,7 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import cv
+try:
+    import cv
+except ImportError:
+    import cv2.cv as cv
 
 from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint

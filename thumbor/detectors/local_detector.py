@@ -10,7 +10,10 @@
 
 from os.path import join, dirname, abspath, isabs
 
-import cv
+try:
+    import cv
+except ImportError:
+    import cv2.cv as cv
 
 from thumbor.point import FocalPoint
 from thumbor.detectors import BaseDetector
