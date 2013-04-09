@@ -262,9 +262,8 @@ class ContextHandler(BaseHandler):
 
         finally:
             del exc_info
-
-        logger.error('ERROR: %s' % "".join(msg))
-        self.send_error(500)
+            logger.error('ERROR: %s' % "".join(msg))
+            self.send_error(500)
 
 
 ##
