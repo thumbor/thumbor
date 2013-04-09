@@ -65,10 +65,6 @@ Config.define('ALLOW_OLD_URLS', True, 'Indicates if encrypted (old style) URLs s
 # FILE LOADER OPTIONS
 Config.define('FILE_LOADER_ROOT_PATH', '/tmp', 'The root path where the File Loader will try to find images', 'File Loader')
 
-# HTTP LOADER OPTIONS
-Config.define('MAX_SOURCE_SIZE', 0, "Max size in Kb for images downloaded by thumbor's HTTP Loader", 'HTTP Loader')
-Config.define(
-    'REQUEST_TIMEOUT_SECONDS', 120, "Maximum number of seconds to wait for an original image to download", 'HTTP Loader')
 
 # FILE STORAGE GENERIC OPTIONS
 Config.define(
