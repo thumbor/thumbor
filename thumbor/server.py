@@ -26,7 +26,6 @@ def main(arguments=None):
     '''Runs thumbor server with the specified arguments.'''
 
     server_parameters = get_server_parameters(arguments)
-    logging.basicConfig(level=getattr(logging, server_parameters.log_level.upper()))
 
     lookup_paths = [os.curdir,
                     expanduser('~'),
@@ -34,6 +33,13 @@ def main(arguments=None):
                     dirname(__file__)]
 
     config = Config.load(server_parameters.config_path, conf_name='thumbor.conf', lookup_paths=lookup_paths)
+
+    logging.basicConfig(
+        level=getattr(logging, server_parameters.log_level.upper()),
+        format=config.THUMBOR_LOG_FORMAT,
+        datefmt=config.THUMBOR_LOG_DATE_FORMAT
+    )
+
     importer = Importer(config)
     importer.import_modules()
 

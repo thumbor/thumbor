@@ -8,17 +8,20 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import logging
 import re
 from urlparse import urlparse
 from functools import partial
 
 import tornado.httpclient
 
+from thumbor.utils import logger
+
 http_client = None
+
 
 def _normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
+
 
 def validate(context, url):
     if not context.config.ALLOWED_SOURCES:
@@ -31,15 +34,17 @@ def validate(context, url):
             return True
     return False
 
+
 def return_contents(response, url, callback):
     if response.error:
-        logging.error("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
+        logger.error("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
         callback(None)
     elif response.body is None or len(response.body) == 0:
-        logging.error("ERROR retrieving image {0}: Empty response.".format(url))
+        logger.error("ERROR retrieving image {0}: Empty response.".format(url))
         callback(None)
     else:
         callback(response.body)
+
 
 def load(context, url, callback):
     client = http_client
@@ -48,4 +53,3 @@ def load(context, url, callback):
 
     url = _normalize_url(url)
     client.fetch(url, callback=partial(return_contents, url=url, callback=callback))
-
