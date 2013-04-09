@@ -24,8 +24,6 @@ TEST_DATA = (
     ('ENGINE', 'thumbor.engines.pil'),
     ('ALLOW_UNSAFE_URL', True),
     ('FILE_LOADER_ROOT_PATH', '/tmp'),
-    ('MAX_SOURCE_SIZE', 0),
-    ('REQUEST_TIMEOUT_SECONDS', 120),
     ('STORAGE_EXPIRATION_SECONDS', 60 * 60 * 24 * 30),
     ('STORES_CRYPTO_KEY_FOR_EACH_IMAGE', False),
     ('MONGO_STORAGE_SERVER_HOST', 'localhost'),
