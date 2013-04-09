@@ -150,6 +150,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def finish_request(self, context, result=None):
         if context.request.meta:
+            context.request.meta_callback = context.config.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
         else:
             content_type = CONTENT_TYPE.get(context.request.extension, CONTENT_TYPE['.jpg'])

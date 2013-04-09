@@ -43,6 +43,7 @@ TEST_DATA = (
     ('FILTERS', [])
 )
 
+
 @Vows.batch
 class Configuration(Vows.Context):
 
@@ -58,6 +59,8 @@ class Configuration(Vows.Context):
                 return (getattr(cfg, key), default_value)
 
             def should_have_default_value(self, topic):
+                expect(topic).not_to_be_an_error()
+                expect(topic).to_length(2)
                 actual, expected = topic
                 expect(actual).not_to_be_null()
                 expect(actual).to_equal(expected)
@@ -301,4 +304,3 @@ class Configuration(Vows.Context):
 
                     #def defaults_to_haarcascade_frontalface_alt(self, topic):
                         #expect(topic).to_equal('haarcascade_frontalface_alt.xml')
-
