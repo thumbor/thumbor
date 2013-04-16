@@ -18,3 +18,21 @@ def real_import(name):
     return __import__(name)
 
 logger = logging.getLogger('thumbor')
+
+
+class on_exception(object):
+
+    def __init__(self, callback, exception_class=Exception):
+        self.callback = callback
+        self.exception_class = exception_class
+
+    def __call__(self, fn):
+        def wrapper(*args, **kwargs):
+            self_instance = args[0] if len(args) > 0 else None
+            try:
+                return fn(*args, **kwargs)
+            except self.exception_class:
+                if self.callback:
+                    self.callback(self_instance) if self_instance else self.callback()
+                raise
+        return wrapper
