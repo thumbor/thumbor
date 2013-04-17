@@ -12,6 +12,8 @@ from thumbor.point import FocalPoint as fp
 from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
 from thumbor.importer import Importer
+from thumbor.detectors import BaseDetector
+from thumbor.storages.no_storage import Storage as NoStorage
 
 class MockEngine(object):
     def __init__(self, size):
@@ -55,6 +57,14 @@ class MockEngine(object):
     def focus(self, focal_points):
         self.focal_points = focal_points
 
+class MockSyncDetector(BaseDetector):
+    def detect(self, callback):
+        callback([])
+
+class MockErrorSyncDetector(BaseDetector):
+    def detect(self, callback):
+        raise Exception('x')
+
 class TestData(object):
     def __init__(self,
             source_width, source_height,
@@ -95,7 +105,7 @@ class TestData(object):
             self.target_width, self.target_height
         )
 
-    def to_context(self):
+    def to_context(self, detectors=[], ignore_detector_error=False):
         self.engine = MockEngine((self.source_width, self.source_height))
 
         flip_horizontally = self.target_width < 0
@@ -104,7 +114,11 @@ class TestData(object):
         self.target_height = self.target_height == "orig" and "orig" or abs(self.target_height)
 
         importer = Importer(None)
-        ctx = Context(server=None, config=Config(), importer=importer)
+        importer.detectors = detectors
+        importer.storage = NoStorage
+        config = Config()
+        config.IGNORE_SMART_ERRORS = ignore_detector_error
+        ctx = Context(server=None, config=config, importer=importer)
         ctx.modules.engine = self.engine
 
         ctx.request = RequestParameters(

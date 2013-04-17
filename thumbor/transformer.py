@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import math
+import sys
 
 from thumbor.point import FocalPoint
 from thumbor.utils import logger
@@ -131,21 +132,47 @@ class Transformer(object):
         return self.context.request.image_url
 
     def smart_detect(self):
-        if self.context.modules.detectors and self.context.request.smart:
-            storage = self.context.modules.storage
-            focal_points = storage.get_detector_data(self.smart_storage_key)
-            if focal_points is not None:
-                self.after_smart_detect(focal_points, points_from_storage=True)
-            else:
-                detectors = self.context.modules.detectors
-                detectors[0](self.context, index=0, detectors=detectors).detect(self.after_smart_detect)
+        if not (self.context.modules.detectors and self.context.request.smart):
+            self.do_image_operations()
+            return
+
+        try:
+            # Beware! Boolean hell ahead.
+            #
+            # The `running_smart_detection` flag is needed so we can know
+            # whether `after_smart_detect()` is running synchronously or not.
+            #
+            # If we're running it in a sync fashion it will set
+            # `should_run_image_operations` to True so we can avoid running
+            # image operation inside the try block.
+            self.should_run_image_operations = False
+            self.running_smart_detection = True
+            self.do_smart_detection()
+            self.running_smart_detection = False
+        except Exception:
+            if not self.context.config.IGNORE_SMART_ERRORS:
+                raise
+
+            logger.exception("Ignored error during smart detection")
+            if self.context.config.USE_CUSTOM_ERROR_HANDLING:
+                self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self.context.request_handler, exception=sys.exc_info())
+
+            self.context.request.prevent_result_storage = True
+            self.context.request.detection_error = True
+            self.do_image_operations()
+
+        if self.should_run_image_operations:
+            self.do_image_operations()
+
+    def do_smart_detection(self):
+        focal_points = self.context.modules.storage.get_detector_data(self.smart_storage_key)
+        if focal_points is not None:
+            self.after_smart_detect(focal_points, points_from_storage=True)
         else:
-            self.after_smart_detect([])
+            detectors = self.context.modules.detectors
+            detectors[0](self.context, index=0, detectors=detectors).detect(self.after_smart_detect)
 
     def after_smart_detect(self, focal_points=[], points_from_storage=False):
-        self.manual_crop()
-        self.calculate_target_dimensions()
-
         for point in focal_points:
             self.context.request.focal_points.append(FocalPoint.from_dict(point))
 
@@ -157,6 +184,15 @@ class Transformer(object):
 
             storage.put_detector_data(self.smart_storage_key, points)
 
+        if self.running_smart_detection:
+            self.should_run_image_operations = True
+            return
+
+        self.do_image_operations()
+
+    def do_image_operations(self):
+        self.manual_crop()
+        self.calculate_target_dimensions()
         self.adjust_focal_points()
 
         if self.context.request.debug:

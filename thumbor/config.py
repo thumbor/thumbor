@@ -30,10 +30,13 @@ Config.define('QUALITY', 80, 'Quality index used for generated JPEG images', 'Im
 Config.define('MAX_AGE', 24 * 60 * 60, 'Max AGE sent as a header for the image served by thumbor in seconds', 'Imaging')
 Config.define(
     'MAX_AGE_TEMP_IMAGE', 0,
-    "Indicates the Max AGE header in seconds for temporary images (images that haven't been detected yet)", 'Imaging')
+    "Indicates the Max AGE header in seconds for temporary images (images with failed smart detection)", 'Imaging')
 Config.define(
     'RESPECT_ORIENTATION', False,
     'Indicates whether thumbor should rotate images that have an Orientation EXIF header', 'Imaging')
+Config.define(
+    'IGNORE_SMART_ERRORS', False,
+    'Ignore errors during smart detections and return image as a temp image (not saved in result storage and with MAX_AGE_TEMP_IMAGE age)', 'Imaging')
 
 Config.define(
     'ALLOW_ANIMATED_GIFS', True,

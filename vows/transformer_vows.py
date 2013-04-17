@@ -10,7 +10,7 @@
 
 from pyvows import Vows, expect
 
-from vows.transformer_test_data import TESTITEMS, FIT_IN_CROP_DATA, TestData
+from vows.transformer_test_data import TESTITEMS, FIT_IN_CROP_DATA, TestData, MockSyncDetector, MockErrorSyncDetector
 
 from thumbor.transformer import Transformer
 
@@ -118,6 +118,62 @@ class TransformerVows(Vows.Context):
 
             def should_crop_properly(self, topic):
                 expect(self.test_data).to_be_cropped()
+
+    class ResizeCropWithDetectors(Vows.Context):
+        def topic(self):
+            for item in TESTITEMS:
+                yield item
+
+        class AsyncResizeCrop(Vows.Context):
+            @Vows.async_topic
+            def topic(self, callback, topic):
+                self.test_data = topic
+                context = topic.to_context(detectors=[MockSyncDetector])
+                trans = Transformer(context)
+                trans.transform(callback)
+
+            def should_resize_properly(self, topic):
+                expect(self.test_data).to_be_resized()
+
+            def should_crop_properly(self, topic):
+                expect(self.test_data).to_be_cropped()
+
+    class ResizeCropWithDetectorErrorsIgnored(Vows.Context):
+        @Vows.async_topic
+        def topic(self, callback):
+            self.test_data = TestData(
+                source_width=800, source_height=600,
+                target_width=400, target_height=150,
+                halign="center", valign="middle",
+                focal_points=[],
+                crop_left=0, crop_top=75, crop_right=800, crop_bottom=375
+            )
+            context = self.test_data.to_context(detectors=[MockErrorSyncDetector], ignore_detector_error=True)
+            trans = Transformer(context)
+            trans.transform(callback)
+
+        def should_resize_properly(self, topic):
+            expect(self.test_data).to_be_resized()
+
+        def should_crop_properly(self, topic):
+            expect(self.test_data).to_be_cropped()
+
+    class ResizeCropWithoutDetectorErrorsIgnored(Vows.Context):
+        @Vows.async_topic
+        def topic(self, callback):
+            self.test_data = TestData(
+                source_width=800, source_height=600,
+                target_width=400, target_height=150,
+                halign="center", valign="middle",
+                focal_points=[],
+                crop_left=0, crop_top=75, crop_right=800, crop_bottom=375
+            )
+            context = self.test_data.to_context(detectors=[MockErrorSyncDetector], ignore_detector_error=False)
+            trans = Transformer(context)
+            trans.transform(callback)
+
+        def should_resize_properly(self, topic):
+            expect(self.test_data.engine.calls['resize']).to_length(0)
 
     class FitIn(Vows.Context):
         def topic(self, callback):
