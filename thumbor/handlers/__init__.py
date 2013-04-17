@@ -251,7 +251,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class ContextHandler(BaseHandler):
     def initialize(self, context):
-        self.context = Context(context.server, context.config, context.modules.importer)
+        self.context = Context(context.server, context.config, context.modules.importer, self)
 
     def _handle_request_exception(self, e):
         try:
@@ -259,7 +259,7 @@ class ContextHandler(BaseHandler):
             msg = traceback.format_exception(exc_info[0], exc_info[1], exc_info[2])
 
             if self.context.config.USE_CUSTOM_ERROR_HANDLING:
-                self.context.modules.error_handler.handle_error(context=self.context, handler=self, exception=exc_info)
+                self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self, exception=exc_info)
 
         finally:
             del exc_info

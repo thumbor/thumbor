@@ -52,13 +52,19 @@ class ErrorHandler(object):
             'Headers': req.headers
         })
 
-        cookies = {}
-        for cookie in extra['Headers']['Cookie'].split(';'):
-            if not cookie:
-                continue
-            values = cookie.strip().split('=')
-            key, val = values[0], "".join(values[1:])
-            cookies[key] = val
+        cookies_header = extra['Headers']['Cookie']
+
+        if isinstance(cookies_header, basestring):
+            cookies = {}
+            for cookie in cookies_header.split(';'):
+                if not cookie:
+                    continue
+                values = cookie.strip().split('=')
+                key, val = values[0], "".join(values[1:])
+                cookies[key] = val
+        else:
+            cookies = cookies_header
+
         extra['Headers']['Cookie'] = cookies
 
         data = {
