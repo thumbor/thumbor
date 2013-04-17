@@ -16,7 +16,7 @@ class Filter(BaseFilter):
 
     def get_median_color(self):
         r, g, b = _fill.apply(self.engine.get_image_mode(), self.engine.get_image_data())
-        return '{:02x}{:02x}{:02x}'.format(r, g, b)
+        return '%02x%02x%02x' % (r, g, b)
 
     @filter_method(r'[\w]+')
     def fill(self, value):
