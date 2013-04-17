@@ -24,14 +24,19 @@ def _normalize_url(url):
 
 
 def validate(context, url):
+    url = _normalize_url(url)
+    res = urlparse(url)
+
+    if not res.hostname:
+        return False
+
     if not context.config.ALLOWED_SOURCES:
         return True
 
-    url = _normalize_url(url)
-    res = urlparse(url)
     for pattern in context.config.ALLOWED_SOURCES:
         if re.match('^%s$' % pattern, res.hostname):
             return True
+
     return False
 
 

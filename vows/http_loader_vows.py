@@ -20,9 +20,11 @@ from thumbor.config import Config
 
 fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
 
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.write('Hello')
+
 
 class ResponseMock:
     def __init__(self, error=None, content_type=None, body=None):
@@ -37,6 +39,7 @@ class ResponseMock:
 
         self.body = body
 
+
 @Vows.batch
 class ReturnContentVows(Vows.Context):
     class ShouldReturnNoneOnError(Vows.Context):
@@ -47,7 +50,7 @@ class ReturnContentVows(Vows.Context):
 
         def should_be_none(self, topic):
             expect(topic.args[0]).to_be_null()
- 
+
     class ShouldReturnBodyIfValid(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
@@ -56,6 +59,7 @@ class ReturnContentVows(Vows.Context):
 
         def should_be_none(self, topic):
             expect(topic.args[0]).to_equal('body')
+
 
 @Vows.batch
 class HttpLoader(TornadoHTTPContext):
@@ -99,6 +103,28 @@ class HttpLoader(TornadoHTTPContext):
             def should_validate(self, topic):
                 expect(topic).to_be_true()
 
+        class UnallowedDomainDoesNotValidate(TornadoHTTPContext):
+            def topic(self):
+                config = Config()
+                config.ALLOWED_SOURCES = ['s.glbimg.com']
+                ctx = Context(None, config, None)
+                is_valid = loader.validate(ctx, 'http://s2.glbimg.com/logo.jpg')
+                return is_valid
+
+            def should_validate(self, topic):
+                expect(topic).to_be_false()
+
+        class InvalidDomainDoesNotValidate(TornadoHTTPContext):
+            def topic(self):
+                config = Config()
+                config.ALLOWED_SOURCES = ['s2.glbimg.com']
+                ctx = Context(None, config, None)
+                is_valid = loader.validate(ctx, '/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=')
+                return is_valid
+
+            def should_validate(self, topic):
+                expect(topic).to_be_false()
+
     class NormalizeURL(TornadoHTTPContext):
         class WhenStartsWithHttp(TornadoHTTPContext):
             def topic(self):
@@ -124,4 +150,3 @@ class HttpLoader(TornadoHTTPContext):
 
             def should_equal_hello(self, topic):
                 expect(topic).to_equal('Hello')
-
