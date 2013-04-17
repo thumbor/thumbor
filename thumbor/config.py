@@ -68,6 +68,19 @@ Config.define('ALLOW_OLD_URLS', True, 'Indicates if encrypted (old style) URLs s
 # FILE LOADER OPTIONS
 Config.define('FILE_LOADER_ROOT_PATH', '/tmp', 'The root path where the File Loader will try to find images', 'File Loader')
 
+# HTTP LOADER OPTIONS
+Config.define(
+    'HTTP_LOADER_CONNECT_TIMEOUT', 5,
+    'The maximum number of seconds libcurl can take to connect to an image being loaded', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_REQUEST_TIMEOUT', 20,
+    'The maximum number of seconds libcurl can take to download an image', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_FOLLOW_REDIRECTS', True,
+    'Indicates whether libcurl should follow redirects when downloading an image', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_MAX_REDIRECTS', 5,
+    'Indicates the number of redirects libcurl should follow when downloading an image', 'HTTP Loader')
 
 # FILE STORAGE GENERIC OPTIONS
 Config.define(

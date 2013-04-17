@@ -57,4 +57,12 @@ def load(context, url, callback):
         client = tornado.httpclient.AsyncHTTPClient()
 
     url = _normalize_url(url)
-    client.fetch(url, callback=partial(return_contents, url=url, callback=callback))
+    req = tornado.httpclient.HTTPRequest(
+        url=url,
+        connect_timeout=context.config.HTTP_LOADER_CONNECT_TIMEOUT,
+        request_timeout=context.config.HTTP_LOADER_REQUEST_TIMEOUT,
+        follow_redirects=context.config.HTTP_LOADER_FOLLOW_REDIRECTS,
+        max_redirects=context.config.HTTP_LOADER_MAX_REDIRECTS
+    )
+
+    client.fetch(req, callback=partial(return_contents, url=url, callback=callback))
