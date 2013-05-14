@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+
 class FocalPoint(object):
     ALIGNMENT_PERCENTAGES = {
         'left': 0.0,
@@ -30,12 +31,14 @@ class FocalPoint(object):
 
     @classmethod
     def from_dict(cls, values):
-        return cls(x = float(values['x']),
-                   y = float(values['y']),
-                   weight = float(values['z']),
-                   width = float(values.get('width', 1)),
-                   height = float(values.get('height', 1)),
-                   origin=values.get('origin', 'alignment'))
+        return cls(
+            x=float(values['x']),
+            y=float(values['y']),
+            weight=float(values['z']),
+            width=float(values.get('width', 1)),
+            height=float(values.get('height', 1)),
+            origin=values.get('origin', 'alignment')
+        )
 
     def __init__(self, x, y, height=1, width=1, weight=1.0, origin="alignment"):
         self.x = x
@@ -60,4 +63,5 @@ class FocalPoint(object):
 
     def __repr__(self):
         return 'FocalPoint(x: %d, y: %d, width: %d, height: %d, weight: %d, origin: %s)' % (
-                self.x, self.y, self.width, self.height, self.weight, self.origin)
+            self.x, self.y, self.width, self.height, self.weight, self.origin
+        )

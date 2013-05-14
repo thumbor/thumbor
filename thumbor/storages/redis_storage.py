@@ -91,7 +91,8 @@ class Storage(BaseStorage):
 
     @on_exception(on_redis_error, RedisError)
     def remove(self, path):
-        if not self.exists(path): return
+        if not self.exists(path):
+            return
         return self.storage.delete(path)
 
     @on_exception(on_redis_error, RedisError)

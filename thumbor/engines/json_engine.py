@@ -12,6 +12,7 @@ import json
 
 from thumbor.engines import BaseEngine
 
+
 class JSONEngine(BaseEngine):
 
     def __init__(self, engine, path, callback_name=None):
@@ -56,10 +57,10 @@ class JSONEngine(BaseEngine):
             self.focal_points.append(point.to_dict())
 
     def flip_vertically(self):
-        self.operations.append({ "type": "flip_vertically" })
+        self.operations.append({"type": "flip_vertically"})
 
     def flip_horizontally(self):
-        self.operations.append({ "type": "flip_horizontally" })
+        self.operations.append({"type": "flip_horizontally"})
 
     def get_target_dimensions(self):
         width = self.width
@@ -68,7 +69,7 @@ class JSONEngine(BaseEngine):
         for operation in self.operations:
             if operation['type'] == 'crop':
                 width = operation['right'] - operation['left']
-                height= operation['bottom'] - operation['top']
+                height = operation['bottom'] - operation['top']
 
             if operation['type'] == 'resize':
                 width = operation['width']
@@ -116,7 +117,7 @@ class JSONEngine(BaseEngine):
         return self.engine.set_image_data(data)
 
     def read(self, extension, quality):
-        target_width, target_height= self.get_target_dimensions()
+        target_width, target_height = self.get_target_dimensions()
         thumbor_json = {
             "thumbor": {
                 "source": {
@@ -141,4 +142,3 @@ class JSONEngine(BaseEngine):
             return "%s(%s);" % (self.callback_name, thumbor_json)
 
         return thumbor_json
-

@@ -19,7 +19,7 @@ TEST_DATA = (
     ('MAX_HEIGHT', 0),
     ('ALLOWED_SOURCES', []),
     ('QUALITY', 80),
-    ('LOADER',  'thumbor.loaders.http_loader'),
+    ('LOADER', 'thumbor.loaders.http_loader'),
     ('STORAGE', STORAGE_DEFAULT_VALUE),
     ('ENGINE', 'thumbor.engines.pil'),
     ('ALLOW_UNSAFE_URL', True),

@@ -7,12 +7,11 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
-from thumbor.storages.file_storage import Storage as FileStorage
+
 from os.path import abspath, join, dirname
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
-import tornado.escape
 
 from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer

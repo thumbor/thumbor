@@ -62,8 +62,7 @@ class Transformer(object):
                 self.focal_points = []
                 crop = self.context.request.crop
                 for point in self.context.request.focal_points:
-                    if point.x < crop['left'] or point.x > crop['right'] or \
-                       point.y < crop['top']  or point.y > crop['bottom']:
+                    if point.x < crop['left'] or point.x > crop['right'] or point.y < crop['top'] or point.y > crop['bottom']:
                         continue
                     point.x -= crop['left'] or 0
                     point.y -= crop['top'] or 0
@@ -284,7 +283,7 @@ class Transformer(object):
         source_width, source_height = self.engine.size
 
         #invert width and height if image orientation is not the same as request orientation and need adaptive
-        if self.context.request.adaptive and ((source_width - source_height < 0 and self.target_width - self.target_height > 0 ) or (source_width - source_height > 0 and self.target_width - self.target_height < 0 )):
+        if self.context.request.adaptive and ((source_width - source_height < 0 and self.target_width - self.target_height > 0) or (source_width - source_height > 0 and self.target_width - self.target_height < 0)):
             tmp = self.context.request.width
             self.context.request.width = self.context.request.height
             self.context.request.height = tmp
@@ -317,4 +316,3 @@ class Transformer(object):
                                        int(point.y - (point.height / 2)),
                                        point.width,
                                        point.height)
-

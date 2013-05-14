@@ -16,11 +16,12 @@ from Crypto.Cipher import AES
 
 from thumbor.url import Url
 
+
 class Cryptor(object):
     def __init__(self, security_key):
         self.security_key = (security_key * 16)[:16]
 
-    def encrypt(self, 
+    def encrypt(self,
                 width,
                 height,
                 smart,
@@ -38,23 +39,26 @@ class Cryptor(object):
                 filters,
                 image):
 
-        url = "%s/%s" % (Url.generate_options(width=width,
-                                              height=height,
-                                              smart=smart,
-                                              meta=False,
-                                              adaptive=adaptive,
-                                              fit_in=fit_in,
-                                              horizontal_flip=flip_horizontal,
-                                              vertical_flip=flip_vertical,
-                                              halign=halign,
-                                              valign=valign,
-                                              trim=trim,
-                                              crop_left=crop_left,
-                                              crop_top=crop_top,
-                                              crop_right=crop_right,
-                                              crop_bottom=crop_bottom,
-                                              filters=filters),
-                        hashlib.md5(image).hexdigest())
+        generated_url = Url.generate_options(
+            width=width,
+            height=height,
+            smart=smart,
+            meta=False,
+            adaptive=adaptive,
+            fit_in=fit_in,
+            horizontal_flip=flip_horizontal,
+            vertical_flip=flip_vertical,
+            halign=halign,
+            valign=valign,
+            trim=trim,
+            crop_left=crop_left,
+            crop_top=crop_top,
+            crop_right=crop_right,
+            crop_bottom=crop_bottom,
+            filters=filters
+        )
+
+        url = "%s/%s" % (generated_url, hashlib.md5(image).hexdigest())
 
         pad = lambda s: s + (16 - len(s) % 16) * "{"
         cipher = AES.new(self.security_key)
@@ -111,6 +115,7 @@ class Cryptor(object):
 
         return result
 
+
 class Signer:
     def __init__(self, security_key):
         self.security_key = security_key
@@ -121,4 +126,3 @@ class Signer:
 
     def signature(self, url):
         return base64.urlsafe_b64encode(hmac.new(self.security_key, unicode(url).encode('utf-8'), hashlib.sha1).digest())
-

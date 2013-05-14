@@ -19,6 +19,7 @@ FORMATS = {
     '.png': 'PNG'
 }
 
+
 class Engine(BaseEngine):
 
     def create_image(self, buffer):
@@ -53,7 +54,7 @@ class Engine(BaseEngine):
         new_width = right - left
         new_height = bottom - top
         cropped = cv.CreateImage((new_width, new_height), 8, 3)
-        src_region = cv.GetSubRect(self.image, (left, top, new_width, new_height) )
+        src_region = cv.GetSubRect(self.image, (left, top, new_width, new_height))
         cv.Copy(src_region, cropped)
 
         self.image = cropped
@@ -65,7 +66,8 @@ class Engine(BaseEngine):
         raise NotImplementedError()
 
     def read(self, extension=None, quality=None):
-        if quality is None: quality = self.context.request.quality
+        if quality is None:
+            quality = self.context.request.quality
         options = None
         extension = extension or self.extension
         try:

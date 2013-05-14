@@ -12,6 +12,7 @@ import re
 
 from thumbor.filters.drop_shadow import Filter
 
+
 def test_drop_shadow_filter_regex():
     reg = Filter.regex
 

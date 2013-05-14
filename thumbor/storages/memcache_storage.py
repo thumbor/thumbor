@@ -14,6 +14,7 @@ import pylibmc
 
 from thumbor.storages import BaseStorage
 
+
 class Storage(BaseStorage):
 
     def __init__(self, context):

@@ -12,6 +12,7 @@ from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
 from os.path import splitext
 
+
 class Filter(BaseFilter):
     regex = r'(?:watermark\((?P<url>.*?),(?P<x>-?[\d]*?),(?P<y>-?[\d]*?),(?P<alpha>[\d]*?)\))'
 
@@ -46,7 +47,7 @@ class Filter(BaseFilter):
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
 
-    @filter_method(BaseFilter.String, r'-?[\d]+', r'-?[\d]+', BaseFilter.PositiveNumber, async = True)
+    @filter_method(BaseFilter.String, r'-?[\d]+', r'-?[\d]+', BaseFilter.PositiveNumber, async=True)
     def watermark(self, callback, url, x, y, alpha):
         self.url = url
         self.x = x

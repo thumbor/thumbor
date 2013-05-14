@@ -10,7 +10,7 @@
 
 from thumbor.handlers import BaseHandler
 
+
 class HealthcheckHandler(BaseHandler):
     def get(self):
         self.write('WORKING')
-

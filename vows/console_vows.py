@@ -13,6 +13,7 @@ from pyvows import Vows, expect
 import thumbor.console
 from thumbor.context import ServerParameters
 
+
 @Vows.batch
 class ConsoleVows(Vows.Context):
 

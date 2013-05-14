@@ -12,6 +12,7 @@ from thumbor.ext.filters import _nine_patch
 from thumbor.filters import BaseFilter, filter_method
 from os.path import splitext
 
+
 class Filter(BaseFilter):
     regex = r'(?:frame\((?P<url>.*?))'
 
@@ -28,7 +29,9 @@ class Filter(BaseFilter):
         self.handle_padding(padding)
 
         if self.engine.get_image_mode() != self.nine_patch_engine.get_image_mode():
-            raise RuntimeError('Image mode mismatch: %s != %s' % (self.engine.get_image_mode(), self.nine_patch_engine.get_image_mode()))
+            raise RuntimeError('Image mode mismatch: %s != %s' % (
+                self.engine.get_image_mode(), self.nine_patch_engine.get_image_mode())
+            )
 
         imgdata = _nine_patch.apply(self.engine.get_image_mode(),
                                     self.engine.get_image_data(),
@@ -74,7 +77,7 @@ class Filter(BaseFilter):
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
 
-    @filter_method(BaseFilter.String, async = True)
+    @filter_method(BaseFilter.String, async=True)
     def frame(self, callback, url):
         self.url = url
         self.callback = callback

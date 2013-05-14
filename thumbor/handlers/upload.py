@@ -12,6 +12,7 @@ import urllib
 
 from thumbor.handlers import ContextHandler
 
+
 class BadRequestError(ValueError):
     pass
 
@@ -32,8 +33,10 @@ class UploadHandler(ContextHandler):
         return stored_path
 
     def extract_file_data(self):
-        if not 'media' in self.request.files: raise RuntimeError("File was not uploaded properly.")
-        if not self.request.files['media']: raise RuntimeError("File was not uploaded properly.")
+        if not 'media' in self.request.files:
+            raise RuntimeError("File was not uploaded properly.")
+        if not self.request.files['media']:
+            raise RuntimeError("File was not uploaded properly.")
 
         return self.request.files['media'][0]
 
@@ -78,7 +81,8 @@ class UploadHandler(ContextHandler):
             return
 
         path = 'file_path' in self.request.arguments and self.request.arguments['file_path'] or None
-        if path is None and self.request.body is None: raise RuntimeError('The file_path argument is mandatory to delete an image')
+        if path is None and self.request.body is None:
+            raise RuntimeError('The file_path argument is mandatory to delete an image')
         path = urllib.unquote(self.request.body.split('=')[-1])
 
         if self.context.modules.storage.exists(path):
@@ -88,16 +92,16 @@ class UploadHandler(ContextHandler):
         conf = self.context.config
         engine = self.context.modules.engine
 
-        if ( conf.UPLOAD_MAX_SIZE != 0 and  len(self.extract_file_data()['body']) > conf.UPLOAD_MAX_SIZE ):
+        if (conf.UPLOAD_MAX_SIZE != 0 and len(self.extract_file_data()['body']) > conf.UPLOAD_MAX_SIZE):
             return False
 
         try:
-            engine.load(self.extract_file_data()['body'],None)
+            engine.load(self.extract_file_data()['body'], None)
         except IOError:
             return False
 
         size = engine.size
-        if (conf.MIN_WIDTH > size[0] or conf.MIN_HEIGHT > size[1]) :
+        if (conf.MIN_WIDTH > size[0] or conf.MIN_HEIGHT > size[1]):
             return False
 
         return True

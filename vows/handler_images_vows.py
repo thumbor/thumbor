@@ -12,7 +12,6 @@ from os.path import abspath, join, dirname
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
-import tornado.escape
 
 from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer

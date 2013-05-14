@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -13,6 +13,7 @@ import logging
 from pyvows import Vows, expect
 
 from thumbor.utils import logger, real_import
+
 
 @Vows.batch
 class UtilVows(Vows.Context):
@@ -42,7 +43,7 @@ class UtilVows(Vows.Context):
         class WhenUsingSubmodules(Vows.Context):
             def topic(self):
                 return real_import('thumbor.utils')
-            
+
             def should_not_be_an_error(self, topic):
                 expect(topic).not_to_be_an_error()
 
@@ -51,4 +52,3 @@ class UtilVows(Vows.Context):
 
             def should_return_module(self, topic):
                 expect(topic.logger).not_to_be_null()
-

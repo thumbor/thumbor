@@ -12,6 +12,7 @@ from pyvows import Vows, expect
 
 from thumbor.context import Context, ServerParameters
 
+
 @Vows.batch
 class ContextVows(Vows.Context):
 
@@ -25,6 +26,7 @@ class ContextVows(Vows.Context):
 
         def should_be_context(self, topic):
             expect(topic).to_be_instance_of(Context)
+
 
 @Vows.batch
 class ServerParameterVows(Vows.Context):
@@ -62,4 +64,3 @@ class ServerParameterVows(Vows.Context):
 
         def should_have_null_app_class(self, topic):
             expect(topic.app_class).to_be_null()
-

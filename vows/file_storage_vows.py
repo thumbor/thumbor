@@ -92,7 +92,9 @@ class FileStorageVows(Vows.Context):
 
             def should_be_an_error(self, topic):
                 expect(topic).to_be_an_error_like(RuntimeError)
-                expect(topic).to_have_an_error_message_of("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+                expect(topic).to_have_an_error_message_of(
+                    "STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
+                )
 
         class GettingCryptoForANewImageReturnsNone(Vows.Context):
             def topic(self):

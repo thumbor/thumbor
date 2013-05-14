@@ -11,6 +11,7 @@
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _rgb
 
+
 class Filter(BaseFilter):
 
     @filter_method(BaseFilter.Number, BaseFilter.Number, BaseFilter.Number)

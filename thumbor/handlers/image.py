@@ -53,7 +53,7 @@ class ImageHandler(ImageApiHandler):
 
             mime = self.get_mimetype(body)
             if mime:
-                self.set_header('Content-Type',  mime)
+                self.set_header('Content-Type', mime)
 
             max_age = self.context.config.MAX_AGE
             if max_age:

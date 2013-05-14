@@ -67,7 +67,6 @@ class MaxAgeVows(Vows.Context):
             _, headers = response
             expect(headers).to_include('Expires')
 
-
     class WithNonStoragedImage(TornadoHTTPContext):
         def get_app(self):
             return get_app(prevent_result_storage=True)
@@ -87,7 +86,6 @@ class MaxAgeVows(Vows.Context):
         def should_set_expires(self, response):
             _, headers = response
             expect(headers).to_include('Expires')
-
 
     class WithDetectionErrorImage(TornadoHTTPContext):
         def get_app(self):

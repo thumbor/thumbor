@@ -18,6 +18,7 @@ from thumbor.app import ThumborServiceApp
 
 get_conf_path = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
 
+
 class MetaHandlerTestCase(AsyncHTTPTestCase):
 
     def get_app(self):
@@ -173,6 +174,7 @@ class MetaHandlerTestCase(AsyncHTTPTestCase):
         assert operations[2]['type'] == 'flip_horizontally'
         assert operations[3]['type'] == 'flip_vertically'
 
+
 class MetaHandlerJSONPTestCase(AsyncHTTPTestCase):
 
     def get_app(self):
@@ -187,5 +189,3 @@ class MetaHandlerJSONPTestCase(AsyncHTTPTestCase):
 
         assert text.strip().startswith('callback({')
         assert text.strip().endswith('});')
-
-

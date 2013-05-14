@@ -14,6 +14,7 @@ from thumbor.app import ThumborServiceApp
 from thumbor.context import Context
 from thumbor.config import Config
 
+
 @Vows.batch
 class AppVows(Vows.Context):
 
@@ -24,4 +25,3 @@ class AppVows(Vows.Context):
 
         def should_be_ThumborServiceApp(self, topic):
             expect(topic).to_be_instance_of(ThumborServiceApp)
-

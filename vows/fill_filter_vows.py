@@ -18,8 +18,8 @@ from thumbor.importer import Importer
 DATA = [
     # size requested, resized/cropped image size, result size, image color, detected color
     ((20, 20), (10, 10), (20, 20), '#fff', "ffffff"),
-    ((20, 0),  (10, 10), (20, 10), '#333', "333333"),
-    ((0,  20), (10, 10), (10, 20), '#123103', "123103")
+    ((20, 0), (10, 10), (20, 10), '#333', "333333"),
+    ((0, 20), (10, 10), (10, 20), '#123103', "123103")
 ]
 
 

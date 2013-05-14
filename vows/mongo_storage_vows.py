@@ -104,7 +104,8 @@ class MongoStorageVows(MongoDBContext):
     class StoresCrypto(Vows.Context):
         class DoesNotStoreWhenConfigIsFalseInPutMethod(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)))
+                storage = MongoStorage(
+                    Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)))
                 storage.put(IMAGE_URL % 3, IMAGE_BYTES)
 
                 return COLLECTION.find_one({'path': IMAGE_URL % 3})
@@ -125,7 +126,9 @@ class MongoStorageVows(MongoDBContext):
 
             def should_be_an_error(self, topic):
                 expect(topic).to_be_an_error_like(RuntimeError)
-                expect(topic).to_have_an_error_message_of("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+                expect(topic).to_have_an_error_message_of(
+                    "STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
+                )
 
         class StoringProperKey(Vows.Context):
             def topic(self):
@@ -168,7 +171,12 @@ class MongoStorageVows(MongoDBContext):
 
         class GetNoKey(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC')))
+                storage = MongoStorage(
+                    Context(config=Config(
+                        MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True,
+                        SECURITY_KEY='ACME-SEC')
+                    )
+                )
                 return storage.get_crypto(IMAGE_URL % 7)
 
             def should_not_be_in_catalog(self, topic):
@@ -176,7 +184,10 @@ class MongoStorageVows(MongoDBContext):
 
         class GetProperKeyBeforeExpiration(Vows.Context):
             def topic(self):
-                conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, STORAGE_EXPIRATION_SECONDS=5000)
+                conf = Config(
+                    MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True,
+                    STORAGE_EXPIRATION_SECONDS=5000
+                )
                 server = get_server('ACME-SEC')
                 storage = MongoStorage(Context(server=server, config=conf))
                 storage.put(IMAGE_URL % 8, IMAGE_BYTES)
@@ -191,7 +202,11 @@ class MongoStorageVows(MongoDBContext):
 
         class GetNothingAfterExpiration(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True, SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=0)))
+                config = Config(
+                    MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True,
+                    SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=0
+                )
+                storage = MongoStorage(Context(config=config))
                 storage.put(IMAGE_URL % 10, IMAGE_BYTES)
 
                 item = storage.get(IMAGE_URL % 10)
@@ -242,7 +257,9 @@ class MongoStorageVows(MongoDBContext):
 
             def should_be_an_error(self, topic):
                 expect(topic).to_be_an_error_like(RuntimeError)
-                expect(topic).to_have_an_error_message_of("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+                expect(topic).to_have_an_error_message_of(
+                    "STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
+                )
 
     class DetectorData(Vows.Context):
         def topic(self):
@@ -255,4 +272,3 @@ class MongoStorageVows(MongoDBContext):
 
         def should_be_some_data(self, topic):
             expect(topic).to_equal('some data')
-

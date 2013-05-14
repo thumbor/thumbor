@@ -108,10 +108,11 @@ class RequestParameters:
                 'bottom': self.int_or_0(crop_bottom)
             }
 
-        self.should_crop = self.crop['left'] > 0 or \
-                           self.crop['top'] > 0 or \
-                           self.crop['right'] > 0 or \
-                           self.crop['bottom'] > 0
+        self.should_crop = \
+            self.crop['left'] > 0 or \
+            self.crop['top'] > 0 or \
+            self.crop['right'] > 0 or \
+            self.crop['bottom'] > 0
 
         self.adaptive = bool(adaptive)
         self.fit_in = bool(fit_in)

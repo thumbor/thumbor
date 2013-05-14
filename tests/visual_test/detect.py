@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -39,7 +39,7 @@ for cascade_file in cascade_files:
     loaded_cascade_file = cv.Load(cascade_file)
 
     for image_path in images_path:
-        
+
         with tempfile.NamedTemporaryFile() as temp_file:
             file_name = temp_file.name
 
@@ -53,7 +53,8 @@ for cascade_file in cascade_files:
 
             grayscale = cv.LoadImageM(file_name, cv.CV_LOAD_IMAGE_GRAYSCALE)
 
-            faces = cv.HaarDetectObjects(grayscale, loaded_cascade_file,
+            faces = cv.HaarDetectObjects(
+                grayscale, loaded_cascade_file,
                 cv.CreateMemStorage(), 1.1, 3, cv.CV_HAAR_DO_CANNY_PRUNING, (30, 30))
 
             if faces:

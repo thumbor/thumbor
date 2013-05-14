@@ -28,6 +28,7 @@ import mimetypes
 file_storage_root_path = '/tmp/thumbor-vows/storage'
 file_path = ''
 
+
 ##
 # Images used for tests :
 #   - valid image      : JPEG 620x465, 69.88 KB
@@ -40,11 +41,13 @@ def valid_image():
         body = stream.read()
     return body
 
+
 def too_small_image():
     path = abspath(join(dirname(__file__), 'crocodile.jpg'))
     with open(path, 'r') as stream:
         body = stream.read()
     return body
+
 
 def too_weight_image():
     path = abspath(join(dirname(__file__), 'fixtures/conselheira_tutelar.jpg'))
@@ -55,6 +58,7 @@ def too_weight_image():
 
 if exists(file_storage_root_path):
     rmtree(file_storage_root_path)
+
 
 ##
 # Path on file system (filestorage)
@@ -85,6 +89,7 @@ def encode_multipart_formdata(fields, files):
     body = CRLF.join([str(item) for item in L])
     content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
     return content_type, body
+
 
 ##
 # Image Context defining post / put / delete / get
@@ -133,6 +138,7 @@ class ImageContext(TornadoHTTPContext):
                               'Content-Type': multipart_data[0]
                           },
                           allow_nonstandard_methods=True)
+
 
 ##
 # Upload new images with POST method
@@ -223,7 +229,6 @@ class PostingANewImage(ImageContext):
                 path = path_on_filesystem(topic)
                 expect(exists(path)).to_be_true()
 
-
     ##
     # Posting a new image through an HTML Form (multipart/form-data)
     ##
@@ -257,6 +262,7 @@ class PostingANewImage(ImageContext):
             def should_be_store_at_right_path(self, topic):
                 path = path_on_filesystem(topic)
                 expect(exists(path)).to_be_true()
+
 
 ##
 # Modifying an image
@@ -344,7 +350,7 @@ class DeletingAnImage(ImageContext):
             self.filename = self.default_filename + '.jpg'
             response = self.post(self.base_uri, {'Content-Type': 'image/jpeg'}, valid_image())
             self.location = response.headers['Location']
-            response = self.delete(self.location,{})
+            response = self.delete(self.location, {})
             return response
 
         class HttpStatusCode(ImageContext):
@@ -369,7 +375,7 @@ class DeletingAnImage(ImageContext):
     class WhenDeletingAnUnknownImage(ImageContext):
         def topic(self):
             self.uri = self.base_uri + '/an/unknown/image'
-            response = self.delete(self.uri,{})
+            response = self.delete(self.uri, {})
             return response
 
         class HttpStatusCode(ImageContext):
@@ -378,6 +384,7 @@ class DeletingAnImage(ImageContext):
 
             def should_be_404_not_found(self, topic):
                 expect(topic).to_equal(404)
+
 
 ##
 # Retrieving image
@@ -423,7 +430,6 @@ class RetrievingAnImage(ImageContext):
             def should_be_the_expected_image(self, topic):
                 expect(topic).to_equal(valid_image())
 
-
     class WhenRetrievingAnUnknownImage(ImageContext):
         def topic(self):
             self.uri = self.base_uri + '/an/unknown/image'
@@ -436,6 +442,7 @@ class RetrievingAnImage(ImageContext):
 
             def should_be_404_not_found(self, topic):
                 expect(topic).to_equal(404)
+
 
 ##
 # Validation :
@@ -464,7 +471,6 @@ class Validation(ImageContext):
         ctx = Context(None, cfg, importer)
         application = ThumborServiceApp(ctx)
         return application
-
 
     ##
     # Invalid Image
@@ -510,7 +516,7 @@ class Validation(ImageContext):
                 response = self.post(self.base_uri, {'Content-Type': 'image/jpeg'}, valid_image())
                 self.location = response.headers['Location']
                 response = self.put(self.location, {'Content-Type': 'image/jpeg'}, 'invalid image')
-                return  response
+                return response
 
             class HttpStatusCode(ImageContext):
                 def topic(self, response):
@@ -616,4 +622,3 @@ class Validation(ImageContext):
 
                 def should_be_412_precondition_failed(self, topic):
                     expect(topic).to_equal(412)
-            

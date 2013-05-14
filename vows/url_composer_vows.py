@@ -12,6 +12,7 @@ from pyvows import Vows, expect
 
 from thumbor.url_composer import main
 
+
 @Vows.batch
 class AppVows(Vows.Context):
 
@@ -46,4 +47,3 @@ class AppVows(Vows.Context):
 
         def should_be_proper_url(self, topic):
             expect(topic).to_equal('/6LSog0KmY0NQg8GK4Tsti0FAR9emvaF4xfyLY3FUmOI0HVcqF8HxibsAjVCbxFfl/myserver.com/myimg.jpg')
-

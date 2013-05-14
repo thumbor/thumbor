@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -15,6 +15,7 @@ from pyvows import Vows, expect
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.storages.mixed_storage import Storage as MixedStorage
 from fixtures.storage_fixture import get_context
+
 
 class Storage(object):
     def __init__(self, security_key):
@@ -48,6 +49,7 @@ class Storage(object):
             raise RuntimeError('%s was not found in storage' % path)
 
         return self.storage[path]['contents']
+
 
 @Vows.batch
 class MixedStorageVows(Vows.Context):

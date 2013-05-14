@@ -10,7 +10,7 @@
 
 import uuid
 import mimetypes
-from thumbor.handlers import  ImageApiHandler
+from thumbor.handlers import ImageApiHandler
 
 
 ##
@@ -19,7 +19,6 @@ from thumbor.handlers import  ImageApiHandler
 #   - through multipart/form-data (designed for forms)
 #   - or with the image content in the request body (rest style)
 ##
-
 class ImagesHandler(ImageApiHandler):
 
     def post(self):
@@ -43,7 +42,8 @@ class ImagesHandler(ImageApiHandler):
             if not filename:
                 content_type = self.request.headers.get('Content-Type', self.get_mimetype(body))
                 extension = mimetypes.guess_extension(content_type, False)
-                if extension == '.jpe': extension = '.jpg'          # Hack because mimetypes return .jpe by default
+                if extension == '.jpe':
+                    extension = '.jpg'  # Hack because mimetypes return .jpe by default
                 filename = self.context.config.UPLOAD_DEFAULT_FILENAME + extension
 
             # Build image id based on a random uuid (32 characters)
@@ -61,5 +61,3 @@ class ImagesHandler(ImageApiHandler):
     def location(self, id, filename):
         base_uri = self.request.uri
         return base_uri + '/' + id + '/' + filename
-
-

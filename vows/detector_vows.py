@@ -13,6 +13,7 @@ ctx = Vows.Context
 
 from thumbor.detectors import BaseDetector
 
+
 def get_detector(name):
     class MockDetector:
         def __init__(self, context, index, detectors):
@@ -25,6 +26,7 @@ def get_detector(name):
             callback(self.name)
 
     return MockDetector
+
 
 @Vows.batch
 class BaseDetectorVows(ctx):
@@ -67,4 +69,3 @@ class BaseDetectorVows(ctx):
 
         def should_be_null(self, topic):
             expect(topic.args).to_length(0)
-

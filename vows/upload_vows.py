@@ -12,7 +12,6 @@ import mimetypes
 import urllib
 import hashlib
 from os.path import abspath, join, dirname, exists
-from datetime import datetime
 from shutil import rmtree
 
 from pyvows import Vows, expect
@@ -28,15 +27,17 @@ crocodile_file_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
 oversized_file_path = abspath(join(dirname(__file__), 'fixtures/image.jpg'))
 
 with open(crocodile_file_path, 'r') as croc:
-    croc_content= croc.read()
+    croc_content = croc.read()
 
 if exists(file_storage_root_path):
     rmtree(file_storage_root_path)
 
+
 def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
-"adapted from: http://code.activestate.com/recipes/146306/"
+
+# adapted from: http://code.activestate.com/recipes/146306/
 def encode_multipart_formdata(fields, files):
     """
     fields is a sequence of (name, value) elements for regular form
@@ -69,6 +70,7 @@ to be uploaded as files
 
     return content_type, body
 
+
 def path_on_filesystem(path):
     digest = hashlib.sha1(path).hexdigest()
     return join(file_storage_root_path.rstrip('/'), digest[:2] + '/' + digest[2:])
@@ -85,13 +87,10 @@ class BaseContext(TornadoHTTPContext):
     def post_files(self, method, path, data={}, files=[]):
         multipart_data = encode_multipart_formdata(data, files)
 
-        return self.fetch(path,
-            method=method.upper(),
-            body=multipart_data[1],
-            headers={
-                'Content-Type': multipart_data[0]
-            },
-            allow_nonstandard_methods=True)
+        return self.fetch(
+            path, method=method.upper(), body=multipart_data[1],
+            headers={'Content-Type': multipart_data[0]}, allow_nonstandard_methods=True)
+
 
 @Vows.batch
 class Upload(BaseContext):
@@ -219,7 +218,6 @@ class Upload(BaseContext):
                 expect(topic).to_equal(200)
                 expect(exists(path)).to_be_false()
 
-
             class DeletingAgainDoesNothing(BaseContext):
                 def topic(self):
                     response = self.delete('/upload', {'file_path': 'crocodile-delete.jpg'})
@@ -243,6 +241,7 @@ class Upload(BaseContext):
 
                 def should_not_be_an_error_and_file_should_not_exist(self, topic):
                     expect(topic).to_equal(200)
+
 
 @Vows.batch
 class UploadWithoutDeletingAllowed(BaseContext):
@@ -280,7 +279,6 @@ class UploadWithoutDeletingAllowed(BaseContext):
                     expect(exists(path)).to_be_true()
 
 
-
 @Vows.batch
 class UploadWithMinWidthAndHeight(BaseContext):
     def get_app(self):
@@ -315,6 +313,7 @@ class UploadWithMinWidthAndHeight(BaseContext):
 
         def should_be_an_error(self, topic):
             expect(topic[0]).to_equal(412)
+
 
 @Vows.batch
 class UploadWithMaxSize(BaseContext):

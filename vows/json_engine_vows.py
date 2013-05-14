@@ -17,10 +17,12 @@ ctx = Vows.Context
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.point import FocalPoint
 
+
 class MockImage:
     def __init__(self, size, data=None):
         self.size = size
         self.data = data
+
 
 class MockEngine:
     def __init__(self, size):
@@ -46,8 +48,10 @@ class MockEngine:
     def size(self):
         return self.image.size
 
+
 IMAGE_PATH = '/some/image/path.jpg'
 IMAGE_SIZE = (300, 200)
+
 
 @Vows.batch
 class JsonEngineVows(ctx):
@@ -113,11 +117,11 @@ class JsonEngineVows(ctx):
                         "operations": [],
                         "source": {
                             "url": "/some/image/path.jpg",
-                            "width": 300, 
+                            "width": 300,
                             "height": 200
                         },
                         "target": {
-                            "width": 300, 
+                            "width": 300,
                             "height": 200
                         }
                     }
@@ -147,17 +151,16 @@ class JsonEngineVows(ctx):
                         "operations": [],
                         "source": {
                             "url": "/some/image/path.jpg",
-                            "width": 300, 
+                            "width": 300,
                             "height": 200
                         },
                         "target": {
-                            "width": 300, 
+                            "width": 300,
                             "height": 200
                         }
                     }
                 }
                 expect(topic).to_be_like(expected)
-
 
     class ResizeVows(ctx):
         def topic(self):
@@ -176,11 +179,11 @@ class JsonEngineVows(ctx):
                     ],
                     "source": {
                         "url": "/some/image/path.jpg",
-                        "width": 300, 
+                        "width": 300,
                         "height": 200
                     },
                     "target": {
-                        "width": 200, 
+                        "width": 200,
                         "height": 300
                     }
                 }
@@ -204,11 +207,11 @@ class JsonEngineVows(ctx):
                     ],
                     "source": {
                         "url": "/some/image/path.jpg",
-                        "width": 300, 
+                        "width": 300,
                         "height": 200
                     },
                     "target": {
-                        "width": 100, 
+                        "width": 100,
                         "height": 50
                     }
                 }
@@ -234,18 +237,16 @@ class JsonEngineVows(ctx):
                     ],
                     "source": {
                         "url": "/some/image/path.jpg",
-                        "width": 300, 
+                        "width": 300,
                         "height": 200
                     },
                     "target": {
-                        "width": 300, 
+                        "width": 300,
                         "height": 200
                     }
                 }
             }
             expect(topic).to_be_like(expected)
-
-
 
     class FocalVows(ctx):
         def topic(self):
@@ -270,15 +271,13 @@ class JsonEngineVows(ctx):
                     ],
                     "source": {
                         "url": "/some/image/path.jpg",
-                        "width": 300, 
+                        "width": 300,
                         "height": 200
                     },
                     "target": {
-                        "width": 300, 
+                        "width": 300,
                         "height": 200
                     }
                 }
             }
             expect(topic).to_be_like(expected)
-
-

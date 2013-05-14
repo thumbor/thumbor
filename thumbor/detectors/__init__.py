@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+
 class BaseDetector(object):
 
     def __init__(self, context, index, detectors):
@@ -25,4 +26,3 @@ class BaseDetector(object):
 
         next_detector = self.detectors[self.index + 1](self.context, self.index + 1, self.detectors)
         next_detector.detect(callback)
-

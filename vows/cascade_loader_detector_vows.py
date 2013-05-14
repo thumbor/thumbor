@@ -18,7 +18,8 @@ from thumbor.detectors.local_detector import CascadeLoaderDetector
 from thumbor.point import FocalPoint
 
 
-cascade_file_path = path.join(__file__, '..', '..', 'thumbor',
+cascade_file_path = path.join(
+    __file__, '..', '..', 'thumbor',
     'detectors', 'face_detector', 'haarcascade_frontalface_alt.xml')
 CASCADE_FILE_PATH = path.abspath(cascade_file_path)
 

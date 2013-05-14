@@ -8,12 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import abspath, join, dirname
-
 from pyvows import Vows, expect
 
 from thumbor.storages.no_storage import Storage as NoStorage
 from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES
+
 
 @Vows.batch
 class NoStorageVows(Vows.Context):
@@ -60,4 +59,3 @@ class NoStorageVows(Vows.Context):
 
         def should_be_null(self, topic):
             expect(topic).to_be_null()
-

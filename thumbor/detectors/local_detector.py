@@ -53,10 +53,11 @@ class CascadeLoaderDetector(BaseDetector):
 
         cv.EqualizeHist(gray, gray)
 
-        faces = cv.HaarDetectObjects(gray,
-                    self.__class__.cascade, cv.CreateMemStorage(0),
-                    haar_scale, min_neighbors,
-                    cv.CV_HAAR_DO_CANNY_PRUNING, min_size)
+        faces = cv.HaarDetectObjects(
+            gray,
+            self.__class__.cascade, cv.CreateMemStorage(0),
+            haar_scale, min_neighbors,
+            cv.CV_HAAR_DO_CANNY_PRUNING, min_size)
 
         faces_scaled = []
 

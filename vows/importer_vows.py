@@ -20,6 +20,7 @@ from thumbor.detectors.face_detector import Detector as face_detector
 from thumbor.detectors import feature_detector
 from thumbor.filters.rgb import Filter as rgb_filter
 
+
 test_data = [
     ('ENGINE', pil_engine),
     ('LOADER', http_loader),
@@ -29,6 +30,7 @@ test_data = [
     ('DETECTORS', (face_detector,)),
     ('FILTERS', (rgb_filter,)),
 ]
+
 
 @Vows.batch
 class ImporterVows(Vows.Context):
@@ -81,7 +83,13 @@ class ImporterVows(Vows.Context):
         class MultipleItems(Vows.Context):
             def topic(self):
                 importer = Importer(None)
-                importer.import_item(config_key='detectors', item_value=('thumbor.detectors.feature_detector', 'thumbor.detectors.feature_detector'), is_multiple=True)
+                importer.import_item(
+                    config_key='detectors', is_multiple=True,
+                    item_value=(
+                        'thumbor.detectors.feature_detector',
+                        'thumbor.detectors.feature_detector'
+                    )
+                )
                 return importer.detectors
 
             def should_have_length_of_2(self, topic):

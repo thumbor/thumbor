@@ -34,7 +34,7 @@ FORMATS = {
     '.png': 'PNG'
 }
 
-ImageFile.MAXBLOCK = 2**25
+ImageFile.MAXBLOCK = 2 ** 25
 
 
 class Engine(BaseEngine):

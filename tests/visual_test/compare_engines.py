@@ -17,10 +17,12 @@ import thumbor.handlers
 REPETITIONS = 200
 IMAGE_NAME = 'fred'
 
+
 def get_engine(engine_name):
     module_name = 'thumbor.engines.%s' % engine_name
     module = __import__(module_name)
     return reduce(getattr, module_name.split('.')[1:], module).Engine
+
 
 def main():
     root = abspath(dirname(__file__))
@@ -80,7 +82,7 @@ def main():
             engine.load(source, '.jpg')
             engine.crop(100, 100, 200, 200)
             engine.resize(50, 50)
-            result = engine.read('.jpg')
+            engine.read('.jpg')
 
         times[key] = "%.6f" % (time.time() - start)
 

@@ -31,3 +31,6 @@ kill_redis:
 redis: kill_redis
 	@redis-server redis.conf ; sleep 1
 	@redis-cli -p 7778 -a hey_you info
+
+flake:
+	@flake8 . --ignore=W801,E501

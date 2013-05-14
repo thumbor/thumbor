@@ -13,6 +13,7 @@ ctx = Vows.Context
 
 import thumbor.engines.pil as PIL
 
+
 @Vows.batch
 class PilEngineVows(ctx):
 
@@ -25,5 +26,6 @@ class PilEngineVows(ctx):
         def should_be_an_error(self, topic):
             expect(topic).to_be_an_error()
             expect(topic).to_be_an_error_like(RuntimeError)
-            expect(topic).to_have_an_error_message_of('You need filters enabled to use paste with merge. Please reinstall thumbor with proper compilation of its filters.')
-
+            expected = 'You need filters enabled to use paste with merge. Please reinstall thumbor with proper ' + \
+                'compilation of its filters.'
+            expect(topic).to_have_an_error_message_of(expected)

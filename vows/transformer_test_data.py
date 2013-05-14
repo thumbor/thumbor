@@ -15,6 +15,7 @@ from thumbor.importer import Importer
 from thumbor.detectors import BaseDetector
 from thumbor.storages.no_storage import Storage as NoStorage
 
+
 class MockEngine(object):
     def __init__(self, size):
         self.size = size
@@ -57,21 +58,26 @@ class MockEngine(object):
     def focus(self, focal_points):
         self.focal_points = focal_points
 
+
 class MockSyncDetector(BaseDetector):
     def detect(self, callback):
         callback([])
+
 
 class MockErrorSyncDetector(BaseDetector):
     def detect(self, callback):
         raise Exception('x')
 
+
 class TestData(object):
-    def __init__(self,
+    def __init__(
+            self,
             source_width, source_height,
             target_width, target_height,
             halign, valign, focal_points,
             crop_left, crop_top, crop_right, crop_bottom,
             fit_in=False, adaptive=False, meta=False):
+
         self.source_width = source_width
         self.source_height = source_height
         self.target_width = target_width
@@ -89,8 +95,10 @@ class TestData(object):
 
     def __repr__(self):
         return self.__str__()
+
     def __unicode__(self):
         return self.__str__()
+
     def __str__(self):
         crop_message = ""
         if self.crop_left is not None:
@@ -125,7 +133,7 @@ class TestData(object):
             buffer=None,
             debug=False,
             meta=self.meta,
-            crop = {
+            crop={
                 'left': self.crop_left,
                 'top': self.crop_top,
                 'right': self.crop_right,
@@ -941,6 +949,4 @@ FIT_IN_CROP_DATA = [
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True, adaptive=True
     ), (200, 100, 1))
-
 ]
-

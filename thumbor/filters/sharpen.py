@@ -11,10 +11,14 @@
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _sharpen
 
+
 class Filter(BaseFilter):
 
     @filter_method(BaseFilter.DecimalNumber, BaseFilter.DecimalNumber, BaseFilter.Boolean)
     def sharpen(self, amount, radius, luminance_only):
         width, height = self.engine.size
-        imgdata = _sharpen.apply(self.engine.get_image_mode(), width, height, amount, radius, luminance_only, self.engine.get_image_data())
+        imgdata = _sharpen.apply(
+            self.engine.get_image_mode(), width, height, amount, radius,
+            luminance_only, self.engine.get_image_data()
+        )
         self.engine.set_image_data(imgdata)

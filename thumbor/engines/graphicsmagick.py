@@ -67,7 +67,8 @@ class Engine(BaseEngine):
         self.image.flop()
 
     def read(self, extension=None, quality=None):
-        if quality is None: quality = self.context.request.quality
+        if quality is None:
+            quality = self.context.request.quality
 
         #returns image buffer in byte format.
         img_buffer = Blob()
@@ -130,7 +131,7 @@ class Engine(BaseEngine):
         other_engine.enable_alpha()
 
         operator = co.OverCompositeOp if merge else co.CopyCompositeOp
-        self.image.composite(other_engine.image, pos[0],pos[1], operator)
+        self.image.composite(other_engine.image, pos[0], pos[1], operator)
 
     def enable_alpha(self):
         self.image.type(ImageType.TrueColorMatteType)

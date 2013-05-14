@@ -15,6 +15,7 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.filters.quality import Filter
 
+
 @Vows.batch
 class QualityFilterVows(Vows.Context):
     def topic(self):

@@ -15,6 +15,7 @@ from thumbor.app import ThumborServiceApp
 from thumbor.config import Config
 from thumbor.context import Context
 
+
 @Vows.batch
 class HealthCheck(TornadoHTTPContext):
     def get_app(self):
@@ -41,4 +42,3 @@ class HealthCheck(TornadoHTTPContext):
 
             def should_equal_working(self, topic):
                 expect(topic.lower().strip()).to_equal('working')
-

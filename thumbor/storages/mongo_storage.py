@@ -114,4 +114,3 @@ class Storage(BaseStorage):
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')
         return timediff > timedelta(seconds=self.context.config.STORAGE_EXPIRATION_SECONDS)
-

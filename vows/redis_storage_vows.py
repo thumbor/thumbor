@@ -16,12 +16,14 @@ from thumbor.context import Context
 from thumbor.config import Config
 from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES, get_server
 
+
 class RedisDBContext(Vows.Context):
     def setup(self):
         self.connection = redis.Redis(port=7778,
                                       host='localhost',
                                       db=0,
                                       password='hey_you')
+
 
 @Vows.batch
 class RedisStorageVows(RedisDBContext):
@@ -97,18 +99,25 @@ class RedisStorageVows(RedisDBContext):
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you', STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                config = Config(
+                    REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you',
+                    STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = RedisStorage(Context(config=config, server=get_server('')))
                 storage.put(IMAGE_URL % 3, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 3)
 
             def should_be_an_error(self, topic):
                 expect(topic).to_be_an_error_like(RuntimeError)
-                expect(topic).to_have_an_error_message_of("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
+                expect(topic).to_have_an_error_message_of(
+                    "STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
+                )
 
         class GettingCryptoForANewImageReturnsNone(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you', STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                config = Config(
+                    REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you',
+                    STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
+                )
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
                 return storage.get_crypto(IMAGE_URL % 9999)
 
@@ -128,7 +137,10 @@ class RedisStorageVows(RedisDBContext):
 
         class CanStoreCrypto(Vows.Context):
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you', STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
+                config = Config(
+                    REDIS_STORAGE_SERVER_PORT=7778, REDIS_STORAGE_SERVER_PASSWORD='hey_you',
+                    STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
+                )
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
 
                 storage.put(IMAGE_URL % 6, IMAGE_BYTES)
@@ -166,4 +178,3 @@ class RedisStorageVows(RedisDBContext):
 
             def should_not_be_null(self, topic):
                 expect(topic).to_be_null()
-

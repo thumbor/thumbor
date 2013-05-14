@@ -4,9 +4,10 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
+
 
 class MultipleEngine:
 
@@ -36,6 +37,7 @@ class MultipleEngine:
                 result.append(getattr(frame_engine, name)(*args, **kwargs))
             return result
         return exec_func
+
 
 class BaseEngine(object):
 
@@ -135,7 +137,7 @@ class BaseEngine(object):
 
     def flip_horizontally(self):
         raise NotImplementedError()
-    
+
     def flip_vertically(self):
         raise NotImplementedError()
 

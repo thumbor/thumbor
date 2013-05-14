@@ -12,12 +12,14 @@ from pyvows import Vows, expect
 
 from thumbor.url import Url
 
+
 def ctx(**kw):
     class Context(Vows.Context):
         def topic(self):
             return Url.generate_options(**kw)
 
     return Context
+
 
 @Vows.batch
 class UrlVows(Vows.Context):
@@ -43,7 +45,6 @@ class UrlVows(Vows.Context):
 
             def should_return_proper_url(self, topic):
                 expect(topic).to_equal('debug/smart')
-
 
         class Alignments(ctx(halign='left', valign='top')):
 
@@ -80,8 +81,10 @@ class UrlVows(Vows.Context):
             def should_return_proper_url(self, topic):
                 expect(topic).to_equal('adaptive-fit-in')
 
-
-        class Complete(ctx(width=300, height=200, smart=True, fit_in=True, meta=True, horizontal_flip=True, vertical_flip=True, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13, filters="a(10):b(-10)")):
+        class Complete(ctx(
+                width=300, height=200, smart=True, fit_in=True, meta=True, horizontal_flip=True,
+                vertical_flip=True, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13,
+                filters="a(10):b(-10)")):
 
             def should_return_proper_url(self, topic):
                 expect(topic).to_equal('meta/10x11:12x13/fit-in/-300x-200/smart/filters:a(10):b(-10)')
@@ -103,7 +106,8 @@ class UrlVows(Vows.Context):
             expect(topic).to_include('(?:(?P<adaptive>adaptive-)?(?P<fit_in>fit-in)/)?')
 
         def should_contain_dimensions(self, topic):
-            expect(topic).to_include('(?:(?P<horizontal_flip>-)?(?P<width>(?:\d+|orig))?x(?P<vertical_flip>-)?(?P<height>(?:\d+|orig))?/)?')
+            expect(topic).to_include(
+                '(?:(?P<horizontal_flip>-)?(?P<width>(?:\d+|orig))?x(?P<vertical_flip>-)?(?P<height>(?:\d+|orig))?/)?')
 
         def should_contain_halign(self, topic):
             expect(topic).to_include('(?:(?P<halign>left|right|center)/)?')
@@ -203,7 +207,8 @@ class UrlVows(Vows.Context):
 
         class WithoutFilters(Vows.Context):
             def topic(self):
-                return Url.parse_decrypted('/filters:watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0)/img')
+                return Url.parse_decrypted(
+                    '/filters:watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0)/img')
 
             def should_have_image(self, topic):
                 expect(topic['image']).to_equal('img')

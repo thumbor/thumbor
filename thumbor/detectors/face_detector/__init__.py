@@ -4,7 +4,7 @@
 # thumbor imaging service
 # https://github.com/globocom/thumbor/wiki
 
-# Licensed under the MIT license: 
+# Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
@@ -12,6 +12,7 @@ from thumbor.detectors.local_detector import CascadeLoaderDetector
 from thumbor.point import FocalPoint
 
 HAIR_OFFSET = 0.12
+
 
 class Detector(CascadeLoaderDetector):
 
@@ -29,8 +30,9 @@ class Detector(CascadeLoaderDetector):
         if features:
             for (left, top, width, height), neighbors in features:
                 top = self.__add_hair_offset(top, height)
-                self.context.request.focal_points.append(FocalPoint.from_square(left, top, width, height, origin="Face Detection"))
+                self.context.request.focal_points.append(
+                    FocalPoint.from_square(left, top, width, height, origin="Face Detection")
+                )
             callback()
         else:
             self.next(callback)
-

@@ -23,6 +23,7 @@ MIN_NEIGHBORS = 3
 HAAR_FLAGS = 0
 RED_THRESHOLD = 2.0
 
+
 class Filter(BaseFilter):
 
     def get_pixels(self, image, w, h, mode):
@@ -50,7 +51,8 @@ class Filter(BaseFilter):
             (x, y, w, h), other = eye
             for eye2 in eyes:
                 (x2, y2, w2, h2), other2 = eye2
-                if x == x2 and w == w2 and y == y2 and h == h2: continue
+                if x == x2 and w == w2 and y == y2 and h == h2:
+                    continue
                 #if eye2 in intersected_eyes: continue
 
                 if (y2 >= y and y2 + h2 <= y + h) or (y2 + h2 >= y and y2 <= y + h):
@@ -97,7 +99,8 @@ class Filter(BaseFilter):
                     cv.SetImageROI(image, (face_x + x, face_y + y, w, h))
 
                     if self.context.request.debug:
-                        cv.Rectangle(image,
+                        cv.Rectangle(
+                            image,
                             (0, 0),
                             (w, h),
                             cv.RGB(255, 255, 255),
@@ -134,4 +137,3 @@ class Filter(BaseFilter):
     def load_cascade_file(self):
         if not hasattr(self.__class__, 'cascade'):
             setattr(self.__class__, 'cascade', cv.Load(CASCADE_FILE_PATH))
-

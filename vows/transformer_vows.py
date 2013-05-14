@@ -14,6 +14,7 @@ from vows.transformer_test_data import TESTITEMS, FIT_IN_CROP_DATA, TestData, Mo
 
 from thumbor.transformer import Transformer
 
+
 class EngineContext(Vows.Context):
     def _prepare_engine(self, topic, callback):
         context = topic[0].to_context()
@@ -23,13 +24,16 @@ class EngineContext(Vows.Context):
         trans = Transformer(context)
         trans.transform(callback)
 
+
 @Vows.assertion
 def to_be_resized(topic):
     expect(topic.has_resized_properly()).to_be_true()
 
+
 @Vows.assertion
 def to_be_cropped(topic):
     expect(topic.has_cropped_properly()).to_be_true()
+
 
 @Vows.batch
 class TransformerVows(Vows.Context):
@@ -58,13 +62,13 @@ class TransformerVows(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
             data = TestData(
-                        source_width=800, source_height=600,
-                        target_width=100, target_height=100,
-                        halign="right", valign="top",
-                        focal_points=[],
-                        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
-                        meta=True
-                    )
+                source_width=800, source_height=600,
+                target_width=100, target_height=100,
+                halign="right", valign="top",
+                focal_points=[],
+                crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+                meta=True
+            )
 
             ctx = data.to_context()
             ctx.config.RESPECT_ORIENTATION = True
@@ -76,17 +80,16 @@ class TransformerVows(Vows.Context):
         def should_work_well(self, topic):
             expect(topic).to_be_true()
 
-
     class Flip(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
             data = TestData(
-                        source_width=800, source_height=600,
-                        target_width=-800, target_height=-600,
-                        halign="right", valign="top",
-                        focal_points=[],
-                        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
-                    )
+                source_width=800, source_height=600,
+                target_width=-800, target_height=-600,
+                halign="right", valign="top",
+                focal_points=[],
+                crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+            )
 
             ctx = data.to_context()
             self.engine = ctx.modules.engine

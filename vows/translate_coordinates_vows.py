@@ -13,17 +13,19 @@ from pyvows import Vows, expect
 from thumbor.handlers import BaseHandler
 
 DATA = [
-    dict(original_width=3000,
-         original_height=2000, 
-         width=1200, 
-         height=800, 
-         crop_left=100, 
-         crop_top=100, 
-         crop_right=200, 
-         crop_bottom=200,
-         expected_crop=(40, 40, 80, 80)
-        )
+    dict(
+        original_width=3000,
+        original_height=2000,
+        width=1200,
+        height=800,
+        crop_left=100,
+        crop_top=100,
+        crop_right=200,
+        crop_bottom=200,
+        expected_crop=(40, 40, 80, 80)
+    )
 ]
+
 
 @Vows.batch
 class TranslateCoordinatesContext(Vows.Context):
@@ -36,12 +38,12 @@ class TranslateCoordinatesContext(Vows.Context):
         def topic(self, coords):
             return (BaseHandler.translate_crop_coordinates(
                 original_width=coords['original_width'],
-                original_height=coords['original_height'], 
-                width=coords['width'], 
-                height=coords['height'], 
-                crop_left=coords['crop_left'], 
-                crop_top=coords['crop_top'], 
-                crop_right=coords['crop_right'], 
+                original_height=coords['original_height'],
+                width=coords['width'],
+                height=coords['height'],
+                crop_left=coords['crop_left'],
+                crop_top=coords['crop_top'],
+                crop_right=coords['crop_right'],
                 crop_bottom=coords['crop_bottom']
             ), coords)
 
@@ -50,4 +52,3 @@ class TranslateCoordinatesContext(Vows.Context):
 
         def should_translate_from_original_to_resized(self, topic):
             expect(topic[0]).to_equal(topic[1]['expected_crop'])
-

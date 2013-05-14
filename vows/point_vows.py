@@ -12,6 +12,7 @@ from pyvows import Vows, expect
 
 from thumbor.point import FocalPoint
 
+
 @Vows.batch
 class FocalPointVows(Vows.Context):
 
@@ -133,4 +134,3 @@ class FocalPointVows(Vows.Context):
 
             def should_have_weight_of_1(self, topic):
                 expect(topic.weight).to_equal(1.0)
-

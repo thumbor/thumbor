@@ -11,6 +11,7 @@
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _round_corner
 
+
 class Filter(BaseFilter):
 
     @filter_method(r'[\d]+(?:\|[\d]+)?', BaseFilter.PositiveNumber, BaseFilter.PositiveNumber, BaseFilter.PositiveNumber)
@@ -20,5 +21,8 @@ class Filter(BaseFilter):
         a_radius = int(radius_parts[0])
         b_radius = int(radius_parts[1]) if len(radius_parts) > 1 else a_radius
 
-        imgdata = _round_corner.apply(1, self.engine.get_image_mode(), a_radius, b_radius, r, g, b, width, height, self.engine.get_image_data())
+        imgdata = _round_corner.apply(
+            1, self.engine.get_image_mode(), a_radius, b_radius, r, g, b,
+            width, height, self.engine.get_image_data()
+        )
         self.engine.set_image_data(imgdata)

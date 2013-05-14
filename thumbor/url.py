@@ -10,6 +10,7 @@
 
 import re
 
+
 class Url(object):
 
     unsafe_or_hash = r'(?:(?:(?P<unsafe>unsafe)|(?P<hash>[^/]{28,}?))/)?'
@@ -156,4 +157,3 @@ class Url(object):
             url.append('filters:%s' % filters)
 
         return '/'.join(url)
-
