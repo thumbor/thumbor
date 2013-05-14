@@ -186,6 +186,12 @@ class Engine(BaseEngine):
         converted_image = self.image.convert('RGB')
         return converted_image.mode, self.get_image_data(converted_image)
 
+    def convert_to_grayscale(self):
+        if 'A' in self.image.mode:
+            self.image = self.image.convert('LA')
+        else:
+            self.image = self.image.convert('L')
+
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:
             raise RuntimeError(

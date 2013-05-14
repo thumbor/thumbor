@@ -49,13 +49,18 @@ class FiltersFactory:
 
         for i, param in enumerate(filter_params):
             filter_name = param.split('(')[0]
-            cls = self.filter_classes_map[filter_name]
+            cls = self.filter_classes_map.get(filter_name, None)
+
+            if cls is None:
+                continue
+
             if i != last_idx:
                 param = param + ')'
             instance = cls.init_if_valid(param, context)
 
             if instance:
                 filter_objs.append(instance)
+
         return filter_objs
 
 

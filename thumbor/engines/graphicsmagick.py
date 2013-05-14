@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from pgmagick import Image, ImageType, Geometry, Blob, FilterTypes, Color, CompositeOperator as co
+from pgmagick import Image, ImageType, ColorspaceType, Geometry, Blob, FilterTypes, Color, CompositeOperator as co
 from pgmagick.api import Draw
 from pgmagick._pgmagick import get_blob_data
 
@@ -138,3 +138,8 @@ class Engine(BaseEngine):
 
     def strip_icc(self):
         self.image.iccColorProfile(Blob())
+
+    def convert_to_grayscale(self):
+        self.image.type(ImageType.GrayscaleMatteType)
+        self.image.quantizeColorSpace(ColorspaceType.GRAYColorspace)
+        self.image.quantize()

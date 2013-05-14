@@ -116,6 +116,9 @@ class JSONEngine(BaseEngine):
     def set_image_data(self, data):
         return self.engine.set_image_data(data)
 
+    def convert_to_grayscale(self):
+        pass
+
     def read(self, extension, quality):
         target_width, target_height = self.get_target_dimensions()
         thumbor_json = {
