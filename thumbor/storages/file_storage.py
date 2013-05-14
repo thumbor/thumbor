@@ -7,22 +7,18 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
-import hashlib
 
 import os
 from json import dumps, loads
 from datetime import datetime
 from os.path import splitext
-
+import hashlib
 from os.path import exists, dirname, join, getmtime
 
-from thumbor.storages import BaseStorage
+import thumbor.storages as storages
 
-class Storage(BaseStorage):
 
-    def ensure_dir(self, path):
-        if not exists(path):
-            os.makedirs(path)
+class Storage(storages.BaseStorage):
 
     def put(self, path, bytes):
         file_abspath = self.path_on_filesystem(path)
