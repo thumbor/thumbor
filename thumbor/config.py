@@ -10,8 +10,11 @@
 
 from os.path import join
 import tempfile
+
 import derpconf.config as config
 from derpconf.config import Config
+
+from thumbor import __version__
 
 Config.define(
     'THUMBOR_LOG_FORMAT', '%(asctime)s %(name)s:%(levelname)s %(message)s',
@@ -81,6 +84,13 @@ Config.define(
 Config.define(
     'HTTP_LOADER_MAX_REDIRECTS', 5,
     'Indicates the number of redirects libcurl should follow when downloading an image', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_FORWARD_USER_AGENT', False,
+    'Indicates whether thumbor should forward the user agent of the requesting user', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_DEFAULT_USER_AGENT', "Thumbor/%s" % __version__,
+    'Default user agent for thumbor http loader requests', 'HTTP Loader')
+
 
 # FILE STORAGE GENERIC OPTIONS
 Config.define(

@@ -26,6 +26,21 @@ class MainHandler(tornado.web.RequestHandler):
         self.write('Hello')
 
 
+class EchoUserAgentHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(self.request.headers['User-Agent'])
+
+
+class HandlerMock(object):
+    def __init__(self, headers):
+        self.request = RequestMock(headers)
+
+
+class RequestMock(object):
+    def __init__(self, headers):
+        self.headers = headers
+
+
 class ResponseMock:
     def __init__(self, error=None, content_type=None, body=None):
         self.error = error
@@ -155,3 +170,44 @@ class HttpLoader(TornadoHTTPContext):
 
             def should_equal_hello(self, topic):
                 expect(topic.args[0]).to_equal('Hello')
+
+
+@Vows.batch
+class HttpLoaderWithUserAgentForwarding(TornadoHTTPContext):
+    def get_app(self):
+        application = tornado.web.Application([
+            (r"/", EchoUserAgentHandler),
+        ])
+
+        return application
+
+    class Load(TornadoHTTPContext):
+        @Vows.async_topic
+        def topic(self, callback):
+            url = self.get_url('/')
+            loader.http_client = self._http_client
+
+            config = Config()
+            config.HTTP_LOADER_FORWARD_USER_AGENT = True
+            ctx = Context(None, config, None, HandlerMock({"User-Agent": "test-user-agent"}))
+
+            loader.load(ctx, url, callback)
+
+        def should_equal_hello(self, topic):
+            expect(topic.args[0]).to_equal('test-user-agent')
+
+    class LoadDefaultUserAgent(TornadoHTTPContext):
+        @Vows.async_topic
+        def topic(self, callback):
+            url = self.get_url('/')
+            loader.http_client = self._http_client
+
+            config = Config()
+            config.HTTP_LOADER_FORWARD_USER_AGENT = True
+            config.HTTP_LOADER_DEFAULT_USER_AGENT = "DEFAULT_USER_AGENT"
+            ctx = Context(None, config, None, HandlerMock({}))
+
+            loader.load(ctx, url, callback)
+
+        def should_equal_hello(self, topic):
+            expect(topic.args[0]).to_equal('DEFAULT_USER_AGENT')

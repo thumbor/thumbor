@@ -56,13 +56,21 @@ def load(context, url, callback):
     if client is None:
         client = tornado.httpclient.AsyncHTTPClient()
 
+    user_agent = None
+    if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
+        if 'User-Agent' in context.request_handler.request.headers:
+            user_agent = context.request_handler.request.headers['User-Agent']
+    if user_agent is None:
+        user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
+
     url = _normalize_url(url)
     req = tornado.httpclient.HTTPRequest(
         url=url,
         connect_timeout=context.config.HTTP_LOADER_CONNECT_TIMEOUT,
         request_timeout=context.config.HTTP_LOADER_REQUEST_TIMEOUT,
         follow_redirects=context.config.HTTP_LOADER_FOLLOW_REDIRECTS,
-        max_redirects=context.config.HTTP_LOADER_MAX_REDIRECTS
+        max_redirects=context.config.HTTP_LOADER_MAX_REDIRECTS,
+        user_agent=user_agent
     )
 
     client.fetch(req, callback=partial(return_contents, url=url, callback=callback))
