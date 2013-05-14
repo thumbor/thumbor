@@ -42,7 +42,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
-            logger.error(msg)
+            logger.warn(msg)
         self.finish()
 
     def init_request_params(self):
@@ -209,7 +209,7 @@ class BaseHandler(tornado.web.RequestHandler):
         is_valid = self.context.modules.loader.validate(self.context, path)
 
         if not is_valid:
-            logger.error('Request denied because the specified path "%s" was not identified by the loader as a valid path' % path)
+            logger.warn('Request denied because the specified path "%s" was not identified by the loader as a valid path' % path)
 
         return is_valid
 

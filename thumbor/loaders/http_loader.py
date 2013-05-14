@@ -42,10 +42,10 @@ def validate(context, url):
 
 def return_contents(response, url, callback):
     if response.error:
-        logger.error("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
+        logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
         callback(None)
     elif response.body is None or len(response.body) == 0:
-        logger.error("ERROR retrieving image {0}: Empty response.".format(url))
+        logger.warn("ERROR retrieving image {0}: Empty response.".format(url))
         callback(None)
     else:
         callback(response.body)
