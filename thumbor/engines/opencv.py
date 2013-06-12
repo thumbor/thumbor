@@ -47,7 +47,7 @@ class Engine(BaseEngine):
 
     def resize(self, width, height):
         thumbnail = cv.CreateMat(int(round(height, 0)), int(round(width, 0)), cv.CV_8UC3)
-        cv.Resize(self.image, thumbnail)
+        cv.Resize(self.image, thumbnail, cv.CV_INTER_AREA)
         self.image = thumbnail
 
     def crop(self, left, top, right, bottom):
