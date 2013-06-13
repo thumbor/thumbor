@@ -60,10 +60,10 @@ class Engine(BaseEngine):
         self.image = cropped
 
     def flip_vertically(self):
-        raise NotImplementedError()
+        cv.Flip(self.image, None, 1)
 
     def flip_horizontally(self):
-        raise NotImplementedError()
+        cv.Flip(self.image, None, 0)
 
     def read(self, extension=None, quality=None):
         if quality is None:
