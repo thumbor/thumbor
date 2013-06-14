@@ -69,7 +69,7 @@ def path_on_filesystem(path):
 
 
 def encode_multipart_formdata(fields, files):
-    BOUNDARY = '----thumborUploadFormBoundary'
+    BOUNDARY = 'thumborUploadFormBoundary'
     CRLF = '\r\n'
     L = []
     for key, value in fields.items():
@@ -85,7 +85,7 @@ def encode_multipart_formdata(fields, files):
         L.append(value)
     L.append('')
     L.append('')
-    L.append(BOUNDARY + '--')
+    L.append('--' + BOUNDARY + '--')
     body = CRLF.join([str(item) for item in L])
     content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
     return content_type, body
