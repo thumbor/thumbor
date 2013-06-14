@@ -12,7 +12,7 @@ from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
-from integration_tests.urls_helpers import single_test, single_test_no_gif_webp
+from integration_tests.urls_helpers import single_test, combined_test
 
 
 CONFS = {
@@ -97,11 +97,20 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
     def get_new_ioloop(self):
         return IOLoop.instance()
 
-    def test_something__with_pil(self):
+    def test_single_params__with_pil(self):
         single_test(self.fetch)
 
-    def test_something__with_opencv(self):
-        single_test_no_gif_webp(self.fetch)
-
-    def test_something__with_graphicsmagick(self):
+    def test_single_params__with_graphicsmagick(self):
         single_test(self.fetch)
+
+    def test_single_params__with_opencv(self):
+        single_test(self.fetch, with_gif=False)
+
+    # def test_combined_params__with_pil(self):
+    #     combined_test(self.fetch)
+
+    # def test_combined_params__with_graphicsmagick(self):
+    #     combined_test(self.fetch)
+
+    # def test_combined_params__with_opencv(self):
+    #     combined_test(self.fetch, with_gif=False)

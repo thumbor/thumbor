@@ -97,10 +97,6 @@ original_images_gif_webp = [
     'edgblogs.s3.amazonaws.com/bombounaweb/files/2012/09/tumblr_m9u52mZMgk1qz99y7o1_400.gif',
 ]
 
-original_images = original_images_base + original_images_gif_webp
-
-all_options = trims + crops + fitins + sizes + haligns + valigns + smarts + filters
-
 
 class UrlsTester(object):
 
@@ -141,9 +137,17 @@ class UrlsTester(object):
         self.report()
 
 
-def single_test(fetcher):
-    UrlsTester(fetcher, product(all_options, original_images))
+def single_test(fetcher, with_gif=True):
+    images = original_images_base[:]
+    if with_gif:
+        images += original_images_gif_webp
+    all_options = trims + crops + fitins + sizes + haligns + valigns + smarts + filters
+    UrlsTester(fetcher, product(all_options, images))
 
 
-def single_test_no_gif_webp(fetcher):
-    UrlsTester(fetcher, product(all_options, original_images_base))
+def combined_test(fetcher, with_gif=True):
+    images = original_images_base[:]
+    if with_gif:
+        images += original_images_gif_webp
+    combined_options = product(trims[:2], crops[:2], fitins[:2], sizes[:2], haligns[:2], valigns[:2], smarts[:2], filters[:2], images)
+    UrlsTester(fetcher, combined_options)
