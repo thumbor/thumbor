@@ -3,6 +3,8 @@
 
 import sys
 import time
+from shutil import rmtree
+from os.path import exists
 
 from tornado.testing import AsyncHTTPTestCase
 from tornado.ioloop import IOLoop
@@ -31,8 +33,12 @@ CONFS = {
 class PreferencesHandlerTest(AsyncHTTPTestCase):
 
     def get_app(self):
+        storage_path = '/tmp/thumbor-engines-test/'
+        if exists(storage_path):
+            rmtree(storage_path)
+
         self.timeout_handle = None
-        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg = Config(SECURITY_KEY='ACME-SEC', FILE_STORAGE_ROOT_PATH=storage_path)
         server_params = ServerParameters(None, None, None, None, None, None)
 
         cfg.DETECTORS = [
@@ -62,8 +68,8 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
                 def timeout_func():
                     try:
                         raise self.failureException(
-                          'Async operation timed out after %d seconds' %
-                          timeout)
+                            'Async operation timed out after %d seconds' %
+                            timeout)
                     except Exception:
                         self._AsyncTestCase__failure = sys.exc_info()
                     self.stop()
@@ -76,7 +82,7 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
                     # IOLoop will re-run it.
                     self.io_loop.start()
                 if (self._AsyncTestCase__failure is not None or
-                    condition is None or condition()):
+                        condition is None or condition()):
                     break
         if self.timeout_handle:
             self.io_loop.remove_timeout(self.timeout_handle)
