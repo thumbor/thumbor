@@ -12,8 +12,8 @@ test pyvows: compile_ext redis mongo
 
 ci_test: compile_ext
 	$(MAKE) redis mongo
-	PYTHONPATH=.:$$PYTHONPATH:/usr/local/lib/python2.6/site-packages:/usr/lib/python2.6/site-packages pyvows -vvv --profile --cover --cover_package=thumbor --cover_threshold=90 vows/
-	python -m tornado.test.runtests discover integration_tests/ '*_test.py'
+	PYTHONPATH=.:$$PYTHONPATH pyvows -vvv --profile --cover --cover_package=thumbor --cover_threshold=90 vows/
+	PYTHONPATH=.:$$PYTHONPATH python -m tornado.test.runtests discover integration_tests/ '*_test.py'
 	$(MAKE) kill_mongo kill_redis
 
 mysql_test: pretest
