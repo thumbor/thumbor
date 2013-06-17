@@ -14,7 +14,7 @@ from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
-from integration_tests.urls_helpers import single_test, combined_test
+from integration_tests.urls_helpers import single_dataset, combined_dataset
 
 
 CONFS = {
@@ -104,19 +104,19 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
         return IOLoop.instance()
 
     def test_single_params__with_pil(self):
-        single_test(self.fetch)
+        single_dataset(self.fetch)
 
     def test_single_params__with_graphicsmagick(self):
-        single_test(self.fetch)
+        single_dataset(self.fetch, with_gif=False)
 
     def test_single_params__with_opencv(self):
-        single_test(self.fetch, with_gif=False)
+        single_dataset(self.fetch, with_gif=False)
 
     # def test_combined_params__with_pil(self):
-    #     combined_test(self.fetch)
+    #     combined_dataset(self.fetch)
 
     # def test_combined_params__with_graphicsmagick(self):
-    #     combined_test(self.fetch)
+    #     combined_dataset(self.fetch)
 
     # def test_combined_params__with_opencv(self):
-    #     combined_test(self.fetch, with_gif=False)
+    #     combined_dataset(self.fetch, with_gif=False)

@@ -137,7 +137,7 @@ class UrlsTester(object):
         self.report()
 
 
-def single_test(fetcher, with_gif=True):
+def single_dataset(fetcher, with_gif=True):
     images = original_images_base[:]
     if with_gif:
         images += original_images_gif_webp
@@ -145,7 +145,7 @@ def single_test(fetcher, with_gif=True):
     UrlsTester(fetcher, product(all_options, images))
 
 
-def combined_test(fetcher, with_gif=True):
+def combined_dataset(fetcher, with_gif=True):
     images = original_images_base[:]
     if with_gif:
         images += original_images_gif_webp

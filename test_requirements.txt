@@ -14,3 +14,4 @@ python-magic>=0.4.3
 mock==1.0.1
 pgmagick>=0.5.6
 raven
+nose
