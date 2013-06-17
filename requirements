@@ -85,4 +85,4 @@ python-opencv
 redis-server
 libgraphicsmagick++1-dev
 libgraphicsmagick++3
-libboost-python1.49.0
+libboost-python-dev
