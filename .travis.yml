@@ -28,7 +28,11 @@ install:
     # install python requirements
     - sudo pip install -U -r test_requirements.txt --use-mirrors
 
+    - echo "PYTHON is `which python`"
+
 script:
+    - echo "PYTHON is `which python`"
+
     # weird travis-ci python paths
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages
