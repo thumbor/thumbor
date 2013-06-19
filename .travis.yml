@@ -31,16 +31,6 @@ install:
 
 script:
     - source ~/virtualenv/python2.7/bin/activate
-    - tree /home/travis/virtualenv/
-
-    # weird travis-ci python paths
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
-    - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
-
-    - df -h
-
     # finally run tests
     - make ci_test
 
