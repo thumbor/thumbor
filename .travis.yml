@@ -25,10 +25,12 @@ install:
     # verify both requirements were met
     - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
 
+    - source ~/virtualenv/python2.7/bin/activate
     # install python requirements
     - sudo pip install -U -r test_requirements.txt --use-mirrors
 
 script:
+    - source ~/virtualenv/python2.7/bin/activate
     - tree /home/travis/virtualenv/
 
     # weird travis-ci python paths
