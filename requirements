@@ -86,3 +86,4 @@ redis-server
 libgraphicsmagick++1-dev
 libgraphicsmagick++3
 libboost-python-dev
+tree

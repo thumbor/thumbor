@@ -28,10 +28,8 @@ install:
     # install python requirements
     - sudo pip install -U -r test_requirements.txt --use-mirrors
 
-    - echo "PYTHON is `which python`"
-
 script:
-    - echo "PYTHON is `which python`"
+    - tree /home/travis/virtualenv/
 
     # weird travis-ci python paths
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
