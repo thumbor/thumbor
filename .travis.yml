@@ -26,17 +26,9 @@ install:
     - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
 
     # install python requirements
-    - sudo pip install -U -r test_requirements.txt --use-mirrors
+    - pip install -U -r test_requirements.txt --use-mirrors
 
 script:
-    # weird travis-ci python paths
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
-    - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
-
-    - df -h
-
     # finally run tests
     - make ci_test
 

@@ -52,7 +52,7 @@ class ErrorHandler(object):
             'Headers': req.headers
         })
 
-        cookies_header = extra['Headers']['Cookie']
+        cookies_header = extra.get('Headers', {}).get('Cookie', {})
 
         if isinstance(cookies_header, basestring):
             cookies = {}

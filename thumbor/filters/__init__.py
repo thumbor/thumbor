@@ -139,6 +139,15 @@ class BaseFilter(object):
         self.context = context
         self.engine = context.modules.engine if context and context.modules else None
 
+    def create_multi_engine_callback(self, callback, engines_count):
+        self.engines_count = engines_count
+
+        def single_callback(*args):
+            self.engines_count -= 1
+            if self.engines_count == 0:
+                callback(*args)
+        return single_callback
+
     def run(self, callback=None):
         if self.params is None:
             return
@@ -152,6 +161,8 @@ class BaseFilter(object):
             engines_to_run = [None]
 
         results = []
+        if self.async_filter:
+            callback = self.create_multi_engine_callback(callback, len(engines_to_run))
         for engine in engines_to_run:
             self.engine = engine
             if self.async_filter:

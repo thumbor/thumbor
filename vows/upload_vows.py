@@ -46,7 +46,7 @@ fields.
 to be uploaded as files
     Return (content_type, body) ready for httplib.HTTP instance
     """
-    BOUNDARY = '----thumborUploadFormBoundary'
+    BOUNDARY = 'thumborUploadFormBoundary'
     CRLF = '\r\n'
     L = []
     for key, value in fields.items():
@@ -62,7 +62,7 @@ to be uploaded as files
         L.append(value)
     L.append('')
     L.append('')
-    L.append(BOUNDARY + '--')
+    L.append('--' + BOUNDARY + '--')
 
     body = CRLF.join([str(item) for item in L])
 
