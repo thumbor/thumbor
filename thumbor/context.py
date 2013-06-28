@@ -35,7 +35,7 @@ class Context:
         self.request_handler = request_handler
 
 
-class ServerParameters:
+class ServerParameters(object):
     def __init__(self, port, ip, config_path, keyfile, log_level, app_class):
         self.port = port
         self.ip = ip
@@ -43,8 +43,18 @@ class ServerParameters:
         self.keyfile = keyfile
         self.log_level = log_level
         self.app_class = app_class
-        self.security_key = None
+        self._security_key = None
         self.load_security_key()
+
+    @property
+    def security_key(self):
+        return self._security_key
+
+    @security_key.setter
+    def security_key(self, key):
+        if isinstance(key, unicode):
+            key = key.encode('utf-8')
+        self._security_key = key
 
     def load_security_key(self):
         if not self.keyfile:
