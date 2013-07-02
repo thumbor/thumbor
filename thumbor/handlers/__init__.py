@@ -34,7 +34,8 @@ CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
-    '.png': 'image/png'
+    '.png': 'image/png',
+    '.webp': 'image/webp'
 }
 
 
@@ -153,7 +154,13 @@ class BaseHandler(tornado.web.RequestHandler):
             context.request.meta_callback = context.config.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
         else:
-            content_type = CONTENT_TYPE.get(context.request.extension, CONTENT_TYPE['.jpg'])
+            image_extension = context.request.format
+            if image_extension is None:
+                image_extension = context.request.extension
+            else:
+                image_extension = '.%s' % image_extension
+
+            content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
         self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)

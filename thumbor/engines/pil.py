@@ -111,8 +111,12 @@ class Engine(BaseEngine):
         if self.icc_profile is not None:
             options['icc_profile'] = self.icc_profile
 
+        image_format = self.context.request.format
+        if image_format is None:
+            image_format = FORMATS[ext]
+
         try:
-            self.image.save(img_buffer, FORMATS[ext], **options)
+            self.image.save(img_buffer, image_format, **options)
         except IOError:
             logger.warning('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
             self.image.save(img_buffer, FORMATS[ext])

@@ -170,7 +170,22 @@ Config.define(
 
 # AVAILABLE FILTERS
 Config.define(
-    'FILTERS', [],
+    'FILTERS', [
+        'thumbor.filters.brightness',
+        'thumbor.filters.contrast',
+        'thumbor.filters.rgb',
+        'thumbor.filters.round_corner',
+        'thumbor.filters.quality',
+        'thumbor.filters.noise',
+        'thumbor.filters.watermark',
+        'thumbor.filters.equalize',
+        'thumbor.filters.fill',
+        'thumbor.filters.sharpen',
+        'thumbor.filters.strip_icc',
+        'thumbor.filters.frame',
+        'thumbor.filters.grayscale',
+        'thumbor.filters.format',
+    ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')
 

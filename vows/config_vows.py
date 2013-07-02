@@ -38,7 +38,22 @@ TEST_DATA = (
     ('MIXED_STORAGE_DETECTOR_STORAGE', 'thumbor.storages.no_storage'),
     ('DETECTORS', []),
     ('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml'),
-    ('FILTERS', [])
+    ('FILTERS', [
+        'thumbor.filters.brightness',
+        'thumbor.filters.contrast',
+        'thumbor.filters.rgb',
+        'thumbor.filters.round_corner',
+        'thumbor.filters.quality',
+        'thumbor.filters.noise',
+        'thumbor.filters.watermark',
+        'thumbor.filters.equalize',
+        'thumbor.filters.fill',
+        'thumbor.filters.sharpen',
+        'thumbor.filters.strip_icc',
+        'thumbor.filters.frame',
+        'thumbor.filters.grayscale',
+        'thumbor.filters.format',
+    ])
 )
 
 

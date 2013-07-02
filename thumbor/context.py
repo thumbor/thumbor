@@ -153,6 +153,7 @@ class RequestParameters:
         self.hash = hash
         self.prevent_result_storage = False
         self.unsafe = unsafe
+        self.format = None
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)
