@@ -31,7 +31,8 @@ FORMATS = {
     '.jpg': 'JPEG',
     '.jpeg': 'JPEG',
     '.gif': 'GIF',
-    '.png': 'PNG'
+    '.png': 'PNG',
+    '.webp': 'WEBP'
 }
 
 ImageFile.MAXBLOCK = 2 ** 25
@@ -116,6 +117,9 @@ class Engine(BaseEngine):
             image_format = FORMATS[ext]
 
         try:
+            if image_format == 'WEBP' and self.image.mode in ['L', 'LA', 'P', 'RGBA']:
+                self.image = self.image.convert('RGB')
+
             self.image.save(img_buffer, image_format, **options)
         except IOError:
             logger.warning('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')

@@ -191,6 +191,7 @@ class GifWriter:
 
         # packed field: local color table flag1, interlace0, sorted table0,
         # reserved00, lct size111=7=2^(7+1)=256.
+
         bb += '\x87'
 
         # LZW minimum size code now comes later, begining of [image data] blocks

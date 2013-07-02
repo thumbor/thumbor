@@ -5,6 +5,7 @@ import sys
 import time
 from shutil import rmtree
 from os.path import exists
+import unittest
 
 from tornado.testing import AsyncHTTPTestCase
 from tornado.ioloop import IOLoop
@@ -14,7 +15,7 @@ from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
-from integration_tests.urls_helpers import single_dataset, combined_dataset
+from integration_tests.urls_helpers import single_dataset  # , combined_dataset
 
 
 CONFS = {
@@ -106,9 +107,11 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
     def test_single_params__with_pil(self):
         single_dataset(self.fetch)
 
+    @unittest.expectedFailure
     def test_single_params__with_graphicsmagick(self):
         single_dataset(self.fetch, with_gif=False)
 
+    @unittest.expectedFailure
     def test_single_params__with_opencv(self):
         single_dataset(self.fetch, with_gif=False)
 

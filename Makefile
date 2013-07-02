@@ -31,11 +31,11 @@ mongo: kill_mongo
 	@sleep 5
 
 kill_redis:
-	@-redis-cli -p 6667 -a hey_you shutdown
+	@-redis-cli -p 6668 -a hey_you shutdown
 
 redis: kill_redis
 	@redis-server redis.conf ; sleep 1
-	@redis-cli -p 6667 -a hey_you info
+	@redis-cli -p 6668 -a hey_you info
 
 flake:
 	@flake8 . --ignore=W801,E501
