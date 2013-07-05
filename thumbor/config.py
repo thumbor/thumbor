@@ -42,6 +42,10 @@ Config.define(
     'Ignore errors during smart detections and return image as a temp image (not saved in result storage and with MAX_AGE_TEMP_IMAGE age)', 'Imaging')
 
 Config.define(
+    'PRESERVE_EXIF_INFO', False,
+    'Preserves exif information in generated images. Increases image size in kbytes, use with caution.', 'Imaging')
+
+Config.define(
     'ALLOW_ANIMATED_GIFS', True,
     'Indicates whether thumbor should enable the EXPERIMENTAL support for animated gifs.', 'Imaging')
 

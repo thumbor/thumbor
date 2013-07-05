@@ -112,9 +112,15 @@ class Engine(BaseEngine):
         if self.icc_profile is not None:
             options['icc_profile'] = self.icc_profile
 
+        if self.context.config.PRESERVE_EXIF_INFO:
+            exif = self.image.info.get('exif', None)
+            if exif is not None:
+                options['exif'] = exif
+
         image_format = self.context.request.format
         if image_format is None:
             image_format = FORMATS[ext]
+        image_format = str(image_format).upper()
 
         try:
             if image_format == 'WEBP' and self.image.mode in ['L', 'LA', 'P', 'RGBA']:
@@ -122,9 +128,10 @@ class Engine(BaseEngine):
 
             self.image.save(img_buffer, image_format, **options)
         except IOError:
-            logger.warning('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
+            logger.exception('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
             self.image.save(img_buffer, FORMATS[ext])
         except KeyError:
+            logger.exception('Image format not found in PIL: %s' % image_format)
             #extension is not present or could not help determine format => force JPEG
             #TODO : guess format by image headers maybe
             if self.image.mode in ['P', 'RGBA', 'LA']:
