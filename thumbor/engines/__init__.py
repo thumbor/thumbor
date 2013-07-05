@@ -68,6 +68,8 @@ class BaseEngine(object):
             extension = '.png'
         elif buffer.startswith('\xff\xd8'):
             extension = '.jpg'
+        elif buffer.startswith('WEBP',8):
+            extension = '.webp'
 
         self.extension = extension
         imageOrFrames = self.create_image(buffer)
