@@ -394,7 +394,8 @@ class GifWriter:
         # Obtain palette for all images and count each occurance
         palettes, occur = [], []
         for im in images:
-            palettes.append(getheader(im)[1])
+            header, usedPaletteColors = getheader(im)
+            palettes.append(header[-1])  # Last part of the header is the frame palette
         for palette in palettes:
             occur.append(palettes.count(palette))
 
