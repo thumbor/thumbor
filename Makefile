@@ -14,7 +14,7 @@ ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	$(MAKE) redis mongo
+	$(MAKE) mongo redis
 	PYTHONPATH=.:$$PYTHONPATH pyvows -vvv --profile --cover --cover_package=thumbor --cover_threshold=90 vows/
 	PYTHONPATH=.:$$PYTHONPATH nosetests -sv integration_tests/
 	$(MAKE) kill_mongo kill_redis
