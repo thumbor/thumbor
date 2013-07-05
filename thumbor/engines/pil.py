@@ -11,7 +11,7 @@
 import os
 from tempfile import mkstemp
 from subprocess import Popen, PIPE
-from cStringIO import StringIO
+from io import BytesIO
 
 from PIL.ExifTags import TAGS
 from PIL import Image, ImageFile, ImageDraw, ImageSequence
@@ -45,7 +45,7 @@ class Engine(BaseEngine):
         return img
 
     def create_image(self, buffer):
-        img = Image.open(StringIO(buffer))
+        img = Image.open(BytesIO(buffer))
         self.icc_profile = img.info.get('icc_profile', None)
 
         if self.context.config.ALLOW_ANIMATED_GIFS and self.extension == '.gif':
@@ -99,7 +99,7 @@ class Engine(BaseEngine):
         if quality is None:
             quality = self.context.request.quality
         #returns image buffer in byte format.
-        img_buffer = StringIO()
+        img_buffer = BytesIO()
 
         ext = extension or self.extension
         options = {
@@ -147,7 +147,7 @@ class Engine(BaseEngine):
 
     def read_multiple(self, images, extension=None):
         gifWriter = GifWriter()
-        img_buffer = StringIO()
+        img_buffer = BytesIO()
 
         duration = []
         converted_images = []
