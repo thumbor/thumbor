@@ -53,7 +53,10 @@ def return_contents(response, url, callback):
 
 def load(context, url, callback):
     client = http_client
+
     if client is None:
+        if context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT:
+            tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
         client = tornado.httpclient.AsyncHTTPClient()
 
     user_agent = None
@@ -70,7 +73,11 @@ def load(context, url, callback):
         request_timeout=context.config.HTTP_LOADER_REQUEST_TIMEOUT,
         follow_redirects=context.config.HTTP_LOADER_FOLLOW_REDIRECTS,
         max_redirects=context.config.HTTP_LOADER_MAX_REDIRECTS,
-        user_agent=user_agent
+        user_agent=user_agent,
+        proxy_host=context.config.HTTP_LOADER_PROXY_HOST,
+        proxy_port=context.config.HTTP_LOADER_PROXY_PORT,
+        proxy_username=context.config.HTTP_LOADER_PROXY_USERNAME,
+        proxy_password=context.config.HTTP_LOADER_PROXY_PASSWORD
     )
 
     client.fetch(req, callback=partial(return_contents, url=url, callback=callback))
