@@ -68,16 +68,19 @@ def load(context, url, callback):
 
     url = _normalize_url(url)
     req = tornado.httpclient.HTTPRequest(
-        url=url.encode('ascii'),
+        url=encode(url),
         connect_timeout=context.config.HTTP_LOADER_CONNECT_TIMEOUT,
         request_timeout=context.config.HTTP_LOADER_REQUEST_TIMEOUT,
         follow_redirects=context.config.HTTP_LOADER_FOLLOW_REDIRECTS,
         max_redirects=context.config.HTTP_LOADER_MAX_REDIRECTS,
         user_agent=user_agent,
-        proxy_host=context.config.HTTP_LOADER_PROXY_HOST.encode('ascii'),
+        proxy_host=encode(context.config.HTTP_LOADER_PROXY_HOST),
         proxy_port=context.config.HTTP_LOADER_PROXY_PORT,
-        proxy_username=context.config.HTTP_LOADER_PROXY_USERNAME.encode('ascii'),
-        proxy_password=context.config.HTTP_LOADER_PROXY_PASSWORD.encode('ascii')
+        proxy_username=encode(context.config.HTTP_LOADER_PROXY_USERNAME),
+        proxy_password=encode(context.config.HTTP_LOADER_PROXY_PASSWORD)
     )
 
     client.fetch(req, callback=partial(return_contents, url=url, callback=callback))
+
+def encode(string):
+    return None if string is None else string.encode('ascii')
