@@ -46,6 +46,9 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.warn(msg)
         self.finish()
 
+    def head(self, *args, **kwargs):
+        self.set_status(204)
+
     def init_request_params(self):
         self.context.request.quality = self.context.config.QUALITY
         self.context.request.url = self.request.path
