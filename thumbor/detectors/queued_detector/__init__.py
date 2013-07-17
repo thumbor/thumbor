@@ -17,26 +17,26 @@ from thumbor.utils import logger
 
 
 class QueuedDetector(BaseDetector):
-    redis = None
+    queue = None
 
     def detect(self, callback):
         self.context.request.prevent_result_storage = True
         try:
-            if not QueuedDetector.redis:
-                QueuedDetector.redis = Redis(host=self.context.config.REDIS_QUEUE_SERVER_HOST,
-                                             port=self.context.config.REDIS_QUEUE_SERVER_PORT,
-                                             db=self.context.config.REDIS_QUEUE_SERVER_DB,
-                                             password=self.context.config.REDIS_QUEUE_SERVER_PASSWORD)
+            if not QueuedDetector.queue:
+                redis = Redis(host=self.context.config.REDIS_QUEUE_SERVER_HOST,
+                              port=self.context.config.REDIS_QUEUE_SERVER_PORT,
+                              db=self.context.config.REDIS_QUEUE_SERVER_DB,
+                              password=self.context.config.REDIS_QUEUE_SERVER_PASSWORD)
+                QueuedDetector.queue = UniqueQueue(server=redis)
 
-            queue = UniqueQueue(server=QueuedDetector.redis)
-            queue.enqueue_unique_from_string(
+            QueuedDetector.queue.enqueue_unique_from_string(
                 'remotecv.pyres_tasks.DetectTask', 'Detect',
                 args=[self.detection_type, self.context.request.image_url],
                 key=self.context.request.image_url
             )
         except RedisError:
             self.context.request.detection_error = True
-            QueuedDetector.redis = None
+            QueuedDetector.queue = None
             logger.exception('Redis Error')
         finally:
             callback([])
