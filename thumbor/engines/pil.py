@@ -37,6 +37,9 @@ FORMATS = {
 
 ImageFile.MAXBLOCK = 2 ** 25
 
+if hasattr(ImageFile, 'IGNORE_DECODING_ERRORS'):
+    ImageFile.IGNORE_DECODING_ERRORS = True
+
 
 class Engine(BaseEngine):
 
