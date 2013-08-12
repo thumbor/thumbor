@@ -153,15 +153,19 @@ class BaseHandler(tornado.web.RequestHandler):
         if context.request.meta:
             context.request.meta_callback = context.config.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
+            logger.debug('Metadata requested. Serving content type of %s.' % content_type)
         else:
             image_extension = context.request.format
             if image_extension is None:
                 image_extension = context.request.extension
+                logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
             else:
                 image_extension = '.%s' % image_extension
+                logger.debug('Image format specified as %s.' % image_extension)
 
             content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
+        logger.debug('Content Type of %s detected.' % content_type)
         self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)
 
