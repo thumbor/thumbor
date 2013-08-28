@@ -55,8 +55,7 @@ class FillFilterVows(Vows.Context):
 
             def topic(self, ctx):
                 for item in DATA:
-                    (size_requested, size_cropped, size_results,
-                        image_color, detected_color) = item
+                    (size_requested, size_cropped, size_results, image_color, detected_color) = item
 
                     ctx.modules.engine.image = ctx.modules.engine.gen_image(size_cropped, image_color)
                     req = RequestParameters(fit_in=True, width=size_requested[0], height=size_requested[1])
@@ -67,4 +66,5 @@ class FillFilterVows(Vows.Context):
                     yield (filter_instances[0].get_median_color(), detected_color)
 
             def the_median_color_should_be_detected(self, topic):
+                expect(topic).not_to_be_an_error()
                 expect(topic[0]).to_equal(topic[1])

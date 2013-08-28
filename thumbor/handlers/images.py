@@ -11,6 +11,7 @@
 import uuid
 import mimetypes
 from thumbor.handlers import ImageApiHandler
+from thumbor.engines import BaseEngine
 
 
 ##
@@ -40,7 +41,7 @@ class ImagesHandler(ImageApiHandler):
 
             # Use the default filename for the uploaded images
             if not filename:
-                content_type = self.request.headers.get('Content-Type', self.get_mimetype(body))
+                content_type = self.request.headers.get('Content-Type', BaseEngine.get_mimetype(body))
                 extension = mimetypes.guess_extension(content_type, False)
                 if extension == '.jpe':
                     extension = '.jpg'  # Hack because mimetypes return .jpe by default

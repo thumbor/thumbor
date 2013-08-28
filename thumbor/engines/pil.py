@@ -120,23 +120,18 @@ class Engine(BaseEngine):
             if exif is not None:
                 options['exif'] = exif
 
-        image_format = self.context.request.format
-        if image_format is None:
-            image_format = FORMATS[ext]
-        image_format = str(image_format).upper()
-
         try:
-            if image_format == 'WEBP' and self.image.mode in ['L', 'LA', 'P', 'RGBA']:
+            if ext == '.webp' and self.image.mode in ['L', 'LA', 'P', 'RGBA']:
                 self.image = self.image.convert('RGB')
 
-            self.image.save(img_buffer, image_format, **options)
+            self.image.save(img_buffer, FORMATS[ext], **options)
         except IOError:
             logger.exception('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
             self.image.save(img_buffer, FORMATS[ext])
         except KeyError:
-            logger.exception('Image format not found in PIL: %s' % image_format)
+            logger.exception('Image format not found in PIL: %s' % ext)
+
             #extension is not present or could not help determine format => force JPEG
-            #TODO : guess format by image headers maybe
             if self.image.mode in ['P', 'RGBA', 'LA']:
                 self.image.format = FORMATS['.png']
                 self.image.save(img_buffer, FORMATS['.png'])

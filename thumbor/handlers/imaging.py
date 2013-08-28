@@ -35,6 +35,8 @@ class ImagingHandler(ContextHandler):
             self._error(404, 'No original image was specified in the given URL')
             return
 
+        kw['accepts_webp'] = 'image/webp' in self.request.headers.get('Accept', '')
+
         self.context.request = RequestParameters(**kw)
 
         self.context.request.unsafe = self.context.request.unsafe == 'unsafe'

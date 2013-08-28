@@ -10,6 +10,7 @@
 import datetime
 
 from thumbor.handlers import ImageApiHandler
+from thumbor.engines import BaseEngine
 
 
 ##
@@ -51,7 +52,7 @@ class ImageHandler(ImageApiHandler):
             body = self.context.modules.storage.get(id)
             self.set_status(200)
 
-            mime = self.get_mimetype(body)
+            mime = BaseEngine.get_mimetype(body)
             if mime:
                 self.set_header('Content-Type', mime)
 

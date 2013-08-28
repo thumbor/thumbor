@@ -98,7 +98,8 @@ class RequestParameters:
                  buffer=None,
                  focal_points=None,
                  unsafe=False,
-                 hash=None):
+                 hash=None,
+                 accepts_webp=False):
 
         self.debug = bool(debug)
         self.meta = bool(meta)
@@ -144,7 +145,6 @@ class RequestParameters:
         self.detection_error = None
         self.quality = quality
         self.buffer = None
-        self.extension = extension
 
         if focal_points is None:
             focal_points = []
@@ -154,6 +154,7 @@ class RequestParameters:
         self.prevent_result_storage = False
         self.unsafe = unsafe
         self.format = None
+        self.accepts_webp = accepts_webp
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)

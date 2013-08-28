@@ -14,12 +14,6 @@ from os.path import splitext
 import datetime
 import traceback
 
-try:
-    import magic
-    LIBMAGIC_AVAILABLE = True
-except ImportError:
-    LIBMAGIC_AVAILABLE = False
-
 import tornado.web
 
 from thumbor import __version__
@@ -150,20 +144,23 @@ class BaseHandler(tornado.web.RequestHandler):
         exec_one_filter()
 
     def finish_request(self, context, result=None):
-        if context.request.meta:
-            context.request.meta_callback = context.config.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
-            content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
-            logger.debug('Metadata requested. Serving content type of %s.' % content_type)
+        if context.config.AUTO_WEBP and context.request.accepts_webp:
+            image_extension = '.webp'
         else:
             image_extension = context.request.format
             if image_extension is None:
-                image_extension = context.request.extension
+                image_extension = context.modules.engine.extension
                 logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
             else:
                 image_extension = '.%s' % image_extension
                 logger.debug('Image format specified as %s.' % image_extension)
 
-            content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
+        content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
+
+        if context.request.meta:
+            context.request.meta_callback = context.config.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
+            content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
+            logger.debug('Metadata requested. Serving content type of %s.' % content_type)
 
         logger.debug('Content Type of %s detected.' % content_type)
         self.set_header('Content-Type', content_type)
@@ -179,7 +176,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         should_store = result is None and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
         if result is None:
-            results = context.modules.engine.read(context.request.extension, context.request.quality)
+            results = context.modules.engine.read(image_extension, context.request.quality)
         else:
             results = result
 
@@ -252,12 +249,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 callback(normalized, engine=engine)
 
             self.context.modules.loader.load(self.context, url, handle_loader_loaded)
-
-    def get_mimetype(self, body):
-        if LIBMAGIC_AVAILABLE:
-            return magic.from_buffer(body, True)
-
-        return None
 
 
 class ContextHandler(BaseHandler):

@@ -19,6 +19,9 @@ from thumbor.utils import logger
 
 
 class Storage(BaseStorage):
+    @property
+    def is_auto_webp(self):
+        return self.context.config.AUTO_WEBP and self.context.request.accepts_webp
 
     def put(self, bytes):
         file_abspath = self.normalize_path(self.context.request.url)
@@ -45,7 +48,11 @@ class Storage(BaseStorage):
             return f.read()
 
     def normalize_path(self, path):
-        path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+        if self.is_auto_webp:
+            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+        else:
+            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), "webp", path.lstrip('/'))
+
         path = path.replace('http://', '')
         return path
 

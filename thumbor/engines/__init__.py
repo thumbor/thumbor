@@ -49,6 +49,22 @@ class BaseEngine(object):
         self.source_height = None
         self.icc_profile = None
 
+    @classmethod
+    def get_mimetype(cls, buffer):
+        extension = None
+
+        #magic number detection
+        if buffer.startswith('GIF8'):
+            extension = '.gif'
+        elif buffer.startswith('\x89PNG\r\n\x1a\n'):
+            extension = '.png'
+        elif buffer.startswith('\xff\xd8'):
+            extension = '.jpg'
+        elif buffer.startswith('WEBP', 8):
+            extension = '.webp'
+
+        return extension
+
     def wrap(self, multiple_engine):
         for method_name in ['resize', 'crop', 'flip_vertically', 'flip_horizontally']:
             setattr(self, method_name, multiple_engine.do_many(method_name))
@@ -61,17 +77,7 @@ class BaseEngine(object):
         return self.multiple_engine.frame_engines
 
     def load(self, buffer, extension):
-        #magic number detection
-        if buffer.startswith('GIF8'):
-            extension = '.gif'
-        elif buffer.startswith('\x89PNG\r\n\x1a\n'):
-            extension = '.png'
-        elif buffer.startswith('\xff\xd8'):
-            extension = '.jpg'
-        elif buffer.startswith('WEBP',8):
-            extension = '.webp'
-
-        self.extension = extension
+        self.extension = self.get_mimetype(buffer)
         imageOrFrames = self.create_image(buffer)
 
         if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(imageOrFrames, (list, tuple)):
