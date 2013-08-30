@@ -95,7 +95,18 @@ Config.define(
 Config.define(
     'HTTP_LOADER_DEFAULT_USER_AGENT', "Thumbor/%s" % __version__,
     'Default user agent for thumbor http loader requests', 'HTTP Loader')
-
+Config.define(
+    'HTTP_LOADER_PROXY_HOST', None,
+    'The proxy host needed to load images through', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_PROXY_PORT', None,
+    'The proxy port for the proxy host', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_PROXY_USERNAME', None,
+    'The proxy username for the proxy host', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_PROXY_PASSWORD', None,
+    'The proxy password for the proxy host', 'HTTP Loader')
 
 # FILE STORAGE GENERIC OPTIONS
 Config.define(
