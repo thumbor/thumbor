@@ -42,3 +42,16 @@ class HealthCheck(TornadoHTTPContext):
 
             def should_equal_working(self, topic):
                 expect(topic.lower().strip()).to_equal('working')
+
+    class HeadHandler(TornadoHTTPContext):
+        def topic(self):
+            response = self.head('/healthcheck')
+            return (response.code, response.body)
+
+        class StatusCode(TornadoHTTPContext):
+            def topic(self, response):
+                return response[0]
+
+            def should_not_be_an_error(self, topic):
+                expect(topic).to_equal(204)
+
