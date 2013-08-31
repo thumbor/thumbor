@@ -9,11 +9,12 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import os
+from shutil import move
 from json import dumps, loads
 from datetime import datetime
-from os.path import splitext
+from os.path import exists, dirname, join, getmtime, splitext
 import hashlib
-from os.path import exists, dirname, join, getmtime
+from uuid import uuid4
 
 import thumbor.storages as storages
 
@@ -22,12 +23,15 @@ class Storage(storages.BaseStorage):
 
     def put(self, path, bytes):
         file_abspath = self.path_on_filesystem(path)
+        temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace('-', ''))
         file_dir_abspath = dirname(file_abspath)
 
         self.ensure_dir(file_dir_abspath)
 
-        with open(file_abspath, 'w') as _file:
+        with open(temp_abspath, 'w') as _file:
             _file.write(bytes)
+
+        move(temp_abspath, file_abspath)
 
         return path
 
@@ -44,8 +48,11 @@ class Storage(storages.BaseStorage):
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
         crypto_path = '%s.txt' % splitext(file_abspath)[0]
-        with open(crypto_path, 'w') as _file:
+        temp_abspath = "%s.%s" % (crypto_path, str(uuid4()).replace('-', ''))
+        with open(temp_abspath, 'w') as _file:
             _file.write(self.context.server.security_key)
+
+        move(temp_abspath, crypto_path)
 
         return file_abspath
 
@@ -53,8 +60,11 @@ class Storage(storages.BaseStorage):
         file_abspath = self.path_on_filesystem(path)
 
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
-        with open(path, 'w') as _file:
+        temp_abspath = "%s.%s" % (path, str(uuid4()).replace('-', ''))
+        with open(temp_abspath, 'w') as _file:
             _file.write(dumps(data))
+
+        move(temp_abspath, path)
 
         return file_abspath
 
