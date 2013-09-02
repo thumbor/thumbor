@@ -53,6 +53,7 @@ TEST_DATA = (
         'thumbor.filters.frame',
         'thumbor.filters.grayscale',
         'thumbor.filters.format',
+        'thumbor.filters.max_bytes',
     ])
 )
 

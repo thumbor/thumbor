@@ -193,7 +193,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 context.modules.result_storage.put(results)
 
     def reload_to_fit_in_kb(self, engine, initial_results, extension, initial_quality, max_bytes):
-        if len(initial_results) <= max_bytes:
+        if extension not in ['.webp', '.jpg', '.jpeg'] or len(initial_results) <= max_bytes:
             return initial_results
 
         results = initial_results
