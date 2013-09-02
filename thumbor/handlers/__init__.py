@@ -180,6 +180,8 @@ class BaseHandler(tornado.web.RequestHandler):
         should_store = result is None and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
         if result is None:
             results = context.modules.engine.read(image_extension, context.request.quality)
+            if context.request.max_bytes is not None:
+                results = self.reload_to_fit_in_kb(context.modules.engine, results, image_extension, context.request.quality, context.request.max_bytes)
         else:
             results = result
 
@@ -189,6 +191,32 @@ class BaseHandler(tornado.web.RequestHandler):
         if should_store:
             if context.modules.result_storage and not context.request.prevent_result_storage:
                 context.modules.result_storage.put(results)
+
+    def reload_to_fit_in_kb(self, engine, initial_results, extension, initial_quality, max_bytes):
+        if len(initial_results) <= max_bytes:
+            return initial_results
+
+        results = initial_results
+        quality = initial_quality
+
+        while len(results) > max_bytes:
+            quality = int(quality * 0.75)
+
+            if quality < 10:
+                logger.debug('Could not find any reduction that matches required size of %d bytes.' % max_bytes)
+                return initial_results
+
+            logger.debug('Trying to downsize image with quality of %d...' % quality)
+            results = engine.read(extension, quality)
+
+        prev_result = results
+        while len(results) <= max_bytes:
+            quality = int(quality * 1.1)
+            logger.debug('Trying to upsize image with quality of %d...' % quality)
+            prev_result = results
+            results = engine.read(extension, quality)
+
+        return prev_result
 
     @classmethod
     def translate_crop_coordinates(

@@ -201,6 +201,7 @@ Config.define(
         'thumbor.filters.frame',
         'thumbor.filters.grayscale',
         'thumbor.filters.format',
+        'thumbor.filters.max_bytes',
     ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')

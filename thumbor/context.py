@@ -155,6 +155,7 @@ class RequestParameters:
         self.unsafe = unsafe
         self.format = None
         self.accepts_webp = accepts_webp
+        self.max_bytes = None
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)

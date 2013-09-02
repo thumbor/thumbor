@@ -7,7 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
-from thumbor.storages.file_storage import Storage as FileStorage
+
 from os.path import abspath, join, dirname
 
 from pyvows import Vows, expect
@@ -18,6 +18,7 @@ from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.engines.pil import Engine as PILEngine
+from thumbor.storages.file_storage import Storage as FileStorage
 
 storage_path = abspath(join(dirname(__file__), 'fixtures/'))
 
