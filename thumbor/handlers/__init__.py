@@ -21,6 +21,7 @@ from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.context import Context
 from thumbor.transformer import Transformer
+from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
 
@@ -146,17 +147,20 @@ class BaseHandler(tornado.web.RequestHandler):
             f.run(exec_one_filter)
         exec_one_filter()
 
-    def finish_request(self, context, result=None):
+    def define_image_type(self, context, result):
         if context.config.AUTO_WEBP and context.request.accepts_webp:
             image_extension = '.webp'
         else:
-            image_extension = context.request.format
-            if image_extension is None:
-                image_extension = context.modules.engine.extension
-                logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
+            if result is not None:
+                image_extension = BaseEngine.get_mimetype(result)
             else:
-                image_extension = '.%s' % image_extension
-                logger.debug('Image format specified as %s.' % image_extension)
+                image_extension = context.request.format
+                if image_extension is None:
+                    image_extension = context.modules.engine.extension
+                    logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
+                else:
+                    image_extension = '.%s' % image_extension
+                    logger.debug('Image format specified as %s.' % image_extension)
 
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
@@ -166,6 +170,12 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.debug('Metadata requested. Serving content type of %s.' % content_type)
 
         logger.debug('Content Type of %s detected.' % content_type)
+
+        return image_extension, content_type
+
+    def finish_request(self, context, result=None):
+        image_extension, content_type = self.define_image_type(context, result)
+
         self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)
 
@@ -177,7 +187,9 @@ class BaseHandler(tornado.web.RequestHandler):
             self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
             self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
 
+        # needs to be decided before loading results from the engine
         should_store = result is None and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
+
         if result is None:
             results = context.modules.engine.read(image_extension, context.request.quality)
             if context.request.max_bytes is not None:
