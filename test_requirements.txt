@@ -7,6 +7,7 @@ pymongo==2.1.1
 redis==2.4.9
 gevent
 pyvows==2.0.4
+preggy==0.6.2
 tornado-pyvows==0.5.2
 coverage
 derpconf>=0.2.0
