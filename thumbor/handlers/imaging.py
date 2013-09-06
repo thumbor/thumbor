@@ -41,7 +41,7 @@ class ImagingHandler(ContextHandler):
 
         self.context.request.unsafe = self.context.request.unsafe == 'unsafe'
 
-        if (self.request.query):
+        if self.request.query:
             self.context.request.image_url += '?%s' % self.request.query
         self.context.request.image_url = self.encode_url(self.context.request.image_url.encode('utf-8'))
 
