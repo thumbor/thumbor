@@ -16,8 +16,6 @@ import tornado.httpclient
 
 from thumbor.utils import logger
 
-http_client = None
-
 
 def _normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
@@ -52,12 +50,9 @@ def return_contents(response, url, callback):
 
 
 def load(context, url, callback):
-    client = http_client
-
-    if client is None:
-        if context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT:
-            tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
-        client = tornado.httpclient.AsyncHTTPClient()
+    if context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT:
+        tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+    client = tornado.httpclient.AsyncHTTPClient()
 
     user_agent = None
     if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
