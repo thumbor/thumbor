@@ -178,6 +178,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)
+        if context.config.AUTO_WEBP:
+            self.set_header('Vary', 'Accept')
 
         max_age = self.context.config.MAX_AGE
         if context.request.prevent_result_storage or context.request.detection_error:

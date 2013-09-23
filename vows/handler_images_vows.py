@@ -250,14 +250,14 @@ class GetImageWithAutoWebP(BaseContext):
         return application
 
     def topic(self):
-        response = self.get('/unsafe/image.jpg', headers={
+        return self.get('/unsafe/image.jpg', headers={
             "Accept": 'image/webp,*/*;q=0.8'
         })
-        return (response.code, response.body)
 
     def should_be_webp(self, response):
-        code, image_buffer = response
-        expect(code).to_equal(200)
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.headers['Vary']).to_include('Accept')
 
-        image = self.engine.create_image(image_buffer)
+        image = self.engine.create_image(response.body)
         expect(image.format.lower()).to_equal('webp')
