@@ -121,8 +121,9 @@ class Engine(BaseEngine):
                 options['exif'] = exif
 
         try:
-            if ext == '.webp' and self.image.mode in ['L', 'LA', 'P', 'RGBA']:
-                self.image = self.image.convert('RGB')
+            if ext == '.webp':
+                if self.image.mode not in ['RGB', 'RGBA']:
+                    self.image = self.image.convert()
 
             self.image.save(img_buffer, FORMATS[ext], **options)
         except IOError:
