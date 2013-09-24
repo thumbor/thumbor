@@ -48,10 +48,11 @@ class Storage(BaseStorage):
             return f.read()
 
     def normalize_path(self, path):
+        partition = join(path.lstrip('/')[0], path.lstrip('/')[1])
         if self.is_auto_webp:
-            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), partition, path.lstrip('/'))
         else:
-            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), "webp", path.lstrip('/'))
+            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), "webp", partition,  path.lstrip('/'))
 
         path = path.replace('http://', '')
         return path
