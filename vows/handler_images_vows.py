@@ -249,15 +249,39 @@ class GetImageWithAutoWebP(BaseContext):
 
         return application
 
-    def topic(self):
-        return self.get('/unsafe/image.jpg', headers={
-            "Accept": 'image/webp,*/*;q=0.8'
-        })
+    class CanConvertJPEG(BaseContext):
+        def topic(self):
+            return self.get('/unsafe/image.jpg', headers={
+                "Accept": 'image/webp,*/*;q=0.8'
+            })
 
-    def should_be_webp(self, response):
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include('Vary')
-        expect(response.headers['Vary']).to_include('Accept')
+        def should_be_webp(self, response):
+            expect(response.code).to_equal(200)
+            expect(response.headers).to_include('Vary')
+            expect(response.headers['Vary']).to_include('Accept')
 
-        image = self.engine.create_image(response.body)
-        expect(image.format.lower()).to_equal('webp')
+            image = self.engine.create_image(response.body)
+            expect(image.format.lower()).to_equal('webp')
+
+    class ShouldNotConvertWebPImage(BaseContext):
+        def topic(self):
+            return self.get('/unsafe/image.webp', headers={
+                "Accept": 'image/webp,*/*;q=0.8'
+            })
+
+        def should_not_have_vary(self, response):
+            expect(response.code).to_equal(200)
+            expect(response.headers).not_to_include('Vary')
+
+    class ShouldNotConvertAnimatedGif(BaseContext):
+        def topic(self):
+            return self.get('/unsafe/animated_image.gif', headers={
+                "Accept": 'image/webp,*/*;q=0.8'
+            })
+
+        def should_not_be_webp(self, response):
+            expect(response.code).to_equal(200)
+            expect(response.headers).not_to_include('Vary')
+
+            image = self.engine.create_image(response.body)
+            expect(image.format.lower()).to_equal('gif')

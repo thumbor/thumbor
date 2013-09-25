@@ -85,37 +85,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 engine = self.context.modules.engine
                 engine.load(buffer, req.extension)
 
-            new_crops = None
-            if normalized and req.should_crop:
-                crop_left = req.crop['left']
-                crop_top = req.crop['top']
-                crop_right = req.crop['right']
-                crop_bottom = req.crop['bottom']
-
-                actual_width, actual_height = engine.size
-
-                if not req.width and not req.height:
-                    actual_width = engine.size[0]
-                    actual_height = engine.size[1]
-                elif req.width:
-                    actual_height = engine.get_proportional_height(engine.size[0])
-                elif req.height:
-                    actual_width = engine.get_proportional_width(engine.size[1])
-
-                new_crops = self.translate_crop_coordinates(
-                    engine.source_width,
-                    engine.source_height,
-                    actual_width,
-                    actual_height,
-                    crop_left,
-                    crop_top,
-                    crop_right,
-                    crop_bottom
-                )
-                req.crop['left'] = new_crops[0]
-                req.crop['top'] = new_crops[1]
-                req.crop['right'] = new_crops[2]
-                req.crop['bottom'] = new_crops[3]
+            self.normalize_crops(normalized, req, engine)
 
             if req.meta:
                 self.context.modules.engine = JSONEngine(engine, req.image_url, req.meta_callback)
@@ -124,6 +94,39 @@ class BaseHandler(tornado.web.RequestHandler):
             Transformer(self.context).transform(after_transform_cb)
 
         self._fetch(self.context.request.image_url, self.context.request.extension, callback)
+
+    def normalize_crops(self, normalized, req, engine):
+        new_crops = None
+        if normalized and req.should_crop:
+            crop_left = req.crop['left']
+            crop_top = req.crop['top']
+            crop_right = req.crop['right']
+            crop_bottom = req.crop['bottom']
+
+            actual_width, actual_height = engine.size
+
+            if not req.width and not req.height:
+                actual_width = engine.size[0]
+                actual_height = engine.size[1]
+            elif req.width:
+                actual_height = engine.get_proportional_height(engine.size[0])
+            elif req.height:
+                actual_width = engine.get_proportional_width(engine.size[1])
+
+            new_crops = self.translate_crop_coordinates(
+                engine.source_width,
+                engine.source_height,
+                actual_width,
+                actual_height,
+                crop_left,
+                crop_top,
+                crop_right,
+                crop_bottom
+            )
+            req.crop['left'] = new_crops[0]
+            req.crop['top'] = new_crops[1]
+            req.crop['right'] = new_crops[2]
+            req.crop['bottom'] = new_crops[3]
 
     def after_transform(self, context):
         finish_callback = functools.partial(self.finish_request, context)
@@ -148,7 +151,7 @@ class BaseHandler(tornado.web.RequestHandler):
         exec_one_filter()
 
     def define_image_type(self, context, result):
-        if context.config.AUTO_WEBP and context.request.accepts_webp:
+        if context.config.AUTO_WEBP and context.request.accepts_webp and not context.modules.engine.is_multiple():
             image_extension = '.webp'
         else:
             if result is not None:
@@ -178,7 +181,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)
-        if context.config.AUTO_WEBP:
+
+        if context.config.AUTO_WEBP and not context.modules.engine.is_multiple() and context.modules.engine.extension != '.webp':
             self.set_header('Vary', 'Accept')
 
         max_age = self.context.config.MAX_AGE
@@ -195,7 +199,13 @@ class BaseHandler(tornado.web.RequestHandler):
         if result is None:
             results = context.modules.engine.read(image_extension, context.request.quality)
             if context.request.max_bytes is not None:
-                results = self.reload_to_fit_in_kb(context.modules.engine, results, image_extension, context.request.quality, context.request.max_bytes)
+                results = self.reload_to_fit_in_kb(
+                    context.modules.engine,
+                    results,
+                    image_extension,
+                    context.request.quality,
+                    context.request.max_bytes
+                )
         else:
             results = result
 
