@@ -123,7 +123,10 @@ class Engine(BaseEngine):
         try:
             if ext == '.webp':
                 if self.image.mode not in ['RGB', 'RGBA']:
-                    self.image = self.image.convert()
+                    mode = None
+                    if self.image.mode != 'P':
+                        mode = 'RGBA' if self.image.mode[-1] == 'A' else 'RGB'
+                    self.image = self.image.convert(mode)
 
             self.image.save(img_buffer, FORMATS[ext], **options)
         except IOError:
