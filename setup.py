@@ -15,6 +15,24 @@ import glob
 import os
 
 
+tests_require = [
+    "simplejson>=2.1.6,<2.2.0",
+    "pymongo==2.1.1",
+    "redis==2.4.9",
+    "gevent",
+    "pyvows==2.0.4",
+    "preggy==0.6.2",
+    "tornado-pyvows==0.5.2",
+    "coverage",
+    "mock==1.0.1",
+    "pgmagick>=0.5.6",
+    "raven",
+    "nose",
+    "colorama",
+    "numpy",
+]
+
+
 def filter_extension_module(name, lib_objs, lib_headers):
     return Extension(
         'thumbor.ext.filters.%s' % name,
@@ -81,6 +99,10 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "derpconf>=0.2.0",
             "python-magic>=0.4.3"
         ],
+
+        extras_require={
+            'tests': tests_require,
+        },
 
         entry_points={
             'console_scripts': [

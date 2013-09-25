@@ -26,7 +26,7 @@ install:
     - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
 
     # install python requirements
-    - pip install -U -r test_requirements.txt --use-mirrors
+    - make setup
 
 script:
     # finally run tests

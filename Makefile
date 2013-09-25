@@ -1,13 +1,16 @@
 run: compile_ext
-	PYTHONPATH=.:$$PYTHONPATH python thumbor/server.py -l debug
+	@thumbor -l debug
+
+setup:
+	@pip install -e .[tests]
 
 compile_ext:
-	python setup.py build_ext -i
+	@python setup.py build_ext -i
 
 f ?= "vows/"
 test pyvows: compile_ext redis mongo
-	PYTHONPATH=.:$$PYTHONPATH pyvows -vv --profile --cover --cover-package=thumbor --cover-threshold=90 $f
-	PYTHONPATH=.:$$PYTHONPATH nosetests -sv integration_tests/
+	@pyvows -vv --profile --cover --cover-package=thumbor --cover-threshold=90 $f
+	@nosetests -sv integration_tests/
 	$(MAKE) kill_mongo kill_redis
 
 ci_test: compile_ext
@@ -15,8 +18,8 @@ ci_test: compile_ext
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	$(MAKE) mongo redis
-	PYTHONPATH=.:$$PYTHONPATH pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
-	PYTHONPATH=.:$$PYTHONPATH nosetests -sv integration_tests/
+	@pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
+	@nosetests -sv integration_tests/
 	$(MAKE) kill_mongo kill_redis
 
 mysql_test: pretest
