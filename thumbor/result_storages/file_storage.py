@@ -48,14 +48,17 @@ class Storage(BaseStorage):
             return f.read()
 
     def normalize_path(self, path):
-        partition = join(path.lstrip('/')[0], path.lstrip('/')[1])
         if self.is_auto_webp:
-            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), partition, path.lstrip('/'))
+            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), self.partition(path), path.lstrip('/'))
         else:
-            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), "webp", partition,  path.lstrip('/'))
+            path = join(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), "webp", self.partition(path),  path.lstrip('/'))
 
         path = path.replace('http://', '')
         return path
+
+    def partition(self, path_raw):
+        path = path_raw.lstrip('/')
+        return join("".join(path[0:2]), "".join(path[2:4]))
 
     def is_expired(self, path):
         expire_in_seconds = self.context.config.get('RESULT_STORAGE_EXPIRATION_SECONDS', None)
