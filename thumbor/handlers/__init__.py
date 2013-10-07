@@ -44,12 +44,8 @@ class BaseHandler(tornado.web.RequestHandler):
     def head(self, *args, **kwargs):
         self.set_status(204)
 
-    def init_request_params(self):
-        self.context.request.quality = self.context.config.QUALITY
-        self.context.request.url = self.request.path
-
     def execute_image_operations(self):
-        self.init_request_params()
+        self.context.request.quality = self.context.config.QUALITY
 
         req = self.context.request
         conf = self.context.config
@@ -151,19 +147,18 @@ class BaseHandler(tornado.web.RequestHandler):
         exec_one_filter()
 
     def define_image_type(self, context, result):
-        if context.config.AUTO_WEBP and context.request.accepts_webp and not context.modules.engine.is_multiple():
+        if result is not None:
+            image_extension = BaseEngine.get_mimetype(result)
+        elif context.config.AUTO_WEBP and context.request.accepts_webp and not context.modules.engine.is_multiple():
             image_extension = '.webp'
         else:
-            if result is not None:
-                image_extension = BaseEngine.get_mimetype(result)
+            image_extension = context.request.format
+            if image_extension is None:
+                image_extension = context.modules.engine.extension
+                logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
             else:
-                image_extension = context.request.format
-                if image_extension is None:
-                    image_extension = context.modules.engine.extension
-                    logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
-                else:
-                    image_extension = '.%s' % image_extension
-                    logger.debug('Image format specified as %s.' % image_extension)
+                image_extension = '.%s' % image_extension
+                logger.debug('Image format specified as %s.' % image_extension)
 
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 

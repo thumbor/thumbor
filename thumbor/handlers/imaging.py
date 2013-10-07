@@ -8,20 +8,16 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from urllib import quote
-
 import tornado.web
 
 from thumbor.handlers import ContextHandler
 from thumbor.context import RequestParameters
 from thumbor.crypto import Cryptor, Signer
 from thumbor.utils import logger
+from thumbor.url import Url
 
 
 class ImagingHandler(ContextHandler):
-
-    def encode_url(self, url):
-        return quote(url, '/:?%=&()",\'')
 
     @tornado.web.asynchronous
     def get(self, **kw):
@@ -35,15 +31,9 @@ class ImagingHandler(ContextHandler):
             self._error(404, 'No original image was specified in the given URL')
             return
 
-        kw['accepts_webp'] = 'image/webp' in self.request.headers.get('Accept', '')
+        kw['request'] = self.request
 
         self.context.request = RequestParameters(**kw)
-
-        self.context.request.unsafe = self.context.request.unsafe == 'unsafe'
-
-        if self.request.query:
-            self.context.request.image_url += '?%s' % self.request.query
-        self.context.request.image_url = self.encode_url(self.context.request.image_url.encode('utf-8'))
 
         has_none = not self.context.request.unsafe and not self.context.request.hash
         has_both = self.context.request.unsafe and self.context.request.hash
@@ -60,7 +50,7 @@ class ImagingHandler(ContextHandler):
         if url_signature:
             signer = Signer(self.context.server.security_key)
 
-            url_to_validate = self.encode_url(url).replace('/%s/' % self.context.request.hash, '')
+            url_to_validate = Url.encode_url(url).replace('/%s/' % self.context.request.hash, '')
             valid = signer.validate(url_signature, url_to_validate)
 
             if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
@@ -78,6 +68,7 @@ class ImagingHandler(ContextHandler):
                     if options is None:
                         is_valid = False
                     else:
+                        options['request'] = self.request
                         self.context.request = RequestParameters(**options)
                         logger.warning(
                             'OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in ' +

@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import re
+from urllib import quote
 
 
 class Url(object):
@@ -157,3 +158,7 @@ class Url(object):
             url.append('filters:%s' % filters)
 
         return '/'.join(url)
+
+    @classmethod
+    def encode_url(kls, url):
+        return quote(url, '/:?%=&()",\'')
