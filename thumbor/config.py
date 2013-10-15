@@ -243,6 +243,9 @@ Config.define(
     'Sentry thumbor project dsn. i.e.: ' +
     'http://5a63d58ae7b94f1dab3dee740b301d6a:73eea45d3e8649239a973087e8f21f98@localhost:9000/2', 'Errors - Sentry')
 
+# FILE REPORTING MODULE
+Config.define('ERROR_FILE_LOGGER', None, 'File of error log as json', 'Errors')
+
 
 def generate_config():
     config.generate_config()
