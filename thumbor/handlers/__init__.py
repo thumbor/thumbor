@@ -41,9 +41,6 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.warn(msg)
         self.finish()
 
-    def head(self, *args, **kwargs):
-        self.set_status(204)
-
     def execute_image_operations(self):
         self.context.request.quality = self.context.config.QUALITY
 
