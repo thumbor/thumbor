@@ -14,3 +14,6 @@ from thumbor.handlers import BaseHandler
 class HealthcheckHandler(BaseHandler):
     def get(self):
         self.write('WORKING')
+
+    def head(self, *args, **kwargs):
+        self.set_status(200)
