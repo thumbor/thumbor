@@ -37,10 +37,10 @@ class Context:
 
 
 class ServerParameters(object):
-    def __init__(self, port, ip, fd, config_path, keyfile, log_level, app_class):
+    def __init__(self, port, ip, filedescriptor, config_path, keyfile, log_level, app_class):
         self.port = port
         self.ip = ip
-        self.fd = fd
+        self.filedescriptor = filedescriptor
         self.config_path = config_path
         self.keyfile = keyfile
         self.log_level = log_level

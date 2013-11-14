@@ -18,7 +18,7 @@ def get_server_parameters(arguments=None):
     parser = optparse.OptionParser(usage="thumbor or type thumbor -h (--help) for help", description=__doc__, version=__version__)
     parser.add_option("-p", "--port", type="int", dest="port", default=8888, help="The port to run this thumbor instance at [default: %default].")
     parser.add_option("-i", "--ip", dest="ip", default="0.0.0.0", help="The host address to run this thumbor instance at [default: %default].")
-    parser.add_option("-f", "--fd", type="int", dest="fd", help="The file descriptor to listen for connections on (--port and --ip will be ignored if this is set) [default: %default].")
+    parser.add_option("-f", "--filedescriptor", type="int", dest="filedescriptor", help="The file descriptor to listen for connections on (--port and --ip will be ignored if this is set) [default: %default].")
     parser.add_option("-c", "--conf", dest="conf", default="", help="The path of the configuration file to use for this thumbor instance [default: %default].")
     parser.add_option("-k", "--keyfile", dest="keyfile", default="", help="The path of the security key file to use for this thumbor instance [default: %default].")
     parser.add_option("-l", "--log-level", dest="log_level", default="warning", help="The log level to be used. Possible values are: debug, info, warning, error, critical or notset. [default: %default].")
@@ -28,14 +28,14 @@ def get_server_parameters(arguments=None):
 
     port = options.port
     ip = options.ip
-    fd = options.fd
+    filedescriptor = options.filedescriptor
     conf = options.conf or None
     keyfile = options.keyfile or None
     log_level = options.log_level
 
     return ServerParameters(port=port,
                             ip=ip,
-                            fd=fd,
+                            filedescriptor=filedescriptor,
                             config_path=conf,
                             keyfile=keyfile,
                             log_level=log_level,
