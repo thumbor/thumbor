@@ -24,7 +24,7 @@ class Url(object):
     halign = r'(?:(?P<halign>left|right|center)/)?'
     valign = r'(?:(?P<valign>top|bottom|middle)/)?'
     smart = r'(?:(?P<smart>smart)/)?'
-    filters = r'(?:filters:(?P<filters>.+\))/)?'
+    filters = r'(?:filters:(?P<filters>.+?\))/)?'
     image = r'(?P<image>.+)'
 
     compiled_regex = None

@@ -119,7 +119,7 @@ class UrlVows(Vows.Context):
             expect(topic).to_include('(?:(?P<smart>smart)/)?')
 
         def should_contain_filters(self, topic):
-            expect(topic).to_include('(?:filters:(?P<filters>.+\))/)?')
+            expect(topic).to_include('(?:filters:(?P<filters>.+?\))/)?')
 
         def should_contain_image(self, topic):
             expect(topic).to_include('(?P<image>.+)')
@@ -205,7 +205,7 @@ class UrlVows(Vows.Context):
                 image_url = 's.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg'
                 expect(topic['image']).to_equal(image_url)
 
-        class WithoutFilters(Vows.Context):
+        class WithUrlInFilter(Vows.Context):
             def topic(self):
                 return Url.parse_decrypted(
                     '/filters:watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0)/img')
@@ -215,3 +215,41 @@ class UrlVows(Vows.Context):
 
             def should_have_filters(self, topic):
                 expect(topic['filters']).to_equal('watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0)')
+
+        class WithMultipleFilters(Vows.Context):
+            def topic(self):
+                return Url.parse_decrypted(
+                    '/filters:watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0):brightness(-50):grayscale()/img')
+
+            def should_have_image(self, topic):
+                expect(topic['image']).to_equal('img')
+
+            def should_have_filters(self, topic):
+                expect(topic['filters']).to_equal('watermark(s.glbimg.com/es/ge/f/original/2011/03/29/orlandosilva_60.jpg,0,0,0):brightness(-50):grayscale()')
+
+        class WithThumborOfThumbor(Vows.Context):
+            def topic(self):
+                return Url.parse_decrypted(
+                    '/90x100/my.image.path/unsafe/filters:watermark(s.glbimg.com/some/image.jpg,0,0,0)/some.domain/img/path/img.jpg')
+
+            def should_have_image(self, topic):
+                expect(topic['image']).to_equal('my.image.path/unsafe/filters:watermark(s.glbimg.com/some/image.jpg,0,0,0)/some.domain/img/path/img.jpg')
+
+            def should_have_size(self, topic):
+                expect(topic['width']).to_equal(90)
+                expect(topic['height']).to_equal(100)
+
+        class WithThumborOfThumborWithFilters(Vows.Context):
+            def topic(self):
+                return Url.parse_decrypted(
+                    '/90x100/filters:brightness(-50):contrast(20)/my.image.path/unsafe/filters:watermark(s.glbimg.com/some/image.jpg,0,0,0)/some.domain/img/path/img.jpg')
+
+            def should_have_image(self, topic):
+                expect(topic['image']).to_equal('my.image.path/unsafe/filters:watermark(s.glbimg.com/some/image.jpg,0,0,0)/some.domain/img/path/img.jpg')
+
+            def should_have_filters(self, topic):
+                expect(topic['filters']).to_equal('brightness(-50):contrast(20)')
+
+            def should_have_size(self, topic):
+                expect(topic['width']).to_equal(90)
+                expect(topic['height']).to_equal(100)
