@@ -99,18 +99,24 @@ class Engine(BaseEngine):
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
 
     def read(self, extension=None, quality=None):
-        if quality is None:
-            quality = self.context.request.quality
         #returns image buffer in byte format.
         img_buffer = BytesIO()
 
         ext = extension or self.extension
+
         options = {
             'quality': quality
         }
+
         if ext == '.jpg' or ext == '.jpeg':
             options['optimize'] = True
             options['progressive'] = True
+
+            if quality is None:
+                options['quality'] = 'keep'
+
+        if options['quality'] is None:
+            options['quality'] = self.context.config.QUALITY
 
         if self.icc_profile is not None:
             options['icc_profile'] = self.icc_profile

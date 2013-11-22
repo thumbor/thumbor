@@ -42,7 +42,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.finish()
 
     def execute_image_operations(self):
-        self.context.request.quality = self.context.config.QUALITY
+        self.context.request.quality = None
 
         req = self.context.request
         conf = self.context.config
@@ -171,6 +171,13 @@ class BaseHandler(tornado.web.RequestHandler):
     def finish_request(self, context, result=None):
         image_extension, content_type = self.define_image_type(context, result)
 
+        quality = self.context.request.quality
+        if quality is None:
+            if image_extension == '.webp':
+                quality = self.context.config.get('WEBP_QUALITY', self.context.config.QUALITY)
+            else:
+                quality = self.context.config.QUALITY
+
         self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)
 
@@ -189,13 +196,13 @@ class BaseHandler(tornado.web.RequestHandler):
         should_store = result is None and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         if result is None:
-            results = context.modules.engine.read(image_extension, context.request.quality)
+            results = context.modules.engine.read(image_extension, quality)
             if context.request.max_bytes is not None:
                 results = self.reload_to_fit_in_kb(
                     context.modules.engine,
                     results,
                     image_extension,
-                    context.request.quality,
+                    quality,
                     context.request.max_bytes
                 )
         else:
