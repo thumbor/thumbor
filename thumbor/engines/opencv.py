@@ -27,7 +27,7 @@ class Engine(BaseEngine):
         # segfaults when trying to decoding a gif. An exception is a
         # less drastic measure.
         try:
-            if FORMATS[self.extension] == 'GIF':
+            if FORMATS[self.extension] == 'GIF' or buffer[:3] == "GIF":
                 raise ValueError("opencv doesn't support gifs")
         except KeyError:
             pass
