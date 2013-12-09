@@ -49,12 +49,13 @@ class Engine(BaseEngine):
 
     def create_image(self, buffer):
         img = Image.open(BytesIO(buffer))
-        self.icc_profile = img.info.get('icc_profile', None)
+        self.icc_profile = img.info.get('icc_profile')
+        self.transparency = img.info.get('transparency')
 
         if self.context.config.ALLOW_ANIMATED_GIFS and self.extension == '.gif':
             frames = []
             for frame in ImageSequence.Iterator(img):
-                frames.append(frame.convert())
+                frames.append(frame.convert('P'))
             img.seek(0)
             return frames
 
@@ -125,6 +126,9 @@ class Engine(BaseEngine):
             exif = self.image.info.get('exif', None)
             if exif is not None:
                 options['exif'] = exif
+
+        if self.image.mode == 'P' and self.transparency:
+            options['transparency'] = self.transparency
 
         try:
             if ext == '.webp':
