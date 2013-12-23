@@ -138,6 +138,9 @@ class Engine(BaseEngine):
                         mode = 'RGBA' if self.image.mode[-1] == 'A' else 'RGB'
                     self.image = self.image.convert(mode)
 
+            if ext == '.png' and self.image.mode == 'CMYK':
+                self.image = self.image.convert('RGBA')
+
             self.image.save(img_buffer, FORMATS[ext], **options)
         except IOError:
             logger.exception('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
