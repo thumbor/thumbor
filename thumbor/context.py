@@ -37,7 +37,7 @@ class Context:
 
 
 class ServerParameters(object):
-    def __init__(self, port, ip, config_path, keyfile, log_level, app_class):
+    def __init__(self, port, ip, config_path, keyfile, log_level, app_class, fd=None):
         self.port = port
         self.ip = ip
         self.config_path = config_path
@@ -45,6 +45,7 @@ class ServerParameters(object):
         self.log_level = log_level
         self.app_class = app_class
         self._security_key = None
+        self.fd = fd
         self.load_security_key()
 
     @property
