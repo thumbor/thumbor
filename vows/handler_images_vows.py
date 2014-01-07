@@ -285,3 +285,12 @@ class GetImageWithAutoWebP(BaseContext):
 
             image = self.engine.create_image(response.body)
             expect(image.format.lower()).to_equal('gif')
+
+    class WithImageWithSmallWidthAndNoHeight(BaseContext):
+        def topic(self):
+            response = self.get('/unsafe/0x0:1681x596/1x/hidrocarbonetos_9.jpg')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)

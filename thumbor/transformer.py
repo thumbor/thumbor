@@ -89,7 +89,16 @@ class Transformer(object):
     def trim(self):
         if self.context.request.trim is None or not trim_enabled:
             return
-        box = _bounding_box.apply(self.engine.get_image_mode(), self.engine.size[0], self.engine.size[1], self.context.request.trim_pos, self.context.request.trim_tolerance, self.engine.get_image_data())
+
+        box = _bounding_box.apply(
+            self.engine.get_image_mode(),
+            self.engine.size[0],
+            self.engine.size[1],
+            self.context.request.trim_pos,
+            self.context.request.trim_tolerance,
+            self.engine.get_image_data()
+        )
+
         if box[2] < box[0] or box[3] < box[1]:
             logger.warn("Ignoring trim, there wouldn't be any image left, check the tolerance.")
             return
@@ -154,7 +163,11 @@ class Transformer(object):
 
             logger.exception("Ignored error during smart detection")
             if self.context.config.USE_CUSTOM_ERROR_HANDLING:
-                self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self.context.request_handler, exception=sys.exc_info())
+                self.context.modules.importer.error_handler.handle_error(
+                    context=self.context,
+                    handler=self.context.request_handler,
+                    exception=sys.exc_info()
+                )
 
             self.context.request.prevent_result_storage = True
             self.context.request.detection_error = True
@@ -228,8 +241,11 @@ class Transformer(object):
     def auto_crop(self):
         source_width, source_height = self.engine.size
 
+        target_height = self.target_height or 1
+        target_width = self.target_width or 1
+
         source_ratio = round(float(source_width) / source_height, 2)
-        target_ratio = round(float(self.target_width) / self.target_height, 2)
+        target_ratio = round(float(target_width) / target_height, 2)
 
         if source_ratio == target_ratio:
             return
@@ -238,9 +254,9 @@ class Transformer(object):
 
         if self.target_width / source_width > self.target_height / source_height:
             crop_width = source_width
-            crop_height = int(round(source_width * self.target_height / self.target_width, 0))
+            crop_height = int(round(source_width * self.target_height / target_width, 0))
         else:
-            crop_width = int(round(math.ceil(self.target_width * source_height / self.target_height), 0))
+            crop_width = int(round(math.ceil(self.target_width * source_height / target_height), 0))
             crop_height = source_height
 
         crop_left = int(round(min(max(focal_x - (crop_width / 2), 0.0), source_width - crop_width)))
@@ -277,13 +293,16 @@ class Transformer(object):
         source_width, source_height = self.engine.size
         if self.target_width == source_width and self.target_height == source_height:
             return
-        self.engine.resize(self.target_width, self.target_height)
+        self.engine.resize(self.target_width or 1, self.target_height or 1)  # avoiding 0px images
 
     def fit_in_resize(self):
         source_width, source_height = self.engine.size
 
         #invert width and height if image orientation is not the same as request orientation and need adaptive
-        if self.context.request.adaptive and ((source_width - source_height < 0 and self.target_width - self.target_height > 0) or (source_width - source_height > 0 and self.target_width - self.target_height < 0)):
+        if self.context.request.adaptive and (
+            (source_width - source_height < 0 and self.target_width - self.target_height > 0) or
+            (source_width - source_height > 0 and self.target_width - self.target_height < 0)
+        ):
             tmp = self.context.request.width
             self.context.request.width = self.context.request.height
             self.context.request.height = tmp
