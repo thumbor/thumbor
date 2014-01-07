@@ -60,13 +60,15 @@ def main(arguments=None):
     application = importer.import_class(server_parameters.app_class)(context)
 
     server = HTTPServer(application)
-    if context.server.filedescriptor is not None:
-        sock = socket.fromfd(context.server.filedescriptor,
+
+    if context.server.fd is not None:
+        sock = socket.fromfd(context.server.fd,
                              socket.AF_INET | socket.AF_INET6,
                              socket.SOCK_STREAM)
         server.add_socket(sock)
     else:
         server.bind(context.server.port, context.server.ip)
+
     server.start(1)
 
     try:
