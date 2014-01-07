@@ -312,3 +312,12 @@ class GetImageWithAutoWebP(BaseContext):
         def should_be_200(self, response):
             code, _ = response
             expect(code).to_equal(200)
+
+    class WithCMYK_JPEG_AsPNG(BaseContext):
+        def topic(self):
+            response = self.get('/unsafe/filters:format(png)/merrit.jpg')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)
