@@ -116,7 +116,7 @@ class Engine(BaseEngine):
             if quality is None:
                 options['quality'] = 'keep'
 
-            if self.image.mode == 'L':
+            if self.image.mode in ['L', 'CMYK']:
                 self.image = self.image.convert('RGB')
                 if quality is None:
                     options['quality'] = None
