@@ -35,8 +35,8 @@ def get_server_parameters(arguments=None):
 
     return ServerParameters(port=port,
                             ip=ip,
-                            fd=fd,
                             config_path=conf,
                             keyfile=keyfile,
                             log_level=log_level,
-                            app_class=options.app)
+                            app_class=options.app,
+                            fd=fd)
