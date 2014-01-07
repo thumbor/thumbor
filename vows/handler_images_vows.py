@@ -294,3 +294,12 @@ class GetImageWithAutoWebP(BaseContext):
         def should_be_200(self, response):
             code, _ = response
             expect(code).to_equal(200)
+
+    class WithMonochromaticJPEG(BaseContext):
+        def topic(self):
+            response = self.get('/unsafe/wellsford.jpg')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)

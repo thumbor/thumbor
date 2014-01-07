@@ -116,6 +116,11 @@ class Engine(BaseEngine):
             if quality is None:
                 options['quality'] = 'keep'
 
+            if self.image.mode == 'L':
+                self.image = self.image.convert('RGB')
+                if quality is None:
+                    options['quality'] = None
+
         if options['quality'] is None:
             options['quality'] = self.context.config.QUALITY
 
