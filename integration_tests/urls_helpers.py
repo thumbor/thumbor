@@ -36,6 +36,8 @@ fitins = [
     '',
     'fit-in',
     'adaptive-fit-in',
+    'full-fit-in',
+    'adaptive-full-fit-in'
 ]
 
 sizes = [
