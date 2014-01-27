@@ -41,5 +41,6 @@ class Filter(BaseFilter):
         px = (bx - ix) / 2  # top left
         py = (by - iy) / 2
 
-        self.fill_engine.paste(self.engine, (px, py), merge=False)
+        mergeValue = self.context.config.FILL_MERGES == true
+        self.fill_engine.paste(self.engine, (px, py), merge=mergeValue)
         self.engine.image = self.fill_engine.image
