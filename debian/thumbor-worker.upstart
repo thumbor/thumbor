@@ -20,22 +20,12 @@ chdir /var/lib/thumbor
 
 instance $p
 
-pre-start script
+script
     [ -r /etc/default/thumbor ] && . /etc/default/thumbor
     if [ "$enabled" = "0" ] && [ "$force" != "1" ] ; then
         logger -is -t "$UPSTART_JOB" "Thumbor is disabled by /etc/default/thumbor, add force=1 to your service command"
         stop
         exit 0
     fi
-    exec >"/tmp/${UPSTART_JOB}-${p}"
-    echo "ip=${ip}"
-end script
-
-script
-    . "/tmp/${UPSTART_JOB}-${p}"
     $DAEMON -c "${conffile}" -i "${ip}" -k "${keyfile}" -p "${p}" -l debug
-end script
-
-post-start script
-    rm -f "/tmp/$UPSTART_JOB-${p}"
 end script
