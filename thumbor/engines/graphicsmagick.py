@@ -68,7 +68,7 @@ class Engine(BaseEngine):
 
     def read(self, extension=None, quality=None):
         if quality is None:
-            quality = self.context.request.quality
+            quality = self.context.config.QUALITY
 
         #returns image buffer in byte format.
         img_buffer = Blob()
