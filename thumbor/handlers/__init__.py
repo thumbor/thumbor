@@ -287,6 +287,9 @@ class BaseHandler(tornado.web.RequestHandler):
                     callback(False, None)
                     return
 
+                original_preserve = self.context.config.PRESERVE_EXIF_INFO
+                self.context.config.PRESERVE_EXIF_INFO = True
+
                 engine = self.context.modules.engine
                 engine.load(buffer, extension)
                 normalized = engine.normalize()
@@ -299,6 +302,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     storage.put(url, buffer)
 
                 storage.put_crypto(url)
+                self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
                 callback(normalized, engine=engine)
 
