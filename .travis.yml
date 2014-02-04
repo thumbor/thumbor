@@ -25,6 +25,10 @@ install:
     # verify both requirements were met
     - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
 
+    # Fix distribute
+    - wget http://python-distribute.org/distribute_setup.py
+    - python distribute_setup.py
+
     # install python requirements
     - make setup
 
