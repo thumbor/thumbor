@@ -83,7 +83,9 @@ filters = [
     'filters:strip_icc()',
     'filters:watermark(http://s.glbimg.com/es/ge/f/original/2012/08/15/brasil_45.png,10,10,50)',
     'filters:frame(publicobject.com/ninepatch/frame.9.png)',
-    'filters:fill(ff0000)'
+    'filters:fill(ff0000)',
+    'filters:fill(auto)',
+    'filters:fill(ff0000,true)'
 ]
 
 original_images_base = [
