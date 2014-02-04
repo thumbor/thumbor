@@ -13,7 +13,6 @@ from tempfile import mkstemp
 from subprocess import Popen, PIPE
 from io import BytesIO
 
-from PIL.ExifTags import TAGS
 from PIL import Image, ImageFile, ImageDraw, ImageSequence
 
 from thumbor.engines import BaseEngine
@@ -51,6 +50,7 @@ class Engine(BaseEngine):
         img = Image.open(BytesIO(buffer))
         self.icc_profile = img.info.get('icc_profile')
         self.transparency = img.info.get('transparency')
+        self.exif = img.info.get('exif')
 
         if self.context.config.ALLOW_ANIMATED_GIFS and self.extension == '.gif':
             frames = []
@@ -66,18 +66,6 @@ class Engine(BaseEngine):
         d.rectangle([x, y, x + width, y + height])
 
         del d
-
-    @property
-    def exif(self):
-        """Get embedded EXIF data from image file."""
-        ret = {}
-        if hasattr(self.image, '_getexif'):
-            exifinfo = self.image._getexif()
-            if exifinfo is not None:
-                for tag, value in exifinfo.items():
-                    decoded = TAGS.get(tag, tag)
-                    ret[decoded] = value
-        return ret
 
     def resize(self, width, height):
         self.image = self.image.resize((int(width), int(height)), Image.ANTIALIAS)
@@ -128,9 +116,8 @@ class Engine(BaseEngine):
             options['icc_profile'] = self.icc_profile
 
         if self.context.config.PRESERVE_EXIF_INFO:
-            exif = self.image.info.get('exif', None)
-            if exif is not None:
-                options['exif'] = exif
+            if self.exif is not None:
+                options['exif'] = self.exif
 
         if self.image.mode == 'P' and self.transparency:
             options['transparency'] = self.transparency

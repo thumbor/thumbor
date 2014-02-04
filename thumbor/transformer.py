@@ -82,7 +82,8 @@ class Transformer(object):
 
     def transform(self, callback):
         self.done_callback = callback
-        self.reorientate()
+        if self.context.config.RESPECT_ORIENTATION:
+            self.engine.reorientate()
         self.trim()
         self.smart_detect()
 
@@ -109,31 +110,6 @@ class Transformer(object):
             self.context.request.crop['top'] -= box[1]
             self.context.request.crop['right'] -= box[0]
             self.context.request.crop['bottom'] -= box[1]
-
-    def reorientate(self):
-        if self.context.config.RESPECT_ORIENTATION:
-            engine = self.context.modules.engine
-            if hasattr(engine, 'exif'):
-                if 'Orientation' in engine.exif:
-                    orientation = engine.exif['Orientation']
-                    if orientation == 2:
-                        engine.flip_horizontally()
-                    elif orientation == 3:
-                        engine.rotate(180)
-                    elif orientation == 4:
-                        engine.flip_vertically()
-                    elif orientation == 5:
-                        # Horizontal Mirror + Rotation 270
-                        engine.flip_vertically()
-                        engine.rotate(270)
-                    elif orientation == 6:
-                        engine.rotate(270)
-                    elif orientation == 7:
-                        # Vertical Mirror + Rotation 270
-                        engine.flip_horizontally()
-                        engine.rotate(270)
-                    elif orientation == 8:
-                        engine.rotate(90)
 
     @property
     def smart_storage_key(self):

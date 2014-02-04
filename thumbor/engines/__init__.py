@@ -8,6 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from pexif import ExifSegment
+
+from thumbor.utils import logger
+
 
 class MultipleEngine:
 
@@ -128,6 +132,43 @@ class BaseEngine(object):
         width, height = self.size
         return round(float(new_width) * height / width, 0)
 
+    def reorientate(self):
+        if (not hasattr(self, 'exif')) or self.exif is None:
+            return
+
+        orientation = None
+
+        try:
+            segment = ExifSegment(None, None, self.exif, 'ro')
+            primary = segment.primary
+            orientation = primary['Orientation']
+            if orientation:
+                orientation = orientation[0]
+                if orientation != 1:
+                    primary['Orientation'] = [1]
+                    self.exif = segment.get_data()
+        except Exception:
+            logger.exception('Ignored error handling exif for reorientation')
+
+        if orientation == 2:
+            self.flip_horizontally()
+        elif orientation == 3:
+            self.rotate(180)
+        elif orientation == 4:
+            self.flip_vertically()
+        elif orientation == 5:
+            # Horizontal Mirror + Rotation 270
+            self.flip_vertically()
+            self.rotate(270)
+        elif orientation == 6:
+            self.rotate(270)
+        elif orientation == 7:
+            # Vertical Mirror + Rotation 270
+            self.flip_horizontally()
+            self.rotate(270)
+        elif orientation == 8:
+            self.rotate(90)
+
     def gen_image(self):
         raise NotImplementedError()
 
@@ -148,6 +189,9 @@ class BaseEngine(object):
 
     def flip_vertically(self):
         raise NotImplementedError()
+
+    def rotate(self):
+        pass
 
     def read(self, extension, quality):
         raise NotImplementedError()

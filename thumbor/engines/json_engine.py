@@ -86,9 +86,6 @@ class JSONEngine(BaseEngine):
     def draw_rectangle(self, x, y, width, height):
         return self.engine.draw_rectangle(x, y, width, height)
 
-    def exif(self):
-        return self.engine.exif()
-
     def rotate(self, degrees):
         return self.engine.rotate(degrees)
 
