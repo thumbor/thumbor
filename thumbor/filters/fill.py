@@ -18,28 +18,28 @@ class Filter(BaseFilter):
         r, g, b = _fill.apply(self.engine.get_image_mode(), self.engine.get_image_data())
         return '%02x%02x%02x' % (r, g, b)
 
-    @filter_method(r'[\w]+')
-    def fill(self, value):
+    @filter_method(r'[\w]+', BaseFilter.Boolean)
+    def fill(self, color, fill_transparent=False):
 
         self.fill_engine = self.engine.__class__(self.context)
         bx = self.context.request.width if self.context.request.width != 0 else self.engine.image.size[0]
         by = self.context.request.height if self.context.request.height != 0 else self.engine.image.size[1]
 
-        # if the value is 'auto'
+        # if the color is 'auto'
         # we will calculate the median color of
         # all the pixels in the image and return
-        if value == 'auto':
-            value = self.get_median_color()
+        if color == 'auto':
+            color = self.get_median_color()
 
         try:
-            self.fill_engine.image = self.fill_engine.gen_image((bx, by), value)
+            self.fill_engine.image = self.fill_engine.gen_image((bx, by), color)
         except (ValueError, RuntimeError):
-            self.fill_engine.image = self.fill_engine.gen_image((bx, by), '#%s' % value)
+            self.fill_engine.image = self.fill_engine.gen_image((bx, by), '#%s' % color)
 
         ix, iy = self.engine.size
 
         px = (bx - ix) / 2  # top left
         py = (by - iy) / 2
 
-        self.fill_engine.paste(self.engine, (px, py), merge=False)
+        self.fill_engine.paste(self.engine, (px, py), merge=fill_transparent)
         self.engine.image = self.fill_engine.image
