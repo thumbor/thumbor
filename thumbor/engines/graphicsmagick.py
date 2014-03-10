@@ -8,7 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from pgmagick import Image, ImageType, ColorspaceType, Geometry, Blob, FilterTypes, Color, CompositeOperator as co
+from pgmagick import (
+    Image, ImageType, ColorspaceType, Geometry, Blob, FilterTypes,
+    Color, InterlaceType, CompositeOperator as co
+)
 from pgmagick.api import Draw
 from pgmagick._pgmagick import get_blob_data
 
@@ -17,7 +20,7 @@ from thumbor.engines import BaseEngine
 FORMATS = {
     '.jpg': 'JPEG',
     '.jpeg': 'JPEG',
-    '.gif': 'RGBA',
+    '.gif': 'GIF',
     '.png': 'PNG'
 }
 
@@ -79,22 +82,15 @@ class Engine(BaseEngine):
         except KeyError:
             self.image.magick(FORMATS['.jpg'])
 
-        self.image.quality(quality)
-
-        #available_filters = ['BesselFilter', 'BlackmanFilter', 'BoxFilter', 'CatromFilter',
-                             #'CubicFilter', 'GaussianFilter', 'HammingFilter', 'HanningFilter',
-                             #'HermiteFilter', 'LanczosFilter', 'MitchellFilter',
-                             #'PointFilter', 'QuadraticFilter', 'SincFilter', 'TriangleFilter']
-
-        f = FilterTypes.CatromFilter
-
-        self.image.filterType(f)
+        if ext == '.jpg':
+            self.image.interlaceType(InterlaceType.LineInterlace)
+            self.image.quality(quality)
+            f = FilterTypes.CatromFilter
+            self.image.filterType(f)
 
         self.image.write(img_buffer)
 
-        results = img_buffer.data
-
-        return results
+        return img_buffer.data
 
     def convert_to_rgb(self):
         return self.get_image_mode(), self.get_image_data()

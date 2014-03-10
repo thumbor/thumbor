@@ -113,7 +113,7 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
 
     @unittest.expectedFailure
     def test_single_params__with_graphicsmagick(self):
-        single_dataset(self.retrieve, with_gif=False)
+        single_dataset(self.retrieve, with_gif=True)
 
     @unittest.expectedFailure
     def test_single_params__with_opencv(self):
