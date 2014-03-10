@@ -101,13 +101,13 @@ class Engine(BaseEngine):
             options['optimize'] = True
             options['progressive'] = True
 
-            if quality is None:
-                options['quality'] = 'keep'
-
             if self.image.mode in ['L', 'CMYK']:
                 self.image = self.image.convert('RGB')
-                if quality is None:
-                    options['quality'] = None
+            else:
+                if self.extension == '.jpg':
+                    quantization = getattr(self.image, 'quantization', None)
+                    if quality is None and quantization and 2 <= len(quantization) <= 4:
+                        options['quality'] = 'keep'
 
         if options['quality'] is None:
             options['quality'] = self.context.config.QUALITY

@@ -8,7 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import abspath, join, dirname
+from os.path import abspath, join, dirname, exists
+from shutil import rmtree
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
@@ -22,6 +23,8 @@ from thumbor.storages.file_storage import Storage as FileStorage
 
 storage_path = abspath(join(dirname(__file__), 'fixtures/'))
 
+FILE_STORAGE_ROOT_PATH = '/tmp/thumbor-vows/handler_image_vows'
+
 
 class BaseContext(TornadoHTTPContext):
     def __init__(self, *args, **kw):
@@ -34,6 +37,10 @@ class GetImage(BaseContext):
         cfg = Config(SECURITY_KEY='ACME-SEC')
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = storage_path
+        cfg.STORAGE = "thumbor.storages.file_storage"
+        cfg.FILE_STORAGE_ROOT_PATH = FILE_STORAGE_ROOT_PATH
+        if exists(FILE_STORAGE_ROOT_PATH):
+            rmtree(FILE_STORAGE_ROOT_PATH)
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -117,6 +124,16 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
+    class WithInvalidQuantizationTableJPEG(BaseContext):
+        def topic(self):
+            response = self.get('/unsafe/invalid_quantization.jpg')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)
+
+
 
 @Vows.batch
 class GetImageWithoutUnsafe(BaseContext):
@@ -189,10 +206,6 @@ class GetImageWithOLDFormat(BaseContext):
         def should_be_404(self, response):
             code, _ = response
             expect(code).to_equal(404)
-
-#        cfg.STORAGE="thumbor.storages.file_storage"
-#        cfg.FILE_STORAGE_ROOT_PATH=storage_path
-#        cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
 
 
 @Vows.batch
