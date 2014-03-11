@@ -79,11 +79,8 @@ _convolution_apply(PyObject *self, PyObject *args)
 
             for (kernel_x = 0; kernel_x < columns_count; ++kernel_x) {
                 for (kernel_y = 0; kernel_y < rows_count; ++kernel_y) {
-                    int kernel_idx = (kernel_y * columns_count) + kernel_x,
-                        pos_x = kernel_x - mid_x + img_x,
+                    int pos_x = kernel_x - mid_x + img_x,
                         pos_y = kernel_y - mid_y + img_y;
-
-                    double kernel_value = kernel[kernel_idx];
 
                     if (pos_x < 0) {
                         pos_x = 0;
@@ -99,7 +96,7 @@ _convolution_apply(PyObject *self, PyObject *args)
                     }
 
                     int tmp_idx = (pos_y * width_bytes_count) + (pos_x * num_bytes);
-
+                    double kernel_value = kernel[(kernel_y * columns_count) + kernel_x];
                     sum_r += copy_buffer[tmp_idx + r_idx] * kernel_value;
                     sum_g += copy_buffer[tmp_idx + g_idx] * kernel_value;
                     sum_b += copy_buffer[tmp_idx + b_idx] * kernel_value;

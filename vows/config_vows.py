@@ -55,6 +55,7 @@ TEST_DATA = (
         'thumbor.filters.format',
         'thumbor.filters.max_bytes',
         'thumbor.filters.convolution',
+        'thumbor.filters.blur',
     ])
 )
 
