@@ -29,8 +29,6 @@ install:
     - wget http://python-distribute.org/distribute_setup.py
     - python distribute_setup.py
 
-    - pip install pexif==0.13 --allow-external pexif --allow-unverified pexif
-
     # install python requirements
     - make setup
 
