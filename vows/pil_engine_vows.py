@@ -19,9 +19,13 @@ class PilEngineVows(ctx):
 
     class ShouldRaiseIfFiltersNotAvailable(ctx):
         def topic(self):
+            FILTERS_AVAILABLE_BAK = PIL.FILTERS_AVAILABLE
             PIL.FILTERS_AVAILABLE = False
             engine = PIL.Engine(None)
-            return engine.paste(None, None, True)
+            try:
+                return engine.paste(None, None, True)
+            finally:
+                PIL.FILTERS_AVAILABLE = FILTERS_AVAILABLE_BAK
 
         def should_be_an_error(self, topic):
             expect(topic).to_be_an_error()
