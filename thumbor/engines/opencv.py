@@ -95,3 +95,8 @@ class Engine(BaseEngine):
 
     def draw_rectangle(self, x, y, width, height):
         cv.Rectangle(self.image, (int(x), int(y)), (int(x + width), int(y + height)), cv.Scalar(255, 255, 255, 1.0))
+
+    def convert_to_grayscale(self):
+        grayscaled = cv.CreateImage((self.image.width, self.image.height), self.image.depth, 1)  # one single channel
+        cv.CvtColor(self.image, grayscaled, cv.CV_RGB2GRAY)
+        self.image = grayscaled
