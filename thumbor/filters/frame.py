@@ -68,7 +68,7 @@ class Filter(BaseFilter):
         new_engine = self.context.modules.engine.__class__(self.context)
         new_engine.image = new_engine.gen_image((new_width, new_height), '#fff')
         new_engine.enable_alpha()
-        new_engine.image.paste(self.engine.image, (offset_x, offset_y))
+        new_engine.paste(self.engine, (offset_x, offset_y))
         self.engine.image = new_engine.image
 
     def on_fetch_done(self, buffer):
