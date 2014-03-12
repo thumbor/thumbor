@@ -83,8 +83,6 @@ gtk2-engines-pixbuf
 python-numpy
 python-opencv
 redis-server
-libgraphicsmagick++1-dev
-libgraphicsmagick++3
 libboost-python-dev
 tree
 webp

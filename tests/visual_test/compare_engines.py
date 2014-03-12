@@ -31,7 +31,7 @@ def main():
     conf_file = join(root, 'thumbor.conf')
     parse_config_file(conf_file)
 
-    engines = [('PIL', 'pil'), ('ImageMagick', 'imagemagick'), ('GraphicsMagick', 'graphicsmagick'), ('OpenCV', 'opencv')]
+    engines = [('PIL', 'pil'),]
 
     build_dir = join(root, 'build')
     if exists(build_dir):

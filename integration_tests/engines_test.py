@@ -25,9 +25,6 @@ CONFS = {
     'with_opencv': {
         'ENGINE': 'thumbor.engines.opencv'
     },
-    'with_graphicsmagick': {
-        'ENGINE': 'thumbor.engines.graphicsmagick'
-    }
 }
 
 
@@ -112,17 +109,10 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
         single_dataset(self.retrieve)
 
     @unittest.expectedFailure
-    def test_single_params__with_graphicsmagick(self):
-        single_dataset(self.retrieve, with_gif=True)
-
-    @unittest.expectedFailure
     def test_single_params__with_opencv(self):
         single_dataset(self.retrieve, with_gif=False)
 
     # def test_combined_params__with_pil(self):
-    #     combined_dataset(self.retrieve)
-
-    # def test_combined_params__with_graphicsmagick(self):
     #     combined_dataset(self.retrieve)
 
     # def test_combined_params__with_opencv(self):

@@ -25,7 +25,6 @@ tests_require = [
     "tornado-pyvows==0.5.2",
     "coverage",
     "mock==1.0.1",
-    "pgmagick>=0.5.6",
     "raven",
     "nose",
     "colorama",
