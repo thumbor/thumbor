@@ -1,6 +1,6 @@
-[[logo-thumbor.png|frame]]
+[<img src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png">](https://github.com/thumbor/thumbor)
 
-[<img src="https://secure.travis-ci.org/globocom/thumbor.png?branch=master">](http://travis-ci.org/globocom/thumbor) [![PyPi version](https://pypip.in/v/thumbor/badge.png)](https://crate.io/packages/thumbor/) [![PyPi downloads](https://pypip.in/d/thumbor/badge.png)](https://crate.io/packages/thumbor/)
+[<img src="https://secure.travis-ci.org/thumbor/thumbor.png?branch=master">](http://travis-ci.org/thumbor/thumbor) [![PyPi version](https://pypip.in/v/thumbor/badge.png)](https://crate.io/packages/thumbor/) [![PyPi downloads](https://pypip.in/d/thumbor/badge.png)](https://crate.io/packages/thumbor/)
 
 thumbor is a smart imaging service. It enables on-demand crop, resizing and flipping of images.
 
