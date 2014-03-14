@@ -61,6 +61,10 @@ class Storage(storages.BaseStorage):
 
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
         temp_abspath = "%s.%s" % (path, str(uuid4()).replace('-', ''))
+
+        file_dir_abspath = dirname(file_abspath)
+        self.ensure_dir(file_dir_abspath)
+
         with open(temp_abspath, 'w') as _file:
             _file.write(dumps(data))
 
