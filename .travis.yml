@@ -30,7 +30,7 @@ install:
     - python distribute_setup.py
 
     # webp
-    - wget "https://code.google.com/p/webp/downloads/detail?name=libwebp-0.4.0.tar.gz&can=2&q=" -O libwebp-0.4.0.tar.gz
+    - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
     - tar xvzf libwebp-0.4.0.tar.gz
     - cd libwebp-0.4.0 && ./configure && make && sudo make install
 
