@@ -32,7 +32,7 @@ install:
     # webp - compiling from source
     - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
     - tar xvzf libwebp-0.4.0.tar.gz
-    - cd libwebp-0.4.0 && ./configure && make && sudo make install
+    - cd libwebp-0.4.0 && ./configure && make && sudo make install; cd ..
 
     # install python requirements
     - make setup
