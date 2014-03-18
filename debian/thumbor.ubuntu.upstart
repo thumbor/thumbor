@@ -7,6 +7,7 @@ stop on runlevel [!2345]
 console output
 
 env port=8888
+env level=warning
 
 pre-start script
     [ -r /etc/default/thumbor ] && . /etc/default/thumbor
@@ -16,6 +17,6 @@ pre-start script
         exit 0
     fi
     for p in `echo ${port} | tr ',' ' '`; do
-        start thumbor-worker p=$p
+        start thumbor-worker p=$p level=$level
     done
 end script

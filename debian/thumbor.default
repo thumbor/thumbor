@@ -18,3 +18,8 @@ conffile=/etc/thumbor.conf
 # port=8888,8889,8890
 # or
 # port=8888 #Default
+
+# The log level to be used.
+# Possible values are: debug, info, warning, error, critical or notset.
+# More on that at http://docs.python.org/library/logging.html. It defaults to warning.
+# level=warning
