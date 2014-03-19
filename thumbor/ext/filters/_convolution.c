@@ -31,6 +31,9 @@ double* normalize_kernel(PyObject *kernel, Py_ssize_t size, PyObject *should_nor
 }
 
 
+#define MINMAX(x, min, max) ((x > max) ? (max) : ((x < min) ? min : x))
+
+
 static PyObject*
 _convolution_apply(PyObject *self, PyObject *args)
 {
@@ -69,33 +72,18 @@ _convolution_apply(PyObject *self, PyObject *args)
         max_height_idx = height - 1,
         width_bytes_count = width * num_bytes;
 
-    int img_idx = 0, img_x, img_y, kernel_x, kernel_y;
+    int img_x, img_y, pos_x, pos_y;
 
-    for (img_x = 0; img_x < width; ++img_x) {
-        for (img_y = 0; img_y < height; ++img_y) {
+    for (img_y = 0; img_y < height; ++img_y) {
+        for (img_x = 0; img_x < width; ++img_x) {
             double sum_r = 0, sum_g = 0, sum_b = 0;
 
-            img_idx = (img_y * width_bytes_count) + (img_x * num_bytes);
+            for (pos_y = img_y - mid_y; pos_y <= img_y + mid_y; ++pos_y) {
+                for(pos_x = img_x - mid_x; pos_x <= img_x + mid_x; ++pos_x) {
+                    int kernel_x = pos_x - img_x + mid_x,
+                        kernel_y = pos_y - img_y + mid_y;
 
-            for (kernel_x = 0; kernel_x < columns_count; ++kernel_x) {
-                for (kernel_y = 0; kernel_y < rows_count; ++kernel_y) {
-                    int pos_x = kernel_x - mid_x + img_x,
-                        pos_y = kernel_y - mid_y + img_y;
-
-                    if (pos_x < 0) {
-                        pos_x = 0;
-                    }
-                    if (pos_y < 0) {
-                        pos_y = 0;
-                    }
-                    if (pos_x > max_width_idx) {
-                        pos_x = max_width_idx;
-                    }
-                    if (pos_y > max_height_idx) {
-                        pos_y = max_height_idx;
-                    }
-
-                    int tmp_idx = (pos_y * width_bytes_count) + (pos_x * num_bytes);
+                    int tmp_idx = (MINMAX(pos_y, 0, max_height_idx) * width_bytes_count) + (MINMAX(pos_x, 0, max_width_idx) * num_bytes);
                     double kernel_value = kernel[(kernel_y * columns_count) + kernel_x];
                     sum_r += copy_buffer[tmp_idx + r_idx] * kernel_value;
                     sum_g += copy_buffer[tmp_idx + g_idx] * kernel_value;
@@ -103,9 +91,10 @@ _convolution_apply(PyObject *self, PyObject *args)
                 }
             }
 
-            img_buffer[img_idx + r_idx] = ADJUST_COLOR((int)sum_r);
-            img_buffer[img_idx + g_idx] = ADJUST_COLOR((int)sum_g);
-            img_buffer[img_idx + b_idx] = ADJUST_COLOR((int)sum_b);
+            img_buffer[r_idx] = ADJUST_COLOR((int)sum_r);
+            img_buffer[g_idx] = ADJUST_COLOR((int)sum_g);
+            img_buffer[b_idx] = ADJUST_COLOR((int)sum_b);
+            img_buffer += num_bytes;
         }
     }
 
