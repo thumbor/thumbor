@@ -1,8 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-from shutil import rmtree
-from os.path import exists
+import os.path
 
 from tornado.testing import AsyncHTTPTestCase
 from tornado.ioloop import IOLoop
@@ -11,25 +7,13 @@ from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
-from integration_tests.urls_helpers import single_dataset  # , combined_dataset
+from thumbor.integration_tests.urls_helpers import single_dataset  # , combined_dataset
 
 
-CONFS = {
-    'with_pil': {
-        'ENGINE': 'thumbor.engines.pil'
-    },
-}
-
-
-class PreferencesHandlerTest(AsyncHTTPTestCase):
+class EngineTestCase(AsyncHTTPTestCase):
 
     def get_app(self):
-        storage_path = '/tmp/thumbor-engines-test/'
-        if exists(storage_path):
-            rmtree(storage_path)
-
-        self.timeout_handle = None
-        cfg = Config(SECURITY_KEY='ACME-SEC', FILE_STORAGE_ROOT_PATH=storage_path)
+        cfg = Config(SECURITY_KEY='ACME-SEC')
         server_params = ServerParameters(None, None, None, None, None, None)
 
         cfg.DETECTORS = [
@@ -38,12 +22,12 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
             'thumbor.detectors.glasses_detector',
             'thumbor.detectors.feature_detector',
         ]
-
-        conf_key = self._testMethodName.split('__')[1]
-        conf = CONFS.get(conf_key, None)
-        if conf:
-            for key, value in conf.items():
-                setattr(cfg, key, value)
+        cfg.STORAGE = 'thumbor.storages.no_storage'
+        cfg.LOADER = 'thumbor.loaders.file_loader'
+        cfg.FILE_LOADER_ROOT_PATH = os.path.join(os.path.dirname(__file__), 'imgs')
+        cfg.ENGINE = getattr(self, 'engine', None)
+        if not cfg.ENGINE:
+            return None
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -59,8 +43,12 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url(url), self.stop)
         return self.wait(timeout=30)
 
-    def test_single_params__with_pil(self):
+    def test_single_params(self):
+        if not self._app:
+            return True
         single_dataset(self.retrieve)
 
     # def test_combined_params__with_pil(self):
+    #     if not self._app:
+    #         return True
     #     combined_dataset(self.retrieve)
