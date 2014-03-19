@@ -16,5 +16,6 @@ class Filter(BaseFilter):
 
     @filter_method()
     def equalize(self):
-        imgdata = _equalize.apply(self.engine.get_image_mode(), self.engine.get_image_data())
+        mode, data = self.engine.image_data_as_rgb()
+        imgdata = _equalize.apply(mode, data)
         self.engine.set_image_data(imgdata)

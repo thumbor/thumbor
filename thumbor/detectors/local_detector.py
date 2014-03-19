@@ -37,7 +37,7 @@ class CascadeLoaderDetector(BaseDetector):
     def get_features(self):
         engine = self.context.modules.engine
 
-        mode, converted_image = engine.convert_to_rgb()
+        mode, converted_image = engine.image_data_as_rgb(False)
         size = engine.size
 
         image = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)

@@ -17,7 +17,7 @@ from PIL import Image, ImageFile, ImageDraw, ImageSequence
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
-from thumbor.utils import logger
+from thumbor.utils import logger, deprecated
 
 try:
     from thumbor.ext.filters import _composite
@@ -192,21 +192,27 @@ class Engine(BaseEngine):
 
         return results
 
-    def get_image_data(self, image=None):
-        if image is None:
-            return self.image.tostring()
-        else:
-            return image.tostring()
+    @deprecated("Use image_data_as_rgb instead.")
+    def get_image_data(self):
+        return self.image.tostring()
 
     def set_image_data(self, data):
         self.image.fromstring(data)
 
+    @deprecated("Use image_data_as_rgb instead.")
     def get_image_mode(self):
         return self.image.mode
 
-    def convert_to_rgb(self):
-        converted_image = self.image.convert('RGB')
-        return converted_image.mode, self.get_image_data(converted_image)
+    def image_data_as_rgb(self, update_image=True):
+        converted_image = self.image
+        if converted_image.mode not in ['RGB', 'RGBA']:
+            if 'A' in converted_image.mode:
+                converted_image = converted_image.convert('RGBA')
+            else:
+                converted_image = converted_image.convert('RGB')
+        if update_image:
+            self.image = converted_image
+        return converted_image.mode, converted_image.tostring()
 
     def convert_to_grayscale(self):
         if 'A' in self.image.mode:
@@ -229,9 +235,11 @@ class Engine(BaseEngine):
         if merge:
             sz = self.size
             other_size = other_engine.size
+            mode, data = self.image_data_as_rgb()
+            other_mode, other_data = other_engine.image_data_as_rgb()
             imgdata = _composite.apply(
-                self.get_image_mode(), self.get_image_data(), sz[0], sz[1],
-                other_engine.get_image_data(), other_size[0], other_size[1], pos[0], pos[1])
+                mode, data, sz[0], sz[1],
+                other_data, other_size[0], other_size[1], pos[0], pos[1])
             self.set_image_data(imgdata)
         else:
             image.paste(other_image, pos)

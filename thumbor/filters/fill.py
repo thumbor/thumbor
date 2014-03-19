@@ -15,7 +15,8 @@ from thumbor.ext.filters import _fill
 class Filter(BaseFilter):
 
     def get_median_color(self):
-        r, g, b = _fill.apply(self.engine.get_image_mode(), self.engine.get_image_data())
+        mode, data = self.engine.image_data_as_rgb()
+        r, g, b = _fill.apply(mode, data)
         return '%02x%02x%02x' % (r, g, b)
 
     @filter_method(r'[\w]+', BaseFilter.Boolean)

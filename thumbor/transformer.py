@@ -91,13 +91,14 @@ class Transformer(object):
         if self.context.request.trim is None or not trim_enabled:
             return
 
+        mode, data = self.engine.image_data_as_rgb()
         box = _bounding_box.apply(
-            self.engine.get_image_mode(),
+            mode,
             self.engine.size[0],
             self.engine.size[1],
             self.context.request.trim_pos,
             self.context.request.trim_tolerance,
-            self.engine.get_image_data()
+            data
         )
 
         if box[2] < box[0] or box[3] < box[1]:

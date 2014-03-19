@@ -212,5 +212,8 @@ class BaseEngine(object):
     def enable_alpha(self):
         raise NotImplementedError()
 
+    def image_data_as_rgb(self, update_image=True):
+        raise NotImplementedError()
+
     def strip_icc(self):
         pass

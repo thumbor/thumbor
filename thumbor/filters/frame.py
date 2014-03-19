@@ -21,23 +21,26 @@ class Filter(BaseFilter):
         self.nine_patch_engine.enable_alpha()
         self.engine.enable_alpha()
 
-        padding = _nine_patch.get_padding(self.nine_patch_engine.get_image_mode(),
-                                          self.nine_patch_engine.get_image_data(),
+        nine_patch_mode, nine_patch_data = self.nine_patch_engine.image_data_as_rgb()
+        padding = _nine_patch.get_padding(nine_patch_mode,
+                                          nine_patch_data,
                                           self.nine_patch_engine.size[0],
                                           self.nine_patch_engine.size[1])
 
         self.handle_padding(padding)
 
-        if self.engine.get_image_mode() != self.nine_patch_engine.get_image_mode():
+        mode, data = self.engine.image_data_as_rgb()
+
+        if mode != nine_patch_mode:
             raise RuntimeError('Image mode mismatch: %s != %s' % (
-                self.engine.get_image_mode(), self.nine_patch_engine.get_image_mode())
+                mode, nine_patch_mode)
             )
 
-        imgdata = _nine_patch.apply(self.engine.get_image_mode(),
-                                    self.engine.get_image_data(),
+        imgdata = _nine_patch.apply(mode,
+                                    data,
                                     self.engine.size[0],
                                     self.engine.size[1],
-                                    self.nine_patch_engine.get_image_data(),
+                                    nine_patch_data,
                                     self.nine_patch_engine.size[0],
                                     self.nine_patch_engine.size[1])
         self.engine.set_image_data(imgdata)

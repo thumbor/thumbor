@@ -92,9 +92,6 @@ class JSONEngine(BaseEngine):
     def read_multiple(self, images, extension=None):
         return self.engine.read_multiple(images, extension)
 
-    def convert_to_rgb(self):
-        return self.engine.convert_to_rgb()
-
     def paste(self, other_engine, pos, merge=True):
         return self.engine.paste(other_engine, pos, merge)
 
@@ -112,6 +109,9 @@ class JSONEngine(BaseEngine):
 
     def set_image_data(self, data):
         return self.engine.set_image_data(data)
+
+    def image_data_as_rgb(self, update_image=True):
+        return self.engine.image_data_as_rgb(update_image)
 
     def convert_to_grayscale(self):
         pass

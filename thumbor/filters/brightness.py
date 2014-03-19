@@ -16,5 +16,6 @@ class Filter(BaseFilter):
 
     @filter_method(BaseFilter.Number)
     def brightness(self, value):
-        imgdata = _brightness.apply(self.engine.get_image_mode(), value, self.engine.get_image_data())
+        mode, data = self.engine.image_data_as_rgb()
+        imgdata = _brightness.apply(mode, value, data)
         self.engine.set_image_data(imgdata)

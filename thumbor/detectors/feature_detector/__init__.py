@@ -24,7 +24,7 @@ class Detector(BaseDetector):
         sz = engine.size
         image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
 
-        image_mode, image_data = engine.convert_to_rgb()
+        image_mode, image_data = engine.image_data_as_rgb(False)
         cv.SetData(image, image_data)
 
         gray_image = cv.CreateImage(engine.size, 8, 1)

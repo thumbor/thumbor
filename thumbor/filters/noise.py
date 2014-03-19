@@ -16,5 +16,6 @@ class Filter(BaseFilter):
 
     @filter_method(BaseFilter.PositiveNumber)
     def noise(self, amount):
-        imgdata = _noise.apply(self.engine.get_image_mode(), amount, self.engine.get_image_data())
+        mode, data = self.engine.image_data_as_rgb()
+        imgdata = _noise.apply(mode, amount, data)
         self.engine.set_image_data(imgdata)

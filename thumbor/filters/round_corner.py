@@ -21,8 +21,9 @@ class Filter(BaseFilter):
         a_radius = int(radius_parts[0])
         b_radius = int(radius_parts[1]) if len(radius_parts) > 1 else a_radius
 
+        mode, data = self.engine.image_data_as_rgb()
         imgdata = _round_corner.apply(
-            1, self.engine.get_image_mode(), a_radius, b_radius, r, g, b,
-            width, height, self.engine.get_image_data()
+            1, mode, a_radius, b_radius, r, g, b,
+            width, height, data
         )
         self.engine.set_image_data(imgdata)

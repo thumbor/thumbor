@@ -44,6 +44,9 @@ class MockEngine:
     def crop(self, left, top, right, bottom):
         self.image.size = (right - left, bottom - top)
 
+    def image_data_as_rgb(self, update_image=True):
+        return 'RGB', self.image.data
+
     @property
     def size(self):
         return self.image.size
@@ -98,6 +101,15 @@ class JsonEngineVows(ctx):
 
             def should_return_proper_image_mode(self, topic):
                 expect(topic).to_equal('RGB')
+
+        class GetImageDataAsRgb(ctx):
+            def topic(self, engine):
+                engine.set_image_data('SOME DATA')
+                return engine.image_data_as_rgb()
+
+            def should_return_proper_image_data(self, (mode, data)):
+                expect(mode).to_equal('RGB')
+                expect(data).to_equal('SOME DATA')
 
         class GetImageData(ctx):
             def topic(self, engine):

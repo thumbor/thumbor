@@ -20,5 +20,6 @@ class Filter(BaseFilter):
     @filter_method(r'(?:[-]?[\d]+\.?[\d]*[;])*(?:[-]?[\d]+\.?[\d]*)', BaseFilter.PositiveNumber, BaseFilter.Boolean)
     def convolution(self, matrix, columns, should_normalize=True):
         matrix = tuple(matrix.split(';'))
-        imgdata = _convolution.apply(self.engine.get_image_mode(), self.engine.get_image_data(), self.engine.size[0], self.engine.size[1], matrix, columns, should_normalize)
+        mode, data = self.engine.image_data_as_rgb()
+        imgdata = _convolution.apply(mode, data, self.engine.size[0], self.engine.size[1], matrix, columns, should_normalize)
         self.engine.set_image_data(imgdata)

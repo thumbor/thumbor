@@ -17,8 +17,9 @@ class Filter(BaseFilter):
     @filter_method(BaseFilter.DecimalNumber, BaseFilter.DecimalNumber, BaseFilter.Boolean)
     def sharpen(self, amount, radius, luminance_only):
         width, height = self.engine.size
+        mode, data = self.engine.image_data_as_rgb()
         imgdata = _sharpen.apply(
-            self.engine.get_image_mode(), width, height, amount, radius,
-            luminance_only, self.engine.get_image_data()
+            mode, width, height, amount, radius,
+            luminance_only, data
         )
         self.engine.set_image_data(imgdata)

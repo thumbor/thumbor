@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import logging
-from functools import reduce
+from functools import reduce, wraps
 
 
 def real_import(name):
@@ -36,3 +36,18 @@ class on_exception(object):
                     self.callback(self_instance) if self_instance else self.callback()
                 raise
         return wrapper
+
+
+class deprecated(object):
+
+    def __init__(self, msg=None):
+        self.msg = ": {0}".format(msg) if msg else "."
+
+    def __call__(self, func):
+        @wraps(func)
+        def new_func(*args, **kwargs):
+            logger.warn(
+                "Deprecated function {0}{1}".format(func.__name__, self.msg)
+            )
+            return func(*args, **kwargs)
+        return new_func
