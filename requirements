@@ -85,5 +85,7 @@ python-opencv
 redis-server
 libboost-python-dev
 tree
-webp
-libwebp-dev
+libjpeg-dev
+libpng-dev
+libtiff-dev
+libgif-dev
