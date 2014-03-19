@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import time
 from shutil import rmtree
 from os.path import exists
-import unittest
 
 from tornado.testing import AsyncHTTPTestCase
 from tornado.ioloop import IOLoop
-from tornado.stack_context import NullContext
 
 from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
@@ -55,45 +51,6 @@ class PreferencesHandlerTest(AsyncHTTPTestCase):
         application = ThumborServiceApp(ctx)
 
         return application
-
-    # Overwritten from tornado's AsyncTestCase to fix timeout bug in tornado <2.3
-    def wait(self, condition=None, timeout=5):
-        if not self._AsyncTestCase__stopped:
-            if timeout:
-                def timeout_func():
-                    try:
-                        raise self.failureException(
-                            'Async operation timed out after %d seconds' %
-                            timeout)
-                    except Exception:
-                        self._AsyncTestCase__failure = sys.exc_info()
-                    self.stop()
-                self.timeout_handle = self.io_loop.add_timeout(time.time() + timeout, timeout_func)
-            while True:
-                self._AsyncTestCase__running = True
-                with NullContext():
-                    # Wipe out the StackContext that was established in
-                    # self.run() so that all callbacks executed inside the
-                    # IOLoop will re-run it.
-                    self.io_loop.start()
-                if (self._AsyncTestCase__failure is not None or
-                        condition is None or condition()):
-                    break
-        if self.timeout_handle:
-            self.io_loop.remove_timeout(self.timeout_handle)
-            self.timeout_handle = None
-        assert self._AsyncTestCase__stopped
-        self._AsyncTestCase__stopped = False
-        if self._AsyncTestCase__failure is not None:
-            # 2to3 isn't smart enough to convert three-argument raise
-            # statements correctly in some cases.
-            if isinstance(self._AsyncTestCase__failure[1], self._AsyncTestCase__failure[0]):
-                raise self._AsyncTestCase__failure[1], None, self._AsyncTestCase__failure[2]
-            else:
-                raise self._AsyncTestCase__failure[0], self._AsyncTestCase__failure[1], self._AsyncTestCase__failure[2]
-        result = self._AsyncTestCase__stop_args
-        self._AsyncTestCase__stop_args = None
-        return result
 
     def get_new_ioloop(self):
         return IOLoop.instance()
