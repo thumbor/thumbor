@@ -22,12 +22,14 @@ class ThumborServiceApp(tornado.web.Application):
 
     def __init__(self, context):
         self.context = context
+        super(ThumborServiceApp, self).__init__(self.get_handlers())
 
+    def get_handlers(self):
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
         ]
 
-        if context.config.UPLOAD_ENABLED:
+        if self.context.config.UPLOAD_ENABLED:
             # TODO Old handler to upload images
             handlers.append(
                 (r'/upload', UploadHandler, {'context': self.context})
@@ -48,4 +50,4 @@ class ThumborServiceApp(tornado.web.Application):
             (Url.regex(), ImagingHandler, {'context': self.context})
         )
 
-        super(ThumborServiceApp, self).__init__(handlers)
+        return handlers
