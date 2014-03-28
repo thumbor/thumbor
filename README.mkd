@@ -18,4 +18,3 @@ There are several other options to the image URL configuration. You can check th
 
 For more information check [thumbor's
 documentation](https://github.com/globocom/thumbor/wiki "thumbor docs").
-
