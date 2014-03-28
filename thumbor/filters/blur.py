@@ -39,7 +39,7 @@ class Filter(BaseFilter):
         if sigma == 0:
             sigma = radius
         if radius > MAX_RADIUS:
-            raise RuntimeError("Radius too large, maximum allowed value is %d" % MAX_RADIUS)
+            radius = MAX_RADIUS
         matrix, matrix_size = self.generate_1d_matrix(sigma, radius)
         mode, data = self.engine.image_data_as_rgb()
         imgdata = _convolution.apply(mode, data, self.engine.size[0], self.engine.size[1], matrix, matrix_size, True)
