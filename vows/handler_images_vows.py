@@ -285,6 +285,8 @@ class GetImageWithAutoWebP(BaseContext):
         def should_not_have_vary(self, response):
             expect(response.code).to_equal(200)
             expect(response.headers).not_to_include('Vary')
+            image = self.engine.create_image(response.body)
+            expect(image.format.lower()).to_equal('webp')
 
     class ShouldNotConvertAnimatedGif(BaseContext):
         def topic(self):
@@ -334,3 +336,27 @@ class GetImageWithAutoWebP(BaseContext):
         def should_be_200(self, response):
             code, _ = response
             expect(code).to_equal(200)
+
+    class WithCMYK_JPEG_AsPNG_AcceptingWEBP(BaseContext):
+        def topic(self):
+            response = self.get('/unsafe/filters:format(png)/merrit.jpg', headers={
+                "Accept": 'image/webp,*/*;q=0.8'
+            })
+            return response
+
+        def should_be_200(self, response):
+            expect(response.code).to_equal(200)
+            image = self.engine.create_image(response.body)
+            expect(image.format.lower()).to_equal('png')
+
+    class WithJPEG_AsGIF_AcceptingWEBP(BaseContext):
+        def topic(self):
+            response = self.get('/unsafe/filters:format(gif)/image.jpg', headers={
+                "Accept": 'image/webp,*/*;q=0.8'
+            })
+            return response
+
+        def should_be_200(self, response):
+            expect(response.code).to_equal(200)
+            image = self.engine.create_image(response.body)
+            expect(image.format.lower()).to_equal('gif')
