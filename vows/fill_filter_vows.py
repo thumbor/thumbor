@@ -14,6 +14,7 @@ from thumbor.filters.fill import Filter
 from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
 from thumbor.importer import Importer
+import thumbor.filters
 
 DATA = [
     # size requested, resized/cropped image size, result size, image color, detected color
@@ -44,7 +45,8 @@ class FillFilterVows(Vows.Context):
                 req = RequestParameters(fit_in=True, width=item[0][0], height=item[0][1])
                 ctx.request = req
 
-                filter_instances = ctx.filters_factory.create_instances(ctx, "fill(blue)")
+                runner = ctx.filters_factory.create_instances(ctx, "fill(blue)")
+                filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
                 filter_instances[0].run()
                 yield (filter_instances[0].engine.image.size, item[2])
 
@@ -59,7 +61,8 @@ class FillFilterVows(Vows.Context):
             req = RequestParameters(width=10, height=10)
             ctx.request = req
 
-            filter_instances = ctx.filters_factory.create_instances(ctx, "fill(ff0000, true)")
+            runner = ctx.filters_factory.create_instances(ctx, "fill(ff0000, true)")
+            filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
             filter_instances[0].run()
             return ctx.modules.engine
 
@@ -76,7 +79,8 @@ class FillFilterVows(Vows.Context):
             req = RequestParameters(width=10, height=10)
             ctx.request = req
 
-            filter_instances = ctx.filters_factory.create_instances(ctx, "fill(ff0000, false)")
+            runner = ctx.filters_factory.create_instances(ctx, "fill(ff0000, false)")
+            filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
             filter_instances[0].run()
             return ctx.modules.engine
 
@@ -96,7 +100,8 @@ class FillFilterVows(Vows.Context):
                 req = RequestParameters(fit_in=True, width=size_requested[0], height=size_requested[1])
                 ctx.request = req
 
-                filter_instances = ctx.filters_factory.create_instances(ctx, "fill(auto)")
+                runner = ctx.filters_factory.create_instances(ctx, "fill(auto)")
+                filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
                 yield (filter_instances[0].get_median_color(), detected_color)
 

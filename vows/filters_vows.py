@@ -8,9 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import functools
+
 from pyvows import Vows, expect
 
 from thumbor.filters import BaseFilter, FiltersFactory, filter_method
+import thumbor.filters
 
 FILTER_PARAMS_DATA = [
     {
@@ -137,6 +140,14 @@ class OptionalParamFilter(BaseFilter):
         return (value1, value2)
 
 
+class PreLoadFilter(BaseFilter):
+    phase = thumbor.filters.PHASE_PRE_LOAD
+
+    @filter_method(BaseFilter.String)
+    def my_pre_load_filter(self, value):
+        return value
+
+
 @Vows.batch
 class FilterVows(Vows.Context):
 
@@ -150,22 +161,64 @@ class FilterVows(Vows.Context):
             is_multiple = lambda: False
             engine.is_multiple = is_multiple
             ctx.modules.engine = engine
-            fact = FiltersFactory([MyFilter, StringFilter, OptionalParamFilter])
+            fact = FiltersFactory([MyFilter, StringFilter, OptionalParamFilter, PreLoadFilter])
             return (fact, ctx)
+
+        class RunnerWithParameters(Vows.Context):
+
+            def topic(self, parent_topic):
+                factory, context = parent_topic
+                return factory.create_instances(context, 'my_string_filter(aaaa):my_string_filter(bbb):my_pre_load_filter(ccc)')
+
+            def should_create_two_instances(self, runner):
+                post_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
+                pre_instances = runner.filter_instances[thumbor.filters.PHASE_PRE_LOAD]
+                expect(len(post_instances)).to_equal(2)
+                expect(post_instances[0].__class__).to_equal(StringFilter)
+                expect(post_instances[1].__class__).to_equal(StringFilter)
+                expect(len(pre_instances)).to_equal(1)
+                expect(pre_instances[0].__class__).to_equal(PreLoadFilter)
+
+            class RunningPostFilters(Vows.Context):
+                @Vows.async_topic
+                def topic(self, callback, runner):
+                    runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, functools.partial(callback, runner))
+
+                def should_run_only_post_filters(self, args):
+                    runner = args.args[0]
+                    post_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
+                    pre_instances = runner.filter_instances[thumbor.filters.PHASE_PRE_LOAD]
+                    expect(len(post_instances)).to_equal(0)
+                    expect(len(pre_instances)).to_equal(1)
+
+                class RunningPreFilters(Vows.Context):
+                    @Vows.async_topic
+                    def topic(self, callback, args):
+                        runner = args.args[0]
+                        runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD, functools.partial(callback, runner))
+
+                    def should_run_only_pre_filters(self, args):
+                        runner = args.args[0]
+                        post_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
+                        pre_instances = runner.filter_instances[thumbor.filters.PHASE_PRE_LOAD]
+                        expect(len(post_instances)).to_equal(0)
+                        expect(len(pre_instances)).to_equal(0)
 
         class WithOneValidParam(Vows.Context):
             def topic(self, parent_topic):
                 factory, context = parent_topic
-                return factory.create_instances(context, 'my_filter(1, 0a):my_string_filter(aaaa)')
+                runner = factory.create_instances(context, 'my_filter(1, 0a):my_string_filter(aaaa)')
+                return runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
-            def should_create_two_instances(self, instances):
+            def should_create_one_instance(self, instances):
                 expect(len(instances)).to_equal(1)
                 expect(instances[0].__class__).to_equal(StringFilter)
 
         class WithParameterContainingColons(Vows.Context):
             def topic(self, parent_topic):
                 factory, context = parent_topic
-                return factory.create_instances(context, 'my_string_filter(aaaa):my_string_filter(aa:aa)')
+                runner = factory.create_instances(context, 'my_string_filter(aaaa):my_string_filter(aa:aa)')
+                return runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
             def should_create_two_instances(self, instances):
                 expect(len(instances)).to_equal(2)
@@ -179,7 +232,8 @@ class FilterVows(Vows.Context):
         class WithValidParams(Vows.Context):
             def topic(self, parent_topic):
                 factory, context = parent_topic
-                return factory.create_instances(context, 'my_filter(1, 0):my_string_filter(aaaa)')
+                runner = factory.create_instances(context, 'my_filter(1, 0):my_string_filter(aaaa)')
+                return runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
             def should_create_two_instances(self, instances):
                 expect(len(instances)).to_equal(2)
@@ -200,7 +254,8 @@ class FilterVows(Vows.Context):
         class WithOptionalParamFilter(Vows.Context):
             def topic(self, parent_topic):
                 factory, context = parent_topic
-                return factory.create_instances(context, 'my_optional_filter(aa, bb)')
+                runner = factory.create_instances(context, 'my_optional_filter(aa, bb)')
+                return runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
             def should_create_two_instances(self, instances):
                 expect(len(instances)).to_equal(1)
@@ -212,7 +267,8 @@ class FilterVows(Vows.Context):
         class WithOptionalParamsInOptionalFilter(Vows.Context):
             def topic(self, parent_topic):
                 factory, context = parent_topic
-                return factory.create_instances(context, 'my_optional_filter(aa)')
+                runner = factory.create_instances(context, 'my_optional_filter(aa)')
+                return runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
             def should_create_two_instances(self, instances):
                 expect(len(instances)).to_equal(1)
@@ -224,10 +280,24 @@ class FilterVows(Vows.Context):
         class WithInvalidOptionalFilter(Vows.Context):
             def topic(self, parent_topic):
                 factory, context = parent_topic
-                return factory.create_instances(context, 'my_optional_filter()')
+                runner = factory.create_instances(context, 'my_optional_filter()')
+                return runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
             def should_create_two_instances(self, instances):
                 expect(len(instances)).to_equal(0)
+
+        class WithPreLoadFilter(Vows.Context):
+            def topic(self, parent_topic):
+                factory, context = parent_topic
+                runner = factory.create_instances(context, 'my_pre_load_filter(aaaa)')
+                return runner.filter_instances[thumbor.filters.PHASE_PRE_LOAD]
+
+            def should_create_two_instances(self, instances):
+                expect(len(instances)).to_equal(1)
+                expect(instances[0].__class__).to_equal(PreLoadFilter)
+
+            def should_understant_parameters(self, instances):
+                expect(instances[0].params).to_equal(["aaaa"])
 
     class WithInvalidFilter(Vows.Context):
         def topic(self):

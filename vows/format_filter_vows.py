@@ -14,6 +14,7 @@ from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.filters.format import Filter
+import thumbor.filters
 
 
 @Vows.batch
@@ -26,7 +27,8 @@ class FormatFilterVows(Vows.Context):
             ctx = Context(None, conf, imp)
             ctx.request = RequestParameters()
 
-            filter_instances = ctx.filters_factory.create_instances(ctx, "format(invalid)")
+            runner = ctx.filters_factory.create_instances(ctx, "format(invalid)")
+            filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
             filter_instances[0].run()
 
@@ -41,7 +43,8 @@ class FormatFilterVows(Vows.Context):
             ctx = Context(None, conf, imp)
             ctx.request = RequestParameters()
 
-            filter_instances = ctx.filters_factory.create_instances(ctx, "format(webp)")
+            runner = ctx.filters_factory.create_instances(ctx, "format(webp)")
+            filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
 
             filter_instances[0].run()
             return ctx.request.format

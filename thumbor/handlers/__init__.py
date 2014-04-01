@@ -24,6 +24,7 @@ from thumbor.transformer import Transformer
 from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
+import thumbor.filters
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -64,7 +65,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
         req.meta_callback = conf.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
 
-        self.get_image()
+        self.filters_runner = self.context.filters_factory.create_instances(self.context, self.context.request.filters)
+        self.filters_runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD, self.get_image)
 
     def get_image(self):
         def callback(normalized, buffer=None, engine=None):
@@ -123,25 +125,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def after_transform(self, context):
         finish_callback = functools.partial(self.finish_request, context)
-
-        if context.modules.filters and context.request.filters:
-            self.apply_filters(context.filters_factory.create_instances(context, context.request.filters), finish_callback)
-        else:
-            finish_callback()
-
-    def apply_filters(self, filters, callback):
-        if not filters:
-            callback()
-            return
-
-        def exec_one_filter():
-            if len(filters) == 0:
-                callback()
-                return
-
-            f = filters.pop(0)
-            f.run(exec_one_filter)
-        exec_one_filter()
+        self.filters_runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, finish_callback)
 
     def define_image_type(self, context, result):
         if result is not None:

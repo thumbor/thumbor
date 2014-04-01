@@ -9,8 +9,11 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import re
+import collections
 
 STRIP_QUOTE = re.compile(r"^'(.+)'$")
+PHASE_POST_TRANSFORM = 'post_transform'
+PHASE_PRE_LOAD = 'pre-load'
 
 
 def filter_method(*args, **kwargs):
@@ -43,8 +46,11 @@ class FiltersFactory:
             self.filter_classes_map[filter_name] = cls
 
     def create_instances(self, context, filter_params):
+        filter_instances = collections.defaultdict(list)
+        if not filter_params:
+            return FiltersRunner(filter_instances)
+
         filter_params = filter_params.split('):')
-        filter_objs = []
         last_idx = len(filter_params) - 1
 
         for i, param in enumerate(filter_params):
@@ -59,9 +65,29 @@ class FiltersFactory:
             instance = cls.init_if_valid(param, context)
 
             if instance:
-                filter_objs.append(instance)
+                filter_instances[getattr(cls, 'phase', PHASE_POST_TRANSFORM)].append(instance)
 
-        return filter_objs
+        return FiltersRunner(filter_instances)
+
+
+class FiltersRunner:
+    def __init__(self, filter_instances):
+        self.filter_instances = filter_instances
+
+    def apply_filters(self, phase, callback):
+        filters = self.filter_instances.get(phase, None)
+        if not filters:
+            callback()
+            return
+
+        def exec_one_filter():
+            if len(filters) == 0:
+                callback()
+                return
+
+            f = filters.pop(0)
+            f.run(exec_one_filter)
+        exec_one_filter()
 
 
 class BaseFilter(object):
