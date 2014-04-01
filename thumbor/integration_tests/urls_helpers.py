@@ -77,7 +77,9 @@ filters = [
     'filters:frame(frame.9.png)',
     'filters:fill(ff0000)',
     'filters:fill(auto)',
-    'filters:fill(ff0000,true)'
+    'filters:fill(ff0000,true)',
+    'filters:blur(2)',
+    'filters:extract_focal()',
 ]
 
 original_images_base = [
