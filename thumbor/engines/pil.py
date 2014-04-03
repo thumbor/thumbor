@@ -101,7 +101,7 @@ class Engine(BaseEngine):
             options['optimize'] = True
             options['progressive'] = True
 
-            if self.image.mode in ['L', 'CMYK']:
+            if self.image.mode in ['L']:
                 self.image = self.image.convert('RGB')
             else:
                 if self.extension == '.jpg':
