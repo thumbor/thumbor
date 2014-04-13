@@ -73,7 +73,6 @@ def main(arguments=None):
             with open(context.server.fd, 'r') as sock:
                 fd_number = sock.fileno()
 
-        import ipdb; ipdb.set_trace()
         sock = socket.fromfd(fd_number,
                              socket.AF_INET | socket.AF_INET6,
                              socket.SOCK_STREAM)
