@@ -275,19 +275,21 @@ class BaseHandler(tornado.web.RequestHandler):
                 original_preserve = self.context.config.PRESERVE_EXIF_INFO
                 self.context.config.PRESERVE_EXIF_INFO = True
 
-                engine = self.context.modules.engine
-                engine.load(buffer, extension)
-                normalized = engine.normalize()
-                is_no_storage = isinstance(storage, NoStorage)
-                is_mixed_storage = isinstance(storage, MixedStorage)
-                is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
+                try:
+                    engine = self.context.modules.engine
+                    engine.load(buffer, extension)
+                    normalized = engine.normalize()
+                    is_no_storage = isinstance(storage, NoStorage)
+                    is_mixed_storage = isinstance(storage, MixedStorage)
+                    is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
-                if not (is_no_storage or is_mixed_no_file_storage):
-                    buffer = engine.read()
-                    storage.put(url, buffer)
+                    if not (is_no_storage or is_mixed_no_file_storage):
+                        buffer = engine.read()
+                        storage.put(url, buffer)
 
-                storage.put_crypto(url)
-                self.context.config.PRESERVE_EXIF_INFO = original_preserve
+                    storage.put_crypto(url)
+                finally:
+                    self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
                 callback(normalized, engine=engine)
 
