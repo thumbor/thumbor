@@ -3,7 +3,7 @@
 
 import logging, logging.handlers, json
 from thumbor import __version__
-import re
+import re, time
 
 class ErrorHandler(object):
     def __init__(self, config):
@@ -38,7 +38,8 @@ class ErrorHandler(object):
 
         req = handler.request
         extra = {
-            'thumbor-version': __version__
+            'thumbor-version': __version__,
+            'timestamp': time.time()
         }
         extra.update({
             'Headers': req.headers

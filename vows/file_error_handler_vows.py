@@ -70,7 +70,9 @@ class ErrorHandlerVows(Vows.Context):
       
         def should_have_called_client(self, topic):
             #check against json version
-            expect(json.loads(topic)).to_be_like ({
+            log = json.loads(topic)
+            del log['extra']['timestamp']
+            expect(log).to_be_like ({
                 'Http': {
                     'url': 'http://test/test/',
                     'method': 'GET',
@@ -98,9 +100,9 @@ class ErrorHandlerVows(Vows.Context):
         def topic(self):
             port = 8890
             #use temporary file to store logs
-            tmp = tempfile.NamedTemporaryFile(prefix='thumborTesti.%i.' % port)
+            tmp = tempfile.NamedTemporaryFile(prefix='thumborTest.%i.' % port)
 
-            cfg = Config(SECURITY_KEY='ACME-SEC', ERROR_FILE_LOGGER=tmp.name.replace('thumborTesti.%i.' % port, 'thumborTesti.%i.'), ERROR_FILE_NAME_USE_CONTEXT='server.port' )
+            cfg = Config(SECURITY_KEY='ACME-SEC', ERROR_FILE_LOGGER=tmp.name.replace('thumborTest.%i.' % port, 'thumborTest.%i.'), ERROR_FILE_NAME_USE_CONTEXT='server.port' )
             server = ServerParameters(port, 'localhost', 'thumbor.conf', None, 'info', None)
             server.security_key = 'ACME-SEC'
             ctx = Context(server, cfg, None)
@@ -114,7 +116,9 @@ class ErrorHandlerVows(Vows.Context):
 
         def should_have_called_client(self, topic):
             #check against json version
-            expect(json.loads(topic)).to_be_like ({
+            log = json.loads(topic)
+            del log['extra']['timestamp']
+            expect(log).to_be_like ({
                 'Http': {
                     'url': 'http://test/test/',
                     'method': 'GET',
