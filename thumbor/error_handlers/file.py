@@ -3,23 +3,39 @@
 
 import logging, logging.handlers, json
 from thumbor import __version__
+import re
 
 class ErrorHandler(object):
     def __init__(self, config):
-
-        file = config.ERROR_FILE_LOGGER
-        if not file:
+        if not config.ERROR_FILE_LOGGER:
             raise RuntimeError(
                 "If you set USE_CUSTOM_ERROR_HANDLING to True, and you are using thumbor_file_logger.logger, " +
                 "then you must specify the file path to log to with the ERROR_FILE_LOGGER configuration."
             )
+        if ( config.ERROR_FILE_NAME_USE_CONTEXT and not re.search('^(\w+\.)?\w+$', config.ERROR_FILE_NAME_USE_CONTEXT) ):
+            raise RuntimeError(
+                "ERROR_FILE_NAME_USE_CONTEXT config must reffer an attribute of context object and be form of ^(\w+.)?\w+$ : " + config.ERROR_FILE_NAME_USE_CONTEXT
+            )
+        self.file_name = config.ERROR_FILE_LOGGER
+        if config.ERROR_FILE_NAME_USE_CONTEXT:
+          self.use_context = config.ERROR_FILE_NAME_USE_CONTEXT
+        else:
+          self.use_context = None
+        self.logger = None
 
-
-        self.logger = logging.getLogger('error_handler')
-        self.logger.setLevel(logging.ERROR)
-        self.logger.addHandler(logging.handlers.WatchedFileHandler(config.ERROR_FILE_LOGGER))
-            
     def handle_error(self, context, handler, exception):
+
+        #create log file if not existing
+        if not self.logger:
+            if self.use_context:
+                file = self.file_name % eval('context.' + self.use_context)
+            else:
+                file = self.file_name
+
+            self.logger = logging.getLogger('error_handler')
+            self.logger.setLevel(logging.ERROR)
+            self.logger.addHandler(logging.handlers.WatchedFileHandler(file))
+
         req = handler.request
         extra = {
             'thumbor-version': __version__
