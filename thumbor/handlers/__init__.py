@@ -300,18 +300,20 @@ class ContextHandler(BaseHandler):
     def initialize(self, context):
         self.context = Context(context.server, context.config, context.modules.importer, self)
 
-    def _handle_request_exception(self, e):
-        try:
-            exc_info = sys.exc_info()
-            msg = traceback.format_exception(exc_info[0], exc_info[1], exc_info[2])
+    def log_exception(self, *exc_info):
+        if isinstance(value, tornado.web.HTTPError):
+            # Delegate HTTPError's to the base class
+            # We don't want these through normal exception handling
+            return super(ContextHandler, self).log_exception(*exc_info)
 
+        msg = traceback.format_exception(*exc_info)
+
+        try:
             if self.context.config.USE_CUSTOM_ERROR_HANDLING:
                 self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self, exception=exc_info)
-
         finally:
             del exc_info
             logger.error('ERROR: %s' % "".join(msg))
-            self.send_error(500)
 
 
 ##
