@@ -28,7 +28,13 @@ class ErrorHandler(object):
         #create log file if not existing
         if not self.logger:
             if self.use_context:
-                file = self.file_name % eval('context.' + self.use_context)
+                if '.' in self.use_context:
+                    parts = self.use_context.split('.')
+                    obj = getattr(context, parts[0], None)
+                    obj = reduce(getattr, parts[1:], obj)
+                else:
+                    obj = getattr(context, self.use_context, None)
+                file = self.file_name % obj
             else:
                 file = self.file_name
 
