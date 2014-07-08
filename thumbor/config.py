@@ -249,6 +249,7 @@ Config.define(
 
 # FILE REPORTING MODULE
 Config.define('ERROR_FILE_LOGGER', None, 'File of error log as json', 'Errors')
+Config.define('ERROR_FILE_NAME_USE_CONTEXT', False, 'File of error log name is parametrized with context attribute', 'Errors')
 
 
 def generate_config():

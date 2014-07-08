@@ -54,7 +54,7 @@ class ErrorHandlerVows(Vows.Context):
     class WhenErrorOccurs(Vows.Context):
         def topic(self):
             #use temporary file to store logs
-            tmp = tempfile.NamedTemporaryFile(prefix='thumborTest')
+            tmp = tempfile.NamedTemporaryFile(prefix='thumborTest.')
 
             cfg = Config(SECURITY_KEY='ACME-SEC', ERROR_FILE_LOGGER=tmp.name)
             server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
@@ -70,7 +70,9 @@ class ErrorHandlerVows(Vows.Context):
       
         def should_have_called_client(self, topic):
             #check against json version
-            expect(json.loads(topic)).to_be_like ({
+            log = json.loads(topic)
+            del log['extra']['timestamp']
+            expect(log).to_be_like ({
                 'Http': {
                     'url': 'http://test/test/',
                     'method': 'GET',
@@ -93,4 +95,59 @@ class ErrorHandlerVows(Vows.Context):
                     },
                 }
             })
+
+    class WhenErrorOccursiUSeContext(Vows.Context):
+        def topic(self):
+            port = 8890
+            #use temporary file to store logs
+            tmp = tempfile.NamedTemporaryFile(prefix='thumborTest.%i.' % port)
+
+            cfg = Config(SECURITY_KEY='ACME-SEC', ERROR_FILE_LOGGER=tmp.name.replace('thumborTest.%i.' % port, 'thumborTest.%i.'), ERROR_FILE_NAME_USE_CONTEXT='server.port' )
+            server = ServerParameters(port, 'localhost', 'thumbor.conf', None, 'info', None)
+            server.security_key = 'ACME-SEC'
+            ctx = Context(server, cfg, None)
+
+            handler = ErrorHandler(cfg)
+            http_handler = FakeHandler()
+
+            handler.handle_error(ctx, http_handler, RuntimeError("Test"))
+            #return content of file
+            return tmp.read()
+
+        def should_have_called_client(self, topic):
+            #check against json version
+            log = json.loads(topic)
+            del log['extra']['timestamp']
+            expect(log).to_be_like ({
+                'Http': {
+                    'url': 'http://test/test/',
+                    'method': 'GET',
+                    'data': [],
+                    'body': "body",
+                    'query_string': "a=1&b=2"
+                },
+                'interfaces.User': {
+                    'ip': "127.0.0.1",
+                },
+                'exception': 'Test',
+                'extra': {
+                    'thumbor-version':  __version__,
+                    'Headers' : {
+                        'header1': 'value1',
+                        'Cookie': {
+                            'cookie1': 'value',
+                            'cookie2': 'value2'
+                        }
+                    },
+                }
+            })
+
+    class WhenInvalidConfigurationOfFileNameWithContext(Vows.Context):
+        def topic(self):
+            cfg = Config(ERROR_FILE_NAME_USE_CONTEXT='server..port', ERROR_FILE_LOGGER='toto')
+            ErrorHandler(cfg)
+
+        def should_be_error(self, topic):
+            expect(topic).to_be_an_error()
+            expect(topic).to_be_an_error_like(RuntimeError)
 
