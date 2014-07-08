@@ -8,100 +8,57 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import urllib
-
-from thumbor.handlers import ContextHandler
-
-
-class BadRequestError(ValueError):
-    pass
+import uuid
+import mimetypes
+from thumbor.handlers import ImageApiHandler
+from thumbor.engines import BaseEngine
 
 
-class UploadHandler(ContextHandler):
-
-    def write_file(self, filename, body, overwrite):
-        storage = self.context.modules.upload_photo_storage
-        path = filename
-        if hasattr(storage, 'resolve_original_photo_path'):
-            path = storage.resolve_original_photo_path(self.request, filename)
-
-        if not overwrite and storage.exists(path):
-            raise RuntimeError('File already exists.')
-
-        stored_path = storage.put(path, body)
-
-        return stored_path
-
-    def extract_file_data(self):
-        if not 'media' in self.request.files:
-            raise RuntimeError("File was not uploaded properly.")
-        if not self.request.files['media']:
-            raise RuntimeError("File was not uploaded properly.")
-
-        return self.request.files['media'][0]
-
-    def save_and_render(self, overwrite=False):
-        file_data = self.extract_file_data()
-        body = file_data['body']
-        filename = file_data['filename']
-        path = ""
-        try:
-            path = self.write_file(filename, body, overwrite=overwrite)
-            self.set_status(201)
-            self.set_header('Location', path)
-        except RuntimeError:
-            self.set_status(409)
-            path = 'File already exists.'
-        except BadRequestError:
-            self.set_status(400)
-            path = 'Invalid request'
-        self.write(path)
+##
+# Handler to upload images.
+# This handler support only POST method, but images can be uploaded  :
+#   - through multipart/form-data (designed for forms)
+#   - or with the image content in the request body (rest style)
+##
+class ImageUploadHandler(ImageApiHandler):
 
     def post(self):
-        if self.validate():
-            self.save_and_render()
+        # Check if the image uploaded is a multipart/form-data
+        if self.multipart_form_data():
+            file_data = self.request.files['media'][0]
+            body = file_data['body']
+
+            # Retrieve filename from 'filename' field
+            filename = file_data['filename']
         else:
-            self.set_status(412)
-            self.write('File is too big, not an image or too small image')
+            body = self.request.body
 
-    def put(self):
-        if not self.context.config.UPLOAD_PUT_ALLOWED:
-            self.set_status(405)
-            return
+            # Retrieve filename from 'Slug' header
+            filename = self.request.headers.get('Slug')
 
-        if self.validate():
-            self.save_and_render(overwrite=True)
+        # Check if the image uploaded is valid
+        if self.validate(body):
+
+            # Use the default filename for the uploaded images
+            if not filename:
+                content_type = self.request.headers.get('Content-Type', BaseEngine.get_mimetype(body))
+                extension = mimetypes.guess_extension(content_type, False)
+                if extension == '.jpe':
+                    extension = '.jpg'  # Hack because mimetypes return .jpe by default
+                filename = self.context.config.UPLOAD_DEFAULT_FILENAME + extension
+
+            # Build image id based on a random uuid (32 characters)
+            id = str(uuid.uuid4().hex)
+            self.write_file(id, body)
+            self.set_status(201)
+            self.set_header('Location', self.location(id, filename))
+
+    def multipart_form_data(self):
+        if not 'media' in self.request.files or not self.request.files['media']:
+            return False
         else:
-            self.set_status(412)
-            self.write('File is too big, not an image or too small image')
+            return True
 
-    def delete(self):
-        if not self.context.config.UPLOAD_DELETE_ALLOWED:
-            self.set_status(405)
-            return
-
-        path = 'file_path' in self.request.arguments and self.request.arguments['file_path'] or None
-        if path is None and self.request.body is None:
-            raise RuntimeError('The file_path argument is mandatory to delete an image')
-        path = urllib.unquote(self.request.body.split('=')[-1])
-
-        if self.context.modules.storage.exists(path):
-            self.context.modules.storage.remove(path)
-
-    def validate(self):
-        conf = self.context.config
-        engine = self.context.modules.engine
-
-        if (conf.UPLOAD_MAX_SIZE != 0 and len(self.extract_file_data()['body']) > conf.UPLOAD_MAX_SIZE):
-            return False
-
-        try:
-            engine.load(self.extract_file_data()['body'], None)
-        except IOError:
-            return False
-
-        size = engine.size
-        if (conf.MIN_WIDTH > size[0] or conf.MIN_HEIGHT > size[1]):
-            return False
-
-        return True
+    def location(self, id, filename):
+        base_uri = self.request.uri
+        return base_uri + '/' + id + '/' + filename
