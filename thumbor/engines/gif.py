@@ -59,7 +59,6 @@ class Engine(PILEngine):
         raise NotImplementedError()
 
     def resize(self, width, height):
-        #self.buffer = self.image.resize((int(width), int(height)), Image.ANTIALIAS)
         if width == 0 and height == 0:
             return
 
