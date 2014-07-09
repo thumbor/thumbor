@@ -25,7 +25,7 @@ except ImportError:
 class Transformer(object):
     def __init__(self, context):
         self.context = context
-        self.engine = self.context.modules.engine
+        self.engine = self.context.request.engine
 
     def calculate_target_dimensions(self):
         source_width, source_height = self.engine.size
@@ -88,7 +88,8 @@ class Transformer(object):
         self.smart_detect()
 
     def trim(self):
-        if self.context.request.trim is None or not trim_enabled:
+        is_gifsicle = (self.context.request.engine.extension == '.gif' and self.context.config.USE_GIFSICLE_ENGINE)
+        if self.context.request.trim is None or not trim_enabled or is_gifsicle:
             return
 
         mode, data = self.engine.image_data_as_rgb()
@@ -117,7 +118,8 @@ class Transformer(object):
         return self.context.request.image_url
 
     def smart_detect(self):
-        if not (self.context.modules.detectors and self.context.request.smart):
+        is_gifsicle = (self.context.request.engine.extension == '.gif' and self.context.config.USE_GIFSICLE_ENGINE)
+        if (not (self.context.modules.detectors and self.context.request.smart)) or is_gifsicle:
             self.do_image_operations()
             return
 
