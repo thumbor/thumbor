@@ -89,3 +89,4 @@ libjpeg-dev
 libpng-dev
 libtiff-dev
 libgif-dev
+gifsicle
