@@ -12,26 +12,18 @@ import re
 from subprocess import Popen, PIPE
 
 from thumbor.engines.pil import Engine as PILEngine
-from thumbor.utils import which
 
 
 GIFSICLE_SIZE_REGEX = re.compile(r'(?:logical\sscreen\s(\d+x\d+))')
 GIFSICLE_IMAGE_COUNT_REGEX = re.compile(r'(?:(\d+)\simage)')
 
 class Engine(PILEngine):
-    def __init__(self, context):
-        super(Engine, self).__init__(context)
-        self.find_gifsicle()
-
     @property
     def size(self):
         return self.image_size
 
-    def find_gifsicle(self):
-        self.gifsicle = which('gifsicle')
-
     def run_gifsicle(self, command):
-        p = Popen([self.gifsicle] + command.split(' '), stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        p = Popen([self.context.server.gifsicle_path] + command.split(' '), stdout=PIPE, stdin=PIPE, stderr=PIPE)
         stdout_data = p.communicate(input=self.buffer)[0]
         return stdout_data
 

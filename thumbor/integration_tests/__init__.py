@@ -8,6 +8,7 @@ from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.integration_tests.urls_helpers import single_dataset  # , combined_dataset
+from thumbor.utils import which
 
 
 class EngineTestCase(AsyncHTTPTestCase):
@@ -15,6 +16,7 @@ class EngineTestCase(AsyncHTTPTestCase):
     def get_app(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
         server_params = ServerParameters(None, None, None, None, None, None)
+        server_params.gifsicle_path = which('gifsicle')
 
         cfg.DETECTORS = [
             'thumbor.detectors.face_detector',
