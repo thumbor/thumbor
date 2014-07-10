@@ -21,6 +21,7 @@ from thumbor.console import get_server_parameters
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context
+from thumbor.utils import which
 
 
 def get_as_integer(value):
@@ -60,6 +61,11 @@ def main(arguments=None):
         raise RuntimeError(
             'No security key was found for this instance of thumbor. ' +
             'Please provide one using the conf file or a security key file.')
+
+    if config.USE_GIFSICLE_ENGINE:
+        server_parameters.gifsicle_path = which('gifsicle')
+        if server_parameters.gifsicle_path is None:
+            raise RuntimeError('If using USE_GIFSICLE_ENGINE configuration to True, the `gifsicle` binary must be in the PATH and must be an executable.')
 
     context = Context(server=server_parameters, config=config, importer=importer)
 

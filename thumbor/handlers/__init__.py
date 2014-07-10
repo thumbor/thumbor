@@ -22,6 +22,7 @@ from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.context import Context
 from thumbor.transformer import Transformer
 from thumbor.engines import BaseEngine
+from thumbor.engines.gif import Engine as GifEngine
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
 import thumbor.filters
@@ -77,13 +78,13 @@ class BaseHandler(tornado.web.RequestHandler):
                     self._error(404)
                     return
 
-                engine = self.context.modules.engine
+                engine = self.context.request.engine
                 engine.load(buffer, req.extension)
 
             self.normalize_crops(normalized, req, engine)
 
             if req.meta:
-                self.context.modules.engine = JSONEngine(engine, req.image_url, req.meta_callback)
+                self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
 
             after_transform_cb = functools.partial(self.after_transform, self.context)
             Transformer(self.context).transform(after_transform_cb)
@@ -125,7 +126,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def after_transform(self, context):
         finish_callback = functools.partial(self.finish_request, context)
-        self.filters_runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, finish_callback)
+        if context.request.extension == '.gif' and context.config.USE_GIFSICLE_ENGINE:
+            finish_callback()
+        else:
+            self.filters_runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, finish_callback)
 
     def define_image_type(self, context, result):
         if result is not None:
@@ -135,11 +139,11 @@ class BaseHandler(tornado.web.RequestHandler):
             if image_extension is not None:
                 image_extension = '.%s' % image_extension
                 logger.debug('Image format specified as %s.' % image_extension)
-            elif context.config.AUTO_WEBP and context.request.accepts_webp and not context.modules.engine.is_multiple():
+            elif context.config.AUTO_WEBP and context.request.accepts_webp and not context.request.engine.is_multiple():
                 image_extension = '.webp'
                 logger.debug('Image format set by AUTO_WEBP as %s.' % image_extension)
             else:
-                image_extension = context.modules.engine.extension
+                image_extension = context.request.engine.extension
                 logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
 
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
@@ -166,7 +170,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)
 
-        if context.config.AUTO_WEBP and not context.modules.engine.is_multiple() and context.modules.engine.extension != '.webp':
+        if context.config.AUTO_WEBP and not context.request.engine.is_multiple() and context.request.engine.extension != '.webp':
             self.set_header('Vary', 'Accept')
 
         max_age = self.context.config.MAX_AGE
@@ -181,10 +185,10 @@ class BaseHandler(tornado.web.RequestHandler):
         should_store = result is None and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         if result is None:
-            results = context.modules.engine.read(image_extension, quality)
+            results = context.request.engine.read(image_extension, quality)
             if context.request.max_bytes is not None:
                 results = self.reload_to_fit_in_kb(
-                    context.modules.engine,
+                    context.request.engine,
                     results,
                     image_extension,
                     quality,
@@ -265,6 +269,12 @@ class BaseHandler(tornado.web.RequestHandler):
         buffer = storage.get(url)
 
         if buffer is not None:
+            mime = BaseEngine.get_mimetype(buffer)
+            if mime == '.gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                self.context.request.engine = GifEngine(self.context)
+            else:
+                self.context.request.engine = self.context.modules.engine
+
             callback(False, buffer=buffer)
         else:
             def handle_loader_loaded(buffer):
@@ -276,22 +286,28 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.context.config.PRESERVE_EXIF_INFO = True
 
                 try:
-                    engine = self.context.modules.engine
-                    engine.load(buffer, extension)
-                    normalized = engine.normalize()
+                    mime = BaseEngine.get_mimetype(buffer)
+
+                    if mime == '.gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                        self.context.request.engine = GifEngine(self.context)
+                    else:
+                        self.context.request.engine = self.context.modules.engine
+
+                    self.context.request.engine.load(buffer, extension)
+                    normalized = self.context.request.engine.normalize()
                     is_no_storage = isinstance(storage, NoStorage)
                     is_mixed_storage = isinstance(storage, MixedStorage)
                     is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
                     if not (is_no_storage or is_mixed_no_file_storage):
-                        buffer = engine.read()
+                        buffer = self.context.request.engine.read()
                         storage.put(url, buffer)
 
                     storage.put_crypto(url)
                 finally:
                     self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
-                callback(normalized, engine=engine)
+                callback(normalized, engine=self.context.request.engine)
 
             self.context.modules.loader.load(self.context, url, handle_loader_loaded)
 
@@ -301,7 +317,7 @@ class ContextHandler(BaseHandler):
         self.context = Context(context.server, context.config, context.modules.importer, self)
 
     def log_exception(self, *exc_info):
-        if isinstance(value, tornado.web.HTTPError):
+        if isinstance(exc_info[1], tornado.web.HTTPError):
             # Delegate HTTPError's to the base class
             # We don't want these through normal exception handling
             return super(ContextHandler, self).log_exception(*exc_info)
@@ -323,7 +339,12 @@ class ImageApiHandler(ContextHandler):
 
     def validate(self, body):
         conf = self.context.config
-        engine = self.context.modules.engine
+        mime = BaseEngine.get_mimetype(body)
+
+        if mime == '.gif' and self.context.config.USE_GIFSICLE_ENGINE:
+            engine = GifEngine(self.context)
+        else:
+            engine = self.context.modules.engine
 
         # Check if image is valid
         try:

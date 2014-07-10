@@ -154,6 +154,8 @@ class TestData(object):
             quality=80,
             image="some.jpeg"
         )
+        ctx.request.engine = self.engine
+        ctx.request.engine.extension = ".jpeg"
 
         return ctx
 
