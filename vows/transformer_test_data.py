@@ -76,7 +76,7 @@ class TestData(object):
             target_width, target_height,
             halign, valign, focal_points,
             crop_left, crop_top, crop_right, crop_bottom,
-            fit_in=False, adaptive=False,full=False, meta=False):
+            fit_in=False, adaptive=False, full=False, meta=False):
 
         self.source_width = source_width
         self.source_height = source_height

@@ -84,7 +84,7 @@ class RequestParameters:
                  crop_bottom=None,
                  crop=None,
                  adaptive=False,
-                 full = False,
+                 full=False,
                  fit_in=False,
                  width=0,
                  height=0,
