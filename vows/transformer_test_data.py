@@ -76,7 +76,7 @@ class TestData(object):
             target_width, target_height,
             halign, valign, focal_points,
             crop_left, crop_top, crop_right, crop_bottom,
-            fit_in=False, adaptive=False, meta=False):
+            fit_in=False, adaptive=False, full=False, meta=False):
 
         self.source_width = source_width
         self.source_height = source_height
@@ -91,6 +91,7 @@ class TestData(object):
         self.crop_bottom = crop_bottom
         self.fit_in = fit_in
         self.adaptive = adaptive
+        self.full = full 
         self.meta = meta
 
     def __repr__(self):
@@ -140,6 +141,7 @@ class TestData(object):
                 'bottom': self.crop_bottom
             },
             adaptive=self.adaptive,
+            full = self.full,
             fit_in=self.fit_in,
             horizontal_flip=flip_horizontally,
             vertical_flip=flip_vertically,
@@ -950,5 +952,32 @@ FIT_IN_CROP_DATA = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True, adaptive=True
-    ), (200, 100, 1))
+    ), (200, 100, 1)),
+
+    (TestData(
+        source_width=800, source_height=400,
+        target_width=400, target_height=100,
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+        fit_in=True, full=True
+    ), (400, 200, 1)),
+
+    (TestData(
+        source_width=200, source_height=250,
+        target_width=500, target_height=400,
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+        fit_in=True, full=True
+        ), (500, 625, 1)),
+
+    (TestData(
+        source_width=800, source_height=400,
+        target_width=100, target_height=400,
+        halign="middle", valign="middle",
+        focal_points=[],
+        crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+        fit_in=True, adaptive=True, full=True
+        ), (400, 200, 1))
 ]

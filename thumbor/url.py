@@ -19,7 +19,7 @@ class Url(object):
     meta = '(?:(?P<meta>meta)/)?'
     trim = '(?:(?P<trim>trim(?::(?:top-left|bottom-right))?(?::\d+)?)/)?'
     crop = '(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?'
-    fit_in = '(?:(?P<adaptive>adaptive-)?(?P<fit_in>fit-in)/)?'
+    fit_in = '(?:(?P<adaptive>adaptive-)?(?P<full>full-)?(?P<fit_in>fit-in)/)?'
     dimensions = '(?:(?P<horizontal_flip>-)?(?P<width>(?:\d+|orig))?x(?P<vertical_flip>-)?(?P<height>(?:\d+|orig))?/)?'
     halign = r'(?:(?P<halign>left|right|center)/)?'
     valign = r'(?:(?P<valign>top|bottom|middle)/)?'
@@ -75,6 +75,7 @@ class Url(object):
                 'bottom': int_or_0(result['crop_bottom'])
             },
             'adaptive': result['adaptive'] == 'adaptive',
+            'full': result['full'] == 'full',
             'fit_in': result['fit_in'] == 'fit-in',
             'width': result['width'] == 'orig' and 'orig' or int_or_0(result['width']),
             'height': result['height'] == 'orig' and 'orig' or int_or_0(result['height']),
@@ -98,6 +99,7 @@ class Url(object):
                          meta=False,
                          trim=None,
                          adaptive=False,
+                         full=False,
                          fit_in=False,
                          horizontal_flip=False,
                          vertical_flip=False,
@@ -133,10 +135,13 @@ class Url(object):
             ))
 
         if fit_in:
+            fit_ops = []
             if adaptive:
-                url.append('adaptive-fit-in')
-            else:
-                url.append('fit-in')
+                fit_ops.append('adaptive')
+            if full:
+                fit_ops.append('full')
+            fit_ops.append('fit-in');
+            url.append('-'.join(fit_ops))
 
         if horizontal_flip:
             width = '-%s' % width

@@ -81,6 +81,11 @@ class UrlVows(Vows.Context):
             def should_return_proper_url(self, topic):
                 expect(topic).to_equal('adaptive-fit-in')
 
+        class Full(ctx(fit_in=True, full=True)):
+
+            def should_return_proper_url(self, topic):
+                expect(topic).to_equal('full-fit-in')
+
         class Complete(ctx(
                 width=300, height=200, smart=True, fit_in=True, meta=True, horizontal_flip=True,
                 vertical_flip=True, crop_left=10, crop_top=11, crop_right=12, crop_bottom=13,
@@ -103,7 +108,7 @@ class UrlVows(Vows.Context):
             expect(topic).to_include('(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?')
 
         def should_contain_fit_in(self, topic):
-            expect(topic).to_include('(?:(?P<adaptive>adaptive-)?(?P<fit_in>fit-in)/)?')
+            expect(topic).to_include('(?:(?P<adaptive>adaptive-)?(?P<full>full-)?(?P<fit_in>fit-in)/)?')
 
         def should_contain_dimensions(self, topic):
             expect(topic).to_include(

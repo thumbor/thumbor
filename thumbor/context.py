@@ -85,6 +85,7 @@ class RequestParameters:
                  crop_bottom=None,
                  crop=None,
                  adaptive=False,
+                 full=False,
                  fit_in=False,
                  width=0,
                  height=0,
@@ -130,6 +131,7 @@ class RequestParameters:
             self.crop['bottom'] > 0
 
         self.adaptive = bool(adaptive)
+        self.full = bool(full)
         self.fit_in = bool(fit_in)
 
         self.width = width == "orig" and "orig" or self.int_or_0(width)
