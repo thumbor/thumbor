@@ -11,9 +11,9 @@ import tornado.web
 import tornado.ioloop
 
 from thumbor.handlers.healthcheck import HealthcheckHandler
-from thumbor.handlers.upload import UploadHandler
-from thumbor.handlers.images import ImagesHandler
-from thumbor.handlers.image import ImageHandler
+from thumbor.handlers.legacy_upload import LegacyImageUploadHandler
+from thumbor.handlers.upload import ImageUploadHandler
+from thumbor.handlers.image_resource import ImageResourceHandler
 from thumbor.url import Url
 from thumbor.handlers.imaging import ImagingHandler
 
@@ -22,25 +22,27 @@ class ThumborServiceApp(tornado.web.Application):
 
     def __init__(self, context):
         self.context = context
+        super(ThumborServiceApp, self).__init__(self.get_handlers())
 
+    def get_handlers(self):
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
         ]
 
-        if context.config.UPLOAD_ENABLED:
-            # TODO Old handler to upload images
+        if self.context.config.UPLOAD_ENABLED:
+            # TODO: Old handler to upload images. Will be deprecated soon.
             handlers.append(
-                (r'/upload', UploadHandler, {'context': self.context})
+                (r'/upload', LegacyImageUploadHandler, {'context': self.context})
             )
 
             # Handler to upload images (POST).
             handlers.append(
-                (r'/image', ImagesHandler, {'context': self.context})
+                (r'/image', ImageUploadHandler, {'context': self.context})
             )
 
             # Handler to retrieve or modify existing images  (GET, PUT, DELETE)
             handlers.append(
-                (r'/image/(.*)', ImageHandler, {'context': self.context})
+                (r'/image/(.*)', ImageResourceHandler, {'context': self.context})
             )
 
         # Imaging handler (GET)
@@ -48,4 +50,4 @@ class ThumborServiceApp(tornado.web.Application):
             (Url.regex(), ImagingHandler, {'context': self.context})
         )
 
-        super(ThumborServiceApp, self).__init__(handlers)
+        return handlers

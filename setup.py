@@ -25,7 +25,6 @@ tests_require = [
     "tornado-pyvows==0.5.2",
     "coverage",
     "mock==1.0.1",
-    "pgmagick>=0.5.6",
     "raven",
     "nose",
     "colorama",
@@ -92,12 +91,13 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
         },
 
         install_requires=[
-            "tornado>=2.1.1,<3.2.0",
+            "tornado>2.3.0,<3.3.0",
             "pyCrypto>=2.1.0",
             "pycurl>=7.19.0,<7.20.0",
-            "Pillow>=2.1.0,<2.2.0",
+            "Pillow>=2.1.0,<2.4.0",
             "derpconf>=0.2.0",
-            "python-magic>=0.4.3"
+            "python-magic>=0.4.3",
+            "thumbor-pexif>=0.14,<1.0",
         ],
 
         extras_require={

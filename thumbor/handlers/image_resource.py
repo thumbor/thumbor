@@ -17,7 +17,7 @@ from thumbor.engines import BaseEngine
 # Handler to retrieve or modify existing images
 # This handler support GET, PUT and DELETE method to manipulate existing images
 ##
-class ImageHandler(ImageApiHandler):
+class ImageResourceHandler(ImageApiHandler):
 
     def put(self, id):
         id = id[:32]

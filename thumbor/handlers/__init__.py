@@ -24,6 +24,7 @@ from thumbor.transformer import Transformer
 from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
+import thumbor.filters
 
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
@@ -64,7 +65,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
         req.meta_callback = conf.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
 
-        self.get_image()
+        self.filters_runner = self.context.filters_factory.create_instances(self.context, self.context.request.filters)
+        self.filters_runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD, self.get_image)
 
     def get_image(self):
         def callback(normalized, buffer=None, engine=None):
@@ -123,39 +125,22 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def after_transform(self, context):
         finish_callback = functools.partial(self.finish_request, context)
-
-        if context.modules.filters and context.request.filters:
-            self.apply_filters(context.filters_factory.create_instances(context, context.request.filters), finish_callback)
-        else:
-            finish_callback()
-
-    def apply_filters(self, filters, callback):
-        if not filters:
-            callback()
-            return
-
-        def exec_one_filter():
-            if len(filters) == 0:
-                callback()
-                return
-
-            f = filters.pop(0)
-            f.run(exec_one_filter)
-        exec_one_filter()
+        self.filters_runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, finish_callback)
 
     def define_image_type(self, context, result):
         if result is not None:
             image_extension = BaseEngine.get_mimetype(result)
-        elif context.config.AUTO_WEBP and context.request.accepts_webp and not context.modules.engine.is_multiple():
-            image_extension = '.webp'
         else:
             image_extension = context.request.format
-            if image_extension is None:
-                image_extension = context.modules.engine.extension
-                logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
-            else:
+            if image_extension is not None:
                 image_extension = '.%s' % image_extension
                 logger.debug('Image format specified as %s.' % image_extension)
+            elif context.config.AUTO_WEBP and context.request.accepts_webp and not context.modules.engine.is_multiple():
+                image_extension = '.webp'
+                logger.debug('Image format set by AUTO_WEBP as %s.' % image_extension)
+            else:
+                image_extension = context.modules.engine.extension
+                logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
 
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
@@ -287,18 +272,24 @@ class BaseHandler(tornado.web.RequestHandler):
                     callback(False, None)
                     return
 
-                engine = self.context.modules.engine
-                engine.load(buffer, extension)
-                normalized = engine.normalize()
-                is_no_storage = isinstance(storage, NoStorage)
-                is_mixed_storage = isinstance(storage, MixedStorage)
-                is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
+                original_preserve = self.context.config.PRESERVE_EXIF_INFO
+                self.context.config.PRESERVE_EXIF_INFO = True
 
-                if not (is_no_storage or is_mixed_no_file_storage):
-                    buffer = engine.read()
-                    storage.put(url, buffer)
+                try:
+                    engine = self.context.modules.engine
+                    engine.load(buffer, extension)
+                    normalized = engine.normalize()
+                    is_no_storage = isinstance(storage, NoStorage)
+                    is_mixed_storage = isinstance(storage, MixedStorage)
+                    is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
-                storage.put_crypto(url)
+                    if not (is_no_storage or is_mixed_no_file_storage):
+                        buffer = engine.read()
+                        storage.put(url, buffer)
+
+                    storage.put_crypto(url)
+                finally:
+                    self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
                 callback(normalized, engine=engine)
 
@@ -309,18 +300,20 @@ class ContextHandler(BaseHandler):
     def initialize(self, context):
         self.context = Context(context.server, context.config, context.modules.importer, self)
 
-    def _handle_request_exception(self, e):
-        try:
-            exc_info = sys.exc_info()
-            msg = traceback.format_exception(exc_info[0], exc_info[1], exc_info[2])
+    def log_exception(self, *exc_info):
+        if isinstance(value, tornado.web.HTTPError):
+            # Delegate HTTPError's to the base class
+            # We don't want these through normal exception handling
+            return super(ContextHandler, self).log_exception(*exc_info)
 
+        msg = traceback.format_exception(*exc_info)
+
+        try:
             if self.context.config.USE_CUSTOM_ERROR_HANDLING:
                 self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self, exception=exc_info)
-
         finally:
             del exc_info
             logger.error('ERROR: %s' % "".join(msg))
-            self.send_error(500)
 
 
 ##

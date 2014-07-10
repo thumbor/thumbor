@@ -23,6 +23,12 @@ from thumbor.importer import Importer
 from thumbor.context import Context
 
 
+def get_as_integer(value):
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
 def main(arguments=None):
     '''Runs thumbor server with the specified arguments.'''
 
@@ -62,7 +68,12 @@ def main(arguments=None):
     server = HTTPServer(application)
 
     if context.server.fd is not None:
-        sock = socket.fromfd(context.server.fd,
+        fd_number = get_as_integer(context.server.fd)
+        if fd_number is None:
+            with open(context.server.fd, 'r') as sock:
+                fd_number = sock.fileno()
+
+        sock = socket.fromfd(fd_number,
                              socket.AF_INET | socket.AF_INET6,
                              socket.SOCK_STREAM)
         server.add_socket(sock)

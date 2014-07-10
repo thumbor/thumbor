@@ -166,4 +166,4 @@ class Url(object):
 
     @classmethod
     def encode_url(kls, url):
-        return quote(url, '/:?%=&()",\'')
+        return quote(url, '/:?%=&()~",\'')

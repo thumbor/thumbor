@@ -20,9 +20,10 @@ class Filter(BaseFilter):
         self.watermark_engine.load(buffer, self.extension)
         self.watermark_engine.enable_alpha()
 
-        imgdata = _alpha.apply(self.watermark_engine.get_image_mode(),
+        mode, data = self.watermark_engine.image_data_as_rgb()
+        imgdata = _alpha.apply(mode,
                                self.alpha,
-                               self.watermark_engine.get_image_data())
+                               data)
 
         self.watermark_engine.set_image_data(imgdata)
 

@@ -4,9 +4,9 @@ static PyObject*
 _composite_apply(PyObject *self, PyObject *args)
 {
     PyObject *py_image1 = NULL, *py_image2 = NULL, *image_mode = NULL,
-             *w1, *h1, *w2, *h2, *py_x, *py_y;
+             *w1, *h1, *w2, *h2, *py_x, *py_y, *py_merge = NULL;
 
-    if (!PyArg_UnpackTuple(args, "apply", 9, 9, &image_mode, &py_image1, &w1, &h1, &py_image2, &w2, &h2, &py_x, &py_y)) {
+    if (!PyArg_UnpackTuple(args, "apply", 9, 10, &image_mode, &py_image1, &w1, &h1, &py_image2, &w2, &h2, &py_x, &py_y, &py_merge)) {
         return NULL;
     }
 
@@ -20,7 +20,12 @@ _composite_apply(PyObject *self, PyObject *args)
         height1 = (int) PyInt_AsLong(h1),
         height2 = (int) PyInt_AsLong(h2),
         x_pos = (int) PyInt_AsLong(py_x),
-        y_pos = (int) PyInt_AsLong(py_y);
+        y_pos = (int) PyInt_AsLong(py_y),
+        merge = 1;
+
+    if (py_merge) {
+        merge = (int) PyInt_AsLong(py_merge);
+    }
 
     int num_bytes = bytes_per_pixel(image_mode_str);
     int r_idx = rgb_order(image_mode_str, 'R'),
@@ -70,16 +75,31 @@ _composite_apply(PyObject *self, PyObject *args)
             a1 = 255 - a1;
             a2 = 255 - a2;
 
-            delta = (a2 / MAX_RGB_DOUBLE) * (a1 / MAX_RGB_DOUBLE);
+            if (merge) {
+                delta = (a2 / MAX_RGB_DOUBLE) * (a1 / MAX_RGB_DOUBLE);
 
-            a = MAX_RGB_DOUBLE * delta;
+                a = MAX_RGB_DOUBLE * delta;
 
-            delta = 1.0 - delta;
-            delta = (delta <= SMALL_DOUBLE) ? 1.0 : (1.0 / delta);
+                delta = 1.0 - delta;
+                delta = (delta <= SMALL_DOUBLE) ? 1.0 : (1.0 / delta);
 
-            r = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(r2, a2, r1, a1);
-            g = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(g2, a2, g1, a1);
-            b = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(b2, a2, b1, a1);
+                r = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(r2, a2, r1, a1);
+                g = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(g2, a2, g1, a1);
+                b = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(b2, a2, b1, a1);
+            } else {
+                if (a1 == 0) {
+                    r = r2;
+                    g = g2;
+                    b = b2;
+                    a = a2;
+                } else {
+                    r = r1;
+                    g = g1;
+                    b = b1;
+                    a = a1;
+                }
+            }
+
             a = 255.0 - a;
 
             aux1[r_idx] = ADJUST_COLOR_DOUBLE(r);

@@ -25,10 +25,19 @@ install:
     # verify both requirements were met
     - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
 
+    # Fix distribute
+    - wget http://python-distribute.org/distribute_setup.py
+    - python distribute_setup.py
+
+    # webp - compiling from source
+    - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
+    - tar xvzf libwebp-0.4.0.tar.gz
+    - cd libwebp-0.4.0 && ./configure --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder && make && sudo make install; cd ..
+    - sudo ldconfig
+
     # install python requirements
     - make setup
 
 script:
     # finally run tests
     - make ci_test
-

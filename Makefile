@@ -10,7 +10,7 @@ compile_ext:
 f ?= "vows/"
 test pyvows: compile_ext redis mongo
 	@pyvows -vv --profile --cover --cover-package=thumbor --cover-threshold=90 $f
-	@nosetests -sv integration_tests/
+	@nosetests -sv thumbor/integration_tests/
 	$(MAKE) kill_mongo kill_redis
 
 ci_test: compile_ext
@@ -19,7 +19,7 @@ ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	$(MAKE) mongo redis
 	@pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
-	@nosetests -sv integration_tests/
+	@nosetests -sv thumbor/integration_tests/
 	$(MAKE) kill_mongo kill_redis
 
 mysql_test: pretest

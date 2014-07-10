@@ -33,7 +33,7 @@ end script
 
 script
     . "/tmp/${UPSTART_JOB}-${p}"
-    $DAEMON -c "${conffile}" -i "${ip}" -k "${keyfile}" -p "${p}" -l debug
+    $DAEMON -c "${conffile}" -i "${ip}" -k "${keyfile}" -p "${p}" -l "${level}"
 end script
 
 post-start script

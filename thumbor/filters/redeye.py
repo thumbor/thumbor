@@ -67,10 +67,11 @@ class Filter(BaseFilter):
         faces = [face for face in self.context.request.focal_points if face.origin == 'Face Detection']
         if faces:
             engine = self.context.modules.engine
+            mode, data = engine.image_data_as_rgb()
+            mode = mode.lower()
             sz = engine.size
-            mode = engine.get_image_mode().lower()
             image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
-            cv.SetData(image, engine.get_image_data())
+            cv.SetData(image, data)
 
             for face in faces:
                 face_x = int(face.x - face.width / 2)

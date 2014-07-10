@@ -14,12 +14,10 @@ debugs = [
 ]
 
 metas = [
-    '',
     'meta'
 ]
 
 trims = [
-    '',
     'trim',
     'trim:top-left',
     'trim:bottom-right',
@@ -28,12 +26,10 @@ trims = [
 ]
 
 crops = [
-    '',
     '10x10:100x100'
 ]
 
 fitins = [
-    '',
     'fit-in',
     'adaptive-fit-in',
     'full-fit-in',
@@ -41,7 +37,6 @@ fitins = [
 ]
 
 sizes = [
-    '',
     '200x200',
     '-300x100',
     '100x-300',
@@ -52,26 +47,22 @@ sizes = [
 ]
 
 haligns = [
-    '',
     'left',
     'right',
     'center',
 ]
 
 valigns = [
-    '',
     'top',
     'bottom',
     'middle',
 ]
 
 smarts = [
-    '',
     'smart',
 ]
 
 filters = [
-    '',
     'filters:brightness(10)',
     'filters:contrast(10)',
     'filters:equalize()',
@@ -82,21 +73,27 @@ filters = [
     'filters:rgb(10,-10,20)',
     'filters:round_corner(20,255,255,100)',
     'filters:sharpen(6,2.5,false)',
+    'filters:sharpen(6,2.5,true)',
     'filters:strip_icc()',
-    'filters:watermark(http://s.glbimg.com/es/ge/f/original/2012/08/15/brasil_45.png,10,10,50)',
-    'filters:frame(publicobject.com/ninepatch/frame.9.png)',
-    'filters:fill(ff0000)'
+    'filters:watermark(brasil_45.png,10,10,50)',
+    'filters:frame(frame.9.png)',
+    'filters:fill(ff0000)',
+    'filters:fill(auto)',
+    'filters:fill(ff0000,true)',
+    'filters:blur(2)',
+    'filters:extract_focal()',
 ]
 
 original_images_base = [
-    's.glbimg.com/en/ho/f/original/2012/10/29/dilmahaddad.jpg',
-    'g1.globo.com/platb/files/2135/2012/05/logo-FV.png-menor.png',
+    'dilmahaddad.jpg',
+    'cmyk.jpg',
+    'logo-FV.png-menor.png',
 ]
 
 original_images_gif_webp = [
-    'www.gstatic.com/webp/gallery/5.webp',
-    'globoesporte.globo.com/platb/files/1031/2011/02/alerta.gif',
-    'edgblogs.s3.amazonaws.com/bombounaweb/files/2012/09/tumblr_m9u52mZMgk1qz99y7o1_400.gif',
+    '5.webp',
+    'alerta.gif',
+    'tumblr_m9u52mZMgk1qz99y7o1_400.gif',
 ]
 
 

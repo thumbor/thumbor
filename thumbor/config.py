@@ -203,6 +203,9 @@ Config.define(
         'thumbor.filters.grayscale',
         'thumbor.filters.format',
         'thumbor.filters.max_bytes',
+        'thumbor.filters.convolution',
+        'thumbor.filters.blur',
+        'thumbor.filters.extract_focal',
     ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')
@@ -246,6 +249,7 @@ Config.define(
 
 # FILE REPORTING MODULE
 Config.define('ERROR_FILE_LOGGER', None, 'File of error log as json', 'Errors')
+Config.define('ERROR_FILE_NAME_USE_CONTEXT', False, 'File of error log name is parametrized with context attribute', 'Errors')
 
 
 def generate_config():
