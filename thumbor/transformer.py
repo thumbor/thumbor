@@ -295,7 +295,7 @@ class Transformer(object):
 
         if sign == 1 and self.target_width >= source_width and self.target_height >= source_height:
             return
-		
+
         if source_width / self.target_width * sign >= source_height / self.target_height * sign:
             resize_height = round(source_height * self.target_width / source_width)
             resize_width = self.target_width
