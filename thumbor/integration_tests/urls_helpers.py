@@ -67,6 +67,7 @@ filters = [
     'filters:contrast(10)',
     'filters:equalize()',
     'filters:grayscale()',
+    'filters:rotate(90)',
     'filters:noise(10)',
     'filters:quality(5)',
     'filters:redeye()',
