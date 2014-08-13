@@ -18,7 +18,7 @@ class Filter(BaseFilter):
 
     @filter_method()
     def no_upscale(self):
-        image_size = self.engine.size
+        image_size = self.context.request.engine.size
         if self.context.request.width > image_size[0]:
             self.context.request.width = image_size[0]
         if self.context.request.height > image_size[1]:

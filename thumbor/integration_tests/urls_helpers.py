@@ -83,6 +83,7 @@ filters = [
     'filters:fill(ff0000,true)',
     'filters:blur(2)',
     'filters:extract_focal()',
+    'filters:no_upscale()',
 ]
 
 original_images_base = [

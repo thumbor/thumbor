@@ -58,6 +58,7 @@ TEST_DATA = (
         'thumbor.filters.convolution',
         'thumbor.filters.blur',
         'thumbor.filters.extract_focal',
+        'thumbor.filters.no_upscale',
     ])
 )
 
