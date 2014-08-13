@@ -87,13 +87,16 @@ class BaseHandler(tornado.web.RequestHandler):
                 engine = self.context.request.engine
                 engine.load(buffer, req.extension)
 
-            self.normalize_crops(normalized, req, engine)
+            def transform():
+                self.normalize_crops(normalized, req, engine)
 
-            if req.meta:
-                self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
+                if req.meta:
+                    self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
 
-            after_transform_cb = functools.partial(self.after_transform, self.context)
-            Transformer(self.context).transform(after_transform_cb)
+                after_transform_cb = functools.partial(self.after_transform, self.context)
+                Transformer(self.context).transform(after_transform_cb)
+
+            self.filters_runner.apply_filters(thumbor.filters.PHASE_AFTER_LOAD, transform)
 
         self._fetch(self.context.request.image_url, self.context.request.extension, callback)
 

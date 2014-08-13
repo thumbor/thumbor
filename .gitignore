@@ -29,3 +29,5 @@ opencv
 /debian/thumbor.prerm.debhelper
 /debian/thumbor.substvars
 /debian/tmp/
+.ropeproject/
+.venv

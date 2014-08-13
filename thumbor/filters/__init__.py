@@ -14,6 +14,7 @@ import collections
 STRIP_QUOTE = re.compile(r"^'(.+)'$")
 PHASE_POST_TRANSFORM = 'post_transform'
 PHASE_PRE_LOAD = 'pre-load'
+PHASE_AFTER_LOAD = 'after-load'
 
 
 def filter_method(*args, **kwargs):
