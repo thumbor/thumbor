@@ -10,6 +10,7 @@
 
 from os.path import abspath, join, dirname, exists
 from shutil import rmtree
+from urllib import quote
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
@@ -54,6 +55,15 @@ class GetImage(BaseContext):
     class WithRegularImage(TornadoHTTPContext):
         def topic(self):
             response = self.get('/unsafe/smart/image.jpg')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)
+
+    class WithUnicodeImage(BaseContext):
+        def topic(self):
+            response = self.get(u'/unsafe/%s' % quote(u'15967251_212831_19242645_АгатавЗоопарке.jpg'.encode('utf-8')))
             return (response.code, response.headers)
 
         def should_be_200(self, response):
@@ -132,7 +142,6 @@ class GetImage(BaseContext):
         def should_be_200(self, response):
             code, _ = response
             expect(code).to_equal(200)
-
 
 
 @Vows.batch

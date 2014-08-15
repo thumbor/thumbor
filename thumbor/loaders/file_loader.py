@@ -9,10 +9,11 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import join, exists, abspath
+from urllib import unquote
 
 
 def load(context, path, callback):
-    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), unquote(path).lstrip('/'))
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(context.config.FILE_LOADER_ROOT_PATH)
 

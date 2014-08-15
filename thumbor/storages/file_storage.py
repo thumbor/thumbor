@@ -12,7 +12,7 @@ import os
 from shutil import move
 from json import dumps, loads
 from datetime import datetime
-from os.path import exists, dirname, join, getmtime, splitext
+from os.path import exists, dirname, getmtime, splitext
 import hashlib
 from uuid import uuid4
 
@@ -72,6 +72,13 @@ class Storage(storages.BaseStorage):
 
         return file_abspath
 
+    def get(self, path):
+        file_abspath = self.path_on_filesystem(path)
+
+        if not exists(file_abspath) or self.__is_expired(file_abspath):
+            return None
+        return open(file_abspath, 'r').read()
+
     def get_crypto(self, path):
         file_abspath = self.path_on_filesystem(path)
         crypto_file = "%s.txt" % (splitext(file_abspath)[0])
@@ -79,13 +86,6 @@ class Storage(storages.BaseStorage):
         if not exists(crypto_file):
             return None
         return file(crypto_file).read()
-
-    def get(self, path):
-        file_abspath = self.path_on_filesystem(path)
-
-        if not exists(file_abspath) or self.__is_expired(file_abspath):
-            return None
-        return open(file_abspath, 'r').read()
 
     def get_detector_data(self, path):
         file_abspath = self.path_on_filesystem(path)
