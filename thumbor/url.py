@@ -17,6 +17,7 @@ class Url(object):
     unsafe_or_hash = r'(?:(?:(?P<unsafe>unsafe)|(?P<hash>[^/]{28,}?))/)?'
     debug = '(?:(?P<debug>debug)/)?'
     meta = '(?:(?P<meta>meta)/)?'
+    purge = '(?:(?P<purge>purge)/)?'
     trim = '(?:(?P<trim>trim(?::(?:top-left|bottom-right))?(?::\d+)?)/)?'
     crop = '(?:(?P<crop_left>\d+)x(?P<crop_top>\d+):(?P<crop_right>\d+)x(?P<crop_bottom>\d+)/)?'
     fit_in = '(?:(?P<adaptive>adaptive-)?(?P<full>full-)?(?P<fit_in>fit-in)/)?'
@@ -37,6 +38,7 @@ class Url(object):
             reg.append(cls.unsafe_or_hash)
         reg.append(cls.debug)
         reg.append(cls.meta)
+        reg.append(cls.purge)
         reg.append(cls.trim)
         reg.append(cls.crop)
         reg.append(cls.fit_in)
@@ -67,6 +69,7 @@ class Url(object):
         values = {
             'debug': result['debug'] == 'debug',
             'meta': result['meta'] == 'meta',
+            'purge': result['purge'] == 'purge',
             'trim': result['trim'],
             'crop': {
                 'left': int_or_0(result['crop_left']),
@@ -97,6 +100,7 @@ class Url(object):
                          height=0,
                          smart=False,
                          meta=False,
+                         purge=False,
                          trim=None,
                          adaptive=False,
                          full=False,
@@ -118,6 +122,9 @@ class Url(object):
 
         if meta:
             url.append('meta')
+
+        if purge:
+            url.append('purge')
 
         if trim:
             if isinstance(trim, bool):

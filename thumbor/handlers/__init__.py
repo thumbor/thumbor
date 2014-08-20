@@ -53,6 +53,13 @@ class BaseHandler(tornado.web.RequestHandler):
 
         should_store = self.context.config.RESULT_STORAGE_STORES_UNSAFE or not self.context.request.unsafe
         if self.context.modules.result_storage and should_store:
+          if self.context.request.purge:
+            self.context.modules.result_storage.remove()
+            logger.debug('[RESULT_STORAGE] IMAGE PURGED: %s' % req.url)
+            self.set_status(204)
+            self.finish()
+            return
+          else:
             result = self.context.modules.result_storage.get()
             if result is not None:
                 mime = BaseEngine.get_mimetype(result)

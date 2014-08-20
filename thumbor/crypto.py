@@ -45,6 +45,7 @@ class Cryptor(object):
             height=height,
             smart=smart,
             meta=False,
+            purge=False,
             adaptive=adaptive,
             full=full,
             fit_in=fit_in,
