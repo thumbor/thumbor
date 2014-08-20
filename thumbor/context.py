@@ -78,6 +78,7 @@ class RequestParameters:
     def __init__(self,
                  debug=False,
                  meta=False,
+                 purge=False,
                  trim=None,
                  crop_left=None,
                  crop_top=None,
@@ -108,6 +109,7 @@ class RequestParameters:
 
         self.debug = bool(debug)
         self.meta = bool(meta)
+        self.purge = bool(purge)
         self.trim = trim
         if trim is not None:
             trim_parts = trim.split(':')

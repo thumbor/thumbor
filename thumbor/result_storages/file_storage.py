@@ -13,6 +13,7 @@ from uuid import uuid4
 from shutil import move
 
 from os.path import exists, dirname, join, getmtime, abspath
+import os
 
 from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger
@@ -54,6 +55,20 @@ class Storage(BaseStorage):
             return None
         with open(file_abspath, 'r') as f:
             return f.read()
+
+    def remove(self):
+        path = self.path_without_remove()
+        file_abspath = self.normalize_path(path)
+        logger.debug("[RESULT_STORAGE] Non-purge url: %s" % path)
+
+        if self.validate_path(file_abspath):
+            if exists(file_abspath):
+              logger.debug("[RESULT_STORAGE] Removing %s" % file_abspath)
+              os.remove(file_abspath)
+            else:
+              logger.debug("[RESULT_STORAGE] Cannot remove, no file at %s" % file_abspath)
+
+        return None
 
     def validate_path(self, path):
         return abspath(path).startswith(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH)
