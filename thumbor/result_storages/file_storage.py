@@ -57,7 +57,7 @@ class Storage(BaseStorage):
             return f.read()
 
     def remove(self):
-        path = path_without_remove(self)
+        path = self.path_without_remove()
         file_abspath = self.normalize_path(path)
         logger.debug("[RESULT_STORAGE] Non-purge url: %s" % path)
 
