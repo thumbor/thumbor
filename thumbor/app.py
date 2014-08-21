@@ -10,6 +10,7 @@
 import tornado.web
 import tornado.ioloop
 
+from thumbor.handlers.blacklist import BlacklistHandler
 from thumbor.handlers.healthcheck import HealthcheckHandler
 from thumbor.handlers.legacy_upload import LegacyImageUploadHandler
 from thumbor.handlers.upload import ImageUploadHandler
@@ -43,6 +44,11 @@ class ThumborServiceApp(tornado.web.Application):
             # Handler to retrieve or modify existing images  (GET, PUT, DELETE)
             handlers.append(
                 (r'/image/(.*)', ImageResourceHandler, {'context': self.context})
+            )
+
+        if self.context.config.USE_BLACKLIST:
+            handlers.append(
+                (r'/blacklist', BlacklistHandler, {'context': self.context})
             )
 
         # Imaging handler (GET)

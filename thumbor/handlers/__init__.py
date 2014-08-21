@@ -320,6 +320,12 @@ class BaseHandler(tornado.web.RequestHandler):
 
             self.context.modules.loader.load(self.context, url, handle_loader_loaded)
 
+    def get_blacklist_contents(self):
+      filename = 'blacklist.txt'
+      if self.context.modules.storage.exists(filename):
+          return self.context.modules.storage.get(filename)
+      else:
+          return ""
 
 class ContextHandler(BaseHandler):
     def initialize(self, context):

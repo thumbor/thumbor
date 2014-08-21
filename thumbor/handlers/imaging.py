@@ -46,6 +46,12 @@ class ImagingHandler(ContextHandler):
             self._error(404, 'URL has unsafe but unsafe is not allowed by the config: %s' % url)
             return
 
+        if self.context.config.USE_BLACKLIST:
+            blacklist = self.get_blacklist_contents()
+            if self.context.request.image_url in blacklist:
+              self._error(404, 'Source image url has been blacklisted: %s' % self.context.request.image_url )
+              return
+
         url_signature = self.context.request.hash
         if url_signature:
             signer = Signer(self.context.server.security_key)
