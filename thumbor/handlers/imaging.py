@@ -19,8 +19,7 @@ from thumbor.url import Url
 
 class ImagingHandler(ContextHandler):
 
-    @tornado.web.asynchronous
-    def get(self, **kw):
+    def check_image(self, kw):
         # Check if an image with an uuid exists in storage
         if self.context.modules.storage.exists(kw['image'][:32]):
             kw['image'] = kw['image'][:32]
@@ -83,3 +82,11 @@ class ImagingHandler(ContextHandler):
                     return
 
         return self.execute_image_operations()
+
+    @tornado.web.asynchronous
+    def get(self, **kw):
+        self.check_image(kw)
+
+    @tornado.web.asynchronous
+    def head(self, **kw):
+        self.check_image(kw)
