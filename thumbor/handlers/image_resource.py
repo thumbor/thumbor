@@ -19,6 +19,25 @@ from thumbor.engines import BaseEngine
 ##
 class ImageResourceHandler(ImageApiHandler):
 
+    def check_resource(self, id):
+        id = id[:32]
+        # Check if image exists
+        if self.context.modules.storage.exists(id):
+            body = self.context.modules.storage.get(id)
+            self.set_status(200)
+
+            mime = BaseEngine.get_mimetype(body)
+            if mime:
+                self.set_header('Content-Type', mime)
+
+            max_age = self.context.config.MAX_AGE
+            if max_age:
+                self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
+                self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
+            self.write(body)
+        else:
+            self._error(404, 'Image not found at the given URL')
+
     def put(self, id):
         id = id[:32]
         # Check if image overwriting is allowed
@@ -46,20 +65,7 @@ class ImageResourceHandler(ImageApiHandler):
             self._error(404, 'Image not found at the given URL')
 
     def get(self, id):
-        id = id[:32]
-        # Check if image exists
-        if self.context.modules.storage.exists(id):
-            body = self.context.modules.storage.get(id)
-            self.set_status(200)
+        self.check_resource(id)
 
-            mime = BaseEngine.get_mimetype(body)
-            if mime:
-                self.set_header('Content-Type', mime)
-
-            max_age = self.context.config.MAX_AGE
-            if max_age:
-                self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
-                self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
-            self.write(body)
-        else:
-            self._error(404, 'Image not found at the given URL')
+    def head(self, id):
+        self.check_resource(id)
