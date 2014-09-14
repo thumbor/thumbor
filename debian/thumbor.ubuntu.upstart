@@ -1,22 +1,15 @@
 description "Thumbor image manipulation service"
 author "Wichert Akkerman <wichert@wiggy.net>"
 
-start on filesystem and runlevel [2345]
-stop on runlevel [!2345]
+start on runlevel [2345]
+stop on runlevel [016] or unmounting-filesystem
 
-console output
-
-env port=8888
-env level=warning
+env ports="8888"
 
 pre-start script
     [ -r /etc/default/thumbor ] && . /etc/default/thumbor
-    if [ "$enabled" = "0" ] && [ "$force" != "1" ] ; then
-        logger -is -t "$UPSTART_JOB" "Thumbor is disabled by /etc/default/thumbor, add force=1 to your service command"
-        stop
-        exit 0
-    fi
-    for p in `echo ${port} | tr ',' ' '`; do
-        start thumbor-worker p=$p level=$level
+    
+    for p in `echo ${ports} | tr ',' ' '`; do
+        start thumbor-worker port=$p
     done
 end script
