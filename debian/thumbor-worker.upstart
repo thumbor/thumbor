@@ -13,13 +13,13 @@ env keyfile=/etc/thumbor.key
 env ip=0.0.0.0
 env level=warning
 
-instance $port
-usage "port=port that the worker listens on"
+instance $PORT
+usage "PORT=port that the worker listens on"
 
 chdir /var/lib/thumbor
 
 script
     [ -r /etc/default/thumbor ] && . /etc/default/thumbor
     
-    exec /usr/bin/thumbor -c "${conffile}" -i "${ip}" -k "${keyfile}" -p "${port}" -l "${level}"
+    exec /usr/bin/thumbor -c "${conffile}" -i "${ip}" -k "${keyfile}" -p "${PORT}" -l "${level}"
 end script
