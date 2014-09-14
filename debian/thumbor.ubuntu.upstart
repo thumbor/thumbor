@@ -4,12 +4,12 @@ author "Wichert Akkerman <wichert@wiggy.net>"
 start on runlevel [2345]
 stop on runlevel [016] or unmounting-filesystem
 
-env ports="8888"
+env port="8888"
 
 pre-start script
     [ -r /etc/default/thumbor ] && . /etc/default/thumbor
     
-    for p in `echo ${ports} | tr ',' ' '`; do
-        start thumbor-worker port=$p
+    for p in `echo ${port} | tr ',' ' '`; do
+        start thumbor-worker PORT=$p
     done
 end script
