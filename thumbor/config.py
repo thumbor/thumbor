@@ -56,6 +56,10 @@ Config.define(
     'Indicates whether thumbor should use gifsicle engine. Please note that smart cropping and filters are not supported for gifs using gifsicle (but won\'t give an error).', 'Imaging')
 
 Config.define(
+    'USE_BLACKLIST', False,
+    'Indicates whether thumbor should enable blacklist functionality to prevent processing certain images.', 'Imaging')
+
+Config.define(
     'LOADER', 'thumbor.loaders.http_loader',
     'The loader thumbor should use to load the original image. This must be the full name of a python module ' +
     '(python must be able to import it)', 'Extensibility')
