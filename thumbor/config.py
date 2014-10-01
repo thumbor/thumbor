@@ -116,6 +116,15 @@ Config.define(
 Config.define(
     'HTTP_LOADER_PROXY_PASSWORD', None,
     'The proxy password for the proxy host', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_CA_CERTS', None,
+    'The filename of CA certificates in PEM format', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_CLIENT_KEY', None,
+    'The filename for client SSL key', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_CLIENT_CERT', None,
+    'The filename for client SSL certificate', 'HTTP Loader')
 
 # FILE STORAGE GENERIC OPTIONS
 Config.define(

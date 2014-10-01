@@ -72,7 +72,10 @@ def load(context, url, callback):
         proxy_host=encode(context.config.HTTP_LOADER_PROXY_HOST),
         proxy_port=context.config.HTTP_LOADER_PROXY_PORT,
         proxy_username=encode(context.config.HTTP_LOADER_PROXY_USERNAME),
-        proxy_password=encode(context.config.HTTP_LOADER_PROXY_PASSWORD)
+        proxy_password=encode(context.config.HTTP_LOADER_PROXY_PASSWORD),
+        ca_certs=encode(context.config.HTTP_LOADER_CA_CERTS),
+        client_key=encode(context.config.HTTP_LOADER_CLIENT_KEY),
+        client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT)
     )
 
     client.fetch(req, callback=partial(return_contents, url=url, callback=callback))
