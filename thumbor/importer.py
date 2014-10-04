@@ -22,6 +22,7 @@ class Importer:
         self.result_storage = None
         self.detectors = []
         self.filters = []
+        self.optimizers = []
         self.error_handler_class = None
 
     def import_class(self, name, get_module=False):
@@ -41,6 +42,7 @@ class Importer:
         self.import_item('STORAGE', 'Storage')
         self.import_item('DETECTORS', 'Detector', is_multiple=True)
         self.import_item('FILTERS', 'Filter', is_multiple=True, ignore_errors=True)
+        self.import_item('OPTIMIZERS', 'Optimizer', is_multiple=True)
 
         if self.config.RESULT_STORAGE:
             self.import_item('RESULT_STORAGE', 'Storage')

@@ -193,6 +193,20 @@ Config.define(
     'FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml',
     'The cascade file that opencv will use to detect faces', 'Detection')
 
+
+Config.define(
+    'OPTIMIZERS', [
+        #'thumbor.optimizers.jpegtran',
+    ], 'List of optimizers that thumbor will use to optimize images', 'Optimizers')
+
+# OPTIMIZER CONFIGURATIONS
+Config.define(
+    'JPEGTRAN_PATH',
+    '/usr/bin/jpegtran',
+    'Path for the jpegtran binary',
+    'Optimizers'
+)
+
 # AVAILABLE FILTERS
 Config.define(
     'FILTERS', [

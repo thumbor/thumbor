@@ -198,3 +198,4 @@ class ContextImporter:
         self.loader = importer.loader
         self.detectors = importer.detectors
         self.filters = importer.filters
+        self.optimizers = importer.optimizers

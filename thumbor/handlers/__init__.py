@@ -203,6 +203,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     quality,
                     context.request.max_bytes
                 )
+            results = self.optimize(context, results)
         else:
             results = result
 
@@ -212,6 +213,14 @@ class BaseHandler(tornado.web.RequestHandler):
         if should_store:
             if context.modules.result_storage and not context.request.prevent_result_storage:
                 context.modules.result_storage.put(results)
+
+    def optimize(self, context, results):
+        for optimizer in context.modules.optimizers:
+            new_results = optimizer(context).run_optimizer(results)
+            if new_results is not None:
+                results = new_results
+
+        return results
 
     def reload_to_fit_in_kb(self, engine, initial_results, extension, initial_quality, max_bytes):
         if extension not in ['.webp', '.jpg', '.jpeg'] or len(initial_results) <= max_bytes:
