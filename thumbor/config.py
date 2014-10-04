@@ -196,7 +196,7 @@ Config.define(
 
 Config.define(
     'OPTIMIZERS', [
-        #'thumbor.optimizers.jpegtran',
+        'thumbor.optimizers.jpegtran',
     ], 'List of optimizers that thumbor will use to optimize images', 'Optimizers')
 
 # OPTIMIZER CONFIGURATIONS

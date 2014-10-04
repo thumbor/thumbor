@@ -203,7 +203,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     quality,
                     context.request.max_bytes
                 )
-            results = self.optimize(context, results)
+            results = self.optimize(context, image_extension, results)
         else:
             results = result
 
@@ -214,9 +214,9 @@ class BaseHandler(tornado.web.RequestHandler):
             if context.modules.result_storage and not context.request.prevent_result_storage:
                 context.modules.result_storage.put(results)
 
-    def optimize(self, context, results):
+    def optimize(self, context, image_extension, results):
         for optimizer in context.modules.optimizers:
-            new_results = optimizer(context).run_optimizer(results)
+            new_results = optimizer(context).run_optimizer(image_extension, results)
             if new_results is not None:
                 results = new_results
 

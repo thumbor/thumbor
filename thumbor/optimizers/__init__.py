@@ -16,7 +16,13 @@ class BaseOptimizer(object):
     def __init__(self, context):
         self.context = context
 
-    def run_optimizer(self, buffer):
+    def should_run(self, image_extension, buffer):
+        return True
+
+    def run_optimizer(self, image_extension, buffer):
+        if not self.should_run(image_extension, buffer):
+            return buffer
+
         with NamedTemporaryFile() as input_file:
             with NamedTemporaryFile() as output_file:
                 input_file.write(buffer)

@@ -14,6 +14,9 @@ from thumbor.optimizers import BaseOptimizer
 
 class Optimizer(BaseOptimizer):
 
+    def should_run(self, image_extension, buffer):
+        return 'jpg' in image_extension or 'jpeg' in image_extension
+
     def optimize(self, buffer, input_file, output_file):
         jpegtran_path = self.context.config.JPEGTRAN_PATH
         command = '%s -copy all -optimize -progressive -outfile %s %s ' % (
