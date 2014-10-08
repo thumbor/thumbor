@@ -18,7 +18,6 @@ from thumbor.context import Context, ServerParameters
 
 from os.path import abspath, join, dirname, exists
 from shutil import rmtree
-import pdb
 
 
 class BaseContext(TornadoHTTPContext):
