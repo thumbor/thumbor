@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 
+import os
 from tempfile import NamedTemporaryFile
 
 
@@ -23,9 +24,13 @@ class BaseOptimizer(object):
         if not self.should_run(image_extension, buffer):
             return buffer
 
-        with NamedTemporaryFile() as input_file:
-            with NamedTemporaryFile() as output_file:
-                input_file.write(buffer)
-                self.optimize(buffer, input_file, output_file)
-                output_file.seek(0)
-                return output_file.read()
+        with NamedTemporaryFile(delete=False) as input_file:
+            try:
+                with NamedTemporaryFile() as output_file:
+                    input_file.write(buffer)
+                    input_file.close()
+                    self.optimize(buffer, input_file.name, output_file.name)
+                    output_file.seek(0)
+                    return output_file.read()
+            finally:
+                os.unlink(input_file.name)

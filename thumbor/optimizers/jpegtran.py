@@ -21,7 +21,7 @@ class Optimizer(BaseOptimizer):
         jpegtran_path = self.context.config.JPEGTRAN_PATH
         command = '%s -copy all -optimize -progressive -outfile %s %s ' % (
             jpegtran_path,
-            output_file.name,
-            input_file.name,
+            output_file,
+            input_file,
         )
         os.system(command)
