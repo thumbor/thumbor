@@ -129,13 +129,6 @@ class UrlVows(Vows.Context):
         def should_contain_image(self, topic):
             expect(topic).to_include('(?P<image>.+)')
 
-        class WithOldFormat(Vows.Context):
-            def topic(self):
-                return Url.regex(old_format=True)
-
-            def should_not_include_image(self, topic):
-                expect(topic).not_to_include('(?:(?P<hash>[^/]{28,}?)/)?')
-
     class Parse(Vows.Context):
         class WithoutInitialSlash(Vows.Context):
             def topic(self):
