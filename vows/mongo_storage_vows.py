@@ -206,7 +206,8 @@ class MongoStorageVows(MongoDBContext):
                     MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True,
                     SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=0
                 )
-                storage = MongoStorage(Context(config=config))
+                server = get_server('ACME-SEC')
+                storage = MongoStorage(Context(server=server, config=config))
                 storage.put(IMAGE_URL % 10, IMAGE_BYTES)
 
                 item = storage.get(IMAGE_URL % 10)
