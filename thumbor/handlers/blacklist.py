@@ -10,7 +10,7 @@
 
 from thumbor.handlers import ContextHandler
 from thumbor.utils import logger
-import pdb
+
 
 class BlacklistHandler(ContextHandler):
 
