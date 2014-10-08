@@ -48,7 +48,7 @@ class FakeHandler(object):
 
 
 @Vows.batch
-class SentrErrorHandlerVows(Vows.Context):
+class SentryErrorHandlerVows(Vows.Context):
     class WhenInvalidConfiguration(Vows.Context):
         def topic(self):
             cfg = Config()
