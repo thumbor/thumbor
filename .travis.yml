@@ -2,9 +2,8 @@ language: python
 python:
   - "2.7"
 
-before_script:
+install:
     #removing unwanted packages
-    - sudo add-apt-repository ppa:mc3man/trusty-medi
     - sudo apt-get remove --purge -y $(< unwanted_packages)
     # update aptitude
     - sudo apt-get update -y
@@ -15,9 +14,6 @@ before_script:
 
     - sudo apt-get autoremove -y
 
-install:
-    - df -h
-
     # weird travis-ci python paths
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
     - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages
@@ -26,6 +22,11 @@ install:
 
     # verify both requirements were met
     - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
+
+    # ffmpeg
+    - wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
+    - tar xjvf ffmpeg-snapshot.tar.bz2
+    - cd ffmpeg && ./configure --enable-gpl --enable-libx264 && make && sudo make install
 
     # webp - compiling from source
     - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
