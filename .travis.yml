@@ -1,6 +1,6 @@
 language: python
 python:
-  - "2.7"
+    - "2.7_with_system_site_packages"
 
 install:
     #removing unwanted packages
@@ -14,15 +14,6 @@ install:
 
     - sudo apt-get autoremove -y
 
-    # weird travis-ci python paths
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
-    - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
-
-    # verify both requirements were met
-    - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
-
     # ffmpeg
     - wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
     - tar xjvf ffmpeg-snapshot.tar.bz2
@@ -35,7 +26,7 @@ install:
     - sudo ldconfig
 
     # install python requirements
-    - sudo make setup
+    - make setup
 
 script:
     # finally run tests
