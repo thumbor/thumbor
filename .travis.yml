@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 
-install:
+before_script:
     #removing unwanted packages
     - sudo add-apt-repository ppa:mc3man/trusty-medi
     - sudo apt-get remove --purge -y $(< unwanted_packages)
@@ -15,6 +15,7 @@ install:
 
     - sudo apt-get autoremove -y
 
+install:
     - df -h
 
     # weird travis-ci python paths
