@@ -15,7 +15,7 @@ The following packages are required:
 * Tornado >= 2.3.0
 * pyCrypto >= 2.4.1
 * pycurl >= 7.19.0
-* Pillow >= 1.7.5
+* Pillow >= 2.1.0
 * redis >= 2.4.11
 * pymongo >= 2.1.1
 * pyvows
