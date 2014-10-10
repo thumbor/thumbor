@@ -197,6 +197,7 @@ Config.define(
 Config.define(
     'OPTIMIZERS', [
         #'thumbor.optimizers.jpegtran',
+        # 'thumbor.optimizers.gifv',
     ], 'List of optimizers that thumbor will use to optimize images', 'Optimizers')
 
 # OPTIMIZER CONFIGURATIONS
@@ -204,6 +205,13 @@ Config.define(
     'JPEGTRAN_PATH',
     '/usr/bin/jpegtran',
     'Path for the jpegtran binary',
+    'Optimizers'
+)
+
+Config.define(
+    'FFMPEG_PATH',
+    '/usr/local/bin/ffmpeg',
+    'Path for the ffmpeg binary used to generate gifv(h.264)',
     'Optimizers'
 )
 
