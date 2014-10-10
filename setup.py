@@ -91,7 +91,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
         },
 
         install_requires=[
-            "tornado>2.3.0,<3.3.0",
+            "tornado>2.3.0,<4.0.0",
             "pyCrypto>=2.1.0",
             "pycurl>=7.19.0,<7.20.0",
             "Pillow>=2.1.0,<2.4.0",
