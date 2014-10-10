@@ -1,6 +1,6 @@
 language: python
 python:
-  - "2.7"
+    - "2.7_with_system_site_packages"
 
 install:
     #removing unwanted packages
@@ -16,15 +16,6 @@ install:
 
     - df -h
 
-    # weird travis-ci python paths
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7/
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages
-    - export PYTHONPATH=$PYTHONPATH:/usr/lib/pyshared/python2.7/
-    - export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages/
-
-    # verify both requirements were met
-    - INSTALLDIR=$(python -c "import os; import numpy; print(os.path.dirname(numpy.__file__))")
-
     # webp - compiling from source
     - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
     - tar xvzf libwebp-0.4.0.tar.gz
@@ -32,7 +23,7 @@ install:
     - sudo ldconfig
 
     # install python requirements
-    - sudo make setup
+    - make setup
 
 script:
     # finally run tests
