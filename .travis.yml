@@ -4,6 +4,7 @@ python:
 
 install:
     #removing unwanted packages
+    - sudo add-apt-repository ppa:mc3man/trusty-medi
     - sudo apt-get remove --purge -y $(< unwanted_packages)
     # update aptitude
     - sudo apt-get update -y

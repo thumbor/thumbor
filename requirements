@@ -90,3 +90,5 @@ libpng-dev
 libtiff-dev
 libgif-dev
 gifsicle
+x264
+ffmpeg
