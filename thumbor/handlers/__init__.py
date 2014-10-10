@@ -206,11 +206,10 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             results = result
 
-        if 'gifv' in context.format:
+        if context.request.format and 'gifv' in context.request.format:
             self.set_header('Content-Type', 'video/mp4')
         else:
             self.set_header('Content-Type', content_type)
-
 
         self.write(results)
         self.finish()

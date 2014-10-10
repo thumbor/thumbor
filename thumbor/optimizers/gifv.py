@@ -16,15 +16,14 @@ from thumbor.optimizers import BaseOptimizer
 class Optimizer(BaseOptimizer):
 
     def should_run(self, image_extension, buffer):
-        return 'gif' in image_extension
+        return 'gif' in image_extension and 'gifv()' in self.context.request.filters
 
     def optimize(self, buffer, input_file, output_file):
         ffmpeg_path = self.context.config.FFMPEG_PATH
-        if 'gifv()' in self.context.request.filters:
-            command = '%s -y -f gif  -i %s  -f mp4 %s' % (
-                ffmpeg_path,
-                input_file,
-                output_file,
-            )
-            os.system(command)
-            self.context.format = 'gifv'
+        command = '%s -y -f gif  -i %s  -f mp4 %s -loglevel error' % (
+            ffmpeg_path,
+            input_file,
+            output_file,
+        )
+        os.system(command)
+        self.context.request.format = 'gifv'
