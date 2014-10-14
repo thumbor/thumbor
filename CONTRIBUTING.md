@@ -12,7 +12,7 @@ You'll also need python >= 2.6 and < 3.0.
 
 The following packages are required:
 
-* Tornado >= 2.1.1
+* Tornado >= 2.3.0
 * pyCrypto >= 2.4.1
 * pycurl >= 7.19.0
 * Pillow >= 1.7.5
