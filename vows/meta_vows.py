@@ -35,7 +35,10 @@ class GetMeta(BaseContext):
             RESULT_STORAGE='thumbor.result_storages.file_storage',
             RESULT_STORAGE_STORES_UNSAFE=True,
             RESULT_STORAGE_EXPIRATION_SECONDS=2592000,
-            FILE_LOADER_ROOT_PATH=storage_path
+            FILE_LOADER_ROOT_PATH=storage_path,
+            OPTIMIZERS=[
+                'thumbor.optimizers.jpegtran'
+            ]
         )
 
         importer = Importer(cfg)
@@ -64,3 +67,38 @@ class GetMeta(BaseContext):
             def should_be_200(self, response):
                 code, _ = response
                 expect(code).to_equal(200)
+
+
+@Vows.batch
+class GetMetaWithoutStorage(BaseContext):
+    def get_app(self):
+        cfg = Config(
+            SECURITY_KEY='ACME-SEC',
+            LOADER='thumbor.loaders.file_loader',
+            RESULT_STORAGE='thumbor.result_storages.file_storage',
+            RESULT_STORAGE_STORES_UNSAFE=False,
+            RESULT_STORAGE_EXPIRATION_SECONDS=2592000,
+            FILE_LOADER_ROOT_PATH=storage_path,
+            STORAGE='thumbor.storages.no_storage',
+            OPTIMIZERS=[
+                'thumbor.optimizers.jpegtran'
+            ]
+        )
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        application = ThumborServiceApp(ctx)
+
+        return application
+
+    class WithMetadata(TornadoHTTPContext):
+        def topic(self):
+            response = self.get('/unsafe/meta/800x400/image.jpg')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)

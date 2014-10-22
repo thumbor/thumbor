@@ -202,7 +202,8 @@ class BaseHandler(tornado.web.RequestHandler):
                     quality,
                     context.request.max_bytes
                 )
-            results = self.optimize(context, image_extension, results)
+            if not context.request.meta:
+                results = self.optimize(context, image_extension, results)
         else:
             results = result
 
