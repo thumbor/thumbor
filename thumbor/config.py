@@ -59,6 +59,8 @@ Config.define(
     'USE_BLACKLIST', False,
     'Indicates whether thumbor should enable blacklist functionality to prevent processing certain images.', 'Imaging')
 
+Config.define('FULL_FIT_IN_ENTIRE_IMAGE', False, 'Change full-fit-in behaviour to preserve entire image without cropping.', 'Imaging')
+
 Config.define(
     'LOADER', 'thumbor.loaders.http_loader',
     'The loader thumbor should use to load the original image. This must be the full name of a python module ' +
