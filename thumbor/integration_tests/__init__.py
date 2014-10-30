@@ -29,6 +29,9 @@ class EngineTestCase(AsyncHTTPTestCase):
         cfg.FILE_LOADER_ROOT_PATH = os.path.join(os.path.dirname(__file__), 'imgs')
         cfg.ENGINE = getattr(self, 'engine', None)
         cfg.USE_GIFSICLE_ENGINE = True
+        cfg.OPTIMIZERS = [
+            'thumbor.optimizers.gifv',
+        ]
         if not cfg.ENGINE:
             return None
 
