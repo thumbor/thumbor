@@ -90,3 +90,7 @@ libpng-dev
 libtiff-dev
 libgif-dev
 gifsicle
+autoconf
+automake
+libx264-dev
+libass-dev

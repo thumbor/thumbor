@@ -176,7 +176,6 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 quality = self.context.config.QUALITY
 
-        self.set_header('Content-Type', content_type)
         self.set_header('Server', 'Thumbor/%s' % __version__)
 
         if context.config.AUTO_WEBP and not context.request.engine.is_multiple() and context.request.engine.extension != '.webp':
@@ -207,6 +206,11 @@ class BaseHandler(tornado.web.RequestHandler):
                 results = self.optimize(context, image_extension, results)
         else:
             results = result
+
+        if context.request.format and 'gifv' in context.request.format:
+            self.set_header('Content-Type', 'video/mp4')
+        else:
+            self.set_header('Content-Type', content_type)
 
         self.write(results)
         self.finish()

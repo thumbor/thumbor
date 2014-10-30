@@ -84,6 +84,7 @@ filters = [
     'filters:blur(2)',
     'filters:extract_focal()',
     'filters:no_upscale()',
+    'filters:gifv()',
 ]
 
 original_images_base = [
