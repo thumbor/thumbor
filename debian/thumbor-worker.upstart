@@ -4,38 +4,22 @@ author "Wichert Akkerman <wichert@wiggy.net>"
 stop on stopping thumbor
 
 respawn
-respawn limit 5 10
-umask 022
 
 setuid thumbor
 setgid thumbor
 
-env DAEMON=/usr/bin/thumbor
-
 env conffile=/etc/thumbor.conf
 env keyfile=/etc/thumbor.key
 env ip=0.0.0.0
+env level=warning
+
+instance $PORT
+usage "PORT=port that the worker listens on"
 
 chdir /var/lib/thumbor
 
-instance $p
-
-pre-start script
-    [ -r /etc/default/thumbor ] && . /etc/default/thumbor
-    if [ "$enabled" = "0" ] && [ "$force" != "1" ] ; then
-        logger -is -t "$UPSTART_JOB" "Thumbor is disabled by /etc/default/thumbor, add force=1 to your service command"
-        stop
-        exit 0
-    fi
-    exec >"/tmp/${UPSTART_JOB}-${p}"
-    echo "ip=${ip}"
-end script
-
 script
-    . "/tmp/${UPSTART_JOB}-${p}"
-    $DAEMON -c "${conffile}" -i "${ip}" -k "${keyfile}" -p "${p}" -l "${level}"
-end script
-
-post-start script
-    rm -f "/tmp/$UPSTART_JOB-${p}"
+    [ -r /etc/default/thumbor ] && . /etc/default/thumbor
+    
+    exec /usr/bin/thumbor -c "${conffile}" -i "${ip}" -k "${keyfile}" -p "${PORT}" -l "${level}"
 end script
