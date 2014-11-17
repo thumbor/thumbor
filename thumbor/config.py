@@ -248,6 +248,7 @@ Config.define(
         'thumbor.filters.blur',
         'thumbor.filters.extract_focal',
         'thumbor.filters.no_upscale',
+        'thumbor.filters.saturation',
     ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')
