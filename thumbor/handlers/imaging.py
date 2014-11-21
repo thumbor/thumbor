@@ -19,6 +19,12 @@ from thumbor.url import Url
 
 class ImagingHandler(ContextHandler):
 
+    def compute_etag(self):
+        if self.context.config.ENABLE_ETAGS:
+            return super(ImagingHandler, self).compute_etag()
+        else:
+            return None
+
     def check_image(self, kw):
         # Check if an image with an uuid exists in storage
         if self.context.modules.storage.exists(kw['image'][:32]):
