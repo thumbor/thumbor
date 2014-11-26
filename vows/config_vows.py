@@ -40,6 +40,7 @@ TEST_DATA = (
     ('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml'),
     ('FILTERS', [
         'thumbor.filters.brightness',
+        'thumbor.filters.colorize',
         'thumbor.filters.contrast',
         'thumbor.filters.rgb',
         'thumbor.filters.round_corner',
@@ -59,6 +60,7 @@ TEST_DATA = (
         'thumbor.filters.blur',
         'thumbor.filters.extract_focal',
         'thumbor.filters.no_upscale',
+        'thumbor.filters.saturation',
     ])
 )
 
