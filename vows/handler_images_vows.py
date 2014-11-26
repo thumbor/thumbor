@@ -370,6 +370,43 @@ class GetImageWithAutoWebP(BaseContext):
             image = self.engine.create_image(response.body)
             expect(image.format.lower()).to_equal('gif')
 
+    class HasEtags(BaseContext):
+        def topic(self):
+            return self.get('/unsafe/image.jpg', headers={
+                "Accept": 'image/webp,*/*;q=0.8'
+            })
+
+        def should_have_etag(self, response):
+            expect(response.headers).to_include('Etag')
+@Vows.batch
+class GetImageWithoutEtags(BaseContext):
+    def get_app(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = storage_path
+        cfg.ENABLE_ETAGS = False
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        application = ThumborServiceApp(ctx)
+
+        self.engine = PILEngine(ctx)
+
+        return application
+
+
+    class CanDisableEtag(BaseContext):
+        def topic(self):
+            return self.get('/unsafe/image.jpg', headers={
+                "Accept": 'image/webp,*/*;q=0.8'
+            })
+
+        def should_not_have_etag(self, response):
+            expect(response.headers).not_to_include('Etag')
+
 
 @Vows.batch
 class GetImageWithGIFV(BaseContext):

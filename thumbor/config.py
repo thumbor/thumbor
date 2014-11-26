@@ -80,6 +80,7 @@ Config.define('SECURITY_KEY', 'MY_SECURE_KEY', 'The security key thumbor uses to
 
 Config.define('ALLOW_UNSAFE_URL', True, 'Indicates if the /unsafe URL should be available', 'Security')
 Config.define('ALLOW_OLD_URLS', True, 'Indicates if encrypted (old style) URLs should be allowed', 'Security')
+Config.define('ENABLE_ETAGS', True, 'Enables automatically generated etags', 'HTTP')
 
 
 # FILE LOADER OPTIONS
