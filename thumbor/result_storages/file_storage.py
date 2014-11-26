@@ -13,6 +13,7 @@ from uuid import uuid4
 from shutil import move
 
 from os.path import exists, dirname, join, getmtime, abspath
+from urllib2 import unquote
 
 from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger
@@ -65,7 +66,7 @@ class Storage(BaseStorage):
 
         path_segments.extend([self.partition(path), path.lstrip('/'), ])
 
-        normalized_path = join(*path_segments).replace('http://', '')
+        normalized_path = unquote(join(*path_segments).replace('http://', ''))
         return normalized_path
 
     def partition(self, path_raw):
