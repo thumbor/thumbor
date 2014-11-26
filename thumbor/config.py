@@ -207,6 +207,7 @@ Config.define(
 Config.define(
     'OPTIMIZERS', [
         #'thumbor.optimizers.jpegtran',
+        #'thumbor.optimizers.pngcrush',
         # 'thumbor.optimizers.gifv',
     ], 'List of optimizers that thumbor will use to optimize images', 'Optimizers')
 
@@ -215,6 +216,13 @@ Config.define(
     'JPEGTRAN_PATH',
     '/usr/bin/jpegtran',
     'Path for the jpegtran binary',
+    'Optimizers'
+)
+
+Config.define(
+    'PNGCRUSH_PATH',
+    '/usr/bin/pngcrush',
+    'Path for the pngcrush binary',
     'Optimizers'
 )
 
