@@ -99,7 +99,12 @@ class Engine(BaseEngine):
 
         if ext == '.jpg' or ext == '.jpeg':
             options['optimize'] = True
-            options['progressive'] = True
+            if self.context.config.PROGRESSIVE_JPEG:
+                # Can't simply set options['progressive'] to the value
+                # of self.context.config.PROGRESSIVE_JPEG because save
+                # operates on the presence of the key in **options, not
+                # the value of that setting.
+                options['progressive'] = True
 
             if self.image.mode != 'RGB':
                 self.image = self.image.convert('RGB')
