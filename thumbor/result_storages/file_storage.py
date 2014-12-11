@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import os
 from datetime import datetime
 from uuid import uuid4
 from shutil import move
@@ -80,3 +81,21 @@ class Storage(BaseStorage):
 
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
         return timediff.seconds > expire_in_seconds
+
+    def exists(self):
+        path = self.context.request.url
+        file_abspath = self.normalize_path(path)
+        if not self.validate_path(file_abspath):
+            logger.warn("[RESULT_STORAGE] unable to read from outside root path: %s" % file_abspath)
+            return False
+
+        return exists(file_abspath)
+
+    def remove(self):
+        path = self.context.request.url
+        file_abspath = self.normalize_path(path)
+        if not self.validate_path(file_abspath):
+            logger.warn("[RESULT_STORAGE] unable to read from outside root path: %s" % file_abspath)
+            return False
+
+        return os.remove(file_abspath)

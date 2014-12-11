@@ -30,6 +30,14 @@ class ThumborServiceApp(tornado.web.Application):
             (r'/healthcheck', HealthcheckHandler),
         ]
 
+        if self.context.modules and self.context.modules.importer and self.context.modules.importer.custom_handlers:
+            for handler in self.context.modules.importer.custom_handlers:
+                url_regex_method = getattr(handler, "url_regex", None)
+                if callable(url_regex_method):
+                    handlers.append(
+                        (url_regex_method(), handler, {'context': self.context})
+                    )
+
         if self.context.config.UPLOAD_ENABLED:
             # TODO: Old handler to upload images. Will be deprecated soon.
             handlers.append(

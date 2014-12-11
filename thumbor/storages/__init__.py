@@ -24,3 +24,9 @@ class BaseStorage(object):
                 # FILE ALREADY EXISTS = 17
                 if err.errno != 17:
                     raise
+
+    def exists(self):
+        raise NotImplementedError()
+
+    def remove(self):
+        raise NotImplementedError()
