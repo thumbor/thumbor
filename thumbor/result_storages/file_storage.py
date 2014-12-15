@@ -80,3 +80,17 @@ class Storage(BaseStorage):
 
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
         return timediff.seconds > expire_in_seconds
+
+    def last_updated(self):
+        path = self.context.request.url
+        file_abspath = self.normalize_path(path)
+        if not self.validate_path(file_abspath):
+            logger.warn("[RESULT_STORAGE] unable to read from outside root path: %s" % file_abspath)
+            return True
+        logger.debug("[RESULT_STORAGE] getting from %s" % file_abspath)
+
+        if not exists(file_abspath) or self.is_expired(file_abspath):
+            logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
+            return True
+
+        return datetime.fromtimestamp(getmtime(file_abspath))
