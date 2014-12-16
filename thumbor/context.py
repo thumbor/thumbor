@@ -104,7 +104,8 @@ class RequestParameters:
                  unsafe=False,
                  hash=None,
                  accepts_webp=False,
-                 request=None):
+                 request=None,
+                 max_age=None):
 
         self.debug = bool(debug)
         self.meta = bool(meta)
@@ -162,6 +163,7 @@ class RequestParameters:
         self.format = None
         self.accepts_webp = accepts_webp
         self.max_bytes = None
+        self.max_age = max_age
 
         if request:
             if request.query:

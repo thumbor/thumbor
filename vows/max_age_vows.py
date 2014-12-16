@@ -22,7 +22,7 @@ fixture_for = lambda path: abspath(join(dirname(__file__), 'fixtures', path))
 
 
 def get_url():
-    return '/unsafe/smart/alabama1_ap620.jpg'
+    return '/unsafe/smart/image.jpg'
 
 
 def get_app(prevent_result_storage=False, detection_error=False):
@@ -43,8 +43,7 @@ def get_app(prevent_result_storage=False, detection_error=False):
     return application
 
 
-# commented til we fix tornado-pyvows issue
-#@Vows.batch
+@Vows.batch
 class MaxAgeVows(Vows.Context):
 
     class WithRegularImage(TornadoHTTPContext):
@@ -106,3 +105,26 @@ class MaxAgeVows(Vows.Context):
         def should_set_expires(self, response):
             _, headers = response
             expect(headers).to_include('Expires')
+
+
+@Vows.batch
+class MaxAgeUrlVows(TornadoHTTPContext):
+
+    def get_app(self):
+        return get_app()
+
+    def topic(self):
+        response = self.get('/unsafe/filters:max_age(30)/image.jpg')
+        return (response.code, response.headers)
+
+    def should_be_200(self, response):
+        code, _ = response
+        expect(code).to_equal(200)
+
+    def should_set_cache_control(self, response):
+        _, headers = response
+        expect(headers['Cache-Control']).to_equal('max-age=30,public')
+
+    def should_set_expires(self, response):
+        _, headers = response
+        expect(headers).to_include('Expires')

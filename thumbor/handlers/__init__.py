@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import sys
 import functools
 from os.path import splitext
 import datetime
@@ -36,6 +35,7 @@ CONTENT_TYPE = {
 }
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
+
 
 class BaseHandler(tornado.web.RequestHandler):
     def _error(self, status, msg=None):
@@ -183,6 +183,10 @@ class BaseHandler(tornado.web.RequestHandler):
             self.set_header('Vary', 'Accept')
 
         max_age = self.context.config.MAX_AGE
+
+        if self.context.request.max_age is not None:
+            max_age = self.context.request.max_age
+
         if context.request.prevent_result_storage or context.request.detection_error:
             max_age = self.context.config.MAX_AGE_TEMP_IMAGE
 
@@ -210,14 +214,14 @@ class BaseHandler(tornado.web.RequestHandler):
                 # Handle If-Modified-Since & Last-Modified header
                 try:
                     result_last_modified = self.context.modules.result_storage.last_updated()
-                except NotImplementedError, err:
+                except NotImplementedError:
                     logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & Last-Updated headers support is disabled.')
 
                 if result_last_modified:
                     if 'If-Modified-Since' in self.request.headers:
                         date_modified_since = datetime.datetime.strptime(self.request.headers['If-Modified-Since'], HTTP_DATE_FMT)
 
-                        if result_last_modified <= date_modified_since :
+                        if result_last_modified <= date_modified_since:
                             self.set_status(304)
                             self.finish()
                             return
@@ -354,11 +358,12 @@ class BaseHandler(tornado.web.RequestHandler):
             self.context.modules.loader.load(self.context, url, handle_loader_loaded)
 
     def get_blacklist_contents(self):
-      filename = 'blacklist.txt'
-      if self.context.modules.storage.exists(filename):
-          return self.context.modules.storage.get(filename)
-      else:
-          return ""
+        filename = 'blacklist.txt'
+        if self.context.modules.storage.exists(filename):
+            return self.context.modules.storage.get(filename)
+        else:
+            return ""
+
 
 class ContextHandler(BaseHandler):
     def initialize(self, context):

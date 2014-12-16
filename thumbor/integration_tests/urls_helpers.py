@@ -85,6 +85,7 @@ filters = [
     'filters:extract_focal()',
     'filters:no_upscale()',
     'filters:gifv()',
+    'filters:max_age(600)',
 ]
 
 original_images_base = [
