@@ -182,10 +182,7 @@ class BaseHandler(tornado.web.RequestHandler):
         if context.config.AUTO_WEBP and not context.request.engine.is_multiple() and context.request.engine.extension != '.webp':
             self.set_header('Vary', 'Accept')
 
-        max_age = self.context.request.max_age
-        if not max_age:
-            max_age = self.context.config.MAX_AGE
-
+        max_age = self.context.config.MAX_AGE
         if context.request.prevent_result_storage or context.request.detection_error:
             max_age = self.context.config.MAX_AGE_TEMP_IMAGE
 
