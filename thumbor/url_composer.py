@@ -39,6 +39,7 @@ def main(arguments=None):
     parser.add_option('-a', '--halign', dest='halign', default='center', help='The horizontal alignment to use for cropping [default: %default].')
     parser.add_option('-i', '--valign', dest='valign', default='middle', help='The vertical alignment to use for cropping [default: %default].')
     parser.add_option('', '--filters', dest='filters', default='', help='Filters to be applied to the image, e.g. brightness(10) [default: %default].')
+    parser.add_option('-x', '--expires', dest='max_age', type='int', default=0, help='The optional max age for the image override the server value [default: %default].')
     parser.add_option('-o', '--old-format', dest='old', action='store_true', default=False, help='Indicates that thumbor should generate old-format urls [default: %default].')
 
     parser.add_option('-c', '--crop', dest='crop', default=None, help='The coordinates of the points to manual cropping in the format leftxtop:rightxbottom (100x200:400x500) [default: %default].')
@@ -116,7 +117,8 @@ def main(arguments=None):
             crop_top=crop_top,
             crop_right=crop_right,
             crop_bottom=crop_bottom,
-            filters=parsed_options.filters
+            filters=parsed_options.filters,
+            max_age=parsed_options.max_age
         )
 
         url = '%s/%s' % (url, image_url)
