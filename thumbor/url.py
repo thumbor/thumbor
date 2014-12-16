@@ -25,7 +25,6 @@ class Url(object):
     valign = r'(?:(?P<valign>top|bottom|middle)/)?'
     smart = r'(?:(?P<smart>smart)/)?'
     filters = r'(?:filters:(?P<filters>.+?\))/)?'
-    max_age = r'(?:age:(?P<max_age>\d+)/)?'
     image = r'(?P<image>.+)'
 
     compiled_regex = None
@@ -46,7 +45,6 @@ class Url(object):
         reg.append(cls.valign)
         reg.append(cls.smart)
         reg.append(cls.filters)
-        reg.append(cls.max_age)
         reg.append(cls.image)
 
         return ''.join(reg)
@@ -111,8 +109,7 @@ class Url(object):
                          crop_top=None,
                          crop_right=None,
                          crop_bottom=None,
-                         filters=None,
-                         max_age=None):
+                         filters=None):
 
         url = []
 
@@ -164,9 +161,6 @@ class Url(object):
 
         if filters:
             url.append('filters:%s' % filters)
-
-        if max_age:
-            url.append('age:%s' % max_age)
 
         return '/'.join(url)
 
