@@ -22,6 +22,9 @@ class BaseStorage(object):
     def get(self):
         raise NotImplementedError()
 
+    def last_updated(self):
+        raise NotImplementedError()
+
     def ensure_dir(self, path):
         if not exists(path):
             try:

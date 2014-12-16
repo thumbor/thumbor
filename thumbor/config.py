@@ -44,6 +44,10 @@ Config.define(
     'Ignore errors during smart detections and return image as a temp image (not saved in result storage and with MAX_AGE_TEMP_IMAGE age)', 'Imaging')
 
 Config.define(
+    'SEND_IF_MODIFIED_LAST_MODIFIED_HEADERS', False,
+    'Sends If-Modified-Since & Last-Modified headers; requires support from result storage', 'Imaging')
+
+Config.define(
     'PRESERVE_EXIF_INFO', False,
     'Preserves exif information in generated images. Increases image size in kbytes, use with caution.', 'Imaging')
 
