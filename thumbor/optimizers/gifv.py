@@ -20,7 +20,7 @@ class Optimizer(BaseOptimizer):
 
     def optimize(self, buffer, input_file, output_file):
         ffmpeg_path = self.context.config.FFMPEG_PATH
-        command = '%s -y -f gif  -i %s  -f mp4 %s -loglevel error' % (
+        command = '%s -y -f gif -i %s  -an -movflags faststart -f mp4 -pix_fmt yuv420p -profile:v baseline -level 4.0 -crf 20 -maxrate 600k %s -loglevel error' % (
             ffmpeg_path,
             input_file,
             output_file,
