@@ -94,3 +94,5 @@ autoconf
 automake
 libx264-dev
 libass-dev
+libvpx1
+libvpx-dev

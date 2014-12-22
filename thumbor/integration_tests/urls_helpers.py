@@ -85,6 +85,8 @@ filters = [
     'filters:extract_focal()',
     'filters:no_upscale()',
     'filters:gifv()',
+    'filters:gifv(webm)',
+    'filters:gifv(mp4)',
     'filters:max_age(600)',
 ]
 
