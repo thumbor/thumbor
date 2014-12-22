@@ -378,6 +378,8 @@ class GetImageWithAutoWebP(BaseContext):
 
         def should_have_etag(self, response):
             expect(response.headers).to_include('Etag')
+
+
 @Vows.batch
 class GetImageWithoutEtags(BaseContext):
     def get_app(self):
@@ -396,7 +398,6 @@ class GetImageWithoutEtags(BaseContext):
         self.engine = PILEngine(ctx)
 
         return application
-
 
     class CanDisableEtag(BaseContext):
         def topic(self):
@@ -429,10 +430,18 @@ class GetImageWithGIFV(BaseContext):
 
         return application
 
-    class ShouldConvertAnimatedGifToGifvWhenFilter(BaseContext):
+    class ShouldConvertAnimatedGifToMp4WhenFilter(BaseContext):
         def topic(self):
             return self.get('/unsafe/filters:gifv()/animated_image.gif')
 
         def should_be_mp4(self, response):
             expect(response.code).to_equal(200)
             expect(response.headers['Content-Type']).to_equal('video/mp4')
+
+    class ShouldConvertAnimatedGifToWebmWhenFilter(BaseContext):
+        def topic(self):
+            return self.get('/unsafe/filters:gifv(webm)/animated_image.gif')
+
+        def should_be_mp4(self, response):
+            expect(response.code).to_equal(200)
+            expect(response.headers['Content-Type']).to_equal('video/webm')

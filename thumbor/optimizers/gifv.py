@@ -16,14 +16,23 @@ from thumbor.optimizers import BaseOptimizer
 class Optimizer(BaseOptimizer):
 
     def should_run(self, image_extension, buffer):
-        return 'gif' in image_extension and 'gifv()' in self.context.request.filters
+        return 'gif' in image_extension and 'gifv' in self.context.request.filters
 
     def optimize(self, buffer, input_file, output_file):
+        if 'webm' in self.context.request.filters:
+            format = 'webm'
+            command_params = ''
+        else:
+            format = 'mp4'
+            command_params = '-profile:v baseline -level 4.0'
+
         ffmpeg_path = self.context.config.FFMPEG_PATH
-        command = '%s -y -f gif -i %s  -an -movflags faststart -f mp4 -pix_fmt yuv420p -profile:v baseline -level 4.0 -crf 20 -maxrate 600k -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" %s -loglevel error' % (
+        command = '%s -y -f gif -i %s  -an -movflags faststart -f %s -pix_fmt yuv420p %s -crf 23 -maxrate 500k -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" %s -loglevel error' % (
             ffmpeg_path,
             input_file,
+            format,
+            command_params,
             output_file,
         )
         os.system(command)
-        self.context.request.format = 'gifv'
+        self.context.request.format = format
