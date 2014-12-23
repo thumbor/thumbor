@@ -11,7 +11,27 @@
 from os.path import abspath, exists
 
 from thumbor.filters import FiltersFactory
+from thumbor.utils import logger
 from thumbor.url import Url
+import statsd
+
+class ThumborStatsClient(statsd.StatsClient):
+
+  def __init__(self, config, host, port=8125, prefix=None, maxudpsize=512):
+    self.config = config
+    if config.STATSD_HOST:
+      self.enabled = True
+    else:
+      self.enabled = False
+      # Just setting this so we can initialize the client -
+      # we never send any data if enabled is false
+      host = 'localhost'
+    super(ThumborStatsClient, self).__init__(host, port, prefix)
+
+  def _send(self, data):
+    logger.debug("STATSD: %s", data)
+    if self.enabled:
+      super(ThumborStatsClient, self)._send(data)
 
 
 class Context:
@@ -34,6 +54,8 @@ class Context:
             self.modules = None
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
+        self.statsd_client = ThumborStatsClient(config, config.STATSD_HOST, 8125, prefix=config.STATSD_PREFIX)
+
 
 
 class ServerParameters(object):
