@@ -42,8 +42,10 @@ class RequestMock(object):
 
 
 class ResponseMock:
-    def __init__(self, error=None, content_type=None, body=None):
+    def __init__(self, error=None, content_type=None, body=None, code=None):
         self.error = error
+        self.code = code
+        self.time_info = None
 
         self.headers = {
             'Content-Type': 'image/jpeg'
@@ -60,8 +62,9 @@ class ReturnContentVows(Vows.Context):
     class ShouldReturnNoneOnError(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
-            mock = ResponseMock(error='Error')
-            return loader.return_contents(mock, 'some-url', callback)
+            mock = ResponseMock(error='Error', code=599)
+            ctx = Context(None, None, None)
+            return loader.return_contents(mock, 'some-url', callback, ctx)
 
         def should_be_none(self, topic):
             expect(topic.args[0]).to_be_null()
@@ -69,8 +72,9 @@ class ReturnContentVows(Vows.Context):
     class ShouldReturnBodyIfValid(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
-            mock = ResponseMock(body='body')
-            return loader.return_contents(mock, 'some-url', callback)
+            mock = ResponseMock(body='body', code=200)
+            ctx = Context(None, None, None)
+            return loader.return_contents(mock, 'some-url', callback, ctx)
 
         def should_be_none(self, topic):
             expect(topic.args[0]).to_equal('body')

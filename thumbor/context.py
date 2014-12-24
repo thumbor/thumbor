@@ -17,16 +17,19 @@ import statsd
 
 class ThumborStatsClient(statsd.StatsClient):
 
-  def __init__(self, config, host, port=8125, prefix=None, maxudpsize=512):
+  def __init__(self, config):
     self.config = config
-    if config.STATSD_HOST:
+    if config and config.STATSD_HOST:
       self.enabled = True
+      host = config.STATSD_HOST
+      prefix = config.STATSD_PREFIX
     else:
       self.enabled = False
       # Just setting this so we can initialize the client -
       # we never send any data if enabled is false
       host = 'localhost'
-    super(ThumborStatsClient, self).__init__(host, port, prefix)
+      prefix=None
+    super(ThumborStatsClient, self).__init__(host, 8125, prefix)
 
   def _send(self, data):
     logger.debug("STATSD: %s", data)
@@ -54,7 +57,7 @@ class Context:
             self.modules = None
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
-        self.statsd_client = ThumborStatsClient(config, config.STATSD_HOST, 8125, prefix=config.STATSD_PREFIX)
+        self.statsd_client = ThumborStatsClient(config)
 
 
 
