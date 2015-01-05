@@ -1,7 +1,7 @@
 tornado>=2.3.0,<4.0.0
 pycrypto>=2.4.1,<2.5.0
 pycurl>=7.19.0,<7.20.0
-Pillow>=2.1.0,<2.4.0
+Pillow>=2.3.0,<3.0.0
 simplejson>=2.1.6,<2.2.0
 pymongo==2.1.1
 redis==2.4.9
