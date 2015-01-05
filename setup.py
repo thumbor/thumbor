@@ -98,6 +98,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "derpconf>=0.2.0",
             "python-magic>=0.4.3",
             "thumbor-pexif>=0.14,<1.0",
+            "statsd>=3.0.1",
         ],
 
         extras_require={

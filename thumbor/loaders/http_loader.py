@@ -38,7 +38,8 @@ def validate(context, url):
     return False
 
 
-def return_contents(response, url, callback):
+def return_contents(response, url, callback, context):
+    context.statsd_client.incr('original_image.status.' + str(response.code))
     if response.error:
         logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
         callback(None)
@@ -46,11 +47,16 @@ def return_contents(response, url, callback):
         logger.warn("ERROR retrieving image {0}: Empty response.".format(url))
         callback(None)
     else:
+        if response.time_info:
+          for x in response.time_info:
+              context.statsd_client.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
+          context.statsd_client.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
         callback(response.body)
 
 
 def load(context, url, callback):
-    if context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT:
+    using_proxy = context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
+    if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
         tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
     client = tornado.httpclient.AsyncHTTPClient()
 
@@ -78,7 +84,7 @@ def load(context, url, callback):
         client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT)
     )
 
-    client.fetch(req, callback=partial(return_contents, url=url, callback=callback))
+    client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context))
 
 def encode(string):
     return None if string is None else string.encode('ascii')
