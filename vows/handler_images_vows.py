@@ -11,6 +11,7 @@
 from os.path import abspath, join, dirname, exists
 from shutil import rmtree
 from urllib import quote
+import tempfile
 
 from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
@@ -21,6 +22,7 @@ from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.engines.pil import Engine as PILEngine
 from thumbor.storages.file_storage import Storage as FileStorage
+from thumbor.utils import which
 
 storage_path = abspath(join(dirname(__file__), 'fixtures/'))
 
@@ -445,3 +447,47 @@ class GetImageWithGIFV(BaseContext):
         def should_be_mp4(self, response):
             expect(response.code).to_equal(200)
             expect(response.headers['Content-Type']).to_equal('video/webm')
+
+
+@Vows.batch
+class GetImageResultStorage(BaseContext):
+    def get_app(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = storage_path
+        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = tempfile.mkdtemp(prefix='thumbor_test')
+        cfg.USE_GIFSICLE_ENGINE = True
+        cfg.AUTO_WEBP = True
+        cfg.OPTIMIZERS = [
+            'thumbor.optimizers.gifv',
+        ]
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        ctx.server.gifsicle_path = which('gifsicle')
+        application = ThumborServiceApp(ctx)
+
+        self.engine = PILEngine(ctx)
+
+        return application
+
+    class ShouldLoadGifFromResultStorage(BaseContext):
+        def topic(self):
+            self.get('/P_leK0uires4J3AXg5RkKfSWH4A=/animated_image.gif')  # Add to result Storage
+            return self.get('/P_leK0uires4J3AXg5RkKfSWH4A=/animated_image.gif')
+
+        def should_ok(self, response):
+            expect(response.code).to_equal(200)
+
+    class ShouldLoadGifVFromResultStorage(BaseContext):
+        def topic(self):
+            self.get('/degWAAUDokT-7K81r2BXoPTbg8c=/filters:gifv()/animated_image.gif')  # Add to result Storage
+            return self.get('/degWAAUDokT-7K81r2BXoPTbg8c=/filters:gifv()/animated_image.gif')
+
+        def should_ok(self, response):
+            expect(response.code).to_equal(200)
