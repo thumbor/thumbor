@@ -23,7 +23,7 @@ from thumbor.transformer import Transformer
 from thumbor.engines import BaseEngine
 from thumbor.engines.gif import Engine as GifEngine
 from thumbor.engines.json_engine import JSONEngine
-from thumbor.utils import logger
+from thumbor.utils import logger, total_seconds_of
 import thumbor.filters
 
 CONTENT_TYPE = {
@@ -57,7 +57,7 @@ class BaseHandler(tornado.web.RequestHandler):
             start = datetime.datetime.now()
             result = self.context.modules.result_storage.get()
             finish = datetime.datetime.now()
-            self.context.statsd_client.timing('result_storage.incoming_time', (finish - start).total_seconds() * 1000)
+            self.context.statsd_client.timing('result_storage.incoming_time', total_seconds_of(finish - start) * 1000)
             if result is None:
                 self.context.statsd_client.incr('result_storage.miss')
             else:
@@ -254,7 +254,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 context.modules.result_storage.put(results)
                 finish = datetime.datetime.now()
                 context.statsd_client.incr('result_storage.bytes_written', len(results))
-                context.statsd_client.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
+                context.statsd_client.timing('result_storage.outgoing_time', total_seconds_of(finish - start) * 1000)
 
     def optimize(self, context, image_extension, results):
         for optimizer in context.modules.optimizers:
