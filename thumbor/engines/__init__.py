@@ -66,6 +66,10 @@ class BaseEngine(object):
             extension = '.jpg'
         elif buffer.startswith('WEBP', 8):
             extension = '.webp'
+        elif buffer.startswith('\x00\x00\x00 ftyp'):
+            extension = '.mp4'
+        elif buffer.startswith('\x1aE\xdf\xa3'):
+            extension = '.webm'
 
         return extension
 

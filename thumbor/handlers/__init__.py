@@ -31,7 +31,9 @@ CONTENT_TYPE = {
     '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
     '.png': 'image/png',
-    '.webp': 'image/webp'
+    '.webp': 'image/webp',
+    '.mp4': 'video/mp4',
+    '.webm': 'video/webm',
 }
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
