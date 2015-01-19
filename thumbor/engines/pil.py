@@ -62,7 +62,11 @@ class Engine(BaseEngine):
         return img
 
     def draw_rectangle(self, x, y, width, height):
-        d = ImageDraw.Draw(self.image)
+        # Nasty retry if the image is loaded for the first time and it's truncated
+        try:
+            d = ImageDraw.Draw(self.image)
+        except IOError:
+            d = ImageDraw.Draw(self.image)
         d.rectangle([x, y, x + width, y + height])
 
         del d
