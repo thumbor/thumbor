@@ -99,6 +99,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "python-magic>=0.4.3",
             "thumbor-pexif>=0.14,<1.0",
             "statsd>=3.0.1",
+            "libthumbor",
         ],
 
         extras_require={

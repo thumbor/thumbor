@@ -12,8 +12,7 @@ import sys
 import optparse
 
 from thumbor import __version__
-from thumbor.crypto import Cryptor, Signer
-from thumbor.url import Url
+from libthumbor import CryptoURL
 from thumbor.config import Config
 
 
@@ -75,58 +74,29 @@ def main(arguments=None):
         crop_left, crop_top = crops[0].split('x')
         crop_right, crop_bottom = crops[1].split('x')
 
-    if parsed_options.old:
-        crypt = Cryptor(security_key)
-        opt = crypt.encrypt(parsed_options.width,
-                            parsed_options.height,
-                            parsed_options.smart,
-                            parsed_options.adaptive,
-                            parsed_options.full,
-                            parsed_options.fitin,
-                            parsed_options.horizontal_flip,
-                            parsed_options.vertical_flip,
-                            parsed_options.halign,
-                            parsed_options.valign,
-                            parsed_options.trim,
-                            crop_left,
-                            crop_top,
-                            crop_right,
-                            crop_bottom,
-                            parsed_options.filters,
-                            image_url)
-        url = '/%s/%s' % (opt, image_url)
-
-        print 'Encrypted URL:'
-    else:
-        signer = Signer(security_key)
-        url = Url.generate_options(
-            width=parsed_options.width,
-            height=parsed_options.height,
-            smart=parsed_options.smart,
-            meta=parsed_options.meta,
-            adaptive=parsed_options.adaptive,
-            full=parsed_options.full,
-            fit_in=parsed_options.fitin,
-            horizontal_flip=parsed_options.horizontal_flip,
-            vertical_flip=parsed_options.vertical_flip,
-            halign=parsed_options.halign,
-            valign=parsed_options.valign,
-            trim=parsed_options.trim,
-            crop_left=crop_left,
-            crop_top=crop_top,
-            crop_right=crop_right,
-            crop_bottom=crop_bottom,
-            filters=parsed_options.filters
-        )
-
-        url = '%s/%s' % (url, image_url)
-        url = url.lstrip('/')
-
-        signature = signer.signature(url)
-
-        url = '/%s/%s' % (signature, url)
-
-        print 'Signed URL:'
+    crypto = CryptoURL(key=security_key)
+    url = crypto.generate(
+        old=parsed_options.old,
+        width=parsed_options.width,
+        height=parsed_options.height,
+        smart=parsed_options.smart,
+        meta=parsed_options.meta,
+        adaptive=parsed_options.adaptive,
+        full=parsed_options.full,
+        fit_in=parsed_options.fitin,
+        horizontal_flip=parsed_options.horizontal_flip,
+        vertical_flip=parsed_options.vertical_flip,
+        halign=parsed_options.halign,
+        valign=parsed_options.valign,
+        trim=parsed_options.trim,
+        crop_left=crop_left,
+        crop_top=crop_top,
+        crop_right=crop_right,
+        crop_bottom=crop_bottom,
+        filters=parsed_options.filters,
+        image_url=image_url,
+    )
+    print 'URL:'
 
     print url
     return url
