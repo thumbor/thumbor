@@ -10,9 +10,6 @@ matrix:
         - python: "2.6"
         - python: "3.2"
 
-services:
-  - mongodb
-
 install:
     #removing unwanted packages
     - sudo apt-get remove --purge -y $(< unwanted_packages)
