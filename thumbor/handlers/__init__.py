@@ -153,6 +153,12 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             self.filters_runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, finish_callback)
 
+    def is_webp(self, context):
+        return (context.config.AUTO_WEBP and
+                context.request.accepts_webp and
+                not context.request.engine.is_multiple() and
+                context.request.engine.can_convert_to_webp())
+
     def define_image_type(self, context, result):
         if result is not None:
             image_extension = BaseEngine.get_mimetype(result)
@@ -161,7 +167,7 @@ class BaseHandler(tornado.web.RequestHandler):
             if image_extension is not None:
                 image_extension = '.%s' % image_extension
                 logger.debug('Image format specified as %s.' % image_extension)
-            elif context.config.AUTO_WEBP and context.request.accepts_webp and not context.request.engine.is_multiple():
+            elif self.is_webp(context):
                 image_extension = '.webp'
                 logger.debug('Image format set by AUTO_WEBP as %s.' % image_extension)
             else:

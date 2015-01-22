@@ -287,7 +287,7 @@ class GetImageWithAutoWebP(BaseContext):
             image = self.engine.create_image(response.body)
             expect(image.format.lower()).to_equal('webp')
 
-    class ShouldNotConvertWebPImage(BaseContext):
+    class ShouldNotConvertWebPImageIfAlreadyWebP(BaseContext):
         def topic(self):
             return self.get('/unsafe/image.webp', headers={
                 "Accept": 'image/webp,*/*;q=0.8'
@@ -298,6 +298,17 @@ class GetImageWithAutoWebP(BaseContext):
             expect(response.headers).not_to_include('Vary')
             image = self.engine.create_image(response.body)
             expect(image.format.lower()).to_equal('webp')
+
+    class ShouldNotConvertWebPImageIfBiggerThan16383(BaseContext):
+        def topic(self):
+            return self.get('/unsafe/16384.png', headers={
+                "Accept": 'image/webp,*/*;q=0.8'
+            })
+
+        def should_not_have_vary(self, response):
+            expect(response.code).to_equal(200)
+            image = self.engine.create_image(response.body)
+            expect(image.format.lower()).to_equal('png')
 
     class ShouldNotConvertAnimatedGif(BaseContext):
         def topic(self):

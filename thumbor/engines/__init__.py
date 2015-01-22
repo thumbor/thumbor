@@ -12,6 +12,8 @@ from pexif import ExifSegment
 
 from thumbor.utils import logger
 
+WEBP_SIDE_LIMIT = 16383
+
 
 class MultipleEngine:
 
@@ -108,6 +110,9 @@ class BaseEngine(object):
         if self.is_multiple():
             return self.multiple_engine.size()
         return self.image.size
+
+    def can_convert_to_webp(self):
+        return self.image.size[0] <= WEBP_SIDE_LIMIT and self.image.size[1] <= WEBP_SIDE_LIMIT
 
     def normalize(self):
         width, height = self.size
