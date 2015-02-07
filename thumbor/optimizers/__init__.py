@@ -24,13 +24,18 @@ class BaseOptimizer(object):
         if not self.should_run(image_extension, buffer):
             return buffer
 
-        with NamedTemporaryFile(delete=False) as input_file:
-            try:
-                with NamedTemporaryFile() as output_file:
-                    input_file.write(buffer)
-                    input_file.close()
-                    self.optimize(buffer, input_file.name, output_file.name)
-                    output_file.seek(0)
-                    return output_file.read()
-            finally:
-                os.unlink(input_file.name)
+        ifile = NamedTemporaryFile(delete=False)
+        ofile = NamedTemporaryFile(delete=False)
+        try:
+            ifile.write(buffer)
+            ifile.close()
+            ofile.close()
+
+            self.optimize(buffer, ifile.name, ofile.name)
+
+            ofile = open(ofile.name, 'rb')  # reopen with file thats been changed with the optimizer
+            return ofile.read()
+
+        finally:
+            os.unlink(ifile.name)
+            os.unlink(ofile.name)
