@@ -16,6 +16,7 @@ from derpconf.config import Config
 
 from thumbor import __version__
 
+Config.define('THUMBOR_LOG_CONFIG', None, 'Logging configuration as json', 'Logging')
 Config.define(
     'THUMBOR_LOG_FORMAT', '%(asctime)s %(name)s:%(levelname)s %(message)s',
     'Log Format to be used by thumbor when writing log messages.', 'Logging')
