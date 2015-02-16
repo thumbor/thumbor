@@ -20,7 +20,7 @@ from thumbor.engines import BaseEngine
 class ImageResourceHandler(ImageApiHandler):
 
     def check_resource(self, id):
-        id = id[:32]
+        id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image exists
         if self.context.modules.storage.exists(id):
             body = self.context.modules.storage.get(id)
@@ -39,7 +39,7 @@ class ImageResourceHandler(ImageApiHandler):
             self._error(404, 'Image not found at the given URL')
 
     def put(self, id):
-        id = id[:32]
+        id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image overwriting is allowed
         if not self.context.config.UPLOAD_PUT_ALLOWED:
             self._error(405, 'Unable to modify an uploaded image')
@@ -51,7 +51,7 @@ class ImageResourceHandler(ImageApiHandler):
             self.set_status(204)
 
     def delete(self, id):
-        id = id[:32]
+        id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image deleting is allowed
         if not self.context.config.UPLOAD_DELETE_ALLOWED:
             self._error(405, 'Unable to delete an uploaded image')

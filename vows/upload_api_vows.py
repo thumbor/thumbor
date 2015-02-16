@@ -320,6 +320,78 @@ class ModifyingAnImage(ImageContext):
 
 
 ##
+# Modifying an image with longer ID
+##
+@Vows.batch
+class PutLongerId(ImageContext):
+
+    def get_app(self):
+        self.default_filename = 'image'
+
+        cfg = Config()
+        cfg.UPLOAD_ENABLED = True
+        cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.FILE_STORAGE_ROOT_PATH = file_storage_root_path
+        cfg.UPLOAD_DELETE_ALLOWED = False
+        cfg.UPLOAD_PUT_ALLOWED = True
+        cfg.UPLOAD_DEFAULT_FILENAME = self.default_filename
+        cfg.MAX_ID_LENGTH = 36
+
+        importer = Importer(cfg)
+        importer.import_modules()
+
+        ctx = Context(None, cfg, importer)
+        application = ThumborServiceApp(ctx)
+        return application
+
+    ##
+    # Store ID 36 length don't get image with 32 first characters.
+    ##
+    class WhenStoredWIthIdOver32DontGetTruncatedId(ImageContext):
+        def topic(self):
+            path = '/image/e5bcf126-791b-4375-9f73-925ab8b9fb5f'
+
+            self.filename = self.default_filename + '.jpg'
+            self.put(path, {'Content-Type': 'image/jpeg'}, valid_image())
+            response = self.get(path[:7+32], {'Accept': 'image/jpeg'})
+            return response
+
+        class HttpStatusCode(ImageContext):
+            def topic(self, response):
+                return response.code
+
+            def should_be_404_not_found(self, topic):
+                expect(topic).to_equal(404)
+
+
+    ##
+    # Store ID 36 length and return succefful if ID is OK for 36 first chararcters
+    ##
+    class WhenStoredWIthIdOver32(ImageContext):
+        def topic(self):
+            path = '/image/e5bcf126-791b-4375-9f73-925ab8b9fb5g'
+
+            self.filename = self.default_filename + '.jpg'
+            self.put(path, {'Content-Type': 'image/jpeg'}, valid_image())
+            response = self.get( path + '123456', {'Accept': 'image/jpeg'})
+            return response
+
+        class HttpStatusCode(ImageContext):
+            def topic(self, response):
+                return response.code
+
+            def should_be_200_ok(self, topic):
+                expect(topic).to_equal(200)
+
+        class Body(ImageContext):
+            def topic(self, response):
+                return response.body
+
+            def should_be_the_expected_image(self, topic):
+                expect(topic).to_equal(valid_image())
+
+
+##
 # Delete image with DELETE method
 ##
 @Vows.batch
