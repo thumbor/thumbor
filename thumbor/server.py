@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import sys
-import logging
+import logging, logging.config
 import os
 import socket
 from os.path import expanduser, dirname
@@ -42,11 +42,14 @@ def main(arguments=None):
 
     config = Config.load(server_parameters.config_path, conf_name='thumbor.conf', lookup_paths=lookup_paths)
 
-    logging.basicConfig(
-        level=getattr(logging, server_parameters.log_level.upper()),
-        format=config.THUMBOR_LOG_FORMAT,
-        datefmt=config.THUMBOR_LOG_DATE_FORMAT
-    )
+    if (config.THUMBOR_LOG_CONFIG and config.THUMBOR_LOG_CONFIG != '') :
+      logging.config.dictConfig(config.THUMBOR_LOG_CONFIG)
+    else:
+      logging.basicConfig(
+          level=getattr(logging, server_parameters.log_level.upper()),
+          format=config.THUMBOR_LOG_FORMAT,
+          datefmt=config.THUMBOR_LOG_DATE_FORMAT
+      )
 
     importer = Importer(config)
     importer.import_modules()
