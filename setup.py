@@ -79,7 +79,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             'Natural Language :: English',
             'Operating System :: MacOS',
             'Operating System :: POSIX :: Linux',
-            'Programming Language :: Python :: 2.6',
+            'Programming Language :: Python :: 2.7',
             'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
             'Topic :: Multimedia :: Graphics :: Presentation'
         ],
