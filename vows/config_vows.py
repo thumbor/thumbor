@@ -62,6 +62,7 @@ TEST_DATA = (
         'thumbor.filters.no_upscale',
         'thumbor.filters.saturation',
         'thumbor.filters.max_age',
+        'thumbor.filters.curve',
     ])
 )
 
