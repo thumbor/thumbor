@@ -95,6 +95,10 @@ original_images_base = [
     'dilmahaddad.jpg',
     'cmyk.jpg',
     'logo-FV.png-menor.png',
+    'alabama_grayscale.jpg',
+    'jescharlie_16bit.png',
+    'olified_transp.png',
+    'wellsford.jpg',
 ]
 
 original_images_gif_webp = [
