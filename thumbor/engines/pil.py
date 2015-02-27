@@ -116,7 +116,7 @@ class Engine(BaseEngine):
             if self.image.mode != 'RGB':
                 self.image = self.image.convert('RGB')
             else:
-                if self.extension == '.jpg':
+                if self.image.format == 'JPEG':
                     quantization = getattr(self.image, 'quantization', None)
                     if quality is None and quantization and 2 <= len(quantization) <= 4:
                         options['quality'] = 'keep'
