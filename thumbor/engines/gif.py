@@ -42,7 +42,7 @@ class Engine(PILEngine):
         self.frame_count = int(count.groups()[0])
 
     def load(self, buffer, extension):
-        self.extension = self.get_mimetype(buffer)
+        self.extension = extension
         self.buffer= buffer
         self.operations = []
         self.update_image_info()

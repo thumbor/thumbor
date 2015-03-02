@@ -36,7 +36,7 @@ file_path = ''
 #   - too weight image : JPEG 300x400, 85.32 KB
 ##
 def valid_image():
-    path = abspath(join(dirname(__file__), 'fixtures/alabama1_ap620é.jpg'))
+    path = abspath(join(dirname(__file__), u'fixtures/alabama1_ap620é.jpg'))
     with open(path, 'r') as stream:
         body = stream.read()
     return body
@@ -187,6 +187,31 @@ class PostingANewImage(ImageContext):
                 expect(headers).to_include('Location')
                 expect(headers['Location']).to_match(self.base_uri + r'/[^\/]{32}/' + self.filename)
 
+    ##
+    # Posting a new image with a uncommon charset (including charset) through the REST API
+    ##
+    class WhenPostingANewImageWithCharsetInContentType(ImageContext):
+        def topic(self):
+            self.filename = self.default_filename + '.jpg'
+            response = self.post(self.base_uri, {'Content-Type': 'image/jpeg;charset=UTF-8'}, valid_image())
+            return response
+
+        class HttpStatusCode(ImageContext):
+            def topic(self, response):
+                return response.code
+
+            def should_be_201_created(self, topic):
+                expect(topic).to_equal(201)
+
+        class HttpHeaders(ImageContext):
+            def topic(self, response):
+                return response.headers
+
+            def should_contain_a_location_header_containing_the_filename(self, headers):
+                expect(headers).to_include('Location')
+                expect(headers['Location']).to_match(self.base_uri + r'/[^\/]{32}/' + self.filename)
+
+
         class Image(ImageContext):
             def topic(self, response):
                 return re.compile(self.base_uri + r'/([^\/]{32})/' + self.filename).search(
@@ -195,6 +220,41 @@ class PostingANewImage(ImageContext):
             def should_be_store_at_right_path(self, topic):
                 path = path_on_filesystem(topic)
                 expect(exists(path)).to_be_true()
+
+    ##
+    # Posting a new valid image with a unknown charset through the REST API
+    ##
+    class WhenPostingANewValidImageWithUnknwonCharsetInContentType(ImageContext):
+        def topic(self):
+            self.filename = self.default_filename + '.jpg'
+            response = self.post(self.base_uri, {'Content-Type': 'image/thisIsAUnknwonOrBadlyFormedCHarset'}, valid_image())
+            return response
+
+        class HttpStatusCode(ImageContext):
+            def topic(self, response):
+                return response.code
+
+            def should_be_201_created(self, topic):
+                expect(topic).to_equal(201)
+
+        class HttpHeaders(ImageContext):
+            def topic(self, response):
+                return response.headers
+
+            def should_contain_a_location_header_containing_the_filename(self, headers):
+                expect(headers).to_include('Location')
+                expect(headers['Location']).to_match(self.base_uri + r'/[^\/]{32}/' + self.filename)
+
+
+        class Image(ImageContext):
+            def topic(self, response):
+                return re.compile(self.base_uri + r'/([^\/]{32})/' + self.filename).search(
+                    response.headers['Location']).group(1)
+
+            def should_be_store_at_right_path(self, topic):
+                path = path_on_filesystem(topic)
+                expect(exists(path)).to_be_true()
+
 
     ##
     # Posting a new image without filename through the REST API
@@ -501,6 +561,14 @@ class RetrievingAnImage(ImageContext):
 
             def should_be_the_expected_image(self, topic):
                 expect(topic).to_equal(valid_image())
+
+        class HeaderContentType(ImageContext):
+            def topic(self, response):
+                return response.headers['Content-Type']
+
+            def should_be_MimeType(self, topic):
+                expect(topic).to_equal('image/jpeg')
+
 
     class WhenRetrievingAnUnknownImage(ImageContext):
         def topic(self):

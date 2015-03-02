@@ -42,9 +42,13 @@ class ImageUploadHandler(ImageApiHandler):
             # Use the default filename for the uploaded images
             if not filename:
                 content_type = self.request.headers.get('Content-Type', BaseEngine.get_mimetype(body))
-                extension = mimetypes.guess_extension(content_type, False)
+                extension = mimetypes.guess_extension(content_type.split(';',1)[0], False)
+                if extension is None: # Content-Type is unknown, try with body
+                    extension = mimetypes.guess_extension(BaseEngine.get_mimetype(body), False)
                 if extension == '.jpe':
-                    extension = '.jpg'  # Hack because mimetypes return .jpe by default
+                     extension = '.jpg'  # Hack because mimetypes return .jpe by default
+                if extension is None: # Even body is unknown, return an empty string to be contat
+                    extension = ''
                 filename = self.context.config.UPLOAD_DEFAULT_FILENAME + extension
 
             # Build image id based on a random uuid (32 characters)
