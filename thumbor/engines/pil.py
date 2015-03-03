@@ -43,6 +43,8 @@ if hasattr(ImageFile, 'IGNORE_DECODING_ERRORS'):
 class Engine(BaseEngine):
 
     def gen_image(self, size, color):
+        if color == 'transparent':
+            color = None
         img = Image.new("RGBA", size, color)
         return img
 

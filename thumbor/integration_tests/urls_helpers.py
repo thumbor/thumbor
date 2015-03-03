@@ -81,6 +81,8 @@ filters = [
     'filters:fill(ff0000)',
     'filters:fill(auto)',
     'filters:fill(ff0000,true)',
+    'filters:fill(transparent)',
+    'filters:fill(transparent,true)',
     'filters:blur(2)',
     'filters:extract_focal()',
     'filters:no_upscale()',
