@@ -248,10 +248,11 @@ class BaseHandler(tornado.web.RequestHandler):
 
             results = result
 
-        if context.request.format and ('mp4' in context.request.format or 'webm' in context.request.format):
-            self.set_header('Content-Type', 'video/%s' % context.request.format)
-        else:
-            self.set_header('Content-Type', content_type)
+        if context.request.format:
+            # An optimizer might have modified the image format.
+            content_type = CONTENT_TYPE.get('.%s' % context.request.format, content_type)
+
+        self.set_header('Content-Type', content_type)
 
         self.write(results)
         self.finish()
