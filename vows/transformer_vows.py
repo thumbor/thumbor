@@ -103,6 +103,34 @@ class TransformerVows(Vows.Context):
         def should_do_vertical_flip(self, topic):
             expect(self.engine.calls['vertical_flip']).to_equal(1)
 
+
+    class ExtractCover(Vows.Context):
+        @Vows.async_topic
+        def topic(self, callback):
+            data = TestData(
+                source_width=800, source_height=600,
+                target_width=-800, target_height=-600,
+                halign="right", valign="top",
+                focal_points=[],
+                crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
+            )
+
+            ctx = data.to_context()
+            ctx.request.filters = 'cover()'
+            ctx.request.image = 'some.gif'
+            ctx.request.extension= 'GIF'
+            ctx.request.engine.extension = '.gif'
+            ctx.config.USE_GIFSICLE_ENGINE = True
+
+            self.engine = ctx.modules.engine
+
+            trans = Transformer(ctx)
+            trans.transform(callback)
+
+        def should_do_extract_cover(self, topic):
+            expect(self.engine.calls['cover']).to_equal(1)
+
+
     class ResizeCrop(Vows.Context):
         def topic(self):
             for item in TESTITEMS:
