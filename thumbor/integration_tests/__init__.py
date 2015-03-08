@@ -31,6 +31,7 @@ class EngineTestCase(AsyncHTTPTestCase):
         cfg.USE_GIFSICLE_ENGINE = True
         cfg.OPTIMIZERS = [
             'thumbor.optimizers.gifv',
+            'thumbor.optimizers.pngcrush'
         ]
         if not cfg.ENGINE:
             return None

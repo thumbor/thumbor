@@ -17,8 +17,6 @@ libpng12-dev
 libpng++-dev
 libpng3
 libpnglite-dev
-libpngwriter-dev
-libpngwriter
 libfaac-dev
 libjack-jackd2-dev
 libjasper-dev
@@ -96,3 +94,4 @@ libx264-dev
 libass-dev
 libvpx1
 libvpx-dev
+unzip
