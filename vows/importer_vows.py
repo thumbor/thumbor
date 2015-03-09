@@ -13,6 +13,7 @@ from pyvows import Vows, expect
 from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.engines.pil import Engine as pil_engine
+from thumbor.engines.gif import Engine as gif_engine
 from thumbor.loaders import http_loader
 from thumbor.storages.file_storage import Storage as file_storage
 from thumbor.result_storages.file_storage import Storage as result_file_storage
@@ -23,6 +24,7 @@ from thumbor.filters.rgb import Filter as rgb_filter
 
 test_data = [
     ('ENGINE', pil_engine),
+    ('GIF_ENGINE', gif_engine),
     ('LOADER', http_loader),
     ('STORAGE', file_storage),
     ('UPLOAD_PHOTO_STORAGE', file_storage),
@@ -40,6 +42,7 @@ class ImporterVows(Vows.Context):
             for data in test_data:
                 complete_config = Config(
                     ENGINE=r'thumbor.engines.pil',
+                    GIF_ENGINE=r'thumbor.engines.gif',
                     LOADER=r'thumbor.loaders.http_loader',
                     STORAGE=r'thumbor.storages.file_storage',
                     UPLOAD_PHOTO_STORAGE=r'thumbor.storages.file_storage',

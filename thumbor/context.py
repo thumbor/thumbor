@@ -210,6 +210,10 @@ class ContextImporter:
         if importer.engine:
             self.engine = importer.engine(context)
 
+        self.gif_engine = None
+        if importer.gif_engine:
+            self.gif_engine = importer.gif_engine(context)
+
         self.storage = None
         if importer.storage:
             self.storage = importer.storage(context)
