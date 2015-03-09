@@ -9,6 +9,9 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import abspath, exists
+import tornado
+from concurrent.futures import ThreadPoolExecutor, Future
+import functools
 
 from thumbor.filters import FiltersFactory
 from thumbor.utils import logger
@@ -69,6 +72,7 @@ class Context:
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
         self.statsd_client = ThumborStatsClient.instance(config)
+        self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
 
 
 class ServerParameters(object):
@@ -240,3 +244,46 @@ class ContextImporter:
         self.detectors = importer.detectors
         self.filters = importer.filters
         self.optimizers = importer.optimizers
+
+
+class ThreadPool(object):
+
+    @classmethod
+    def instance(cls, size):
+        """
+        Cache threadpool since context is
+        recreated for each request
+        """
+        if not hasattr(cls, "_instance"):
+            cls._instance = ThreadPool(size)
+        return cls._instance
+
+    def __init__(self, thread_pool_size):
+        if thread_pool_size:
+            self.pool = ThreadPoolExecutor(thread_pool_size)
+        else:
+            self.pool = None
+
+    def _execute_in_foreground(self, operation, callback):
+        result = Future()
+        result.set_result(operation())
+        callback(result)
+
+    def _execute_in_pool(self, operation, callback):
+        task = self.pool.submit(operation)
+        task.add_done_callback(
+            lambda future: tornado.ioloop.IOLoop.instance().add_callback(
+                functools.partial(callback, future)
+        ))
+
+    def queue(self, operation, callback):
+        if not self.pool:
+            self._execute_in_foreground(operation, callback)
+        else:
+            self._execute_in_pool(operation, callback)
+
+    def cleanup(self):
+        if self.pool:
+            print "Joining threads...."
+            self.pool.shutdown()
+

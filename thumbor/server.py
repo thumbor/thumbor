@@ -70,7 +70,12 @@ def main(arguments=None):
         if server_parameters.gifsicle_path is None:
             raise RuntimeError('If using USE_GIFSICLE_ENGINE configuration to True, the `gifsicle` binary must be in the PATH and must be an executable.')
 
-    context = Context(server=server_parameters, config=config, importer=importer)
+    context = Context(
+        server=server_parameters,
+        config=config,
+        importer=importer
+    )
+
 
     application = importer.import_class(server_parameters.app_class)(context)
 
@@ -97,6 +102,8 @@ def main(arguments=None):
     except KeyboardInterrupt:
         print
         print "-- thumbor closed by user interruption --"
+    finally:
+        context.thread_pool.cleanup()
 
 if __name__ == "__main__":
     main(sys.argv[1:])

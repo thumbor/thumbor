@@ -74,6 +74,10 @@ Config.define(
     'Indicates whether thumbor should enable blacklist functionality to prevent processing certain images.', 'Imaging')
 
 Config.define(
+    'ENGINE_THREADPOOL_SIZE', 0,
+    'Size of the thread pool used for image transformations.  The default value is 0 (don\'t use a threadpoool.  Increase this if you are seeing your IOLoop getting blocked (often indicated by your upstream HTTP requests timing out)', 'Imaging')
+
+Config.define(
     'LOADER', 'thumbor.loaders.http_loader',
     'The loader thumbor should use to load the original image. This must be the full name of a python module ' +
     '(python must be able to import it)', 'Extensibility')
