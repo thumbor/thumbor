@@ -37,7 +37,6 @@ def to_be_cropped(topic):
 
 @Vows.batch
 class TransformerVows(Vows.Context):
-
     class InvalidCrop(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
@@ -103,7 +102,6 @@ class TransformerVows(Vows.Context):
         def should_do_vertical_flip(self, topic):
             expect(self.engine.calls['vertical_flip']).to_equal(1)
 
-
     class ExtractCover(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
@@ -118,7 +116,7 @@ class TransformerVows(Vows.Context):
             ctx = data.to_context()
             ctx.request.filters = 'cover()'
             ctx.request.image = 'some.gif'
-            ctx.request.extension= 'GIF'
+            ctx.request.extension = 'GIF'
             ctx.request.engine.extension = '.gif'
             ctx.config.USE_GIFSICLE_ENGINE = True
 

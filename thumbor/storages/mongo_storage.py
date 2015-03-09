@@ -20,7 +20,7 @@ from thumbor.storages import BaseStorage
 class Storage(BaseStorage):
 
     def __conn__(self):
-        connection = Connection(self.context.config.MONGO_STORAGE_SERVER_HOST, self.context.config.MONGO_STORAGE_SERVER_PORT)
+        connection = Connection(self.context.config.MONGO_STORAGE_SERVER_HOST, self.context.config.MONGO_STORAGE_SERVER_PORT, safe=True)
         db = connection[self.context.config.MONGO_STORAGE_SERVER_DB]
         storage = db[self.context.config.MONGO_STORAGE_SERVER_COLLECTION]
 
