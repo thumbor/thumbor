@@ -16,6 +16,7 @@ class Importer:
     def __init__(self, config):
         self.config = config
         self.engine = None
+        self.gif_engine = None
         self.loader = None
         self.upload_photo_storage = None
         self.storage = None
@@ -36,8 +37,12 @@ class Importer:
         return get_module and module or getattr(module, klass)
 
     def import_modules(self):
-        self.config.validates_presence_of('ENGINE', 'LOADER', 'STORAGE', 'DETECTORS', 'FILTERS')
+        self.config.validates_presence_of(
+            'ENGINE', 'GIF_ENGINE', 'LOADER', 'STORAGE', 'DETECTORS', 'FILTERS'
+        )
+
         self.import_item('ENGINE', 'Engine')
+        self.import_item('GIF_ENGINE', 'Engine')
         self.import_item('LOADER')
         self.import_item('STORAGE', 'Storage')
         self.import_item('DETECTORS', 'Detector', is_multiple=True)

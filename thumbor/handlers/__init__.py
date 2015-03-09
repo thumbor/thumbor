@@ -21,7 +21,6 @@ from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.context import Context
 from thumbor.transformer import Transformer
 from thumbor.engines import BaseEngine
-from thumbor.engines.gif import Engine as GifEngine
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
 import thumbor.filters
@@ -78,7 +77,7 @@ class BaseHandler(tornado.web.RequestHandler):
             if result is not None:
                 mime = BaseEngine.get_mimetype(result)
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                    self.context.request.engine = GifEngine(self.context)
+                    self.context.request.engine = self.context.modules.gif_engine
                     self.context.request.engine.load(result, '.gif')
                 else:
                     self.context.request.engine = self.context.modules.engine
@@ -350,7 +349,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.context.statsd_client.incr('storage.hit')
             mime = BaseEngine.get_mimetype(buffer)
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                self.context.request.engine = GifEngine(self.context)
+                self.context.request.engine = self.context.modules.gif_engine
             else:
                 self.context.request.engine = self.context.modules.engine
 
@@ -370,7 +369,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     mime = BaseEngine.get_mimetype(buffer)
 
                     if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                        self.context.request.engine = GifEngine(self.context)
+                        self.context.request.engine = self.context.modules.gif_engine
                     else:
                         self.context.request.engine = self.context.modules.engine
 
@@ -430,7 +429,7 @@ class ImageApiHandler(ContextHandler):
         mime = BaseEngine.get_mimetype(body)
 
         if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-            engine = GifEngine(self.context)
+            engine = self.context.modules.gif_engine
         else:
             engine = self.context.modules.engine
 

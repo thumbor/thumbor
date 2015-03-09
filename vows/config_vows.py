@@ -22,6 +22,7 @@ TEST_DATA = (
     ('LOADER', 'thumbor.loaders.http_loader'),
     ('STORAGE', STORAGE_DEFAULT_VALUE),
     ('ENGINE', 'thumbor.engines.pil'),
+    ('GIF_ENGINE', 'thumbor.engines.gif'),
     ('ALLOW_UNSAFE_URL', True),
     ('FILE_LOADER_ROOT_PATH', '/tmp'),
     ('STORAGE_EXPIRATION_SECONDS', 60 * 60 * 24 * 30),

@@ -90,6 +90,11 @@ Config.define(
     'The imaging engine thumbor should use to perform image operations. This must be the full name of a ' +
     'python module (python must be able to import it)', 'Extensibility')
 
+Config.define(
+    'GIF_ENGINE', 'thumbor.engines.gif',
+    'The gif engine thumbor should use to perform image operations. This must be the full name of a ' +
+    'python module (python must be able to import it)', 'Extensibility')
+
 Config.define('SECURITY_KEY', 'MY_SECURE_KEY', 'The security key thumbor uses to sign image URLs', 'Security')
 
 Config.define('ALLOW_UNSAFE_URL', True, 'Indicates if the /unsafe URL should be available', 'Security')
