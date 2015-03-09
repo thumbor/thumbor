@@ -81,6 +81,12 @@ class Engine(PILEngine):
     def flip_horizontally(self):
         self.operations.append('--flip-horizontal')
 
+    def extract_cover(self):
+        arguments = '#0'
+        self.operations.append(arguments)
+        self.flush_operations()
+        self.update_image_info()
+
     def flush_operations(self):
         if not self.operations:
             return

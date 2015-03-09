@@ -226,3 +226,6 @@ class BaseEngine(object):
 
     def strip_icc(self):
         pass
+
+    def extract_cover(self):
+        raise NotImplementedError()

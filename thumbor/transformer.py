@@ -182,6 +182,9 @@ class Transformer(object):
         self.do_image_operations()
 
     def do_image_operations(self):
+        if '.gif' == self.context.request.engine.extension and 'cover()' in self.context.request.filters:
+            self.extract_cover()
+
         self.manual_crop()
         self.calculate_target_dimensions()
         self.adjust_focal_points()
@@ -197,6 +200,9 @@ class Transformer(object):
             self.flip()
 
         self.done_callback()
+
+    def extract_cover(self):
+        self.engine.extract_cover()
 
     def manual_crop(self):
         if self.context.request.should_crop:

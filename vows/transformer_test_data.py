@@ -23,7 +23,8 @@ class MockEngine(object):
             'resize': [],
             'crop': [],
             'vertical_flip': 0,
-            'horizontal_flip': 0
+            'horizontal_flip': 0,
+            'cover': 0,
         }
         self.focal_points = None
 
@@ -57,6 +58,9 @@ class MockEngine(object):
 
     def focus(self, focal_points):
         self.focal_points = focal_points
+
+    def extract_cover(self):
+        self.calls['cover'] += 1
 
 
 class MockSyncDetector(BaseDetector):
