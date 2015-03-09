@@ -52,9 +52,9 @@ class ImagingHandler(ContextHandler):
             return
 
         if self.context.config.ALLOW_DIMENSIONS:
-            dimensions = '%sx%s' % (kw['width'], kw['height'])
-            if dimensions not in self.context.config.ALLOW_DIMENSIONS:
-                self._error(404, 'Image not found for %s dimentions' % dimensions)
+            dimension = '%sx%s' % (kw['width'], kw['height'])
+            if dimension not in self.context.config.ALLOW_DIMENSIONS:
+                self._error(404, 'Image not found for %s dimension' % dimension)
                 return
 
         if self.context.config.USE_BLACKLIST:
