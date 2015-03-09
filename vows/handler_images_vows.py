@@ -267,6 +267,7 @@ class GetImageWithAutoWebP(BaseContext):
         server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
         server.security_key = 'ACME-SEC'
         ctx = Context(server, cfg, importer)
+        ctx.server.gifsicle_path = which('gifsicle')
         application = ThumborServiceApp(ctx)
 
         self.engine = PILEngine(ctx)
@@ -437,6 +438,7 @@ class GetImageWithGIFV(BaseContext):
         server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
         server.security_key = 'ACME-SEC'
         ctx = Context(server, cfg, importer)
+        ctx.server.gifsicle_path = which('gifsicle')
         application = ThumborServiceApp(ctx)
 
         self.engine = PILEngine(ctx)
@@ -458,6 +460,35 @@ class GetImageWithGIFV(BaseContext):
         def should_be_mp4(self, response):
             expect(response.code).to_equal(200)
             expect(response.headers['Content-Type']).to_equal('video/webm')
+
+
+@Vows.batch
+class GetImageCover(BaseContext):
+    def get_app(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = storage_path
+        cfg.AUTO_WEBP = True
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        ctx.server.gifsicle_path = which('gifsicle')
+        application = ThumborServiceApp(ctx)
+
+        self.engine = PILEngine(ctx)
+
+        return application
+
+    class ShouldExtractCover(BaseContext):
+        def topic(self):
+            return self.get('/unsafe/filters:cover()/animated_image.gif')
+
+        def should_be_webp(self, response):
+            expect(response.code).to_equal(200)
+            expect(response.headers['Content-Type']).to_equal('image/gif')
 
 
 @Vows.batch

@@ -87,7 +87,7 @@ class BaseEngine(object):
         return self.multiple_engine.frame_engines
 
     def load(self, buffer, extension):
-        self.extension = extension 
+        self.extension = extension
         imageOrFrames = self.create_image(buffer)
 
         if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(imageOrFrames, (list, tuple)):
@@ -112,7 +112,7 @@ class BaseEngine(object):
         return self.image.size
 
     def can_convert_to_webp(self):
-        return self.image.size[0] <= WEBP_SIDE_LIMIT and self.image.size[1] <= WEBP_SIDE_LIMIT
+        return self.size[0] <= WEBP_SIDE_LIMIT and self.size[1] <= WEBP_SIDE_LIMIT
 
     def normalize(self):
         width, height = self.size
