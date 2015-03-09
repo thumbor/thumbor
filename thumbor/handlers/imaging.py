@@ -51,6 +51,12 @@ class ImagingHandler(ContextHandler):
             self._error(404, 'URL has unsafe but unsafe is not allowed by the config: %s' % url)
             return
 
+        if self.context.config.ALLOW_DIMENSIONS:
+            dimensions = '%sx%s' % (kw['width'], kw['height'])
+            if dimensions not in self.context.config.ALLOW_DIMENSIONS:
+                self._error(404, 'Image not found for %s dimentions' % dimensions)
+                return
+
         if self.context.config.USE_BLACKLIST:
             blacklist = self.get_blacklist_contents()
             if self.context.request.image_url in blacklist:

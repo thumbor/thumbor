@@ -74,6 +74,10 @@ Config.define(
     'Indicates whether thumbor should enable blacklist functionality to prevent processing certain images.', 'Imaging')
 
 Config.define(
+    'ALLOW_DIMENSIONS', [],
+    'Indicates whether thumbor should process certain images dimensions.', 'Imaging')
+
+Config.define(
     'LOADER', 'thumbor.loaders.http_loader',
     'The loader thumbor should use to load the original image. This must be the full name of a python module ' +
     '(python must be able to import it)', 'Extensibility')
