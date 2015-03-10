@@ -58,7 +58,7 @@ def load(context, url, callback):
     using_proxy = context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
     if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
         tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
-    client = tornado.httpclient.AsyncHTTPClient()
+    client = tornado.httpclient.AsyncHTTPClient(max_clients=context.config.HTTP_LOADER_MAX_CLIENTS)
 
     user_agent = None
     if context.config.HTTP_LOADER_FORWARD_USER_AGENT:

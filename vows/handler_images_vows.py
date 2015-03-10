@@ -469,6 +469,7 @@ class GetImageCover(BaseContext):
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = storage_path
         cfg.AUTO_WEBP = True
+        cfg.USE_GIFSICLE_ENGINE = True
 
         importer = Importer(cfg)
         importer.import_modules()
