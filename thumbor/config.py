@@ -75,7 +75,9 @@ Config.define(
 
 Config.define(
     'ALLOW_DIMENSIONS', [],
-    'Indicates whether thumbor should process certain images dimensions.', 'Imaging')
+    'Indicates whether thumbor should only process certain image dimensions. ' +
+    'It can be used to avoid url tampering that would overload the service. ' +
+    'If ALLOW_DIMENSIONS are set, filter will be forbiden.', 'Imaging')
 
 Config.define(
     'LOADER', 'thumbor.loaders.http_loader',

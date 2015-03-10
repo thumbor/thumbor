@@ -52,6 +52,9 @@ class ImagingHandler(ContextHandler):
             return
 
         if self.context.config.ALLOW_DIMENSIONS:
+            if kw['filters']:
+                self._error(403, 'Filters are not allowed when pre defined dimensions are set (option ALLOW_DIMENSIONS).')
+                return
             dimension = '%sx%s' % (kw['width'], kw['height'])
             if dimension not in self.context.config.ALLOW_DIMENSIONS:
                 self._error(404, 'Image not found for %s dimension' % dimension)
