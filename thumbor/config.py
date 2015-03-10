@@ -120,6 +120,9 @@ Config.define(
     'HTTP_LOADER_MAX_REDIRECTS', 5,
     'Indicates the number of redirects libcurl should follow when downloading an image', 'HTTP Loader')
 Config.define(
+    'HTTP_LOADER_MAX_CLIENTS', 10,
+     'The maximum number of simultaneous HTTP connections the loader can make before queuing', 'HTTP Loader')
+Config.define(
     'HTTP_LOADER_FORWARD_USER_AGENT', False,
     'Indicates whether thumbor should forward the user agent of the requesting user', 'HTTP Loader')
 Config.define(
