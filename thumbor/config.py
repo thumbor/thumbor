@@ -248,6 +248,13 @@ Config.define(
     'Optimizers'
 )
 
+Config.define(
+    'PNGCRUSH_PATH',
+    '/usr/local/bin/pngcrush',
+    'Path for the pngcrush binary',
+    'Optimizers'
+)
+
 # AVAILABLE FILTERS
 Config.define(
     'FILTERS', [

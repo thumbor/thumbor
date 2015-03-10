@@ -8,24 +8,23 @@ matrix:
     allow_failures:
         - python: "3.2"
 
+cache:
+    - apt
+    - pip
+
 install:
     #removing unwanted packages
+    - sudo apt-get update
     - sudo apt-get remove --purge -y $(< unwanted_packages)
     # update aptitude
-    - sudo apt-get update -y
-    - sudo apt-get install aptitude -y
 
     # install aptitude packages
-    - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
-
-    - sudo apt-get autoremove -y
-
-    - df -h
+    - LDFLAGS=-lm sudo apt-get install -y $(< requirements)
 
     # ffmpeg
     - wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
     - tar xjvf ffmpeg-snapshot.tar.bz2
-    - cd ffmpeg && ./configure --enable-gpl --enable-libx264 --enable-libvpx && make && sudo make install && cd ..
+    - cd ffmpeg && ./configure --enable-gpl --enable-libx264 --enable-libvpx && make -j2 && sudo make install && cd ..
 
     # webp - compiling from source
     - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
@@ -34,7 +33,7 @@ install:
     - sudo ldconfig
 
     # install python requirements
-    - make setup
+    - make -j2 setup
 
 script:
     # finally run tests

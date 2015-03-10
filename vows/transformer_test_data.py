@@ -145,7 +145,7 @@ class TestData(object):
                 'bottom': self.crop_bottom
             },
             adaptive=self.adaptive,
-            full = self.full,
+            full=self.full,
             fit_in=self.fit_in,
             horizontal_flip=flip_horizontally,
             vertical_flip=flip_vertically,

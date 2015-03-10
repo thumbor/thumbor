@@ -31,3 +31,11 @@ opencv
 /debian/tmp/
 .ropeproject/
 .venv
+
+# Virtualenv
+.Python
+bin/
+include/
+lib/
+man/
+

@@ -20,7 +20,7 @@ from thumbor.app import ThumborServiceApp
 class ThumborServiceTest(AsyncHTTPTestCase):
 
     def get_app(self):
-        return ThumborServiceApp()
+        return ThumborServiceApp({})
 
     def test_app_exists_and_is_instanceof_thumborserviceapp(self):
         assert isinstance(self._app, ThumborServiceApp), 'App does not exist or is not instance of the ThumborServiceApp class'
