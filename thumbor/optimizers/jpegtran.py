@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import os
+import subprocess
 
 from thumbor.optimizers import BaseOptimizer
 
@@ -25,4 +25,4 @@ class Optimizer(BaseOptimizer):
             output_file,
             input_file,
         )
-        os.system(command)
+        subprocess.call(command, shell=True)
