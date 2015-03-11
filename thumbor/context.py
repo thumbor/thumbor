@@ -17,24 +17,35 @@ import statsd
 
 class ThumborStatsClient(statsd.StatsClient):
 
-  def __init__(self, config):
-    self.config = config
-    if config and config.STATSD_HOST:
-      self.enabled = True
-      host = config.STATSD_HOST
-      prefix = config.STATSD_PREFIX
-    else:
-      self.enabled = False
-      # Just setting this so we can initialize the client -
-      # we never send any data if enabled is false
-      host = 'localhost'
-      prefix=None
-    super(ThumborStatsClient, self).__init__(host, 8125, prefix)
+    @classmethod
+    def instance(cls, config):
+        """
+        Cache stats client so it doesn't do a DNS lookup
+        over and over
+        """
+        if not hasattr(cls, "_instance"):
+            cls._instance = ThumborStatsClient(config)
+        return cls._instance
 
-  def _send(self, data):
-    logger.debug("STATSD: %s", data)
-    if self.enabled:
-      super(ThumborStatsClient, self)._send(data)
+
+    def __init__(self, config):
+        self.config = config
+        if config and config.STATSD_HOST:
+            self.enabled = True
+            host = config.STATSD_HOST
+            prefix = config.STATSD_PREFIX
+        else:
+            self.enabled = False
+            # Just setting this so we can initialize the client -
+            # we never send any data if enabled is false
+            host = 'localhost'
+            prefix=None
+        super(ThumborStatsClient, self).__init__(host, 8125, prefix)
+
+    def _send(self, data):
+        logger.debug("STATSD: %s", data)
+        if self.enabled:
+            super(ThumborStatsClient, self)._send(data)
 
 
 class Context:
@@ -57,8 +68,7 @@ class Context:
             self.modules = None
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
-        self.statsd_client = ThumborStatsClient(config)
-
+        self.statsd_client = ThumborStatsClient.instance(config)
 
 
 class ServerParameters(object):
