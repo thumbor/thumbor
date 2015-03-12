@@ -244,6 +244,7 @@ class BaseHandler(tornado.web.RequestHandler):
             results = self._process_result_from_storage(result_from_storage)
             image_extension, content_type = self.define_image_type(context, results)
             self._write_results_to_client(context, results, content_type)
+            return
 
         should_store = result_from_storage is None and (
             context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
