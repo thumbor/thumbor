@@ -87,5 +87,22 @@ class MainHandlerFitInImagesTest(ImageTestCase):
         assert width == 200, width
         assert height == 151, height
 
+
+class MainHandlerAllowDimensions(AsyncHTTPTestCase):
+
+    def get_app(self):
+        return ThumborServiceApp(get_conf_path('allow_dimensions_conf.py'))
+
+    def test_allowed_dimension(self):
+        self.http_client.fetch(self.get_url('/unsafe/100x100/www.globo.com/media/globocom/img/sprite1.png'), self.stop)
+        response = self.wait(timeout=20)
+        self.assertEqual(200, response.code)
+
+    def test_not_allowed_dimension(self):
+        self.http_client.fetch(self.get_url('/unsafe/200x200/www.globo.com/media/globocom/img/sprite1.png'), self.stop)
+        response = self.wait(timeout=20)
+        self.assertEqual(404, response.code)
+
+
 if __name__ == '__main__':
     unittest.main()
