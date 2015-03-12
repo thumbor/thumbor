@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import os
+import subprocess
 
 from thumbor.optimizers import BaseOptimizer
 
@@ -28,7 +29,8 @@ class Optimizer(BaseOptimizer):
             command_params,
             output_file,
         )
-        os.system(command)
+        with open(os.devnull) as null:
+            subprocess.call(command, shell=True, stdin=null)
         self.context.request.format = format
 
     def set_format(self):
