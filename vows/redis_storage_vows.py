@@ -98,23 +98,42 @@ class RedisStorageVows(RedisDBContext):
 
     class HandleErrors(Vows.Context):
         class CanRaiseErrors(Vows.Context):
+            @Vows.capture_error
             def topic(self):
-                config = Config(REDIS_STORAGE_SERVER_PORT=300, REDIS_STORAGE_SERVER_PASSWORD='nope', REDIS_STORAGE_IGNORE_ERRORS=False)
-                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                config = Config(
+                    REDIS_STORAGE_SERVER_PORT=300,
+                    REDIS_STORAGE_SERVER_PASSWORD='nope',
+                    REDIS_STORAGE_IGNORE_ERRORS=False
+                )
+                storage = RedisStorage(
+                    context=Context(
+                        config=config,
+                        server=get_server('ACME-SEC')
+                    ),
+                    shared_client=False
+                )
 
-                return storage
+                return storage.exists(IMAGE_URL % 2)
 
-            def should_throw_an_exception(self, storage):
-                expect(storage.exists(IMAGE_URL % 2)).should_throw_an_exception(redis.RedisError)
+            def should_throw_an_exception(self, topic):
+                expect(
+                    topic
+                ).to_be_an_error_like(redis.RedisError)
 
         class IgnoreErrors(Vows.Context):
             def topic(self):
                 config = Config(
-                    REDIS_STORAGE_SERVER_PORT=6668,
+                    REDIS_STORAGE_SERVER_PORT=300,
                     REDIS_STORAGE_SERVER_PASSWORD='nope',
                     REDIS_STORAGE_IGNORE_ERRORS=True
                 )
-                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+                storage = RedisStorage(
+                    context=Context(
+                        config=config,
+                        server=get_server('ACME-SEC')
+                    ),
+                    shared_client=False
+                )
 
                 return storage
 
