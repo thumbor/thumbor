@@ -96,6 +96,34 @@ class RedisStorageVows(RedisDBContext):
         def should_have_proper_bytes(self, topic):
             expect(topic).to_equal(IMAGE_BYTES)
 
+    class HandleErrors(Vows.Context):
+        class CanRaiseErrors(Vows.Context):
+            def topic(self):
+                config = Config(REDIS_STORAGE_SERVER_PORT=300, REDIS_STORAGE_SERVER_PASSWORD='nope', REDIS_STORAGE_IGNORE_ERRORS=False)
+                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+
+                return storage
+
+            def should_throw_an_exception(self, storage):
+                expect(storage.exists(IMAGE_URL % 2)).should_throw_an_exception(redis.RedisError)
+
+        class IgnoreErrors(Vows.Context):
+            def topic(self):
+                config = Config(
+                    REDIS_STORAGE_SERVER_PORT=6668,
+                    REDIS_STORAGE_SERVER_PASSWORD='nope',
+                    REDIS_STORAGE_IGNORE_ERRORS=True
+                )
+                storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
+
+                return storage
+
+            def should_return_false(self, storage):
+                expect(storage.exists(IMAGE_URL % 2)).to_equal(False)
+
+            def should_return_none(self, storage):
+                expect(storage.get(IMAGE_URL % 2)).to_equal(None)
+
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
             def topic(self):
@@ -178,3 +206,4 @@ class RedisStorageVows(RedisDBContext):
 
             def should_not_be_null(self, topic):
                 expect(topic).to_be_null()
+

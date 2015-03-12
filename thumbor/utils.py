@@ -32,10 +32,25 @@ class on_exception(object):
             self_instance = args[0] if len(args) > 0 else None
             try:
                 return fn(*args, **kwargs)
-            except self.exception_class:
+            except self.exception_class as exc_value:
                 if self.callback:
-                    self.callback(self_instance) if self_instance else self.callback()
-                raise
+                    # Execute the callback and let it handle the exception
+                    if self_instance:
+                        return self.callback(
+                            self_instance,
+                            fn.__name__,
+                            self.exception_class,
+                            exc_value
+                        )
+                    else:
+                        return self.callback(
+                            fn.__name__,
+                            self.exception_class,
+                            exc_value
+                        )
+                else:
+                    raise
+
         return wrapper
 
 
