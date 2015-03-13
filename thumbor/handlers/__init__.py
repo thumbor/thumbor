@@ -191,10 +191,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
         logger.debug('Content Type of %s detected.' % content_type)
 
-        return image_extension, content_type
+        return (image_extension, content_type)
 
-    def finish_request(self, context, result=None):
-        image_extension, content_type = self.define_image_type(context, result)
+    def _load_results(self, context):
+        image_extension, content_type = self.define_image_type(context, None)
 
         quality = self.context.request.quality
         if quality is None:
@@ -202,12 +202,65 @@ class BaseHandler(tornado.web.RequestHandler):
                 quality = self.context.config.get('WEBP_QUALITY', self.context.config.QUALITY)
             else:
                 quality = self.context.config.QUALITY
+        results = context.request.engine.read(image_extension, quality)
+        if context.request.max_bytes is not None:
+            results = self.reload_to_fit_in_kb(
+                context.request.engine,
+                results,
+                image_extension,
+                quality,
+                context.request.max_bytes
+            )
+        if not context.request.meta:
+            results = self.optimize(context, image_extension, results)
+        if context.request.format:
+            # An optimizer might have modified the image format.
+            content_type = CONTENT_TYPE.get('.%s' % context.request.format, content_type)
+        return results, content_type
 
-        self.set_header('Server', 'Thumbor/%s' % __version__)
+    def _process_result_from_storage(self, result):
+        if self.context.config.SEND_IF_MODIFIED_LAST_MODIFIED_HEADERS:
+            # Handle If-Modified-Since & Last-Modified header
+            try:
+                result_last_modified = self.context.modules.result_storage.last_updated()
+            except NotImplementedError:
+                logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & Last-Updated headers support is disabled.')
 
-        if context.config.AUTO_WEBP and not context.request.engine.is_multiple() and context.request.engine.extension != '.webp':
-            self.set_header('Vary', 'Accept')
+            if result_last_modified:
+                if 'If-Modified-Since' in self.request.headers:
+                    date_modified_since = datetime.datetime.strptime(self.request.headers['If-Modified-Since'], HTTP_DATE_FMT)
 
+                    if result_last_modified <= date_modified_since:
+                        self.set_status(304)
+                        self.finish()
+                        return
+
+                self.set_header('Last-Modified', result_last_modified.strftime(HTTP_DATE_FMT))
+
+        return result
+
+    def finish_request(self, context, result_from_storage=None):
+        if result_from_storage is not None:
+            results = self._process_result_from_storage(result_from_storage)
+            image_extension, content_type = self.define_image_type(context, results)
+            self._write_results_to_client(context, results, content_type)
+            return
+
+        should_store = result_from_storage is None and (
+            context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
+
+        def inner(future):
+            results, content_type = future.result()
+            self._write_results_to_client(context, results, content_type)
+            if should_store:
+                self._store_results(context, results)
+
+        self.context.thread_pool.queue(
+            operation = functools.partial(self._load_results, context),
+            callback = inner,
+        )
+
+    def _write_results_to_client(self, context, results, content_type):
         max_age = self.context.config.MAX_AGE
 
         if self.context.request.max_age is not None:
@@ -220,58 +273,21 @@ class BaseHandler(tornado.web.RequestHandler):
             self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
             self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
 
-        # needs to be decided before loading results from the engine
-        should_store = result is None and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
-
-        if result is None:
-            results = context.request.engine.read(image_extension, quality)
-            if context.request.max_bytes is not None:
-                results = self.reload_to_fit_in_kb(
-                    context.request.engine,
-                    results,
-                    image_extension,
-                    quality,
-                    context.request.max_bytes
-                )
-            if not context.request.meta:
-                results = self.optimize(context, image_extension, results)
-        else:
-            if self.context.config.SEND_IF_MODIFIED_LAST_MODIFIED_HEADERS:
-                # Handle If-Modified-Since & Last-Modified header
-                try:
-                    result_last_modified = self.context.modules.result_storage.last_updated()
-                except NotImplementedError:
-                    logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & Last-Updated headers support is disabled.')
-
-                if result_last_modified:
-                    if 'If-Modified-Since' in self.request.headers:
-                        date_modified_since = datetime.datetime.strptime(self.request.headers['If-Modified-Since'], HTTP_DATE_FMT)
-
-                        if result_last_modified <= date_modified_since:
-                            self.set_status(304)
-                            self.finish()
-                            return
-
-                    self.set_header('Last-Modified', result_last_modified.strftime(HTTP_DATE_FMT))
-
-            results = result
-
-        if context.request.format:
-            # An optimizer might have modified the image format.
-            content_type = CONTENT_TYPE.get('.%s' % context.request.format, content_type)
-
+        self.set_header('Server', 'Thumbor/%s' % __version__)
         self.set_header('Content-Type', content_type)
+        if context.config.AUTO_WEBP and not context.request.engine.is_multiple() and context.request.engine.extension != '.webp':
+            self.set_header('Vary', 'Accept')
 
         self.write(results)
         self.finish()
 
-        if should_store:
-            if context.modules.result_storage and not context.request.prevent_result_storage:
-                start = datetime.datetime.now()
-                context.modules.result_storage.put(results)
-                finish = datetime.datetime.now()
-                context.statsd_client.incr('result_storage.bytes_written', len(results))
-                context.statsd_client.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
+    def _store_results(self, context, results):
+        if context.modules.result_storage and not context.request.prevent_result_storage:
+            start = datetime.datetime.now()
+            context.modules.result_storage.put(results)
+            finish = datetime.datetime.now()
+            context.statsd_client.incr('result_storage.bytes_written', len(results))
+            context.statsd_client.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
 
     def optimize(self, context, image_extension, results):
         for optimizer in context.modules.optimizers:

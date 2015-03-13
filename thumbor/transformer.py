@@ -181,7 +181,7 @@ class Transformer(object):
 
         self.do_image_operations()
 
-    def do_image_operations(self):
+    def img_operation_worker(self):
         if '.gif' == self.context.request.engine.extension and 'cover()' in self.context.request.filters:
             self.extract_cover()
 
@@ -199,7 +199,21 @@ class Transformer(object):
                 self.resize()
             self.flip()
 
-        self.done_callback()
+    def do_image_operations(self):
+        """
+        If ENGINE_THREADPOOL_SIZE > 0, this will schedule the image operations
+        into a threadpool.  If not, it just executes them synchronously, and
+        calls self.done_callback when it's finished.
+
+        The actual work happens in self.img_operation_worker
+        """
+        def inner(future):
+            self.done_callback()
+
+        self.context.thread_pool.queue(
+            operation = self.img_operation_worker,
+            callback = inner
+        )
 
     def extract_cover(self):
         self.engine.extract_cover()
