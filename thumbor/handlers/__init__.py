@@ -373,13 +373,20 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             self.context.statsd_client.incr('storage.miss')
 
-            def handle_loader_loaded(buffer):
+            def handle_loader_loaded(response):
+                if response is None:
+                    callback(False, None)
+                    return
+
+                buffer = response.body
+
                 if buffer is None:
                     callback(False, None)
                     return
 
                 original_preserve = self.context.config.PRESERVE_EXIF_INFO
                 self.context.config.PRESERVE_EXIF_INFO = True
+                self.set_header('Last-Modified', response.headers['Last-Modified'])
 
                 try:
                     mime = BaseEngine.get_mimetype(buffer)
