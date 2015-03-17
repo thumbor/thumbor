@@ -19,16 +19,18 @@ install:
     - sudo apt-get install aptitude -y
 
     # install aptitude packages
-    - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
+    - LDFLAGS=-lm sudo aptitude install -y $(< requirements) xz-utils
 
     - sudo apt-get autoremove -y
 
     - df -h
 
-    # ffmpeg
-    - wget http://ffmpeg.org/releases/ffmpeg-2.6.1.tar.bz2
-    - tar xjvf ffmpeg-2.6.1.tar.bz2
-    - cd ffmpeg-2.6.1 && ./configure --enable-gpl --enable-libx264 --enable-libvpx && make && sudo make install && cd ..
+    # Install the latest ffmpeg release
+    - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz -O /tmp/ffmpeg-release.tar.xz
+    - mkdir /tmp/ffmpeg-release
+    - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
+    - export PATH=$PATH:/tmp/ffmpeg-release
+    - ffmpeg -version
 
     # webp - compiling from source
     - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
