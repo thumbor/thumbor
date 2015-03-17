@@ -96,6 +96,53 @@ class RedisStorageVows(RedisDBContext):
         def should_have_proper_bytes(self, topic):
             expect(topic).to_equal(IMAGE_BYTES)
 
+    class HandleErrors(Vows.Context):
+        class CanRaiseErrors(Vows.Context):
+            @Vows.capture_error
+            def topic(self):
+                config = Config(
+                    REDIS_STORAGE_SERVER_PORT=300,
+                    REDIS_STORAGE_SERVER_PASSWORD='nope',
+                    REDIS_STORAGE_IGNORE_ERRORS=False
+                )
+                storage = RedisStorage(
+                    context=Context(
+                        config=config,
+                        server=get_server('ACME-SEC')
+                    ),
+                    shared_client=False
+                )
+
+                return storage.exists(IMAGE_URL % 2)
+
+            def should_throw_an_exception(self, topic):
+                expect(
+                    topic
+                ).to_be_an_error_like(redis.RedisError)
+
+        class IgnoreErrors(Vows.Context):
+            def topic(self):
+                config = Config(
+                    REDIS_STORAGE_SERVER_PORT=300,
+                    REDIS_STORAGE_SERVER_PASSWORD='nope',
+                    REDIS_STORAGE_IGNORE_ERRORS=True
+                )
+                storage = RedisStorage(
+                    context=Context(
+                        config=config,
+                        server=get_server('ACME-SEC')
+                    ),
+                    shared_client=False
+                )
+
+                return storage
+
+            def should_return_false(self, storage):
+                expect(storage.exists(IMAGE_URL % 2)).to_equal(False)
+
+            def should_return_none(self, storage):
+                expect(storage.get(IMAGE_URL % 2)).to_equal(None)
+
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
             def topic(self):
@@ -178,3 +225,4 @@ class RedisStorageVows(RedisDBContext):
 
             def should_not_be_null(self, topic):
                 expect(topic).to_be_null()
+

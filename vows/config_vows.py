@@ -34,6 +34,7 @@ TEST_DATA = (
     ('REDIS_STORAGE_SERVER_HOST', 'localhost'),
     ('REDIS_STORAGE_SERVER_PORT', 6379),
     ('REDIS_STORAGE_SERVER_DB', 0),
+    ('REDIS_STORAGE_IGNORE_ERRORS', False),
     ('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage'),
     ('MIXED_STORAGE_CRYPTO_STORAGE', 'thumbor.storages.no_storage'),
     ('MIXED_STORAGE_DETECTOR_STORAGE', 'thumbor.storages.no_storage'),
