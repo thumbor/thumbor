@@ -74,14 +74,14 @@ class Context:
 
     def __init__(self, server=None, config=None, importer=None, request_handler=None):
         '''
-        :param server:
+        :param server: Server parameters
         :type server: thumbor.context.ServerParameters
-        :param config:
-        :type config:
-        :param importer:
-        :type importer:
-        :param request_handler:
-        :type request_handler:
+        :param config: Thumbor configuration
+        :type config: derpconf.config.Config
+        :param importer: Thumbor class importer
+        :type importer: thumbor.importer.Importer
+        :param request_handler: The Tornado request handler
+        :type request_handler: thumbor.handlers.BaseHandler
         '''
 
         self.server = server
