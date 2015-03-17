@@ -22,10 +22,22 @@ from thumbor.handlers.imaging import ImagingHandler
 class ThumborServiceApp(tornado.web.Application):
 
     def __init__(self, context):
+        '''Initialize the ThumborServiceApp with the given context.
+
+        :param context: The thumbor execution context.
+        :type context: thumbor.context.Context
+        '''
+
         self.context = context
         super(ThumborServiceApp, self).__init__(self.get_handlers())
 
     def get_handlers(self):
+        '''Returns a list of Tornado HTTP handlers.
+
+        :returns: A list of Tornado HTTP handlers
+        :rtype: list
+        '''
+
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
         ]
