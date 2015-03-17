@@ -23,15 +23,22 @@ class ThumborStatsClient(statsd.StatsClient):
     @classmethod
     def instance(cls, config):
         """
-        Cache stats client so it doesn't do a DNS lookup
-        over and over
+        :returns: Instance of the ThumborStatsClient object.
+        :rtype: thumbor.context.ThumborStatsClient
         """
+
+        # Cache stats client so it doesn't do a DNS lookup over and over
         if not hasattr(cls, "_instance"):
             cls._instance = ThumborStatsClient(config)
         return cls._instance
 
 
     def __init__(self, config):
+        """
+        :param config: Thumbor configuration
+        :type config: thumbor.config.Config
+        """
+
         self.config = config
         if config and config.STATSD_HOST:
             self.enabled = True
@@ -43,6 +50,7 @@ class ThumborStatsClient(statsd.StatsClient):
             # we never send any data if enabled is false
             host = 'localhost'
             prefix=None
+
         super(ThumborStatsClient, self).__init__(host, 8125, prefix)
 
     def _send(self, data):
@@ -54,15 +62,28 @@ class ThumborStatsClient(statsd.StatsClient):
 class Context:
     '''
     Class responsible for containing:
-    * Server Configuration Parameters (port, ip, key, etc);
-    * Configurations read from config file (or defaults);
-    * Importer with imported modules (engine, filters, detectors, etc);
+
+    * Server Configuration Parameters (port, ip, key, etc).
+    * Configurations read from config file (or defaults).
+    * Importer with imported modules (engine, filters, detectors, etc).
     * Request Parameters (width, height, smart, meta, etc).
 
-    Each instance of this class MUST be unique per request. This class should not be cached in the server.
+    Each instance of this class MUST be unique per request.
+    This class should not be cached in the server.
     '''
 
     def __init__(self, server=None, config=None, importer=None, request_handler=None):
+        '''
+        :param server:
+        :type server: thumbor.context.ServerParameters
+        :param config:
+        :type config:
+        :param importer:
+        :type importer:
+        :param request_handler:
+        :type request_handler:
+        '''
+
         self.server = server
         self.config = config
         if importer:
