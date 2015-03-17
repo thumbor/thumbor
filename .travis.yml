@@ -29,7 +29,7 @@ install:
     - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz -O /tmp/ffmpeg-release.tar.xz
     - mkdir /tmp/ffmpeg-release
     - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
-    - export PATH=$PATH:/tmp/ffmpeg-release
+    - sudo ln -s /tmp/ffmpeg-release/ffmpeg /usr/local/bin/ffmpeg
     - ffmpeg -version
 
     # webp - compiling from source
