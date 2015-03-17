@@ -1,7 +1,10 @@
 language: python
+
 python:
     - "2.7_with_system_site_packages"
     - "3.2"
+
+cache: pip
 
 matrix:
     fast_finish: true
@@ -23,8 +26,8 @@ install:
     - df -h
 
     # ffmpeg
-    - wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
-    - tar xjvf ffmpeg-snapshot.tar.bz2
+    - wget http://ffmpeg.org/releases/ffmpeg-2.6.1.tar.bz2
+    - tar xjvf ffmpeg-2.6.1.tar.bz2
     - cd ffmpeg && ./configure --enable-gpl --enable-libx264 --enable-libvpx && make && sudo make install && cd ..
 
     # webp - compiling from source
