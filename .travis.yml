@@ -28,7 +28,7 @@ install:
     # ffmpeg
     - wget http://ffmpeg.org/releases/ffmpeg-2.6.1.tar.bz2
     - tar xjvf ffmpeg-2.6.1.tar.bz2
-    - cd ffmpeg && ./configure --enable-gpl --enable-libx264 --enable-libvpx && make && sudo make install && cd ..
+    - cd ffmpeg-2.6.1 && ./configure --enable-gpl --enable-libx264 --enable-libvpx && make && sudo make install && cd ..
 
     # webp - compiling from source
     - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
