@@ -11,6 +11,10 @@ matrix:
     allow_failures:
         - python: "3.2"
 
+env:
+    - INTEGRATION_TEST=1
+    - UNIT_TEST=1
+
 install:
     #removing unwanted packages
     - sudo apt-get remove --purge -y $(< unwanted_packages)

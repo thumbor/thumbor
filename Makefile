@@ -22,8 +22,15 @@ ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+	@if [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) pyvows_run; else $(MAKE) integration_run; fi
+
+
+pyvows_run:
 	@pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
+
+integration_run:
 	@nosetests -sv thumbor/integration_tests/
+
 
 mysql_test: pretest
 	PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py
