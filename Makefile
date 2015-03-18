@@ -22,10 +22,8 @@ ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	$(MAKE) mongo redis
 	@pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
 	@nosetests -sv thumbor/integration_tests/
-	$(MAKE) kill_mongo kill_redis
 
 mysql_test: pretest
 	PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py

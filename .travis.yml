@@ -33,13 +33,17 @@ install:
     - ffmpeg -version
 
     # webp - compiling from source
-    - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
-    - tar xvzf libwebp-0.4.0.tar.gz
-    - cd libwebp-0.4.0 && ./configure --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder && make && sudo make install; cd ..
-    - sudo ldconfig
+    # - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
+    # - tar xvzf libwebp-0.4.0.tar.gz
+    # - cd libwebp-0.4.0 && ./configure --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder && make && sudo make install; cd ..
+    # - sudo ldconfig
 
     # install python requirements
     - make setup
+
+before_script:
+    - make mongo
+    - make redis
 
 script:
     # finally run tests
