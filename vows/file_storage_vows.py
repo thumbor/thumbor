@@ -84,6 +84,8 @@ class FileStorageVows(Vows.Context):
 
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
+
+            @Vows.capture_error
             def topic(self):
                 config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/", STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = FileStorage(Context(config=config, server=get_server('')))

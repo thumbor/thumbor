@@ -50,6 +50,7 @@ class FakeHandler(object):
 @Vows.batch
 class SentryErrorHandlerVows(Vows.Context):
     class WhenInvalidConfiguration(Vows.Context):
+        @Vows.capture_error
         def topic(self):
             cfg = Config()
             ErrorHandler(cfg)

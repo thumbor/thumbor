@@ -55,6 +55,8 @@ class PilEngineVows(ctx):
             expect(image.calls).Not.to_include(['convert'])
 
     class ShouldRaiseIfFiltersNotAvailable(ctx):
+
+        @Vows.capture_error
         def topic(self):
             FILTERS_AVAILABLE_BAK = PIL.FILTERS_AVAILABLE
             PIL.FILTERS_AVAILABLE = False

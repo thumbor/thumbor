@@ -43,6 +43,8 @@ class FakeHandler(object):
 @Vows.batch
 class ErrorHandlerVows(Vows.Context):
     class WhenInvalidConfiguration(Vows.Context):
+
+        @Vows.capture_error
         def topic(self):
             cfg = Config()
             ErrorHandler(cfg)
@@ -67,7 +69,7 @@ class ErrorHandlerVows(Vows.Context):
             handler.handle_error(ctx, http_handler, RuntimeError("Test"))
             #return content of file
             return tmp.read()
-      
+
         def should_have_called_client(self, topic):
             #check against json version
             log = json.loads(topic)
@@ -87,9 +89,9 @@ class ErrorHandlerVows(Vows.Context):
                 'extra': {
                     'thumbor-version':  __version__,
                     'Headers' : {
-                        'header1': 'value1', 
+                        'header1': 'value1',
                         'Cookie': {
-                            'cookie1': 'value', 
+                            'cookie1': 'value',
                             'cookie2': 'value2'
                         }
                     },
@@ -143,6 +145,8 @@ class ErrorHandlerVows(Vows.Context):
             })
 
     class WhenInvalidConfigurationOfFileNameWithContext(Vows.Context):
+
+        @Vows.capture_error
         def topic(self):
             cfg = Config(ERROR_FILE_NAME_USE_CONTEXT='server..port', ERROR_FILE_LOGGER='toto')
             ErrorHandler(cfg)

@@ -19,7 +19,7 @@ install:
     - sudo apt-get install aptitude -y
 
     # install aptitude packages
-    - LDFLAGS=-lm sudo aptitude install -y $(< requirements) xz-utils
+    - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
 
     - sudo apt-get autoremove -y
 

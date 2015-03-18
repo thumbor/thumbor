@@ -118,6 +118,8 @@ class MongoStorageVows(MongoDBContext):
                 expect(topic).Not.to_include('crypto')
 
         class StoringEmptyKeyRaises(Vows.Context):
+
+            @Vows.capture_error
             def topic(self):
                 conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 server = get_server()
@@ -247,6 +249,8 @@ class MongoStorageVows(MongoDBContext):
                 expect(topic).to_be_null()
 
         class RaisesIfWrongConfig(Vows.Context):
+
+            @Vows.capture_error
             def topic(self):
                 conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)
                 server = get_server('')
@@ -254,6 +258,7 @@ class MongoStorageVows(MongoDBContext):
                 storage.put(IMAGE_URL % 13, IMAGE_BYTES)
 
                 conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
+
                 storage.put_crypto(IMAGE_URL % 13)
 
             def should_be_an_error(self, topic):

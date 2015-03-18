@@ -40,6 +40,7 @@ class BaseDetectorVows(ctx):
             expect(topic).not_to_be_an_error()
 
     class DetectShouldRaise(ctx):
+        @Vows.capture_error
         def topic(self):
             BaseDetector("context", 1, "detectors").detect(None)
 

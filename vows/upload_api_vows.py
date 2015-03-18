@@ -616,6 +616,8 @@ class Validation(ImageContext):
     # Invalid Image
     ##
     class InvalidImage(ImageContext):
+        def topic(self):
+            pass
 
         ##
         # Posting an invalid image
@@ -669,6 +671,8 @@ class Validation(ImageContext):
     # Size constraints
     ##
     class ImageSizeConstraints(ImageContext):
+        def topic(self):
+            pass
 
         ##
         # Posting a too small image
@@ -718,6 +722,8 @@ class Validation(ImageContext):
     # Weight constraints
     ##
     class WeightConstraints(ImageContext):
+        def topic(self):
+            pass
 
         ##
         # Posting a too weight image

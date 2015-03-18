@@ -145,6 +145,9 @@ class HttpLoader(TornadoHTTPContext):
                 expect(topic).to_be_false()
 
     class NormalizeURL(TornadoHTTPContext):
+        def topic(self):
+            pass
+
         class WhenStartsWithHttp(TornadoHTTPContext):
             def topic(self):
                 return loader._normalize_url('http://some.url')
@@ -160,6 +163,9 @@ class HttpLoader(TornadoHTTPContext):
                 expect(topic).to_equal('http://some.url')
 
     class LoadAndVerifyImage(TornadoHTTPContext):
+        def topic(self):
+            pass
+
         class Load(TornadoHTTPContext):
             @Vows.async_topic
             def topic(self, callback):

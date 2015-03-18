@@ -145,6 +145,8 @@ class RedisStorageVows(RedisDBContext):
 
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
+
+            @Vows.capture_error
             def topic(self):
                 config = Config(
                     REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you',
