@@ -47,11 +47,14 @@ def return_contents(response, url, callback, context):
         logger.warn("ERROR retrieving image {0}: Empty response.".format(url))
         callback(None)
     else:
+        if not 'Last-Modified' in response.headers:
+            response.headers['Last-Modified'] = datetime.datetime.utcnow()
+
         if response.time_info:
           for x in response.time_info:
               context.statsd_client.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
           context.statsd_client.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
-        callback(response.body)
+        callback(response)
 
 
 def load(context, url, callback):
