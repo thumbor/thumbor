@@ -72,6 +72,7 @@ class deprecated(object):
 def total_seconds_of(delta):
     return (delta.microseconds + (delta.seconds + delta.days * 24 * 3600) * 10.0**6) / 10**6
 
+
 def which(program):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
