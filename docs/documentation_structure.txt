@@ -1,0 +1,68 @@
+Thumbor documentation
+---------------------
+
+Index (* About)
+    * Installing
+        * Requirements
+        * InstallingOpenCVUbuntu
+    * Getting started
+    * Usage
+    * Configuration
+    * Extending
+        * Plugins
+        * Libraries
+    * Administration
+        * Custom error handling
+        * Hosting
+        * Logging
+        * Running
+        * Scaling Thumbor
+        * Security
+        Built-in Storages
+        * Creating my own storage
+    * Imaging
+        * Crop and resize algorithms
+        * Detection algorithims
+        * How to upload images
+        * How upload works in thumbor
+        * Image loader
+        * Image storage
+        * Lazy detection
+        * Posting, putting and deleting
+        * Result storage
+    * Detectors
+        * Enabling detectors
+        * Available detectors
+        * Custom detection
+    Filters
+        * Blur
+        * Brightness
+        * Contrast
+        * Convolution
+        * Equalize
+        * Extract Focal Points
+        * Filling
+        * Format
+        * Grayscale
+        * Max bytes
+        * No Upscale
+        * Noise
+        * Quality
+        * Red eye
+        * Rgb
+        * Rotate
+        * Round corners
+        * Sharpen
+        * Strip icc
+        * Watermark
+    Releases
+        * 3.0.0 release changes
+        * Release notes
+    More
+        * The team
+        * Who's using it
+        * Hacking on thumbor
+        * Licensing
+
+
+

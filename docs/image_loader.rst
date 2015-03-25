@@ -1,0 +1,60 @@
+Image loader
+============
+
+Pre-packaged loaders
+--------------------
+
+thumbor comes pre-packaged with http and filesystem loaders.
+
+Http loader
+~~~~~~~~~~~
+
+The http loader gets the original image portion of the URI and performs
+an HTTP GET to it. It then returns the image's string representation.
+
+The http loader uses the **ALLOWED\_SOURCES** configuration to
+determine whether or not an image is from a trusted source and can thus
+be loaded.
+
+You can specify the maximum size of the source image to be loaded. The
+http loader first gets the image size (without loading its contents),
+checks against your specified size and returns 404 if the source image
+size is larger than the max size. The max size option is
+**MAX\_SOURCE\_SIZE** and the default is no maximum size.
+
+To use it you should set the **LOADER** configuration to
+**'thumbor.loaders.http\_loader'**.
+
+File loader
+~~~~~~~~~~~
+
+The file loader gets the original image portion of the URI and retrieves
+the file from the file system from a known path specified by the
+**FILE\_LOADER\_ROOT\_PATH** configuration.
+
+It joins the specified path with the configured root path and reads the
+image file if it exists.
+
+To use it you should set the **LOADER** configuration to
+**'thumbor.loaders.file\_loader'**.
+
+Custom loaders
+--------------
+
+If thumbor image loaders do not meet your needs you can implement a new
+image loader.
+
+The structure of the module you should implement can be seen in the http
+loader at
+`<https://github.com/globocom/thumbor/blob/master/thumbor/loaders/http_loader.py>`_.
+
+The only required method to implement is the one that receives the
+portion of the URI that has the original image path, named **load**.
+This method also receives a callback and should call the callback with
+the results of reading the image.
+
+Another example can be seen in the filesystem loader at
+`<https://github.com/globocom/thumbor/blob/master/thumbor/loaders/file_loader.py>`_.
+
+You can optionally implement a validate(URI) method that thumbor will
+call to make sure that your loader can accept the user required URI.
