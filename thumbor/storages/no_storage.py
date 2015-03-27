@@ -13,26 +13,26 @@ from thumbor.storages import BaseStorage
 
 class Storage(BaseStorage):
 
-    def put(self, path, bytes, callback):
-        return path
+    def put(self, path, bytes):
+        pass
 
-    def put_crypto(self, path, callback):
-        return path
+    def put_crypto(self, path):
+        pass
 
-    def put_detector_data(self, path, data, callback):
-        return path
+    def put_detector_data(self, path, data):
+        pass
 
     def get_crypto(self, path, callback):
-        return None
+        callback(None)
 
     def get_detector_data(self, path, callback):
-        return None
+        callback(None)
 
     def get(self, path, callback):
-        return None
+        callback(None)
 
     def exists(self, path, callback):
-        return False
+        callback(False)
 
     def remove(self, path, callback):
         pass

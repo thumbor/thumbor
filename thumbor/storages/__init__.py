@@ -23,14 +23,18 @@ class BaseStorage(object):
         '''
         raise NotImplementedError()
 
-    def put_crypto(self, path, callback):
+    def put_crypto(self, path):
         '''
         :returns: Nothing. This method is expected to be asynchronous.
         :rtype: None
         '''
         raise NotImplementedError()
 
-    def put_detector_data(self, path, data, callback):
+    def put_detector_data(self, path, data):
+        '''
+        :returns: Nothing. This method is expected to be asynchronous.
+        :rtype: None
+        '''
         raise NotImplementedError()
 
     def get_crypto(self, path, callback):

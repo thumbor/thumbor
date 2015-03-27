@@ -26,10 +26,6 @@ class ImagingHandler(ContextHandler):
             return None
 
     def check_image(self, kw):
-        # Check if an image with an uuid exists in storage
-        if self.context.modules.storage.exists(kw['image'][:self.context.config.MAX_ID_LENGTH]):
-            kw['image'] = kw['image'][:self.context.config.MAX_ID_LENGTH]
-
         url = self.request.uri
 
         if not self.validate(kw['image']):

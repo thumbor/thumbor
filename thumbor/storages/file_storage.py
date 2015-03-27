@@ -33,8 +33,6 @@ class Storage(storages.BaseStorage):
 
         move(temp_abspath, file_abspath)
 
-        return path
-
     def put_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return
@@ -54,8 +52,6 @@ class Storage(storages.BaseStorage):
 
         move(temp_abspath, crypto_path)
 
-        return file_abspath
-
     def put_detector_data(self, path, data):
         file_abspath = self.path_on_filesystem(path)
 
@@ -70,43 +66,47 @@ class Storage(storages.BaseStorage):
 
         move(temp_abspath, path)
 
-        return file_abspath
+    def get(self, path, callback):
 
-    def get(self, path):
         file_abspath = self.path_on_filesystem(path)
 
         if not exists(file_abspath) or self.__is_expired(file_abspath):
-            return None
-        return open(file_abspath, 'r').read()
+            callback(None)
+            return
+        callback(open(file_abspath, 'r').read())
 
-    def get_crypto(self, path):
+    def get_crypto(self, path, callback):
+
         file_abspath = self.path_on_filesystem(path)
         crypto_file = "%s.txt" % (splitext(file_abspath)[0])
 
         if not exists(crypto_file):
-            return None
-        return file(crypto_file).read()
+            callback(None)
+            return
 
-    def get_detector_data(self, path):
+        callback(file(crypto_file).read())
+
+    def get_detector_data(self, path, callback):
+
         file_abspath = self.path_on_filesystem(path)
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
 
         if not exists(path) or self.__is_expired(path):
-            return None
+            callback(None)
 
-        return loads(open(path, 'r').read())
+        callback(loads(open(path, 'r').read()))
 
     def path_on_filesystem(self, path):
         digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
         return "%s/%s/%s" % (self.context.config.FILE_STORAGE_ROOT_PATH.rstrip('/'), digest[:2], digest[2:])
 
-    def exists(self, path):
+    def exists(self, path, callback):
         n_path = self.path_on_filesystem(path)
-        return os.path.exists(n_path)
+        callback(os.path.exists(n_path))
 
     def remove(self, path):
         n_path = self.path_on_filesystem(path)
-        return os.remove(n_path)
+        os.remove(n_path)
 
     def __is_expired(self, path):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))

@@ -273,8 +273,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 self._store_results(context, results)
 
         self.context.thread_pool.queue(
-            operation = functools.partial(self._load_results, context),
-            callback = inner,
+            operation=functools.partial(self._load_results, context),
+            callback=inner,
         )
 
     def _write_results_to_client(self, context, results, content_type):
@@ -447,12 +447,12 @@ class BaseHandler(tornado.web.RequestHandler):
             self.context, url, handle_loader_loaded
         )
 
-    def get_blacklist_contents(self):
+    def get_blacklist_contents(self, callback):
         filename = 'blacklist.txt'
-        if self.context.modules.storage.exists(filename):
-            return self.context.modules.storage.get(filename)
+        if self.context.modules.storage.exists(filename, callback):
+            self.context.modules.storage.get(filename, callback)
         else:
-            return ""
+            callback("")
 
 
 class ContextHandler(BaseHandler):
