@@ -435,7 +435,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 )
 
                 if not (is_no_storage or is_mixed_no_file_storage):
-                    buffer = self.context.request.engine.read()
+                    buffer = self.context.request.engine.read(extension)
                     storage.put(url, buffer)
 
                 storage.put_crypto(url)
