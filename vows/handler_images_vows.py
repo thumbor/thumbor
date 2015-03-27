@@ -33,7 +33,6 @@ class BaseContext(TornadoHTTPContext):
     def __init__(self, *args, **kw):
         super(BaseContext, self).__init__(*args, **kw)
 
-
 @Vows.batch
 class GetImage(BaseContext):
     def get_app(self):
@@ -62,6 +61,25 @@ class GetImage(BaseContext):
         def should_be_200(self, response):
             code, _ = response
             expect(code).to_equal(200)
+
+    class WithRegularImageiWithoutExtention(TornadoHTTPContext):
+        def topic(self):
+            response = self.get('/unsafe/smart/image')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)
+
+    class WithAbsentImage(TornadoHTTPContext):
+        def topic(self):
+            response = self.get('/unsafe/smart/imag')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(404)
+
 
     class WithUnicodeImage(BaseContext):
         def topic(self):

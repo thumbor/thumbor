@@ -383,6 +383,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
                 try:
                     mime = BaseEngine.get_mimetype(buffer)
+                    extension = EXTENSION.get(mime,None)
 
                     if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                         self.context.request.engine = self.context.modules.gif_engine
@@ -396,7 +397,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
                     if not (is_no_storage or is_mixed_no_file_storage):
-                        buffer = self.context.request.engine.read()
+                        buffer = self.context.request.engine.read(extension)
                         storage.put(url, buffer)
 
                     storage.put_crypto(url)
