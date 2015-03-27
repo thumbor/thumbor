@@ -265,15 +265,9 @@ class ThreadPool(object):
             self.pool = None
 
     def _execute_in_foreground(self, operation, callback):
-
-        def process_callback():
-            result = Future()
-            result.set_result(operation())
-            callback(result)
-
-        tornado.ioloop.IOLoop.instance().add_callback(
-            functools.partial(process_callback)
-        )
+        result = Future()
+        result.set_result(operation())
+        callback(result)
 
     def _execute_in_pool(self, operation, callback):
         task = self.pool.submit(operation)
