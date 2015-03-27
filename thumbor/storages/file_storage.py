@@ -33,6 +33,8 @@ class Storage(storages.BaseStorage):
 
         move(temp_abspath, file_abspath)
 
+        return path
+
     def put_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return
@@ -52,6 +54,8 @@ class Storage(storages.BaseStorage):
 
         move(temp_abspath, crypto_path)
 
+        return file_abspath
+
     def put_detector_data(self, path, data):
         file_abspath = self.path_on_filesystem(path)
 
@@ -65,6 +69,8 @@ class Storage(storages.BaseStorage):
             _file.write(dumps(data))
 
         move(temp_abspath, path)
+
+        return file_abspath
 
     def get(self, path, callback):
 

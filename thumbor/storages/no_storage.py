@@ -14,13 +14,13 @@ from thumbor.storages import BaseStorage
 class Storage(BaseStorage):
 
     def put(self, path, bytes):
-        pass
+        return path
 
     def put_crypto(self, path):
-        pass
+        return path
 
     def put_detector_data(self, path, data):
-        pass
+        return path
 
     def get_crypto(self, path, callback):
         callback(None)
