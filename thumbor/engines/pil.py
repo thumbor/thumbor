@@ -96,11 +96,18 @@ class Engine(BaseEngine):
     def flip_horizontally(self):
         self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
 
+    def get_default_extension(self):
+        #extension is not present => force JPEG or PNG
+        if self.image.mode in ['P', 'RGBA', 'LA']:
+           return '.png'
+        else:
+           return '.jpeg'
+
     def read(self, extension=None, quality=None):
+
         #returns image buffer in byte format.
         img_buffer = BytesIO()
-
-        ext = extension or self.extension
+        ext = extension or self.extension or get_default_extension()
 
         options = {
             'quality': quality
@@ -153,14 +160,10 @@ class Engine(BaseEngine):
             self.image.save(img_buffer, FORMATS[ext])
         except KeyError:
             logger.exception('Image format not found in PIL: %s' % ext)
-
-            #extension is not present or could not help determine format => force JPEG
-            if self.image.mode in ['P', 'RGBA', 'LA']:
-                self.image.format = FORMATS['.png']
-                self.image.save(img_buffer, FORMATS['.png'])
-            else:
-                self.image.format = FORMATS['.jpg']
-                self.image.save(img_buffer, FORMATS['.jpg'])
+            ext = get_default_extention()
+            #extension could not help determine format => use default
+            self.image.format = FORMATS[ext]
+            self.image.save(img_buffer, FORMATS[ext])
 
         results = img_buffer.getvalue()
         img_buffer.close()

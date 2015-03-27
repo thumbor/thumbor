@@ -8,14 +8,17 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from io import BytesIO
+from PIL import Image
 import re
 from subprocess import Popen, PIPE
-
 from thumbor.engines.pil import Engine as PILEngine
+from thumbor.utils import logger
 
 
 GIFSICLE_SIZE_REGEX = re.compile(r'(?:logical\sscreen\s(\d+x\d+))')
 GIFSICLE_IMAGE_COUNT_REGEX = re.compile(r'(?:(\d+)\simage)')
+
 
 class Engine(PILEngine):
     @property
@@ -97,6 +100,18 @@ class Engine(PILEngine):
 
     def read(self, extension=None, quality=None):
         self.flush_operations()
+
+        # Make sure gifsicle produced a valid gif.
+        try:
+            with Image.open(BytesIO(self.buffer)) as image:
+                image.verify()
+        except Exception:
+            self.context.statsd_client.incr('gif_engine.no_output')
+            logger.error("[GIF_ENGINE] invalid gif engine result for url `{url}`.".format(
+                url=self.context.request.url
+            ))
+            raise
+
         return self.buffer
 
     def convert_to_grayscale(self):

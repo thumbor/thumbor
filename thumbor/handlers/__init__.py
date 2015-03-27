@@ -417,6 +417,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
             try:
                 mime = BaseEngine.get_mimetype(buffer)
+                extension = EXTENSION.get(mime, None)
 
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
