@@ -99,16 +99,21 @@ class Storage(BaseStorage):
     def __detector_key_for(self, url):
         return 'thumbor-detector-%s' % url
 
-    @on_exception(on_redis_error, RedisError)
     def put(self, path, bytes):
-        storage = self.get_storage()
-        storage.set(path, bytes)
-        storage.expireat(
-            path, datetime.now() + timedelta(
-                seconds=self.context.config.STORAGE_EXPIRATION_SECONDS
+
+        @on_exception(self.on_redis_error, RedisError)
+        def wrap():
+            storage = self.get_storage()
+            storage.set(path, bytes)
+            storage.expireat(
+                path, datetime.now() + timedelta(
+                    seconds=self.context.config.STORAGE_EXPIRATION_SECONDS
+                )
             )
-        )
-        return path
+
+            return path
+
+        wrap()
 
     @on_exception(on_redis_error, RedisError)
     def put_crypto(self, path):
@@ -160,6 +165,9 @@ class Storage(BaseStorage):
             return
         return self.get_storage().delete(path)
 
-    @on_exception(on_redis_error, RedisError)
-    def get(self, path):
-        return self.get_storage().get(path)
+    def get(self, path, callback):
+        @on_exception(self.on_redis_error, RedisError)
+        def wrap():
+            return self.get_storage().get(path)
+
+        callback(wrap())

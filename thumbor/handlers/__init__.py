@@ -376,61 +376,76 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def _fetch(self, url, extension, callback):
         storage = self.context.modules.storage
-
         start = datetime.datetime.now()
-        buffer = storage.get(url)
-        finish = datetime.datetime.now()
 
-        self.context.statsd_client.timing(
-            'storage.incoming_time',
-            (finish - start).total_seconds() * 1000
+        def storage_get_callback(buffer):
+            finish = datetime.datetime.now()
+            self.context.statsd_client.timing(
+                'storage.incoming_time',
+                (finish - start).total_seconds() * 1000
+            )
+
+            if buffer is not None:
+                self.context.statsd_client.incr('storage.hit')
+
+                mime = BaseEngine.get_mimetype(buffer)
+                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                    self.context.request.engine = self.context.modules.gif_engine
+                else:
+                    self.context.request.engine = self.context.modules.engine
+
+                callback(False, buffer=buffer)
+            else:
+                self._on_storage_miss(url, extension, callback)
+
+        storage.get(
+            url,
+            storage_get_callback
         )
 
-        if buffer is not None:
-            self.context.statsd_client.incr('storage.hit')
-            mime = BaseEngine.get_mimetype(buffer)
-            if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                self.context.request.engine = self.context.modules.gif_engine
-            else:
-                self.context.request.engine = self.context.modules.engine
+    def _on_storage_miss(self, url, extension, callback):
+        storage = self.context.modules.storage
+        self.context.statsd_client.incr('storage.miss')
 
-            callback(False, buffer=buffer)
-        else:
-            self.context.statsd_client.incr('storage.miss')
+        def handle_loader_loaded(buffer):
+            if buffer is None:
+                callback(False, None)
+                return
 
-            def handle_loader_loaded(buffer):
-                if buffer is None:
-                    callback(False, None)
-                    return
+            original_preserve = self.context.config.PRESERVE_EXIF_INFO
+            self.context.config.PRESERVE_EXIF_INFO = True
 
-                original_preserve = self.context.config.PRESERVE_EXIF_INFO
-                self.context.config.PRESERVE_EXIF_INFO = True
+            try:
+                mime = BaseEngine.get_mimetype(buffer)
 
-                try:
-                    mime = BaseEngine.get_mimetype(buffer)
+                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                    self.context.request.engine = self.context.modules.gif_engine
+                else:
+                    self.context.request.engine = self.context.modules.engine
 
-                    if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                        self.context.request.engine = self.context.modules.gif_engine
-                    else:
-                        self.context.request.engine = self.context.modules.engine
+                self.context.request.engine.load(buffer, extension)
+                normalized = self.context.request.engine.normalize()
+                is_no_storage = isinstance(storage, NoStorage)
+                is_mixed_storage = isinstance(storage, MixedStorage)
+                is_mixed_no_file_storage = (
+                    is_mixed_storage and isinstance(
+                        storage.file_storage, NoStorage
+                    )
+                )
 
-                    self.context.request.engine.load(buffer, extension)
-                    normalized = self.context.request.engine.normalize()
-                    is_no_storage = isinstance(storage, NoStorage)
-                    is_mixed_storage = isinstance(storage, MixedStorage)
-                    is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
+                if not (is_no_storage or is_mixed_no_file_storage):
+                    buffer = self.context.request.engine.read()
+                    storage.put(url, buffer)
 
-                    if not (is_no_storage or is_mixed_no_file_storage):
-                        buffer = self.context.request.engine.read()
-                        storage.put(url, buffer)
+                storage.put_crypto(url)
+            finally:
+                self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
-                    storage.put_crypto(url)
-                finally:
-                    self.context.config.PRESERVE_EXIF_INFO = original_preserve
+            callback(normalized, engine=self.context.request.engine)
 
-                callback(normalized, engine=self.context.request.engine)
-
-            self.context.modules.loader.load(self.context, url, handle_loader_loaded)
+        self.context.modules.loader.load(
+            self.context, url, handle_loader_loaded
+        )
 
     def get_blacklist_contents(self):
         filename = 'blacklist.txt'
