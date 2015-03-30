@@ -449,11 +449,15 @@ class BaseHandler(tornado.web.RequestHandler):
         )
 
     def get_blacklist_contents(self, callback):
+
+        def on_blacklist_exists(exists):
+            if exists:
+                self.context.modules.storage.get(filename, callback)
+            else:
+                callback("")
+
         filename = 'blacklist.txt'
-        if self.context.modules.storage.exists(filename, callback):
-            self.context.modules.storage.get(filename, callback)
-        else:
-            callback("")
+        self.context.modules.storage.exists(filename, on_blacklist_exists)
 
 
 class ContextHandler(BaseHandler):

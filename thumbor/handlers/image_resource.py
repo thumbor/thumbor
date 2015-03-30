@@ -22,26 +22,31 @@ class ImageResourceHandler(ImageApiHandler):
     def check_resource(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
 
-        def on_storage_response(exists):
+        def on_storage_response(body):
+            '''Callback for storage.get'''
+
+            self.set_status(200)
+
+            mime = BaseEngine.get_mimetype(body)
+            if mime:
+                self.set_header('Content-Type', mime)
+
+            max_age = self.context.config.MAX_AGE
+            if max_age:
+                self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
+                self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
+            self.write(body)
+
+        def on_storage_exists(exists):
+            '''Callback for storage.exists'''
 
             # Check if image exists
             if exists:
-                body = self.context.modules.storage.get(id)
-                self.set_status(200)
-
-                mime = BaseEngine.get_mimetype(body)
-                if mime:
-                    self.set_header('Content-Type', mime)
-
-                max_age = self.context.config.MAX_AGE
-                if max_age:
-                    self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
-                    self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
-                self.write(body)
+                self.context.modules.storage.get(id, on_storage_response)
             else:
                 self._error(404, 'Image not found at the given URL')
 
-        self.context.modules.storage.exists(id, on_storage_response)
+        self.context.modules.storage.exists(id, on_storage_exists)
 
     def put(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
