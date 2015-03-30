@@ -119,24 +119,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
             self.filters_runner.apply_filters(thumbor.filters.PHASE_AFTER_LOAD, transform)
 
-        start = datetime.datetime.now()
-
-        def fetch_completed(future):
-            finish = datetime.datetime.now()
-            self.context.statsd_client.timing(
-                'get_image.time',
-                (finish - start).total_seconds() * 1000
-            )
-
-        self.context.thread_pool.queue(
-            operation=functools.partial(
-                self._fetch,
-                self.context.request.image_url,
-                self.context.request.extension,
-                callback
-            ),
-            callback=fetch_completed
-        )
+        self._fetch(self.context.request.image_url, self.context.request.extension, callback)
 
     def normalize_crops(self, normalized, req, engine):
         new_crops = None
