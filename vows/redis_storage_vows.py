@@ -59,7 +59,7 @@ class RedisStorageVows(RedisDBContext):
 
         def should_not_exist(self, topic):
             expect(topic).not_to_be_an_error()
-            expect(topic).to_be_false()
+            expect(topic[0]).to_be_false()
 
     class CanRemoveImage(Vows.Context):
         def topic(self):
@@ -101,7 +101,6 @@ class RedisStorageVows(RedisDBContext):
 
     class HandleErrors(Vows.Context):
         class CanRaiseErrors(Vows.Context):
-            @Vows.capture_error
             @Vows.async_topic
             def topic(self, callback):
                 config = Config(
@@ -117,7 +116,10 @@ class RedisStorageVows(RedisDBContext):
                     shared_client=False
                 )
 
-                storage.exists(IMAGE_URL % 2, callback)
+                try:
+                    storage.exists(IMAGE_URL % 2, callback)
+                except redis.RedisError as e:
+                    callback(e)
 
             def should_throw_an_exception(self, topic):
                 expect(
@@ -174,7 +176,7 @@ class RedisStorageVows(RedisDBContext):
                 storage.get_crypto(IMAGE_URL % 9999, callback)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 
         class DoesNotStoreIfConfigSaysNotTo(Vows.Context):
             @Vows.async_topic
@@ -186,7 +188,7 @@ class RedisStorageVows(RedisDBContext):
                 storage.get_crypto(IMAGE_URL % 5, callback)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 
         class CanStoreCrypto(Vows.Context):
             @Vows.async_topic
@@ -202,11 +204,11 @@ class RedisStorageVows(RedisDBContext):
                 storage.get_crypto(IMAGE_URL % 6, callback)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic[0]).not_to_be_null()
+                expect(topic[0]).not_to_be_an_error()
 
             def should_have_proper_key(self, topic):
-                expect(topic).to_equal('ACME-SEC')
+                expect(topic[0]).to_equal('ACME-SEC')
 
     class DetectorVows(Vows.Context):
         class CanStoreDetectorData(Vows.Context):

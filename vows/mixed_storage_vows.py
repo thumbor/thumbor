@@ -51,23 +51,29 @@ class Storage(object):
         callback(self.storage[path]['contents'])
 
 
+def get_storages():
+    return (
+        Storage('security-key'),
+        Storage('security-key'),
+        Storage('detector')
+    )
+
+def get_mixed_storage():
+    file_storage, crypto_storage, detector_storage = get_storages()
+    storage = MixedStorage(None, file_storage, crypto_storage, detector_storage)
+
+    storage.put('path1', 'contents')
+    storage.put_crypto('path1')
+    storage.put_detector_data('path1', 'detector')
+    return storage
+
 @Vows.batch
 class MixedStorageVows(Vows.Context):
-    def topic(self):
-        return (Storage('security-key'), Storage('security-key'), Storage('detector'))
-
     class Put(Vows.Context):
-        def topic(self, storages):
-            file_storage, crypto_storage, detector_storage = storages
-            storage = MixedStorage(None, file_storage, crypto_storage, detector_storage)
-
-            storage.put('path1', 'contents')
-            storage.put_crypto('path1')
-            storage.put_detector_data('path1', 'detector')
-
-            return storage
-
         class IncludesPath(Vows.Context):
+            def topic(self, storages):
+                return get_mixed_storage()
+
             def should_record_path(self, topic):
                 file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
                 expect(file_storage.storage['path1']['path']).to_equal('path1')
@@ -90,7 +96,8 @@ class MixedStorageVows(Vows.Context):
 
         class Get(Vows.Context):
             @Vows.async_topic
-            def topic(self, storage, callback):
+            def topic(self, callback):
+                storage = get_mixed_storage()
                 storage.get('path1', callback)
 
             def should_get_contents(self, topic):
@@ -98,7 +105,8 @@ class MixedStorageVows(Vows.Context):
 
         class GetCrypto(Vows.Context):
             @Vows.async_topic
-            def topic(storage, callback):
+            def topic(self, callback):
+                storage = get_mixed_storage()
                 storage.get_crypto('path1', callback)
 
             def should_get_crypto(self, topic):
@@ -106,23 +114,19 @@ class MixedStorageVows(Vows.Context):
 
         class GetDetectorData(Vows.Context):
             @Vows.async_topic
-            def topic(storage, callback):
+            def topic(self, callback):
+                storage = get_mixed_storage()
                 storage.get_detector_data('path1', callback)
 
             def should_get_detector_data(self, topic):
                 expect(topic[0]).to_equal('detector')
 
     class GetFromConfig(Vows.Context):
-        def topic(self, storages):
-            context = get_context()
-            file_storage, crypto_storage, detector_storage = storages
-            storage = MixedStorage(context)
-
-            return storage
-
         class GetData(Vows.Context):
             @Vows.async_topic
-            def topic(self, storage, callback):
+            def topic(self, callback):
+                context = get_context()
+                storage = MixedStorage(context)
 
                 def on_storage(body):
                     callback(storage, body)
@@ -137,10 +141,14 @@ class MixedStorageVows(Vows.Context):
 
         class GetDetectorData(Vows.Context):
             @Vows.async_topic
-            def topic(self, storage, callback):
+            def topic(self, callback):
+
+                context = get_context()
+                storage = MixedStorage(context)
 
                 def on_storage(body):
                     callback(storage, body)
+
                 storage.get_detector_data('path', on_storage)
 
             def should_have_proper_detector_storage(self, topic):
@@ -151,7 +159,10 @@ class MixedStorageVows(Vows.Context):
 
         class GetCrypto(Vows.Context):
             @Vows.async_topic
-            def topic(self, storage, callback):
+            def topic(self, callback):
+                context = get_context()
+                storage = MixedStorage(context)
+
                 def on_storage(body):
                     callback(storage, body)
 

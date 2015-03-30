@@ -159,7 +159,7 @@ class FileStorageVows(Vows.Context):
 
         class ReturnsNoneIfNoDetectorData(Vows.Context):
             @Vows.async_topic
-            def topic(self):
+            def topic(self, callback):
                 config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
                 storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.get_detector_data(IMAGE_URL % 10000, callback)

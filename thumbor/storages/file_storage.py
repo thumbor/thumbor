@@ -78,8 +78,8 @@ class Storage(storages.BaseStorage):
 
         if not exists(file_abspath) or self.__is_expired(file_abspath):
             callback(None)
-            return
-        callback(open(file_abspath, 'r').read())
+        else:
+            callback(open(file_abspath, 'r').read())
 
     def get_crypto(self, path, callback):
 
@@ -88,9 +88,8 @@ class Storage(storages.BaseStorage):
 
         if not exists(crypto_file):
             callback(None)
-            return
-
-        callback(file(crypto_file).read())
+        else:
+            callback(file(crypto_file).read())
 
     def get_detector_data(self, path, callback):
 
@@ -99,8 +98,8 @@ class Storage(storages.BaseStorage):
 
         if not exists(path) or self.__is_expired(path):
             callback(None)
-
-        callback(loads(open(path, 'r').read()))
+        else:
+            callback(loads(open(path, 'r').read()))
 
     def path_on_filesystem(self, path):
         digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
