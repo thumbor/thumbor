@@ -69,7 +69,7 @@ class ImageResourceHandler(ImageApiHandler):
                 self.set_status(204)
             else:
                 self._error(404, 'Image not found at the given URL')
-        self.context.modules.storage.exists(id)
+        self.context.modules.storage.exists(id, on_storage_response)
 
     def get(self, id):
         self.check_resource(id)
