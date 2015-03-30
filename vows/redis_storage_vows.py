@@ -93,11 +93,11 @@ class RedisStorageVows(RedisDBContext):
             storage.get(IMAGE_URL % 2, callback)
 
         def should_not_be_null(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic[0]).not_to_be_null()
+            expect(topic[0]).not_to_be_an_error()
 
         def should_have_proper_bytes(self, topic):
-            expect(topic).to_equal(IMAGE_BYTES)
+            expect(topic[0]).to_equal(IMAGE_BYTES)
 
     class HandleErrors(Vows.Context):
         class CanRaiseErrors(Vows.Context):
@@ -121,7 +121,7 @@ class RedisStorageVows(RedisDBContext):
 
             def should_throw_an_exception(self, topic):
                 expect(
-                    topic
+                    topic[0]
                 ).to_be_an_error_like(redis.RedisError)
 
         class IgnoreErrors(Vows.Context):
@@ -142,8 +142,8 @@ class RedisStorageVows(RedisDBContext):
 
                 storage.exists(IMAGE_URL % 2, callback)
 
-            def should_return_false(self, topic):
-                expect(topic).to_equal(False)
+            def should_return_none(self, topic):
+                expect(topic[0]).to_equal(None)
 
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
