@@ -17,45 +17,49 @@ from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES
 @Vows.batch
 class NoStorageVows(Vows.Context):
     class CanStoreImage(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             storage = NoStorage(None)
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
-            return storage.get(IMAGE_URL % 1)
+            storage.get(IMAGE_URL % 1, callback)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic[0]).to_be_null()
 
     class KnowsNoImages(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             storage = NoStorage(None)
-            return storage.exists(IMAGE_URL % 1)
+            storage.exists(IMAGE_URL % 1, callback)
 
         def should_be_false(self, topic):
-            expect(topic).to_be_false()
+            expect(topic[0]).to_be_false()
 
     class RemovesImage(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             storage = NoStorage(None)
-            return storage.remove(IMAGE_URL % 1)
+            storage.remove(IMAGE_URL % 1, callback)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic[0]).to_be_null()
 
     class StoresCrypto(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             storage = NoStorage(None)
             storage.put_crypto(IMAGE_URL % 2)
-
-            return storage.get_crypto(IMAGE_URL % 2)
+            storage.get_crypto(IMAGE_URL % 2, callback)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic[0]).to_be_null()
 
     class DetectorData(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             storage = NoStorage(None)
             storage.put_detector_data(IMAGE_URL % 3, "some data")
-            return storage.get_detector_data(IMAGE_URL % 3)
+            storage.get_detector_data(IMAGE_URL % 3, callback)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic[0]).to_be_null()
