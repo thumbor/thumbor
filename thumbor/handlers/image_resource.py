@@ -21,22 +21,27 @@ class ImageResourceHandler(ImageApiHandler):
 
     def check_resource(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
-        # Check if image exists
-        if self.context.modules.storage.exists(id):
-            body = self.context.modules.storage.get(id)
-            self.set_status(200)
 
-            mime = BaseEngine.get_mimetype(body)
-            if mime:
-                self.set_header('Content-Type', mime)
+        def on_storage_response(exists):
 
-            max_age = self.context.config.MAX_AGE
-            if max_age:
-                self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
-                self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
-            self.write(body)
-        else:
-            self._error(404, 'Image not found at the given URL')
+            # Check if image exists
+            if exists:
+                body = self.context.modules.storage.get(id)
+                self.set_status(200)
+
+                mime = BaseEngine.get_mimetype(body)
+                if mime:
+                    self.set_header('Content-Type', mime)
+
+                max_age = self.context.config.MAX_AGE
+                if max_age:
+                    self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
+                    self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
+                self.write(body)
+            else:
+                self._error(404, 'Image not found at the given URL')
+
+        self.context.modules.storage.exists(id, on_storage_response)
 
     def put(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
@@ -57,12 +62,14 @@ class ImageResourceHandler(ImageApiHandler):
             self._error(405, 'Unable to delete an uploaded image')
             return
 
-        # Check if image exists
-        if self.context.modules.storage.exists(id):
-            self.context.modules.storage.remove(id)
-            self.set_status(204)
-        else:
-            self._error(404, 'Image not found at the given URL')
+        def on_storage_response(exists):
+            # Check if image exists
+            if exists:
+                self.context.modules.storage.remove(id)
+                self.set_status(204)
+            else:
+                self._error(404, 'Image not found at the given URL')
+        self.context.modules.storage.exists(id, on_storage_response)
 
     def get(self, id):
         self.check_resource(id)

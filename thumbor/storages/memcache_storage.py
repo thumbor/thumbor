@@ -37,7 +37,12 @@ class Storage(BaseStorage):
         return 'thumbor-detector-%s' % url
 
     def put(self, path, bytes):
-        self.storage.set(path, bytes, time=self.context.config.STORAGE_EXPIRATION_SECONDS)
+        self.storage.set(
+            path,
+            bytes,
+            time=self.context.config.STORAGE_EXPIRATION_SECONDS
+        )
+
         return path
 
     def put_crypto(self, path):
@@ -56,22 +61,19 @@ class Storage(BaseStorage):
         self.storage.set(key, dumps(data))
         return key
 
-    def get_crypto(self, path):
+    def get_crypto(self, path, callback):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            return None
+            callback(None)
+            return
 
         crypto = self.storage.get(self.__key_for(path))
 
-        if not crypto:
-            return None
-        return crypto
+        callback(crypto if crypto else None)
 
-    def get_detector_data(self, path):
+    def get_detector_data(self, path, callback):
         data = self.storage.get(self.__detector_key_for(path))
 
-        if not data:
-            return None
-        return loads(data)
+        callback(loads(data) if data else None)
 
     def exists(self, path):
         return self.storage.get(path) is not None
@@ -81,5 +83,5 @@ class Storage(BaseStorage):
             return
         return self.storage.delete(path)
 
-    def get(self, path):
-        return self.storage.get(path)
+    def get(self, path, callback):
+        callback(self.storage.get(path))

@@ -119,7 +119,24 @@ class BaseHandler(tornado.web.RequestHandler):
 
             self.filters_runner.apply_filters(thumbor.filters.PHASE_AFTER_LOAD, transform)
 
-        self._fetch(self.context.request.image_url, self.context.request.extension, callback)
+        start = datetime.datetime.now()
+
+        def fetch_completed(future):
+            finish = datetime.datetime.now()
+            self.context.statsd_client.timing(
+                'get_image.time',
+                (finish - start).total_seconds() * 1000
+            )
+
+        self.context.thread_pool.queue(
+            operation=functools.partial(
+                self._fetch,
+                self.context.request.image_url,
+                self.context.request.extension,
+                callback
+            ),
+            callback=fetch_completed
+        )
 
     def normalize_crops(self, normalized, req, engine):
         new_crops = None
@@ -256,8 +273,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 self._store_results(context, results)
 
         self.context.thread_pool.queue(
-            operation = functools.partial(self._load_results, context),
-            callback = inner,
+            operation=functools.partial(self._load_results, context),
+            callback=inner,
         )
 
     def _write_results_to_client(self, context, results, content_type):
@@ -359,61 +376,84 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def _fetch(self, url, extension, callback):
         storage = self.context.modules.storage
-        buffer = storage.get(url)
+        start = datetime.datetime.now()
 
-        if buffer is not None:
-            self.context.statsd_client.incr('storage.hit')
-            mime = BaseEngine.get_mimetype(buffer)
-            if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                self.context.request.engine = self.context.modules.gif_engine
+        def storage_get_callback(buffer):
+            finish = datetime.datetime.now()
+            self.context.statsd_client.timing(
+                'storage.incoming_time',
+                (finish - start).total_seconds() * 1000
+            )
+
+            if buffer is not None:
+                self.context.statsd_client.incr('storage.hit')
+
+                mime = BaseEngine.get_mimetype(buffer)
+                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                    self.context.request.engine = self.context.modules.gif_engine
+                else:
+                    self.context.request.engine = self.context.modules.engine
+
+                callback(False, buffer=buffer)
             else:
-                self.context.request.engine = self.context.modules.engine
+                self._on_storage_miss(url, extension, callback)
 
-            callback(False, buffer=buffer)
-        else:
-            self.context.statsd_client.incr('storage.miss')
+        storage.get(
+            url,
+            storage_get_callback
+        )
 
-            def handle_loader_loaded(buffer):
-                if buffer is None:
-                    callback(False, None)
-                    return
+    def _on_storage_miss(self, url, extension, callback):
+        storage = self.context.modules.storage
+        self.context.statsd_client.incr('storage.miss')
 
-                original_preserve = self.context.config.PRESERVE_EXIF_INFO
-                self.context.config.PRESERVE_EXIF_INFO = True
+        def handle_loader_loaded(buffer):
+            if buffer is None:
+                callback(False, None)
+                return
 
-                try:
-                    mime = BaseEngine.get_mimetype(buffer)
-                    extension = EXTENSION.get(mime,None)
+            original_preserve = self.context.config.PRESERVE_EXIF_INFO
+            self.context.config.PRESERVE_EXIF_INFO = True
 
-                    if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                        self.context.request.engine = self.context.modules.gif_engine
-                    else:
-                        self.context.request.engine = self.context.modules.engine
+            try:
+                mime = BaseEngine.get_mimetype(buffer)
+                extension = EXTENSION.get(mime, None)
 
-                    self.context.request.engine.load(buffer, extension)
-                    normalized = self.context.request.engine.normalize()
-                    is_no_storage = isinstance(storage, NoStorage)
-                    is_mixed_storage = isinstance(storage, MixedStorage)
-                    is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
+                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                    self.context.request.engine = self.context.modules.gif_engine
+                else:
+                    self.context.request.engine = self.context.modules.engine
 
-                    if not (is_no_storage or is_mixed_no_file_storage):
-                        buffer = self.context.request.engine.read(extension)
-                        storage.put(url, buffer)
+                self.context.request.engine.load(buffer, extension)
+                normalized = self.context.request.engine.normalize()
+                is_no_storage = isinstance(storage, NoStorage)
+                is_mixed_storage = isinstance(storage, MixedStorage)
+                is_mixed_no_file_storage = (
+                    is_mixed_storage and isinstance(
+                        storage.file_storage, NoStorage
+                    )
+                )
 
-                    storage.put_crypto(url)
-                finally:
-                    self.context.config.PRESERVE_EXIF_INFO = original_preserve
+                if not (is_no_storage or is_mixed_no_file_storage):
+                    buffer = self.context.request.engine.read(extension)
+                    storage.put(url, buffer)
 
-                callback(normalized, engine=self.context.request.engine)
+                storage.put_crypto(url)
+            finally:
+                self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
-            self.context.modules.loader.load(self.context, url, handle_loader_loaded)
+            callback(normalized, engine=self.context.request.engine)
 
-    def get_blacklist_contents(self):
+        self.context.modules.loader.load(
+            self.context, url, handle_loader_loaded
+        )
+
+    def get_blacklist_contents(self, callback):
         filename = 'blacklist.txt'
-        if self.context.modules.storage.exists(filename):
-            return self.context.modules.storage.get(filename)
+        if self.context.modules.storage.exists(filename, callback):
+            self.context.modules.storage.get(filename, callback)
         else:
-            return ""
+            callback("")
 
 
 class ContextHandler(BaseHandler):
