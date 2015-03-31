@@ -79,17 +79,10 @@ class Storage(BaseStorage):
             self.storage = None
 
         if self.context.config.REDIS_STORAGE_IGNORE_ERRORS is True:
-            # Based on no_storage
-            return_map = {
-                'exists': False,
-                'put': '',
-                'put_crypto': '',
-                'put_detector_path': '',
-            }
-
             logger.error("Redis storage failure: %s" % exc_value)
-
-            return return_map.get(fname, None)
+            if fname == 'exists':
+                return False
+            return None
         else:
             raise exc_value
 
@@ -108,7 +101,6 @@ class Storage(BaseStorage):
                 seconds=self.context.config.STORAGE_EXPIRATION_SECONDS
             )
         )
-        return path
 
     @on_exception(on_redis_error, RedisError)
     def put_crypto(self, path):
@@ -123,43 +115,52 @@ class Storage(BaseStorage):
 
         key = self.__key_for(path)
         self.get_storage().set(key, self.context.server.security_key)
-        return key
 
     @on_exception(on_redis_error, RedisError)
     def put_detector_data(self, path, data):
         key = self.__detector_key_for(path)
         self.get_storage().set(key, dumps(data))
-        return key
 
-    @on_exception(on_redis_error, RedisError)
-    def get_crypto(self, path):
-        if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            return None
+    def get_crypto(self, path, callback):
+        @on_exception(self.on_redis_error, RedisError)
+        def wrap():
+            if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+                return None
 
-        crypto = self.get_storage().get(self.__key_for(path))
+            crypto = self.get_storage().get(self.__key_for(path))
 
-        if not crypto:
-            return None
-        return crypto
+            if not crypto:
+                return None
+            return crypto
 
-    @on_exception(on_redis_error, RedisError)
-    def get_detector_data(self, path):
-        data = self.get_storage().get(self.__detector_key_for(path))
+        callback(wrap())
 
-        if not data:
-            return None
-        return loads(data)
+    def get_detector_data(self, path, callback):
 
-    @on_exception(on_redis_error, RedisError)
-    def exists(self, path):
-        return self.get_storage().exists(path)
+        @on_exception(self.on_redis_error, RedisError)
+        def wrap():
+            data = self.get_storage().get(self.__detector_key_for(path))
+
+            if not data:
+                return None
+            return loads(data)
+
+        callback(wrap())
+
+    def exists(self, path, callback):
+        @on_exception(self.on_redis_error, RedisError)
+        def wrap():
+            return self.get_storage().exists(path)
+
+        callback(wrap())
 
     @on_exception(on_redis_error, RedisError)
     def remove(self, path):
-        if not self.exists(path):
-            return
-        return self.get_storage().delete(path)
+        self.get_storage().delete(path)
 
-    @on_exception(on_redis_error, RedisError)
-    def get(self, path):
-        return self.get_storage().get(path)
+    def get(self, path, callback):
+        @on_exception(self.on_redis_error, RedisError)
+        def wrap():
+            return self.get_storage().get(path)
+
+        callback(wrap())

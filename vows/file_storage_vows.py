@@ -34,18 +34,20 @@ class FileStorageVows(Vows.Context):
             expect(topic).to_be_true()
 
     class CanStoreImage(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
             storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
-            return storage.get(IMAGE_URL % 1)
+            storage.get(IMAGE_URL % 1, callback)
 
         def should_be_in_catalog(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic[0]).not_to_be_null()
+            expect(topic[0]).not_to_be_an_error()
 
     class CanStoreImagesInSameFolder(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
             root_path = join(config.FILE_STORAGE_ROOT_PATH, dirname(SAME_IMAGE_URL % 999))
             if exists(root_path):
@@ -61,26 +63,27 @@ class FileStorageVows(Vows.Context):
             finally:
                 Storage.storages.exists = old_exists
 
-            return storage.get(SAME_IMAGE_URL % 999)
+            storage.get(SAME_IMAGE_URL % 999, callback)
 
         def should_be_in_catalog(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic[0]).not_to_be_null()
+            expect(topic[0]).not_to_be_an_error()
 
     class CanGetImage(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
             storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
 
             storage.put(IMAGE_URL % 2, IMAGE_BYTES)
-            return storage.get(IMAGE_URL % 2)
+            storage.get(IMAGE_URL % 2, callback)
 
         def should_not_be_null(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic[0]).not_to_be_null()
+            expect(topic[0]).not_to_be_an_error()
 
         def should_have_proper_bytes(self, topic):
-            expect(topic).to_equal(IMAGE_BYTES)
+            expect(topic[0]).to_equal(IMAGE_BYTES)
 
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
@@ -90,7 +93,7 @@ class FileStorageVows(Vows.Context):
                 config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/", STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = FileStorage(Context(config=config, server=get_server('')))
                 storage.put(IMAGE_URL % 3, IMAGE_BYTES)
-                storage.put_crypto(IMAGE_URL % 3)
+                return storage.put_crypto(IMAGE_URL % 3)
 
             def should_be_an_error(self, topic):
                 expect(topic).to_be_an_error_like(RuntimeError)
@@ -99,62 +102,67 @@ class FileStorageVows(Vows.Context):
                 )
 
         class GettingCryptoForANewImageReturnsNone(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/", STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
-                return storage.get_crypto(IMAGE_URL % 9999)
+                storage.get_crypto(IMAGE_URL % 9999, callback)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 
         class DoesNotStoreIfConfigSaysNotTo(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
                 storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.put(IMAGE_URL % 5, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 5)
-                return storage.get_crypto(IMAGE_URL % 5)
+                storage.get_crypto(IMAGE_URL % 5, callback)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 
         class CanStoreCrypto(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/", STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
 
                 storage.put(IMAGE_URL % 6, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 6)
-                return storage.get_crypto(IMAGE_URL % 6)
+                storage.get_crypto(IMAGE_URL % 6, callback)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic[0]).not_to_be_null()
+                expect(topic[0]).not_to_be_an_error()
 
             def should_have_proper_key(self, topic):
-                expect(topic).to_equal('ACME-SEC')
+                expect(topic[0]).to_equal('ACME-SEC')
 
     class DetectorVows(Vows.Context):
         class CanStoreDetectorData(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
                 storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.put(IMAGE_URL % 7, IMAGE_BYTES)
                 storage.put_detector_data(IMAGE_URL % 7, 'some-data')
-                return storage.get_detector_data(IMAGE_URL % 7)
+                storage.get_detector_data(IMAGE_URL % 7, callback)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic[0]).not_to_be_null()
+                expect(topic[0]).not_to_be_an_error()
 
             def should_equal_some_data(self, topic):
-                expect(topic).to_equal('some-data')
+                expect(topic[0]).to_equal('some-data')
 
         class ReturnsNoneIfNoDetectorData(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/")
                 storage = FileStorage(Context(config=config, server=get_server('ACME-SEC')))
-                return storage.get_detector_data(IMAGE_URL % 10000)
+                storage.get_detector_data(IMAGE_URL % 10000, callback)
 
             def should_not_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()

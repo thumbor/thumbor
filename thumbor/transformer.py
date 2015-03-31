@@ -134,8 +134,8 @@ class Transformer(object):
             # image operation inside the try block.
             self.should_run_image_operations = False
             self.running_smart_detection = True
-            self.do_smart_detection()
-            self.running_smart_detection = False
+
+            self.context.modules.storage.get_detector_data(self.smart_storage_key, self.do_smart_detection)
         except Exception:
             if not self.context.config.IGNORE_SMART_ERRORS:
                 raise
@@ -152,16 +152,16 @@ class Transformer(object):
             self.context.request.detection_error = True
             self.do_image_operations()
 
-        if self.should_run_image_operations:
-            self.do_image_operations()
-
-    def do_smart_detection(self):
-        focal_points = self.context.modules.storage.get_detector_data(self.smart_storage_key)
+    def do_smart_detection(self, focal_points):
         if focal_points is not None:
             self.after_smart_detect(focal_points, points_from_storage=True)
         else:
             detectors = self.context.modules.detectors
             detectors[0](self.context, index=0, detectors=detectors).detect(self.after_smart_detect)
+
+        self.running_smart_detection = False
+        if self.should_run_image_operations:
+            self.do_image_operations()
 
     def after_smart_detect(self, focal_points=[], points_from_storage=False):
         for point in focal_points:

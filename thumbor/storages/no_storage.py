@@ -22,17 +22,17 @@ class Storage(BaseStorage):
     def put_detector_data(self, path, data):
         return path
 
-    def get_crypto(self, path):
-        return None
+    def get_crypto(self, path, callback):
+        callback(None)
 
-    def get_detector_data(self, path):
-        return None
+    def get_detector_data(self, path, callback):
+        callback(None)
 
-    def get(self, path):
-        return None
+    def get(self, path, callback):
+        callback(None)
 
-    def exists(self, path):
-        return False
+    def exists(self, path, callback):
+        callback(False)
 
-    def remove(self, path):
+    def remove(self, path, callback):
         pass

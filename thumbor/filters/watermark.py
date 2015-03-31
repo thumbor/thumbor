@@ -59,8 +59,10 @@ class Filter(BaseFilter):
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
         self.storage = self.context.modules.storage
 
-        buffer = self.storage.get(self.url)
-        if buffer is not None:
-            self.on_image_ready(buffer)
-        else:
-            self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
+        def on_storage_get(buffer):
+            if buffer is not None:
+                self.on_image_ready(buffer)
+            else:
+                self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
+
+        self.storage.get(self.url, on_storage_get)

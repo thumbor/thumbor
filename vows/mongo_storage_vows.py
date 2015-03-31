@@ -23,6 +23,12 @@ CONNECTION = Connection('localhost', 7777)
 COLLECTION = CONNECTION['thumbor']['images']
 
 
+def get_context():
+    '''Return a default context used by the mongo storage vows.'''
+
+    return Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777))
+
+
 class MongoDBContext(Vows.Context):
     def teardown(self):
         CONNECTION.drop_database('thumbor')
@@ -32,7 +38,7 @@ class MongoDBContext(Vows.Context):
 class MongoStorageVows(MongoDBContext):
     class CanStoreImage(Vows.Context):
         def topic(self):
-            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+            storage = MongoStorage(get_context())
             storage.put(IMAGE_URL % 1, IMAGE_BYTES)
             return COLLECTION.find_one({'path': IMAGE_URL % 1})
 
@@ -41,27 +47,29 @@ class MongoStorageVows(MongoDBContext):
             expect(topic).not_to_be_an_error()
 
     class KnowsIfImageExists(Vows.Context):
-        def topic(self):
-            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+        @Vows.async_topic
+        def topic(self, callback):
+            storage = MongoStorage(get_context())
             storage.put(IMAGE_URL % 10000, IMAGE_BYTES)
-            return storage.exists(IMAGE_URL % 10000)
+            storage.exists(IMAGE_URL % 10000, callback)
 
         def should_exist(self, topic):
-            expect(topic).not_to_be_an_error()
-            expect(topic).to_be_true()
+            expect(topic[0]).not_to_be_an_error()
+            expect(topic[0]).to_be_true()
 
     class KnowsIfImageDoesNotExist(Vows.Context):
-        def topic(self):
-            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
-            return storage.exists(IMAGE_URL % 20000)
+        @Vows.async_topic
+        def topic(self, callback):
+            storage = MongoStorage(get_context())
+            storage.exists(IMAGE_URL % 20000, callback)
 
         def should_not_exist(self, topic):
-            expect(topic).not_to_be_an_error()
-            expect(topic).to_be_false()
+            expect(topic[0]).not_to_be_an_error()
+            expect(topic[0]).to_be_false()
 
     class CanRemoveImage(Vows.Context):
         def topic(self):
-            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+            storage = MongoStorage(get_context())
             storage.put(IMAGE_URL % 9999, IMAGE_BYTES)
             storage.remove(IMAGE_URL % 9999)
             return COLLECTION.find_one({'path': IMAGE_URL % 9999})
@@ -72,7 +80,7 @@ class MongoStorageVows(MongoDBContext):
 
         class CanReRemoveImage(Vows.Context):
             def topic(self):
-                storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+                storage = MongoStorage(get_context())
                 storage.remove(IMAGE_URL % 9999)
                 return COLLECTION.find_one({'path': IMAGE_URL % 9999})
 
@@ -81,31 +89,38 @@ class MongoStorageVows(MongoDBContext):
                 expect(topic).to_be_null()
 
     class CanGetImage(Vows.Context):
-        def topic(self):
-            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
+        @Vows.async_topic
+        def topic(self, callback):
+            storage = MongoStorage(get_context())
             storage.put(IMAGE_URL % 2, IMAGE_BYTES)
-            return storage.get(IMAGE_URL % 2)
+            storage.get(IMAGE_URL % 2, callback)
 
         def should_not_be_null(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic[0]).not_to_be_null()
+            expect(topic[0]).not_to_be_an_error()
 
         def should_have_proper_bytes(self, topic):
-            expect(topic).to_equal(IMAGE_BYTES)
+            expect(topic[0]).to_equal(IMAGE_BYTES)
 
     class GettingReturnsNoneWhenImageDoesNotExist(Vows.Context):
-        def topic(self):
-            storage = MongoStorage(Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777)))
-            return storage.get(IMAGE_URL % 99)
+        @Vows.async_topic
+        def topic(self, callback):
+            storage = MongoStorage(get_context())
+            storage.get(IMAGE_URL % 99, callback)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic[0]).to_be_null()
 
     class StoresCrypto(Vows.Context):
         class DoesNotStoreWhenConfigIsFalseInPutMethod(Vows.Context):
             def topic(self):
                 storage = MongoStorage(
-                    Context(config=Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)))
+                    Context(config=Config(
+                        MONGO_STORAGE_SERVER_PORT=7777,
+                        STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False
+                        )
+                    )
+                )
                 storage.put(IMAGE_URL % 3, IMAGE_BYTES)
 
                 return COLLECTION.find_one({'path': IMAGE_URL % 3})
@@ -156,36 +171,39 @@ class MongoStorageVows(MongoDBContext):
                 expect(topic['crypto']).to_equal('ACME-SEC')
 
         class GetProperKey(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
                 server = get_server('ACME-SEC')
                 storage = MongoStorage(Context(config=conf, server=server))
                 storage.put(IMAGE_URL % 6, IMAGE_BYTES)
 
-                return storage.get_crypto(IMAGE_URL % 6)
+                storage.get_crypto(IMAGE_URL % 6, callback)
 
             def should_be_in_catalog(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic[0]).not_to_be_null()
+                expect(topic[0]).not_to_be_an_error()
 
             def should_have_crypto_key(self, topic):
-                expect(topic).to_equal('ACME-SEC')
+                expect(topic[0]).to_equal('ACME-SEC')
 
         class GetNoKey(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 storage = MongoStorage(
                     Context(config=Config(
                         MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True,
                         SECURITY_KEY='ACME-SEC')
                     )
                 )
-                return storage.get_crypto(IMAGE_URL % 7)
+                storage.get_crypto(IMAGE_URL % 7, callback)
 
             def should_not_be_in_catalog(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 
         class GetProperKeyBeforeExpiration(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 conf = Config(
                     MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True,
                     STORAGE_EXPIRATION_SECONDS=5000
@@ -193,17 +211,18 @@ class MongoStorageVows(MongoDBContext):
                 server = get_server('ACME-SEC')
                 storage = MongoStorage(Context(server=server, config=conf))
                 storage.put(IMAGE_URL % 8, IMAGE_BYTES)
-                return storage.get(IMAGE_URL % 8)
+                storage.get(IMAGE_URL % 8, callback)
 
             def should_be_in_catalog(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic[0]).not_to_be_null()
+                expect(topic[0]).not_to_be_an_error()
 
             def should_have_crypto_key(self, topic):
-                expect(topic).to_equal(IMAGE_BYTES)
+                expect(topic[0]).to_equal(IMAGE_BYTES)
 
         class GetNothingAfterExpiration(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(
                     MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True,
                     SECURITY_KEY='ACME-SEC', STORAGE_EXPIRATION_SECONDS=0
@@ -212,14 +231,17 @@ class MongoStorageVows(MongoDBContext):
                 storage = MongoStorage(Context(server=server, config=config))
                 storage.put(IMAGE_URL % 10, IMAGE_BYTES)
 
-                item = storage.get(IMAGE_URL % 10)
-                return item is None
+                def item_is_none(item):
+                    callback(item is None)
+
+                storage.get(IMAGE_URL % 10, item_is_none)
 
             def should_be_expired(self, topic):
-                expect(topic).to_be_true()
+                expect(topic[0]).to_be_true()
 
         class StoresCryptoAfterStoringImage(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False)
                 server = get_server('ACME-SEC')
                 storage = MongoStorage(Context(config=conf, server=server))
@@ -228,25 +250,24 @@ class MongoStorageVows(MongoDBContext):
                 conf.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
                 storage.put_crypto(IMAGE_URL % 11)
 
-                item = storage.get_crypto(IMAGE_URL % 11)
-                return item
+                storage.get_crypto(IMAGE_URL % 11, callback)
 
             def should_be_acme_sec(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).to_equal('ACME-SEC')
+                expect(topic[0]).not_to_be_null()
+                expect(topic[0]).to_equal('ACME-SEC')
 
         class DoesNotStoreCryptoIfNoNeed(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 conf = Config(MONGO_STORAGE_SERVER_PORT=7777, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=False, SECURITY_KEY='ACME-SEC')
                 storage = MongoStorage(Context(config=conf))
                 storage.put(IMAGE_URL % 12, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 12)
 
-                item = storage.get_crypto(IMAGE_URL % 12)
-                return item
+                storage.get_crypto(IMAGE_URL % 12, callback)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 
         class RaisesIfWrongConfig(Vows.Context):
 
@@ -268,13 +289,14 @@ class MongoStorageVows(MongoDBContext):
                 )
 
     class DetectorData(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             conf = Config(MONGO_STORAGE_SERVER_PORT=7777)
             storage = MongoStorage(Context(config=conf))
             storage.put(IMAGE_URL % 14, IMAGE_BYTES)
             storage.put_detector_data(IMAGE_URL % 14, "some data")
 
-            return storage.get_detector_data(IMAGE_URL % 14)
+            storage.get_detector_data(IMAGE_URL % 14, callback)
 
         def should_be_some_data(self, topic):
-            expect(topic).to_equal('some data')
+            expect(topic[0]).to_equal('some data')

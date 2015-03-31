@@ -19,21 +19,23 @@ class BadRequestError(ValueError):
 
 class LegacyImageUploadHandler(ContextHandler):
 
-    def write_file(self, filename, body, overwrite):
+    def write_file(self, filename, body, overwrite, callback):
         storage = self.context.modules.upload_photo_storage
         path = filename
         if hasattr(storage, 'resolve_original_photo_path'):
             path = storage.resolve_original_photo_path(self.request, filename)
 
-        if not overwrite and storage.exists(path):
-            raise RuntimeError('File already exists.')
+        def on_storage_exists(exists):
+            if not overwrite and exists:
+                raise RuntimeError('File already exists.')
 
-        stored_path = storage.put(path, body)
+            stored_path = storage.put(path, body)
+            callback(stored_path)
 
-        return stored_path
+        storage.exists(path, on_storage_exists)
 
     def extract_file_data(self):
-        if not 'media' in self.request.files:
+        if 'media' not in self.request.files:
             raise RuntimeError("File was not uploaded properly.")
         if not self.request.files['media']:
             raise RuntimeError("File was not uploaded properly.")
@@ -44,18 +46,20 @@ class LegacyImageUploadHandler(ContextHandler):
         file_data = self.extract_file_data()
         body = file_data['body']
         filename = file_data['filename']
-        path = ""
-        try:
-            path = self.write_file(filename, body, overwrite=overwrite)
+
+        def on_file_written(path):
             self.set_status(201)
             self.set_header('Location', path)
+            self.write(path)
+
+        try:
+            self.write_file(filename, body, overwrite, on_file_written)
         except RuntimeError:
             self.set_status(409)
-            path = 'File already exists.'
+            self.write('File already exists.')
         except BadRequestError:
             self.set_status(400)
-            path = 'Invalid request'
-        self.write(path)
+            self.write('Invalid request')
 
     def post(self):
         if self.validate():
@@ -85,8 +89,11 @@ class LegacyImageUploadHandler(ContextHandler):
             raise RuntimeError('The file_path argument is mandatory to delete an image')
         path = urllib.unquote(self.request.body.split('=')[-1])
 
-        if self.context.modules.storage.exists(path):
-            self.context.modules.storage.remove(path)
+        def on_storage_exists(exists):
+            if exists:
+                self.context.modules.storage.remove(path)
+
+        self.context.modules.storage.exists(path, on_storage_exists)
 
     def validate(self):
         conf = self.context.config

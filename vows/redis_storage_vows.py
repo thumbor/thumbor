@@ -39,25 +39,27 @@ class RedisStorageVows(RedisDBContext):
             expect(topic).not_to_be_an_error()
 
     class KnowsImageExists(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             config = Config(REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
             storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
             storage.put(IMAGE_URL % 9999, IMAGE_BYTES)
-            return storage.exists(IMAGE_URL % 9999)
+            storage.exists(IMAGE_URL % 9999, callback)
 
         def should_exist(self, topic):
             expect(topic).not_to_be_an_error()
             expect(topic).to_be_true()
 
     class KnowsImageDoesNotExist(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             config = Config(REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
             storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
-            return storage.exists(IMAGE_URL % 10000)
+            storage.exists(IMAGE_URL % 10000, callback)
 
         def should_not_exist(self, topic):
             expect(topic).not_to_be_an_error()
-            expect(topic).to_be_false()
+            expect(topic[0]).to_be_false()
 
     class CanRemoveImage(Vows.Context):
         def topic(self):
@@ -82,24 +84,25 @@ class RedisStorageVows(RedisDBContext):
                 expect(topic).to_be_null()
 
     class CanGetImage(Vows.Context):
-        def topic(self):
+        @Vows.async_topic
+        def topic(self, callback):
             config = Config(REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
             storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
 
             storage.put(IMAGE_URL % 2, IMAGE_BYTES)
-            return storage.get(IMAGE_URL % 2)
+            storage.get(IMAGE_URL % 2, callback)
 
         def should_not_be_null(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic[0]).not_to_be_null()
+            expect(topic[0]).not_to_be_an_error()
 
         def should_have_proper_bytes(self, topic):
-            expect(topic).to_equal(IMAGE_BYTES)
+            expect(topic[0]).to_equal(IMAGE_BYTES)
 
     class HandleErrors(Vows.Context):
         class CanRaiseErrors(Vows.Context):
-            @Vows.capture_error
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(
                     REDIS_STORAGE_SERVER_PORT=300,
                     REDIS_STORAGE_SERVER_PASSWORD='nope',
@@ -113,15 +116,19 @@ class RedisStorageVows(RedisDBContext):
                     shared_client=False
                 )
 
-                return storage.exists(IMAGE_URL % 2)
+                try:
+                    storage.exists(IMAGE_URL % 2, callback)
+                except redis.RedisError as e:
+                    callback(e)
 
             def should_throw_an_exception(self, topic):
                 expect(
-                    topic
+                    topic[0]
                 ).to_be_an_error_like(redis.RedisError)
 
         class IgnoreErrors(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(
                     REDIS_STORAGE_SERVER_PORT=300,
                     REDIS_STORAGE_SERVER_PASSWORD='nope',
@@ -135,13 +142,10 @@ class RedisStorageVows(RedisDBContext):
                     shared_client=False
                 )
 
-                return storage
+                storage.exists(IMAGE_URL % 2, callback)
 
-            def should_return_false(self, storage):
-                expect(storage.exists(IMAGE_URL % 2)).to_equal(False)
-
-            def should_return_none(self, storage):
-                expect(storage.get(IMAGE_URL % 2)).to_equal(None)
+            def should_return_none(self, topic):
+                expect(topic[0]).to_equal(None)
 
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
@@ -162,30 +166,33 @@ class RedisStorageVows(RedisDBContext):
                 )
 
         class GettingCryptoForANewImageReturnsNone(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(
                     REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you',
                     STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
                 )
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
-                return storage.get_crypto(IMAGE_URL % 9999)
+                storage.get_crypto(IMAGE_URL % 9999, callback)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 
         class DoesNotStoreIfConfigSaysNotTo(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.put(IMAGE_URL % 5, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 5)
-                return storage.get_crypto(IMAGE_URL % 5)
+                storage.get_crypto(IMAGE_URL % 5, callback)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 
         class CanStoreCrypto(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(
                     REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you',
                     STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
@@ -194,37 +201,39 @@ class RedisStorageVows(RedisDBContext):
 
                 storage.put(IMAGE_URL % 6, IMAGE_BYTES)
                 storage.put_crypto(IMAGE_URL % 6)
-                return storage.get_crypto(IMAGE_URL % 6)
+                storage.get_crypto(IMAGE_URL % 6, callback)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic[0]).not_to_be_null()
+                expect(topic[0]).not_to_be_an_error()
 
             def should_have_proper_key(self, topic):
-                expect(topic).to_equal('ACME-SEC')
+                expect(topic[0]).to_equal('ACME-SEC')
 
     class DetectorVows(Vows.Context):
         class CanStoreDetectorData(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
                 storage.put(IMAGE_URL % 7, IMAGE_BYTES)
                 storage.put_detector_data(IMAGE_URL % 7, 'some-data')
-                return storage.get_detector_data(IMAGE_URL % 7)
+                storage.get_detector_data(IMAGE_URL % 7, callback)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic[0]).not_to_be_null()
+                expect(topic[0]).not_to_be_an_error()
 
             def should_equal_some_data(self, topic):
-                expect(topic).to_equal('some-data')
+                expect(topic[0]).to_equal('some-data')
 
         class ReturnsNoneIfNoDetectorData(Vows.Context):
-            def topic(self):
+            @Vows.async_topic
+            def topic(self, callback):
                 config = Config(REDIS_STORAGE_SERVER_PORT=6668, REDIS_STORAGE_SERVER_PASSWORD='hey_you')
                 storage = RedisStorage(Context(config=config, server=get_server('ACME-SEC')))
-                return storage.get_detector_data(IMAGE_URL % 10000)
+                storage.get_detector_data(IMAGE_URL % 10000, callback)
 
             def should_not_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic[0]).to_be_null()
 

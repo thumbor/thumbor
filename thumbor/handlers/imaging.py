@@ -26,10 +26,6 @@ class ImagingHandler(ContextHandler):
             return None
 
     def check_image(self, kw):
-        # Check if an image with an uuid exists in storage
-        if self.context.modules.storage.exists(kw['image'][:self.context.config.MAX_ID_LENGTH]):
-            kw['image'] = kw['image'][:self.context.config.MAX_ID_LENGTH]
-
         url = self.request.uri
 
         if not self.validate(kw['image']):
@@ -51,49 +47,55 @@ class ImagingHandler(ContextHandler):
             self._error(404, 'URL has unsafe but unsafe is not allowed by the config: %s' % url)
             return
 
-        if self.context.config.USE_BLACKLIST:
-            blacklist = self.get_blacklist_contents()
+        def process_blacklist(blacklist):
             if self.context.request.image_url in blacklist:
-              self._error(404, 'Source image url has been blacklisted: %s' % self.context.request.image_url )
-              return
+                self._error(404, 'Source image url has been blacklisted: %s' % self.context.request.image_url )
+            else:
+                process_signature_and_operations()
 
-        url_signature = self.context.request.hash
-        if url_signature:
-            signer = Signer(self.context.server.security_key)
+        def process_signature_and_operations():
+            url_signature = self.context.request.hash
+            if url_signature:
+                signer = Signer(self.context.server.security_key)
 
-            url_to_validate = Url.encode_url(url).replace('/%s/' % self.context.request.hash, '')
-            valid = signer.validate(url_signature, url_to_validate)
+                url_to_validate = Url.encode_url(url).replace('/%s/' % self.context.request.hash, '')
+                valid = signer.validate(url_signature, url_to_validate)
 
-            if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-                # Retrieves security key for this image if it has been seen before
-                security_key = self.context.modules.storage.get_crypto(self.context.request.image_url)
-                if security_key is not None:
-                    signer = Signer(security_key)
-                    valid = signer.validate(url_signature, url_to_validate)
+                if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+                    # Retrieves security key for this image if it has been seen before
+                    security_key = self.context.modules.storage.get_crypto(self.context.request.image_url)
+                    if security_key is not None:
+                        signer = Signer(security_key)
+                        valid = signer.validate(url_signature, url_to_validate)
 
-            if not valid:
-                is_valid = True
-                if self.context.config.ALLOW_OLD_URLS:
-                    cr = Cryptor(self.context.server.security_key)
-                    options = cr.get_options(self.context.request.hash, self.context.request.image_url)
-                    if options is None:
-                        is_valid = False
+                if not valid:
+                    is_valid = True
+                    if self.context.config.ALLOW_OLD_URLS:
+                        cr = Cryptor(self.context.server.security_key)
+                        options = cr.get_options(self.context.request.hash, self.context.request.image_url)
+                        if options is None:
+                            is_valid = False
+                        else:
+                            options['request'] = self.request
+                            self.context.request = RequestParameters(**options)
+                            logger.warning(
+                                'OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in ' +
+                                'upcoming versions. Please start using the new format as soon as possible. ' +
+                                'More info at https://github.com/globocom/thumbor/wiki/3.0.0-release-changes'
+                            )
                     else:
-                        options['request'] = self.request
-                        self.context.request = RequestParameters(**options)
-                        logger.warning(
-                            'OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in ' +
-                            'upcoming versions. Please start using the new format as soon as possible. ' +
-                            'More info at https://github.com/globocom/thumbor/wiki/3.0.0-release-changes'
-                        )
-                else:
-                    is_valid = False
+                        is_valid = False
 
-                if not is_valid:
-                    self._error(404, 'Malformed URL: %s' % url)
-                    return
+                    if not is_valid:
+                        self._error(404, 'Malformed URL: %s' % url)
+                        return
 
-        return self.execute_image_operations()
+            return self.execute_image_operations()
+
+        if self.context.config.USE_BLACKLIST:
+            self.get_blacklist_contents(process_blacklist)
+        else:
+            process_signature_and_operations()
 
     @tornado.web.asynchronous
     def get(self, **kw):

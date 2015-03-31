@@ -68,19 +68,19 @@ class Storage(BaseStorage):
         storage.update({'path': path}, {"$set": {"detector_data": data}})
         return path
 
-    def get_crypto(self, path):
+    def get_crypto(self, path, callback):
         connection, db, storage = self.__conn__()
 
         crypto = storage.find_one({'path': path})
-        return crypto.get('crypto') if crypto else None
+        callback(crypto.get('crypto') if crypto else None)
 
-    def get_detector_data(self, path):
+    def get_detector_data(self, path, callback):
         connection, db, storage = self.__conn__()
 
         doc = storage.find_one({'path': path})
-        return doc.get('detector_data') if doc else None
+        callback(doc.get('detector_data') if doc else None)
 
-    def get(self, path):
+    def get(self, path, callback):
         connection, db, storage = self.__conn__()
 
         stored = storage.find_one({'path': path})
@@ -92,24 +92,24 @@ class Storage(BaseStorage):
 
         contents = fs.get(stored['file_id']).read()
 
-        return str(contents)
+        callback(str(contents))
 
-    def exists(self, path):
+    def exists(self, path, callback):
         connection, db, storage = self.__conn__()
 
         stored = storage.find_one({'path': path})
 
         if not stored or self.__is_expired(stored):
-            return False
-
-        return True
+            callback(False)
+            return
+        callback(True)
 
     def remove(self, path):
-        if not self.exists(path):
-            return
+        def on_exists(exists):
+            connection, db, storage = self.__conn__()
+            storage.remove({'path': path})
 
-        connection, db, storage = self.__conn__()
-        storage.remove({'path': path})
+        self.exists(path, on_exists)
 
     def __is_expired(self, stored):
         timediff = datetime.now() - stored.get('created_at')

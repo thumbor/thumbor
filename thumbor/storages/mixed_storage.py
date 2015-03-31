@@ -61,21 +61,21 @@ class Storage(BaseStorage):
         self._init_crypto_storage()
         self.crypto_storage.put_crypto(path)
 
-    def get_crypto(self, path):
+    def get_crypto(self, path, callback):
         self._init_crypto_storage()
-        return self.crypto_storage.get_crypto(path)
+        self.crypto_storage.get_crypto(path, callback)
 
-    def get_detector_data(self, path):
+    def get_detector_data(self, path, callback):
         self._init_detector_storage()
-        return self.detector_storage.get_detector_data(path)
+        self.detector_storage.get_detector_data(path, callback)
 
-    def get(self, path):
+    def get(self, path, callback):
         self._init_file_storage()
-        return self.file_storage.get(path)
+        self.file_storage.get(path, callback)
 
-    def exists(self, path):
+    def exists(self, path, callback):
         self._init_file_storage()
-        return self.file_storage.exists(path)
+        self.file_storage.exists(path, callback)
 
     def resolve_original_photo_path(self, request, filename):
         return self.file_storage.resolve_original_photo_path(request, filename)
