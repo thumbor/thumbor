@@ -107,7 +107,7 @@ class Engine(BaseEngine):
 
         #returns image buffer in byte format.
         img_buffer = BytesIO()
-        ext = extension or self.extension or get_default_extension()
+        ext = extension or self.extension or self.get_default_extension()
 
         options = {
             'quality': quality
