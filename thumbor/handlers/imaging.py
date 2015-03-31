@@ -8,13 +8,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import tornado.web
-
 from thumbor.handlers import ContextHandler
 from thumbor.context import RequestParameters
 from thumbor.crypto import Cryptor, Signer
 from thumbor.utils import logger
 from thumbor.url import Url
+import tornado.gen as gen
+import tornado.web
 
 
 class ImagingHandler(ContextHandler):
@@ -25,10 +25,13 @@ class ImagingHandler(ContextHandler):
         else:
             return None
 
+    @gen.coroutine
     def check_image(self, kw):
-        # Check if an image with an uuid exists in storage
-        if self.context.modules.storage.exists(kw['image'][:self.context.config.MAX_ID_LENGTH]):
-            kw['image'] = kw['image'][:self.context.config.MAX_ID_LENGTH]
+        if self.context.config.MAX_ID_LENGTH > 0:
+            # Check if an image with an uuid exists in storage
+            exists = yield gen.maybe_future(self.context.modules.storage.exists(kw['image'][:self.context.config.MAX_ID_LENGTH]))
+            if exists:
+                kw['image'] = kw['image'][:self.context.config.MAX_ID_LENGTH]
 
         url = self.request.uri
 
@@ -52,10 +55,10 @@ class ImagingHandler(ContextHandler):
             return
 
         if self.context.config.USE_BLACKLIST:
-            blacklist = self.get_blacklist_contents()
+            blacklist = yield self.get_blacklist_contents()
             if self.context.request.image_url in blacklist:
-              self._error(404, 'Source image url has been blacklisted: %s' % self.context.request.image_url )
-              return
+                self._error(404, 'Source image url has been blacklisted: %s' % self.context.request.image_url )
+                return
 
         url_signature = self.context.request.hash
         if url_signature:
@@ -66,7 +69,7 @@ class ImagingHandler(ContextHandler):
 
             if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
                 # Retrieves security key for this image if it has been seen before
-                security_key = self.context.modules.storage.get_crypto(self.context.request.image_url)
+                security_key = yield gen.maybe_future(self.context.modules.storage.get_crypto(self.context.request.image_url))
                 if security_key is not None:
                     signer = Signer(security_key)
                     valid = signer.validate(url_signature, url_to_validate)
@@ -93,7 +96,7 @@ class ImagingHandler(ContextHandler):
                     self._error(404, 'Malformed URL: %s' % url)
                     return
 
-        return self.execute_image_operations()
+        self.execute_image_operations()
 
     @tornado.web.asynchronous
     def get(self, **kw):

@@ -15,12 +15,17 @@ from pymongo import Connection
 import gridfs
 
 from thumbor.storages import BaseStorage
+from tornado.concurrent import return_future
 
 
 class Storage(BaseStorage):
 
     def __conn__(self):
-        connection = Connection(self.context.config.MONGO_STORAGE_SERVER_HOST, self.context.config.MONGO_STORAGE_SERVER_PORT)
+        connection = Connection(
+            self.context.config.MONGO_STORAGE_SERVER_HOST,
+            self.context.config.MONGO_STORAGE_SERVER_PORT
+        )
+
         db = connection[self.context.config.MONGO_STORAGE_SERVER_DB]
         storage = db[self.context.config.MONGO_STORAGE_SERVER_COLLECTION]
 
@@ -68,41 +73,46 @@ class Storage(BaseStorage):
         storage.update({'path': path}, {"$set": {"detector_data": data}})
         return path
 
-    def get_crypto(self, path):
+    @return_future
+    def get_crypto(self, path, callback):
         connection, db, storage = self.__conn__()
 
         crypto = storage.find_one({'path': path})
-        return crypto.get('crypto') if crypto else None
+        callback(crypto.get('crypto') if crypto else None)
 
-    def get_detector_data(self, path):
+    @return_future
+    def get_detector_data(self, path, callback):
         connection, db, storage = self.__conn__()
 
         doc = storage.find_one({'path': path})
-        return doc.get('detector_data') if doc else None
+        callback(doc.get('detector_data') if doc else None)
 
-    def get(self, path):
+    @return_future
+    def get(self, path, callback):
         connection, db, storage = self.__conn__()
 
         stored = storage.find_one({'path': path})
 
         if not stored or self.__is_expired(stored):
-            return None
+            callback(None)
+            return
 
         fs = gridfs.GridFS(db)
 
         contents = fs.get(stored['file_id']).read()
 
-        return str(contents)
+        callback(str(contents))
 
-    def exists(self, path):
+    @return_future
+    def exists(self, path, callback):
         connection, db, storage = self.__conn__()
 
         stored = storage.find_one({'path': path})
 
         if not stored or self.__is_expired(stored):
-            return False
-
-        return True
+            callback(False)
+        else:
+            callback(True)
 
     def remove(self, path):
         if not self.exists(path):

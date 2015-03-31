@@ -19,6 +19,7 @@ from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.context import Context
 from thumbor.config import Config
 from fixtures.storage_fixture import IMAGE_URL, SAME_IMAGE_URL, IMAGE_BYTES, get_server
+import tornado.concurrent
 
 
 @Vows.batch
@@ -41,8 +42,8 @@ class FileStorageVows(Vows.Context):
             return storage.get(IMAGE_URL % 1)
 
         def should_be_in_catalog(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic.result()).not_to_be_null()
+            expect(topic.exception()).not_to_be_an_error()
 
     class CanStoreImagesInSameFolder(Vows.Context):
         def topic(self):
@@ -64,8 +65,8 @@ class FileStorageVows(Vows.Context):
             return storage.get(SAME_IMAGE_URL % 999)
 
         def should_be_in_catalog(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic.result()).not_to_be_null()
+            expect(topic.exception()).not_to_be_an_error()
 
     class CanGetImage(Vows.Context):
         def topic(self):
@@ -76,11 +77,11 @@ class FileStorageVows(Vows.Context):
             return storage.get(IMAGE_URL % 2)
 
         def should_not_be_null(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic.result()).not_to_be_null()
+            expect(topic.exception()).not_to_be_an_error()
 
         def should_have_proper_bytes(self, topic):
-            expect(topic).to_equal(IMAGE_BYTES)
+            expect(topic.result()).to_equal(IMAGE_BYTES)
 
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
@@ -105,7 +106,7 @@ class FileStorageVows(Vows.Context):
                 return storage.get_crypto(IMAGE_URL % 9999)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic.result()).to_be_null()
 
         class DoesNotStoreIfConfigSaysNotTo(Vows.Context):
             def topic(self):
@@ -116,7 +117,7 @@ class FileStorageVows(Vows.Context):
                 return storage.get_crypto(IMAGE_URL % 5)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic.result()).to_be_null()
 
         class CanStoreCrypto(Vows.Context):
             def topic(self):
@@ -128,11 +129,11 @@ class FileStorageVows(Vows.Context):
                 return storage.get_crypto(IMAGE_URL % 6)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic.result()).not_to_be_null()
+                expect(topic.exception()).not_to_be_an_error()
 
             def should_have_proper_key(self, topic):
-                expect(topic).to_equal('ACME-SEC')
+                expect(topic.result()).to_equal('ACME-SEC')
 
     class DetectorVows(Vows.Context):
         class CanStoreDetectorData(Vows.Context):
@@ -144,11 +145,11 @@ class FileStorageVows(Vows.Context):
                 return storage.get_detector_data(IMAGE_URL % 7)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic.result()).not_to_be_null()
+                expect(topic.exception()).not_to_be_an_error()
 
             def should_equal_some_data(self, topic):
-                expect(topic).to_equal('some-data')
+                expect(topic.result()).to_equal('some-data')
 
         class ReturnsNoneIfNoDetectorData(Vows.Context):
             def topic(self):
@@ -157,4 +158,4 @@ class FileStorageVows(Vows.Context):
                 return storage.get_detector_data(IMAGE_URL % 10000)
 
             def should_not_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic.result()).to_be_null()

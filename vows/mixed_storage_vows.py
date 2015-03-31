@@ -77,8 +77,8 @@ class MixedStorageVows(Vows.Context):
                 expect(file_storage.storage['path1']['contents']).to_equal('contents')
 
             def should_get_contents(self, topic):
-                contents = topic.get('path1')
-                expect(contents).to_equal('contents')
+                contents = yield topic.get('path1')
+                expect(contents.result()).to_equal('contents')
 
             def should_not_record_crypto_on_file_storage(self, topic):
                 file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
@@ -93,12 +93,12 @@ class MixedStorageVows(Vows.Context):
                 expect(crypto_storage.storage['path1']['crypto']).to_equal('security-key')
 
             def should_get_crypto(self, topic):
-                contents = topic.get_crypto('path1')
-                expect(contents).to_equal('security-key')
+                contents = yield topic.get_crypto('path1')
+                expect(contents.result()).to_equal('security-key')
 
             def should_get_detector_data(self, topic):
-                contents = topic.get_detector_data('path1')
-                expect(contents).to_equal('detector')
+                contents = yield topic.get_detector_data('path1')
+                expect(contents.result()).to_equal('detector')
 
     class GetFromConfig(Vows.Context):
         def topic(self, storages):
@@ -116,7 +116,7 @@ class MixedStorageVows(Vows.Context):
                 expect(topic[0].file_storage).to_be_instance_of(NoStorage)
 
             def should_be_null(self, topic):
-                expect(topic[1]).to_be_null()
+                expect(topic[1].result()).to_be_null()
 
         class GetDetectorData(Vows.Context):
             def topic(self, storage):
@@ -126,7 +126,7 @@ class MixedStorageVows(Vows.Context):
                 expect(topic[0].detector_storage).to_be_instance_of(NoStorage)
 
             def should_be_null(self, topic):
-                expect(topic[1]).to_be_null()
+                expect(topic[1].result()).to_be_null()
 
         class GetCrypto(Vows.Context):
             def topic(self, storage):
@@ -136,4 +136,4 @@ class MixedStorageVows(Vows.Context):
                 expect(topic[0].crypto_storage).to_be_instance_of(NoStorage)
 
             def should_be_null(self, topic):
-                expect(topic[1]).to_be_null()
+                expect(topic[1].result()).to_be_null()

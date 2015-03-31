@@ -46,8 +46,8 @@ class RedisStorageVows(RedisDBContext):
             return storage.exists(IMAGE_URL % 9999)
 
         def should_exist(self, topic):
-            expect(topic).not_to_be_an_error()
-            expect(topic).to_be_true()
+            expect(topic.exception()).not_to_be_an_error()
+            expect(topic.result()).to_be_true()
 
     class KnowsImageDoesNotExist(Vows.Context):
         def topic(self):
@@ -56,8 +56,8 @@ class RedisStorageVows(RedisDBContext):
             return storage.exists(IMAGE_URL % 10000)
 
         def should_not_exist(self, topic):
-            expect(topic).not_to_be_an_error()
-            expect(topic).to_be_false()
+            expect(topic.exception()).not_to_be_an_error()
+            expect(topic.result()).to_be_false()
 
     class CanRemoveImage(Vows.Context):
         def topic(self):
@@ -90,11 +90,11 @@ class RedisStorageVows(RedisDBContext):
             return storage.get(IMAGE_URL % 2)
 
         def should_not_be_null(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic.result()).not_to_be_null()
+            expect(topic.exception()).not_to_be_an_error()
 
         def should_have_proper_bytes(self, topic):
-            expect(topic).to_equal(IMAGE_BYTES)
+            expect(topic.result()).to_equal(IMAGE_BYTES)
 
     class HandleErrors(Vows.Context):
         class CanRaiseErrors(Vows.Context):
@@ -138,10 +138,14 @@ class RedisStorageVows(RedisDBContext):
                 return storage
 
             def should_return_false(self, storage):
-                expect(storage.exists(IMAGE_URL % 2)).to_equal(False)
+                result = storage.exists(IMAGE_URL % 2)
+                expect(result.result()).to_equal(False)
+                expect(result.exception()).not_to_be_an_error()
 
             def should_return_none(self, storage):
-                expect(storage.get(IMAGE_URL % 2)).to_equal(None)
+                result = storage.get(IMAGE_URL % 2)
+                expect(result.result()).to_equal(None)
+                expect(result.exception()).not_to_be_an_error()
 
     class CryptoVows(Vows.Context):
         class RaisesIfInvalidConfig(Vows.Context):
@@ -171,7 +175,7 @@ class RedisStorageVows(RedisDBContext):
                 return storage.get_crypto(IMAGE_URL % 9999)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic.result()).to_be_null()
 
         class DoesNotStoreIfConfigSaysNotTo(Vows.Context):
             def topic(self):
@@ -182,7 +186,7 @@ class RedisStorageVows(RedisDBContext):
                 return storage.get_crypto(IMAGE_URL % 5)
 
             def should_be_null(self, topic):
-                expect(topic).to_be_null()
+                expect(topic.result()).to_be_null()
 
         class CanStoreCrypto(Vows.Context):
             def topic(self):
@@ -197,11 +201,11 @@ class RedisStorageVows(RedisDBContext):
                 return storage.get_crypto(IMAGE_URL % 6)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic.result()).not_to_be_null()
+                expect(topic.exception()).not_to_be_an_error()
 
             def should_have_proper_key(self, topic):
-                expect(topic).to_equal('ACME-SEC')
+                expect(topic.result()).to_equal('ACME-SEC')
 
     class DetectorVows(Vows.Context):
         class CanStoreDetectorData(Vows.Context):
@@ -213,11 +217,11 @@ class RedisStorageVows(RedisDBContext):
                 return storage.get_detector_data(IMAGE_URL % 7)
 
             def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic.result()).not_to_be_null()
+                expect(topic.exception()).not_to_be_an_error()
 
             def should_equal_some_data(self, topic):
-                expect(topic).to_equal('some-data')
+                expect(topic.result()).to_equal('some-data')
 
         class ReturnsNoneIfNoDetectorData(Vows.Context):
             def topic(self):
@@ -226,5 +230,4 @@ class RedisStorageVows(RedisDBContext):
                 return storage.get_detector_data(IMAGE_URL % 10000)
 
             def should_not_be_null(self, topic):
-                expect(topic).to_be_null()
-
+                expect(topic.result()).to_be_null()

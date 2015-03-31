@@ -23,7 +23,7 @@ class NoStorageVows(Vows.Context):
             return storage.get(IMAGE_URL % 1)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic.result()).to_be_null()
 
     class KnowsNoImages(Vows.Context):
         def topic(self):
@@ -31,7 +31,7 @@ class NoStorageVows(Vows.Context):
             return storage.exists(IMAGE_URL % 1)
 
         def should_be_false(self, topic):
-            expect(topic).to_be_false()
+            expect(topic.result()).to_be_false()
 
     class RemovesImage(Vows.Context):
         def topic(self):
@@ -49,7 +49,7 @@ class NoStorageVows(Vows.Context):
             return storage.get_crypto(IMAGE_URL % 2)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic.result()).to_be_null()
 
     class DetectorData(Vows.Context):
         def topic(self):
@@ -58,4 +58,4 @@ class NoStorageVows(Vows.Context):
             return storage.get_detector_data(IMAGE_URL % 3)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic.result()).to_be_null()

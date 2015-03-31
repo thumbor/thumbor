@@ -10,6 +10,7 @@
 
 import os
 from os.path import exists
+from tornado.concurrent import return_future
 
 
 class BaseStorage(object):
@@ -37,19 +38,23 @@ class BaseStorage(object):
         '''
         raise NotImplementedError()
 
+    @return_future
     def get_crypto(self, path, callback):
         raise NotImplementedError()
 
+    @return_future
     def get_detector_data(self, path, callback):
         raise NotImplementedError()
 
+    @return_future
     def get(self, path, callback):
         raise NotImplementedError()
 
+    @return_future
     def exists(self, path, callback):
         raise NotImplementedError()
 
-    def remove(self, path, callback):
+    def remove(self, path):
         raise NotImplementedError()
 
     def ensure_dir(self, path):
