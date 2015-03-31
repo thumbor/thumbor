@@ -9,7 +9,9 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import sys
-import logging, logging.config
+import logging
+import logging.config
+
 import os
 import socket
 from os.path import expanduser, dirname
@@ -29,6 +31,7 @@ def get_as_integer(value):
         return int(value)
     except ValueError:
         return None
+
 
 def main(arguments=None):
     '''Runs thumbor server with the specified arguments.'''

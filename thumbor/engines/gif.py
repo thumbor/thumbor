@@ -46,7 +46,7 @@ class Engine(PILEngine):
 
     def load(self, buffer, extension):
         self.extension = extension
-        self.buffer= buffer
+        self.buffer = buffer
         self.operations = []
         self.update_image_info()
 
