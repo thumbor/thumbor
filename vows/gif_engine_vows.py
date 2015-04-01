@@ -45,7 +45,7 @@ class GifEngineVows(Vows.Context):
             expect(topic).to_be_an_error_like(IOError)
 
             expected = "cannot identify image file <_io.BytesIO"
-            expect(str(topic)[:len(expected)]).to_equal(expected)
+            expect(topic.message).to_include(expected)
 
     class ValidBuffer(Vows.Context):
 

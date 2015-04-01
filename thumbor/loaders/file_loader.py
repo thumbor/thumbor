@@ -10,8 +10,10 @@
 
 from os.path import join, exists, abspath
 from urllib import unquote
+from tornado.concurrent import return_future
 
 
+@return_future
 def load(context, path, callback):
     file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), unquote(path).lstrip('/'))
     file_path = abspath(file_path)

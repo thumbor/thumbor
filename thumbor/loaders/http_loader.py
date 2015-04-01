@@ -15,6 +15,7 @@ from functools import partial
 import tornado.httpclient
 
 from thumbor.utils import logger
+from tornado.concurrent import return_future
 
 
 def _normalize_url(url):
@@ -54,6 +55,7 @@ def return_contents(response, url, callback, context):
         callback(response.body)
 
 
+@return_future
 def load(context, url, callback):
     using_proxy = context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
     if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
