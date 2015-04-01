@@ -14,6 +14,7 @@ import datetime
 import traceback
 
 import tornado.web
+import tornado.gen as gen
 
 from thumbor import __version__
 from thumbor.storages.no_storage import Storage as NoStorage
@@ -37,10 +38,10 @@ CONTENT_TYPE = {
 
 EXTENSION = {
     'image/jpeg': '.jpg',
-    'image/gif':  '.gif',
-    'image/png':  '.png',
+    'image/gif': '.gif',
+    'image/png': '.png',
     'image/webp': '.webp',
-    'video/mp4':  '.mp4',
+    'video/mp4': '.mp4',
     'video/webm': '.webm',
 }
 
@@ -96,30 +97,33 @@ class BaseHandler(tornado.web.RequestHandler):
         self.filters_runner = self.context.filters_factory.create_instances(self.context, self.context.request.filters)
         self.filters_runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD, self.get_image)
 
+    @gen.coroutine
     def get_image(self):
-        def callback(normalized, buffer=None, engine=None):
-            req = self.context.request
+        normalized, buffer, engine = yield self._fetch(
+            self.context.request.image_url,
+            self.context.request.extension
+        )
 
-            if engine is None:
-                if buffer is None:
-                    self._error(404)
-                    return
+        req = self.context.request
 
-                engine = self.context.request.engine
-                engine.load(buffer, req.extension)
+        if engine is None:
+            if buffer is None:
+                self._error(404)
+                return
 
-            def transform():
-                self.normalize_crops(normalized, req, engine)
+            engine = self.context.request.engine
+            engine.load(buffer, req.extension)
 
-                if req.meta:
-                    self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
+        def transform():
+            self.normalize_crops(normalized, req, engine)
 
-                after_transform_cb = functools.partial(self.after_transform, self.context)
-                Transformer(self.context).transform(after_transform_cb)
+            if req.meta:
+                self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
 
-            self.filters_runner.apply_filters(thumbor.filters.PHASE_AFTER_LOAD, transform)
+            after_transform_cb = functools.partial(self.after_transform, self.context)
+            Transformer(self.context).transform(after_transform_cb)
 
-        self._fetch(self.context.request.image_url, self.context.request.extension, callback)
+        self.filters_runner.apply_filters(thumbor.filters.PHASE_AFTER_LOAD, transform)
 
     def normalize_crops(self, normalized, req, engine):
         new_crops = None
@@ -169,7 +173,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def define_image_type(self, context, result):
         if result is not None:
-            image_extension = EXTENSION.get(BaseEngine.get_mimetype(result),'.jpg')
+            image_extension = EXTENSION.get(BaseEngine.get_mimetype(result), '.jpg')
         else:
             image_extension = context.request.format
             if image_extension is not None:
@@ -256,8 +260,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 self._store_results(context, results)
 
         self.context.thread_pool.queue(
-            operation = functools.partial(self._load_results, context),
-            callback = inner,
+            operation=functools.partial(self._load_results, context),
+            callback=inner,
         )
 
     def _write_results_to_client(self, context, results, content_type):
@@ -357,7 +361,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return is_valid
 
-    def _fetch(self, url, extension, callback):
+    @gen.coroutine
+    def _fetch(self, url, extension):
         storage = self.context.modules.storage
         buffer = storage.get(url)
 
@@ -369,21 +374,20 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 self.context.request.engine = self.context.modules.engine
 
-            callback(False, buffer=buffer)
+            raise gen.Return([False, buffer, None])
         else:
             self.context.statsd_client.incr('storage.miss')
 
             def handle_loader_loaded(buffer):
                 if buffer is None:
-                    callback(False, None)
-                    return
+                    raise gen.Return([False, None, None])
 
                 original_preserve = self.context.config.PRESERVE_EXIF_INFO
                 self.context.config.PRESERVE_EXIF_INFO = True
 
                 try:
                     mime = BaseEngine.get_mimetype(buffer)
-                    extension = EXTENSION.get(mime,None)
+                    extension = EXTENSION.get(mime, None)
 
                     if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                         self.context.request.engine = self.context.modules.gif_engine
@@ -404,7 +408,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 finally:
                     self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
-                callback(normalized, engine=self.context.request.engine)
+                raise gen.Return([normalized, None, self.context.request.engine])
 
             self.context.modules.loader.load(self.context, url, handle_loader_loaded)
 
