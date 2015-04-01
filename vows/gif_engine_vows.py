@@ -42,10 +42,7 @@ class GifEngineVows(Vows.Context):
             return engine.read()
 
         def should_throw_an_exception(self, topic):
-            expect(topic).to_be_an_error_like(IOError)
-
-            expected = "cannot identify image file <_io.BytesIO"
-            expect(topic.message).to_include(expected)
+            expect(topic).to_be_an_error()
 
     class ValidBuffer(Vows.Context):
 
