@@ -28,6 +28,7 @@ class MockEngine:
     def __init__(self, size):
         self.context = None
         self.image = MockImage(size)
+        self.frame_count = 1
 
     def get_image_mode(self):
         return 'RGB'
@@ -130,7 +131,8 @@ class JsonEngineVows(ctx):
                         "source": {
                             "url": "/some/image/path.jpg",
                             "width": 300,
-                            "height": 200
+                            "height": 200,
+                            "frameCount": 1,
                         },
                         "target": {
                             "width": 300,
@@ -164,7 +166,8 @@ class JsonEngineVows(ctx):
                         "source": {
                             "url": "/some/image/path.jpg",
                             "width": 300,
-                            "height": 200
+                            "height": 200,
+                            "frameCount": 1,
                         },
                         "target": {
                             "width": 300,
@@ -192,7 +195,8 @@ class JsonEngineVows(ctx):
                     "source": {
                         "url": "/some/image/path.jpg",
                         "width": 300,
-                        "height": 200
+                        "height": 200,
+                        "frameCount": 1,
                     },
                     "target": {
                         "width": 200,
@@ -220,7 +224,8 @@ class JsonEngineVows(ctx):
                     "source": {
                         "url": "/some/image/path.jpg",
                         "width": 300,
-                        "height": 200
+                        "height": 200,
+                        "frameCount": 1,
                     },
                     "target": {
                         "width": 100,
@@ -250,7 +255,8 @@ class JsonEngineVows(ctx):
                     "source": {
                         "url": "/some/image/path.jpg",
                         "width": 300,
-                        "height": 200
+                        "height": 200,
+                        "frameCount": 1,
                     },
                     "target": {
                         "width": 300,
@@ -284,7 +290,8 @@ class JsonEngineVows(ctx):
                     "source": {
                         "url": "/some/image/path.jpg",
                         "width": 300,
-                        "height": 200
+                        "height": 200,
+                        "frameCount": 1,
                     },
                     "target": {
                         "width": 300,

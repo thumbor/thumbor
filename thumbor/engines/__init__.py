@@ -54,12 +54,13 @@ class BaseEngine(object):
         self.source_width = None
         self.source_height = None
         self.icc_profile = None
+        self.frame_count = 1
 
     @classmethod
     def get_mimetype(cls, buffer):
         mime = None
 
-        #magic number detection
+        # magic number detection
         if buffer.startswith('GIF8'):
             mime = 'image/gif'
         elif buffer.startswith('\x89PNG\r\n\x1a\n'):

@@ -116,6 +116,9 @@ class JSONEngine(BaseEngine):
     def convert_to_grayscale(self):
         pass
 
+    def get_frame_count(self):
+        return self.engine.frame_count
+
     def read(self, extension, quality):
         target_width, target_height = self.get_target_dimensions()
         thumbor_json = {
@@ -124,6 +127,7 @@ class JSONEngine(BaseEngine):
                     "url": self.path,
                     "width": self.width,
                     "height": self.height,
+                    "frameCount": self.get_frame_count()
                 },
                 "operations": self.operations,
                 "target": {
