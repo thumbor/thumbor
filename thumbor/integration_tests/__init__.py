@@ -11,7 +11,7 @@ from thumbor.integration_tests.urls_helpers import single_dataset  # , combined_
 from thumbor.utils import which
 
 
-class EngineTestCase(AsyncHTTPTestCase):
+class EngineCase(AsyncHTTPTestCase):
 
     def get_app(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
@@ -50,7 +50,7 @@ class EngineTestCase(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url(url), self.stop)
         return self.wait(timeout=30)
 
-    def test_single_params(self):
+    def exec_single_params(self):
         if not self._app:
             return True
         single_dataset(self.retrieve)

@@ -20,9 +20,7 @@ tests_require = [
     "pymongo==2.1.1",
     "redis==2.4.9",
     "gevent",
-    "pyvows==2.0.6",
-    "preggy==0.11.1",
-    "tornado-pyvows==0.5.2",
+    "tornado-pyvows>=0.6.0",
     "coverage",
     "mock==1.0.1",
     "raven",
@@ -91,7 +89,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
         },
 
         install_requires=[
-            "tornado>2.3.0,<4.0.0",
+            "tornado>=4.1.0,<5.0.0",
             "pyCrypto>=2.1.0",
             "pycurl>=7.19.0,<7.20.0",
             "Pillow>=2.3.0,<3.0.0",
