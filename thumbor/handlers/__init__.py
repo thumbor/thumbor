@@ -26,6 +26,7 @@ from thumbor.engines.json_engine import JSONEngine
 from thumbor.utils import logger
 import thumbor.filters
 
+
 CONTENT_TYPE = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
@@ -55,6 +56,7 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.warn(msg)
         self.finish()
 
+    @gen.coroutine
     def execute_image_operations(self):
         self.context.request.quality = None
 
@@ -246,8 +248,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def finish_request(self, context, result_from_storage=None):
         if result_from_storage is not None:
             results = self._process_result_from_storage(result_from_storage)
-            image_extension, content_type = self.define_image_type(context, results)
-            self._write_results_to_client(context, results, content_type)
+
+            if results:
+                image_extension, content_type = self.define_image_type(context, results)
+                self._write_results_to_client(context, results, content_type)
             return
 
         should_store = result_from_storage is None and (
@@ -364,7 +368,7 @@ class BaseHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def _fetch(self, url, extension):
         storage = self.context.modules.storage
-        buffer = storage.get(url)
+        buffer = yield gen.maybe_future(storage.get(url))
 
         if buffer is not None:
             self.context.statsd_client.incr('storage.hit')
@@ -378,46 +382,49 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             self.context.statsd_client.incr('storage.miss')
 
-            def handle_loader_loaded(buffer):
-                if buffer is None:
-                    raise gen.Return([False, None, None])
+        buffer = yield self.context.modules.loader.load(self.context, url)
 
-                original_preserve = self.context.config.PRESERVE_EXIF_INFO
-                self.context.config.PRESERVE_EXIF_INFO = True
+        if buffer is None:
+            raise gen.Return([False, None, None])
 
-                try:
-                    mime = BaseEngine.get_mimetype(buffer)
-                    extension = EXTENSION.get(mime, None)
+        original_preserve = self.context.config.PRESERVE_EXIF_INFO
+        self.context.config.PRESERVE_EXIF_INFO = True
 
-                    if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                        self.context.request.engine = self.context.modules.gif_engine
-                    else:
-                        self.context.request.engine = self.context.modules.engine
+        try:
+            mime = BaseEngine.get_mimetype(buffer)
+            extension = EXTENSION.get(mime, None)
 
-                    self.context.request.engine.load(buffer, extension)
-                    normalized = self.context.request.engine.normalize()
-                    is_no_storage = isinstance(storage, NoStorage)
-                    is_mixed_storage = isinstance(storage, MixedStorage)
-                    is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
+            if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                self.context.request.engine = self.context.modules.gif_engine
+            else:
+                self.context.request.engine = self.context.modules.engine
 
-                    if not (is_no_storage or is_mixed_no_file_storage):
-                        buffer = self.context.request.engine.read(extension)
-                        storage.put(url, buffer)
+            self.context.request.engine.load(buffer, extension)
+            normalized = self.context.request.engine.normalize()
+            is_no_storage = isinstance(storage, NoStorage)
+            is_mixed_storage = isinstance(storage, MixedStorage)
+            is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
-                    storage.put_crypto(url)
-                finally:
-                    self.context.config.PRESERVE_EXIF_INFO = original_preserve
+            if not (is_no_storage or is_mixed_no_file_storage):
+                buffer = self.context.request.engine.read(extension)
+                storage.put(url, buffer)
 
-                raise gen.Return([normalized, None, self.context.request.engine])
+            storage.put_crypto(url)
+        finally:
+            self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
-            self.context.modules.loader.load(self.context, url, handle_loader_loaded)
+        raise gen.Return([normalized, None, self.context.request.engine])
 
+    @gen.coroutine
     def get_blacklist_contents(self):
         filename = 'blacklist.txt'
-        if self.context.modules.storage.exists(filename):
-            return self.context.modules.storage.get(filename)
+
+        exists = yield gen.maybe_future(self.context.modules.storage.exists(filename))
+        if exists:
+            blacklist = yield gen.maybe_future(self.context.modules.storage.get(filename))
+            raise tornado.gen.Return(blacklist)
         else:
-            return ""
+            raise tornado.gen.Return("")
 
 
 class ContextHandler(BaseHandler):

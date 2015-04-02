@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.storages import BaseStorage
-
+from tornado import gen
 
 class Storage(BaseStorage):
     def __init__(self, context, file_storage=None, crypto_storage=None, detector_storage=None):
@@ -61,21 +61,29 @@ class Storage(BaseStorage):
         self._init_crypto_storage()
         self.crypto_storage.put_crypto(path)
 
+    @gen.coroutine
     def get_crypto(self, path):
         self._init_crypto_storage()
-        return self.crypto_storage.get_crypto(path)
+        result = yield gen.maybe_future(self.crypto_storage.get_crypto(path))
+        raise gen.Return(result)
 
+    @gen.coroutine
     def get_detector_data(self, path):
         self._init_detector_storage()
-        return self.detector_storage.get_detector_data(path)
+        result = yield gen.maybe_future(self.detector_storage.get_detector_data(path))
+        raise gen.Return(result)
 
+    @gen.coroutine
     def get(self, path):
         self._init_file_storage()
-        return self.file_storage.get(path)
+        result = yield gen.maybe_future(self.file_storage.get(path))
+        raise gen.Return(result)
 
+    @gen.coroutine
     def exists(self, path):
         self._init_file_storage()
-        return self.file_storage.exists(path)
+        result = yield gen.maybe_future(self.file_storage.exists(path))
+        raise gen.Return(result)
 
     def resolve_original_photo_path(self, request, filename):
         return self.file_storage.resolve_original_photo_path(request, filename)

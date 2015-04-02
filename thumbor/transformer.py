@@ -13,6 +13,7 @@ import sys
 
 from thumbor.point import FocalPoint
 from thumbor.utils import logger
+import tornado.gen as gen
 
 trim_enabled = True
 try:
@@ -155,8 +156,9 @@ class Transformer(object):
         if self.should_run_image_operations:
             self.do_image_operations()
 
+    @gen.coroutine
     def do_smart_detection(self):
-        focal_points = self.context.modules.storage.get_detector_data(self.smart_storage_key)
+        focal_points = yield gen.maybe_future(self.context.modules.storage.get_detector_data(self.smart_storage_key))
         if focal_points is not None:
             self.after_smart_detect(focal_points, points_from_storage=True)
         else:

@@ -22,3 +22,5 @@ documentation](https://github.com/globocom/thumbor/wiki "thumbor docs").
 ### Demo
 
 You can see thumbor in action at http://thumborize.me/
+
+

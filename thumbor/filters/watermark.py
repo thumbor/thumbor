@@ -8,9 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from os.path import splitext
 from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
-from os.path import splitext
+import tornado.gen
 
 
 class Filter(BaseFilter):
@@ -49,6 +50,7 @@ class Filter(BaseFilter):
         self.on_image_ready(buffer)
 
     @filter_method(BaseFilter.String, r'-?[\d]+', r'-?[\d]+', BaseFilter.PositiveNumber, async=True)
+    @tornado.gen.coroutine
     def watermark(self, callback, url, x, y, alpha):
         self.url = url
         self.x = x
@@ -59,7 +61,7 @@ class Filter(BaseFilter):
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
         self.storage = self.context.modules.storage
 
-        buffer = self.storage.get(self.url)
+        buffer = yield tornado.gen.maybe_future(self.storage.get(self.url))
         if buffer is not None:
             self.on_image_ready(buffer)
         else:

@@ -11,6 +11,8 @@ import datetime
 
 from thumbor.handlers import ImageApiHandler
 from thumbor.engines import BaseEngine
+import tornado.gen as gen
+import tornado.web
 
 
 ##
@@ -19,11 +21,14 @@ from thumbor.engines import BaseEngine
 ##
 class ImageResourceHandler(ImageApiHandler):
 
+    @gen.coroutine
     def check_resource(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image exists
-        if self.context.modules.storage.exists(id):
-            body = self.context.modules.storage.get(id)
+        exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
+
+        if exists:
+            body = yield gen.maybe_future(self.context.modules.storage.get(id))
             self.set_status(200)
 
             mime = BaseEngine.get_mimetype(body)
@@ -35,6 +40,7 @@ class ImageResourceHandler(ImageApiHandler):
                 self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
                 self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
             self.write(body)
+            self.finish()
         else:
             self._error(404, 'Image not found at the given URL')
 
@@ -50,6 +56,8 @@ class ImageResourceHandler(ImageApiHandler):
             self.write_file(id, self.request.body)
             self.set_status(204)
 
+    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def delete(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image deleting is allowed
@@ -58,14 +66,17 @@ class ImageResourceHandler(ImageApiHandler):
             return
 
         # Check if image exists
-        if self.context.modules.storage.exists(id):
+        exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
+        if exists:
             self.context.modules.storage.remove(id)
             self.set_status(204)
         else:
             self._error(404, 'Image not found at the given URL')
 
+    @tornado.web.asynchronous
     def get(self, id):
         self.check_resource(id)
 
+    @tornado.web.asynchronous
     def head(self, id):
         self.check_resource(id)

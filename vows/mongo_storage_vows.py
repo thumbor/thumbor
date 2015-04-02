@@ -17,6 +17,7 @@ from thumbor.storages.mongo_storage import Storage as MongoStorage
 from thumbor.context import Context
 from thumbor.config import Config
 from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES, get_server
+import tornado.concurrent
 
 FIXTURES_FOLDER = join(abspath(dirname(__file__)), 'fixtures')
 CONNECTION = Connection('localhost', 7777)
@@ -47,8 +48,9 @@ class MongoStorageVows(MongoDBContext):
             return storage.exists(IMAGE_URL % 10000)
 
         def should_exist(self, topic):
-            expect(topic).not_to_be_an_error()
-            expect(topic).to_be_true()
+            expect(topic).to_be_instance_of(tornado.concurrent.Future)
+            expect(topic.exception()).not_to_be_an_error()
+            expect(topic.result()).to_be_true()
 
     class KnowsIfImageDoesNotExist(Vows.Context):
         def topic(self):
@@ -56,8 +58,9 @@ class MongoStorageVows(MongoDBContext):
             return storage.exists(IMAGE_URL % 20000)
 
         def should_not_exist(self, topic):
-            expect(topic).not_to_be_an_error()
-            expect(topic).to_be_false()
+            expect(topic).to_be_instance_of(tornado.concurrent.Future)
+            expect(topic.exception()).not_to_be_an_error()
+            expect(topic.result()).to_be_false()
 
     class CanRemoveImage(Vows.Context):
         def topic(self):
@@ -87,11 +90,12 @@ class MongoStorageVows(MongoDBContext):
             return storage.get(IMAGE_URL % 2)
 
         def should_not_be_null(self, topic):
-            expect(topic).not_to_be_null()
-            expect(topic).not_to_be_an_error()
+            expect(topic).to_be_instance_of(tornado.concurrent.Future)
+            expect(topic.exception()).not_to_be_an_error()
+            expect(topic.result()).not_to_be_null()
 
         def should_have_proper_bytes(self, topic):
-            expect(topic).to_equal(IMAGE_BYTES)
+            expect(topic.result()).to_equal(IMAGE_BYTES)
 
     class GettingReturnsNoneWhenImageDoesNotExist(Vows.Context):
         def topic(self):
@@ -99,7 +103,9 @@ class MongoStorageVows(MongoDBContext):
             return storage.get(IMAGE_URL % 99)
 
         def should_be_null(self, topic):
-            expect(topic).to_be_null()
+            expect(topic).to_be_instance_of(tornado.concurrent.Future)
+            expect(topic.exception()).not_to_be_an_error()
+            expect(topic.result()).to_be_null()
 
     class StoresCrypto(Vows.Context):
         class DoesNotStoreWhenConfigIsFalseInPutMethod(Vows.Context):
@@ -165,11 +171,12 @@ class MongoStorageVows(MongoDBContext):
                 return storage.get_crypto(IMAGE_URL % 6)
 
             def should_be_in_catalog(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic).to_be_instance_of(tornado.concurrent.Future)
+                expect(topic.result()).not_to_be_null()
+                expect(topic.exception()).not_to_be_an_error()
 
             def should_have_crypto_key(self, topic):
-                expect(topic).to_equal('ACME-SEC')
+                expect(topic.result()).to_equal('ACME-SEC')
 
         class GetNoKey(Vows.Context):
             def topic(self):
@@ -182,7 +189,7 @@ class MongoStorageVows(MongoDBContext):
                 return storage.get_crypto(IMAGE_URL % 7)
 
             def should_not_be_in_catalog(self, topic):
-                expect(topic).to_be_null()
+                expect(topic.result()).to_be_null()
 
         class GetProperKeyBeforeExpiration(Vows.Context):
             def topic(self):
@@ -196,11 +203,11 @@ class MongoStorageVows(MongoDBContext):
                 return storage.get(IMAGE_URL % 8)
 
             def should_be_in_catalog(self, topic):
-                expect(topic).not_to_be_null()
-                expect(topic).not_to_be_an_error()
+                expect(topic.result()).not_to_be_null()
+                expect(topic.exception()).not_to_be_an_error()
 
             def should_have_crypto_key(self, topic):
-                expect(topic).to_equal(IMAGE_BYTES)
+                expect(topic.result()).to_equal(IMAGE_BYTES)
 
         class GetNothingAfterExpiration(Vows.Context):
             def topic(self):
@@ -212,7 +219,7 @@ class MongoStorageVows(MongoDBContext):
                 storage = MongoStorage(Context(server=server, config=config))
                 storage.put(IMAGE_URL % 10, IMAGE_BYTES)
 
-                item = storage.get(IMAGE_URL % 10)
+                item = storage.get(IMAGE_URL % 10).result()
                 return item is None
 
             def should_be_expired(self, topic):
@@ -229,7 +236,7 @@ class MongoStorageVows(MongoDBContext):
                 storage.put_crypto(IMAGE_URL % 11)
 
                 item = storage.get_crypto(IMAGE_URL % 11)
-                return item
+                return item.result()
 
             def should_be_acme_sec(self, topic):
                 expect(topic).not_to_be_null()
@@ -243,7 +250,7 @@ class MongoStorageVows(MongoDBContext):
                 storage.put_crypto(IMAGE_URL % 12)
 
                 item = storage.get_crypto(IMAGE_URL % 12)
-                return item
+                return item.result()
 
             def should_be_null(self, topic):
                 expect(topic).to_be_null()
@@ -277,4 +284,4 @@ class MongoStorageVows(MongoDBContext):
             return storage.get_detector_data(IMAGE_URL % 14)
 
         def should_be_some_data(self, topic):
-            expect(topic).to_equal('some data')
+            expect(topic.result()).to_equal('some data')

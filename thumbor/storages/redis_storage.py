@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import logging
+import inspect
 
 from json import loads, dumps
 from datetime import datetime, timedelta
@@ -17,6 +18,7 @@ from redis import Redis, RedisError
 
 from thumbor.storages import BaseStorage
 from thumbor.utils import on_exception
+from tornado.concurrent import return_future
 
 logger = logging.getLogger('thumbor')
 
@@ -79,17 +81,10 @@ class Storage(BaseStorage):
             self.storage = None
 
         if self.context.config.REDIS_STORAGE_IGNORE_ERRORS is True:
-            # Based on no_storage
-            return_map = {
-                'exists': False,
-                'put': '',
-                'put_crypto': '',
-                'put_detector_path': '',
-            }
-
-            logger.error("Redis storage failure: %s" % exc_value)
-
-            return return_map.get(fname, None)
+            logger.error("[REDIS_STORAGE] %s" % exc_value)
+            if fname == '_exists':
+                return False
+            return None
         else:
             raise exc_value
 
@@ -108,7 +103,6 @@ class Storage(BaseStorage):
                 seconds=self.context.config.STORAGE_EXPIRATION_SECONDS
             )
         )
-        return path
 
     @on_exception(on_redis_error, RedisError)
     def put_crypto(self, path):
@@ -123,16 +117,18 @@ class Storage(BaseStorage):
 
         key = self.__key_for(path)
         self.get_storage().set(key, self.context.server.security_key)
-        return key
 
     @on_exception(on_redis_error, RedisError)
     def put_detector_data(self, path, data):
         key = self.__detector_key_for(path)
         self.get_storage().set(key, dumps(data))
-        return key
+
+    @return_future
+    def get_crypto(self, path, callback):
+        callback(self._get_crypto(path))
 
     @on_exception(on_redis_error, RedisError)
-    def get_crypto(self, path):
+    def _get_crypto(self, path):
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
             return None
 
@@ -142,24 +138,34 @@ class Storage(BaseStorage):
             return None
         return crypto
 
+    @return_future
+    def get_detector_data(self, path, callback):
+        callback(self._get_detector_data(path))
+
     @on_exception(on_redis_error, RedisError)
-    def get_detector_data(self, path):
+    def _get_detector_data(self, path):
         data = self.get_storage().get(self.__detector_key_for(path))
 
         if not data:
             return None
         return loads(data)
 
+    @return_future
+    def exists(self, path, callback):
+        callback(self._exists(path))
+
     @on_exception(on_redis_error, RedisError)
-    def exists(self, path):
+    def _exists(self, path):
         return self.get_storage().exists(path)
 
     @on_exception(on_redis_error, RedisError)
     def remove(self, path):
-        if not self.exists(path):
-            return
-        return self.get_storage().delete(path)
+        self.get_storage().delete(path)
 
-    @on_exception(on_redis_error, RedisError)
-    def get(self, path):
-        return self.get_storage().get(path)
+    @return_future
+    def get(self, path, callback):
+        @on_exception(self.on_redis_error, RedisError)
+        def wrap():
+            return self.get_storage().get(path)
+
+        callback(wrap())
