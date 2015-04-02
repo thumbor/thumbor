@@ -13,6 +13,13 @@ from functools import reduce
 
 
 class Importer:
+    '''The :class:`Importer` imports python modules defined by the server
+    configuration.
+
+    :param config: Thumbor configuration
+    :type config: thumbor.config.Config
+    '''
+
     def __init__(self, config):
         self.config = config
         self.engine = None
@@ -27,6 +34,15 @@ class Importer:
         self.error_handler_class = None
 
     def import_class(self, name, get_module=False):
+        '''Import the given class.
+
+        :param name: The full module name to be imported
+        :type name: str
+        :param get_module:
+        :type get_module:
+        :returns: The loaded module
+        '''
+
         module_name = get_module and name or '.'.join(name.split('.')[:-1])
         klass = name.split('.')[-1]
 
@@ -37,6 +53,9 @@ class Importer:
         return get_module and module or getattr(module, klass)
 
     def import_modules(self):
+        '''Import the modules defined in the Thumbor server configuration.
+        '''
+
         self.config.validates_presence_of(
             'ENGINE', 'GIF_ENGINE', 'LOADER', 'STORAGE', 'DETECTORS', 'FILTERS'
         )
@@ -46,7 +65,9 @@ class Importer:
         self.import_item('LOADER')
         self.import_item('STORAGE', 'Storage')
         self.import_item('DETECTORS', 'Detector', is_multiple=True)
-        self.import_item('FILTERS', 'Filter', is_multiple=True, ignore_errors=True)
+        self.import_item(
+            'FILTERS', 'Filter', is_multiple=True, ignore_errors=True
+        )
         self.import_item('OPTIMIZERS', 'Optimizer', is_multiple=True)
 
         if self.config.RESULT_STORAGE:
@@ -59,7 +80,28 @@ class Importer:
             self.import_item('ERROR_HANDLER_MODULE', 'ErrorHandler')
             self.error_handler_class = self.error_handler_module
 
-    def import_item(self, config_key=None, class_name=None, is_multiple=False, item_value=None, ignore_errors=False):
+    def import_item(self, config_key=None, class_name=None, is_multiple=False,
+                    item_value=None, ignore_errors=False):
+        '''Import a class referenced by the `class_name` parameter
+
+        :param config_key: The configuration key
+        :type config_key: str
+
+        :param class_name: The class name used in the module.
+        :type class_name: str
+
+        :param is_multiple: Set to true if there are multiple instances of the
+                            class.
+        :type is_multiple: bool
+
+        :param item_value: Sets the configuration value when specified
+        :type item_value: None or mixed
+
+        :param ignore_errors: When set to `True` import errors will only be
+                              logged.
+        :type ignore_errors: bool
+        '''
+
         if item_value is None:
             conf_value = getattr(self.config, config_key)
         else:
@@ -71,13 +113,20 @@ class Importer:
                 for module_name in conf_value:
                     try:
                         if class_name is not None:
-                            module = self.import_class('%s.%s' % (module_name, class_name))
+                            module = self.import_class('%s.%s' % (
+                                module_name, class_name
+                            ))
                         else:
-                            module = self.import_class(module_name, get_module=True)
+                            module = self.import_class(
+                                module_name, get_module=True
+                            )
                         modules.append(module)
                     except ImportError:
                         if ignore_errors:
-                            logger.warn('Module %s could not be imported.' % module_name)
+                            logger.warn(
+                                'Module %s could not be imported.' %
+                                module_name
+                            )
                         else:
                             raise
             setattr(self, config_key.lower(), tuple(modules))

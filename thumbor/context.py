@@ -19,13 +19,19 @@ from thumbor.url import Url
 import statsd
 
 class ThumborStatsClient(statsd.StatsClient):
+    """
+    :param config: Thumbor configuration
+    :type config: thumbor.config.Config
+    """
 
     @classmethod
     def instance(cls, config):
         """
-        Cache stats client so it doesn't do a DNS lookup
-        over and over
+        :returns: Instance of the ThumborStatsClient object.
+        :rtype: thumbor.context.ThumborStatsClient
         """
+
+        # Cache stats client so it doesn't do a DNS lookup over and over
         if not hasattr(cls, "_instance"):
             cls._instance = ThumborStatsClient(config)
         return cls._instance
@@ -43,6 +49,7 @@ class ThumborStatsClient(statsd.StatsClient):
             # we never send any data if enabled is false
             host = 'localhost'
             prefix=None
+
         super(ThumborStatsClient, self).__init__(host, 8125, prefix)
 
     def _send(self, data):
@@ -54,12 +61,23 @@ class ThumborStatsClient(statsd.StatsClient):
 class Context:
     '''
     Class responsible for containing:
-    * Server Configuration Parameters (port, ip, key, etc);
-    * Configurations read from config file (or defaults);
-    * Importer with imported modules (engine, filters, detectors, etc);
+
+    * Server Configuration Parameters (port, ip, key, etc).
+    * Configurations read from config file (or defaults).
+    * Importer with imported modules (engine, filters, detectors, etc).
     * Request Parameters (width, height, smart, meta, etc).
 
-    Each instance of this class MUST be unique per request. This class should not be cached in the server.
+    Each instance of this class MUST be unique per request.
+    This class should not be cached in the server.
+
+    :param server: Server parameters
+    :type server: thumbor.context.ServerParameters
+    :param config: Thumbor configuration
+    :type config: derpconf.config.Config
+    :param importer: Thumbor class importer
+    :type importer: thumbor.importer.Importer
+    :param request_handler: The Tornado request handler
+    :type request_handler: thumbor.handlers.BaseHandler
     '''
 
     def __init__(self, server=None, config=None, importer=None, request_handler=None):
@@ -76,6 +94,27 @@ class Context:
 
 
 class ServerParameters(object):
+    '''
+    :param port:  The port number Thumbor will bind to.
+    :type port: int
+    :param ip: The ip address Thumbor will bind to.
+    :type ip: string
+    :param config_path: The file system path to the configuration file.
+    :type config_path: str
+    :param keyfile: The file system path to the key file.
+    :type keyfile: str
+    :param log_level:
+    :type loglevel: str
+    :param app_class: The Tornado application class that will be used to
+                        serve requests.
+
+    :type app_class: str
+    :param fd:
+    :type fd:
+    :param gifsicle_path: The file system path to the gifsicle binary.
+    :type gifsicle_path: str
+    '''
+
     def __init__(self, port, ip, config_path, keyfile, log_level, app_class, fd=None, gifsicle_path=None):
         self.port = port
         self.ip = ip
@@ -90,15 +129,30 @@ class ServerParameters(object):
 
     @property
     def security_key(self):
+        '''
+        :returns: The Thumbor security key
+        :rtype: str
+        '''
         return self._security_key
 
     @security_key.setter
     def security_key(self, key):
+        '''Set the thumbor security key
+
+        :param key: Security key
+        :type key: str
+        '''
+
         if isinstance(key, unicode):
             key = key.encode('utf-8')
         self._security_key = key
 
     def load_security_key(self):
+        '''Load the security key from the key file.
+
+        :raises: ValueError
+        '''
+
         if not self.keyfile:
             return
 
@@ -212,10 +266,25 @@ class RequestParameters:
             self.image_url = Url.encode_url(self.image_url.encode('utf-8'))
 
     def int_or_0(self, value):
+        '''Converts None values to 0 and str/int to int
+
+        :param value: A value that should be an integer.
+        :type value: int or None
+        :rtype: int
+        '''
+
         return 0 if value is None else int(value)
 
 
 class ContextImporter:
+    '''
+    :param context: The Thumbor context to import.
+    :type context: thumbor.context.Context
+
+    :param importer: An instance of thumbor.importer.Importer
+    :type importer: thumbor.importer.Importer
+    '''
+
     def __init__(self, context, importer):
         self.context = context
         self.importer = importer
@@ -247,13 +316,22 @@ class ContextImporter:
 
 
 class ThreadPool(object):
+    '''
+    :param thread_pool_size: The thread pool size. Should match the number of
+                             cpu on the machine.
+                             0 or None will disable the thread pool.
+
+    :type thread_pool_size: int or None
+    '''
 
     @classmethod
     def instance(cls, size):
-        """
-        Cache threadpool since context is
-        recreated for each request
-        """
+        '''
+        :returns: A :class:`ThreadPool` instance
+        :rtype: :class:`ThreadPool`
+        '''
+
+        # Cache threadpool since context isrecreated for each request
         if not hasattr(cls, "_instance"):
             cls._instance = ThreadPool(size)
         return cls._instance
@@ -277,6 +355,9 @@ class ThreadPool(object):
         ))
 
     def queue(self, operation, callback):
+        '''Queue an operation on the thread pool.
+        '''
+
         if not self.pool:
             self._execute_in_foreground(operation, callback)
         else:
