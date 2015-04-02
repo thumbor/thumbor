@@ -31,3 +31,4 @@ opencv
 /debian/tmp/
 .ropeproject/
 .venv
+docs/_build
