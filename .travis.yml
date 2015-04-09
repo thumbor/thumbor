@@ -3,6 +3,7 @@ language: python
 python:
     - "2.7_with_system_site_packages"
     - "3.2"
+    - "pypy"
 
 cache: pip
 
@@ -10,6 +11,7 @@ matrix:
     fast_finish: true
     allow_failures:
         - python: "3.2"
+        - python: "pypy"
 
 env:
     - INTEGRATION_TEST=1
