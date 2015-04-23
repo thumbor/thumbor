@@ -1,23 +1,22 @@
-var conn;
-try
-{
-    conn = new Mongo("localhost:7777");
-}
-catch(Error)
-{
-    //print(Error);
-}
-while(conn===undefined)
-{
+var retries = 0,
+    conn;
+
+while(conn===undefined) {
+    sleep(100);
     try
     {
         conn = new Mongo("localhost:7777");
     }
     catch(Error)
     {
-        //print(Error);
+        print("Waiting for Mongo.");
+        retries++;
+
+        if (retries > 100) {
+            print("Mongo not available");
+            quit(1);
+        }
     }
-    sleep(100);
 }
 DB = conn.getDB("test");
 Result = DB.runCommand('buildInfo');
