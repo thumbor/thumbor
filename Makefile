@@ -40,7 +40,7 @@ kill_mongo:
 
 mongo: kill_mongo
 	@rm -rf /tmp/thumbor/mongodata && mkdir -p /tmp/thumbor/mongodata
-	@mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet --fork
+	@mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet --fork --smallfiles
 	@mongo --nodb mongo_check_start.js
 
 kill_redis:
