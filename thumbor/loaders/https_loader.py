@@ -8,13 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import re
-from urlparse import urlparse
-from functools import partial
-
-import tornado.httpclient
-
-from thumbor.utils import logger
 from thumbor.loaders import http_loader
 from tornado.concurrent import return_future
 
