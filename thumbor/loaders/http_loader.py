@@ -22,8 +22,8 @@ def _normalize_url(url):
     return url if url.startswith('http') else 'http://%s' % url
 
 
-def validate(context, url):
-    url = _normalize_url(url)
+def validate(context, url, normalize_url_func=_normalize_url):
+    url = normalize_url_func(url)
     res = urlparse(url)
 
     if not res.hostname:

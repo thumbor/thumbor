@@ -20,11 +20,27 @@ from tornado.concurrent import return_future
 
 
 def _normalize_url(url):
-    return url if url.startswith('http') else 'https://%s' % url
+    return url if url.startswith('https') else 'https://%s' % url
 
 
 def validate(context, url):
-    return http_loader.validate(context, url, normalize_url_func=_normalize_url)
+    url = _normalize_url(url)
+    res = urlparse(url)
+
+    if not url.startswith('https'):
+        return False
+
+    if not res.hostname:
+        return False
+
+    if not context.config.ALLOWED_SOURCES:
+        return True
+
+    for pattern in context.config.ALLOWED_SOURCES:
+        if re.match('^%s$' % pattern, res.hostname):
+            return True
+
+    return False
 
 
 def return_contents(response, url, callback, context):
