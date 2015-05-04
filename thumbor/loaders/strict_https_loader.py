@@ -13,11 +13,11 @@ from tornado.concurrent import return_future
 
 
 def _normalize_url(url):
-    return url if url.startswith('https') else 'https://%s' % url
+    return url if url.startswith('https://') else 'https://%s' % url
 
 
 def validate(context, url):
-    if not _normalize_url(url).startswith('https'):
+    if not _normalize_url(url).startswith('https://'):
         return False
 
     return http_loader.validate(context, url, normalize_url_func=_normalize_url)
