@@ -25,6 +25,24 @@ size is larger than the max size. The max size option is
 To use it you should set the **LOADER** configuration to
 **'thumbor.loaders.http\_loader'**.
 
+Https loader
+~~~~~~~~~~~~
+
+The https loader works the same way as the http loader, except that it
+defaults to https instead of http.
+
+To use it you should set the **LOADER** configuration to
+**'thumbor.loaders.https\_loader'**.
+
+Strict https loader
+~~~~~~~~~~~~~~~~~~~
+
+The strict https loader works the same way as the http loader, except
+that it only allows to load images over https.
+
+To use it you should set the **LOADER** configuration to
+**'thumbor.loaders.strict\_https\_loader'**.
+
 File loader
 ~~~~~~~~~~~
 
