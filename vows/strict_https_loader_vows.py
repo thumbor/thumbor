@@ -57,6 +57,13 @@ class ResponseMock:
         self.body = body
 
 
+class TornadoHTTPSContext (TornadoHTTPContext):
+    def get_url(self, path):
+        if not path.startswith('http'):
+            return 'https://localhost:%s%s' % (self.port, path)
+        return path
+
+
 @Vows.batch
 class ReturnContentVows(Vows.Context):
     class ShouldReturnNoneOnError(Vows.Context):
@@ -191,7 +198,7 @@ class StrictHttpsLoader(TornadoHTTPContext):
         def topic(self):
             pass
 
-        class Load(TornadoHTTPContext):
+        class Load(TornadoHTTPSContext):
             @Vows.async_topic
             def topic(self, callback):
                 url = self.get_url('/')
@@ -205,44 +212,3 @@ class StrictHttpsLoader(TornadoHTTPContext):
 
             def should_equal_hello(self, topic):
                 expect(topic.args[0]).to_equal('Hello')
-
-
-@Vows.batch
-class StrictHttpsLoaderWithUserAgentForwarding(TornadoHTTPContext):
-    def get_app(self):
-        application = tornado.web.Application([
-            (r"/", EchoUserAgentHandler),
-        ])
-
-        return application
-
-    class Load(TornadoHTTPContext):
-        @Vows.async_topic
-        def topic(self, callback):
-            url = self.get_url('/')
-            loader.http_client = self._http_client
-
-            config = Config()
-            config.HTTP_LOADER_FORWARD_USER_AGENT = True
-            ctx = Context(None, config, None, HandlerMock({"User-Agent": "test-user-agent"}))
-
-            loader.load(ctx, url, callback)
-
-        def should_equal_hello(self, topic):
-            expect(topic.args[0]).to_equal('test-user-agent')
-
-    class LoadDefaultUserAgent(TornadoHTTPContext):
-        @Vows.async_topic
-        def topic(self, callback):
-            url = self.get_url('/')
-            loader.http_client = self._http_client
-
-            config = Config()
-            config.HTTP_LOADER_FORWARD_USER_AGENT = True
-            config.HTTP_LOADER_DEFAULT_USER_AGENT = "DEFAULT_USER_AGENT"
-            ctx = Context(None, config, None, HandlerMock({}))
-
-            loader.load(ctx, url, callback)
-
-        def should_equal_hello(self, topic):
-            expect(topic.args[0]).to_equal('DEFAULT_USER_AGENT')
