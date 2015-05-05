@@ -17,6 +17,9 @@ def _normalize_url(url):
 
 
 def validate(context, url):
+    if url.startswith('http://'):
+        return False
+
     return http_loader.validate(context, url, normalize_url_func=_normalize_url)
 
 
