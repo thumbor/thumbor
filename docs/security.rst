@@ -102,6 +102,13 @@ thumbor used to generate URL's differently using AES
 encryption/decryption. If you need more info on the old way of
 generating URLs, read the [[3.0.0 release changes]].
 
+Loading Images over HTTPS
+-------------------------
+
+The default http_loader loads images by default over http. To change the
+default to https, use the https_loader instead. To enforce https, use the
+strict_https_loader. Check the :doc:`image_loader` page for more details.
+
 Libraries
 ---------
 
