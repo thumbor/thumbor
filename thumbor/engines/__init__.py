@@ -142,7 +142,7 @@ class BaseEngine(object):
         width, height = self.size
         return round(float(new_width) * height / width, 0)
 
-    def reorientate(self):
+    def get_orientation(self, override_exif=True):
         if (not hasattr(self, 'exif')) or self.exif is None:
             return
 
@@ -154,11 +154,17 @@ class BaseEngine(object):
             orientation = primary['Orientation']
             if orientation:
                 orientation = orientation[0]
-                if orientation != 1:
+                if orientation != 1 and override_exif:
                     primary['Orientation'] = [1]
                     self.exif = segment.get_data()
         except Exception:
             logger.exception('Ignored error handling exif for reorientation')
+        finally:
+            return orientation
+
+    def reorientate(self):
+
+        orientation = self.get_orientation()
 
         if orientation == 2:
             self.flip_horizontally()

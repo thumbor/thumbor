@@ -19,6 +19,9 @@ class Filter(BaseFilter):
     @filter_method()
     def no_upscale(self):
         image_size = self.context.request.engine.size
+        orientation = self.context.request.engine.get_orientation(False)
+        if self.context.config.RESPECT_ORIENTATION and orientation in [5, 6, 7, 8]:
+            image_size = (image_size[1], image_size[0])
         if self.context.request.width > image_size[0]:
             self.context.request.width = image_size[0]
         if self.context.request.height > image_size[1]:
