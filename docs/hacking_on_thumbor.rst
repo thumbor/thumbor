@@ -26,7 +26,7 @@ The following packages are required:
 -  pycurl >= 7.19.0
 -  Pillow >= 1.7.5
 -  redis >= 2.4.11
--  pymongo >= 2.1.1
+-  pymongo == 2.1.1
 -  pyvows
 -  tornado\_pyvows
 -  argparse
