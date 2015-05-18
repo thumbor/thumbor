@@ -10,7 +10,7 @@
 
 from os.path import abspath, join, dirname
 
-from pymongo import Connection
+from pymongo import MongoClient
 from pyvows import Vows, expect
 
 from thumbor.storages.mongo_storage import Storage as MongoStorage
@@ -20,7 +20,7 @@ from fixtures.storage_fixture import IMAGE_URL, IMAGE_BYTES, get_server
 import tornado.concurrent
 
 FIXTURES_FOLDER = join(abspath(dirname(__file__)), 'fixtures')
-CONNECTION = Connection('localhost', 7777)
+CONNECTION = MongoClient('localhost', 7777)
 COLLECTION = CONNECTION['thumbor']['images']
 
 

@@ -11,7 +11,7 @@
 from datetime import datetime, timedelta
 from cStringIO import StringIO
 
-from pymongo import Connection
+from pymongo import MongoClient
 import gridfs
 
 from thumbor.storages import BaseStorage
@@ -21,7 +21,7 @@ from tornado.concurrent import return_future
 class Storage(BaseStorage):
 
     def __conn__(self):
-        connection = Connection(
+        connection = MongoClient(
             self.context.config.MONGO_STORAGE_SERVER_HOST,
             self.context.config.MONGO_STORAGE_SERVER_PORT
         )
