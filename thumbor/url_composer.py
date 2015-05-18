@@ -74,28 +74,36 @@ def main(arguments=None):
         crop_left, crop_top = crops[0].split('x')
         crop_right, crop_bottom = crops[1].split('x')
 
+    options = {
+        'old': parsed_options.old,
+        'width': parsed_options.width,
+        'height': parsed_options.height,
+        'smart': parsed_options.smart,
+        'meta': parsed_options.meta,
+        'horizontal_flip': parsed_options.horizontal_flip,
+        'vertical_flip': parsed_options.vertical_flip,
+        'halign': parsed_options.halign,
+        'valign': parsed_options.valign,
+        'trim': parsed_options.trim,
+        'crop_left': crop_left,
+        'crop_top': crop_top,
+        'crop_right': crop_right,
+        'crop_bottom': crop_bottom,
+        'filters': parsed_options.filters,
+        'image_url': image_url,
+    }
+
+    if parsed_options.fitin and parsed_options.full and parsed_options.adaptive:
+        options['adaptive_full_fit_in'] = True
+    elif parsed_options.fitin and parsed_options.full:
+        options['full_fit_in'] = True
+    elif parsed_options.fitin and parsed_options.adaptive:
+        options['adaptive_fit_in'] = True
+    elif parsed_options.fitin:
+        options['fit_in'] = True
+    print options
     crypto = CryptoURL(key=security_key)
-    url = crypto.generate(
-        old=parsed_options.old,
-        width=parsed_options.width,
-        height=parsed_options.height,
-        smart=parsed_options.smart,
-        meta=parsed_options.meta,
-        adaptive=parsed_options.adaptive,
-        full=parsed_options.full,
-        fit_in=parsed_options.fitin,
-        horizontal_flip=parsed_options.horizontal_flip,
-        vertical_flip=parsed_options.vertical_flip,
-        halign=parsed_options.halign,
-        valign=parsed_options.valign,
-        trim=parsed_options.trim,
-        crop_left=crop_left,
-        crop_top=crop_top,
-        crop_right=crop_right,
-        crop_bottom=crop_bottom,
-        filters=parsed_options.filters,
-        image_url=image_url,
-    )
+    url = crypto.generate(**options)
     print 'URL:'
 
     print url
