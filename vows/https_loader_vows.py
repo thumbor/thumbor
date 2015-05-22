@@ -11,6 +11,7 @@
 from os.path import abspath, join, dirname
 
 from pyvows import Vows, expect
+from tornado.concurrent import Future
 from tornado_pyvows.context import TornadoHTTPContext
 import tornado.web
 
@@ -187,6 +188,22 @@ class HttpsLoader(TornadoHTTPContext):
 
             def should_equal_hello(self, topic):
                 expect(topic.args[0]).to_equal('Hello')
+
+        class LoaderWithoutCallback(TornadoHTTPContext):
+            def topic(self):
+                url = self.get_url('/')
+                loader.http_client = self._http_client
+
+                config = Config()
+                config.ALLOWED_SOURCES = ['s.glbimg.com']
+                ctx = Context(None, config, None)
+
+                return loader.load, ctx, url
+
+            def should_be_callable_and_return_a_future(self, topic):
+                load, ctx, url = topic
+                future = load(ctx, url)
+                expect(isinstance(future, Future)).to_be_true()
 
 
 @Vows.batch
