@@ -27,8 +27,9 @@ def return_contents(response, url, callback, context):
     return http_loader.return_contents(response, url, callback, context)
 
 
+@return_future
 def load(context, url, callback):
-    return http_loader.load(context, url, callback, normalize_url_func=_normalize_url)
+    return http_loader.load_sync(context, url, callback, normalize_url_func=_normalize_url)
 
 
 def encode(string):

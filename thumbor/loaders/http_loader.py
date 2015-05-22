@@ -57,6 +57,10 @@ def return_contents(response, url, callback, context):
 
 @return_future
 def load(context, url, callback, normalize_url_func=_normalize_url):
+    load_sync(context, url, callback, normalize_url_func)
+
+
+def load_sync(context, url, callback, normalize_url_func):
     using_proxy = context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
     if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
         tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
