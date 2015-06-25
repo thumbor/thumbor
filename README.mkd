@@ -24,3 +24,5 @@ documentation](https://github.com/globocom/thumbor/wiki "thumbor docs").
 You can see thumbor in action at http://thumborize.me/
 
 
+
+Join the chat at https://gitter.im/thumbor/thumbor
