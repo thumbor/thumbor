@@ -63,7 +63,7 @@ class BaseHandler(tornado.web.RequestHandler):
         req = self.context.request
         conf = self.context.config
 
-        req.extension = splitext(req.image_url)[-1].lower()
+        req.extension = splitext(req.image_url)[-1].lower().split('?')[0]
 
         should_store = self.context.config.RESULT_STORAGE_STORES_UNSAFE or not self.context.request.unsafe
         if self.context.modules.result_storage and should_store:
