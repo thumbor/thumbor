@@ -34,6 +34,7 @@ class BaseContext(TornadoHTTPContext):
     def __init__(self, *args, **kw):
         super(BaseContext, self).__init__(*args, **kw)
 
+
 @Vows.batch
 class GetImage(BaseContext):
     def get_app(self):
@@ -81,7 +82,6 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(404)
 
-
     class WithUnicodeImage(BaseContext):
         def topic(self):
             response = self.get(u'/unsafe/%s' % quote(u'15967251_212831_19242645_АгатавЗоопарке.jpg'.encode('utf-8')))
@@ -100,7 +100,7 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class without_unsafe_url_image(TornadoHTTPContext):
+    class WithoutUnsafeUrlImage(TornadoHTTPContext):
         def topic(self):
             response = self.get('/alabama1_ap620%C3%A9.jpg')
             return (response.code, response.headers)
@@ -109,7 +109,7 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(404)
 
-    class without_image(TornadoHTTPContext):
+    class WithoutImage(TornadoHTTPContext):
         def topic(self):
             response = self.get('/unsafe/')
             return (response.code, response.headers)
@@ -118,7 +118,7 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(404)
 
-    class with_UTF8_URLEncoded_image_name_using_encoded_url(TornadoHTTPContext):
+    class WithUTF8UrlEncodedOmageNameUsingEncodedUrl(TornadoHTTPContext):
         def topic(self):
             url = '/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620%C3%A9.jpg'
             response = self.get(url)
@@ -128,7 +128,7 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class with_UTF8_URLEncoded_image_name_using_unsafe(TornadoHTTPContext):
+    class WithUTF8UrlEncodedImageNameUsingUnsafe(TornadoHTTPContext):
         def topic(self):
             response = self.get(u'/unsafe/smart/alabama1_ap620%C3%A9.jpg')
             return (response.code, response.headers)
@@ -137,7 +137,7 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class with_spaces_on_url(TornadoHTTPContext):
+    class WithSpacesOnUrl(TornadoHTTPContext):
         def topic(self):
             response = self.get(u'/unsafe/image%20space.jpg')
             return (response.code, response.headers)
@@ -146,7 +146,7 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class with_filter(TornadoHTTPContext):
+    class WithFilter(TornadoHTTPContext):
         def topic(self):
             response = self.get('/5YRxzS2yxZxj9SZ50SoZ11eIdDI=/filters:fill(blue)/image.jpg')
             return (response.code, response.headers)
@@ -260,8 +260,6 @@ class GetImageWithStoredKeys(BaseContext):
         storage = FileStorage(Context(config=cfg, server=server))
 
         # Store fixtures (image.jpg and image.txt) into the file storage
-        storage.put('image.jpg', open(join(storage_path, 'image.jpg')).read())
-        storage.put('image.jpg?ts=1', open(join(storage_path, 'image.jpg')).read())
         storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
 
         return application
@@ -277,7 +275,7 @@ class GetImageWithStoredKeys(BaseContext):
 
     class WithRegularImageWithQueryString(TornadoHTTPContext):
         def topic(self):
-            response = self.get('/R89X0rx7cnbYfTTxSRJQ1CItKzY=/smart/image.jpg?ts=1')
+            response = self.get('/Iw7LZGdr-hHj2gQ4ZzksP3llQHY=/smart/image.jpg%3Fts%3D1')
             return (response.code, response.headers)
 
         def should_be_200(self, response):
@@ -286,6 +284,19 @@ class GetImageWithStoredKeys(BaseContext):
 
         def should_not_log_exception(self, response):
             expect(logger.exception.called).to_be_false()
+
+    class WithRegularImageWithHash(TornadoHTTPContext):
+        def topic(self):
+            response = self.get('/fxOHtHcTZMyuAQ1YPKh9KWg7nO8=/smart/image.jpg%23something')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)
+
+        def should_not_log_exception(self, response):
+            expect(logger.exception.called).to_be_false()
+
 
 @Vows.batch
 class GetImageWithAutoWebP(BaseContext):
@@ -375,7 +386,7 @@ class GetImageWithAutoWebP(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class WithCMYK_JPEG(BaseContext):
+    class WithCMYKJPEG(BaseContext):
         def topic(self):
             response = self.get('/unsafe/merrit.jpg')
             return (response.code, response.headers)
@@ -384,7 +395,7 @@ class GetImageWithAutoWebP(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class WithCMYK_JPEG_AsPNG(BaseContext):
+    class WithCMYKJPEGAsPNG(BaseContext):
         def topic(self):
             response = self.get('/unsafe/filters:format(png)/merrit.jpg')
             return (response.code, response.headers)
@@ -393,7 +404,7 @@ class GetImageWithAutoWebP(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class WithCMYK_JPEG_AsPNG_AcceptingWEBP(BaseContext):
+    class WithCMYKJPEGAsPNGAcceptingWEBP(BaseContext):
         def topic(self):
             response = self.get('/unsafe/filters:format(png)/merrit.jpg', headers={
                 "Accept": 'image/webp,*/*;q=0.8'
@@ -405,7 +416,7 @@ class GetImageWithAutoWebP(BaseContext):
             image = self.engine.create_image(response.body)
             expect(image.format.lower()).to_equal('png')
 
-    class WithJPEG_AsGIF_AcceptingWEBP(BaseContext):
+    class WithJPEGAsGIFAcceptingWEBP(BaseContext):
         def topic(self):
             response = self.get('/unsafe/filters:format(gif)/image.jpg', headers={
                 "Accept": 'image/webp,*/*;q=0.8'
