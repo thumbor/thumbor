@@ -12,6 +12,7 @@ import functools
 from os.path import splitext
 import datetime
 import traceback
+import re
 
 import tornado.web
 import tornado.gen as gen
@@ -46,6 +47,8 @@ EXTENSION = {
     'video/webm': '.webm',
 }
 
+EXTENSION_CLEANER = re.compile('(?:\?|%3F|%3f|#|%23)')
+
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
 
@@ -63,7 +66,7 @@ class BaseHandler(tornado.web.RequestHandler):
         req = self.context.request
         conf = self.context.config
 
-        req.extension = splitext(req.image_url)[-1].lower().split('?')[0]
+        req.extension = EXTENSION_CLEANER.split(splitext(req.image_url)[-1].lower(), 1)[0]
 
         should_store = self.context.config.RESULT_STORAGE_STORES_UNSAFE or not self.context.request.unsafe
         if self.context.modules.result_storage and should_store:
