@@ -14,6 +14,7 @@ from urllib import quote
 import tempfile
 
 from pyvows import Vows, expect
+from mock import Mock
 from tornado_pyvows.context import TornadoHTTPContext
 
 from thumbor.app import ThumborServiceApp
@@ -22,7 +23,7 @@ from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.engines.pil import Engine as PILEngine
 from thumbor.storages.file_storage import Storage as FileStorage
-from thumbor.utils import which
+from thumbor.utils import which, logger
 
 storage_path = abspath(join(dirname(__file__), 'fixtures/'))
 
@@ -254,10 +255,13 @@ class GetImageWithStoredKeys(BaseContext):
         ctx = Context(server, cfg, importer)
         application = ThumborServiceApp(ctx)
 
+        logger.exception = Mock()
+
         storage = FileStorage(Context(config=cfg, server=server))
 
         # Store fixtures (image.jpg and image.txt) into the file storage
         storage.put('image.jpg', open(join(storage_path, 'image.jpg')).read())
+        storage.put('image.jpg?ts=1', open(join(storage_path, 'image.jpg')).read())
         storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
 
         return application
@@ -271,6 +275,17 @@ class GetImageWithStoredKeys(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
+    class WithRegularImageWithQueryString(TornadoHTTPContext):
+        def topic(self):
+            response = self.get('/R89X0rx7cnbYfTTxSRJQ1CItKzY=/smart/image.jpg?ts=1')
+            return (response.code, response.headers)
+
+        def should_be_200(self, response):
+            code, _ = response
+            expect(code).to_equal(200)
+
+        def should_not_log_exception(self, response):
+            expect(logger.exception.called).to_be_false()
 
 @Vows.batch
 class GetImageWithAutoWebP(BaseContext):
