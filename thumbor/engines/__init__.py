@@ -10,7 +10,7 @@
 
 from pexif import ExifSegment
 
-from thumbor.utils import logger
+from thumbor.utils import logger, EXTENSION
 
 WEBP_SIDE_LIMIT = 16383
 
@@ -89,17 +89,21 @@ class BaseEngine(object):
 
     def load(self, buffer, extension):
         self.extension = extension
-        imageOrFrames = self.create_image(buffer)
+        if extension is None:
+            mime = self.get_mimetype(buffer)
+            self.extension = EXTENSION.get(mime, '.jpg')
 
-        if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(imageOrFrames, (list, tuple)):
-            self.image = imageOrFrames[0]
-            if len(imageOrFrames) > 1:
+        image_or_frames = self.create_image(buffer)
+
+        if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(image_or_frames, (list, tuple)):
+            self.image = image_or_frames[0]
+            if len(image_or_frames) > 1:
                 self.multiple_engine = MultipleEngine(self)
-                for frame in imageOrFrames:
+                for frame in image_or_frames:
                     self.multiple_engine.add_frame(frame)
                 self.wrap(self.multiple_engine)
         else:
-            self.image = imageOrFrames
+            self.image = image_or_frames
 
         if self.source_width is None:
             self.source_width = self.size[0]

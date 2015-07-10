@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import functools
-from os.path import splitext
 import datetime
 import traceback
 import re
@@ -24,28 +23,9 @@ from thumbor.context import Context
 from thumbor.transformer import Transformer
 from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
-from thumbor.utils import logger
+from thumbor.utils import logger, CONTENT_TYPE, EXTENSION
 import thumbor.filters
 
-
-CONTENT_TYPE = {
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.gif': 'image/gif',
-    '.png': 'image/png',
-    '.webp': 'image/webp',
-    '.mp4': 'video/mp4',
-    '.webm': 'video/webm',
-}
-
-EXTENSION = {
-    'image/jpeg': '.jpg',
-    'image/gif': '.gif',
-    'image/png': '.png',
-    'image/webp': '.webp',
-    'video/mp4': '.mp4',
-    'video/webm': '.webm',
-}
 
 EXTENSION_CLEANER = re.compile('(?:\?|%3F|%3f|#|%23)')
 
@@ -65,8 +45,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
         req = self.context.request
         conf = self.context.config
-
-        req.extension = EXTENSION_CLEANER.split(splitext(req.image_url)[-1].lower(), 1)[0]
 
         should_store = self.context.config.RESULT_STORAGE_STORES_UNSAFE or not self.context.request.unsafe
         if self.context.modules.result_storage and should_store:
@@ -105,8 +83,7 @@ class BaseHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def get_image(self):
         normalized, buffer, engine = yield self._fetch(
-            self.context.request.image_url,
-            self.context.request.extension
+            self.context.request.image_url
         )
 
         req = self.context.request
@@ -117,7 +94,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 return
 
             engine = self.context.request.engine
-            engine.load(buffer, req.extension)
+            engine.load(buffer, self.context.request.extension)
 
         def transform():
             self.normalize_crops(normalized, req, engine)
@@ -369,13 +346,15 @@ class BaseHandler(tornado.web.RequestHandler):
         return is_valid
 
     @gen.coroutine
-    def _fetch(self, url, extension):
+    def _fetch(self, url):
         storage = self.context.modules.storage
         buffer = yield gen.maybe_future(storage.get(url))
+        mime = None
 
         if buffer is not None:
             self.context.statsd_client.incr('storage.hit')
             mime = BaseEngine.get_mimetype(buffer)
+            self.context.request.extension = EXTENSION.get(mime, '.jpg')
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                 self.context.request.engine = self.context.modules.gif_engine
             else:
@@ -390,12 +369,17 @@ class BaseHandler(tornado.web.RequestHandler):
         if buffer is None:
             raise gen.Return([False, None, None])
 
+        if mime is None:
+            mime = BaseEngine.get_mimetype(buffer)
+
+        self.context.request.extension = EXTENSION.get(mime, '.jpg')
+
         original_preserve = self.context.config.PRESERVE_EXIF_INFO
         self.context.config.PRESERVE_EXIF_INFO = True
 
         try:
             mime = BaseEngine.get_mimetype(buffer)
-            extension = EXTENSION.get(mime, None)
+            self.context.request.extension = extension = EXTENSION.get(mime, None)
 
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                 self.context.request.engine = self.context.modules.gif_engine

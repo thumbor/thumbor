@@ -13,6 +13,26 @@ import logging
 from functools import reduce, wraps
 
 
+CONTENT_TYPE = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.png': 'image/png',
+    '.webp': 'image/webp',
+    '.mp4': 'video/mp4',
+    '.webm': 'video/webm',
+}
+
+EXTENSION = {
+    'image/jpeg': '.jpg',
+    'image/gif': '.gif',
+    'image/png': '.png',
+    'image/webp': '.webp',
+    'video/mp4': '.mp4',
+    'video/webm': '.webm',
+}
+
+
 def real_import(name):
     if '.' in name:
         return reduce(getattr, name.split('.')[1:], __import__(name))
@@ -21,7 +41,7 @@ def real_import(name):
 logger = logging.getLogger('thumbor')
 
 
-class on_exception(object):
+class on_exception(object):  # NOQA
 
     def __init__(self, callback, exception_class=Exception):
         self.callback = callback
@@ -54,7 +74,7 @@ class on_exception(object):
         return wrapper
 
 
-class deprecated(object):
+class deprecated(object):  # NOQA
 
     def __init__(self, msg=None):
         self.msg = ": {0}".format(msg) if msg else "."
@@ -70,7 +90,7 @@ class deprecated(object):
 
 
 def total_seconds_of(delta):
-    return (delta.microseconds + (delta.seconds + delta.days * 24 * 3600) * 10.0**6) / 10**6
+    return (delta.microseconds + (delta.seconds + delta.days * 24 * 3600) * 10.0 ** 6) / 10 ** 6
 
 
 def which(program):
