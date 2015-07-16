@@ -75,12 +75,15 @@ class Storage(storages.BaseStorage):
 
     @return_future
     def get(self, path, callback):
-        file_abspath = self.path_on_filesystem(path)
+        abs_path = self.path_on_filesystem(path)
 
-        if not exists(file_abspath) or self.__is_expired(file_abspath):
-            callback(None)
-        else:
-            callback(open(file_abspath, 'r').read())
+        def file_exists(resource_available):
+            if not resource_available:
+                callback(None)
+            else:
+                callback(open(self.path_on_filesystem(path), 'r').read())
+
+        self.exists(None, file_exists, path_on_filesystem=abs_path)
 
     @return_future
     def get_crypto(self, path, callback):
@@ -97,10 +100,12 @@ class Storage(storages.BaseStorage):
         file_abspath = self.path_on_filesystem(path)
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
 
-        if not exists(path) or self.__is_expired(path):
-            callback(None)
-        else:
-            callback(loads(open(path, 'r').read()))
+        def file_exists(resource_available):
+            if not resource_available:
+                callback(None)
+            else:
+                callback(loads(open(path, 'r').read()))
+        self.exists(None, file_exists, path_on_filesystem=path)
 
     def path_on_filesystem(self, path):
         digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
@@ -111,14 +116,17 @@ class Storage(storages.BaseStorage):
         )
 
     @return_future
-    def exists(self, path, callback):
-        n_path = self.path_on_filesystem(path)
-        callback(os.path.exists(n_path))
+    def exists(self, path, callback, path_on_filesystem=None):
+        if path_on_filesystem is None:
+            path_on_filesystem = self.path_on_filesystem(path)
+        callback(os.path.exists(path_on_filesystem) and not self.__is_expired(path_on_filesystem))
 
     def remove(self, path):
         n_path = self.path_on_filesystem(path)
         return os.remove(n_path)
 
     def __is_expired(self, path):
+        if self.context.config.STORAGE_EXPIRATION_SECONDS is None:
+            return False
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
         return timediff.seconds > self.context.config.STORAGE_EXPIRATION_SECONDS
