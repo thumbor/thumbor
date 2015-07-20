@@ -1,0 +1,487 @@
+Release 5.0.4 (5.0.4)
+* Fix image extension with query string #499 Thanks @dhardy92 and @kuhess 
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.3...5.0.4)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.0.4)
+
+Release 5.0.3 (5.0.3)
+* Fixing filters on thumbor-url #482
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.2...5.0.3)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.0.3)
+
+Release 5.0.2 (5.0.2)
+* Fixing filters on thumbor-url
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.1...5.0.2)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.0.2)
+
+Release 5.0.1 (5.0.1)
+* Fixing adaptive and full fit-in on thumbor-url
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.0...5.0.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.0.1)
+
+Release 5.0.0 (5.0.0)
+# WHY the major release?
+
+Thumbor's storage and result storage all used synchronous interfaces. That's not an issue per-se, but it's not the proper way to use tornado. 
+
+Several users were having issues in production due to timeouts and broken requests. 
+
+We were at a cross-roads. Fix the issue in a "broken" way but without any breaking changes, or go with what the community feels is the right way for thumbor to go, while being incompatible with currently developed extensions.
+
+We felt we needed to fix this in a way that felt "right". Hopefully we'll be more aligned with future evolutions of tornado.
+
+With the help of the community we were able to fix this issue and make thumbor more robust, more scalable and more predictable.
+
+Feedback on this is highly encouraged. Feel free to create issues if something is amiss.
+
+# WARNING
+
+> This version contains breaking changes. If you use your own version of a Storage or ResultStorage, all of those are async now and should return a Future. For more info, check the built-in one from thumbor's codebase.
+
+# BREAKING Changes
+
+* Async contract for all of thumbor's imported modules #459. thanks @masom 
+
+# Changes
+
+* Tornado updated to 4.1
+* Better GifEngine error handling  #448. thanks @masom 
+* Fixing error log on cache miss  #453. thanks @dhardy92 
+* Meta now has frame count #451
+* Https loader and strict https loader added  #471. thanks @lukaselmer  
+
+# Benchmark
+
+## 4.0.0
+
+```
+Running 10s test @ http://127.0.0.1:8888/unsafe/300x300/s.glbimg.com/et/nv/f/original/2015/05/01/casamento-raphaeldias.jpg
+  40 threads and 40 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     2.42s   748.35ms   2.83s    84.03%
+    Req/Sec     0.22      0.95     9.00     95.83%
+  Latency Distribution
+     50%    2.79s
+     75%    2.80s
+     90%    2.81s
+     99%    2.82s
+  144 requests in 10.10s, 3.77MB read
+Requests/sec:     14.26
+Transfer/sec:    382.70KB
+```
+
+## 4.12.2
+
+```
+Running 10s test @ http://127.0.0.1:8888/unsafe/300x300/s.glbimg.com/et/nv/f/original/2015/05/01/casamento-raphaeldias.jpg
+  40 threads and 40 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     2.41s   449.85ms   3.46s    80.42%
+    Req/Sec     0.01      0.12     1.00     98.60%
+  Latency Distribution
+     50%    2.48s
+     75%    2.65s
+     90%    2.83s
+     99%    3.24s
+  143 requests in 10.07s, 3.75MB read
+Requests/sec:     14.21
+Transfer/sec:    381.29KB
+```
+
+## 5.0.0
+
+```
+Running 10s test @ http://127.0.0.1:8888/unsafe/300x300/s.glbimg.com/et/nv/f/original/2015/05/01/casamento-raphaeldias.jpg
+  40 threads and 40 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     2.16s   476.70ms   2.72s    83.54%
+    Req/Sec     0.04      0.20     1.00     95.73%
+  Latency Distribution
+     50%    2.30s
+     75%    2.43s
+     90%    2.56s
+     99%    2.70s
+  164 requests in 10.08s, 4.30MB read
+Requests/sec:     16.27
+Transfer/sec:    436.80KB
+```
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.12.2...5.0.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.0.0)
+
+Release 5.0.0rc2 (5.0.0rc2)
+* Tornado updated to 4.1
+* Async storage #459. thanks @masom 
+* Better GifEngine error treatment  #448. thanks @masom 
+* Fixing error log on cache miss  #453. thanks @dhardy92 
+* Meta now has frame count #451
+
+
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.12.2...5.0.0rc2)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.0.0rc2)
+
+Release 4.12.2 (4.12.2)
+* Fixing Redis Storage behavior #437. thanks @masom 
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.12.1...4.12.2)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.12.2)
+
+Release 4.12.1 (4.12.1)
+* Better WebM encoding.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.12.0...4.12.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.12.1)
+
+Release 4.12.0 (4.12.0)
+* Thumbor now using threadpool for image operations #429. Thank you @kevin1024 
+* Async optimizers and StatsD #436 #435. Thank you @kevin1024 
+* Config for max clients limit #430. Thank you @kevin1024  
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.11.1...4.12.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.12.0)
+
+Release 4.11.1 (4.11.1)
+* Fixing engine size reference.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.11.0...4.11.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.11.1)
+
+
+Release 4.11.0 (4.11.0)
+* Allows GIF first frame extraction filter:cover() #426. Thanks @kplaube 
+
+* Fix MimeType Charset upload #422. Thanks @dhardy92 
+
+* Allows configurable GIF engine #432. Thanks @masom
+
+ 
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.10.3...4.11.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.11.0)
+
+
+Release 4.10.3 (4.10.3)
+* Allow optimizers to change the format. Thank you, @masom
+
+* Support filling with transparency. Thanks to @evanmo
+
+ 
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.10.2...4.10.3)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.10.3)
+
+
+Release 4.10.2 (4.10.2)
+* Changin the way image format is being checked so that it doesn't conflict #421. Thank you @krynble
+
+* upgrade to release pexif #417. Thank you @dhardy92 
+
+ 
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.10.1...4.10.2)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.10.2)
+
+Release 4.10.1 (4.10.1)
+* Add some more images to integration tests
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.10.0...4.10.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.10.1)
+
+Release 4.10.0 (4.10.0)
+* RGB curver filter. #353 Thanks to @gockxml 
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.9.1...4.10.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.10.0)
+
+Release 4.9.1 (4.9.1)
+* Fixing setup.py classifiers.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.9.0...4.9.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.9.1)
+
+Release 4.9.0 (4.9.0)
+* Python 2.6 support dropped.
+* Fixing custom_optimizers bug #393. Thanks @chentschel, @hltbra and @zkourouma
+* id max length option added #414. Thanks @dhardy92 
+* logging configuration capabilities added #415. Thanks @dhardy92 
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.8.6...4.9.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.9.0)
+
+Release 4.8.6 (4.8.6)
+* Avoiding IOError on PIL when debugging truncated/broken images
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.8.5...4.8.6)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.8.6)
+
+Release 4.8.5 (4.8.5)
+* WEBM and MP4 file type detection
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.8.3...4.8.5)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.8.5)
+
+Release 4.8.3 (4.8.3)
+* Thumbor is now python 2.6 compatible. Thanks @guilhermef 
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.8.2...4.8.3)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.8.3)
+
+Release 4.8.2 (4.8.2)
+* Fixing gif loaded from result storage.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.8.1...4.8.2)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.8.2)
+
+Release 4.8.1 (4.8.1)
+* Added WebM support.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.8.0...4.8.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.8.1)
+
+Release 4.8.0 (4.8.0)
+* Added support for If-Modified-Since & Last-Updated headers by @Bladrak (Thanks!);
+* Max age per image by @wandenberg  (Thanks!);
+* Better mp4 support;
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.7.1...4.8.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.8.0)
+
+Release 4.7.1 (4.7.1)
+* Fixed issue with bad merge by @heynemann (sorry guys).
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.7.0...4.7.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.7.1)
+
+Release 4.7.0 (4.7.0)
+* New [colorize filter](https://github.com/thumbor/thumbor/wiki/Colorize) by @clifff (thanks!);
+* New [saturation filter](https://github.com/thumbor/thumbor/wiki/Saturation) filter by @clifff (thanks!);
+* New option to disable etags by @kevin1024 (thanks!).
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.6.0...4.7.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.7.0)
+
+Release 4.6.0 (4.6.0)
+* Thumbor Upstart job for usage with DEB was updated by @CameronNemo (thanks!);
+* Thumbor now supports HTTPs contributed by Chris Heisterkamp (bcebe435c45637dcbdc0db822874e43fc841d8ea);
+* Thumbor has a new filter/optimizer combo for supporting [GifV](http://imgur.com/blog/2014/10/09/introducing-gifv/). Thanks @guilhermef for the contribution!
+* @renaudguerin fixed issues with LA and L pallete images.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.5.4...4.6.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.6.0)
+
+Release 4.5.4 (4.5.4)
+* Fix optimizer when requesting meta.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.5.3...4.5.4)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.5.4)
+
+Release 4.5.3 (4.5.3)
+* Fix optimizer infrastructure to close files before reading again.
+
+## WARNING
+
+If you are using optimizers you should upgrade to this release.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.5.2...4.5.3)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.5.3)
+
+Release 4.5.2 (4.5.2)
+This release introduces the possibility to use [optimizers](https://github.com/thumbor/thumbor/wiki/Optimizers). A JPEGTRAN optimizer has been created as a sample optimizer. Other optimizers (pngquant, gifsicle and the like) can be created as contributed libraries by the community.
+
+It also adds the following contributions:
+
+* Now thumbor supports HEAD requests. This was a contribution by @justinribeiro;
+* We also feature blacklisting of images. This was a contribution by @clifff.
+ 
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.4.1...4.5.2)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.5.2)
+
+Release 4.4.1 (4.4.1)
+* Fixed #334 - Now images with unicode names should be working properly.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.4.0...4.4.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.4.1)
+
+Release 4.4.0 (4.4.0)
+* Added a no_upscale filter ([docs](https://github.com/thumbor/thumbor/wiki/No-Upscale))
+
+When upgrading, make sure to include this filter in your `FILTERS` configuration if you override it in your thumbor.conf file.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.4.0...4.4.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.4.0)
+
+Release 4.3.0 (4.3.0)
+* Fixes #141 - Add rotation support (thanks @guilhermebruzzi and @nopiece).
+
+[Diff to previous release](https://github.com/globocom/thumbor/compare/4.2.1...4.3.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.3.0)
+
+Release 4.2.1 (4.2.1)
+* Fixes #327 - Issue with auto_webp and result storages.
+* Added support to the full-fit-in way of cropping images.
+
+## WARNING
+
+If you've upgraded to the 4.2.0 release it's VERY, VERY recommended that you upgrade to 4.2.1 as soon as possible.
+
+[Diff to previous release](https://github.com/globocom/thumbor/compare/4.2.0...4.2.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.2.1)
+
+Release 4.2.0 (4.2.0)
+This release adds official support for GIFs and Animated GIFs.
+
+* Fixes #297 - With the new engine, gifs that were once distorted are perfectly valid now.
+
+## Supporting GIFs the new way
+
+If you want to use the new gif engine there are two things you must do:
+
+a) You need to install [gifsicle](http://www.lcdf.org/gifsicle/). Most operating systems have packages for it and in Mac OS it's just `brew install gifsicle`.
+b) You must include a configuration in your .conf file that says `USE_GIFSICLE_ENGINE=True`.
+
+## WARNING
+
+With the use of gifsicle engine, no filters will work for the gif images (all the other images will be fine). The same happens with smart cropping.
+
+This release has a bug that was fixed in 4.2.1. If you are using 4.2.0, please upgrade as soon as posssible.
+
+[Diff to previous release](https://github.com/globocom/thumbor/compare/4.1.3...4.2.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.2.0)
+
+Release 4.1.3 (4.1.3)
+This release fixes an issue that was introduced in #de1d96f614f5798a3d6f3e20e36a9ec061f8e960 in [Release 4.0.0](https://github.com/thumbor/thumbor/releases/tag/4.0.0). 
+
+If your current release is greater than 4.0.0, be advised you must upgrade as soon as possible. If your release is lesser than 4.0.0, please consider upgrading for better support.
+
+* Fixes #305 - This is a **critical** bug. Images will be served with Exif data, meaning they can potentially be many times heavier than they should be.
+
+[Diff to previous release](https://github.com/globocom/thumbor/compare/4.1.2...4.1.3)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.1.3)
+
+Release 4.1.2 (4.1.2)
+* Improved support for file descriptors. Now the --fd argument supports both the number of the file descriptor or the path in the file system. Fixes #300.
+
+[Diff to previous release](https://github.com/globocom/thumbor/compare/4.1.1...4.1.2)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.1.2)
+
+Release 4.1.1 (4.1.1)
+* Thumbor does not convert CMYK unless needed now;
+* New merge option in the composite filter infrastructure.
+
+[Diff to previous release](https://github.com/globocom/thumbor/compare/4.1.0...4.1.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.1.1)
+
+Release 4.1.0 (4.1.0)
+* New filter: [Extract Focal Points](https://github.com/thumbor/thumbor/wiki/Extract-Focal-Points)
+* Infrastructure for filters on different phases during the image processing lifecycle. Right now PHASE_POST_TRANSFORM and PHASE_PRE_LOAD are supported. All existing filters default to PHASE_POST_TRANSFORM
+
+[Diff to previous release](https://github.com/globocom/thumbor/compare/4.0.4...4.1.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.1.0)
+
+Release 4.0.4 (4.0.4)
+* Fixed issue with blur filter when used with more than 150 of radius (by @heynemann);
+* Fixed issue with format filter when used in conjunction with auto_webp (by @cezarsa).
+
+[Diff to previous release](https://github.com/globocom/thumbor/compare/4.0.3...4.0.4)
+[pypi release](https://pypi.python.org/pypi/thumbor/4.0.4)
+
+Release 4.0.3 (4.0.3)
+* Fix in all engines to return both image data and image mode together, instead of one or the other. If you implement your own engine, you need to create a new method called `image_data_as_rgb` that returns the image mode and the image bytes;
+* Thumbor Application class now has a `get_handlers` method that can be overwritten to specify new handlers.
+
+Release can be found at https://pypi.python.org/pypi/thumbor/4.0.3
+
+Release 4.0.2 (4.0.2)
+* Fixed issue with WebP request path by [Frank Du](https://github.com/frankdu);
+* Fixed issue with Upstart Script Log Level by [Matt Robenolt](https://github.com/mattrobenolt);
+* Fixed issue with folder not existing before storing security details by [Cícero Verneck Corrêa](https://github.com/cicerocomp);
+* Fixed #272 - Thumbor works properly with newer tornado.
+
+Release 4.0.1 (4.0.1)
+* Fixed issue #289 - Now URLs with '~' should work properly.
+
+Release 4.0.0 (4.0.0)
+# WARNING
+
+> This version contains breaking changes. Both GraphicsMagick and OpenCV engines were removed from the built-in imaging engines and can be found in the [thumbor organization](http://github.com/thumbor) now. For more information on using each of them check the respective project documentation.
+
+# BREAKING Changes
+
+* Removed thumbor.engines.opencv in favor of the new [opencv-engine](https://github.com/thumbor/opencv-engine) project. That's where we'll maintain the OpenCV engine.
+* Removed thumbor.engines.graphicsmagick in favor of the new [graphicsmagick-engine](https://github.com/thumbor/graphicsmagick-engine) project. That's where we'll maintain the GraphicsMagick engine.
+
+# Fixed Issues
+* Partitioning the FileStorage Result Storage into more folders by [Martin Sarsale](https://github.com/runa);
+* Json File Error Handler by [Damien Hardy](https://github.com/dhardy92);
+* Support binding socket to file descriptor instead of port by [John MacKenzie](https://github.com/198d);
+* HEAD queries to thumbor's healthcheck returning 200 status code by [Damien Hardy](https://github.com/dhardy92);
+* Fixed bug when parsing urls with filters of an original with filters by [Cezar Sá](https://github.com/cezarsa);
+* Support different default quality for WebP images by [Bernardo Heynemann](https://github.com/heynemann);
+* Keep transparency when saving transparent gif by [Igor Sobreira](https://github.com/igorsobreira);
+* Don't save PNG files as CMYK by [Igor Sobreira](https://github.com/igorsobreira);
+* Upstart now uses ip var defined on ubuntu default file by [Paulo Sousa](https://github.com/morpheu);
+* Fixed images cropped with width 1px and height 0px by [Bernardo Heynemann](https://github.com/heynemann);
+* Fixed #236 - IndexError: list index out of range by [Bernardo Heynemann](https://github.com/heynemann);
+* Fixed #235 - ValueError: Not a valid numbers of quantization tables. Should be between 2 and 4 by [Bernardo Heynemann](https://github.com/heynemann);
+* Fixed #228 - Confusing error when using OpenCV by [Bernardo Heynemann](https://github.com/heynemann);
+* New options to the fill filter by [prolificphotis](https://github.com/prolificphotis);
+* Added FILL_MERGES Configuration to specify whether the fill filter should merge the background by [prolificphotis](https://github.com/prolificphotis);
+* Resolved quality config None in graphicsmagick engine by [Marcio Toshio Ide](https://github.com/marciotoshio);
+* Preserving EXIF info when storing original images by [Cezar Sá](https://github.com/cezarsa);
+* Resetting EXIF orientation after reorienting image by [Cezar Sá](https://github.com/cezarsa);
+* Compatibility work for the fill filter across engines by [Cezar Sá](https://github.com/cezarsa);
+* Pillow test_requirement match setup.py by [Rob Olson](https://github.com/robolson);
+* Fixed issues with graphicsmagick and gif images by [Bernardo Heynemann](https://github.com/heynemann);
+* Convert to grayscale working in OpenCV Engine by [Pablo Aguiar](https://github.com/scorphus).
+
+# New features
+
+* New convolution filter by [Cezar Sá](https://github.com/cezarsa);
+* New Gaussian Bluer filter by [Cezar Sá](https://github.com/cezarsa);
+
+Release 3.14.7 (3.14.7)
+* Bumping tornado version to allow last update.
+
+Release 3.14.6 (3.14.6)
+* Result storage disallows requesting files outside the root path.
+
+Release 3.14.5 (3.14.5)
+* Not doing vary header or converting to WebP when image is an animated gif or already a WebP.
+
+Improved Auto-WebP support (3.14.4)
+* Thumbor now includes a "Vary": "Accept" header to help cache servers to better understand that the image URL can vary by accept header.
+
+Release 3.14.1 (3.14.1)
+* A new filter has been introduced: max_bytes. This filter allows users to specify the maximum number of bytes for the image. Thumbor will vary the quality of the image for JPEG and WebP images (png and gif images do not get affected by this filter).
+
+Release 3.14.0 (3.14.0)
+This is an unstable release.
+
+Release 3.13.3 (3.13.3)
+* Fixed [#193](https://github.com/globocom/thumbor/issues/193). File storage now uses atomic storage of files, thus avoiding corruption of stored images.
+
+Release 3.13.2 (3.13.2)
+* Merged [#202](https://github.com/globocom/thumbor/pull/202). Proxy support added to default HTTP Loader.
+
+Release 3.13.1 (3.13.1)
+* Merged [#197](https://github.com/globocom/thumbor/pull/197). Healthcheck now replied to HEAD requests.
+
+Release 3.13.0 (3.13.0)
+* Fixes [#204](https://github.com/globocom/thumbor/issues/204). Thumbor now allows users to specify that WebP should be automatically used whenever the request has the proper Accept header (image/webp).
+
+Release 3.12.2 (3.12.2)
+Added some extra logging in the finish request stage.
+
+Release 3.12.1 (3.12.1)
+* Fixed leak of Redis connections when using queued detectors.
+
+Release 3.11.1 (3.11.1)
+* Finished webp support;
+* Fixed a bug with webp support that would pass 'None' as format if no format specified;
+* Added a configuration `PRESERVE_EXIF_INFO` that when set to True will keep the exif metadata in images intact (including webp resulting images).
+
+Release 3.12.0 (3.12.0)
+* Fixed an issue with animated gifs (sigh);
+* Add detection support for WEBP format. Merge pull request [#194](https://github.com/globocom/thumbor/pull/194) from dhardy92:feature_Add_WEBP_Detection;
+* Support for the new release of Pillow (2.1.0) and works with Pillow master branch for now.
