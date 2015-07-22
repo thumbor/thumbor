@@ -18,6 +18,48 @@ from thumbor.utils import logger
 from thumbor.url import Url
 import statsd
 
+
+# todo: move into own file/module
+class ThumborMetricsLogger:
+    def __init__(self, config):
+        self.config = config
+
+    def incr(self, metricname):
+        logger.debug("METRICS: inc: %s", metricname)
+
+    def timing(self, metricname, value, unit='ms'):
+        logger.debug("METRICS: timing: %s:%d %s", metricname, value, unit)
+
+
+import librato
+import os
+import datetime
+
+
+
+
+
+class ThumborLibratoMetrics:
+    def __init__(self, config):
+        self.config = config
+
+        self.api = librato.connect(os.environ.get('LIBRATO_USER'), os.environ.get('LIBRATO_TOKEN'))
+        self.queue = self.api.new_queue(auto_submit_count=1)
+
+        self.metric_prefix = 'imageservice.thumbor.'
+
+    # mimicing statsd interface for now
+
+    def incr(self, metricname):
+        self.queue.add( self._prefixed_name(metricname), 1, type='counter')
+
+    def timing(self, metricname, value, unit='ms'):
+        self.queue.add( self._prefixed_name(metricname), value) # todo unit ?
+
+    def _prefixed_name(self, metricname):
+        return self.metric_prefix + metricname
+
+
 class ThumborStatsClient(statsd.StatsClient):
 
     @classmethod
@@ -72,6 +114,9 @@ class Context:
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
         self.statsd_client = ThumborStatsClient.instance(config)
+        # todo: this should be set via thumbor/config.py automatically
+        #self.metrics = ThumborMetricsLogger(config)
+        self.metrics = ThumborLibratoMetrics(config)
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
 
 
