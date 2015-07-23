@@ -27,37 +27,45 @@ class ThumborMetricsLogger:
     def incr(self, metricname):
         logger.debug("METRICS: inc: %s", metricname)
 
-    def timing(self, metricname, value, unit='ms'):
-        logger.debug("METRICS: timing: %s:%d %s", metricname, value, unit)
+    def timing(self, metricname, value):
+        logger.debug("METRICS: timing: %s:%d", metricname, value)
+
+
 
 
 import librato
 import os
 import datetime
 
-
-
-
-
 class ThumborLibratoMetrics:
+
+    @classmethod
+    # TODO: get config out here...?
+    def queue(cls, config):
+        """
+        Cached Librato queue for batch submitting
+        """
+        if not hasattr(cls, "_queue"):
+            api = librato.connect(os.environ.get('LIBRATO_USER'), os.environ.get('LIBRATO_TOKEN'))
+            cls._queue = api.new_queue(auto_submit_count=4)
+
+        return cls._queue
+
     def __init__(self, config):
         self.config = config
-
-        self.api = librato.connect(os.environ.get('LIBRATO_USER'), os.environ.get('LIBRATO_TOKEN'))
-        self.queue = self.api.new_queue(auto_submit_count=1)
-
         self.metric_prefix = 'imageservice.thumbor.'
 
     # mimicing statsd interface for now
 
     def incr(self, metricname):
-        self.queue.add( self._prefixed_name(metricname), 1, type='counter')
+        ThumborLibratoMetrics.queue(self.config).add( self._prefixed_name(metricname), 1)
 
-    def timing(self, metricname, value, unit='ms'):
-        self.queue.add( self._prefixed_name(metricname), value) # todo unit ?
+    def timing(self, metricname, value):
+        ThumborLibratoMetrics.queue(self.config).add( self._prefixed_name(metricname), value)
 
     def _prefixed_name(self, metricname):
         return self.metric_prefix + metricname
+
 
 
 class ThumborStatsClient(statsd.StatsClient):
