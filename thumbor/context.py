@@ -68,18 +68,32 @@ class ThumborLibratoMetrics:
 
 
 
-class ThumborStatsClient(statsd.StatsClient):
+class ThumborStatsdMetrics:
 
     @classmethod
-    def instance(cls, config):
+    def client(cls, config):
         """
-        Cache stats client so it doesn't do a DNS lookup
+        Cache statsd client so it doesn't do a DNS lookup
         over and over
         """
-        if not hasattr(cls, "_instance"):
-            cls._instance = ThumborStatsClient(config)
-        return cls._instance
+        if not hasattr(cls, "_client"):
+            cls._client = ThumborStatsdClient(config)
+        return cls._client
 
+
+    def __init__(self, config):
+        self.config = config
+
+    def incr(self, metricname):
+        ThumborStatsdMetrics.client(self.config).incr(metricname)
+
+    def timing(self, metricname, value):
+        ThumborStatsdMetrics.client(self.config).timing(metricname, value)
+
+
+
+
+class ThumborStatsdClient(statsd.StatsClient):
 
     def __init__(self, config):
         self.config = config
@@ -93,12 +107,14 @@ class ThumborStatsClient(statsd.StatsClient):
             # we never send any data if enabled is false
             host = 'localhost'
             prefix=None
-        super(ThumborStatsClient, self).__init__(host, 8125, prefix)
+        super(ThumborStatsdClient, self).__init__(host, 8125, prefix)
+
 
     def _send(self, data):
         logger.debug("STATSD: %s", data)
         if self.enabled:
-            super(ThumborStatsClient, self)._send(data)
+            super(ThumborStatsdClient, self)._send(data)
+
 
 
 class Context:
@@ -122,9 +138,11 @@ class Context:
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
         self.statsd_client = ThumborStatsClient.instance(config)
+        self.statsd_client.incr('memememe')
         # todo: this should be set via thumbor/config.py automatically
         #self.metrics = ThumborMetricsLogger(config)
-        self.metrics = ThumborLibratoMetrics(config)
+        #self.metrics = ThumborLibratoMetrics(config)
+        self.metrics = ThumborStatsdMetrics(config)
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
 
 
