@@ -141,8 +141,8 @@ class Context:
 
         # todo: this should be set via thumbor/config.py automatically
         #self.metrics = ThumborMetricsLogger(config)
-#        self.metrics = ThumborLibratoMetrics(config)
-        self.metrics = ThumborStatsdMetrics(config)
+        self.metrics = ThumborLibratoMetrics(config)
+#        self.metrics = ThumborStatsdMetrics(config)
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
 
 
