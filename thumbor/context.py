@@ -18,18 +18,83 @@ from thumbor.utils import logger
 from thumbor.url import Url
 import statsd
 
-class ThumborStatsClient(statsd.StatsClient):
+
+# todo: move into own file/module
+class ThumborMetricsLogger:
+    def __init__(self, config):
+        self.config = config
+
+    def incr(self, metricname):
+        logger.debug("METRICS: inc: %s", metricname)
+
+    def timing(self, metricname, value):
+        logger.debug("METRICS: timing: %s:%d", metricname, value)
+
+
+
+
+import librato
+import os
+import datetime
+
+class ThumborLibratoMetrics:
 
     @classmethod
-    def instance(cls, config):
+    # TODO: get config out here...?
+    def queue(cls, config):
         """
-        Cache stats client so it doesn't do a DNS lookup
+        Cached Librato queue for batch submitting
+        """
+        if not hasattr(cls, "_queue"):
+            api = librato.connect(os.environ.get('LIBRATO_USER'), os.environ.get('LIBRATO_TOKEN'))
+            queue_length = int(os.environ.get('LIBRATO_QUEUE_LENGTH'))
+            cls._queue = api.new_queue(auto_submit_count= queue_length)
+
+        return cls._queue
+
+    def __init__(self, config):
+        self.config = config
+        self.metric_prefix = 'imageservice.thumbor.'
+
+    # mimicing statsd interface for now
+
+    def incr(self, metricname):
+        ThumborLibratoMetrics.queue(self.config).add( self._prefixed_name(metricname), 1)
+
+    def timing(self, metricname, value):
+        ThumborLibratoMetrics.queue(self.config).add( self._prefixed_name(metricname), value)
+
+    def _prefixed_name(self, metricname):
+        return self.metric_prefix + metricname
+
+
+
+class ThumborStatsdMetrics:
+
+    @classmethod
+    def client(cls, config):
+        """
+        Cache statsd client so it doesn't do a DNS lookup
         over and over
         """
-        if not hasattr(cls, "_instance"):
-            cls._instance = ThumborStatsClient(config)
-        return cls._instance
+        if not hasattr(cls, "_client"):
+            cls._client = ThumborStatsdClient(config)
+        return cls._client
 
+
+    def __init__(self, config):
+        self.config = config
+
+    def incr(self, metricname):
+        ThumborStatsdMetrics.client(self.config).incr(metricname)
+
+    def timing(self, metricname, value):
+        ThumborStatsdMetrics.client(self.config).timing(metricname, value)
+
+
+
+
+class ThumborStatsdClient(statsd.StatsClient):
 
     def __init__(self, config):
         self.config = config
@@ -43,12 +108,14 @@ class ThumborStatsClient(statsd.StatsClient):
             # we never send any data if enabled is false
             host = 'localhost'
             prefix=None
-        super(ThumborStatsClient, self).__init__(host, 8125, prefix)
+        super(ThumborStatsdClient, self).__init__(host, 8125, prefix)
+
 
     def _send(self, data):
         logger.debug("STATSD: %s", data)
         if self.enabled:
-            super(ThumborStatsClient, self)._send(data)
+            super(ThumborStatsdClient, self)._send(data)
+
 
 
 class Context:
@@ -71,7 +138,11 @@ class Context:
             self.modules = None
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
-        self.statsd_client = ThumborStatsClient.instance(config)
+
+        # todo: this should be set via thumbor/config.py automatically
+        #self.metrics = ThumborMetricsLogger(config)
+        self.metrics = ThumborLibratoMetrics(config)
+#        self.metrics = ThumborStatsdMetrics(config)
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
 
 
