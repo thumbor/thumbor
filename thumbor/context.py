@@ -47,7 +47,8 @@ class ThumborLibratoMetrics:
         """
         if not hasattr(cls, "_queue"):
             api = librato.connect(os.environ.get('LIBRATO_USER'), os.environ.get('LIBRATO_TOKEN'))
-            cls._queue = api.new_queue(auto_submit_count=4)
+            queue_length = int(os.environ.get('LIBRATO_QUEUE_LENGTH'))
+            cls._queue = api.new_queue(auto_submit_count= queue_length)
 
         return cls._queue
 
@@ -137,11 +138,10 @@ class Context:
             self.modules = None
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
-        self.statsd_client = ThumborStatsClient.instance(config)
-        self.statsd_client.incr('memememe')
+
         # todo: this should be set via thumbor/config.py automatically
         #self.metrics = ThumborMetricsLogger(config)
-        #self.metrics = ThumborLibratoMetrics(config)
+#        self.metrics = ThumborLibratoMetrics(config)
         self.metrics = ThumborStatsdMetrics(config)
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
 
