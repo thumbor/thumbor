@@ -129,6 +129,8 @@ class Engine(BaseEngine):
                     quantization = getattr(self.image, 'quantization', None)
                     if quality is None and quantization and 2 <= len(quantization) <= 4:
                         options['quality'] = 'keep'
+                    if self.context.config.PILLOW_JPEG_SUBSAMPLING:
+                        options['subsampling'] = int(self.context.config.PILLOW_JPEG_SUBSAMPLING)
 
         if options['quality'] is None:
             options['quality'] = self.context.config.QUALITY
