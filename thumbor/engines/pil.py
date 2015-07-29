@@ -147,7 +147,9 @@ class Engine(BaseEngine):
             if ext == '.webp':
                 if self.image.mode not in ['RGB', 'RGBA']:
                     mode = None
-                    if self.image.mode != 'P':
+                    if self.image.mode == 'P':
+                        mode = 'RGBA'
+                    else:
                         mode = 'RGBA' if self.image.mode[-1] == 'A' else 'RGB'
                     self.image = self.image.convert(mode)
 
@@ -222,7 +224,7 @@ class Engine(BaseEngine):
 
     def image_data_as_rgb(self, update_image=True):
         converted_image = self.image
-        if converted_image.mode not in ['RGB', 'RGBA']:
+        if converted_image.mode not in ['RGB', 'RGBA', 'P']:
             if 'A' in converted_image.mode:
                 converted_image = converted_image.convert('RGBA')
             else:
