@@ -44,6 +44,10 @@ _round_corner_apply(PyObject *self, PyObject *args)
     float x;
     int y = 0;
 
+    #ifndef NDEBUG
+    int image_size = width * height * num_bytes;
+    #endif
+
     for (y = 0; y <= b_rad; y += 1) {
         x = (float)(-(a_rad * sqrt((b_rad * b_rad) - (y * y))) / b_rad);
 
@@ -58,14 +62,27 @@ _round_corner_apply(PyObject *self, PyObject *args)
                 top_right = num_bytes * ((y_top * width) + (width - curr_x)),
                 bottom_right = num_bytes * ((y_bottom * width) + (width - curr_x));
 
-            ptr[top_left + r_idx] = ptr[bottom_left + r_idx] =
+            assert(top_left + r_idx < image_size);
+            assert(top_left + g_idx < image_size);
+            assert(top_left + b_idx < image_size);
+            assert(bottom_left + r_idx < image_size);
+            assert(bottom_left + g_idx < image_size);
+            assert(bottom_left + b_idx < image_size);
+            ptr[top_left + r_idx] = ptr[bottom_left + r_idx] = r;
+            ptr[top_left + g_idx] = ptr[bottom_left + g_idx] = g;
+            ptr[top_left + b_idx] = ptr[bottom_left + b_idx] = b;
+
+            if (curr_x > 0) {
+                assert(top_right + r_idx < image_size);
+                assert(top_right + g_idx < image_size);
+                assert(top_right + b_idx < image_size);
+                assert(bottom_right + r_idx < image_size);
+                assert(bottom_right + g_idx < image_size);
+                assert(bottom_right + b_idx < image_size);
                 ptr[top_right + r_idx] = ptr[bottom_right + r_idx] = r;
-
-            ptr[top_left + g_idx] = ptr[bottom_left + g_idx] =
                 ptr[top_right + g_idx] = ptr[bottom_right + g_idx] = g;
-
-            ptr[top_left + b_idx] = ptr[bottom_left + b_idx] =
                 ptr[top_right + b_idx] = ptr[bottom_right + b_idx] = b;
+            }
         }
 
         if (!aa_enabled) {
@@ -195,8 +212,6 @@ _round_corner_apply(PyObject *self, PyObject *args)
             ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa)) + (g * (aa));
             ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa)) + (b * (aa));
         }
-
-        
     }
 
 END:
