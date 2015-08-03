@@ -14,41 +14,9 @@ from concurrent.futures import ThreadPoolExecutor, Future
 import functools
 
 from thumbor.filters import FiltersFactory
-from thumbor.utils import logger
+from thumbor.metrics import BaseMetrics
+from thumbor.metrics.logger_metrics import Metrics
 from thumbor.url import Url
-import statsd
-
-class ThumborStatsClient(statsd.StatsClient):
-
-    @classmethod
-    def instance(cls, config):
-        """
-        Cache stats client so it doesn't do a DNS lookup
-        over and over
-        """
-        if not hasattr(cls, "_instance"):
-            cls._instance = ThumborStatsClient(config)
-        return cls._instance
-
-
-    def __init__(self, config):
-        self.config = config
-        if config and config.STATSD_HOST:
-            self.enabled = True
-            host = config.STATSD_HOST
-            prefix = config.STATSD_PREFIX
-        else:
-            self.enabled = False
-            # Just setting this so we can initialize the client -
-            # we never send any data if enabled is false
-            host = 'localhost'
-            prefix=None
-        super(ThumborStatsClient, self).__init__(host, 8125, prefix)
-
-    def _send(self, data):
-        logger.debug("STATSD: %s", data)
-        if self.enabled:
-            super(ThumborStatsClient, self)._send(data)
 
 
 class Context:
@@ -67,11 +35,16 @@ class Context:
         self.config = config
         if importer:
             self.modules = ContextImporter(self, importer)
+            if importer.metrics:
+                self.metrics = importer.metrics(config)
+            else:
+                self.metrics = Metrics(config)
         else:
             self.modules = None
+            self.metrics = Metrics(config)
+
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
-        self.statsd_client = ThumborStatsClient.instance(config)
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
 
 

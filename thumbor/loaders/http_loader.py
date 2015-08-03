@@ -40,7 +40,7 @@ def validate(context, url, normalize_url_func=_normalize_url):
 
 
 def return_contents(response, url, callback, context):
-    context.statsd_client.incr('original_image.status.' + str(response.code))
+    context.metrics.incr('original_image.status.' + str(response.code))
     if response.error:
         logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
         callback(None)
@@ -50,8 +50,8 @@ def return_contents(response, url, callback, context):
     else:
         if response.time_info:
           for x in response.time_info:
-              context.statsd_client.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
-          context.statsd_client.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
+              context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
+          context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
         callback(response.body)
 
 

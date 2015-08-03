@@ -106,7 +106,7 @@ class Engine(PILEngine):
             with Image.open(BytesIO(self.buffer)) as image:
                 image.verify()
         except Exception:
-            self.context.statsd_client.incr('gif_engine.no_output')
+            self.context.metrics.incr('gif_engine.no_output')
             logger.error("[GIF_ENGINE] invalid gif engine result for url `{url}`.".format(
                 url=self.context.request.url
             ))
