@@ -116,17 +116,3 @@ class Cryptor(object):
         del result['image']
 
         return result
-
-
-class Signer:
-    def __init__(self, security_key):
-        if isinstance(security_key, unicode):
-            security_key = security_key.encode('utf-8')
-        self.security_key = security_key
-
-    def validate(self, actual_signature, url):
-        url_signature = self.signature(url)
-        return url_signature == actual_signature
-
-    def signature(self, url):
-        return base64.urlsafe_b64encode(hmac.new(self.security_key, unicode(url).encode('utf-8'), hashlib.sha1).digest())

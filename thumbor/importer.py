@@ -18,6 +18,7 @@ class Importer:
         self.engine = None
         self.gif_engine = None
         self.loader = None
+        self.url_signer = None
         self.upload_photo_storage = None
         self.storage = None
         self.result_storage = None
@@ -38,7 +39,8 @@ class Importer:
 
     def import_modules(self):
         self.config.validates_presence_of(
-            'ENGINE', 'GIF_ENGINE', 'LOADER', 'STORAGE', 'DETECTORS', 'FILTERS'
+            'ENGINE', 'GIF_ENGINE', 'LOADER', 'STORAGE', 'DETECTORS',
+            'FILTERS', 'URL_SIGNER'
         )
 
         self.import_item('ENGINE', 'Engine')
@@ -48,6 +50,7 @@ class Importer:
         self.import_item('DETECTORS', 'Detector', is_multiple=True)
         self.import_item('FILTERS', 'Filter', is_multiple=True, ignore_errors=True)
         self.import_item('OPTIMIZERS', 'Optimizer', is_multiple=True)
+        self.import_item('URL_SIGNER', 'UrlSigner')
 
         if self.config.RESULT_STORAGE:
             self.import_item('RESULT_STORAGE', 'Storage')

@@ -244,6 +244,7 @@ class ContextImporter:
         self.detectors = importer.detectors
         self.filters = importer.filters
         self.optimizers = importer.optimizers
+        self.url_signer = importer.url_signer
 
 
 class ThreadPool(object):
