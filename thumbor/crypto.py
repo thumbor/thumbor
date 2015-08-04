@@ -10,7 +10,6 @@
 
 import base64
 import hashlib
-import hmac
 
 from Crypto.Cipher import AES
 
