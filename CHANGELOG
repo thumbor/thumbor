@@ -10,6 +10,8 @@ possible values are:
 
 see the respective sections in the `config.py` (`STATSD_XYZ`, `LIBRATO_XYZ`)
 
+please note that `context.statsd_client` is deprecated and will be removed, use `context.metrics` instead!
+
 Release 5.0.4 (5.0.4)
 * Fix image extension with query string #499 Thanks @dhardy92 and @kuhess 
 
