@@ -14,7 +14,6 @@ from concurrent.futures import ThreadPoolExecutor, Future
 import functools
 
 from thumbor.filters import FiltersFactory
-from thumbor.metrics import BaseMetrics
 from thumbor.metrics.logger_metrics import Metrics
 from thumbor.url import Url
 
