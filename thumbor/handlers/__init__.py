@@ -372,6 +372,9 @@ class BaseHandler(tornado.web.RequestHandler):
         if mime is None:
             mime = BaseEngine.get_mimetype(buffer)
 
+        if mime is None:
+            raise gen.Return([False, None, None])
+
         self.context.request.extension = EXTENSION.get(mime, '.jpg')
 
         original_preserve = self.context.config.PRESERVE_EXIF_INFO
