@@ -107,12 +107,6 @@ Config.define('STATSD_HOST', None, 'Host to send statsd instrumentation to', 'Me
 Config.define('STATSD_PORT', 8125, 'Port to send statsd instrumentation to', 'Metrics')
 Config.define('STATSD_PREFIX', None, 'Prefix for statsd', 'Metrics')
 
-Config.define('LIBRATO_USER', None, 'Librato api username', 'Metrics')
-Config.define('LIBRATO_TOKEN', None, 'Librato api token', 'Metrics')
-Config.define('LIBRATO_NAME_PREFIX', 'thumbor', 'Librato metrics prefix', 'Metrics')
-Config.define('LIBRATO_QUEUE_LENGTH', 1000, 'Librato autosubmit queue size', 'Metrics')
-
-
 # FILE LOADER OPTIONS
 Config.define('FILE_LOADER_ROOT_PATH', '/tmp', 'The root path where the File Loader will try to find images', 'File Loader')
 

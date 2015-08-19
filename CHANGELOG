@@ -6,9 +6,8 @@ possible values are:
 
 * `thumbor.metrics.logger_metrics`
 * `thumbor.metrics.statsd_metrics`
-* `thumbor.metrics.librato_metrics`
 
-see the respective sections in the `config.py` (`STATSD_XYZ`, `LIBRATO_XYZ`)
+see the respective sections in the `config.py`
 
 please note that `context.statsd_client` is deprecated and will be removed, use `context.metrics` instead!
 

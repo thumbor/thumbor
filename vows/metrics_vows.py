@@ -14,8 +14,6 @@ from thumbor.context import Context, ServerParameters
 from thumbor.importer import Importer
 from thumbor.config import Config
 import thumbor.metrics
-import thumbor.metrics.librato_metrics
-
 
 @Vows.batch
 class MetricsVows(Vows.Context):
@@ -42,30 +40,9 @@ class MetricsVows(Vows.Context):
             imp.import_modules()
             return Context(None, conf, imp)
 
-        def should_initialize_librato(self, topic):
+        def should_initialize_metrics(self, topic):
             expect(topic.metrics).to_be_instance_of(
                 thumbor.metrics.logger_metrics.Metrics)
-
-        def should_not_fail_on_use(self, topic):
-            expect(topic.metrics.incr('test.count')).not_to_be_an_error()
-            expect(topic.metrics.incr('test.count', 2)).not_to_be_an_error()
-            expect(topic.metrics.timing('test.time', 100)).not_to_be_an_error()
-
-    class CanCreateContextWithLibratoMetrics(Vows.Context):
-
-        def topic(self):
-            conf = Config()
-            conf.METRICS = 'thumbor.metrics.librato_metrics'
-            conf.LIBRATO_USER = 'test'
-            conf.LIBRATO_TOKEN = 'test'
-            conf.LIBRATO_NAME_PREFIX = 'test'
-            imp = Importer(conf)
-            imp.import_modules()
-            return Context(None, conf, imp)
-
-        def should_initialize_librato(self, topic):
-            expect(topic.metrics).to_be_instance_of(
-                thumbor.metrics.librato_metrics.Metrics)
 
         def should_not_fail_on_use(self, topic):
             expect(topic.metrics.incr('test.count')).not_to_be_an_error()
@@ -81,7 +58,7 @@ class MetricsVows(Vows.Context):
             imp.import_modules()
             return Context(None, conf, imp)
 
-        def should_initialize_librato(self, topic):
+        def should_initialize_metrics(self, topic):
             expect(topic.metrics).to_be_instance_of(
                 thumbor.metrics.statsd_metrics.Metrics)
 

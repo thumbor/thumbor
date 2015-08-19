@@ -24,7 +24,6 @@ tests_require = [
     "coverage",
     "mock==1.0.1",
     "raven",
-    "librato-metrics",
     "nose",
     "colorama",
     "numpy",
