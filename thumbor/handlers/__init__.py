@@ -92,6 +92,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 error=e
             )
 
+            self.context.log_exception(e)
+
             if 'cannot identify image file' in e.message:
                 logger.warning(msg)
                 self._error(400)
