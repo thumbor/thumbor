@@ -164,6 +164,14 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
+    class WithInvalidImage(BaseContext):
+        def topic(self):
+            response = self.get('/unsafe/invalid_image.jpg')
+            return (response.code, response.headers)
+
+        def should_be_400(self, response):
+            code, _ = response
+            expect(code).to_equal(400)
 
 @Vows.batch
 class GetImageWithoutUnsafe(BaseContext):

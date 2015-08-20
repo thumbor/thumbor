@@ -82,9 +82,23 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @gen.coroutine
     def get_image(self):
-        normalized, buffer, engine = yield self._fetch(
-            self.context.request.image_url
-        )
+        try:
+            normalized, buffer, engine = yield self._fetch(
+                self.context.request.image_url
+            )
+        except Exception as e:
+            msg = '[BaseHandler] get_image failed for url `{url}`. error: `{error}`'.format(
+                url=self.context.request.image_url,
+                error=e
+            )
+
+            if 'cannot identify image file' in e.message:
+                logger.warning(msg)
+                self._error(400)
+            else:
+                logger.error(msg)
+                self._error(500)
+            return
 
         req = self.context.request
 
@@ -387,6 +401,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.context.request.engine = self.context.modules.engine
 
             self.context.request.engine.load(buffer, extension)
+
             normalized = self.context.request.engine.normalize()
             is_no_storage = isinstance(storage, NoStorage)
             is_mixed_storage = isinstance(storage, MixedStorage)
