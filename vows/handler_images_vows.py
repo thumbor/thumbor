@@ -166,7 +166,7 @@ class GetImage(BaseContext):
 
     class WithInvalidImage(BaseContext):
         def topic(self):
-            response = self.get('/unsafe/invalid_image.jpg')
+            response = self.get('/unsafe/image_invalid.jpg')
             return (response.code, response.headers)
 
         def should_be_400(self, response):
