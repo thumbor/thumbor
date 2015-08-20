@@ -92,5 +92,5 @@ class BlacklistIntegration(BaseContext):
                 response = self.get('/unsafe/image.jpg')
                 return response.code
 
-            def should_return_200(self, topic):
-                expect(topic).to_equal(404)
+            def should_return_bad_request(self, topic):
+                expect(topic).to_equal(400)

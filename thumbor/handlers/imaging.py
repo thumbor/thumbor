@@ -36,7 +36,7 @@ class ImagingHandler(ContextHandler):
         url = self.request.uri
 
         if not self.validate(kw['image']):
-            self._error(404, 'No original image was specified in the given URL')
+            self._error(400, 'No original image was specified in the given URL')
             return
 
         kw['request'] = self.request
@@ -47,17 +47,17 @@ class ImagingHandler(ContextHandler):
         has_both = self.context.request.unsafe and self.context.request.hash
 
         if has_none or has_both:
-            self._error(404, 'URL does not have hash or unsafe, or has both: %s' % url)
+            self._error(400, 'URL does not have hash or unsafe, or has both: %s' % url)
             return
 
         if self.context.request.unsafe and not self.context.config.ALLOW_UNSAFE_URL:
-            self._error(404, 'URL has unsafe but unsafe is not allowed by the config: %s' % url)
+            self._error(400, 'URL has unsafe but unsafe is not allowed by the config: %s' % url)
             return
 
         if self.context.config.USE_BLACKLIST:
             blacklist = yield self.get_blacklist_contents()
             if self.context.request.image_url in blacklist:
-                self._error(404, 'Source image url has been blacklisted: %s' % self.context.request.image_url )
+                self._error(400, 'Source image url has been blacklisted: %s' % self.context.request.image_url )
                 return
 
         url_signature = self.context.request.hash
@@ -93,7 +93,7 @@ class ImagingHandler(ContextHandler):
                     is_valid = False
 
                 if not is_valid:
-                    self._error(404, 'Malformed URL: %s' % url)
+                    self._error(400, 'Malformed URL: %s' % url)
                     return
 
         self.execute_image_operations()
