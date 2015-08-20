@@ -13,7 +13,7 @@ import hashlib
 
 from Crypto.Cipher import AES
 
-# Import the Signer class to support backward-compability
+# Import the Signer class to support backward-compatibility
 # and existing documentation
 from thumbor.url_signers.base64_hmac_sha1 import UrlSigner as Signer
 from thumbor.url import Url
