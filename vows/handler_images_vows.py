@@ -64,7 +64,7 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(200)
 
-    class WithRegularImageiWithoutExtention(TornadoHTTPContext):
+    class WithRegularImageWithoutExtention(TornadoHTTPContext):
         def topic(self):
             response = self.get('/unsafe/smart/image')
             return (response.code, response.headers)
@@ -78,9 +78,9 @@ class GetImage(BaseContext):
             response = self.get('/unsafe/smart/imag')
             return (response.code, response.headers)
 
-        def should_be_200(self, response):
+        def should_be_gateway_timeout(self, response):
             code, _ = response
-            expect(code).to_equal(404)
+            expect(code).to_equal(504)
 
     class WithUnicodeImage(BaseContext):
         def topic(self):
@@ -105,18 +105,18 @@ class GetImage(BaseContext):
             response = self.get('/alabama1_ap620%C3%A9.jpg')
             return (response.code, response.headers)
 
-        def should_be_404(self, response):
+        def should_be_bad_request(self, response):
             code, _ = response
-            expect(code).to_equal(404)
+            expect(code).to_equal(400)
 
     class WithoutImage(TornadoHTTPContext):
         def topic(self):
             response = self.get('/unsafe/')
             return (response.code, response.headers)
 
-        def should_be_404(self, response):
+        def should_be_bad_request(self, response):
             code, _ = response
-            expect(code).to_equal(404)
+            expect(code).to_equal(400)
 
     class WithUTF8UrlEncodedOmageNameUsingEncodedUrl(TornadoHTTPContext):
         def topic(self):
@@ -204,9 +204,9 @@ class GetImageWithoutUnsafe(BaseContext):
             response = self.get('/unsafe/smart/image.jpg')
             return (response.code, response.headers)
 
-        def should_be_404(self, response):
+        def should_be_bad_request(self, response):
             code, _ = response
-            expect(code).to_equal(404)
+            expect(code).to_equal(400)
 
 
 @Vows.batch
@@ -241,9 +241,9 @@ class GetImageWithOLDFormat(BaseContext):
             response = self.get('/27m-vYMKohY6nvEt_D3Zwo7apVq63MS8TP-m1j3BXPGTftnrReTOEoScq1xMXe7h/alabama1_ap620é.jpg')
             return (response.code, response.headers)
 
-        def should_be_404(self, response):
+        def should_be_bad_request(self, response):
             code, _ = response
-            expect(code).to_equal(404)
+            expect(code).to_equal(400)
 
 
 @Vows.batch

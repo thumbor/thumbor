@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import sys
 import functools
 import datetime
 import traceback
@@ -92,7 +93,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 error=e
             )
 
-            self.context.log_exception(e)
+            self.log_exception(*sys.exc_info())
 
             if 'cannot identify image file' in e.message:
                 logger.warning(msg)
@@ -106,7 +107,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if engine is None:
             if buffer is None:
-                self._error(404)
+                self._error(504)
                 return
 
             engine = self.context.request.engine
