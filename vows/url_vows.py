@@ -99,7 +99,7 @@ class UrlVows(Vows.Context):
             return Url.regex()
 
         def should_contain_unsafe_or_hash(self, topic):
-            expect(topic).to_include('(?:(?:(?P<unsafe>unsafe)|(?P<hash>[^/]{28,}?))/)?')
+            expect(topic).to_include('(?:(?:(?P<unsafe>unsafe)|(?P<hash>.+?))/)?')
 
         def should_contain_meta(self, topic):
             expect(topic).to_include('(?:(?P<meta>meta)/)?')

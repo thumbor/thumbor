@@ -14,7 +14,7 @@ from urllib import quote
 
 class Url(object):
 
-    unsafe_or_hash = r'(?:(?:(?P<unsafe>unsafe)|(?P<hash>[^/]{28,}?))/)?'
+    unsafe_or_hash = r'(?:(?:(?P<unsafe>unsafe)|(?P<hash>.+?))/)?'
     debug = '(?:(?P<debug>debug)/)?'
     meta = '(?:(?P<meta>meta)/)?'
     trim = '(?:(?P<trim>trim(?::(?:top-left|bottom-right))?(?::\d+)?)/)?'

@@ -328,6 +328,14 @@ Config.define(
 Config.define('ERROR_FILE_LOGGER', None, 'File of error log as json', 'Errors')
 Config.define('ERROR_FILE_NAME_USE_CONTEXT', False, 'File of error log name is parametrized with context attribute', 'Errors')
 
+# SIGNER MODULE
+Config.define(
+    'URL_SIGNER', 'thumbor.url_signers.base64_hmac_sha1',
+    'The url signer thumbor should use to verify url signatures.' +
+    'This must be the full name of a python module ' +
+    '(python must be able to import it)', 'Extensibility'
+)
+
 
 def generate_config():
     config.generate_config()

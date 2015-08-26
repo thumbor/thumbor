@@ -10,7 +10,7 @@
 
 from thumbor.handlers import ContextHandler
 from thumbor.context import RequestParameters
-from thumbor.crypto import Cryptor, Signer
+from thumbor.crypto import Cryptor
 from thumbor.utils import logger
 from thumbor.url import Url
 import tornado.gen as gen
@@ -62,7 +62,7 @@ class ImagingHandler(ContextHandler):
 
         url_signature = self.context.request.hash
         if url_signature:
-            signer = Signer(self.context.server.security_key)
+            signer = self.context.modules.url_signer(self.context.server.security_key)
 
             url_to_validate = Url.encode_url(url).replace('/%s/' % self.context.request.hash, '')
             valid = signer.validate(url_signature, url_to_validate)
@@ -71,7 +71,7 @@ class ImagingHandler(ContextHandler):
                 # Retrieves security key for this image if it has been seen before
                 security_key = yield gen.maybe_future(self.context.modules.storage.get_crypto(self.context.request.image_url))
                 if security_key is not None:
-                    signer = Signer(security_key)
+                    signer = self.context.modules.url_signer(security_key)
                     valid = signer.validate(url_signature, url_to_validate)
 
             if not valid:
