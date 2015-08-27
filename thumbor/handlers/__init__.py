@@ -52,12 +52,12 @@ class BaseHandler(tornado.web.RequestHandler):
             start = datetime.datetime.now()
             result = self.context.modules.result_storage.get()
             finish = datetime.datetime.now()
-            self.context.statsd_client.timing('result_storage.incoming_time', (finish - start).total_seconds() * 1000)
+            self.context.metrics.timing('result_storage.incoming_time', (finish - start).total_seconds() * 1000)
             if result is None:
-                self.context.statsd_client.incr('result_storage.miss')
+                self.context.metrics.incr('result_storage.miss')
             else:
-                self.context.statsd_client.incr('result_storage.hit')
-                self.context.statsd_client.incr('result_storage.bytes_read', len(result))
+                self.context.metrics.incr('result_storage.hit')
+                self.context.metrics.incr('result_storage.bytes_read', len(result))
 
             if result is not None:
                 mime = BaseEngine.get_mimetype(result)
@@ -291,8 +291,8 @@ class BaseHandler(tornado.web.RequestHandler):
             start = datetime.datetime.now()
             context.modules.result_storage.put(results)
             finish = datetime.datetime.now()
-            context.statsd_client.incr('result_storage.bytes_written', len(results))
-            context.statsd_client.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
+            context.metrics.incr('result_storage.bytes_written', len(results))
+            context.metrics.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
 
     def optimize(self, context, image_extension, results):
         for optimizer in context.modules.optimizers:
@@ -369,7 +369,7 @@ class BaseHandler(tornado.web.RequestHandler):
         mime = None
 
         if buffer is not None:
-            self.context.statsd_client.incr('storage.hit')
+            self.context.metrics.incr('storage.hit')
             mime = BaseEngine.get_mimetype(buffer)
             self.context.request.extension = EXTENSION.get(mime, '.jpg')
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
@@ -379,7 +379,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
             raise gen.Return([False, buffer, None])
         else:
-            self.context.statsd_client.incr('storage.miss')
+            self.context.metrics.incr('storage.miss')
 
         buffer = yield self.context.modules.loader.load(self.context, url)
 
