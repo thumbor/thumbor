@@ -32,6 +32,8 @@ Config.define('MIN_HEIGHT', 1, "Min width in pixels for images read or generated
 Config.define('ALLOWED_SOURCES', [], "Allowed domains for the http loader to download. These are regular expressions.", 'Imaging')
 Config.define('QUALITY', 80, 'Quality index used for generated JPEG images', 'Imaging')
 Config.define('PROGRESSIVE_JPEG', True, 'Exports JPEG images with the `progressive` flag set.', 'Imaging')
+Config.define('PILLOW_JPEG_SUBSAMPLING', None,
+    'Specify subsampling behavior for Pillow (see `subsampling` in http://pillow.readthedocs.org/en/latest/handbook/image-file-formats.html#jpeg).', 'Imaging')
 Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP images. If not set (None) the same level of JPEG quality will be used.', 'Imaging')
 Config.define('AUTO_WEBP', False, 'Specifies whether WebP format should be used automatically if the request accepts it (via Accept header)', 'Imaging')
 Config.define('MAX_AGE', 24 * 60 * 60, 'Max AGE sent as a header for the image served by thumbor in seconds', 'Imaging')
