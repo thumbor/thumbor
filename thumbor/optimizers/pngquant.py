@@ -20,7 +20,6 @@ class Optimizer(BaseOptimizer):
 
     def optimize(self, buffer, input_file, output_file):
         pngquant_path = self.context.config.PNGQUANT_PATH
-        # cat %s  | %s --speed=1 --nofs --quality=%s - > %s
         command = 'cat %s  | %s --speed=1 --quality=%s - > %s' % (
             input_file,
             pngquant_path,
