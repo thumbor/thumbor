@@ -27,5 +27,4 @@ class Optimizer(BaseOptimizer):
             self.context.config.PNGQUANT_QUALITY or '80',
             output_file,
         )
-        print(command)
         subprocess.call(command, shell=True)
