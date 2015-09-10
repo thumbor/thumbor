@@ -100,6 +100,15 @@ namespace module (a.k.a. python has to be able to **import** it).**
 
 i.e.: thumbor.result\_storages.file\_storage
 
+URL\_SIGNER
+~~~~~~~~~~
+
+The url signer is responsible for validation and signing of requests to prevent url tampering,
+which could lead to denial of service (example: filling the result_storage by specifying a different size).
+**This must be a full namespace module (a.k.a. python has to be able to **import** it).**
+
+i.e.: thumbor.url\_signers.base64\_hmac\_sha1
+
 Filters Section
 ---------------
 
