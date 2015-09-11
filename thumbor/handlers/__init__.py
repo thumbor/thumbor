@@ -18,12 +18,13 @@ import tornado.web
 import tornado.gen as gen
 
 from thumbor import __version__
-from thumbor.storages.no_storage import Storage as NoStorage
-from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.context import Context
-from thumbor.transformer import Transformer
 from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
+from thumbor.loaders import LoaderResult
+from thumbor.storages.no_storage import Storage as NoStorage
+from thumbor.storages.mixed_storage import Storage as MixedStorage
+from thumbor.transformer import Transformer
 from thumbor.utils import logger, CONTENT_TYPE, EXTENSION
 import thumbor.filters
 
@@ -84,6 +85,8 @@ class BaseHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def get_image(self):
         try:
+            # TODO here the result would be an object containing the normalized
+            # buffer and engine values + the LoaderResult data (error, metadata)
             normalized, buffer, engine = yield self._fetch(
                 self.context.request.image_url
             )
@@ -381,7 +384,18 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             self.context.metrics.incr('storage.miss')
 
-        buffer = yield self.context.modules.loader.load(self.context, url)
+        result = yield self.context.modules.loader.load(self.context, url)
+
+        if isinstance(result, LoaderResult):
+            # TODO _fetch should probably return a result object vs a list to
+            # to allow returning metadata
+            if not result.successful:
+                raise gen.Return([False, None, None])
+
+            buffer = result.buffer
+        else:
+            # Handle old loaders
+            buffer = result
 
         if buffer is None:
             raise gen.Return([False, None, None])
