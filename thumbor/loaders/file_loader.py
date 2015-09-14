@@ -34,7 +34,7 @@ def load(context, path, callback):
 
             result.metadata.update(
                 size=stats.st_size,
-                updated_at=datetime.datetime.utcfromtimestamp(stats.st_mtime)
+                updated_at=datetime.utcfromtimestamp(stats.st_mtime)
             )
     else:
         result.error = LoaderResult.ERROR_NOT_FOUND
