@@ -11,13 +11,15 @@
 from os.path import splitext
 from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
+from thumbor.loaders import LoaderResult
 import tornado.gen
 
 
 class Filter(BaseFilter):
     regex = r'(?:watermark\((?P<url>.*?),(?P<x>-?[\d]*?),(?P<y>-?[\d]*?),(?P<alpha>[\d]*?)\))'
 
-    def on_image_ready(self, buffer):
+    def on_image_ready(self, buffer): 
+
         self.watermark_engine.load(buffer, self.extension)
         self.watermark_engine.enable_alpha()
 
@@ -43,7 +45,13 @@ class Filter(BaseFilter):
 
         self.callback()
 
-    def on_fetch_done(self, buffer):
+    def on_fetch_done(self, result):
+        # TODO if result.successful is False how can the error be handled?
+        if isinstance(result, LoaderResult):
+            buffer = result.buffer
+        else:
+            buffer = result
+
         self.watermark_engine.load(buffer, self.extension)
         self.storage.put(self.url, self.watermark_engine.read())
         self.storage.put_crypto(self.url)
