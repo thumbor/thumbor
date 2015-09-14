@@ -78,9 +78,9 @@ class GetImage(BaseContext):
             response = self.get('/unsafe/smart/imag')
             return (response.code, response.headers)
 
-        def should_be_gateway_timeout(self, response):
+        def should_be_not_found(self, response):
             code, _ = response
-            expect(code).to_equal(504)
+            expect(code).to_equal(404)
 
     class WithUnicodeImage(BaseContext):
         def topic(self):

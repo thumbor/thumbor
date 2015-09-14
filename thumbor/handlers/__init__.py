@@ -100,6 +100,10 @@ class BaseHandler(tornado.web.RequestHandler):
                 if result.loader_error == LoaderResult.ERROR_NOT_FOUND:
                     self._error(404)
                     return
+                elif result.loader_error == LoaderResult.ERROR_UPSTREAM:
+                    # Return a Bad Gateway status if the error came from upstream
+                    self._error(502)
+                    return
                 else:
                     self._error(500)
                     return
