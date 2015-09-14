@@ -15,6 +15,7 @@ from pyvows import Vows, expect
 from thumbor.context import Context
 from thumbor.config import Config
 from thumbor.loaders.file_loader import load
+from thumbor.loaders import LoaderResult
 
 
 STORAGE_PATH = abspath(join(dirname(__file__), 'fixtures/'))
@@ -33,7 +34,10 @@ class FileLoaderVows(Vows.Context):
             load(context, 'image.jpg', callback)
 
         def should_load_file(self, data):
-            expect(data.args[0]).to_equal(open(join(STORAGE_PATH, 'image.jpg')).read())
+            result = data.args[0]
+            expect(result).to_be_instance_of(LoaderResult)
+            expect(result.buffer).to_equal(open(join(STORAGE_PATH, 'image.jpg')).read())
+            expect(result.successful).to_be_true()
 
     class DoesNotLoadInexistentFile(Vows.Context):
         @Vows.async_topic
@@ -41,7 +45,10 @@ class FileLoaderVows(Vows.Context):
             load(context, 'image_NOT.jpg', callback)
 
         def should_load_file(self, data):
-            expect(data.args[0]).to_equal(None)
+            result = data.args[0]
+            expect(result).to_be_instance_of(LoaderResult)
+            expect(result.buffer).to_equal(None)
+            expect(result.successful).to_be_false()
 
     class DoesNotLoadFromOutsideRootPath(Vows.Context):
         @Vows.async_topic
@@ -49,4 +56,7 @@ class FileLoaderVows(Vows.Context):
             load(context, '../file_loader_vows.py', callback)
 
         def should_load_file(self, data):
-            expect(data.args[0]).to_equal(None)
+            result = data.args[0]
+            expect(result).to_be_instance_of(LoaderResult)
+            expect(result.buffer).to_equal(None)
+            expect(result.successful).to_be_false()
