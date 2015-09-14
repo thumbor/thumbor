@@ -14,6 +14,7 @@ from functools import partial
 
 import tornado.httpclient
 
+from . import LoaderResult
 from thumbor.utils import logger
 from tornado.concurrent import return_future
 
@@ -40,19 +41,28 @@ def validate(context, url, normalize_url_func=_normalize_url):
 
 
 def return_contents(response, url, callback, context):
+    result = LoaderResult()
+
     context.metrics.incr('original_image.status.' + str(response.code))
     if response.error:
+        result.successful = False
+        result.error = LoaderResult.ERROR_NOT_FOUND
+
         logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
-        callback(None)
+
     elif response.body is None or len(response.body) == 0:
+        result.successful = False
+        result.error = LoaderResult.ERROR_UPSTREAM
+
         logger.warn("ERROR retrieving image {0}: Empty response.".format(url))
-        callback(None)
     else:
         if response.time_info:
             for x in response.time_info:
                 context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
             context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
-        callback(response.body)
+        result.buffer = response.body
+
+    callback(result)
 
 
 @return_future
