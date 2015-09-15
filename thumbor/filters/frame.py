@@ -76,7 +76,7 @@ class Filter(BaseFilter):
         new_engine.paste(self.engine, (offset_x, offset_y))
         self.engine.image = new_engine.image
 
-    def on_fetch_done(self, buffer):
+    def on_fetch_done(self, result):
         # TODO if result.successful is False how can the error be handled?
         if isinstance(result, LoaderResult):
             buffer = result.buffer
