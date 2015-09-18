@@ -78,6 +78,7 @@ filters = [
     'filters:strip_icc()',
     'filters:watermark(brasil_45.png,10,10,50)',
     'filters:watermark(brasil_45.png,center,center,50)',
+    'filters:watermark(brasil_45.png,repeat,repeat,50)',
     'filters:frame(frame.9.png)',
     'filters:fill(ff0000)',
     'filters:fill(auto)',

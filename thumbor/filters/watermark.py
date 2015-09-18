@@ -16,10 +16,9 @@ import tornado.gen
 
 
 class Filter(BaseFilter):
-    regex = r'(?:watermark\((?P<url>.*?),(?P<x>(?:-?\d+)|center),(?P<y>(?:-?\d+)|center),(?P<alpha>[\d]*?)\))'
+    regex = r'(?:watermark\((?P<url>.*?),(?P<x>(?:-?\d+)|center|repeat),(?P<y>(?:-?\d+)|center|repeat),(?P<alpha>[\d]*?)\))'
 
     def on_image_ready(self, buffer):
-
         self.watermark_engine.load(buffer, self.extension)
         self.watermark_engine.enable_alpha()
 
@@ -30,26 +29,58 @@ class Filter(BaseFilter):
 
         self.watermark_engine.set_image_data(imgdata)
 
+        mos_x = self.x == 'repeat'
+        mos_y = self.y == 'repeat'
         center_x = self.x == 'center'
         center_y = self.y == 'center'
-        if not center_x :
+        if not center_x and not mos_x :   
+        mos_y = self.y == 'repeat' :
             inv_x = self.x[0] == '-'
             x = int(self.x)
-        if not center_y :
+        if not center_y and not mos_y :
             inv_y = self.y[0] == '-'
             y = int(self.y)
 
         sz = self.engine.size
         watermark_sz = self.watermark_engine.size
-        if center_x :
-            x = (sz[0] - watermark_sz[0]) /2
-        elif inv_x:
-            x = (sz[0] - watermark_sz[0]) + x        
-        if center_y :
-            y = (sz[1] - watermark_sz[1]) /2
-        elif inv_y:
-            y = (sz[1] - watermark_sz[1]) + y
-        self.engine.paste(self.watermark_engine, (x, y), merge=True)
+		
+        if not mos_x :
+            if center_x :
+                x = (sz[0] - watermark_sz[0]) /2
+            elif inv_x:
+                x = (sz[0] - watermark_sz[0]) + x
+        else :
+            repeat_x = divmod(sz[0], watermark_sz[0])
+        if not mos_y :
+            if center_y :
+                y = (sz[1] - watermark_sz[1]) /2
+            elif inv_y:
+                y = (sz[1] - watermark_sz[1]) + y
+        else :
+            repeat_y = divmod(sz[1], watermark_sz[1])
+
+        if not mos_x and not mos_y :
+            self.engine.paste(self.watermark_engine, (x, y), merge=True)
+        elif mos_x and mos_y :
+            space_x = repeat_x[1] / (max(repeat_x[0], 2) - 1)
+            space_y = repeat_y[1] / (max(repeat_y[0], 2) - 1)
+            for i in range(repeat_x[0]) :
+                x = i * space_x + i * watermark_sz[0]
+                for j in range(repeat_y[0]) :
+                    y = j * space_y + j * watermark_sz[1]
+                    self.engine.paste(self.watermark_engine, (x, y), merge=True)
+        elif mos_x :
+            space_x = repeat_x[1] / (max(repeat_x[0], 2) - 1)
+            for i in range(repeat_x[0]) :
+                x = i * space_x + i * watermark_sz[0]
+                self.engine.paste(self.watermark_engine, (x, y), merge=True)
+        else :
+            space_y = repeat_y[1] / (max(repeat_y[0], 2) - 1)
+            for j in range(repeat_y[0]) :
+                y = j * space_y + j * watermark_sz[1]
+                self.engine.paste(self.watermark_engine, (x, y), merge=True)
+        
+	self.callback()
 
         self.callback()
 
@@ -65,7 +96,7 @@ class Filter(BaseFilter):
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
 
-    @filter_method(BaseFilter.String, r'(?:-?\d+)|center', r'(?:-?\d+)|center', BaseFilter.PositiveNumber, async=True)
+    @filter_method(BaseFilter.String, r'(?:-?\d+)|center|repeat', r'(?:-?\d+)|center|repeat', BaseFilter.PositiveNumber, async=True)
     @tornado.gen.coroutine
     def watermark(self, callback, url, x, y, alpha):
         self.url = url
