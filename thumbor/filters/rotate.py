@@ -13,8 +13,10 @@ from thumbor.filters import BaseFilter, filter_method
 
 class Filter(BaseFilter):
 
-    @filter_method(BaseFilter.Number)
+    @filter_method(r'90|180|270|exif')
     def rotate(self, value):
-        if value % 90 == 0:
-            value = value % 360 # To optimize for engines
+        if value == 'exif':
+            self.engine.reorientate()
+        else:
+            value = int(value) % 360 # To optimize for engines
             self.engine.rotate(value)
