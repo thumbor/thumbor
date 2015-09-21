@@ -13,6 +13,7 @@ from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.loaders import LoaderResult
 import tornado.gen
+import math
 
 
 class Filter(BaseFilter):
