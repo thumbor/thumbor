@@ -34,7 +34,7 @@ class Filter(BaseFilter):
         mos_y = self.y == 'repeat'
         center_x = self.x == 'center'
         center_y = self.y == 'center'
-        if not center_x and not mos_x : 
+        if not center_x and not mos_x :
             inv_x = self.x[0] == '-'
             x = int(self.x)
         if not center_y and not mos_y :
@@ -77,19 +77,19 @@ class Filter(BaseFilter):
                 repeat_y = (tmpRepeatY, sz[1] - tmpRepeatY * watermark_sz[1])
             space_x = repeat_x[1] / (max(repeat_x[0], 2) - 1)
             space_y = repeat_y[1] / (max(repeat_y[0], 2) - 1)
-            for i in range(repeat_x[0]) :
+            for i in range(int(repeat_x[0])) :
                 x = i * space_x + i * watermark_sz[0]
-                for j in range(repeat_y[0]) :
+                for j in range(int(repeat_y[0])) :
                     y = j * space_y + j * watermark_sz[1]
                     self.engine.paste(self.watermark_engine, (x, y), merge=True)
         elif mos_x :
             space_x = repeat_x[1] / (max(repeat_x[0], 2) - 1)
-            for i in range(repeat_x[0]) :
+            for i in range(int(repeat_x[0])) :
                 x = i * space_x + i * watermark_sz[0]
                 self.engine.paste(self.watermark_engine, (x, y), merge=True)
         else :
             space_y = repeat_y[1] / (max(repeat_y[0], 2) - 1)
-            for j in range(repeat_y[0]) :
+            for j in range(int(repeat_y[0])) :
                 y = j * space_y + j * watermark_sz[1]
                 self.engine.paste(self.watermark_engine, (x, y), merge=True)
 
