@@ -46,6 +46,7 @@ class Context:
         self.request_handler = request_handler
         self.statsd_client = self.metrics # TODO statsd_client is deprecated, remove me on next minor version bump
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
+        self.headers = {}
 
 
 class ServerParameters(object):
