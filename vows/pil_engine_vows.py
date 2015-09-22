@@ -8,10 +8,17 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from thumbor.context import Context, RequestParameters, ServerParameters
+from thumbor.config import Config
+from thumbor.importer import Importer
+
 from pyvows import Vows, expect
 ctx = Vows.Context
 
 import thumbor.engines.pil as PIL
+
+from os.path import join, abspath, dirname
+FIXTURES_FOLDER = join(abspath(dirname(__file__)), 'fixtures')
 
 class MockImage:
     def __init__(self, mode, width, height):
@@ -29,8 +36,48 @@ class MockImage:
         self.height = size[1]
         return self
 
+def engine_with_buffer():
+    config = Config()
+    server = ServerParameters(
+        8889, 'localhost', 'thumbor.conf', None, 'info', None
+    )
+
+    context = Context(server, config, Importer(config))
+    config.QUALITY = 42
+
+    with open("%s/image.jpg" % FIXTURES_FOLDER, "rb") as f:
+        buffer = f.read()
+
+    engine = PIL.Engine(context=context)
+    engine.load(buffer, '.jpg')
+    return engine
+
 @Vows.batch
 class PilEngineVows(ctx):
+
+    class WritingJpegImageWithoutResize(ctx):
+        def topic(self):
+            engine = engine_with_buffer()
+            engine.read('.jpg', None);
+            # unchanged, so this is the original image object
+            return engine.image
+
+        def should_keep_quality(self, image):
+            expect(image.encoderinfo.get('quality')).to_equal('keep')
+
+
+    class WritingJpegImageWithResize(ctx):
+        def topic(self):
+            engine = engine_with_buffer()
+            engine.resize(200,200)
+            engine.read('.jpg', None);
+            # resized, so this was replaced by a new image object
+            return engine.image
+
+        def should_keep_quality(self, image):
+            expect(image.encoderinfo.get('quality')).to_equal('keep')
+
+
 
     class ResizedPaletteImage(ctx):
         def topic(self):
