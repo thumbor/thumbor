@@ -68,7 +68,7 @@ class PilEngineVows(ctx):
             server = ServerParameters(
                 8889, 'localhost', 'thumbor.conf', None, 'info', None
             )
-
+            config.PILLOW_COPY_JPEG_SETTINGS = True
             context = Context(server, config, Importer(config))
 
             with open("%s/quantization.jpg" % FIXTURES_FOLDER, "rb") as f:

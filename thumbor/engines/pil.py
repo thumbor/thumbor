@@ -138,13 +138,12 @@ class Engine(BaseEngine):
 
                 quantization = self.qtables
                 subsampling = self.subsampling
-                keep_jpg_settings = True
+                copy_jpg_settings = self.context.config.PILLOW_COPY_JPEG_SETTINGS
 
-                if keep_jpg_settings and quantization  and (subsampling is not None):
-                    if keep_jpg_settings and quantization and 2 <= len(quantization) <= 4:
-                        options['quality'] = 0 # meaningless as qtables and subsampling are given explicitly
-                        options['qtables'] = quantization
-                        options['subsampling'] = subsampling
+                if copy_jpg_settings and (subsampling is not None) and quantization and 2 <= len(quantization) <= 4:
+                    options['quality'] = 0 # can't use 'keep' here as Pillow would try to extract qtables/subsampling and fail
+                    options['qtables'] = quantization
+                    options['subsampling'] = subsampling
 
             if self.context.config.PILLOW_JPEG_SUBSAMPLING:
                 options['subsampling'] = int(self.context.config.PILLOW_JPEG_SUBSAMPLING)
