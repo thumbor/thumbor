@@ -64,8 +64,6 @@ class Engine(BaseEngine):
             self.subsampling = None
         self.qtables = getattr(img, 'quantization', None)
 
-
-
         if self.context.config.ALLOW_ANIMATED_GIFS and self.extension == '.gif':
             frames = []
             for frame in ImageSequence.Iterator(img):
