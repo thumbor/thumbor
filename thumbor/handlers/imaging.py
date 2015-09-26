@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -87,7 +87,7 @@ class ImagingHandler(ContextHandler):
                         logger.warning(
                             'OLD FORMAT URL DETECTED!!! This format of URL will be discontinued in ' +
                             'upcoming versions. Please start using the new format as soon as possible. ' +
-                            'More info at https://github.com/globocom/thumbor/wiki/3.0.0-release-changes'
+                            'More info at https://github.com/thumbor/thumbor/wiki/3.0.0-release-changes'
                         )
                 else:
                     is_valid = False

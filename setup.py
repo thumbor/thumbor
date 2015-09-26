@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -68,7 +68,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
         keywords='imaging face detection feature thumbnail imagemagick pil opencv',
         author='globo.com',
         author_email='timehome@corp.globo.com',
-        url='https://github.com/globocom/thumbor/wiki',
+        url='https://github.com/thumbor/thumbor/wiki',
         license='MIT',
         classifiers=[
             'Development Status :: 4 - Beta',
