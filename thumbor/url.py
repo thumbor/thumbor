@@ -90,7 +90,7 @@ class Url(object):
 
         return values
 
-    @classmethod
+    @classmethod  # NOQA
     def generate_options(cls,
                          debug=False,
                          width=0,
@@ -140,7 +140,7 @@ class Url(object):
                 fit_ops.append('adaptive')
             if full:
                 fit_ops.append('full')
-            fit_ops.append('fit-in');
+            fit_ops.append('fit-in')
             url.append('-'.join(fit_ops))
 
         if horizontal_flip:

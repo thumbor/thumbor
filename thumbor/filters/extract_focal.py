@@ -37,7 +37,8 @@ class Filter(BaseFilter):
             if not (image and (parts.get('hash', None) or parts.get('unsafe', None))):
                 return None
 
-            top, right, left, bottom = parts.get('crop_top', None), parts.get('crop_right', None), parts.get('crop_left', None), parts.get('crop_bottom', None)
+            top, right, left, bottom = parts.get('crop_top', None), parts.get('crop_right', None), \
+                parts.get('crop_left', None), parts.get('crop_bottom', None)
             if top and right and left and bottom:
                 return (image, top, right, left, bottom)
 

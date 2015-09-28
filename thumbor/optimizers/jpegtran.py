@@ -12,6 +12,7 @@ import subprocess
 
 from thumbor.optimizers import BaseOptimizer
 
+
 class Optimizer(BaseOptimizer):
 
     def should_run(self, image_extension, buffer):

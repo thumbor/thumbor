@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import logging
-import inspect
 
 from json import loads, dumps
 from datetime import datetime, timedelta

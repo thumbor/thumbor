@@ -16,6 +16,7 @@ f ?= "vows/"
 test pyvows: compile_ext redis mongo
 	@pyvows -vv --profile --cover --cover-package=thumbor --cover-threshold=90 $f
 	@nosetests -sv thumbor/integration_tests/
+	@$(MAKE) static
 	$(MAKE) kill_mongo kill_redis
 
 ci_test: compile_ext
@@ -23,7 +24,6 @@ ci_test: compile_ext
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@if [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) pyvows_run; else $(MAKE) integration_run; fi
-
 
 pyvows_run:
 	@pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
@@ -63,4 +63,4 @@ docs: setup_docs build_docs
 	python -mwebbrowser file:///`pwd`/docs/_build/html/index.html
 
 static:
-	flake8 --config=./flake8 .
+	@flake8 --config=./flake8 .

@@ -60,7 +60,7 @@ class Engine(BaseEngine):
         self.exif = img.info.get('exif')
 
         self.subsampling = JpegImagePlugin.get_sampling(img)
-        if (self.subsampling == -1): # n/a for this file
+        if (self.subsampling == -1):  # n/a for this file
             self.subsampling = None
         self.qtables = getattr(img, 'quantization', None)
 
@@ -114,7 +114,7 @@ class Engine(BaseEngine):
         else:
             return '.jpeg'
 
-    def read(self, extension=None, quality=None):
+    def read(self, extension=None, quality=None):  # NOQA
         # returns image buffer in byte format.
         img_buffer = BytesIO()
         ext = extension or self.extension or self.get_default_extension()
@@ -141,7 +141,7 @@ class Engine(BaseEngine):
                 copy_jpg_settings = self.context.config.PILLOW_COPY_JPEG_SETTINGS
 
                 if copy_jpg_settings and (subsampling is not None) and quantization and 2 <= len(quantization) <= 4:
-                    options['quality'] = 0 # can't use 'keep' here as Pillow would try to extract qtables/subsampling and fail
+                    options['quality'] = 0  # can't use 'keep' here as Pillow would try to extract qtables/subsampling and fail
                     options['qtables'] = quantization
                     options['subsampling'] = subsampling
 

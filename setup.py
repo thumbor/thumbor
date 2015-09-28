@@ -49,7 +49,7 @@ def gather_filter_extensions():
 
 
 def run_setup(extension_modules=[]):
-    if not 'CFLAGS' in os.environ:
+    if 'CFLAGS' not in os.environ:
         os.environ['CFLAGS'] = ''
     setup(
         name='thumbor',

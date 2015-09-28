@@ -11,6 +11,7 @@
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _colorize
 
+
 class Filter(BaseFilter):
 
     @filter_method(BaseFilter.PositiveNumber, BaseFilter.PositiveNumber, BaseFilter.PositiveNumber, BaseFilter.String)

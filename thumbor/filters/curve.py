@@ -27,5 +27,6 @@ class Filter(BaseFilter):
     @filter_method(regex, regex, regex, regex)
     def curve(self, a, r, g, b):
         mode, data = self.engine.image_data_as_rgb()
-        imgdata = _curve.apply(mode, data, tuple(ast.literal_eval(a)), tuple(ast.literal_eval(r)), tuple(ast.literal_eval(g)), tuple(ast.literal_eval(b)))
+        imgdata = _curve.apply(mode, data, tuple(ast.literal_eval(a)), tuple(ast.literal_eval(r)), tuple(ast.literal_eval(g)),
+                               tuple(ast.literal_eval(b)))
         self.engine.set_image_data(imgdata)

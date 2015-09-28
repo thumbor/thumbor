@@ -90,7 +90,12 @@ filters = [
     'filters:gifv(webm)',
     'filters:gifv(mp4)',
     'filters:max_age(600)',
-    'filters:curve([(0,0),(255,255)],[(0,50),(16,51),(32,69),(58,85),(92,120),(128,170),(140,186),(167,225),(192,245),(225,255),(244,255),(255,254)],[(0,0),(16,2),(32,18),(64,59),(92,116),(128,182),(167,211),(192,227),(224,240),(244,247),(255,252)],[(0,48),(16,50),(62,77),(92,110),(128,144),(140,153),(167,180),(192,192),(224,217),(244,225),(255,225)])',
+
+    # one big filter 4-line string
+    'filters:curve([(0,0),(255,255)],[(0,50),(16,51),(32,69),(58,85),(92,120),(128,170),(140,186),(167,225),'
+    '(192,245),(225,255),(244,255),(255,254)],[(0,0),(16,2),(32,18),(64,59),(92,116),(128,182),(167,211),(192,227)'
+    ',(224,240),(244,247),(255,252)],[(0,48),(16,50),(62,77),(92,110),(128,144),(140,153),(167,180),(192,192),'
+    '(224,217),(244,225),(255,225)])',
 ]
 
 original_images_base = [
@@ -161,5 +166,7 @@ def combined_dataset(fetcher, with_gif=True):
     images = original_images_base[:]
     if with_gif:
         images += original_images_gif_webp
-    combined_options = product(trims[:2], crops[:2], fitins[:2], sizes[:2], haligns[:2], valigns[:2], smarts[:2], filters[:2], images)
+    combined_options = product(
+        trims[:2], crops[:2], fitins[:2], sizes[:2], haligns[:2], valigns[:2], smarts[:2], filters[:2], images
+    )
     UrlsTester(fetcher, combined_options)

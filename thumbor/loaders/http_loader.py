@@ -49,9 +49,9 @@ def return_contents(response, url, callback, context):
         callback(None)
     else:
         if response.time_info:
-          for x in response.time_info:
-              context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
-          context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
+            for x in response.time_info:
+                context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
+            context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
         callback(response.body)
 
 
@@ -91,6 +91,7 @@ def load_sync(context, url, callback, normalize_url_func):
     )
 
     client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context))
+
 
 def encode(string):
     return None if string is None else string.encode('ascii')

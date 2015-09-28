@@ -22,7 +22,10 @@ class Optimizer(BaseOptimizer):
     def optimize(self, buffer, input_file, output_file):
         format, command_params = self.set_format()
         ffmpeg_path = self.context.config.FFMPEG_PATH
-        command = '%s -y -f gif -i %s  -an -movflags faststart -f %s -pix_fmt yuv420p %s -qmin 10 -qmax 42 -crf 23 -maxrate 500k -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" %s -loglevel error' % (
+        command = '%s -y -f gif -i %s  -an -movflags faststart -f %s -pix_fmt yuv420p %s -qmin 10 -qmax 42 -crf 23' \
+            ' -maxrate 500k -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" %s -loglevel error'
+
+        command = command % (
             ffmpeg_path,
             input_file,
             format,

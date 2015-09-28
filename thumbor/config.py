@@ -33,13 +33,17 @@ Config.define('ALLOWED_SOURCES', [], "Allowed domains for the http loader to dow
 Config.define('QUALITY', 80, 'Quality index used for generated JPEG images', 'Imaging')
 Config.define('PROGRESSIVE_JPEG', True, 'Exports JPEG images with the `progressive` flag set.', 'Imaging')
 Config.define('PILLOW_JPEG_SUBSAMPLING', None,
-    'Specify subsampling behavior for Pillow (see `subsampling` in http://pillow.readthedocs.org/en/latest/handbook/image-file-formats.html#jpeg).', 'Imaging')
+              'Specify subsampling behavior for Pillow (see `subsampling` in '
+              'http://pillow.readthedocs.org/en/latest/handbook/image-file-formats.html#jpeg).', 'Imaging')
 Config.define(
     'PILLOW_COPY_JPEG_SETTINGS',
     False,
-    'If True, use qtables and subsampling from orginal JPG file. Useful if you want to keep jpg quality as identical as possible to original file. Will ignore QUALITY and PILLOW_JPEG_SUBSAMPLING.', 'Imaging')
-Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP images. If not set (None) the same level of JPEG quality will be used.', 'Imaging')
-Config.define('AUTO_WEBP', False, 'Specifies whether WebP format should be used automatically if the request accepts it (via Accept header)', 'Imaging')
+    'If True, use qtables and subsampling from orginal JPG file. Useful if you want to keep jpg quality as identical as '
+    'possible to original file. Will ignore QUALITY and PILLOW_JPEG_SUBSAMPLING.', 'Imaging')
+Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP images. If not set (None) the same level of '
+              'JPEG quality will be used.', 'Imaging')
+Config.define('AUTO_WEBP', False, 'Specifies whether WebP format should be used automatically if the request accepts it '
+              '(via Accept header)', 'Imaging')
 Config.define('MAX_AGE', 24 * 60 * 60, 'Max AGE sent as a header for the image served by thumbor in seconds', 'Imaging')
 Config.define(
     'MAX_AGE_TEMP_IMAGE', 0,
@@ -49,7 +53,8 @@ Config.define(
     'Indicates whether thumbor should rotate images that have an Orientation EXIF header', 'Imaging')
 Config.define(
     'IGNORE_SMART_ERRORS', False,
-    'Ignore errors during smart detections and return image as a temp image (not saved in result storage and with MAX_AGE_TEMP_IMAGE age)', 'Imaging')
+    'Ignore errors during smart detections and return image as a temp image (not saved in result storage and with '
+    'MAX_AGE_TEMP_IMAGE age)', 'Imaging')
 
 Config.define(
     'SEND_IF_MODIFIED_LAST_MODIFIED_HEADERS', False,
@@ -65,7 +70,8 @@ Config.define(
 
 Config.define(
     'USE_GIFSICLE_ENGINE', False,
-    'Indicates whether thumbor should use gifsicle engine. Please note that smart cropping and filters are not supported for gifs using gifsicle (but won\'t give an error).', 'Imaging')
+    'Indicates whether thumbor should use gifsicle engine. Please note that smart cropping and filters are not '
+    'supported for gifs using gifsicle (but won\'t give an error).', 'Imaging')
 
 Config.define(
     'USE_BLACKLIST', False,
@@ -73,7 +79,9 @@ Config.define(
 
 Config.define(
     'ENGINE_THREADPOOL_SIZE', 0,
-    'Size of the thread pool used for image transformations.  The default value is 0 (don\'t use a threadpoool.  Increase this if you are seeing your IOLoop getting blocked (often indicated by your upstream HTTP requests timing out)', 'Imaging')
+    'Size of the thread pool used for image transformations.  The default value is 0 (don\'t use a threadpoool. '
+    'Increase this if you are seeing your IOLoop getting blocked (often indicated by your upstream HTTP '
+    'requests timing out)', 'Imaging')
 
 Config.define(
     'METRICS', 'thumbor.metrics.logger_metrics',
@@ -131,7 +139,7 @@ Config.define(
     'Indicates the number of redirects libcurl should follow when downloading an image', 'HTTP Loader')
 Config.define(
     'HTTP_LOADER_MAX_CLIENTS', 10,
-     'The maximum number of simultaneous HTTP connections the loader can make before queuing', 'HTTP Loader')
+    'The maximum number of simultaneous HTTP connections the loader can make before queuing', 'HTTP Loader')
 Config.define(
     'HTTP_LOADER_FORWARD_USER_AGENT', False,
     'Indicates whether thumbor should forward the user agent of the requesting user', 'HTTP Loader')
@@ -243,7 +251,7 @@ Config.define(
 
 Config.define(
     'OPTIMIZERS', [
-        #'thumbor.optimizers.jpegtran',
+        # 'thumbor.optimizers.jpegtran',
         # 'thumbor.optimizers.gifv',
     ], 'List of optimizers that thumbor will use to optimize images', 'Optimizers')
 

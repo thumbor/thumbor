@@ -27,14 +27,18 @@ class MetaHandlerTestCase(AsyncHTTPTestCase):
 
     def test_meta_returns_200(self):
         options.META_CALLBACK_NAME = None
-        self.http_client.fetch(self.get_url('/unsafe/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop)
+        self.http_client.fetch(
+            self.get_url('/unsafe/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop
+        )
         response = self.wait()
 
         self.assertEqual(200, response.code)
 
     def test_meta_returns_appjson_code(self):
         options.META_CALLBACK_NAME = None
-        self.http_client.fetch(self.get_url('/unsafe/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop)
+        self.http_client.fetch(
+            self.get_url('/unsafe/meta/s.glbimg.com/es/ge/f/original/2011/03/22/boavista_x_botafogo.jpg'), self.stop
+        )
         response = self.wait()
 
         assert response.code == 200

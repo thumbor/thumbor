@@ -11,6 +11,7 @@
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _saturation
 
+
 class Filter(BaseFilter):
 
     @filter_method(BaseFilter.DecimalNumber)

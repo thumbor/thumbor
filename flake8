@@ -1,4 +1,4 @@
 [flake8]
 exclude = ./.tox/*,./build/*
 max-line-length = 130
-max-complexity = 10
+max-complexity = 20

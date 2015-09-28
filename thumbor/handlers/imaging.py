@@ -25,7 +25,7 @@ class ImagingHandler(ContextHandler):
         else:
             return None
 
-    @gen.coroutine
+    @gen.coroutine  # NOQA
     def check_image(self, kw):
         if self.context.config.MAX_ID_LENGTH > 0:
             # Check if an image with an uuid exists in storage
@@ -57,7 +57,7 @@ class ImagingHandler(ContextHandler):
         if self.context.config.USE_BLACKLIST:
             blacklist = yield self.get_blacklist_contents()
             if self.context.request.image_url in blacklist:
-                self._error(400, 'Source image url has been blacklisted: %s' % self.context.request.image_url )
+                self._error(400, 'Source image url has been blacklisted: %s' % self.context.request.image_url)
                 return
 
         url_signature = self.context.request.hash
