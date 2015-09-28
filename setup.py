@@ -27,6 +27,7 @@ tests_require = [
     "nose",
     "colorama",
     "numpy",
+    "flake8",
 ]
 
 
