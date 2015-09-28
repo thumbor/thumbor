@@ -16,6 +16,7 @@ from thumbor.importer import Importer
 from thumbor.filters.rotate import Filter
 import thumbor.filters
 
+
 class RotateEngine:
     def __init__(self):
         self.rotate_val = None
@@ -25,6 +26,7 @@ class RotateEngine:
 
     def is_multiple(self):
         return False
+
 
 @Vows.batch
 class RotateFilterVows(Vows.Context):

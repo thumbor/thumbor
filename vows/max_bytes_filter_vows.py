@@ -14,7 +14,6 @@ from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
 
 from thumbor.app import ThumborServiceApp
-#from thumbor.filters.max_bytes import Filter
 from thumbor.context import Context, ServerParameters
 from thumbor.config import Config
 from thumbor.importer import Importer

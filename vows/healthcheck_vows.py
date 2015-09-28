@@ -54,4 +54,3 @@ class HealthCheck(TornadoHTTPContext):
 
             def should_not_be_an_error(self, topic):
                 expect(topic).to_equal(200)
-

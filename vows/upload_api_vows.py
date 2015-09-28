@@ -211,7 +211,6 @@ class PostingANewImage(ImageContext):
                 expect(headers).to_include('Location')
                 expect(headers['Location']).to_match(self.base_uri + r'/[^\/]{32}/' + self.filename)
 
-
         class Image(ImageContext):
             def topic(self, response):
                 return re.compile(self.base_uri + r'/([^\/]{32})/' + self.filename).search(
@@ -245,7 +244,6 @@ class PostingANewImage(ImageContext):
                 expect(headers).to_include('Location')
                 expect(headers['Location']).to_match(self.base_uri + r'/[^\/]{32}/' + self.filename)
 
-
         class Image(ImageContext):
             def topic(self, response):
                 return re.compile(self.base_uri + r'/([^\/]{32})/' + self.filename).search(
@@ -255,10 +253,9 @@ class PostingANewImage(ImageContext):
                 path = path_on_filesystem(topic)
                 expect(exists(path)).to_be_true()
 
-
-    ##
+    #
     # Posting a new image without filename through the REST API
-    ##
+    #
     class WhenPostingANewImageWithoutFilename(ImageContext):
         def topic(self):
             self.filename = self.default_filename + '.jpg'
@@ -423,17 +420,16 @@ class PutLongerId(ImageContext):
             def should_be_404_not_found(self, topic):
                 expect(topic).to_equal(404)
 
-
-    ##
+    #
     # Store ID 36 length and return succefful if ID is OK for 36 first chararcters
-    ##
+    #
     class WhenStoredWIthIdOver32(ImageContext):
         def topic(self):
             path = '/image/e5bcf126-791b-4375-9f73-925ab8b9fb5g'
 
             self.filename = self.default_filename + '.jpg'
             self.put(path, {'Content-Type': 'image/jpeg'}, valid_image())
-            response = self.get( path + '123456', {'Accept': 'image/jpeg'})
+            response = self.get(path + '123456', {'Accept': 'image/jpeg'})
             return response
 
         class HttpStatusCode(ImageContext):
@@ -568,7 +564,6 @@ class RetrievingAnImage(ImageContext):
 
             def should_be_MimeType(self, topic):
                 expect(topic).to_equal('image/jpeg')
-
 
     class WhenRetrievingAnUnknownImage(ImageContext):
         def topic(self):

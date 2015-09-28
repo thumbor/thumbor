@@ -8,14 +8,15 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import json
+import tempfile
+
 from pyvows import Vows, expect
 
 from thumbor import __version__
 from thumbor.error_handlers.file import ErrorHandler
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
-
-import json,tempfile
 
 
 class FakeRequest(object):
@@ -40,6 +41,7 @@ class FakeHandler(object):
     def __init__(self):
         self.request = FakeRequest()
 
+
 @Vows.batch
 class ErrorHandlerVows(Vows.Context):
     class WhenInvalidConfiguration(Vows.Context):
@@ -55,7 +57,7 @@ class ErrorHandlerVows(Vows.Context):
 
     class WhenErrorOccurs(Vows.Context):
         def topic(self):
-            #use temporary file to store logs
+            # use temporary file to store logs
             tmp = tempfile.NamedTemporaryFile(prefix='thumborTest.')
 
             cfg = Config(SECURITY_KEY='ACME-SEC', ERROR_FILE_LOGGER=tmp.name)
@@ -67,14 +69,14 @@ class ErrorHandlerVows(Vows.Context):
             http_handler = FakeHandler()
 
             handler.handle_error(ctx, http_handler, RuntimeError("Test"))
-            #return content of file
+            # return content of file
             return tmp.read()
 
         def should_have_called_client(self, topic):
-            #check against json version
+            # check against json version
             log = json.loads(topic)
             del log['extra']['timestamp']
-            expect(log).to_be_like ({
+            expect(log).to_be_like({
                 'Http': {
                     'url': 'http://test/test/',
                     'method': 'GET',
@@ -88,7 +90,7 @@ class ErrorHandlerVows(Vows.Context):
                 'exception': 'Test',
                 'extra': {
                     'thumbor-version':  __version__,
-                    'Headers' : {
+                    'Headers': {
                         'header1': 'value1',
                         'Cookie': {
                             'cookie1': 'value',
@@ -101,10 +103,14 @@ class ErrorHandlerVows(Vows.Context):
     class WhenErrorOccursiUSeContext(Vows.Context):
         def topic(self):
             port = 8890
-            #use temporary file to store logs
+            # use temporary file to store logs
             tmp = tempfile.NamedTemporaryFile(prefix='thumborTest.%i.' % port)
 
-            cfg = Config(SECURITY_KEY='ACME-SEC', ERROR_FILE_LOGGER=tmp.name.replace('thumborTest.%i.' % port, 'thumborTest.%i.'), ERROR_FILE_NAME_USE_CONTEXT='server.port' )
+            cfg = Config(
+                SECURITY_KEY='ACME-SEC',
+                ERROR_FILE_LOGGER=tmp.name.replace('thumborTest.%i.' % port, 'thumborTest.%i.'),
+                ERROR_FILE_NAME_USE_CONTEXT='server.port'
+            )
             server = ServerParameters(port, 'localhost', 'thumbor.conf', None, 'info', None)
             server.security_key = 'ACME-SEC'
             ctx = Context(server, cfg, None)
@@ -113,14 +119,15 @@ class ErrorHandlerVows(Vows.Context):
             http_handler = FakeHandler()
 
             handler.handle_error(ctx, http_handler, RuntimeError("Test"))
-            #return content of file
+
+            # return content of file
             return tmp.read()
 
         def should_have_called_client(self, topic):
-            #check against json version
+            # check against json version
             log = json.loads(topic)
             del log['extra']['timestamp']
-            expect(log).to_be_like ({
+            expect(log).to_be_like({
                 'Http': {
                     'url': 'http://test/test/',
                     'method': 'GET',
@@ -134,7 +141,7 @@ class ErrorHandlerVows(Vows.Context):
                 'exception': 'Test',
                 'extra': {
                     'thumbor-version':  __version__,
-                    'Headers' : {
+                    'Headers': {
                         'header1': 'value1',
                         'Cookie': {
                             'cookie1': 'value',
@@ -154,4 +161,3 @@ class ErrorHandlerVows(Vows.Context):
         def should_be_error(self, topic):
             expect(topic).to_be_an_error()
             expect(topic).to_be_an_error_like(RuntimeError)
-

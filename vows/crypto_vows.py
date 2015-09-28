@@ -9,12 +9,11 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import hashlib
-import base64
 import copy
 
 from pyvows import Vows, expect
 
-from thumbor.crypto import Cryptor, Signer
+from thumbor.crypto import Cryptor
 
 
 @Vows.batch
@@ -175,7 +174,7 @@ DECRYPT_TESTS = [
             'filters': '',
             'debug': False,
             'adaptive': False,
-            'full' : False,
+            'full': False,
             'trim': None
         }
     },
@@ -204,7 +203,7 @@ DECRYPT_TESTS = [
             'filters': 'quality(20):brightness(10)',
             'debug': False,
             'adaptive': False,
-            'full' : False,
+            'full': False,
             'trim': None
         }
     }

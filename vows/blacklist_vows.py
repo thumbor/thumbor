@@ -41,6 +41,7 @@ class BaseContext(TornadoHTTPContext):
         application = ThumborServiceApp(ctx)
         return application
 
+
 @Vows.batch
 class Blacklist(BaseContext):
 
@@ -72,7 +73,8 @@ class Blacklist(BaseContext):
                     expect(topic[0]).to_equal(200)
 
                 def should_contain_blacklisted_file(self, topic):
-                    expect("blocked.jpg\n" in topic[1] ).to_equal(True)
+                    expect("blocked.jpg\n" in topic[1]).to_equal(True)
+
 
 @Vows.batch
 class BlacklistIntegration(BaseContext):

@@ -61,3 +61,6 @@ build_docs:
 
 docs: setup_docs build_docs
 	python -mwebbrowser file:///`pwd`/docs/_build/html/index.html
+
+static:
+	flake8 --config=./flake8 .

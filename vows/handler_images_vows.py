@@ -173,6 +173,7 @@ class GetImage(BaseContext):
             code, _ = response
             expect(code).to_equal(400)
 
+
 @Vows.batch
 class GetImageWithoutUnsafe(BaseContext):
     def get_app(self):

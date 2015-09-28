@@ -95,7 +95,7 @@ class TestData(object):
         self.crop_bottom = crop_bottom
         self.fit_in = fit_in
         self.adaptive = adaptive
-        self.full = full 
+        self.full = full
         self.meta = meta
 
     def __repr__(self):
@@ -145,7 +145,7 @@ class TestData(object):
                 'bottom': self.crop_bottom
             },
             adaptive=self.adaptive,
-            full = self.full,
+            full=self.full,
             fit_in=self.fit_in,
             horizontal_flip=flip_horizontally,
             vertical_flip=flip_vertically,
@@ -187,13 +187,17 @@ class TestData(object):
         assert self.engine.calls['resize'], self.resize_error_message
 
         if not self.target_width:
-            assert self.engine.calls['resize'][0]['width'] == float(self.source_width) * self.target_height / self.source_height, self.resize_error_message
+            assert \
+                self.engine.calls['resize'][0]['width'] == float(self.source_width) * self.target_height / self.source_height, \
+                self.resize_error_message
             assert self.engine.calls['resize'][0]['height'] == self.target_height, self.resize_error_message
             return True
 
         if not self.target_height:
             assert self.engine.calls['resize'][0]['width'] == self.target_width, self.resize_error_message
-            assert self.engine.calls['resize'][0]['height'] == float(self.source_height) * self.target_width / self.source_width, self.resize_error_message
+            assert \
+                self.engine.calls['resize'][0]['height'] == float(self.source_height) * self.target_width / self.source_width, \
+                self.resize_error_message
             return True
 
         assert self.engine.calls['resize'][0]['width'] == \
@@ -204,16 +208,23 @@ class TestData(object):
 
     @property
     def crop_error_message(self):
-        message = "The engine crop should have been called with %dx%d %dx%d" % (self.crop_left, self.crop_top, self.crop_right, self.crop_bottom)
+        message = "The engine crop should have been called with %dx%d %dx%d" % (
+            self.crop_left, self.crop_top, self.crop_right, self.crop_bottom
+        )
         if not self.engine.calls['crop']:
             return "%s, but was never called" % message
         else:
             last_crop = self.engine.calls['crop'][0]
-            return "%s, but was called with %dx%d %dx%d" % (message, last_crop['left'], last_crop['top'], last_crop['right'], last_crop['bottom'])
+            return "%s, but was called with %dx%d %dx%d" % (
+                message, last_crop['left'], last_crop['top'], last_crop['right'], last_crop['bottom']
+            )
 
     def has_cropped_properly(self):
         if self.crop_left is None:
-            assert not self.engine.calls['crop'], 'The engine crop should NOT have been called but was with %(left)dx%(top)d %(right)dx%(bottom)d' % (self.engine.calls['crop'][0])
+            assert not self.engine.calls['crop'], \
+                'The engine crop should NOT have been called but was with %(left)dx%(top)d %(right)dx%(bottom)d' % (
+                    self.engine.calls['crop'][0]
+                )
             return True
         assert self.engine.calls['crop'], self.crop_error_message
         assert self.engine.calls['crop'][0]['left'] == self.crop_left, self.crop_error_message
@@ -349,7 +360,7 @@ TESTITEMS = [
         crop_left=50.0, crop_top=0, crop_right=250.0, crop_bottom=200
     ),
 
-    #Width maior
+    # Larger Width
 
     TestData(
         source_width=800, source_height=600,
@@ -407,7 +418,7 @@ TESTITEMS = [
         crop_left=550, crop_top=0, crop_right=700, crop_bottom=300
     ),
 
-    ##/* Height maior */
+    # Larger Height
     TestData(
         source_width=300, source_height=800,
         target_width=200, target_height=300,
@@ -456,7 +467,7 @@ TESTITEMS = [
         crop_left=0, crop_top=119, crop_right=500, crop_bottom=536
     ),
 
-    ##Height na proporçao#
+    # Proportional Height
     TestData(
         source_width=600, source_height=800,
         target_width=300, target_height=0,
@@ -505,7 +516,7 @@ TESTITEMS = [
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
     ),
 
-    #Width na proporçao
+    # Proportional Width
     TestData(
         source_width=600, source_height=800,
         target_width=0, target_height=400,
@@ -722,7 +733,7 @@ TESTITEMS = [
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
     ),
 
-    #--------------------Normal---------------------------------------
+    # Regular
     TestData(
         source_width=800, source_height=600,
         target_width=400, target_height=150,
@@ -744,7 +755,7 @@ TESTITEMS = [
         focal_points=[],
         crop_left=0, crop_top=0, crop_right=800, crop_bottom=300
     ),
-    #---------------Normal Invertido---------------------------
+    # Inverted
     TestData(
         source_width=600, source_height=800,
         target_width=150, target_height=400,
@@ -766,7 +777,7 @@ TESTITEMS = [
         focal_points=[],
         crop_left=300, crop_top=0, crop_right=600, crop_bottom=800
     ),
-    #-----------Largo e Baixo---------------------
+    # Wide and Small Height
     TestData(
         source_width=800, source_height=60,
         target_width=400, target_height=15,
@@ -788,7 +799,7 @@ TESTITEMS = [
         focal_points=[],
         crop_left=0, crop_top=0, crop_right=800, crop_bottom=30
     ),
-    #----------------Alto e Estreito--------------------------
+    # Tall and Small Width
     TestData(
         source_width=60, source_height=800,
         target_width=15, target_height=400,
@@ -810,7 +821,7 @@ TESTITEMS = [
         focal_points=[],
         crop_left=30, crop_top=0, crop_right=60, crop_bottom=800
     ),
-    #------------------Valores Pequenos--------------------------
+    # Small Values
     TestData(
         source_width=8, source_height=6,
         target_width=4, target_height=2,
@@ -832,7 +843,7 @@ TESTITEMS = [
         focal_points=[],
         crop_left=0, crop_top=0, crop_right=8, crop_bottom=4
     ),
-    #----------------Valores Pequeno Invertido-------------
+    # Inverted Small Values
     TestData(
         source_width=6, source_height=8,
         target_width=2, target_height=4,
@@ -854,7 +865,7 @@ TESTITEMS = [
         focal_points=[],
         crop_left=2, crop_top=0, crop_right=6, crop_bottom=8
     ),
-    #----------------Valores Proporcionais-------------
+    # Proportional Values
     TestData(
         source_width=800, source_height=600,
         target_width=400, target_height=300,
@@ -876,7 +887,7 @@ TESTITEMS = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None
     ),
-    #----------------Valores Iguais-----------------------
+    # Equal Values
     TestData(
         source_width=800, source_height=600,
         target_width=800, target_height=600,
