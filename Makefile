@@ -15,6 +15,7 @@ compile_ext:
 f ?= "vows/"
 test pyvows: compile_ext redis mongo
 	@pyvows -vv --profile --cover --cover-package=thumbor --cover-threshold=90 $f
+	@$(MAKE) unit
 	@nosetests -sv thumbor/integration_tests/
 	@$(MAKE) static
 	$(MAKE) kill_mongo kill_redis
@@ -31,6 +32,9 @@ pyvows_run:
 integration_run:
 	@nosetests -sv thumbor/integration_tests/
 
+unit:
+	@coverage run --branch `which nosetests` -vv --with-yanc -s tests/
+	@coverage report -m --fail-under=10
 
 mysql_test: pretest
 	PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py

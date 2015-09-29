@@ -28,6 +28,7 @@ tests_require = [
     "colorama",
     "numpy",
     "flake8",
+    "yanc",
 ]
 
 
