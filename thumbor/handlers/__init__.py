@@ -17,17 +17,28 @@ import tornado.web
 import tornado.gen as gen
 
 from thumbor import __version__
-from thumbor.storages.no_storage import Storage as NoStorage
-from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.context import Context
-from thumbor.transformer import Transformer
 from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
+from thumbor.loaders import LoaderResult
+from thumbor.storages.no_storage import Storage as NoStorage
+from thumbor.storages.mixed_storage import Storage as MixedStorage
+from thumbor.transformer import Transformer
 from thumbor.utils import logger, CONTENT_TYPE, EXTENSION
 import thumbor.filters
 
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
+
+
+class FetchResult(object):
+
+    def __init__(self, normalized=False, buffer=None, engine=None, successful=False, loader_error=None):
+        self.normalized = normalized
+        self.engine = engine
+        self.buffer = buffer
+        self.successful = successful
+        self.loader_error = loader_error
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -81,9 +92,22 @@ class BaseHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def get_image(self):
         try:
-            normalized, buffer, engine = yield self._fetch(
+            result = yield self._fetch(
                 self.context.request.image_url
             )
+
+            if not result.successful:
+                if result.loader_error == LoaderResult.ERROR_NOT_FOUND:
+                    self._error(404)
+                    return
+                elif result.loader_error == LoaderResult.ERROR_UPSTREAM:
+                    # Return a Bad Gateway status if the error came from upstream
+                    self._error(502)
+                    return
+                else:
+                    self._error(500)
+                    return
+
         except Exception as e:
             msg = '[BaseHandler] get_image failed for url `{url}`. error: `{error}`'.format(
                 url=self.context.request.image_url,
@@ -99,6 +123,10 @@ class BaseHandler(tornado.web.RequestHandler):
                 logger.error(msg)
                 self._error(500)
             return
+
+        normalized = result.normalized
+        buffer = result.buffer
+        engine = result.engine
 
         req = self.context.request
 
@@ -365,30 +393,49 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @gen.coroutine
     def _fetch(self, url):
+        fetch_result = FetchResult()
+
         storage = self.context.modules.storage
-        buffer = yield gen.maybe_future(storage.get(url))
+        fetch_result.buffer = yield gen.maybe_future(storage.get(url))
         mime = None
 
-        if buffer is not None:
+        if fetch_result.buffer is not None:
+            fetch_result.successful = True
+
             self.context.metrics.incr('storage.hit')
-            mime = BaseEngine.get_mimetype(buffer)
+            mime = BaseEngine.get_mimetype(fetch_result.buffer)
             self.context.request.extension = EXTENSION.get(mime, '.jpg')
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                 self.context.request.engine = self.context.modules.gif_engine
             else:
                 self.context.request.engine = self.context.modules.engine
 
-            raise gen.Return([False, buffer, None])
+            raise gen.Return(fetch_result)
         else:
             self.context.metrics.incr('storage.miss')
 
-        buffer = yield self.context.modules.loader.load(self.context, url)
+        loader_result = yield self.context.modules.loader.load(self.context, url)
 
-        if buffer is None:
-            raise gen.Return([False, None, None])
+        if isinstance(loader_result, LoaderResult):
+            # TODO _fetch should probably return a result object vs a list to
+            # to allow returning metadata
+            if not loader_result.successful:
+                fetch_result.buffer = None
+                fetch_result.loader_error = loader_result.error
+                raise gen.Return(fetch_result)
+
+            fetch_result.buffer = loader_result.buffer
+        else:
+            # Handle old loaders
+            fetch_result.buffer = loader_result
+
+        if fetch_result.buffer is None:
+            raise gen.Return(fetch_result)
+
+        fetch_result.successful = True
 
         if mime is None:
-            mime = BaseEngine.get_mimetype(buffer)
+            mime = BaseEngine.get_mimetype(fetch_result.buffer)
 
         self.context.request.extension = EXTENSION.get(mime, '.jpg')
 
@@ -396,7 +443,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.config.PRESERVE_EXIF_INFO = True
 
         try:
-            mime = BaseEngine.get_mimetype(buffer)
+            mime = BaseEngine.get_mimetype(fetch_result.buffer)
             self.context.request.extension = extension = EXTENSION.get(mime, None)
 
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
@@ -404,22 +451,24 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 self.context.request.engine = self.context.modules.engine
 
-            self.context.request.engine.load(buffer, extension)
+            self.context.request.engine.load(fetch_result.buffer, extension)
 
-            normalized = self.context.request.engine.normalize()
+            fetch_result.normalized = self.context.request.engine.normalize()
             is_no_storage = isinstance(storage, NoStorage)
             is_mixed_storage = isinstance(storage, MixedStorage)
             is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
             if not (is_no_storage or is_mixed_no_file_storage):
-                buffer = self.context.request.engine.read(extension)
-                storage.put(url, buffer)
+                fetch_result.buffer = self.context.request.engine.read(extension)
+                storage.put(url, fetch_result.buffer)
 
             storage.put_crypto(url)
         finally:
             self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
-        raise gen.Return([normalized, None, self.context.request.engine])
+        fetch_result.buffer = None
+        fetch_result.engine = self.context.request.engine
+        raise gen.Return(fetch_result)
 
     @gen.coroutine
     def get_blacklist_contents(self):

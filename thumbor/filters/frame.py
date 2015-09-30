@@ -11,6 +11,7 @@
 from os.path import splitext
 from thumbor.ext.filters import _nine_patch
 from thumbor.filters import BaseFilter, filter_method
+from thumbor.loaders import LoaderResult
 import tornado.gen
 
 
@@ -75,7 +76,13 @@ class Filter(BaseFilter):
         new_engine.paste(self.engine, (offset_x, offset_y))
         self.engine.image = new_engine.image
 
-    def on_fetch_done(self, buffer):
+    def on_fetch_done(self, result):
+        # TODO if result.successful is False how can the error be handled?
+        if isinstance(result, LoaderResult):
+            buffer = result.buffer
+        else:
+            buffer = result
+
         self.nine_patch_engine.load(buffer, self.extension)
         self.storage.put(self.url, self.nine_patch_engine.read())
         self.storage.put_crypto(self.url)

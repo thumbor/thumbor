@@ -18,6 +18,8 @@ import tornado.web
 import thumbor.loaders.strict_https_loader as loader
 from thumbor.context import Context
 from thumbor.config import Config
+from thumbor.loaders import LoaderResult
+
 
 fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
 
@@ -74,8 +76,11 @@ class ReturnContentVows(Vows.Context):
             ctx = Context(None, None, None)
             return loader.return_contents(mock, 'some-url', callback, ctx)
 
-        def should_be_none(self, topic):
-            expect(topic.args[0]).to_be_null()
+        def should_be_loader_result_with_none_buffer(self, topic):
+            result = topic.args[0]
+            expect(result).to_be_instance_of(LoaderResult)
+            expect(result.buffer).to_be_null()
+            expect(result.successful).to_be_false()
 
     class ShouldReturnBodyIfValid(Vows.Context):
         @Vows.async_topic
@@ -85,7 +90,9 @@ class ReturnContentVows(Vows.Context):
             return loader.return_contents(mock, 'some-url', callback, ctx)
 
         def should_be_none(self, topic):
-            expect(topic.args[0]).to_equal('body')
+            result = topic.args[0]
+            expect(result).to_be_instance_of(LoaderResult)
+            expect(result.buffer).to_equal('body')
 
 
 @Vows.batch

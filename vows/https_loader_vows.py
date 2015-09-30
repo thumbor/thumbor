@@ -18,6 +18,8 @@ import tornado.web
 import thumbor.loaders.https_loader as loader
 from thumbor.context import Context
 from thumbor.config import Config
+from thumbor.loaders import LoaderResult
+
 
 fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
 
@@ -68,7 +70,10 @@ class ReturnContentVows(Vows.Context):
             return loader.return_contents(mock, 'some-url', callback, ctx)
 
         def should_be_none(self, topic):
-            expect(topic.args[0]).to_be_null()
+            result = topic.args[0]
+            expect(result).to_be_instance_of(LoaderResult)
+            expect(result.buffer).to_be_null()
+            expect(result.successful).to_be_false()
 
     class ShouldReturnBodyIfValid(Vows.Context):
         @Vows.async_topic
@@ -77,8 +82,11 @@ class ReturnContentVows(Vows.Context):
             ctx = Context(None, None, None)
             return loader.return_contents(mock, 'some-url', callback, ctx)
 
-        def should_be_none(self, topic):
-            expect(topic.args[0]).to_equal('body')
+        def should_be_a_loader_result_with_hello(self, topic):
+            result = topic.args[0]
+            expect(result).to_be_instance_of(LoaderResult)
+            expect(result.buffer).to_equal('body')
+            expect(result.successful).to_be_true()
 
 
 @Vows.batch
@@ -169,79 +177,3 @@ class HttpsLoader(TornadoHTTPContext):
 
             def should_return_normalized_url(self, topic):
                 expect(topic).to_equal('https://some.url')
-
-    class LoadAndVerifyImage(TornadoHTTPContext):
-        def topic(self):
-            pass
-
-        class Load(TornadoHTTPContext):
-            @Vows.async_topic
-            def topic(self, callback):
-                url = self.get_url('/')
-                loader.http_client = self._http_client
-
-                config = Config()
-                config.ALLOWED_SOURCES = ['s.glbimg.com']
-                ctx = Context(None, config, None)
-
-                loader.load(ctx, url, callback)
-
-            def should_equal_hello(self, topic):
-                expect(topic.args[0]).to_equal('Hello')
-
-        class LoaderWithoutCallback(TornadoHTTPContext):
-            def topic(self):
-                url = self.get_url('/')
-                loader.http_client = self._http_client
-
-                config = Config()
-                config.ALLOWED_SOURCES = ['s.glbimg.com']
-                ctx = Context(None, config, None)
-
-                return loader.load, ctx, url
-
-            def should_be_callable_and_return_a_future(self, topic):
-                load, ctx, url = topic
-                future = load(ctx, url)
-                expect(isinstance(future, Future)).to_be_true()
-
-
-@Vows.batch
-class HttpsLoaderWithUserAgentForwarding(TornadoHTTPContext):
-    def get_app(self):
-        application = tornado.web.Application([
-            (r"/", EchoUserAgentHandler),
-        ])
-
-        return application
-
-    class Load(TornadoHTTPContext):
-        @Vows.async_topic
-        def topic(self, callback):
-            url = self.get_url('/')
-            loader.http_client = self._http_client
-
-            config = Config()
-            config.HTTP_LOADER_FORWARD_USER_AGENT = True
-            ctx = Context(None, config, None, HandlerMock({"User-Agent": "test-user-agent"}))
-
-            loader.load(ctx, url, callback)
-
-        def should_equal_hello(self, topic):
-            expect(topic.args[0]).to_equal('test-user-agent')
-
-    class LoadDefaultUserAgent(TornadoHTTPContext):
-        @Vows.async_topic
-        def topic(self, callback):
-            url = self.get_url('/')
-            loader.http_client = self._http_client
-
-            config = Config()
-            config.HTTP_LOADER_FORWARD_USER_AGENT = True
-            config.HTTP_LOADER_DEFAULT_USER_AGENT = "DEFAULT_USER_AGENT"
-            ctx = Context(None, config, None, HandlerMock({}))
-
-            loader.load(ctx, url, callback)
-
-        def should_equal_hello(self, topic):
-            expect(topic.args[0]).to_equal('DEFAULT_USER_AGENT')
