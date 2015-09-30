@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -213,8 +213,8 @@ class Transformer(object):
             self.done_callback()
 
         self.context.thread_pool.queue(
-            operation = self.img_operation_worker,
-            callback = inner
+            operation=self.img_operation_worker,
+            callback=inner
         )
 
     def extract_cover(self):
@@ -299,7 +299,7 @@ class Transformer(object):
     def fit_in_resize(self):
         source_width, source_height = self.engine.size
 
-        #invert width and height if image orientation is not the same as request orientation and need adaptive
+        # invert width and height if image orientation is not the same as request orientation and need adaptive
         if self.context.request.adaptive and (
             (source_width - source_height < 0 and self.target_width - self.target_height > 0) or
             (source_width - source_height > 0 and self.target_width - self.target_height < 0)

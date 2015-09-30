@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -14,7 +14,6 @@ import cv
 
 from thumbor.filters import BaseFilter, filter_method
 
-FACE_ORIGIN = 'Face Detection'
 CASCADE_FILE_PATH = abspath(join(dirname(__file__), 'haarcascade_eye.xml'))
 
 MIN_SIZE = (20, 20)
@@ -47,17 +46,17 @@ class Filter(BaseFilter):
         intersected_eyes = []
 
         for eye in eyes:
-            #if eye in intersected_eyes: continue
+            # if eye in intersected_eyes: continue
             (x, y, w, h), other = eye
             for eye2 in eyes:
                 (x2, y2, w2, h2), other2 = eye2
                 if x == x2 and w == w2 and y == y2 and h == h2:
                     continue
-                #if eye2 in intersected_eyes: continue
+                # if eye2 in intersected_eyes: continue
 
                 if (y2 >= y and y2 + h2 <= y + h) or (y2 + h2 >= y and y2 <= y + h):
                     intersected_eyes.append(eye)
-                    #intersected_eyes.append(eye2)
+                    # intersected_eyes.append(eye2)
 
         return intersected_eyes
 

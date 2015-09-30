@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -13,7 +13,7 @@ from tempfile import mkstemp
 from subprocess import Popen, PIPE
 from io import BytesIO
 
-from PIL import Image, ImageFile, ImageDraw, ImageSequence
+from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
@@ -42,6 +42,11 @@ if hasattr(ImageFile, 'IGNORE_DECODING_ERRORS'):
 
 class Engine(BaseEngine):
 
+    def __init__(self, context):
+        super(Engine, self).__init__(context)
+        self.subsampling = None
+        self.qtables = None
+
     def gen_image(self, size, color):
         if color == 'transparent':
             color = None
@@ -53,6 +58,11 @@ class Engine(BaseEngine):
         self.icc_profile = img.info.get('icc_profile')
         self.transparency = img.info.get('transparency')
         self.exif = img.info.get('exif')
+
+        self.subsampling = JpegImagePlugin.get_sampling(img)
+        if (self.subsampling == -1):  # n/a for this file
+            self.subsampling = None
+        self.qtables = getattr(img, 'quantization', None)
 
         if self.context.config.ALLOW_ANIMATED_GIFS and self.extension == '.gif':
             frames = []
@@ -104,7 +114,7 @@ class Engine(BaseEngine):
         else:
             return '.jpeg'
 
-    def read(self, extension=None, quality=None):
+    def read(self, extension=None, quality=None):  # NOQA
         # returns image buffer in byte format.
         img_buffer = BytesIO()
         ext = extension or self.extension or self.get_default_extension()
@@ -125,10 +135,16 @@ class Engine(BaseEngine):
             if self.image.mode != 'RGB':
                 self.image = self.image.convert('RGB')
             else:
-                if self.image.format == 'JPEG':
-                    quantization = getattr(self.image, 'quantization', None)
-                    if quality is None and quantization and 2 <= len(quantization) <= 4:
-                        options['quality'] = 'keep'
+
+                quantization = self.qtables
+                subsampling = self.subsampling
+                copy_jpg_settings = self.context.config.PILLOW_COPY_JPEG_SETTINGS
+
+                if copy_jpg_settings and (subsampling is not None) and quantization and 2 <= len(quantization) <= 4:
+                    options['quality'] = 0  # can't use 'keep' here as Pillow would try to extract qtables/subsampling and fail
+                    options['qtables'] = quantization
+                    options['subsampling'] = subsampling
+
             if self.context.config.PILLOW_JPEG_SUBSAMPLING:
                 options['subsampling'] = int(self.context.config.PILLOW_JPEG_SUBSAMPLING)
 

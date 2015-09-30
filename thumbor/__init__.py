@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -10,4 +10,4 @@
 
 '''This is the main module in thumbor'''
 
-__version__ = "5.0.6"
+__version__ = "5.1.0"

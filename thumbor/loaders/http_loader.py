@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -60,7 +60,6 @@ def return_contents(response, url, callback, context):
             for x in response.time_info:
                 context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
             context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
-
         result.buffer = response.body
 
     callback(result)
@@ -101,6 +100,7 @@ def load_sync(context, url, callback, normalize_url_func):
     )
 
     client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context))
+
 
 def encode(string):
     return None if string is None else string.encode('ascii')

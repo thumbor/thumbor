@@ -9,9 +9,9 @@ import time
 from jinja2 import FileSystemLoader, Environment
 from tornado.options import parse_config_file
 
-#required for importing configuration
+# required for importing configuration
 import thumbor.app
-import thumbor.handlers
+import thumbor.handlers  # NOQA
 
 
 REPETITIONS = 200
@@ -31,7 +31,7 @@ def main():
     conf_file = join(root, 'thumbor.conf')
     parse_config_file(conf_file)
 
-    engines = [('PIL', 'pil'),]
+    engines = [('PIL', 'pil'), ]
 
     build_dir = join(root, 'build')
     if exists(build_dir):
@@ -91,7 +91,9 @@ def main():
     loader = FileSystemLoader(root)
     env = Environment(loader=loader)
     template = env.get_template('template.html')
-    file(join(build_dir, 'results.html'), 'w').write(template.render(no_resized=originals, resized=resized, qualities=qualities, times=times, image_name=IMAGE_NAME))
+    file(join(build_dir, 'results.html'), 'w').write(
+        template.render(no_resized=originals, resized=resized, qualities=qualities, times=times, image_name=IMAGE_NAME)
+    )
 
 if __name__ == '__main__':
     main()

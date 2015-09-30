@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -43,13 +43,13 @@ for cascade_file in cascade_files:
         with tempfile.NamedTemporaryFile() as temp_file:
             file_name = temp_file.name
 
-            #imagick
+            # imagick
             img = Image(image_path)
             img.format = 'JPEG'
             img.save(file_name)
 
-            #pil
-            #PILImage.open(image_path).convert('RGB').save(file_name, 'JPEG')
+            # pil
+            # PILImage.open(image_path).convert('RGB').save(file_name, 'JPEG')
 
             grayscale = cv.LoadImageM(file_name, cv.CV_LOAD_IMAGE_GRAYSCALE)
 

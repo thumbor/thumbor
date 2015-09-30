@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -44,8 +44,9 @@ class Context:
 
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
-        self.statsd_client = self.metrics # TODO statsd_client is deprecated, remove me on next minor version bump
+        self.statsd_client = self.metrics  # TODO statsd_client is deprecated, remove me on next minor version bump
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
+        self.headers = {}
 
 
 class ServerParameters(object):
@@ -248,7 +249,8 @@ class ThreadPool(object):
         task.add_done_callback(
             lambda future: tornado.ioloop.IOLoop.instance().add_callback(
                 functools.partial(callback, future)
-        ))
+            )
+        )
 
     def queue(self, operation, callback):
         if not self.pool:
@@ -260,4 +262,3 @@ class ThreadPool(object):
         if self.pool:
             print "Joining threads...."
             self.pool.shutdown()
-

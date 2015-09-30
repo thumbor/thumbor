@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -27,6 +27,7 @@ tests_require = [
     "nose",
     "colorama",
     "numpy",
+    "flake8",
 ]
 
 
@@ -49,7 +50,7 @@ def gather_filter_extensions():
 
 
 def run_setup(extension_modules=[]):
-    if not 'CFLAGS' in os.environ:
+    if 'CFLAGS' not in os.environ:
         os.environ['CFLAGS'] = ''
     setup(
         name='thumbor',
@@ -68,7 +69,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
         keywords='imaging face detection feature thumbnail imagemagick pil opencv',
         author='globo.com',
         author_email='timehome@corp.globo.com',
-        url='https://github.com/globocom/thumbor/wiki',
+        url='https://github.com/thumbor/thumbor/wiki',
         license='MIT',
         classifiers=[
             'Development Status :: 4 - Beta',

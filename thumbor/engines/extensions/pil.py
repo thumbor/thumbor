@@ -207,10 +207,10 @@ class GifWriter:
 
         if loops == 0 or loops == float('inf'):
             loops = 2 ** 16 - 1
-            #bb = "" # application extension should not be used
-                    # (the extension interprets zero loops
-                    # to mean an infinite number of loops)
-                    # Mmm, does not seem to work
+            # bb = "" application extension should not be used
+            #         (the extension interprets zero loops
+            #          to mean an infinite number of loops)
+            #         Mmm, does not seem to work
         if True:
             bb = "\x21\xFF\x0B"  # application extension
             bb += "NETSCAPE2.0"
@@ -319,7 +319,7 @@ class GifWriter:
         # Prepare
         ims2 = [ims[0]]
         xy = [(0, 0)]
-        #t0 = time.time()
+        # t0 = time.time()
 
         # Iterate over images
         prev = ims[0]
@@ -347,7 +347,7 @@ class GifWriter:
             xy.append((x0, y0))
 
         # Done
-        #print('%1.2f seconds to determine subrectangles of  %i images' %
+        # print('%1.2f seconds to determine subrectangles of  %i images' %
         #    (time.time()-t0, len(ims2)) )
         return ims2, xy
 
@@ -456,7 +456,7 @@ class GifWriter:
         return frames
 
 
-## Exposed functions
+# Exposed functions
 def writeGif(
         filename, images, duration=0.1, repeat=True, dither=False,
         nq=0, subRectangles=True, dispose=None):

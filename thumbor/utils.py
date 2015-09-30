@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -10,7 +10,7 @@
 
 import os
 import logging
-from functools import reduce, wraps
+from functools import wraps
 
 
 CONTENT_TYPE = {
@@ -32,11 +32,6 @@ EXTENSION = {
     'video/webm': '.webm',
 }
 
-
-def real_import(name):
-    if '.' in name:
-        return reduce(getattr, name.split('.')[1:], __import__(name))
-    return __import__(name)
 
 logger = logging.getLogger('thumbor')
 
@@ -87,10 +82,6 @@ class deprecated(object):  # NOQA
             )
             return func(*args, **kwargs)
         return new_func
-
-
-def total_seconds_of(delta):
-    return (delta.microseconds + (delta.seconds + delta.days * 24 * 3600) * 10.0 ** 6) / 10 ** 6
 
 
 def which(program):

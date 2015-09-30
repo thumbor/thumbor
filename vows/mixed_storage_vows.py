@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -69,28 +69,23 @@ class MixedStorageVows(Vows.Context):
 
         class IncludesPath(Vows.Context):
             def should_record_path(self, topic):
-                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
-                expect(file_storage.storage['path1']['path']).to_equal('path1')
+                expect(topic.file_storage.storage['path1']['path']).to_equal('path1')
 
             def should_record_contents_on_file_storage(self, topic):
-                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
-                expect(file_storage.storage['path1']['contents']).to_equal('contents')
+                expect(topic.file_storage.storage['path1']['contents']).to_equal('contents')
 
             def should_get_contents(self, topic):
                 contents = yield topic.get('path1')
                 expect(contents.result()).to_equal('contents')
 
             def should_not_record_crypto_on_file_storage(self, topic):
-                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
-                expect(file_storage.storage['path1']).not_to_include('crypto')
+                expect(topic.file_storage.storage['path1']).not_to_include('crypto')
 
             def should_not_record_contents_on_crypto_storage(self, topic):
-                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
-                expect(crypto_storage.storage['path1']).not_to_include('contents')
+                expect(topic.crypto_storage.storage['path1']).not_to_include('contents')
 
             def should_record_crypto_on_crypto_storage(self, topic):
-                file_storage, crypto_storage = topic.file_storage, topic.crypto_storage
-                expect(crypto_storage.storage['path1']['crypto']).to_equal('security-key')
+                expect(topic.crypto_storage.storage['path1']['crypto']).to_equal('security-key')
 
             def should_get_crypto(self, topic):
                 contents = yield topic.get_crypto('path1')

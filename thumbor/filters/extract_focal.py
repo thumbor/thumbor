@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -37,7 +37,8 @@ class Filter(BaseFilter):
             if not (image and (parts.get('hash', None) or parts.get('unsafe', None))):
                 return None
 
-            top, right, left, bottom = parts.get('crop_top', None), parts.get('crop_right', None), parts.get('crop_left', None), parts.get('crop_bottom', None)
+            top, right, left, bottom = parts.get('crop_top', None), parts.get('crop_right', None), \
+                parts.get('crop_left', None), parts.get('crop_bottom', None)
             if top and right and left and bottom:
                 return (image, top, right, left, bottom)
 

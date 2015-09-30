@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -54,20 +54,6 @@ class CascadeLoaderDetectorVows(ctx):
 
             def should_return_the_expected_min_size(self, topic):
                 expect(topic).to_equal((26, 26))
-
-        # couldnt make this work because of a pyvows bug
-        # on the order of the setup/teardown execution
-        #class GetFeatures(ctx):
-
-            #def setup(self):
-                #self.cv = patch('thumbor.detectors.local_detector.cv')
-                #self.cv.start()
-
-            #def teardown(self):
-                #self.cv.stop()
-
-            #def topic(self, detector):
-                #return detector.get_features()
 
         class Detect(ctx):
 

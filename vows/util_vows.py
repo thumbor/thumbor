@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -12,7 +12,7 @@ import logging
 
 from pyvows import Vows, expect
 
-from thumbor.utils import logger, real_import
+from thumbor.utils import logger
 
 
 @Vows.batch
@@ -30,25 +30,3 @@ class UtilVows(Vows.Context):
 
         def should_not_be_an_error(self, topic):
             expect(topic).not_to_be_an_error()
-
-    class RealImport(Vows.Context):
-
-        class WhenRegularModules(Vows.Context):
-            def topic(self):
-                return real_import('pyvows')
-
-            def should_have_expect(self, topic):
-                expect(topic.expect).not_to_be_null()
-
-        class WhenUsingSubmodules(Vows.Context):
-            def topic(self):
-                return real_import('thumbor.utils')
-
-            def should_not_be_an_error(self, topic):
-                expect(topic).not_to_be_an_error()
-
-            def should_not_be_null(self, topic):
-                expect(topic).not_to_be_null()
-
-            def should_return_module(self, topic):
-                expect(topic.logger).not_to_be_null()

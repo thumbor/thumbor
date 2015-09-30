@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -90,7 +90,7 @@ class Url(object):
 
         return values
 
-    @classmethod
+    @classmethod  # NOQA
     def generate_options(cls,
                          debug=False,
                          width=0,
@@ -140,7 +140,7 @@ class Url(object):
                 fit_ops.append('adaptive')
             if full:
                 fit_ops.append('full')
-            fit_ops.append('fit-in');
+            fit_ops.append('fit-in')
             url.append('-'.join(fit_ops))
 
         if horizontal_flip:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -10,16 +10,15 @@
 
 from pyvows import Vows, expect
 
-from thumbor.context import Context, ServerParameters
+from thumbor.context import Context
 from thumbor.importer import Importer
 from thumbor.config import Config
 import thumbor.metrics
 
+
 @Vows.batch
 class MetricsVows(Vows.Context):
-
     class CanCreateContextWithDefaultMetrics(Vows.Context):
-
         def topic(self):
             ctx = Context()
             return ctx
@@ -32,7 +31,6 @@ class MetricsVows(Vows.Context):
                 thumbor.metrics.logger_metrics.Metrics)
 
     class CanCreateContextWithLoggerMetrics(Vows.Context):
-
         def topic(self):
             conf = Config()
             conf.METRICS = 'thumbor.metrics.logger_metrics'
@@ -50,7 +48,6 @@ class MetricsVows(Vows.Context):
             expect(topic.metrics.timing('test.time', 100)).not_to_be_an_error()
 
     class CanCreateContextWithStatsdMetrics(Vows.Context):
-
         def topic(self):
             conf = Config()
             conf.METRICS = 'thumbor.metrics.statsd_metrics'

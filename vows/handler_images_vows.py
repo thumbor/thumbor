@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -172,6 +172,7 @@ class GetImage(BaseContext):
         def should_be_400(self, response):
             code, _ = response
             expect(code).to_equal(400)
+
 
 @Vows.batch
 class GetImageWithoutUnsafe(BaseContext):

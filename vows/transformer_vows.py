@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -103,7 +103,6 @@ class TransformerVows(Vows.Context):
         def should_do_vertical_flip(self, topic):
             expect(self.engine.calls['vertical_flip']).to_equal(1)
 
-
     class ExtractCover(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
@@ -118,7 +117,7 @@ class TransformerVows(Vows.Context):
             ctx = data.to_context()
             ctx.request.filters = 'cover()'
             ctx.request.image = 'some.gif'
-            ctx.request.extension= 'GIF'
+            ctx.request.extension = 'GIF'
             ctx.request.engine.extension = '.gif'
             ctx.config.USE_GIFSICLE_ENGINE = True
 
@@ -129,7 +128,6 @@ class TransformerVows(Vows.Context):
 
         def should_do_extract_cover(self, topic):
             expect(self.engine.calls['cover']).to_equal(1)
-
 
     class ResizeCrop(Vows.Context):
         def topic(self):

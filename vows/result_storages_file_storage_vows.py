@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -18,6 +18,7 @@ from thumbor.result_storages.file_storage import Storage as FileStorage
 
 TEST_HTTP_PATH = 'http://example.com/path/to/a.jpg'
 
+
 @Vows.batch
 class ResultStoragesFileStorageVows(Vows.Context):
     class NormalizedPathWithAutoWebpVow(Vows.Context):
@@ -31,7 +32,9 @@ class ResultStoragesFileStorageVows(Vows.Context):
 
         def check_http_path(self, topic):
             expect(topic).not_to_be_null()
-            expect(topic.normalize_path(TEST_HTTP_PATH)).to_equal('/tmp/thumbor/result_storages/v2/webp/ht/tp/example.com/path/to/a.jpg')
+            expect(topic.normalize_path(TEST_HTTP_PATH)).to_equal(
+                '/tmp/thumbor/result_storages/v2/webp/ht/tp/example.com/path/to/a.jpg'
+            )
 
     class NormalizedPathNoWebpVow(Vows.Context):
         def topic(self):
@@ -44,4 +47,6 @@ class ResultStoragesFileStorageVows(Vows.Context):
 
         def check_http_path(self, topic):
             expect(topic).not_to_be_null()
-            expect(topic.normalize_path(TEST_HTTP_PATH)).to_equal('/tmp/thumbor/result_storages/v2/ht/tp/example.com/path/to/a.jpg')
+            expect(topic.normalize_path(TEST_HTTP_PATH)).to_equal(
+                '/tmp/thumbor/result_storages/v2/ht/tp/example.com/path/to/a.jpg'
+            )

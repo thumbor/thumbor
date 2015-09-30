@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -14,7 +14,6 @@ from pyvows import Vows, expect
 from tornado_pyvows.context import TornadoHTTPContext
 
 from thumbor.app import ThumborServiceApp
-#from thumbor.filters.max_bytes import Filter
 from thumbor.context import Context, ServerParameters
 from thumbor.config import Config
 from thumbor.importer import Importer

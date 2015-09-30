@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -33,7 +33,7 @@ def get_as_integer(value):
         return None
 
 
-def main(arguments=None):
+def main(arguments=None):  # NOQA
     '''Runs thumbor server with the specified arguments.'''
 
     server_parameters = get_server_parameters(arguments)
@@ -45,14 +45,14 @@ def main(arguments=None):
 
     config = Config.load(server_parameters.config_path, conf_name='thumbor.conf', lookup_paths=lookup_paths)
 
-    if (config.THUMBOR_LOG_CONFIG and config.THUMBOR_LOG_CONFIG != '') :
-      logging.config.dictConfig(config.THUMBOR_LOG_CONFIG)
+    if (config.THUMBOR_LOG_CONFIG and config.THUMBOR_LOG_CONFIG != ''):
+        logging.config.dictConfig(config.THUMBOR_LOG_CONFIG)
     else:
-      logging.basicConfig(
-          level=getattr(logging, server_parameters.log_level.upper()),
-          format=config.THUMBOR_LOG_FORMAT,
-          datefmt=config.THUMBOR_LOG_DATE_FORMAT
-      )
+        logging.basicConfig(
+            level=getattr(logging, server_parameters.log_level.upper()),
+            format=config.THUMBOR_LOG_FORMAT,
+            datefmt=config.THUMBOR_LOG_DATE_FORMAT
+        )
 
     importer = Importer(config)
     importer.import_modules()
@@ -71,14 +71,16 @@ def main(arguments=None):
     if config.USE_GIFSICLE_ENGINE:
         server_parameters.gifsicle_path = which('gifsicle')
         if server_parameters.gifsicle_path is None:
-            raise RuntimeError('If using USE_GIFSICLE_ENGINE configuration to True, the `gifsicle` binary must be in the PATH and must be an executable.')
+            raise RuntimeError(
+                'If using USE_GIFSICLE_ENGINE configuration to True, the `gifsicle` binary must be in the PATH '
+                'and must be an executable.'
+            )
 
     context = Context(
         server=server_parameters,
         config=config,
         importer=importer
     )
-
 
     application = importer.import_class(server_parameters.app_class)(context)
 

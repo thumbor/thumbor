@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -16,6 +16,7 @@ from thumbor.importer import Importer
 from thumbor.filters.rotate import Filter
 import thumbor.filters
 
+
 class RotateEngine:
     def __init__(self):
         self.rotate_val = None
@@ -25,6 +26,7 @@ class RotateEngine:
 
     def is_multiple(self):
         return False
+
 
 @Vows.batch
 class RotateFilterVows(Vows.Context):

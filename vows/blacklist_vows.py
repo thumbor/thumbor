@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -41,6 +41,7 @@ class BaseContext(TornadoHTTPContext):
         application = ThumborServiceApp(ctx)
         return application
 
+
 @Vows.batch
 class Blacklist(BaseContext):
 
@@ -72,7 +73,8 @@ class Blacklist(BaseContext):
                     expect(topic[0]).to_equal(200)
 
                 def should_contain_blacklisted_file(self, topic):
-                    expect("blocked.jpg\n" in topic[1] ).to_equal(True)
+                    expect("blocked.jpg\n" in topic[1]).to_equal(True)
+
 
 @Vows.batch
 class BlacklistIntegration(BaseContext):

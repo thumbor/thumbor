@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -12,7 +12,6 @@ import sys
 import functools
 import datetime
 import traceback
-import re
 
 import tornado.web
 import tornado.gen as gen
@@ -28,8 +27,6 @@ from thumbor.transformer import Transformer
 from thumbor.utils import logger, CONTENT_TYPE, EXTENSION
 import thumbor.filters
 
-
-EXTENSION_CLEANER = re.compile('(?:\?|%3F|%3f|#|%23)')
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
@@ -255,7 +252,8 @@ class BaseHandler(tornado.web.RequestHandler):
             try:
                 result_last_modified = self.context.modules.result_storage.last_updated()
             except NotImplementedError:
-                logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & Last-Updated headers support is disabled.')
+                logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & '
+                            'Last-Updated headers support is disabled.')
 
             if result_last_modified:
                 if 'If-Modified-Since' in self.request.headers:
@@ -294,13 +292,13 @@ class BaseHandler(tornado.web.RequestHandler):
         )
 
     def _write_results_to_client(self, context, results, content_type):
-        max_age = self.context.config.MAX_AGE
+        max_age = context.config.MAX_AGE
 
-        if self.context.request.max_age is not None:
-            max_age = self.context.request.max_age
+        if context.request.max_age is not None:
+            max_age = context.request.max_age
 
         if context.request.prevent_result_storage or context.request.detection_error:
-            max_age = self.context.config.MAX_AGE_TEMP_IMAGE
+            max_age = context.config.MAX_AGE_TEMP_IMAGE
 
         if max_age:
             self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
@@ -308,8 +306,11 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_header('Server', 'Thumbor/%s' % __version__)
         self.set_header('Content-Type', content_type)
+
         if context.config.AUTO_WEBP and not context.request.engine.is_multiple() and context.request.engine.extension != '.webp':
             self.set_header('Vary', 'Accept')
+
+        context.headers = self._headers.copy()
 
         self.write(results)
         self.finish()
@@ -483,7 +484,12 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class ContextHandler(BaseHandler):
     def initialize(self, context):
-        self.context = Context(context.server, context.config, context.modules.importer, self)
+        self.context = Context(
+            server=context.server,
+            config=context.config,
+            importer=context.modules.importer,
+            request_handler=self
+        )
 
     def log_exception(self, *exc_info):
         if isinstance(exc_info[1], tornado.web.HTTPError):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -79,7 +79,7 @@ class MainHandlerImagesTest(ImageTestCase):
 class MainHandlerFitInImagesTest(ImageTestCase):
 
     def test_fits_in_image_horizontally(self):
-        #620x470
+        # 620x470
         image = self.fetch_image('/unsafe/fit-in/200x300/s.glbimg.com/es/ge/f/original/2011/04/19/adriano_ae62.jpg')
 
         width, height = image.size

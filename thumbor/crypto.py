@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
-# https://github.com/globocom/thumbor/wiki
+# https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -15,7 +15,7 @@ from Crypto.Cipher import AES
 
 # Import the Signer class to support backward-compatibility
 # and existing documentation
-from thumbor.url_signers.base64_hmac_sha1 import UrlSigner as Signer
+from thumbor.url_signers.base64_hmac_sha1 import UrlSigner as Signer  # NOQA
 from thumbor.url import Url
 
 
