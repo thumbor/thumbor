@@ -18,6 +18,7 @@ from thumbor.utils import logger
 
 class QueuedDetector(BaseDetector):
     queue = None
+    detection_type = 'all'
 
     def detect(self, callback):
         self.context.request.prevent_result_storage = True

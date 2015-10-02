@@ -29,6 +29,8 @@ tests_require = [
     "numpy",
     "flake8",
     "yanc",
+    "remotecv",
+    "hiredis",
 ]
 
 

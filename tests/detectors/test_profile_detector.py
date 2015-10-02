@@ -22,7 +22,7 @@ class ProfileDetectorTestCase(TestCase):
         cascade = './tests/fixtures/haarcascade_profileface.xml'
         ctx = mock.Mock(
             config=mock.Mock(
-                GLASSES_DETECTOR_CASCADE_FILE=abspath(cascade),
+                PROFILE_DETECTOR_CASCADE_FILE=abspath(cascade),
             )
         )
 
