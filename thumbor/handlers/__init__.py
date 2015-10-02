@@ -281,7 +281,7 @@ class BaseHandler(tornado.web.RequestHandler):
             context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         def inner(future):
-            results, content_type = future.result()
+            results, content_type = (future.result()[0], BaseEngine.get_mimetype(future.result()[0]))
             self._write_results_to_client(context, results, content_type)
             if should_store:
                 self._store_results(context, results)
