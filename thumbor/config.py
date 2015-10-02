@@ -248,6 +248,9 @@ Config.define(
     'FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml',
     'The cascade file that opencv will use to detect faces', 'Detection')
 
+Config.define(
+    'GLASSES_DETECTOR_CASCADE_FILE', 'haarcascade_eye_tree_eyeglasses.xml',
+    'The cascade file that opencv will use to detect glasses', 'Detection')
 
 Config.define(
     'OPTIMIZERS', [
