@@ -53,7 +53,7 @@ def configure_log(config, log_level):
         )
 
 
-def import_modules(config):
+def get_importer(config):
     importer = Importer(config)
     importer.import_modules()
 
@@ -79,6 +79,14 @@ def validate_config(config, server_parameters):
                 'If using USE_GIFSICLE_ENGINE configuration to True, the `gifsicle` binary must be in the PATH '
                 'and must be an executable.'
             )
+
+
+def get_context(server_parameters, config, importer):
+    return Context(
+        server=server_parameters,
+        config=config,
+        importer=importer
+    )
 
 
 def get_application(context):
@@ -111,15 +119,11 @@ def main(arguments=None):
     config = get_config(server_parameters.config_path)
     configure_log(config, server_parameters.log_level.upper())
 
-    importer = import_modules(config)
+    importer = get_importer(config)
 
     validate_config(config, server_parameters)
 
-    context = Context(
-        server=server_parameters,
-        config=config,
-        importer=importer
-    )
+    context = get_context(server_parameters, config, importer)
 
     application = get_application(context)
     run_server(application, context)
@@ -128,8 +132,8 @@ def main(arguments=None):
         logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
-        print
-        print "-- thumbor closed by user interruption --"
+        sys.stdout.write('\n')
+        sys.stdout.write("-- thumbor closed by user interruption --\n")
     finally:
         context.thread_pool.cleanup()
 
