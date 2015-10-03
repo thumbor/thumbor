@@ -31,6 +31,6 @@ before_script:
   - make redis
 script:
   - make ci_test
-  notifications:
+notifications:
   slack:
     secure: Sf6TJa/H3mq+RGqpLwKNRpNw0YQKX3+5bt5e37CSs8rOC+SoFHVNr29QhbXFPwmqQuy9qKb0t5rzChDIIvXErywU2lEw3/JlQtCt1xLsoUfpBF8g8ldoy6ESO2j9Jj6Y/M/4RN2zN3AAd5gfXPrdLHa++eiRaiAXXU+9ZvtUxuc=
