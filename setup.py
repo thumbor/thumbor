@@ -31,6 +31,7 @@ tests_require = [
     "yanc",
     "remotecv",
     "hiredis",
+    "pylibmc",
 ]
 
 
