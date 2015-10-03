@@ -9,21 +9,14 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import abspath
-from unittest import TestCase
-import mock
 
 from preggy import expect
 
 from thumbor.detectors.face_detector import Detector as FaceDetector
-from thumbor.engines.pil import Engine as PilEngine
+from . import DetectorTestCase
 
 
-class FaceDetectorTestCase(TestCase):
-    def setUp(self):
-        self.context = mock.Mock(request=mock.Mock(focal_points=[]))
-        self.engine = PilEngine(self.context)
-        self.context.modules.engine = self.engine
-
+class FaceDetectorTestCase(DetectorTestCase):
     def test_should_detect_one_face(self):
         with open(abspath('./tests/fixtures/images/one_face.jpg')) as f:
             self.engine.load(f.read(), None)
