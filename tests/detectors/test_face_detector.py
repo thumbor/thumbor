@@ -35,9 +35,10 @@ class FaceDetectorTestCase(TestCase):
         FaceDetector(self.context, 0, None).detect(lambda: None)
         detection_result = self.context.request.focal_points.append.call_args[0][0]
         expect(detection_result.origin).to_equal('Face Detection')
-        expect(detection_result.x).to_equal(381)
-        expect(detection_result.width).to_equal(367)
-        expect(detection_result.height).to_equal(367)
+        expect(detection_result.x).to_be_numeric()
+        expect(detection_result.y).to_be_numeric()
+        expect(detection_result.width).to_be_numeric()
+        expect(detection_result.height).to_be_numeric()
 
     def test_should_not_detect(self):
         with open(abspath('./tests/fixtures/images/no_face.jpg')) as f:
