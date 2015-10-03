@@ -20,7 +20,7 @@ from thumbor.engines.pil import Engine as PilEngine
 
 class FaceDetectorTestCase(TestCase):
     def setUp(self):
-        self.context = mock.Mock()
+        self.context = mock.Mock(request=mock.Mock(focal_points=[]))
         self.engine = PilEngine(self.context)
         self.context.modules.engine = self.engine
 
@@ -28,17 +28,24 @@ class FaceDetectorTestCase(TestCase):
         with open(abspath('./tests/fixtures/images/one_face.jpg')) as f:
             self.engine.load(f.read(), None)
 
-        self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
-            './thumbor/detectors/face_detector/haarcascade_frontalface_default.xml'
-        )
-
-        FaceDetector(self.context, 0, None).detect(lambda: None)
-        detection_result = self.context.request.focal_points.append.call_args[0][0]
-        expect(detection_result.origin).to_equal('Face Detection')
-        expect(detection_result.x).to_be_numeric()
-        expect(detection_result.y).to_be_numeric()
-        expect(detection_result.width).to_be_numeric()
-        expect(detection_result.height).to_be_numeric()
+        for i, detector in enumerate([
+            './thumbor/detectors/face_detector/haarcascade_frontalface_default.xml',
+            './thumbor/detectors/face_detector/haarcascade_frontalface_alt.xml',
+            './thumbor/detectors/face_detector/haarcascade_frontalface_alt2.xml',
+            './thumbor/detectors/face_detector/haarcascade_frontalface_alt_tree.xml'
+        ]):
+            self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
+                detector
+            )
+            if hasattr(FaceDetector, 'cascade'):
+                del FaceDetector.cascade
+            FaceDetector(self.context, 0, None).detect(lambda: None)
+            detection_result = self.context.request.focal_points[i]
+            expect(detection_result.origin).to_equal('Face Detection')
+            expect(detection_result.x).to_be_numeric()
+            expect(detection_result.y).to_be_numeric()
+            expect(detection_result.width).to_be_numeric()
+            expect(detection_result.height).to_be_numeric()
 
     def test_should_not_detect(self):
         with open(abspath('./tests/fixtures/images/no_face.jpg')) as f:
@@ -49,4 +56,4 @@ class FaceDetectorTestCase(TestCase):
         )
 
         FaceDetector(self.context, 0, []).detect(lambda: None)
-        expect(self.context.request.focal_points.append.call_count).to_equal(0)
+        expect(self.context.request.focal_points).to_be_empty()
