@@ -30,6 +30,7 @@ install:
 before_script:
   - make mongo
   - make redis
+  - make memcached
 script:
   make ci_test
 notifications:

@@ -11,3 +11,6 @@ libvpx-dev
 libwebp-dev
 webp
 gifsicle
+memcached
+libmemcache-dev
+libmemcached-dev
