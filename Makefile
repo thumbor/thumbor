@@ -24,8 +24,7 @@ ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@$(MAKE) pyvows_run unit coverage
-	@if [ ! -z "$$INTEGRATION_TEST" ]; then $(MAKE) integration_run; fi
+	@if [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) pyvows_run unit coverage; else $(MAKE) integration_run; fi
 
 pyvows_run:
 	@pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
