@@ -45,7 +45,7 @@ class CascadeLoaderDetectorVows(ctx):
                 # ugly check because there is no becautifull way to see
                 # if this object is an instance of some class or if it has some
                 # kind of attribute
-                expect(repr(topic.__class__.cascade)).to_include('<HaarClassifierCascade')
+                expect(repr(topic.__class__.cascade)).to_include('<CascadeClassifier')
 
         class GetMinSizeFor(ctx):
 

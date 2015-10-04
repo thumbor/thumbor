@@ -9,15 +9,15 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import abspath
-from unittest import TestCase
 import mock
 
 from preggy import expect
+from . import DetectorTestCase
 
 from thumbor.detectors.glasses_detector import Detector as GlassesDetector
 
 
-class GlassesDetectorTestCase(TestCase):
+class GlassesDetectorTestCase(DetectorTestCase):
     def test_detector_uses_proper_cascade(self):
         cascade = './tests/fixtures/haarcascade_eye_tree_eyeglasses.xml'
         ctx = mock.Mock(
@@ -28,3 +28,20 @@ class GlassesDetectorTestCase(TestCase):
 
         detector = GlassesDetector(ctx, 1, [])
         expect(detector).not_to_be_null()
+
+    def test_should_detect_glasses(self):
+        with open(abspath('./tests/fixtures/images/glasses.jpg')) as f:
+            self.engine.load(f.read(), None)
+
+        self.context.config.GLASSES_DETECTOR_CASCADE_FILE = abspath(
+            './thumbor/detectors/glasses_detector/haarcascade_eye_tree_eyeglasses.xml',
+        )
+        if hasattr(GlassesDetector, 'cascade'):
+            del GlassesDetector.cascade
+        GlassesDetector(self.context, 0, []).detect(lambda: None)
+        detection_result = self.context.request.focal_points[0]
+        expect(detection_result.origin).to_equal('detection')
+        expect(detection_result.x).to_be_numeric()
+        expect(detection_result.y).to_be_numeric()
+        expect(detection_result.width).to_be_numeric()
+        expect(detection_result.height).to_be_numeric()
