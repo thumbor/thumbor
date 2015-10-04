@@ -1,6 +1,7 @@
 [run]
 omit =
     test_*.py
+    thumbor/integration_tests/*
 branch = True
 source =
     thumbor
