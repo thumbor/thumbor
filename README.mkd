@@ -1,3 +1,7 @@
+# Survey
+
+If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? It's only 2 questions and one is multiple choice!!!
+
 [<img src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png">](https://github.com/thumbor/thumbor)
 
 [<img src="https://secure.travis-ci.org/thumbor/thumbor.png?branch=master">](http://travis-ci.org/thumbor/thumbor) [![PyPi version](https://pypip.in/v/thumbor/badge.png)](https://crate.io/packages/thumbor/) [![PyPi downloads](https://pypip.in/d/thumbor/badge.png)](https://crate.io/packages/thumbor/) [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=257692)](https://www.bountysource.com/trackers/257692-globocom-thumbor?utm_source=257692&utm_medium=shield&utm_campaign=TRACKER_BADGE)
