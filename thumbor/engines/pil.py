@@ -251,11 +251,14 @@ class Engine(BaseEngine):
             self.image = converted_image
         return converted_image.mode, converted_image.tostring()
 
-    def convert_to_grayscale(self):
-        if 'A' in self.image.mode:
-            self.image = self.image.convert('LA')
+    def convert_to_grayscale(self, update_image=True, with_alpha=True):
+        if 'A' in self.image.mode and with_alpha:
+            image = self.image.convert('LA')
         else:
-            self.image = self.image.convert('L')
+            image = self.image.convert('L')
+        if update_image:
+            self.image = image
+        return image
 
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:

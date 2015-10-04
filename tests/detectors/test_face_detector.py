@@ -50,3 +50,54 @@ class FaceDetectorTestCase(DetectorTestCase):
 
         FaceDetector(self.context, 0, []).detect(lambda: None)
         expect(self.context.request.focal_points).to_be_empty()
+
+    def test_should_run_on_grayscale_images(self):
+        with open(abspath('./tests/fixtures/images/multiple_faces_bw.jpg')) as f:
+            self.engine.load(f.read(), None)
+
+        self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
+            './thumbor/detectors/face_detector/haarcascade_frontalface_default.xml',
+        )
+        if hasattr(FaceDetector, 'cascade'):
+            del FaceDetector.cascade
+        FaceDetector(self.context, 0, None).detect(lambda: None)
+        detection_result = self.context.request.focal_points[0]
+        expect(detection_result.origin).to_equal('Face Detection')
+        expect(detection_result.x).to_be_numeric()
+        expect(detection_result.y).to_be_numeric()
+        expect(detection_result.width).to_be_numeric()
+        expect(detection_result.height).to_be_numeric()
+
+    def test_should_run_on_cmyk_images(self):
+        with open(abspath('./tests/fixtures/images/one_face_cmyk.jpg')) as f:
+            self.engine.load(f.read(), None)
+
+        self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
+            './thumbor/detectors/face_detector/haarcascade_frontalface_default.xml',
+        )
+        if hasattr(FaceDetector, 'cascade'):
+            del FaceDetector.cascade
+        FaceDetector(self.context, 0, None).detect(lambda: None)
+        detection_result = self.context.request.focal_points[0]
+        expect(detection_result.origin).to_equal('Face Detection')
+        expect(detection_result.x).to_be_numeric()
+        expect(detection_result.y).to_be_numeric()
+        expect(detection_result.width).to_be_numeric()
+        expect(detection_result.height).to_be_numeric()
+
+    def test_should_run_on_images_with_alpha(self):
+        with open(abspath('./tests/fixtures/images/one_face.png')) as f:
+            self.engine.load(f.read(), None)
+
+        self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
+            './thumbor/detectors/face_detector/haarcascade_frontalface_default.xml',
+        )
+        if hasattr(FaceDetector, 'cascade'):
+            del FaceDetector.cascade
+        FaceDetector(self.context, 0, None).detect(lambda: None)
+        detection_result = self.context.request.focal_points[0]
+        expect(detection_result.origin).to_equal('Face Detection')
+        expect(detection_result.x).to_be_numeric()
+        expect(detection_result.y).to_be_numeric()
+        expect(detection_result.width).to_be_numeric()
+        expect(detection_result.height).to_be_numeric()

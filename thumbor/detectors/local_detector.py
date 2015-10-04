@@ -34,9 +34,15 @@ class CascadeLoaderDetector(BaseDetector):
 
     def get_features(self):
         engine = self.context.modules.engine
-        gray = cv2.cvtColor(np.array(engine.image), cv2.cv.CV_RGB2GRAY)
+        img = np.array(
+            engine.convert_to_grayscale(
+                update_image=False,
+                with_alpha=False
+            )
+        )
+
         faces = self.__class__.cascade.detectMultiScale(
-            gray,
+            img,
             1.2,
             2,
         )
