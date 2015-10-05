@@ -69,6 +69,8 @@ class BaseEngine(object):
             mime = 'image/jpeg'
         elif buffer.startswith('WEBP', 8):
             mime = 'image/webp'
+        elif buffer.startswith('\x00\x00\x00\x0c'):
+            mime = 'image/jp2'
         elif buffer.startswith('\x00\x00\x00 ftyp'):
             mime = 'video/mp4'
         elif buffer.startswith('\x1aE\xdf\xa3'):
