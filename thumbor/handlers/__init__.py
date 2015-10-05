@@ -241,9 +241,9 @@ class BaseHandler(tornado.web.RequestHandler):
             )
         if not context.request.meta:
             results = self.optimize(context, image_extension, results)
-        if context.request.format:
-            # An optimizer might have modified the image format.
-            content_type = CONTENT_TYPE.get('.%s' % context.request.format, content_type)
+        # An optimizer might have modified the image format.
+        content_type = BaseEngine.get_mimetype(results)
+
         return results, content_type
 
     def _process_result_from_storage(self, result):
@@ -281,7 +281,7 @@ class BaseHandler(tornado.web.RequestHandler):
             context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         def inner(future):
-            results, content_type = (future.result()[0], BaseEngine.get_mimetype(future.result()[0]))
+            results, content_type = future.result()
             self._write_results_to_client(context, results, content_type)
             if should_store:
                 self._store_results(context, results)
