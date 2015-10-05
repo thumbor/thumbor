@@ -241,9 +241,9 @@ class BaseHandler(tornado.web.RequestHandler):
             )
         if not context.request.meta:
             results = self.optimize(context, image_extension, results)
-        if context.request.format:
-            # An optimizer might have modified the image format.
-            content_type = CONTENT_TYPE.get('.%s' % context.request.format, content_type)
+        # An optimizer might have modified the image format.
+        content_type = BaseEngine.get_mimetype(results)
+
         return results, content_type
 
     def _process_result_from_storage(self, result):
