@@ -55,6 +55,8 @@ class Storage(BaseStorage):
             logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
             callback(None)
         else:
+            buffer = None
+
             with open(file_abspath, 'r') as f:
                 buffer = f.read()
             callback(buffer)
