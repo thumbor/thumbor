@@ -10,6 +10,7 @@
 
 import os
 from os.path import exists
+from tornado.concurrent import return_future
 
 
 class BaseStorage(object):
@@ -19,7 +20,8 @@ class BaseStorage(object):
     def put(self, bytes):
         raise NotImplementedError()
 
-    def get(self):
+    @return_future
+    def get(self, callback):
         raise NotImplementedError()
 
     def last_updated(self):
