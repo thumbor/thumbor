@@ -16,6 +16,7 @@ from os.path import exists, dirname, join, getmtime, abspath
 
 from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger
+from tornado.concurrent import return_future
 
 
 class Storage(BaseStorage):
@@ -41,7 +42,8 @@ class Storage(BaseStorage):
 
         move(temp_abspath, file_abspath)
 
-    def get(self):
+    @return_future
+    def get(self, callback):
         path = self.context.request.url
         file_abspath = self.normalize_path(path)
         if not self.validate_path(file_abspath):
@@ -51,9 +53,13 @@ class Storage(BaseStorage):
 
         if not exists(file_abspath) or self.is_expired(file_abspath):
             logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
-            return None
-        with open(file_abspath, 'r') as f:
-            return f.read()
+            callback(None)
+        else:
+            buffer = None
+
+            with open(file_abspath, 'r') as f:
+                buffer = f.read()
+            callback(buffer)
 
     def validate_path(self, path):
         return abspath(path).startswith(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH)

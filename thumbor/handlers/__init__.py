@@ -58,9 +58,13 @@ class BaseHandler(tornado.web.RequestHandler):
         should_store = self.context.config.RESULT_STORAGE_STORES_UNSAFE or not self.context.request.unsafe
         if self.context.modules.result_storage and should_store:
             start = datetime.datetime.now()
-            result = self.context.modules.result_storage.get()
+
+            result = yield gen.maybe_future(self.context.modules.result_storage.get())
+
             finish = datetime.datetime.now()
+
             self.context.metrics.timing('result_storage.incoming_time', (finish - start).total_seconds() * 1000)
+
             if result is None:
                 self.context.metrics.incr('result_storage.miss')
             else:
@@ -317,11 +321,18 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def _store_results(self, context, results):
         if context.modules.result_storage and not context.request.prevent_result_storage:
-            start = datetime.datetime.now()
-            context.modules.result_storage.put(results)
-            finish = datetime.datetime.now()
-            context.metrics.incr('result_storage.bytes_written', len(results))
-            context.metrics.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
+
+            def save_to_result_storage():
+                start = datetime.datetime.now()
+
+                context.modules.result_storage.put(results)
+
+                finish = datetime.datetime.now()
+                context.metrics.incr('result_storage.bytes_written', len(results))
+                context.metrics.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
+
+            tornado.ioloop.IOLoop.instance().add_callback(save_to_result_storage)
+
 
     def optimize(self, context, image_extension, results):
         for optimizer in context.modules.optimizers:
