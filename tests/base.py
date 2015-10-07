@@ -33,7 +33,7 @@ class TestCase(AsyncHTTPTestCase):
 
 
 class FilterTestCase(PythonTestCase):
-    def get_filter(self, filter_name, params_string="", context=None):
+    def get_filter(self, filter_name, params_string=""):
         config = Config(
             FILTERS=[filter_name],
         )
@@ -51,7 +51,8 @@ class FilterTestCase(PythonTestCase):
         im = Image.open(self.get_fixture_path(name))
         return np.array(im)
 
-    def get_filtered(self, fltr, source_image):
+    def get_filtered(self, source_image, filter_name, params_string):
+        fltr = self.get_filter(filter_name, params_string)
         im = Image.open(self.get_fixture_path(source_image))
         img_buffer = BytesIO()
         im.save(img_buffer, 'JPEG')

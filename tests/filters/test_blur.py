@@ -15,9 +15,7 @@ from tests.base import FilterTestCase
 
 class BlurFilterTestCase(FilterTestCase):
     def test_filter_processes_as_expected(self):
-        fltr = self.get_filter('thumbor.filters.blur', params_string='blur(4,2)')
-
-        image = self.get_filtered(fltr, 'blur_source.jpg')
+        image = self.get_filtered('blur_source.jpg', 'thumbor.filters.blur', 'blur(4,2)')
         expected = self.get_fixture('blur.jpg')
 
         ssim = self.get_ssim(image, expected)
