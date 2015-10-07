@@ -31,6 +31,8 @@ tests_require = [
     "yanc",
     "remotecv",
     "hiredis",
+    # for mac os users, make sure to run:
+    # brew install memcached libmemcached
     "pylibmc",
 ]
 
