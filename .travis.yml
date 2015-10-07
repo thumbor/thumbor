@@ -25,6 +25,7 @@ install:
   - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
   - sudo ln -s /tmp/ffmpeg-release/ffmpeg /usr/local/bin/ffmpeg
   - ffmpeg -version
+  - pip install --upgrade pip
   - make setup
   - pip install coveralls
 before_script:
