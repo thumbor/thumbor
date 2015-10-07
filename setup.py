@@ -25,8 +25,11 @@ tests_require = [
     "mock==1.0.1",
     "raven",
     "nose",
+    "nose-focus",
     "colorama",
     "numpy",
+    "scipy",
+    "cython",
     "flake8",
     "yanc",
     "remotecv",
@@ -34,6 +37,7 @@ tests_require = [
     # for mac os users, make sure to run:
     # brew install memcached libmemcached
     "pylibmc",
+    "scikit-image",
 ]
 
 

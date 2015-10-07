@@ -2,6 +2,8 @@ run: compile_ext
 	@thumbor -l debug
 
 setup:
+	@pip install cython
+	@pip install https://github.com/scikit-image/scikit-image/archive/master.zip
 	@pip install -e .[tests]
 	@echo
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
@@ -37,6 +39,10 @@ coverage:
 
 unit:
 	@coverage run --branch `which nosetests` -v --with-yanc -s tests/
+
+focus:
+	@coverage run --branch `which nosetests` -vv --with-yanc --logging-level=WARNING --with-focus -i -s tests/
+
 
 mysql_test: pretest
 	PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py
