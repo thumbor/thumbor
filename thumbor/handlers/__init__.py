@@ -21,6 +21,7 @@ from thumbor.context import Context
 from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.loaders import LoaderResult
+from thumbor.result_storages import ResultStorageResult
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.transformer import Transformer
@@ -72,10 +73,11 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.context.metrics.incr('result_storage.bytes_read', len(result))
 
             if result is not None:
-                mime = BaseEngine.get_mimetype(result)
+                buffer = result.buffer if isinstance(result, ResultStorageResult) else result
+                mime = BaseEngine.get_mimetype(buffer)
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
-                    self.context.request.engine.load(result, '.gif')
+                    self.context.request.engine.load(buffer, '.gif')
                 else:
                     self.context.request.engine = self.context.modules.engine
 
@@ -201,7 +203,11 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def define_image_type(self, context, result):
         if result is not None:
-            image_extension = EXTENSION.get(BaseEngine.get_mimetype(result), '.jpg')
+            if isinstance(result, ResultStorageResult):
+                buffer = result.buffer
+            else:
+                buffer = result
+            image_extension = EXTENSION.get(BaseEngine.get_mimetype(buffer), '.jpg')
         else:
             image_extension = context.request.format
             if image_extension is not None:
@@ -255,7 +261,10 @@ class BaseHandler(tornado.web.RequestHandler):
         if self.context.config.SEND_IF_MODIFIED_LAST_MODIFIED_HEADERS:
             # Handle If-Modified-Since & Last-Modified header
             try:
-                result_last_modified = yield gen.maybe_future(self.context.modules.result_storage.last_updated())
+                if isinstance(result, ResultStorageResult):
+                    result_last_modified = result.last_modified
+                else:
+                    result_last_modified = yield gen.maybe_future(self.context.modules.result_storage.last_updated())
 
                 if result_last_modified:
                     if 'If-Modified-Since' in self.request.headers:
@@ -316,7 +325,12 @@ class BaseHandler(tornado.web.RequestHandler):
 
         context.headers = self._headers.copy()
 
-        self.write(results)
+        if isinstance(results, ResultStorageResult):
+            buffer = results.buffer
+        else:
+            buffer = results
+
+        self.write(buffer)
         self.finish()
 
     def _store_results(self, context, results):
