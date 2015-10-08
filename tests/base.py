@@ -55,7 +55,7 @@ class FilterTestCase(PythonTestCase):
         fltr = self.get_filter(filter_name, params_string)
         im = Image.open(self.get_fixture_path(source_image))
         img_buffer = BytesIO()
-        im.save(img_buffer, 'JPEG')
+        im.save(img_buffer, 'JPEG', quality=100)
         fltr.engine.load(img_buffer.getvalue(), '.jpg')
 
         fltr.run()
