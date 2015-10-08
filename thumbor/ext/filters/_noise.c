@@ -3,9 +3,9 @@
 static PyObject*
 _noise_apply(PyObject *self, PyObject *args)
 {
-    PyObject *buffer = NULL, *amount = NULL, *image_mode = NULL;
+    PyObject *buffer = NULL, *amount = NULL, *seed = NULL, *image_mode = NULL;
 
-    if (!PyArg_UnpackTuple(args, "apply", 3, 3, &image_mode, &amount, &buffer)) {
+    if (!PyArg_UnpackTuple(args, "apply", 3, 4, &image_mode, &amount, &buffer, &seed)) {
         return NULL;
     }
 
@@ -13,6 +13,7 @@ _noise_apply(PyObject *self, PyObject *args)
     Py_ssize_t size = PyString_Size(buffer);
     unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
     int amount_int = (int) PyInt_AsLong(amount);
+    int seed_int = (int) PyInt_AsLong(seed);
     int num_bytes = bytes_per_pixel(image_mode_str);
     int r_idx = rgb_order(image_mode_str, 'R'),
         g_idx = rgb_order(image_mode_str, 'G'),
@@ -21,6 +22,11 @@ _noise_apply(PyObject *self, PyObject *args)
     if (amount_int > 0) {
         int i = 0, r, g, b, rand_val;
         size -= num_bytes;
+
+        if (seed_int > 0) {
+            srand(seed_int);
+        }
+
         for (; i <= size; i += num_bytes) {
             rand_val = (rand() % amount_int) - (amount_int >> 1);
 
