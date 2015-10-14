@@ -14,9 +14,12 @@ from shutil import move
 
 from os.path import exists, dirname, join, getmtime, abspath
 
+from thumbor.engines import BaseEngine
 from thumbor.result_storages import BaseStorage
-from thumbor.utils import logger
+from thumbor.utils import logger, deprecated
 from tornado.concurrent import return_future
+
+from . import ResultStorageResult
 
 
 class Storage(BaseStorage):
@@ -55,11 +58,19 @@ class Storage(BaseStorage):
             logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
             callback(None)
         else:
-            buffer = None
-
             with open(file_abspath, 'r') as f:
                 buffer = f.read()
-            callback(buffer)
+
+            result = ResultStorageResult(
+                buffer=buffer,
+                metadata={
+                    'LastModified':  datetime.fromtimestamp(getmtime(file_abspath)),
+                    'ContentLength': len(buffer),
+                    'ContentType':   BaseEngine.get_mimetype(buffer)
+                }
+            )
+
+            callback(result)
 
     def validate_path(self, path):
         return abspath(path).startswith(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH)
@@ -87,6 +98,7 @@ class Storage(BaseStorage):
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
         return timediff.seconds > expire_in_seconds
 
+    @deprecated("Use result's last_modified instead")
     def last_updated(self):
         path = self.context.request.url
         file_abspath = self.normalize_path(path)
