@@ -16,6 +16,7 @@ from pyvows import Vows, expect
 ctx = Vows.Context
 
 import thumbor.engines.pil as PIL
+
 from os.path import join, abspath, dirname
 
 FIXTURES_FOLDER = join(abspath(dirname(__file__)), 'fixtures')
@@ -68,13 +69,14 @@ class PilEngineVows(ctx):
         def should_store_quantization_in_engine(self, engine):
             expect(len(engine.qtables)).to_equal(2)
 
-    class WritingJpegImage(ctx):
+    class WritingJpegImageWithOriginalJpegSettings(ctx):
         def topic(self):
             config = Config()
             server = ServerParameters(
                 8889, 'localhost', 'thumbor.conf', None, 'info', None
             )
-            config.PILLOW_COPY_JPEG_SETTINGS = True
+            config.PILLOW_JPEG_SUBSAMPLING = 'keep'
+            config.PILLOW_JPEG_QTABLES = 'keep'
             context = Context(server, config, Importer(config))
 
             with open("%s/quantization.jpg" % FIXTURES_FOLDER, "rb") as f:
@@ -86,11 +88,36 @@ class PilEngineVows(ctx):
 
             return engine.image
 
-        def should_save_with_stored_subsampling_if_quality_is_None(self, image):
+        def should_save_with_stored_subsampling(self, image):
             expect(image.encoderinfo.get('subsampling')).to_equal(0)
 
-        def should_save_with_stored_qtables_if_quality_is_None(self, image):
+        def should_save_with_stored_qtables(self, image):
             expect(len(image.encoderinfo.get('qtables'))).to_equal(2)
+
+    class WritingJpegImageWithExplicitJpegSettings(ctx):
+        def topic(self):
+            config = Config()
+            server = ServerParameters(
+                8889, 'localhost', 'thumbor.conf', None, 'info', None
+            )
+            config.PILLOW_JPEG_SUBSAMPLING = 2
+            config.PILLOW_JPEG_QTABLES = 'web_high'
+            context = Context(server, config, Importer(config))
+
+            with open("%s/quantization.jpg" % FIXTURES_FOLDER, "rb") as f:
+                buffer = f.read()
+
+            engine = PIL.Engine(context=context)
+            engine.load(buffer, '.jpg')
+            engine.read('.jpg', None)
+
+            return engine.image
+
+        def should_save_with_explicit_subsampling(self, image):
+            expect(image.encoderinfo.get('subsampling')).to_equal(2)
+
+        def should_save_with_explicit_qtables(self, image):
+            expect(image.encoderinfo.get('qtables')).to_equal('web_high')
 
     class ResizedPaletteImage(ctx):
         def topic(self):
