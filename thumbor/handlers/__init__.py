@@ -251,8 +251,8 @@ class BaseHandler(tornado.web.RequestHandler):
             )
         if not context.request.meta:
             results = self.optimize(context, image_extension, results)
-        # An optimizer might have modified the image format.
-        content_type = BaseEngine.get_mimetype(results)
+            # An optimizer might have modified the image format.
+            content_type = BaseEngine.get_mimetype(results)
 
         return results, content_type
 
@@ -296,6 +296,7 @@ class BaseHandler(tornado.web.RequestHandler):
         def inner(future):
             results, content_type = future.result()
             self._write_results_to_client(context, results, content_type)
+
             if should_store:
                 self._store_results(context, results)
 
@@ -346,7 +347,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 context.metrics.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
 
             tornado.ioloop.IOLoop.instance().add_callback(save_to_result_storage)
-
 
     def optimize(self, context, image_extension, results):
         for optimizer in context.modules.optimizers:
