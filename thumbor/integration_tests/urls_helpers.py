@@ -158,7 +158,7 @@ def single_dataset(fetcher, with_gif=True):
     images = original_images_base[:]
     if with_gif:
         images += original_images_gif_webp
-    all_options = trims + crops + fitins + sizes + haligns + valigns + smarts + filters
+    all_options = metas + trims + crops + fitins + sizes + haligns + valigns + smarts + filters
     UrlsTester(fetcher, product(all_options, images))
 
 
