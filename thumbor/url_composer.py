@@ -10,17 +10,14 @@
 
 import sys
 import optparse
+from urllib import quote
 
 from thumbor import __version__
 from libthumbor import CryptoURL
 from thumbor.config import Config
 
 
-def main(arguments=None):  # NOQA
-    '''Converts a given url with the specified arguments.'''
-    if arguments is None:
-        arguments = sys.argv[1:]
-
+def get_parser():
     parser = optparse.OptionParser(
         usage='thumbor-url [options] imageurl or type thumbor-url -h (--help) for help',
         description=__doc__,
@@ -91,15 +88,80 @@ def main(arguments=None):  # NOQA
         '(100x200:400x500) [default: %default].'
     )
 
+    return parser
+
+
+def get_options(arguments):
+    if arguments is None:
+        arguments = sys.argv[1:]
+
+    parser = get_parser()
+
     (parsed_options, arguments) = parser.parse_args(arguments)
 
     if not arguments:
-        print 'Error: The image argument is mandatory. For more information type thumbor-url -h'
+        sys.stdout.write('Error: The image argument is mandatory. For more information type thumbor-url -h\n')
         return
 
+    return parsed_options, arguments
+
+
+def get_thumbor_params(image_url, params, config):
+    if params.key_file:
+        f = open(params.key_file)
+        security_key = f.read().strip()
+        f.close()
+    else:
+        security_key = config.SECURITY_KEY if not params.key else params.key
+
+    crop_left = crop_top = crop_right = crop_bottom = 0
+    if params.crop:
+        crops = params.crop.split(':')
+        crop_left, crop_top = crops[0].split('x')
+        crop_right, crop_bottom = crops[1].split('x')
+
+    options = {
+        'old': params.old,
+        'width': params.width,
+        'height': params.height,
+        'smart': params.smart,
+        'meta': params.meta,
+        'horizontal_flip': params.horizontal_flip,
+        'vertical_flip': params.vertical_flip,
+        'halign': params.halign,
+        'valign': params.valign,
+        'trim': params.trim,
+        'crop_left': crop_left,
+        'crop_top': crop_top,
+        'crop_right': crop_right,
+        'crop_bottom': crop_bottom,
+        'filters': params.filters,
+        'image_url': image_url,
+        'fit_in': False,
+        'full_fit_in': False,
+        'adaptive_fit_in': False,
+        'adaptive_full_fit_in': False,
+    }
+
+    if params.fitin and params.full and params.adaptive:
+        options['adaptive_full_fit_in'] = True
+    elif params.fitin and params.full:
+        options['full_fit_in'] = True
+    elif params.fitin and params.adaptive:
+        options['adaptive_fit_in'] = True
+    elif params.fitin:
+        options['fit_in'] = True
+
+    return security_key, options
+
+
+def main(arguments=None):
+    '''Converts a given url with the specified arguments.'''
+
+    parsed_options, arguments = get_options(arguments)
+
     image_url = arguments[0]
-    if image_url.startswith('/'):
-        image_url = image_url[1:]
+    image_url = quote(image_url)
 
     try:
         config = Config.load(None)
@@ -107,55 +169,16 @@ def main(arguments=None):  # NOQA
         config = None
 
     if not parsed_options.key and not config:
-        print 'Error: The -k or --key argument is mandatory. For more information type thumbor-url -h'
+        sys.stdout.write('Error: The -k or --key argument is mandatory. For more information type thumbor-url -h\n')
         return
 
-    if parsed_options.key_file:
-        f = open(parsed_options.key_file)
-        security_key = f.read().strip()
-        f.close()
-    else:
-        security_key = config.SECURITY_KEY if not parsed_options.key else parsed_options.key
-
-    crop_left = crop_top = crop_right = crop_bottom = 0
-    if parsed_options.crop:
-        crops = parsed_options.crop.split(':')
-        crop_left, crop_top = crops[0].split('x')
-        crop_right, crop_bottom = crops[1].split('x')
-
-    options = {
-        'old': parsed_options.old,
-        'width': parsed_options.width,
-        'height': parsed_options.height,
-        'smart': parsed_options.smart,
-        'meta': parsed_options.meta,
-        'horizontal_flip': parsed_options.horizontal_flip,
-        'vertical_flip': parsed_options.vertical_flip,
-        'halign': parsed_options.halign,
-        'valign': parsed_options.valign,
-        'trim': parsed_options.trim,
-        'crop_left': crop_left,
-        'crop_top': crop_top,
-        'crop_right': crop_right,
-        'crop_bottom': crop_bottom,
-        'filters': parsed_options.filters,
-        'image_url': image_url,
-    }
-
-    if parsed_options.fitin and parsed_options.full and parsed_options.adaptive:
-        options['adaptive_full_fit_in'] = True
-    elif parsed_options.fitin and parsed_options.full:
-        options['full_fit_in'] = True
-    elif parsed_options.fitin and parsed_options.adaptive:
-        options['adaptive_fit_in'] = True
-    elif parsed_options.fitin:
-        options['fit_in'] = True
+    security_key, thumbor_params = get_thumbor_params(image_url, parsed_options, config)
 
     crypto = CryptoURL(key=security_key)
-    url = crypto.generate(**options)
-    print 'URL:'
+    url = crypto.generate(**thumbor_params)
+    sys.stdout.write('URL:\n')
+    sys.stdout.write('%s\n' % url)
 
-    print url
     return url
 
 if __name__ == '__main__':
