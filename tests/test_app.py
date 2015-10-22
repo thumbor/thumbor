@@ -18,10 +18,7 @@ from thumbor.app import (
 )
 from thumbor.url import Url
 
-from nose_focus import focus  # NOQA
 
-
-@focus  # NOQA
 class AppTestCase(TestCase):
     def test_can_create_app(self):
         ctx = mock.Mock()
