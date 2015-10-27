@@ -11,6 +11,8 @@
 import random
 from io import BytesIO
 from unittest import TestCase as PythonTestCase
+import urllib
+import mimetypes
 
 import numpy as np
 from PIL import Image
@@ -25,12 +27,75 @@ from thumbor.transformer import Transformer
 from tornado.testing import AsyncHTTPTestCase
 
 
+def encode_multipart_formdata(fields, files):
+    BOUNDARY = 'thumborUploadFormBoundary'
+    CRLF = '\r\n'
+    L = []
+    for key, value in fields.items():
+        L.append('--' + BOUNDARY)
+        L.append('Content-Disposition: form-data; name="%s"' % key)
+        L.append('')
+        L.append(value)
+    for (key, filename, value) in files:
+        L.append('--' + BOUNDARY)
+        L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
+        L.append('Content-Type: %s' % mimetypes.guess_type(filename)[0] or 'application/octet-stream')
+        L.append('')
+        L.append(value)
+    L.append('')
+    L.append('')
+    L.append('--' + BOUNDARY + '--')
+    body = CRLF.join([str(item) for item in L])
+    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
+    return content_type, body
+
+
 class TestCase(AsyncHTTPTestCase):
     def get_app(self):
-        return ThumborServiceApp(self.get_context())
+        self.context = self.get_context()
+        return ThumborServiceApp(self.context)
 
     def get_context(self):
         return Context(None, Config(), None)
+
+    def get(self, path, headers):
+        return self.fetch(path,
+                          method='GET',
+                          body=urllib.urlencode({}, doseq=True),
+                          headers=headers,
+                          allow_nonstandard_methods=True)
+
+    def post(self, path, headers, body):
+        return self.fetch(path,
+                          method='POST',
+                          body=body,
+                          headers=headers,
+                          allow_nonstandard_methods=True)
+
+    def put(self, path, headers, body):
+        return self.fetch(path,
+                          method='PUT',
+                          body=body,
+                          headers=headers,
+                          allow_nonstandard_methods=True)
+
+    def delete(self, path, headers):
+        return self.fetch(path,
+                          method='DELETE',
+                          body=urllib.urlencode({}, doseq=True),
+                          headers=headers,
+                          allow_nonstandard_methods=True)
+
+    def post_files(self, path, data={}, files=[]):
+        multipart_data = encode_multipart_formdata(data, files)
+
+        return self.fetch(path,
+                          method='POST',
+                          body=multipart_data[1],
+                          headers={
+                              'Content-Type': multipart_data[0]
+                          },
+                          allow_nonstandard_methods=True)
 
 
 class FilterTestCase(PythonTestCase):

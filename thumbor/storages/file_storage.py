@@ -17,6 +17,7 @@ import hashlib
 from uuid import uuid4
 
 import thumbor.storages as storages
+from thumbor.utils import logger
 from tornado.concurrent import return_future
 
 
@@ -27,11 +28,14 @@ class Storage(storages.BaseStorage):
         temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace('-', ''))
         file_dir_abspath = dirname(file_abspath)
 
+        logger.debug('creating tempfile for %s in %s...' % (path, temp_abspath))
+
         self.ensure_dir(file_dir_abspath)
 
         with open(temp_abspath, 'w') as _file:
             _file.write(bytes)
 
+        logger.error('moving tempfile %s to %s...' % (temp_abspath, file_abspath))
         move(temp_abspath, file_abspath)
 
         return path
