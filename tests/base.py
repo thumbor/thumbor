@@ -13,10 +13,12 @@ from io import BytesIO
 from unittest import TestCase as PythonTestCase
 import urllib
 import mimetypes
+from os.path import exists
 
 import numpy as np
 from PIL import Image
 from skimage.measure import structural_similarity
+from preggy import create_assertions
 
 from thumbor.app import ThumborServiceApp
 from thumbor.context import Context, RequestParameters
@@ -25,6 +27,43 @@ from thumbor.importer import Importer
 from thumbor.transformer import Transformer
 
 from tornado.testing import AsyncHTTPTestCase
+
+
+@create_assertions
+def to_exist(topic):
+    return exists(topic)
+
+
+@create_assertions
+def to_be_the_same_as(topic, expected):
+    if not exists(topic):
+        raise AssertionError("File at %s does not exist" % topic)
+    if not exists(expected):
+        raise AssertionError("File at %s does not exist" % expected)
+
+    im = Image.open(topic)
+    im = im.convert('RGBA')
+    topic_contents = np.array(im)
+
+    im = Image.open(expected)
+    im = im.convert('RGBA')
+    expected_contents = np.array(im)
+
+    return get_ssim(topic_contents, expected_contents) > 0.95
+
+
+def get_ssim(actual, expected):
+    im = Image.fromarray(actual)
+    im2 = Image.fromarray(expected)
+
+    if im.size[0] != im2.size[0] or im.size[1] != im2.size[1]:
+        raise RuntimeError(
+            "Can't calculate SSIM for images of different sizes (one is %dx%d, the other %dx%d)." % (
+                im.size[0], im.size[1],
+                im2.size[0], im2.size[1],
+            )
+        )
+    return structural_similarity(np.array(im), np.array(im2), multichannel=True)
 
 
 def encode_multipart_formdata(fields, files):
@@ -146,17 +185,7 @@ class FilterTestCase(PythonTestCase):
         return np.array(fltr.engine.image)
 
     def get_ssim(self, actual, expected):
-        im = Image.fromarray(actual)
-        im2 = Image.fromarray(expected)
-
-        if im.size[0] != im2.size[0] or im.size[1] != im2.size[1]:
-            raise RuntimeError(
-                "Can't calculate SSIM for images of different sizes (one is %dx%d, the other %dx%d)." % (
-                    im.size[0], im.size[1],
-                    im2.size[0], im2.size[1],
-                )
-            )
-        return structural_similarity(np.array(im), np.array(im2), multichannel=True)
+        return get_ssim(actual, expected)
 
     def debug(self, image):
         im = Image.fromarray(image)

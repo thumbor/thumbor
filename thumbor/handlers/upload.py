@@ -10,6 +10,7 @@
 
 import uuid
 import mimetypes
+
 from thumbor.handlers import ImageApiHandler
 from thumbor.engines import BaseEngine
 
