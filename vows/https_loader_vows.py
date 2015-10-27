@@ -11,7 +11,6 @@
 from os.path import abspath, join, dirname
 
 from pyvows import Vows, expect
-from tornado.concurrent import Future
 from tornado_pyvows.context import TornadoHTTPContext
 import tornado.web
 
