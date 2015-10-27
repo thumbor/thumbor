@@ -35,7 +35,7 @@ class Storage(storages.BaseStorage):
         with open(temp_abspath, 'w') as _file:
             _file.write(bytes)
 
-        logger.error('moving tempfile %s to %s...' % (temp_abspath, file_abspath))
+        logger.debug('moving tempfile %s to %s...' % (temp_abspath, file_abspath))
         move(temp_abspath, file_abspath)
 
         return path
