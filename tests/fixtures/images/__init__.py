@@ -19,6 +19,7 @@ from os.path import abspath, join, dirname
 #   - too weight image : JPEG 300x400, 85.32 KB
 ##
 valid_image_path = abspath(join(dirname(__file__), u'alabama1_ap620é.jpg'))
+too_small_image_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
 
 
 def valid_image():
@@ -28,8 +29,7 @@ def valid_image():
 
 
 def too_small_image():
-    path = abspath(join(dirname(__file__), 'crocodile.jpg'))
-    with open(path, 'r') as stream:
+    with open(too_small_image_path, 'r') as stream:
         body = stream.read()
     return body
 

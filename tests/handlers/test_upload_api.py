@@ -10,6 +10,7 @@
 
 from shutil import rmtree
 import tempfile
+import re
 
 from preggy import expect
 
@@ -17,10 +18,13 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context
 from tests.base import TestCase
-from tests.fixtures.images import valid_image, valid_image_path
+from tests.fixtures.images import (
+    valid_image, valid_image_path,
+    too_small_image, too_small_image_path,
+)
 
 
-class UploadAPITestCase(TestCase):
+class UploadTestCase(TestCase):
     @classmethod
     def setUpClass(cls, *args, **kw):
         cls.root_path = tempfile.mkdtemp()
@@ -55,6 +59,8 @@ class UploadAPITestCase(TestCase):
 
         return Context(None, cfg, importer)
 
+
+class UploadAPINewFileTestCase(UploadTestCase):
     def test_can_post_image_with_content_type(self):
         filename = 'new_image_with_a_filename.jpg'
         response = self.post(self.base_uri, {'Content-Type': 'image/jpeg', 'Slug': filename}, valid_image())
@@ -125,3 +131,40 @@ class UploadAPITestCase(TestCase):
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         expect(expected_path).to_exist()
         expect(expected_path).to_be_the_same_as(valid_image_path)
+
+
+class UploadAPIUpdateFileTestCase(UploadTestCase):
+    def get_context(self):
+        self.default_filename = 'image'
+
+        cfg = Config()
+        cfg.UPLOAD_ENABLED = True
+        cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.UPLOAD_DELETE_ALLOWED = False
+        cfg.UPLOAD_PUT_ALLOWED = True
+        cfg.UPLOAD_DEFAULT_FILENAME = self.default_filename
+
+        importer = Importer(cfg)
+        importer.import_modules()
+
+        return Context(None, cfg, importer)
+
+    from nose_focus import focus  # NOQA
+    @focus  # NOQA
+    def test_can_modify_existing_image(self):
+        filename = self.default_filename + '.jpg'
+        response = self.post(self.base_uri, {'Content-Type': 'image/jpeg'}, valid_image())
+        location = response.headers['Location']
+        response = self.put(location, {'Content-Type': 'image/jpeg'}, too_small_image())
+
+        expect(response.code).to_equal(204)
+
+        id_should_exist = re.compile(self.base_uri + r'/([^\/]{32})/' + filename).search(location).group(1)
+        expected_path = self.upload_storage.path_on_filesystem(id_should_exist)
+        expect(expected_path).to_exist()
+        expect(expected_path).to_be_the_same_as(too_small_image_path)
+
+        id_shouldnt_exist = re.compile(self.base_uri + r'/(.*)').search(location).group(1)
+        expected_path = self.upload_storage.path_on_filesystem(id_shouldnt_exist)
+        expect(expected_path).not_to_exist()
