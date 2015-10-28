@@ -14,6 +14,7 @@ from unittest import TestCase as PythonTestCase
 import urllib
 import mimetypes
 from os.path import exists
+import cStringIO
 
 import numpy as np
 from PIL import Image
@@ -46,6 +47,19 @@ def to_be_the_same_as(topic, expected):
     topic_contents = np.array(im)
 
     im = Image.open(expected)
+    im = im.convert('RGBA')
+    expected_contents = np.array(im)
+
+    return get_ssim(topic_contents, expected_contents) > 0.95
+
+
+@create_assertions
+def to_be_similar_to(topic, expected):
+    im = Image.open(cStringIO.StringIO(topic))
+    im = im.convert('RGBA')
+    topic_contents = np.array(im)
+
+    im = Image.open(cStringIO.StringIO(expected))
     im = im.convert('RGBA')
     expected_contents = np.array(im)
 

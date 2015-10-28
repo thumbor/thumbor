@@ -20,6 +20,7 @@ from os.path import abspath, join, dirname
 ##
 valid_image_path = abspath(join(dirname(__file__), u'alabama1_ap620é.jpg'))
 too_small_image_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
+too_heavy_image_path = abspath(join(dirname(__file__), 'conselheira_tutelar.jpg'))
 
 
 def valid_image():
@@ -34,8 +35,7 @@ def too_small_image():
     return body
 
 
-def too_weight_image():
-    path = abspath(join(dirname(__file__), 'conselheira_tutelar.jpg'))
-    with open(path, 'r') as stream:
+def too_heavy_image():
+    with open(too_heavy_image_path, 'r') as stream:
         body = stream.read()
     return body
