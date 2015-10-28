@@ -21,21 +21,41 @@ from os.path import abspath, join, dirname
 valid_image_path = abspath(join(dirname(__file__), u'alabama1_ap620é.jpg'))
 too_small_image_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
 too_heavy_image_path = abspath(join(dirname(__file__), 'conselheira_tutelar.jpg'))
+default_image_path = abspath(join(dirname(__file__), 'image.jpg'))
+alabama1_image_path = abspath(join(dirname(__file__), 'alabama1_ap620%C3%A9.jpg'))
+space_image_path = abspath(join(dirname(__file__), 'image space.jpg'))
+invalid_quantization_image_path = abspath(join(dirname(__file__), 'invalid_quantization.jpg'))
+
+
+def get_image(img):
+    with open(img, 'r') as stream:
+        body = stream.read()
+    return body
 
 
 def valid_image():
-    with open(valid_image_path, 'r') as stream:
-        body = stream.read()
-    return body
+    return get_image(valid_image_path)
 
 
 def too_small_image():
-    with open(too_small_image_path, 'r') as stream:
-        body = stream.read()
-    return body
+    return get_image(too_small_image_path)
 
 
 def too_heavy_image():
-    with open(too_heavy_image_path, 'r') as stream:
-        body = stream.read()
-    return body
+    return get_image(too_heavy_image_path)
+
+
+def default_image():
+    return get_image(default_image_path)
+
+
+def alabama1():
+    return get_image(alabama1_image_path)
+
+
+def space_image():
+    return get_image(space_image_path)
+
+
+def invalid_quantization():
+    return get_image(invalid_quantization_image_path)
