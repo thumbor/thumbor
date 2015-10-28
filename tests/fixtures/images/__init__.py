@@ -25,6 +25,7 @@ default_image_path = abspath(join(dirname(__file__), 'image.jpg'))
 alabama1_image_path = abspath(join(dirname(__file__), 'alabama1_ap620%C3%A9.jpg'))
 space_image_path = abspath(join(dirname(__file__), 'image space.jpg'))
 invalid_quantization_image_path = abspath(join(dirname(__file__), 'invalid_quantization.jpg'))
+animated_image_path = abspath(join(dirname(__file__), 'animated_image.gif'))
 
 
 def get_image(img):
@@ -59,3 +60,7 @@ def space_image():
 
 def invalid_quantization():
     return get_image(invalid_quantization_image_path)
+
+
+def animated_image():
+    return get_image(animated_image_path)
