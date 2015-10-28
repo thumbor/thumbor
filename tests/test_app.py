@@ -50,7 +50,7 @@ class AppTestCase(TestCase):
         app = ThumborServiceApp(ctx)
 
         handlers = app.get_handlers()
-        expect(handlers).to_length(5)
+        expect(handlers).to_length(4)
 
     def test_can_get_handlers_with_blacklist(self):
         ctx = mock.Mock(
