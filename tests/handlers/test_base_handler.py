@@ -173,6 +173,16 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.body).to_be_jpeg()
 
+    def test_can_read_cmyk_jpeg(self):
+        response = self.fetch('/unsafe/merrit.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_jpeg()
+
+    def test_can_read_cmyk_jpeg_as_png(self):
+        response = self.fetch('/unsafe/filters:format(png)/merrit.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
 
 class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
     def get_context(self):
@@ -253,8 +263,6 @@ class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
 
 
 class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
-    _multiprocess_can_split_ = True
-
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
         cfg.LOADER = "thumbor.loaders.file_loader"
@@ -310,129 +318,88 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.body).to_be_webp()
 
-    def test_can_read_monochromatic_jpeg(self):
+    def test_should_convert_monochromatic_jpeg(self):
         response = self.get_as_webp('/unsafe/wellsford.jpg')
         expect(response.code).to_equal(200)
         expect(response.body).to_be_webp()
 
-    #class WithCMYKJPEG(BaseContext):
-        #def topic(self):
-            #response = self.fetch('/unsafe/merrit.jpg')
-            #return (response.code, response.headers)
+    def test_should_convert_cmyk_jpeg(self):
+        response = self.get_as_webp('/unsafe/merrit.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_webp()
 
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
+    def test_shouldnt_convert_cmyk_jpeg_if_format_specified(self):
+        response = self.get_as_webp('/unsafe/filters:format(png)/merrit.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
 
-    #class WithCMYKJPEGAsPNG(BaseContext):
-        #def topic(self):
-            #response = self.fetch('/unsafe/filters:format(png)/merrit.jpg')
-            #return (response.code, response.headers)
+    from nose_focus import focus  # NOQA
+    @focus  # NOQA
+    def test_shouldnt_convert_cmyk_jpeg_if_gif(self):
+        response = self.get_as_webp('/unsafe/filters:format(gif)/merrit.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_gif()
 
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
+    def test_shouldnt_convert_cmyk_if_format_specified(self):
+        response = self.get_as_webp('/unsafe/filters:format(gif)/image.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_gif()
 
-    #class WithCMYKJPEGAsPNGAcceptingWEBP(BaseContext):
-        #def topic(self):
-            #response = self.fetch('/unsafe/filters:format(png)/merrit.jpg', headers={
-                #"Accept": 'image/webp,*/*;q=0.8'
-            #})
-            #return response
-
-        #def should_be_200(self, response):
-            #expect(response.code).to_equal(200)
-            #image = self.engine.create_image(response.body)
-            #expect(image.format.lower()).to_equal('png')
-
-    #class WithJPEGAsGIFAcceptingWEBP(BaseContext):
-        #def topic(self):
-            #response = self.fetch('/unsafe/filters:format(gif)/image.jpg', headers={
-                #"Accept": 'image/webp,*/*;q=0.8'
-            #})
-            #return response
-
-        #def should_be_200(self, response):
-            #expect(response.code).to_equal(200)
-            #image = self.engine.create_image(response.body)
-            #expect(image.format.lower()).to_equal('gif')
-
-    #class HasEtags(BaseContext):
-        #def topic(self):
-            #return self.fetch('/unsafe/image.jpg', headers={
-                #"Accept": 'image/webp,*/*;q=0.8'
-            #})
-
-        #def should_have_etag(self, response):
-            #expect(response.headers).to_include('Etag')
+    def test_converting_return_etags(self):
+        response = self.get_as_webp('/unsafe/image.jpg')
+        expect(response.headers).to_include('Etag')
 
 
-#@Vows.batch
-#class GetImageWithoutEtags(BaseContext):
-    #def get_app(self):
-        #cfg = Config(SECURITY_KEY='ACME-SEC')
-        #cfg.LOADER = "thumbor.loaders.file_loader"
-        #cfg.FILE_LOADER_ROOT_PATH = storage_path
-        #cfg.ENABLE_ETAGS = False
+class ImageOperationsWithoutEtagsTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.ENABLE_ETAGS = False
 
-        #importer = Importer(cfg)
-        #importer.import_modules()
-        #server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
-        #server.security_key = 'ACME-SEC'
-        #ctx = Context(server, cfg, importer)
-        #application = ThumborServiceApp(ctx)
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
 
-        #self.engine = PILEngine(ctx)
+    def test_can_get_image_without_etags(self):
+        response = self.fetch('/unsafe/image.jpg', headers={
+            "Accept": 'image/webp,*/*;q=0.8'
+        })
 
-        #return application
-
-    #class CanDisableEtag(BaseContext):
-        #def topic(self):
-            #return self.fetch('/unsafe/image.jpg', headers={
-                #"Accept": 'image/webp,*/*;q=0.8'
-            #})
-
-        #def should_not_have_etag(self, response):
-            #expect(response.headers).not_to_include('Etag')
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Etag')
 
 
-#@Vows.batch
-#class GetImageWithGIFV(BaseContext):
-    #def get_app(self):
-        #cfg = Config(SECURITY_KEY='ACME-SEC')
-        #cfg.LOADER = "thumbor.loaders.file_loader"
-        #cfg.FILE_LOADER_ROOT_PATH = storage_path
-        #cfg.OPTIMIZERS = [
-            #'thumbor.optimizers.gifv',
-        #]
+class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.OPTIMIZERS = [
+            'thumbor.optimizers.gifv',
+        ]
 
-        #importer = Importer(cfg)
-        #importer.import_modules()
-        #server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
-        #server.security_key = 'ACME-SEC'
-        #ctx = Context(server, cfg, importer)
-        #ctx.server.gifsicle_path = which('gifsicle')
-        #application = ThumborServiceApp(ctx)
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        ctx.server.gifsicle_path = which('gifsicle')
+        return ctx
 
-        #self.engine = PILEngine(ctx)
+    def test_should_convert_animated_gif_to_mp4_when_filter_without_params(self):
+        response = self.fetch('/unsafe/filters:gifv()/animated_image.gif')
 
-        #return application
+        expect(response.code).to_equal(200)
+        expect(response.headers['Content-Type']).to_equal('video/mp4')
 
-    #class ShouldConvertAnimatedGifToMp4WhenFilter(BaseContext):
-        #def topic(self):
-            #return self.fetch('/unsafe/filters:gifv()/animated_image.gif')
+    def test_should_convert_animated_gif_to_mp4_when_filter_with_gifv_param(self):
+        response = self.fetch('/unsafe/filters:gifv(webm)/animated_image.gif')
 
-        #def should_be_mp4(self, response):
-            #expect(response.code).to_equal(200)
-            #expect(response.headers['Content-Type']).to_equal('video/mp4')
-
-    #class ShouldConvertAnimatedGifToWebmWhenFilter(BaseContext):
-        #def topic(self):
-            #return self.fetch('/unsafe/filters:gifv(webm)/animated_image.gif')
-
-        #def should_be_mp4(self, response):
-            #expect(response.code).to_equal(200)
-            #expect(response.headers['Content-Type']).to_equal('video/webm')
+        expect(response.code).to_equal(200)
+        expect(response.headers['Content-Type']).to_equal('video/webm')
 
 
 #@Vows.batch
