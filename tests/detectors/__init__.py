@@ -15,6 +15,8 @@ from thumbor.engines.pil import Engine as PilEngine
 
 
 class DetectorTestCase(TestCase):
+    _multiprocess_can_split_ = True
+
     def setUp(self):
         self.context = mock.Mock(request=mock.Mock(focal_points=[]))
         self.engine = PilEngine(self.context)

@@ -13,7 +13,7 @@ from os.path import abspath
 from preggy import expect
 
 from thumbor.detectors.face_detector import Detector as FaceDetector
-from . import DetectorTestCase
+from tests.detectors import DetectorTestCase
 
 
 class FaceDetectorTestCase(DetectorTestCase):

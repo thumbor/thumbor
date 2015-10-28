@@ -66,6 +66,30 @@ def to_be_similar_to(topic, expected):
     return get_ssim(topic_contents, expected_contents) > 0.95
 
 
+@create_assertions
+def to_be_webp(topic):
+    im = Image.open(cStringIO.StringIO(topic))
+    return im.format.lower() == 'webp'
+
+
+@create_assertions
+def to_be_png(topic):
+    im = Image.open(cStringIO.StringIO(topic))
+    return im.format.lower() == 'png'
+
+
+@create_assertions
+def to_be_gif(topic):
+    im = Image.open(cStringIO.StringIO(topic))
+    return im.format.lower() == 'gif'
+
+
+@create_assertions
+def to_be_jpeg(topic):
+    im = Image.open(cStringIO.StringIO(topic))
+    return im.format.lower() == 'jpeg'
+
+
 def get_ssim(actual, expected):
     im = Image.fromarray(actual)
     im2 = Image.fromarray(expected)
@@ -104,6 +128,8 @@ def encode_multipart_formdata(fields, files):
 
 
 class TestCase(AsyncHTTPTestCase):
+    _multiprocess_can_split_ = True
+
     def get_app(self):
         self.context = self.get_context()
         return ThumborServiceApp(self.context)
@@ -152,6 +178,8 @@ class TestCase(AsyncHTTPTestCase):
 
 
 class FilterTestCase(PythonTestCase):
+    _multiprocess_can_split_ = True
+
     def get_filter(self, filter_name, params_string="", config_context=None):
         config = Config(
             FILTERS=[filter_name],

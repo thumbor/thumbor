@@ -39,7 +39,7 @@ coverage:
 	@coverage report -m --fail-under=10
 
 unit:
-	@coverage run --branch `which nosetests` -v --with-yanc -s tests/
+	@coverage run --branch `which nosetests` -v --with-yanc --processes=4 -s tests/
 
 focus:
 	@coverage run --branch `which nosetests` -vv --with-yanc --logging-level=WARNING --with-focus -i -s tests/

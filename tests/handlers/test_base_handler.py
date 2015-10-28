@@ -21,6 +21,7 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context, ServerParameters
 from thumbor.handlers import FetchResult, BaseHandler
+from thumbor.utils import which
 from tests.base import TestCase, PythonTestCase
 from tests.fixtures.images import (
     default_image,
@@ -80,7 +81,7 @@ class BaseHandlerTestCase(TestCase):
         expect(response.code).to_equal(403)
 
 
-class ImagingOperationsTestCase(TestCase):
+class BaseImagingTestCase(TestCase):
     @classmethod
     def setUpClass(cls, *args, **kw):
         cls.root_path = tempfile.mkdtemp()
@@ -91,6 +92,8 @@ class ImagingOperationsTestCase(TestCase):
     def tearDownClass(cls, *args, **kw):
         shutil.rmtree(cls.root_path)
 
+
+class ImagingOperationsTestCase(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
         cfg.LOADER = "thumbor.loaders.file_loader"
@@ -160,227 +163,157 @@ class ImagingOperationsTestCase(TestCase):
         response = self.fetch('/unsafe/image_invalid.jpg')
         expect(response.code).to_equal(400)
 
+    def test_can_read_monochromatic_jpeg(self):
+        response = self.fetch('/unsafe/wellsford.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_jpeg()
 
-#@Vows.batch
-#class GetImageWithoutUnsafe(BaseContext):
-    #def get_app(self):
-        #cfg = Config(SECURITY_KEY='ACME-SEC')
-        #cfg.LOADER = "thumbor.loaders.file_loader"
-        #cfg.FILE_LOADER_ROOT_PATH = storage_path
-        #cfg.ALLOW_UNSAFE_URL = False
-
-        #importer = Importer(cfg)
-        #importer.import_modules()
-        #server = ServerParameters(8890, 'localhost', 'thumbor.conf', None, 'info', None)
-        #server.security_key = 'ACME-SEC'
-        #ctx = Context(server, cfg, importer)
-        #application = ThumborServiceApp(ctx)
-
-        #return application
-
-    #class WithSignedRegularImage(TornadoHTTPContext):
-        #def topic(self):
-            #response = self.fetch('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
-            #return (response.code, response.headers)
-
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
-
-    #class WithRegularImage(TornadoHTTPContext):
-        #def topic(self):
-            #response = self.fetch('/unsafe/smart/image.jpg')
-            #return (response.code, response.headers)
-
-        #def should_be_bad_request(self, response):
-            #code, _ = response
-            #expect(code).to_equal(400)
+    def test_can_read_image_with_small_width_and_no_height(self):
+        response = self.fetch('/unsafe/0x0:1681x596/1x/hidrocarbonetos_9.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_jpeg()
 
 
-#@Vows.batch
-#class GetImageWithOLDFormat(BaseContext):
-    #def get_app(self):
-        #cfg = Config(SECURITY_KEY='ACME-SEC')
-        #cfg.LOADER = "thumbor.loaders.file_loader"
-        #cfg.FILE_LOADER_ROOT_PATH = storage_path
-        #cfg.ALLOW_UNSAFE_URL = False
-        #cfg.ALLOW_OLD_URLS = True
+class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.ALLOW_UNSAFE_URL = False
 
-        #importer = Importer(cfg)
-        #importer.import_modules()
-        #server = ServerParameters(8890, 'localhost', 'thumbor.conf', None, 'info', None)
-        #server.security_key = 'ACME-SEC'
-        #ctx = Context(server, cfg, importer)
-        #application = ThumborServiceApp(ctx)
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8890, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
 
-        #return application
+    def test_can_get_image_with_signed_url(self):
+        response = self.fetch('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_similar_to(default_image())
 
-    #class WithEncryptedRegularImage(TornadoHTTPContext):
-        #def topic(self):
-            #response = self.fetch('/J4ZFjCICZSwwIKfEKNldBNjcG145LDiD2z-4RlOa5ZG4ZY_-8KoEyDOBDfqDBljH/image.jpg')
-            #return (response.code, response.headers)
-
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
-
-    #class WithBadEncryptedRegularImage(TornadoHTTPContext):
-        #def topic(self):
-            #response = self.fetch('/27m-vYMKohY6nvEt_D3Zwo7apVq63MS8TP-m1j3BXPGTftnrReTOEoScq1xMXe7h/alabama1_ap620é.jpg')
-            #return (response.code, response.headers)
-
-        #def should_be_bad_request(self, response):
-            #code, _ = response
-            #expect(code).to_equal(400)
+    def test_getting_unsafe_image_fails(self):
+        response = self.fetch('/unsafe/smart/image.jpg')
+        expect(response.code).to_equal(400)
 
 
-#@Vows.batch
-#class GetImageWithStoredKeys(BaseContext):
-    #def get_app(self):
-        #cfg = Config(SECURITY_KEY='MYKEY')
-        #cfg.LOADER = "thumbor.loaders.file_loader"
-        #cfg.FILE_LOADER_ROOT_PATH = storage_path
-        #cfg.ALLOW_UNSAFE_URL = False
-        #cfg.ALLOW_OLD_URLS = True
-        #cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
+class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='MYKEY')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.ALLOW_UNSAFE_URL = False
+        cfg.ALLOW_OLD_URLS = True
+        cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
 
-        #importer = Importer(cfg)
-        #importer.import_modules()
-        #server = ServerParameters(8891, 'localhost', 'thumbor.conf', None, 'info', None)
-        #server.security_key = 'MYKEY'
-        #ctx = Context(server, cfg, importer)
-        #application = ThumborServiceApp(ctx)
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8891, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'MYKEY'
+        return Context(server, cfg, importer)
 
-        #logger.exception = Mock()
+    def test_stored_security_key_with_regular_image(self):
+        storage = self.context.modules.storage
+        self.context.server.security_key = 'MYKEY'
+        storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
+        self.context.server.security_key = 'MYKEY2'
 
-        #storage = FileStorage(Context(config=cfg, server=server))
+        try:
+            response = self.fetch('/nty7gpBIRJ3GWtYDLLw6q1PgqTo=/smart/image.jpg')
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_similar_to(default_image())
+        finally:
+            self.context.server.security_key = 'MYKEY'
 
-        ## Store fixtures (image.jpg and image.txt) into the file storage
-        #storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
+    def test_stored_security_key_with_regular_image_with_querystring(self):
+        storage = self.context.modules.storage
+        self.context.server.security_key = 'MYKEY'
+        storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
+        self.context.server.security_key = 'MYKEY2'
 
-        #return application
+        try:
+            response = self.fetch('/Iw7LZGdr-hHj2gQ4ZzksP3llQHY=/smart/image.jpg%3Fts%3D1')
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_similar_to(default_image())
+        finally:
+            self.context.server.security_key = 'MYKEY'
 
-    #class WithEncryptedRegularImage(TornadoHTTPContext):
-        #def topic(self):
-            #response = self.fetch('/nty7gpBIRJ3GWtYDLLw6q1PgqTo=/smart/image.jpg')
-            #return (response.code, response.headers)
+    def test_stored_security_key_with_regular_image_with_hash(self):
+        storage = self.context.modules.storage
+        self.context.server.security_key = 'MYKEY'
+        storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
+        self.context.server.security_key = 'MYKEY2'
 
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
-
-    #class WithRegularImageWithQueryString(TornadoHTTPContext):
-        #def topic(self):
-            #response = self.fetch('/Iw7LZGdr-hHj2gQ4ZzksP3llQHY=/smart/image.jpg%3Fts%3D1')
-            #return (response.code, response.headers)
-
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
-
-        #def should_not_log_exception(self, response):
-            #expect(logger.exception.called).to_be_false()
-
-    #class WithRegularImageWithHash(TornadoHTTPContext):
-        #def topic(self):
-            #response = self.fetch('/fxOHtHcTZMyuAQ1YPKh9KWg7nO8=/smart/image.jpg%23something')
-            #return (response.code, response.headers)
-
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
-
-        #def should_not_log_exception(self, response):
-            #expect(logger.exception.called).to_be_false()
+        try:
+            response = self.fetch('/fxOHtHcTZMyuAQ1YPKh9KWg7nO8=/smart/image.jpg%23something')
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_similar_to(default_image())
+        finally:
+            self.context.server.security_key = 'MYKEY'
 
 
-#@Vows.batch
-#class GetImageWithAutoWebP(BaseContext):
-    #def get_app(self):
-        #cfg = Config(SECURITY_KEY='ACME-SEC')
-        #cfg.LOADER = "thumbor.loaders.file_loader"
-        #cfg.FILE_LOADER_ROOT_PATH = storage_path
-        #cfg.AUTO_WEBP = True
+class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
+    _multiprocess_can_split_ = True
 
-        #importer = Importer(cfg)
-        #importer.import_modules()
-        #server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
-        #server.security_key = 'ACME-SEC'
-        #ctx = Context(server, cfg, importer)
-        #ctx.server.gifsicle_path = which('gifsicle')
-        #application = ThumborServiceApp(ctx)
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.no_storage"
+        cfg.AUTO_WEBP = True
 
-        #self.engine = PILEngine(ctx)
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        ctx.server.gifsicle_path = which('gifsicle')
+        return ctx
 
-        #return application
+    def get_as_webp(self, url):
+        return self.fetch(url, headers={
+            "Accept": 'image/webp,*/*;q=0.8'
+        })
 
-    #class CanConvertJPEG(BaseContext):
-        #def topic(self):
-            #return self.fetch('/unsafe/image.jpg', headers={
-                #"Accept": 'image/webp,*/*;q=0.8'
-            #})
+    def test_can_auto_convert_jpeg(self):
+        response = self.get_as_webp('/unsafe/image.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.headers['Vary']).to_include('Accept')
 
-        #def should_be_webp(self, response):
-            #expect(response.code).to_equal(200)
-            #expect(response.headers).to_include('Vary')
-            #expect(response.headers['Vary']).to_include('Accept')
+        expect(response.body).to_be_webp()
 
-            #image = self.engine.create_image(response.body)
-            #expect(image.format.lower()).to_equal('webp')
+    def test_should_not_convert_webp_if_already_webp(self):
+        response = self.get_as_webp('/unsafe/image.webp')
 
-    #class ShouldNotConvertWebPImageIfAlreadyWebP(BaseContext):
-        #def topic(self):
-            #return self.fetch('/unsafe/image.webp', headers={
-                #"Accept": 'image/webp,*/*;q=0.8'
-            #})
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_webp()
 
-        #def should_not_have_vary(self, response):
-            #expect(response.code).to_equal(200)
-            #expect(response.headers).not_to_include('Vary')
-            #image = self.engine.create_image(response.body)
-            #expect(image.format.lower()).to_equal('webp')
+    def test_should_not_convert_webp_if_bigger_than_89478485_pixels(self):
+        response = self.get_as_webp('/unsafe/16384.png')
 
-    #class ShouldNotConvertWebPImageIfBiggerThan16383(BaseContext):
-        #def topic(self):
-            #return self.fetch('/unsafe/16384.png', headers={
-                #"Accept": 'image/webp,*/*;q=0.8'
-            #})
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_png()
 
-        #def should_not_have_vary(self, response):
-            #expect(response.code).to_equal(200)
-            #image = self.engine.create_image(response.body)
-            #expect(image.format.lower()).to_equal('png')
+    def test_should_not_convert_animated_gifs_to_webp(self):
+        response = self.get_as_webp('/unsafe/animated_image.gif')
 
-    #class ShouldNotConvertAnimatedGif(BaseContext):
-        #def topic(self):
-            #return self.fetch('/unsafe/animated_image.gif', headers={
-                #"Accept": 'image/webp,*/*;q=0.8'
-            #})
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_gif()
 
-        #def should_not_be_webp(self, response):
-            #expect(response.code).to_equal(200)
-            #expect(response.headers).not_to_include('Vary')
+    def test_should_convert_image_with_small_width_and_no_height(self):
+        response = self.get_as_webp('/unsafe/0x0:1681x596/1x/hidrocarbonetos_9.jpg')
 
-            #image = self.engine.create_image(response.body)
-            #expect(image.format.lower()).to_equal('gif')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_webp()
 
-    #class WithImageWithSmallWidthAndNoHeight(BaseContext):
-        #def topic(self):
-            #response = self.fetch('/unsafe/0x0:1681x596/1x/hidrocarbonetos_9.jpg')
-            #return (response.code, response.headers)
-
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
-
-    #class WithMonochromaticJPEG(BaseContext):
-        #def topic(self):
-            #response = self.fetch('/unsafe/wellsford.jpg')
-            #return (response.code, response.headers)
-
-        #def should_be_200(self, response):
-            #code, _ = response
-            #expect(code).to_equal(200)
+    def test_can_read_monochromatic_jpeg(self):
+        response = self.get_as_webp('/unsafe/wellsford.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_webp()
 
     #class WithCMYKJPEG(BaseContext):
         #def topic(self):
