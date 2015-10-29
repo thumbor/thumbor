@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-
+import sys
 from os.path import abspath, join, dirname
 
 
@@ -18,14 +18,17 @@ from os.path import abspath, join, dirname
 #   - too small image  : JPEG 20x20, 822 B
 #   - too weight image : JPEG 300x400, 85.32 KB
 ##
-valid_image_path = abspath(join(dirname(__file__), u'alabama1_ap620é.jpg'))
-too_small_image_path = abspath(join(dirname(__file__), 'crocodile.jpg'))
-too_heavy_image_path = abspath(join(dirname(__file__), 'conselheira_tutelar.jpg'))
-default_image_path = abspath(join(dirname(__file__), 'image.jpg'))
-alabama1_image_path = abspath(join(dirname(__file__), 'alabama1_ap620%C3%A9.jpg'))
-space_image_path = abspath(join(dirname(__file__), 'image space.jpg'))
-invalid_quantization_image_path = abspath(join(dirname(__file__), 'invalid_quantization.jpg'))
-animated_image_path = abspath(join(dirname(__file__), 'animated_image.gif'))
+def get_abs_path(img):
+    return abspath(join(dirname(__file__), img.encode(sys.getfilesystemencoding())))
+
+valid_image_path = get_abs_path(u'alabama1_ap620é.jpg')
+too_small_image_path = get_abs_path('crocodile.jpg')
+too_heavy_image_path = get_abs_path('conselheira_tutelar.jpg')
+default_image_path = get_abs_path('image.jpg')
+alabama1_image_path = get_abs_path('alabama1_ap620%C3%A9.jpg')
+space_image_path = get_abs_path('image space.jpg')
+invalid_quantization_image_path = get_abs_path('invalid_quantization.jpg')
+animated_image_path = get_abs_path('animated_image.gif')
 
 
 def get_image(img):
