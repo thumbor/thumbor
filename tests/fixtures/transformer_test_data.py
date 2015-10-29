@@ -25,30 +25,12 @@ class MockEngine(object):
             'vertical_flip': 0,
             'horizontal_flip': 0,
             'cover': 0,
+            'reorientate': 0,
         }
         self.focal_points = None
 
     def reorientate(self):
-        orientation = self.get_orientation()
-
-        if orientation == 2:
-            self.flip_horizontally()
-        elif orientation == 3:
-            self.rotate(180)
-        elif orientation == 4:
-            self.flip_vertically()
-        elif orientation == 5:
-            # Horizontal Mirror + Rotation 270
-            self.flip_vertically()
-            self.rotate(270)
-        elif orientation == 6:
-            self.rotate(270)
-        elif orientation == 7:
-            # Vertical Mirror + Rotation 270
-            self.flip_horizontally()
-            self.rotate(270)
-        elif orientation == 8:
-            self.rotate(90)
+        self.calls['reorientate'] += 1
 
     def resize(self, width, height):
         self.calls['resize'].append({

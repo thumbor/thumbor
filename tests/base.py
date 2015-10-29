@@ -104,6 +104,16 @@ def get_ssim(actual, expected):
     return structural_similarity(np.array(im), np.array(im2), multichannel=True)
 
 
+@create_assertions
+def to_be_resized(image):
+    return image.has_resized_properly()
+
+
+@create_assertions
+def to_be_cropped(image):
+    return image.has_cropped_properly()
+
+
 def encode_multipart_formdata(fields, files):
     BOUNDARY = 'thumborUploadFormBoundary'
     CRLF = '\r\n'
