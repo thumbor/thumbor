@@ -142,6 +142,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         response = self.fetch('/unsafe/')
         expect(response.code).to_equal(400)
 
+    from nose_focus import focus  # NOQA
+    @focus  # NOQA
     def test_utf8_encoded_image_name_with_encoded_url(self):
         url = '/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620%C3%A9.jpg'
         response = self.fetch(url)
@@ -219,6 +221,9 @@ class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
         cfg.ALLOW_OLD_URLS = True
         cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
 
+        cfg.STORAGE = 'thumbor.storages.file_storage'
+        cfg.STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+
         importer = Importer(cfg)
         importer.import_modules()
         server = ServerParameters(8891, 'localhost', 'thumbor.conf', None, 'info', None)
@@ -241,28 +246,22 @@ class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
     def test_stored_security_key_with_regular_image_with_querystring(self):
         storage = self.context.modules.storage
         self.context.server.security_key = 'MYKEY'
-        storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
+        storage.put_crypto('image.jpg%3Fts%3D1')   # Write a file on the file storage containing the security key
         self.context.server.security_key = 'MYKEY2'
 
-        try:
-            response = self.fetch('/Iw7LZGdr-hHj2gQ4ZzksP3llQHY=/smart/image.jpg%3Fts%3D1')
-            expect(response.code).to_equal(200)
-            expect(response.body).to_be_similar_to(default_image())
-        finally:
-            self.context.server.security_key = 'MYKEY'
+        response = self.fetch('/Iw7LZGdr-hHj2gQ4ZzksP3llQHY=/smart/image.jpg%3Fts%3D1')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_similar_to(default_image())
 
     def test_stored_security_key_with_regular_image_with_hash(self):
         storage = self.context.modules.storage
         self.context.server.security_key = 'MYKEY'
-        storage.put_crypto('image.jpg')   # Write a file on the file storage containing the security key
+        storage.put_crypto('image.jpg%23something')   # Write a file on the file storage containing the security key
         self.context.server.security_key = 'MYKEY2'
 
-        try:
-            response = self.fetch('/fxOHtHcTZMyuAQ1YPKh9KWg7nO8=/smart/image.jpg%23something')
-            expect(response.code).to_equal(200)
-            expect(response.body).to_be_similar_to(default_image())
-        finally:
-            self.context.server.security_key = 'MYKEY'
+        response = self.fetch('/fxOHtHcTZMyuAQ1YPKh9KWg7nO8=/smart/image.jpg%23something')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_similar_to(default_image())
 
 
 class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):

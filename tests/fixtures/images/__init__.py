@@ -27,7 +27,7 @@ too_small_image_path = get_abs_path('crocodile.jpg')
 too_heavy_image_path = get_abs_path('conselheira_tutelar.jpg')
 default_image_path = get_abs_path('image.jpg')
 alabama1_image_path = get_abs_path('alabama1_ap620%C3%A9.jpg')
-space_image_path = get_abs_path('image space.jpg')
+space_image_path = get_abs_path('image%20space.jpg')
 invalid_quantization_image_path = get_abs_path('invalid_quantization.jpg')
 animated_image_path = get_abs_path('animated_image.gif')
 

@@ -115,7 +115,7 @@ def run_server(application, context):
 def main(arguments=None):
     '''Runs thumbor server with the specified arguments.'''
     if arguments is None:
-        arguments = sys.argv
+        arguments = sys.argv[1:]
 
     server_parameters = get_server_parameters(arguments)
     config = get_config(server_parameters.config_path)

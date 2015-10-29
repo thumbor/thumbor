@@ -58,6 +58,7 @@ class Storage(storages.BaseStorage):
             _file.write(self.context.server.security_key)
 
         move(temp_abspath, crypto_path)
+        logger.error('Stored crypto at %s (security key: %s)' % (crypto_path, self.context.server.security_key))
 
         return file_abspath
 
@@ -97,7 +98,8 @@ class Storage(storages.BaseStorage):
         if not exists(crypto_file):
             callback(None)
         else:
-            callback(file(crypto_file).read())
+            with open(crypto_file, 'r') as crypto_f:
+                callback(crypto_f.read())
 
     @return_future
     def get_detector_data(self, path, callback):
