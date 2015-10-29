@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import sys
+from os import listdir
 from os.path import abspath, join, dirname
 
 
@@ -32,9 +33,13 @@ animated_image_path = get_abs_path('animated_image.gif')
 
 
 def get_image(img):
-    with open(img, 'r') as stream:
-        body = stream.read()
-    return body
+    try:
+        with open(img, 'r') as stream:
+            body = stream.read()
+        return body
+    except IOError, e:
+        print listdir(abspath(dirname(img)))
+        raise e
 
 
 def valid_image():
