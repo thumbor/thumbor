@@ -208,13 +208,6 @@ Config.define('MONGO_STORAGE_SERVER_PORT', 27017, 'MongoDB storage server port',
 Config.define('MONGO_STORAGE_SERVER_DB', 'thumbor', 'MongoDB storage server database name', 'MongoDB Storage')
 Config.define('MONGO_STORAGE_SERVER_COLLECTION', 'images', 'MongoDB storage image collection', 'MongoDB Storage')
 
-# REDIS STORAGE OPTIONS
-Config.define('REDIS_STORAGE_SERVER_HOST', 'localhost', 'Redis storage server host', 'Redis Storage')
-Config.define('REDIS_STORAGE_SERVER_PORT', 6379, 'Redis storage server port', 'Redis Storage')
-Config.define('REDIS_STORAGE_SERVER_DB', 0, 'Redis storage database index', 'Redis Storage')
-Config.define('REDIS_STORAGE_SERVER_PASSWORD', None, 'Redis storage server password', 'Redis Storage')
-Config.define('REDIS_STORAGE_IGNORE_ERRORS', False, 'Determine if redis errors should be ignored.', 'Redis Storage')
-
 # MEMCACHE STORAGE OPTIONS
 Config.define('MEMCACHE_STORAGE_SERVERS', ['localhost:11211'], 'List of Memcache storage server hosts', 'Memcache Storage')
 
