@@ -13,7 +13,6 @@ import tempfile
 import shutil
 from os.path import abspath, join, dirname
 import os
-import unittest
 
 import tornado.web
 from preggy import expect
@@ -142,8 +141,6 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         response = self.fetch('/unsafe/')
         expect(response.code).to_equal(400)
 
-    from nose_focus import focus  # NOQA
-    @focus  # NOQA
     def test_utf8_encoded_image_name_with_encoded_url(self):
         url = '/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620%C3%A9.jpg'
         response = self.fetch(url)
@@ -395,7 +392,6 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers['Content-Type']).to_equal('video/mp4')
 
-    @unittest.skip("My FFMPEG install is broken")
     def test_should_convert_animated_gif_to_mp4_when_filter_with_gifv_param(self):
         response = self.fetch('/unsafe/filters:gifv(webm)/animated_image.gif')
 
