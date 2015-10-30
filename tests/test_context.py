@@ -23,8 +23,6 @@ from thumbor.context import (
 )
 
 
-from nose_focus import focus  # NOQA
-@focus  # NOQA
 class ContextTestCase(TestCase):
     def test_can_create_context(self):
         ctx = Context()
@@ -64,8 +62,6 @@ class ContextTestCase(TestCase):
         expect(ctx.modules.importer).to_equal(importer)
 
 
-from nose_focus import focus  # NOQA
-@focus  # NOQA
 class ServerParametersTestCase(TestCase):
     def test_can_create_server_parameters(self):
         params = ServerParameters(
@@ -135,8 +131,6 @@ class ServerParametersTestCase(TestCase):
             )
 
 
-from nose_focus import focus  # NOQA
-@focus  # NOQA
 class RequestParametersTestCase(TestCase):
     def test_can_create_request_parameters(self):
         params = RequestParameters()
@@ -244,8 +238,6 @@ class RequestParametersTestCase(TestCase):
         expect(params.image_url).to_equal('/test.jpg')
 
 
-from nose_focus import focus  # NOQA
-@focus  # NOQA
 class ContextImporterTestCase(TestCase):
     def test_can_create_context_importer(self):
         cfg = Config(
@@ -272,8 +264,6 @@ class ContextImporterTestCase(TestCase):
         expect(ctx_importer.url_signer).to_equal(importer.url_signer)
 
 
-from nose_focus import focus  # NOQA
-@focus  # NOQA
 class ThreadPoolTestCase(TestCase):
     def setUp(self):
         super(ThreadPoolTestCase, self).setUp()
