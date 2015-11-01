@@ -77,9 +77,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 mime = BaseEngine.get_mimetype(buffer)
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
-                    self.context.request.engine.load(buffer, '.gif')
                 else:
                     self.context.request.engine = self.context.modules.engine
+                self.context.request.engine.load(buffer, EXTENSION.get(mime, '.jpg'))
 
                 logger.debug('[RESULT_STORAGE] IMAGE FOUND: %s' % req.url)
                 self.finish_request(self.context, result)

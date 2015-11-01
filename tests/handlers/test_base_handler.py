@@ -30,6 +30,7 @@ from tests.fixtures.images import (
     space_image,
     invalid_quantization,
     animated_image,
+    not_so_animated_image,
 )
 
 
@@ -506,3 +507,70 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
         response = self.fetch('/P_leK0uires4J3AXg5RkKfSWH4A=/animated_image.gif')
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(animated_image())
+
+
+class ImageOperationsWithGifWithoutGifsicle(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+
+        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.AUTO_WEBP = True
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+
+        return ctx
+
+    def test_should_be_ok_with_single_frame_gif(self):
+        response = self.fetch('/HPbIwc4ACNupMwcOQMUnAEy9c_k=/not_so_animated_image.gif')
+
+        expect(response.code).to_equal(200)
+        expect(response.headers['Content-Type']).to_equal('image/gif')
+        expect(response.body).to_be_similar_to(not_so_animated_image())
+
+
+class ImageOperationsWithGifWithoutGifsicleOnResultStorage(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = '/tmp/path/that/does/not/exist'
+
+        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+
+        cfg.AUTO_WEBP = True
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+
+        return ctx
+
+    @property
+    def result_storage(self):
+        return self.context.modules.result_storage
+
+    from nose_focus import focus
+    @focus
+    def test_loads_image_from_result_storage(self):
+        self.context.request = Mock(
+            accepts_webp=False,
+        )
+        expected_path = self.result_storage.normalize_path('HPbIwc4ACNupMwcOQMUnAEy9c_k=/not_so_animated_image.gif')
+        os.makedirs(dirname(expected_path))
+        with open(expected_path, 'w') as img:
+            img.write(not_so_animated_image())
+
+        response = self.fetch('/HPbIwc4ACNupMwcOQMUnAEy9c_k=/not_so_animated_image.gif')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_similar_to(not_so_animated_image())

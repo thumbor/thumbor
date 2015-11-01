@@ -30,6 +30,7 @@ alabama1_image_path = get_abs_path('alabama1_ap620%C3%A9.jpg')
 space_image_path = get_abs_path('image%20space.jpg')
 invalid_quantization_image_path = get_abs_path('invalid_quantization.jpg')
 animated_image_path = get_abs_path('animated_image.gif')
+not_so_animated_image_path = get_abs_path('not_so_animated_image.gif')
 
 
 def get_image(img):
@@ -72,3 +73,7 @@ def invalid_quantization():
 
 def animated_image():
     return get_image(animated_image_path)
+
+
+def not_so_animated_image():
+    return get_image(not_so_animated_image_path)
