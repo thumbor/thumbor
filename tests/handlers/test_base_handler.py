@@ -24,6 +24,7 @@ from thumbor.context import Context, ServerParameters
 from thumbor.handlers import FetchResult, BaseHandler
 from thumbor.utils import which
 from tests.base import TestCase, PythonTestCase
+from thumbor.engines.pil import Engine
 from tests.fixtures.images import (
     default_image,
     alabama1,
@@ -560,8 +561,6 @@ class ImageOperationsWithGifWithoutGifsicleOnResultStorage(BaseImagingTestCase):
     def result_storage(self):
         return self.context.modules.result_storage
 
-    from nose_focus import focus
-    @focus
     def test_loads_image_from_result_storage(self):
         self.context.request = Mock(
             accepts_webp=False,
@@ -574,3 +573,33 @@ class ImageOperationsWithGifWithoutGifsicleOnResultStorage(BaseImagingTestCase):
         response = self.fetch('/HPbIwc4ACNupMwcOQMUnAEy9c_k=/not_so_animated_image.gif')
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(not_so_animated_image())
+
+
+class ImageOperationsWithMaxWidthAndMaxHeight(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+
+        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.AUTO_WEBP = True
+        cfg.MAX_WIDTH = 150
+        cfg.MAX_HEIGHT = 150
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+
+        return ctx
+
+    def test_should_be_ok_but_150x150(self):
+        response = self.fetch('/unsafe/200x200/wellsford.jpg')
+        engine = Engine(self.context)
+        engine.load(response.body, '.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.headers['Content-Type']).to_equal('image/jpeg')
+        expect(engine.size).to_equal((150, 150))
