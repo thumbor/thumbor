@@ -16,6 +16,7 @@ import urllib
 import mimetypes
 from os.path import exists
 import cStringIO
+import mock
 
 import numpy as np
 from PIL import Image
@@ -27,6 +28,7 @@ from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.transformer import Transformer
+from thumbor.engines.pil import Engine as PilEngine
 
 from tornado.testing import AsyncHTTPTestCase
 
@@ -261,3 +263,12 @@ class FilterTestCase(PythonTestCase):
     def debug_size(self, image):
         im = Image.fromarray(image)
         print "Image dimensions are %dx%d (shape is %s)" % (im.size[0], im.size[1], image.shape)
+
+
+class DetectorTestCase(PythonTestCase):
+    _multiprocess_can_split_ = True
+
+    def setUp(self):
+        self.context = mock.Mock(request=mock.Mock(focal_points=[]))
+        self.engine = PilEngine(self.context)
+        self.context.modules.engine = self.engine

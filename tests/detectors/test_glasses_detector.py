@@ -12,7 +12,7 @@ from os.path import abspath
 import mock
 
 from preggy import expect
-from . import DetectorTestCase
+from tests.base import DetectorTestCase
 
 from thumbor.detectors.glasses_detector import Detector as GlassesDetector
 

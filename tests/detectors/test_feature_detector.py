@@ -11,7 +11,7 @@
 from os.path import abspath
 
 from preggy import expect
-from . import DetectorTestCase
+from tests.base import DetectorTestCase
 
 from thumbor.detectors.feature_detector import Detector as FeatureDetector
 
