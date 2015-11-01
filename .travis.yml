@@ -4,6 +4,7 @@ python:
   - '3.2'
   - pypy
 cache: pip
+sudo: false
 matrix:
   fast_finish: true
   allow_failures:
@@ -12,18 +13,34 @@ matrix:
 env:
   - INTEGRATION_TEST=1
   - UNIT_TEST=1
+addons:
+  apt:
+    packages:
+    - libcurl4-openssl-dev
+    - python-numpy
+    - python-opencv
+    - libopencv-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libx264-dev
+    - libass-dev
+    - libvpx1
+    - libvpx-dev
+    - libwebp-dev
+    - webp
+    - gifsicle
+    - memcached
+    - libmemcache-dev
+    - libmemcached-dev
+    - python-numpy
+    - python-scipy
+    - cython
 install:
-  - sudo apt-get remove --purge -y $(< unwanted_packages)
-  - sudo apt-get update -y
-  - sudo apt-get install aptitude -y
-  - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
-  - sudo apt-get autoremove -y
-  - df -h
   - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
     -O /tmp/ffmpeg-release.tar.xz
   - mkdir /tmp/ffmpeg-release
   - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
-  - sudo ln -s /tmp/ffmpeg-release/ffmpeg /usr/local/bin/ffmpeg
+  - ln -s /tmp/ffmpeg-release/ffmpeg /usr/local/bin/ffmpeg
   - ffmpeg -version
   - pip install --upgrade pip
   - make setup
@@ -39,3 +56,4 @@ notifications:
     secure: Sf6TJa/H3mq+RGqpLwKNRpNw0YQKX3+5bt5e37CSs8rOC+SoFHVNr29QhbXFPwmqQuy9qKb0t5rzChDIIvXErywU2lEw3/JlQtCt1xLsoUfpBF8g8ldoy6ESO2j9Jj6Y/M/4RN2zN3AAd5gfXPrdLHa++eiRaiAXXU+9ZvtUxuc=
 after_success:
   coveralls
+
