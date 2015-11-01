@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import sys
+import unicodedata
 from os import listdir
 from os.path import abspath, join, dirname
 
@@ -20,27 +20,31 @@ from os.path import abspath, join, dirname
 #   - too weight image : JPEG 300x400, 85.32 KB
 ##
 def get_abs_path(img):
-    return abspath(join(dirname(__file__), img.encode(sys.getfilesystemencoding())))
+    return abspath(join(dirname(__file__), img))
 
 valid_image_path = get_abs_path(u'alabama1_ap620é.jpg')
-too_small_image_path = get_abs_path('crocodile.jpg')
-too_heavy_image_path = get_abs_path('conselheira_tutelar.jpg')
-default_image_path = get_abs_path('image.jpg')
-alabama1_image_path = get_abs_path('alabama1_ap620%C3%A9.jpg')
-space_image_path = get_abs_path('image%20space.jpg')
-invalid_quantization_image_path = get_abs_path('invalid_quantization.jpg')
-animated_image_path = get_abs_path('animated_image.gif')
-not_so_animated_image_path = get_abs_path('not_so_animated_image.gif')
+too_small_image_path = get_abs_path(u'crocodile.jpg')
+too_heavy_image_path = get_abs_path(u'conselheira_tutelar.jpg')
+default_image_path = get_abs_path(u'image.jpg')
+alabama1_image_path = get_abs_path(u'alabama1_ap620%C3%A9.jpg')
+space_image_path = get_abs_path(u'image%20space.jpg')
+invalid_quantization_image_path = get_abs_path(u'invalid_quantization.jpg')
+animated_image_path = get_abs_path(u'animated_image.gif')
+not_so_animated_image_path = get_abs_path(u'not_so_animated_image.gif')
 
 
 def get_image(img):
-    try:
-        with open(img, 'r') as stream:
-            body = stream.read()
-        return body
-    except IOError, e:
-        print listdir(abspath(dirname(img)))
-        raise e
+    encode_formats = ['NFD', 'NFC', 'NFKD', 'NFKC']
+    for format in encode_formats:
+        try:
+            with open(unicodedata.normalize(format, img), 'r') as stream:
+                body = stream.read()
+                break
+        except IOError:
+            pass
+    else:
+        raise IOError('%s not found' % img)
+    return body
 
 
 def valid_image():
