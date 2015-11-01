@@ -11,7 +11,7 @@
 from os.path import abspath, join, dirname
 
 from unittest import TestCase
-from pyvows import expect
+from preggy import expect
 
 from thumbor.context import Context
 from thumbor.config import Config

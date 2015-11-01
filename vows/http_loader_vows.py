@@ -61,34 +61,6 @@ class ResponseMock:
 
 
 @Vows.batch
-class ReturnContentVows(Vows.Context):
-    class ShouldReturnNoneOnError(Vows.Context):
-        @Vows.async_topic
-        def topic(self, callback):
-            mock = ResponseMock(error='Error', code=599)
-            ctx = Context(None, None, None)
-            return loader.return_contents(mock, 'some-url', callback, ctx)
-
-        def should_be_loader_result_with_none(self, topic):
-            result = topic.args[0]
-            expect(result).to_be_instance_of(LoaderResult)
-            expect(result.buffer).to_be_null()
-            expect(result.successful).to_be_false()
-
-    class ShouldReturnBodyIfValid(Vows.Context):
-        @Vows.async_topic
-        def topic(self, callback):
-            mock = ResponseMock(body='body', code=200)
-            ctx = Context(None, None, None)
-            return loader.return_contents(mock, 'some-url', callback, ctx)
-
-        def should_be_none(self, topic):
-            result = topic.args[0]
-            expect(result).to_be_instance_of(LoaderResult)
-            expect(result.buffer).to_equal('body')
-
-
-@Vows.batch
 class HttpLoader(TornadoHTTPContext):
     def get_app(self):
         application = tornado.web.Application([
@@ -96,79 +68,6 @@ class HttpLoader(TornadoHTTPContext):
         ])
 
         return application
-
-    class ValidateURL(TornadoHTTPContext):
-        def topic(self):
-            config = Config()
-            config.ALLOWED_SOURCES = ['s.glbimg.com']
-            ctx = Context(None, config, None)
-            is_valid = loader.validate(ctx, 'http://www.google.com/logo.jpg')
-            return is_valid
-
-        def should_default_to_none(self, topic):
-            expect(topic).to_be_false()
-
-        class AllowAll(TornadoHTTPContext):
-            def topic(self):
-                config = Config()
-                config.ALLOWED_SOURCES = []
-                ctx = Context(None, config, None)
-                is_valid = loader.validate(ctx, 'http://www.google.com/logo.jpg')
-                return is_valid
-
-            def should_validate(self, topic):
-                expect(topic).to_be_true()
-
-        class ValidDomainValidates(TornadoHTTPContext):
-            def topic(self):
-                config = Config()
-                config.ALLOWED_SOURCES = ['s.glbimg.com']
-                ctx = Context(None, config, None)
-                is_valid = loader.validate(ctx, 'http://s.glbimg.com/logo.jpg')
-                return is_valid
-
-            def should_validate(self, topic):
-                expect(topic).to_be_true()
-
-        class UnallowedDomainDoesNotValidate(TornadoHTTPContext):
-            def topic(self):
-                config = Config()
-                config.ALLOWED_SOURCES = ['s.glbimg.com']
-                ctx = Context(None, config, None)
-                is_valid = loader.validate(ctx, 'http://s2.glbimg.com/logo.jpg')
-                return is_valid
-
-            def should_validate(self, topic):
-                expect(topic).to_be_false()
-
-        class InvalidDomainDoesNotValidate(TornadoHTTPContext):
-            def topic(self):
-                config = Config()
-                config.ALLOWED_SOURCES = ['s2.glbimg.com']
-                ctx = Context(None, config, None)
-                is_valid = loader.validate(ctx, '/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=')
-                return is_valid
-
-            def should_validate(self, topic):
-                expect(topic).to_be_false()
-
-    class NormalizeURL(TornadoHTTPContext):
-        def topic(self):
-            pass
-
-        class WhenStartsWithHttp(TornadoHTTPContext):
-            def topic(self):
-                return loader._normalize_url('http://some.url')
-
-            def should_return_same_url(self, topic):
-                expect(topic).to_equal('http://some.url')
-
-        class WhenDoesNotStartWithHttp(TornadoHTTPContext):
-            def topic(self):
-                return loader._normalize_url('some.url')
-
-            def should_return_normalized_url(self, topic):
-                expect(topic).to_equal('http://some.url')
 
     class LoadAndVerifyImage(TornadoHTTPContext):
         def topic(self):
