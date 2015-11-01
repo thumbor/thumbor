@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import random
+import unicodedata
 from io import BytesIO
 from unittest import TestCase as PythonTestCase
 import urllib
@@ -35,8 +36,20 @@ def to_exist(topic):
     return exists(topic)
 
 
+def normalize_unicode_path(path):
+    normalized_path = path
+    for format in ['NFD', 'NFC', 'NFKD', 'NFKC']:
+        normalized_path = unicodedata.normalize(format, unicode(path))
+        if exists(normalized_path):
+            break
+    return normalized_path
+
+
 @create_assertions
 def to_be_the_same_as(topic, expected):
+    topic = normalize_unicode_path(topic)
+    expected = normalize_unicode_path(expected)
+
     if not exists(topic):
         raise AssertionError("File at %s does not exist" % topic)
     if not exists(expected):
