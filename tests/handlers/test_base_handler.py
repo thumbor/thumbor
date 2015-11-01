@@ -392,7 +392,7 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers['Content-Type']).to_equal('video/mp4')
 
-    def test_should_convert_animated_gif_to_mp4_when_filter_with_gifv_param(self):
+    def test_should_convert_animated_gif_to_webm_when_filter_with_gifv_webm_param(self):
         response = self.fetch('/unsafe/filters:gifv(webm)/animated_image.gif')
 
         expect(response.code).to_equal(200)
