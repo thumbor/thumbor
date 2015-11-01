@@ -376,6 +376,7 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
         cfg = Config(SECURITY_KEY='ACME-SEC')
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.FFMPEG_PATH = which('ffmpeg')
         cfg.OPTIMIZERS = [
             'thumbor.optimizers.gifv',
         ]
@@ -435,6 +436,7 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
 
         cfg.USE_GIFSICLE_ENGINE = True
+        cfg.FFMPEG_PATH = which('ffmpeg')
         cfg.AUTO_WEBP = True
         cfg.OPTIMIZERS = [
             'thumbor.optimizers.gifv',
@@ -476,6 +478,7 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
         cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
         cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
         cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.FFMPEG_PATH = which('ffmpeg')
 
         cfg.USE_GIFSICLE_ENGINE = True
         cfg.AUTO_WEBP = True

@@ -40,7 +40,7 @@ install:
     -O /tmp/ffmpeg-release.tar.xz
   - mkdir /tmp/ffmpeg-release
   - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
-  - ln -s /tmp/ffmpeg-release/ffmpeg /usr/local/bin/ffmpeg
+  - export PATH=/tmp/ffmpeg-release:$PATH
   - ffmpeg -version
   - pip install --upgrade pip
   - make setup
