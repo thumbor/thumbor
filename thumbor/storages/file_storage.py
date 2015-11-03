@@ -58,7 +58,7 @@ class Storage(storages.BaseStorage):
             _file.write(self.context.server.security_key)
 
         move(temp_abspath, crypto_path)
-        logger.error('Stored crypto at %s (security key: %s)' % (crypto_path, self.context.server.security_key))
+        logger.debug('Stored crypto at %s (security key: %s)' % (crypto_path, self.context.server.security_key))
 
         return file_abspath
 
