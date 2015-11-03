@@ -3,7 +3,9 @@ python:
   - 2.7_with_system_site_packages
   - '3.2'
   - pypy
-cache: pip
+cache:
+  directories:
+    - $HOME/.cache/pip
 sudo: false
 matrix:
   fast_finish: true
