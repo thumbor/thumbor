@@ -14,7 +14,8 @@ from preggy import expect
 import mock
 # from tornado.concurrent import Future
 import tornado.web
-from tests.base import PythonTestCase
+from tests.base import PythonTestCase, TestCase
+from tornado.concurrent import Future
 
 import thumbor.loaders.http_loader as loader
 from thumbor.context import Context
@@ -82,6 +83,28 @@ class ReturnContentTestCase(PythonTestCase):
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_equal('body')
 
+    def test_return_upstream_error_on_body_none(self):
+        response_mock = ResponseMock(body=None, code=200)
+        callback_mock = mock.Mock()
+        ctx = Context(None, None, None)
+        loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
+        result = callback_mock.call_args[0][0]
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_be_null()
+        expect(result.successful).to_be_false()
+        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
+
+    def test_return_upstream_error_on_body_empty(self):
+        response_mock = ResponseMock(body='', code=200)
+        callback_mock = mock.Mock()
+        ctx = Context(None, None, None)
+        loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
+        result = callback_mock.call_args[0][0]
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_be_null()
+        expect(result.successful).to_be_false()
+        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
+
 
 class ValidateUrlTestCase(PythonTestCase):
 
@@ -123,3 +146,77 @@ class NormalizeUrlTestCase(PythonTestCase):
     def test_should_normalize_url(self):
         for url in ['http://some.url', 'some.url']:
             expect(loader._normalize_url(url)).to_equal('http://some.url')
+
+
+class HttpLoaderTestCase(TestCase):
+
+    def get_app(self):
+        application = tornado.web.Application([
+            (r"/", MainHandler),
+        ])
+
+        return application
+
+    def test_load_with_callback(self):
+        url = self.get_url('/')
+        config = Config()
+        ctx = Context(None, config, None)
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal('Hello')
+        expect(result.successful).to_be_true()
+
+    def test_load_with_curl(self):
+        url = self.get_url('/')
+        config = Config()
+        config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT = True
+        ctx = Context(None, config, None)
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal('Hello')
+        expect(result.successful).to_be_true()
+
+    def test_should_return_a_future(self):
+        url = self.get_url('/')
+        config = Config()
+        ctx = Context(None, config, None)
+
+        future = loader.load(ctx, url)
+        expect(isinstance(future, Future)).to_be_true()
+
+
+class HttpLoaderWithUserAgentForwardingTestCase(TestCase):
+
+    def get_app(self):
+        application = tornado.web.Application([
+            (r"/", EchoUserAgentHandler),
+        ])
+
+        return application
+
+    def test_load_with_user_agent(self):
+        url = self.get_url('/')
+        config = Config()
+        config.HTTP_LOADER_FORWARD_USER_AGENT = True
+        ctx = Context(None, config, None, HandlerMock({"User-Agent": "test-user-agent"}))
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal('test-user-agent')
+
+    def test_load_with_default_user_agent(self):
+        url = self.get_url('/')
+        config = Config()
+        config.HTTP_LOADER_FORWARD_USER_AGENT = True
+        config.HTTP_LOADER_DEFAULT_USER_AGENT = "DEFAULT_USER_AGENT"
+        ctx = Context(None, config, None, HandlerMock({}))
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal('DEFAULT_USER_AGENT')
