@@ -31,9 +31,6 @@ addons:
     - libwebp-dev
     - webp
     - gifsicle
-    - memcached
-    - libmemcache-dev
-    - libmemcached-dev
     - python-numpy
     - python-scipy
     - cython
@@ -49,7 +46,6 @@ install:
   - pip install coveralls
 before_script:
   - make redis
-  - make memcached
 script:
   make compile_ext ci_test
 notifications:
