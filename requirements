@@ -11,3 +11,9 @@ libvpx-dev
 libwebp-dev
 webp
 gifsicle
+memcached
+libmemcache-dev
+libmemcached-dev
+python-numpy
+python-scipy
+cython

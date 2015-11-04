@@ -135,7 +135,7 @@ class Transformer(object):
             # image operation inside the try block.
             self.should_run_image_operations = False
             self.running_smart_detection = True
-            self.do_smart_detection()
+            self.do_smart_detection().result()
             self.running_smart_detection = False
         except Exception:
             if not self.context.config.IGNORE_SMART_ERRORS:

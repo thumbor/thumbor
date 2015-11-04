@@ -29,37 +29,41 @@ from thumbor.utils import which
 def get_as_integer(value):
     try:
         return int(value)
-    except ValueError:
+    except (ValueError, TypeError):
         return None
 
 
-def main(arguments=None):  # NOQA
-    '''Runs thumbor server with the specified arguments.'''
-
-    server_parameters = get_server_parameters(arguments)
-
+def get_config(config_path):
     lookup_paths = [os.curdir,
                     expanduser('~'),
                     '/etc/',
                     dirname(__file__)]
 
-    config = Config.load(server_parameters.config_path, conf_name='thumbor.conf', lookup_paths=lookup_paths)
+    return Config.load(config_path, conf_name='thumbor.conf', lookup_paths=lookup_paths)
 
+
+def configure_log(config, log_level):
     if (config.THUMBOR_LOG_CONFIG and config.THUMBOR_LOG_CONFIG != ''):
         logging.config.dictConfig(config.THUMBOR_LOG_CONFIG)
     else:
         logging.basicConfig(
-            level=getattr(logging, server_parameters.log_level.upper()),
+            level=getattr(logging, log_level),
             format=config.THUMBOR_LOG_FORMAT,
             datefmt=config.THUMBOR_LOG_DATE_FORMAT
         )
 
+
+def get_importer(config):
     importer = Importer(config)
     importer.import_modules()
 
     if importer.error_handler_class is not None:
         importer.error_handler = importer.error_handler_class(config)
 
+    return importer
+
+
+def validate_config(config, server_parameters):
     if server_parameters.security_key is None:
         server_parameters.security_key = config.SECURITY_KEY
 
@@ -76,14 +80,20 @@ def main(arguments=None):  # NOQA
                 'and must be an executable.'
             )
 
-    context = Context(
+
+def get_context(server_parameters, config, importer):
+    return Context(
         server=server_parameters,
         config=config,
         importer=importer
     )
 
-    application = importer.import_class(server_parameters.app_class)(context)
 
+def get_application(context):
+    return context.modules.importer.import_class(context.server.app_class)(context)
+
+
+def run_server(application, context):
     server = HTTPServer(application)
 
     if context.server.fd is not None:
@@ -101,14 +111,33 @@ def main(arguments=None):  # NOQA
 
     server.start(1)
 
+
+def main(arguments=None):
+    '''Runs thumbor server with the specified arguments.'''
+    if arguments is None:
+        arguments = sys.argv[1:]
+
+    server_parameters = get_server_parameters(arguments)
+    config = get_config(server_parameters.config_path)
+    configure_log(config, server_parameters.log_level.upper())
+
+    importer = get_importer(config)
+
+    validate_config(config, server_parameters)
+
+    context = get_context(server_parameters, config, importer)
+
+    application = get_application(context)
+    run_server(application, context)
+
     try:
         logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
-        print
-        print "-- thumbor closed by user interruption --"
+        sys.stdout.write('\n')
+        sys.stdout.write("-- thumbor closed by user interruption --\n")
     finally:
         context.thread_pool.cleanup()
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main(sys.argv)

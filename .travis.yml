@@ -1,56 +1,61 @@
 language: python
-
 python:
-    - "2.7_with_system_site_packages"
-    - "3.2"
-    - "pypy"
-
-cache: pip
-
+  - 2.7_with_system_site_packages
+  - '3.2'
+  - pypy
+cache:
+  directories:
+    - $HOME/.cache/pip
+sudo: false
 matrix:
-    fast_finish: true
-    allow_failures:
-        - python: "3.2"
-        - python: "pypy"
-
+  fast_finish: true
+  allow_failures:
+    - python: '3.2'
+    - python: pypy
 env:
-    - INTEGRATION_TEST=1
-    - UNIT_TEST=1
-
+  - INTEGRATION_TEST=1
+  - UNIT_TEST=1
+addons:
+  apt:
+    packages:
+    - libcurl4-openssl-dev
+    - python-numpy
+    - python-opencv
+    - libopencv-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libx264-dev
+    - libass-dev
+    - libvpx1
+    - libvpx-dev
+    - libwebp-dev
+    - webp
+    - gifsicle
+    - memcached
+    - libmemcache-dev
+    - libmemcached-dev
+    - python-numpy
+    - python-scipy
+    - cython
 install:
-    #removing unwanted packages
-    - sudo apt-get remove --purge -y $(< unwanted_packages)
-    # update aptitude
-    - sudo apt-get update -y
-    - sudo apt-get install aptitude -y
-
-    # install aptitude packages
-    - LDFLAGS=-lm sudo aptitude install -y $(< requirements)
-
-    - sudo apt-get autoremove -y
-
-    - df -h
-
-    # Install the latest ffmpeg release
-    - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz -O /tmp/ffmpeg-release.tar.xz
-    - mkdir /tmp/ffmpeg-release
-    - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
-    - sudo ln -s /tmp/ffmpeg-release/ffmpeg /usr/local/bin/ffmpeg
-    - ffmpeg -version
-
-    # webp - compiling from source
-    # - wget "https://webp.googlecode.com/files/libwebp-0.4.0.tar.gz" -O libwebp-0.4.0.tar.gz
-    # - tar xvzf libwebp-0.4.0.tar.gz
-    # - cd libwebp-0.4.0 && ./configure --enable-libwebpmux --enable-libwebpdemux --enable-libwebpdecoder && make && sudo make install; cd ..
-    # - sudo ldconfig
-
-    # install python requirements
-    - make setup
-
+  - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
+    -O /tmp/ffmpeg-release.tar.xz
+  - mkdir /tmp/ffmpeg-release
+  - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
+  - export PATH=/tmp/ffmpeg-release:$PATH
+  - ffmpeg -version
+  - pip install --upgrade pip
+  - make setup
+  - pip install coveralls
 before_script:
-    - make mongo
-    - make redis
-
+  - make mongo
+  - make redis
+  - make memcached
 script:
-    # finally run tests
-    - make ci_test
+  make compile_ext ci_test
+notifications:
+  slack:
+    secure: Sf6TJa/H3mq+RGqpLwKNRpNw0YQKX3+5bt5e37CSs8rOC+SoFHVNr29QhbXFPwmqQuy9qKb0t5rzChDIIvXErywU2lEw3/JlQtCt1xLsoUfpBF8g8ldoy6ESO2j9Jj6Y/M/4RN2zN3AAd5gfXPrdLHa++eiRaiAXXU+9ZvtUxuc=
+after_success:
+  coveralls
+

@@ -77,9 +77,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 mime = BaseEngine.get_mimetype(buffer)
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
-                    self.context.request.engine.load(buffer, '.gif')
                 else:
                     self.context.request.engine = self.context.modules.engine
+                self.context.request.engine.load(buffer, EXTENSION.get(mime, '.jpg'))
 
                 logger.debug('[RESULT_STORAGE] IMAGE FOUND: %s' % req.url)
                 self.finish_request(self.context, result)
@@ -95,7 +95,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.filters_runner = self.context.filters_factory.create_instances(self.context, self.context.request.filters)
         self.filters_runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD, self.get_image)
 
-    @gen.coroutine
+    @gen.coroutine  # NOQA
     def get_image(self):
         try:
             result = yield self._fetch(
@@ -321,7 +321,10 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Server', 'Thumbor/%s' % __version__)
         self.set_header('Content-Type', content_type)
 
-        if context.config.AUTO_WEBP and not context.request.engine.is_multiple() and context.request.engine.extension != '.webp':
+        if context.config.AUTO_WEBP and \
+                not context.request.engine.is_multiple() and \
+                context.request.engine.can_convert_to_webp() and \
+                context.request.engine.extension != '.webp':
             self.set_header('Vary', 'Accept')
 
         context.headers = self._headers.copy()

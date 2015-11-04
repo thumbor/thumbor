@@ -64,6 +64,7 @@ def return_contents(response, url, callback, context):
 
     callback(result)
 
+
 @return_future
 def load(context, url, callback, normalize_url_func=_normalize_url):
     load_sync(context, url, callback, normalize_url_func)

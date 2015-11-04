@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from json import loads, dumps
+import hashlib
 
 import pylibmc
 
@@ -31,14 +32,21 @@ class Storage(BaseStorage):
             }
         )
 
-    def __key_for(self, url):
-        return 'thumbor-crypto-%s' % url
+    def get_hash(self, msg):
+        msg = msg.encode('utf-8', 'replace')
+        return hashlib.sha1(msg).hexdigest()
 
-    def __detector_key_for(self, url):
-        return 'thumbor-detector-%s' % url
+    def key_for(self, url):
+        return self.get_hash(url)
 
-    def put(self, path, bytes):
-        self.storage.set(path, bytes, time=self.context.config.STORAGE_EXPIRATION_SECONDS)
+    def crypto_key_for(self, url):
+        return self.get_hash('thumbor-crypto-%s' % url)
+
+    def detector_key_for(self, url):
+        return self.get_hash('thumbor-detector-%s' % url)
+
+    def put(self, path, contents):
+        self.storage.set(self.key_for(path), contents, time=self.context.config.STORAGE_EXPIRATION_SECONDS)
         return path
 
     def put_crypto(self, path):
@@ -48,12 +56,12 @@ class Storage(BaseStorage):
         if not self.context.server.security_key:
             raise RuntimeError("STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified")
 
-        key = self.__key_for(path)
+        key = self.crypto_key_for(path)
         self.storage.set(key, self.context.server.security_key)
         return key
 
     def put_detector_data(self, path, data):
-        key = self.__detector_key_for(path)
+        key = self.detector_key_for(path)
         self.storage.set(key, dumps(data))
         return key
 
@@ -63,25 +71,25 @@ class Storage(BaseStorage):
             callback(None)
             return
 
-        crypto = self.storage.get(self.__key_for(path))
+        crypto = self.storage.get(self.crypto_key_for(path))
 
         callback(crypto if crypto else None)
 
     @return_future
     def get_detector_data(self, path, callback):
-        data = self.storage.get(self.__detector_key_for(path))
+        data = self.storage.get(self.detector_key_for(path))
 
         callback(loads(data) if data else None)
 
     @return_future
     def exists(self, path, callback):
-        callback(self.storage.get(path) is not None)
+        callback(self.storage.get(self.key_for(path)) is not None)
 
     def remove(self, path):
-        if not self.exists(path):
+        if not self.exists(path).result():
             return
-        return self.storage.delete(path)
+        return self.storage.delete(self.key_for(path))
 
     @return_future
     def get(self, path, callback):
-        callback(self.storage.get(path))
+        callback(self.storage.get(self.key_for(path)))

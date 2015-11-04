@@ -18,7 +18,7 @@ import tornado.gen
 class Filter(BaseFilter):
     regex = r'(?:watermark\((?P<url>.*?),(?P<x>-?[\d]*?),(?P<y>-?[\d]*?),(?P<alpha>[\d]*?)\))'
 
-    def on_image_ready(self, buffer): 
+    def on_image_ready(self, buffer):
 
         self.watermark_engine.load(buffer, self.extension)
         self.watermark_engine.enable_alpha()

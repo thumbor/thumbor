@@ -10,10 +10,8 @@
 
 from os.path import join, dirname, abspath, isabs
 
-try:
-    import cv
-except ImportError:
-    import cv2.cv as cv
+import cv2
+import numpy as np
 
 from thumbor.point import FocalPoint
 from thumbor.detectors import BaseDetector
@@ -27,7 +25,7 @@ class CascadeLoaderDetector(BaseDetector):
                 cascade_file = cascade_file_path
             else:
                 cascade_file = join(abspath(dirname(module_path)), cascade_file_path)
-            self.__class__.cascade = cv.Load(cascade_file)
+            self.__class__.cascade = cv2.CascadeClassifier(cascade_file)
 
     def get_min_size_for(self, size):
         ratio = int(min(size) / 15)
@@ -36,36 +34,22 @@ class CascadeLoaderDetector(BaseDetector):
 
     def get_features(self):
         engine = self.context.modules.engine
+        img = np.array(
+            engine.convert_to_grayscale(
+                update_image=False,
+                with_alpha=False
+            )
+        )
 
-        mode, converted_image = engine.image_data_as_rgb(False)
-        size = engine.size
-
-        image = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(image, converted_image)
-
-        gray = cv.CreateImage(size, 8, 1)
-        convert_mode = getattr(cv, 'CV_%s2GRAY' % mode)
-        cv.CvtColor(image, gray, convert_mode)
-
-        min_size = self.get_min_size_for(size)
-        haar_scale = 1.2
-        min_neighbors = 3
-
-        cv.EqualizeHist(gray, gray)
-
-        faces = cv.HaarDetectObjects(
-            gray,
-            self.__class__.cascade, cv.CreateMemStorage(0),
-            haar_scale, min_neighbors,
-            cv.CV_HAAR_DO_CANNY_PRUNING, min_size)
-
+        faces = self.__class__.cascade.detectMultiScale(
+            img,
+            1.2,
+            2,
+        )
         faces_scaled = []
 
-        for ((x, y, w, h), n) in faces:
-            # the input to cv.HaarDetectObjects was resized, so scale the
-            # bounding box of each face and convert it to two CvPoints
-            x2, y2 = (x + w), (y + h)
-            faces_scaled.append(((x, y, x2 - x, y2 - y), n))
+        for (x, y, w, h) in faces:
+            faces_scaled.append(((x, y, w, h), 0))
 
         return faces_scaled
 

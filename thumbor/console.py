@@ -8,60 +8,63 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import optparse
+import argparse
 
 from thumbor.context import ServerParameters
-from thumbor import __version__
+from thumbor import __version__, __release_date__
 
 
 def get_server_parameters(arguments=None):
-    parser = optparse.OptionParser(
-        usage="thumbor or type thumbor -h (--help) for help", description=__doc__, version=__version__
+    if arguments is None:
+        arguments = []
+
+    parser = argparse.ArgumentParser(description='thumbor server')
+
+    parser.add_argument('--version', action='version', version="Thumbor v%s (%s)" % (__version__, __release_date__))
+
+    parser.add_argument(
+        '-p', '--port', default=8888, type=int,
+        help="The port to run this thumbor instance at [default: %(default)s]."
     )
-    parser.add_option(
-        "-p", "--port", type="int", dest="port", default=8888,
-        help="The port to run this thumbor instance at [default: %default]."
+
+    parser.add_argument(
+        '-i', '--ip', default='0.0.0.0',
+        help="The host address to run this thumbor instance at [default: %(default)s]."
     )
-    parser.add_option(
-        "-i", "--ip", dest="ip", default="0.0.0.0",
-        help="The host address to run this thumbor instance at [default: %default]."
-    )
-    parser.add_option(
-        "-f", "--fd", dest="file_descriptor",
+
+    parser.add_argument(
+        '-f', '--fd',
         help="The file descriptor number or path to listen for connections on (--port and --ip will be ignored if this is set)"
-        "[default: %default]."
+        "[default: %(default)s]."
     )
-    parser.add_option(
-        "-c", "--conf", dest="conf", default="",
-        help="The path of the configuration file to use for this thumbor instance [default: %default]."
+
+    parser.add_argument(
+        '-c', '--conf', default=None,
+        help="The path of the configuration file to use for this thumbor instance [default: %(default)s]."
     )
-    parser.add_option(
-        "-k", "--keyfile", dest="keyfile", default="",
-        help="The path of the security key file to use for this thumbor instance [default: %default]."
+
+    parser.add_argument(
+        "-k", "--keyfile", default=None,
+        help="The path of the configuration file to use for this thumbor instance [default: %(default)s]."
     )
-    parser.add_option(
-        "-l", "--log-level", dest="log_level", default="warning",
+
+    parser.add_argument(
+        "-l", "--log-level", default="warning",
         help="The log level to be used. Possible values are: debug, info, warning, error, critical or notset. "
-        "[default: %default]."
-    )
-    parser.add_option(
-        "-a", "--app", dest="app", default='thumbor.app.ThumborServiceApp',
-        help="A custom app to use for this thumbor server in case you subclassed ThumborServiceApp [default: %default]."
+        "[default: %(default)s]."
     )
 
-    (options, args) = parser.parse_args(arguments)
+    parser.add_argument(
+        "-a", "--app", default='thumbor.app.ThumborServiceApp',
+        help="A custom app to use for this thumbor server in case you subclassed ThumborServiceApp [default: %(default)s]."
+    )
 
-    port = options.port
-    ip = options.ip
-    fd = options.file_descriptor
-    conf = options.conf or None
-    keyfile = options.keyfile or None
-    log_level = options.log_level
+    options = parser.parse_args(arguments)
 
-    return ServerParameters(port=port,
-                            ip=ip,
-                            config_path=conf,
-                            keyfile=keyfile,
-                            log_level=log_level,
+    return ServerParameters(port=options.port,
+                            ip=options.ip,
+                            config_path=options.conf,
+                            keyfile=options.keyfile,
+                            log_level=options.log_level,
                             app_class=options.app,
-                            fd=fd)
+                            fd=options.fd)

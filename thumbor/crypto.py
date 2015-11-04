@@ -70,21 +70,31 @@ class Cryptor(object):
 
         return encrypted
 
-    def get_options(self, encrypted_url_part, image_url):
+    def try_decrypt(self, encrypted_url_part, cryptor=None):
+        decryptor = self
+        if cryptor is not None:
+            decryptor = cryptor
+
         try:
-            opt = self.decrypt(encrypted_url_part)
-        except ValueError:
+            opt = decryptor.decrypt(encrypted_url_part)
+            if opt is not None:
+                unicode(opt['image_hash'])
+        except (UnicodeDecodeError, ValueError):
             opt = None
 
-        if not opt and not self.security_key and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            security_key = self.storage.get_crypto(image_url)
+        return opt
+
+    def get_options(self, encrypted_url_part, image_url):
+        opt = self.try_decrypt(encrypted_url_part)
+
+        # why this check for not self.security_key???
+        # if opt is None and not self.security_key and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+        if opt is None and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            security_key = self.context.modules.storage.get_crypto(image_url)
 
             if security_key is not None:
                 cr = Cryptor(security_key)
-                try:
-                    opt = cr.decrypt(encrypted_url_part)
-                except ValueError:
-                    opt = None
+                opt = self.try_decrypt(encrypted_url_part, cryptor=cr)
 
         if opt is None:
             return None

@@ -25,9 +25,19 @@ tests_require = [
     "mock==1.0.1",
     "raven",
     "nose",
+    "nose-focus",
     "colorama",
     "numpy",
+    "scipy",
+    "cython",
     "flake8",
+    "yanc",
+    "remotecv",
+    "hiredis",
+    # for mac os users, make sure to run:
+    # brew install memcached libmemcached
+    "pylibmc",
+    "scikit-image",
 ]
 
 
@@ -100,6 +110,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "statsd>=3.0.1",
             "libthumbor",
             "futures",
+            "argparse",
         ],
 
         extras_require={
