@@ -335,18 +335,20 @@ class BaseHandler(tornado.web.RequestHandler):
         self.finish()
 
     def _store_results(self, context, results):
-        if context.modules.result_storage and not context.request.prevent_result_storage:
+        if not context.modules.result_storage or context.request.prevent_result_storage:
+            return
 
-            def save_to_result_storage():
-                start = datetime.datetime.now()
+        @gen.coroutine
+        def save_to_result_storage():
+            start = datetime.datetime.now()
 
-                context.modules.result_storage.put(results)
+            yield gen.maybe_future(context.modules.result_storage.put(results))
 
-                finish = datetime.datetime.now()
-                context.metrics.incr('result_storage.bytes_written', len(results))
-                context.metrics.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
+            finish = datetime.datetime.now()
+            context.metrics.incr('result_storage.bytes_written', len(results))
+            context.metrics.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
 
-            tornado.ioloop.IOLoop.instance().add_callback(save_to_result_storage)
+        tornado.ioloop.IOLoop.instance().add_callback(save_to_result_storage)
 
     def optimize(self, context, image_extension, results):
         for optimizer in context.modules.optimizers:
