@@ -58,12 +58,6 @@ redis: kill_redis
 	@redis-server redis.conf ; sleep 1
 	@redis-cli -p 6668 -a hey_you info
 
-kill_memcached:
-	@ps aux | awk '(/memcached -p 5555 -d/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
-
-memcached: kill_memcached
-	@memcached -p 5555 -d
-
 flake:
 	@flake8 . --ignore=W801,E501
 
