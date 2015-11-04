@@ -48,7 +48,6 @@ install:
   - make setup
   - pip install coveralls
 before_script:
-  - make mongo
   - make redis
   - make memcached
 script:

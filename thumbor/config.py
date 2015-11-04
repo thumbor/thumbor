@@ -202,12 +202,6 @@ Config.alias('ORIGINAL_PHOTO_STORAGE', 'UPLOAD_PHOTO_STORAGE')
 Config.alias('ALLOW_ORIGINAL_PHOTO_DELETION', 'UPLOAD_DELETE_ALLOWED')
 Config.alias('ALLOW_ORIGINAL_PHOTO_PUTTING', 'UPLOAD_PUT_ALLOWED')
 
-# MONGO STORAGE OPTIONS
-Config.define('MONGO_STORAGE_SERVER_HOST', 'localhost', 'MongoDB storage server host', 'MongoDB Storage')
-Config.define('MONGO_STORAGE_SERVER_PORT', 27017, 'MongoDB storage server port', 'MongoDB Storage')
-Config.define('MONGO_STORAGE_SERVER_DB', 'thumbor', 'MongoDB storage server database name', 'MongoDB Storage')
-Config.define('MONGO_STORAGE_SERVER_COLLECTION', 'images', 'MongoDB storage image collection', 'MongoDB Storage')
-
 # MEMCACHE STORAGE OPTIONS
 Config.define('MEMCACHE_STORAGE_SERVERS', ['localhost:11211'], 'List of Memcache storage server hosts', 'Memcache Storage')
 
