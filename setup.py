@@ -34,6 +34,7 @@ tests_require = [
     "remotecv",
     "hiredis",
     "scikit-image",
+    "celery"
 ]
 
 

@@ -9,8 +9,9 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import re
-from urlparse import urlparse
 from functools import partial
+from urllib import unquote
+from urlparse import urlparse
 
 import tornado.httpclient
 
@@ -20,6 +21,7 @@ from tornado.concurrent import return_future
 
 
 def _normalize_url(url):
+    url = unquote(url)
     return url if url.startswith('http') else 'http://%s' % url
 
 

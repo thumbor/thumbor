@@ -147,6 +147,11 @@ class NormalizeUrlTestCase(PythonTestCase):
         expect(loader._normalize_url('http://some.url')).to_equal('http://some.url')
         expect(loader._normalize_url('some.url')).to_equal('https://some.url')
 
+    def test_should_normalize_quoted_url(self):
+        url = 'https%3A//www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+        expected = 'https://www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+        result = loader._normalize_url(url)
+        expect(result).to_equal(expected)
 
 class HttpsLoaderTestCase(TestCase):
 
