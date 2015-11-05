@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from os.path import abspath, join, dirname
+
 from preggy import expect
 import mock
 # from tornado.concurrent import Future
@@ -16,7 +17,7 @@ import tornado.web
 from tests.base import PythonTestCase, TestCase
 from tornado.concurrent import Future
 
-import thumbor.loaders.http_loader as loader
+import thumbor.loaders.strict_https_loader as loader
 from thumbor.context import Context
 from thumbor.config import Config
 from thumbor.loaders import LoaderResult
@@ -130,98 +131,27 @@ class ValidateUrlTestCase(PythonTestCase):
             )
         ).to_be_false()
         expect(
-            loader.validate(ctx, 'http://s.glbimg.com/logo.jpg')).to_be_true()
+            loader.validate(ctx, 'https://s.glbimg.com/logo.jpg')).to_be_true()
 
     def test_without_allowed_sources(self):
         config = Config()
         config.ALLOWED_SOURCES = []
         ctx = Context(None, config, None)
-        is_valid = loader.validate(ctx, 'http://www.google.com/logo.jpg')
+        is_valid = loader.validate(ctx, 'https://www.google.com/logo.jpg')
         expect(is_valid).to_be_true()
+
+        is_valid = loader.validate(ctx, 'http://www.google.com/logo.jpg')
+        expect(is_valid).to_be_false()
 
 
 class NormalizeUrlTestCase(PythonTestCase):
 
     def test_should_normalize_url(self):
-        for url in ['http://some.url', 'some.url']:
-            expect(loader._normalize_url(url)).to_equal('http://some.url')
+        expect(loader._normalize_url('https://some.url')).to_equal('https://some.url')
+        expect(loader._normalize_url('some.url')).to_equal('https://some.url')
 
     def test_should_normalize_quoted_url(self):
         url = 'https%3A//www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
         expected = 'https://www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
         result = loader._normalize_url(url)
         expect(result).to_equal(expected)
-
-
-class HttpLoaderTestCase(TestCase):
-
-    def get_app(self):
-        application = tornado.web.Application([
-            (r"/", MainHandler),
-        ])
-
-        return application
-
-    def test_load_with_callback(self):
-        url = self.get_url('/')
-        config = Config()
-        ctx = Context(None, config, None)
-
-        loader.load(ctx, url, self.stop)
-        result = self.wait()
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal('Hello')
-        expect(result.successful).to_be_true()
-
-    def test_load_with_curl(self):
-        url = self.get_url('/')
-        config = Config()
-        config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT = True
-        ctx = Context(None, config, None)
-
-        loader.load(ctx, url, self.stop)
-        result = self.wait()
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal('Hello')
-        expect(result.successful).to_be_true()
-
-    def test_should_return_a_future(self):
-        url = self.get_url('/')
-        config = Config()
-        ctx = Context(None, config, None)
-
-        future = loader.load(ctx, url)
-        expect(isinstance(future, Future)).to_be_true()
-
-
-class HttpLoaderWithUserAgentForwardingTestCase(TestCase):
-
-    def get_app(self):
-        application = tornado.web.Application([
-            (r"/", EchoUserAgentHandler),
-        ])
-
-        return application
-
-    def test_load_with_user_agent(self):
-        url = self.get_url('/')
-        config = Config()
-        config.HTTP_LOADER_FORWARD_USER_AGENT = True
-        ctx = Context(None, config, None, HandlerMock({"User-Agent": "test-user-agent"}))
-
-        loader.load(ctx, url, self.stop)
-        result = self.wait()
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal('test-user-agent')
-
-    def test_load_with_default_user_agent(self):
-        url = self.get_url('/')
-        config = Config()
-        config.HTTP_LOADER_FORWARD_USER_AGENT = True
-        config.HTTP_LOADER_DEFAULT_USER_AGENT = "DEFAULT_USER_AGENT"
-        ctx = Context(None, config, None, HandlerMock({}))
-
-        loader.load(ctx, url, self.stop)
-        result = self.wait()
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal('DEFAULT_USER_AGENT')
