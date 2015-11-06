@@ -13,6 +13,7 @@ class LoaderResult(object):
 
     ERROR_NOT_FOUND = 'not_found'
     ERROR_UPSTREAM = 'upstream'
+    ERROR_TIMEOUT = 'timeout'
 
     def __init__(self, buffer=None, successful=True, error=None, metadata=dict()):
         '''
