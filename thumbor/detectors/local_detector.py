@@ -44,7 +44,8 @@ class CascadeLoaderDetector(BaseDetector):
         faces = self.__class__.cascade.detectMultiScale(
             img,
             1.2,
-            2,
+            4,
+            minSize=self.get_min_size_for(engine.size)
         )
         faces_scaled = []
 
