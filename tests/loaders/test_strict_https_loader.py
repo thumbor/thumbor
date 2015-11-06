@@ -14,8 +14,7 @@ from preggy import expect
 import mock
 # from tornado.concurrent import Future
 import tornado.web
-from tests.base import PythonTestCase, TestCase
-from tornado.concurrent import Future
+from tests.base import PythonTestCase
 
 import thumbor.loaders.strict_https_loader as loader
 from thumbor.context import Context

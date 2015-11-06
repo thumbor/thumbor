@@ -153,6 +153,7 @@ class NormalizeUrlTestCase(PythonTestCase):
         result = loader._normalize_url(url)
         expect(result).to_equal(expected)
 
+
 class HttpsLoaderTestCase(TestCase):
 
     def get_app(self):

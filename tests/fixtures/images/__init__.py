@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import unicodedata
-from os import listdir
 from os.path import abspath, join, dirname
 
 
