@@ -110,6 +110,10 @@ class BaseHandler(tornado.web.RequestHandler):
                     # Return a Bad Gateway status if the error came from upstream
                     self._error(502)
                     return
+                elif result.loader_error == LoaderResult.ERROR_TIMEOUT:
+                    # Return a Gateway Timeout status if upstream timed out (i.e. 599)
+                    self._error(504)
+                    return
                 else:
                     self._error(500)
                     return
