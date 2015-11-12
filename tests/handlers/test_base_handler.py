@@ -13,6 +13,8 @@ import tempfile
 import shutil
 from os.path import abspath, join, dirname
 import os
+from datetime import datetime, timedelta
+import pytz
 
 import tornado.web
 from preggy import expect
@@ -369,6 +371,59 @@ class ImageOperationsWithoutEtagsTestCase(BaseImagingTestCase):
 
         expect(response.code).to_equal(200)
         expect(response.headers).not_to_include('Etag')
+
+class ImageOperationsWithLastModifiedTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+
+        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+
+        cfg.SEND_IF_MODIFIED_LAST_MODIFIED_HEADERS = True
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
+
+    @property
+    def result_storage(self):
+        return self.context.modules.result_storage
+
+    def write_image(self):
+        expected_path = self.result_storage.normalize_path('_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
+
+        if not os.path.exists(dirname(expected_path)):
+            os.makedirs(dirname(expected_path))
+
+        if not os.path.exists(expected_path):
+            with open(expected_path, 'w') as img:
+                img.write(default_image())
+
+    def test_can_get_304_with_last_modified(self):
+        self.write_image()
+        response = self.fetch('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg', headers={
+            "Accept": 'image/webp,*/*;q=0.8',
+            "If-Modified-Since": (datetime.utcnow() + timedelta(seconds=1))
+                              .replace(tzinfo=pytz.utc).strftime("%a, %d %b %Y %H:%M:%S GMT"), # NOW +1 sec UTC
+        })
+
+        expect(response.code).to_equal(304)
+
+    def test_can_get_image_with_last_modified(self):
+        self.write_image()
+        response = self.fetch('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg', headers={
+            "Accept": 'image/webp,*/*;q=0.8',
+            "If-Modified-Since": (datetime.utcnow() - timedelta(days=365))
+                              .replace(tzinfo=pytz.utc).strftime("%a, %d %b %Y %H:%M:%S GMT"), # Last Year
+        })
+
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Last-Modified')
 
 
 class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
