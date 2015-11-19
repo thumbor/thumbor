@@ -11,6 +11,7 @@
 from datetime import datetime
 from uuid import uuid4
 from shutil import move
+import pytz
 
 from os.path import exists, dirname, join, getmtime, abspath
 
@@ -64,7 +65,7 @@ class Storage(BaseStorage):
             result = ResultStorageResult(
                 buffer=buffer,
                 metadata={
-                    'LastModified':  datetime.fromtimestamp(getmtime(file_abspath)),
+                    'LastModified':  datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc),
                     'ContentLength': len(buffer),
                     'ContentType':   BaseEngine.get_mimetype(buffer)
                 }
@@ -111,4 +112,4 @@ class Storage(BaseStorage):
             logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
             return True
 
-        return datetime.fromtimestamp(getmtime(file_abspath))
+        return datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc)
