@@ -299,12 +299,9 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         expect(response.headers).not_to_include('Vary')
         expect(response.body).to_be_webp()
 
-    def test_should_not_convert_webp_if_bigger_than_89478485_pixels(self):
+    def test_should_error_if_bigger_than_75_megapixels(self):
         response = self.get_as_webp('/unsafe/16384.png')
-
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include('Vary')
-        expect(response.body).to_be_png()
+        expect(response.code).to_equal(500)
 
     def test_should_not_convert_animated_gifs_to_webp(self):
         response = self.get_as_webp('/unsafe/animated_image.gif')
@@ -606,3 +603,23 @@ class ImageOperationsWithMaxWidthAndMaxHeight(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers['Content-Type']).to_equal('image/jpeg')
         expect(engine.size).to_equal((150, 150))
+
+class ImageOperationsWithMaxPixels(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.no_storage"
+        cfg.MAX_PIXELS = 1000
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        ctx.server.gifsicle_path = which('gifsicle')
+        return ctx
+
+    def test_should_error(self):
+        response = self.fetch('/unsafe/200x200/wellsford.jpg')
+        expect(response.code).to_equal(500)
