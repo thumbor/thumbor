@@ -17,6 +17,7 @@ from thumbor.detectors.feature_detector import Detector as FeatureDetector
 
 
 class FeatureDetectorTestCase(DetectorTestCase):
+
     def test_should_detect_multiple_points(self):
         with open(abspath('./tests/fixtures/images/no_face.jpg')) as f:
             self.engine.load(f.read(), None)
