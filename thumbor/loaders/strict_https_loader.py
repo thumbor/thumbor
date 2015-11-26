@@ -14,7 +14,7 @@ from urllib import unquote
 
 
 def _normalize_url(url):
-    url = unquote(url)
+    url = http_loader.quote_url(unquote(url))
     if url.startswith('http:'):
         url = url.replace('http:', 'https:', 1)
 

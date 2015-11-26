@@ -271,10 +271,11 @@ class BaseHandler(tornado.web.RequestHandler):
                 else:
                     result_last_modified = yield gen.maybe_future(self.context.modules.result_storage.last_updated())
 
-
                 if result_last_modified:
                     if 'If-Modified-Since' in self.request.headers:
-                        date_modified_since = datetime.datetime.strptime(self.request.headers['If-Modified-Since'], HTTP_DATE_FMT).replace(tzinfo=pytz.utc)
+                        date_modified_since = datetime.datetime.strptime(
+                            self.request.headers['If-Modified-Since'], HTTP_DATE_FMT
+                        ).replace(tzinfo=pytz.utc)
 
                         if result_last_modified <= date_modified_since:
                             self.set_status(304)

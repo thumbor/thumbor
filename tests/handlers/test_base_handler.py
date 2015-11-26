@@ -369,6 +369,7 @@ class ImageOperationsWithoutEtagsTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers).not_to_include('Etag')
 
+
 class ImageOperationsWithLastModifiedTestCase(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
@@ -403,21 +404,27 @@ class ImageOperationsWithLastModifiedTestCase(BaseImagingTestCase):
 
     def test_can_get_304_with_last_modified(self):
         self.write_image()
-        response = self.fetch('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg', headers={
-            "Accept": 'image/webp,*/*;q=0.8',
-            "If-Modified-Since": (datetime.utcnow() + timedelta(seconds=1))
-                              .replace(tzinfo=pytz.utc).strftime("%a, %d %b %Y %H:%M:%S GMT"), # NOW +1 sec UTC
-        })
+        response = self.fetch(
+            '/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg',
+            headers={
+                "Accept": 'image/webp,*/*;q=0.8',
+                "If-Modified-Since":
+                (datetime.utcnow() + timedelta(seconds=1))
+                    .replace(tzinfo=pytz.utc).strftime("%a, %d %b %Y %H:%M:%S GMT"),  # NOW +1 sec UTC
+            })
 
         expect(response.code).to_equal(304)
 
     def test_can_get_image_with_last_modified(self):
         self.write_image()
-        response = self.fetch('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg', headers={
-            "Accept": 'image/webp,*/*;q=0.8',
-            "If-Modified-Since": (datetime.utcnow() - timedelta(days=365))
-                              .replace(tzinfo=pytz.utc).strftime("%a, %d %b %Y %H:%M:%S GMT"), # Last Year
-        })
+        response = self.fetch(
+            '/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg',
+            headers={
+                "Accept": 'image/webp,*/*;q=0.8',
+                "If-Modified-Since": (datetime.utcnow() - timedelta(days=365))
+                .replace(tzinfo=pytz.utc).strftime("%a, %d %b %Y %H:%M:%S GMT"),  # Last Year
+            }
+        )
 
         expect(response.code).to_equal(200)
         expect(response.headers).to_include('Last-Modified')
@@ -658,6 +665,7 @@ class ImageOperationsWithMaxWidthAndMaxHeight(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers['Content-Type']).to_equal('image/jpeg')
         expect(engine.size).to_equal((150, 150))
+
 
 class ImageOperationsWithMaxPixels(BaseImagingTestCase):
     def get_context(self):

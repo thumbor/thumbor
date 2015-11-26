@@ -10,7 +10,7 @@
 
 import re
 from functools import partial
-from urllib import unquote
+from urllib import unquote, quote
 from urlparse import urlparse
 
 import tornado.httpclient
@@ -19,9 +19,19 @@ from . import LoaderResult
 from thumbor.utils import logger
 from tornado.concurrent import return_future
 
+QUOTE_PATH_REGEX = re.compile(r"((?:https?:\/\/)?[^/]+)(\/.*)")
+
+
+def quote_url(url):
+    url = QUOTE_PATH_REGEX.split(url)
+    if len(url) > 2:
+        url[2] = quote(url[2])
+    url = ''.join(url)
+    return url
+
 
 def _normalize_url(url):
-    url = unquote(url)
+    url = quote_url(unquote(url))
     return url if url.startswith('http') else 'http://%s' % url
 
 
