@@ -105,7 +105,6 @@ def load_sync(context, url, callback, normalize_url_func):
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
 
     url = normalize_url_func(url)
-    print encode(url)
     req = tornado.httpclient.HTTPRequest(
         url=encode(url),
         connect_timeout=context.config.HTTP_LOADER_CONNECT_TIMEOUT,
