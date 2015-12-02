@@ -35,7 +35,7 @@ class Detector(BaseDetector):
         )
         if points is not None:
             for x, y in points.squeeze():
-                self.context.request.focal_points.append(FocalPoint(x, y, 1))
+                self.context.request.focal_points.append(FocalPoint(x.item(), y.item(), 1))
             callback()
         else:
             self.next(callback)
