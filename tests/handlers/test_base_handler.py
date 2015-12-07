@@ -686,3 +686,36 @@ class ImageOperationsWithMaxPixels(BaseImagingTestCase):
     def test_should_error(self):
         response = self.fetch('/unsafe/200x200/wellsford.jpg')
         expect(response.code).to_equal(500)
+
+class EngineLoadException(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+
+        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.AUTO_WEBP = True
+        cfg.MAX_WIDTH = 150
+        cfg.MAX_HEIGHT = 150
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+
+        return ctx
+
+    def load_exc(self, foo, bar):
+        raise Exception('CommandError')
+
+    def test_should_error_on_engine_load_exception(self):
+        old_load = Engine.load
+        Engine.load = self.load_exc
+
+        response = self.fetch('/unsafe/smart/image.jpg')
+        expect(response.code).to_equal(504)
+
+        Engine.load = old_load
