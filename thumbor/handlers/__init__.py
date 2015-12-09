@@ -147,7 +147,11 @@ class BaseHandler(tornado.web.RequestHandler):
                 return
 
             engine = self.context.request.engine
-            engine.load(buffer, self.context.request.extension)
+            try:
+                engine.load(buffer, self.context.request.extension)
+            except Exception:
+                self._error(504)
+                return
 
         def transform():
             self.normalize_crops(normalized, req, engine)
