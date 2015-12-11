@@ -20,14 +20,14 @@ class WatermarkFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.99)
-		
+
     def test_watermark_filter_centered_x(self):
         image = self.get_filtered('source100.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,center,40,20)')
         expected = self.get_fixture('watermarkCenterX.jpg')
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.99)
-		
+
     def test_watermark_filter_centered_y(self):
         image = self.get_filtered('source100.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,80,center,50)')
         expected = self.get_fixture('watermarkCenterY.jpg')
@@ -41,14 +41,14 @@ class WatermarkFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.94)
-		
+
     def test_watermark_filter_repeated_x(self):
         image = self.get_filtered('source100.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,repeat,center,70)')
         expected = self.get_fixture('watermarkRepeatX.jpg')
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.94)
-		
+
     def test_watermark_filter_repeated_y(self):
         image = self.get_filtered('source100.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,30,repeat,30)')
         expected = self.get_fixture('watermarkRepeatY.jpg')
