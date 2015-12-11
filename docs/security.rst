@@ -4,7 +4,7 @@ Security
 thumbor's team is very concerned about security and vulnerabilities of
 the service. Even though the team strives to cover most scenarios, if
 you find any flaws or vulnerabilities, please contact the team or
-`create an issue <https://github.com/globocom/thumbor/issues>`__.
+`create an issue <https://github.com/thumbor/thumbor/issues>`__.
 
 URL Tampering
 -------------

@@ -27,22 +27,22 @@ As original image is:
 .. image:: images/tom_before_brightness.jpg
     :alt: Original picture
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:fill(blue)/https://github.com/globocom/thumbor/wiki/tom_before_brightness.jpg>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:fill(blue)/https://github.com/thumbor/thumbor/wiki/tom_before_brightness.jpg>`_
 
 .. image:: images/tom_fill_blue.jpg
     :alt: Picture after the fill(blue) filter
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:fill(f00)/https://github.com/globocom/thumbor/wiki/tom_before_brightness.jpg>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:fill(f00)/https://github.com/thumbor/thumbor/wiki/tom_before_brightness.jpg>`_
 
 .. image:: images/tom_fill_red.jpg
     :alt: Picture after the fill(f00) filter
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:fill(add8e6)/https://github.com/globocom/thumbor/wiki/tom_before_brightness.jpg>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:fill(add8e6)/https://github.com/thumbor/thumbor/wiki/tom_before_brightness.jpg>`_
 
 .. image:: images/tom_fill_lightblue.jpg
     :alt: Picture after the fill(add8e6)
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:fill(auto)/https://github.com/globocom/thumbor/wiki/tom_before_brightness.jpg>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:fill(auto)/https://github.com/thumbor/thumbor/wiki/tom_before_brightness.jpg>`_
 
 .. image:: images/tom_fill_auto.jpg
     :alt: Picture after the fill(auto) filter (since 3.7.1)

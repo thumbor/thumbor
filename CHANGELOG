@@ -327,7 +327,7 @@ When upgrading, make sure to include this filter in your `FILTERS` configuration
 Release 4.3.0 (4.3.0)
 * Fixes #141 - Add rotation support (thanks @guilhermebruzzi and @nopiece).
 
-[Diff to previous release](https://github.com/globocom/thumbor/compare/4.2.1...4.3.0)
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.2.1...4.3.0)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.3.0)
 
 Release 4.2.1 (4.2.1)
@@ -338,7 +338,7 @@ Release 4.2.1 (4.2.1)
 
 If you've upgraded to the 4.2.0 release it's VERY, VERY recommended that you upgrade to 4.2.1 as soon as possible.
 
-[Diff to previous release](https://github.com/globocom/thumbor/compare/4.2.0...4.2.1)
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.2.0...4.2.1)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.2.1)
 
 Release 4.2.0 (4.2.0)
@@ -359,7 +359,7 @@ With the use of gifsicle engine, no filters will work for the gif images (all th
 
 This release has a bug that was fixed in 4.2.1. If you are using 4.2.0, please upgrade as soon as posssible.
 
-[Diff to previous release](https://github.com/globocom/thumbor/compare/4.1.3...4.2.0)
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.1.3...4.2.0)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.2.0)
 
 Release 4.1.3 (4.1.3)
@@ -369,34 +369,34 @@ If your current release is greater than 4.0.0, be advised you must upgrade as so
 
 * Fixes #305 - This is a **critical** bug. Images will be served with Exif data, meaning they can potentially be many times heavier than they should be.
 
-[Diff to previous release](https://github.com/globocom/thumbor/compare/4.1.2...4.1.3)
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.1.2...4.1.3)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.1.3)
 
 Release 4.1.2 (4.1.2)
 * Improved support for file descriptors. Now the --fd argument supports both the number of the file descriptor or the path in the file system. Fixes #300.
 
-[Diff to previous release](https://github.com/globocom/thumbor/compare/4.1.1...4.1.2)
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.1.1...4.1.2)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.1.2)
 
 Release 4.1.1 (4.1.1)
 * Thumbor does not convert CMYK unless needed now;
 * New merge option in the composite filter infrastructure.
 
-[Diff to previous release](https://github.com/globocom/thumbor/compare/4.1.0...4.1.1)
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.1.0...4.1.1)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.1.1)
 
 Release 4.1.0 (4.1.0)
 * New filter: [Extract Focal Points](https://github.com/thumbor/thumbor/wiki/Extract-Focal-Points)
 * Infrastructure for filters on different phases during the image processing lifecycle. Right now PHASE_POST_TRANSFORM and PHASE_PRE_LOAD are supported. All existing filters default to PHASE_POST_TRANSFORM
 
-[Diff to previous release](https://github.com/globocom/thumbor/compare/4.0.4...4.1.0)
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.0.4...4.1.0)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.1.0)
 
 Release 4.0.4 (4.0.4)
 * Fixed issue with blur filter when used with more than 150 of radius (by @heynemann);
 * Fixed issue with format filter when used in conjunction with auto_webp (by @cezarsa).
 
-[Diff to previous release](https://github.com/globocom/thumbor/compare/4.0.3...4.0.4)
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/4.0.3...4.0.4)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.0.4)
 
 Release 4.0.3 (4.0.3)
@@ -472,16 +472,16 @@ Release 3.14.0 (3.14.0)
 This is an unstable release.
 
 Release 3.13.3 (3.13.3)
-* Fixed [#193](https://github.com/globocom/thumbor/issues/193). File storage now uses atomic storage of files, thus avoiding corruption of stored images.
+* Fixed [#193](https://github.com/thumbor/thumbor/issues/193). File storage now uses atomic storage of files, thus avoiding corruption of stored images.
 
 Release 3.13.2 (3.13.2)
-* Merged [#202](https://github.com/globocom/thumbor/pull/202). Proxy support added to default HTTP Loader.
+* Merged [#202](https://github.com/thumbor/thumbor/pull/202). Proxy support added to default HTTP Loader.
 
 Release 3.13.1 (3.13.1)
-* Merged [#197](https://github.com/globocom/thumbor/pull/197). Healthcheck now replied to HEAD requests.
+* Merged [#197](https://github.com/thumbor/thumbor/pull/197). Healthcheck now replied to HEAD requests.
 
 Release 3.13.0 (3.13.0)
-* Fixes [#204](https://github.com/globocom/thumbor/issues/204). Thumbor now allows users to specify that WebP should be automatically used whenever the request has the proper Accept header (image/webp).
+* Fixes [#204](https://github.com/thumbor/thumbor/issues/204). Thumbor now allows users to specify that WebP should be automatically used whenever the request has the proper Accept header (image/webp).
 
 Release 3.12.2 (3.12.2)
 Added some extra logging in the finish request stage.
@@ -496,5 +496,5 @@ Release 3.11.1 (3.11.1)
 
 Release 3.12.0 (3.12.0)
 * Fixed an issue with animated gifs (sigh);
-* Add detection support for WEBP format. Merge pull request [#194](https://github.com/globocom/thumbor/pull/194) from dhardy92:feature_Add_WEBP_Detection;
+* Add detection support for WEBP format. Merge pull request [#194](https://github.com/thumbor/thumbor/pull/194) from dhardy92:feature_Add_WEBP_Detection;
 * Support for the new release of Pillow (2.1.0) and works with Pillow master branch for now.
