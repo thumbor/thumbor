@@ -12,7 +12,7 @@ will be able to use it. Just add its full name to the detectors
 Creating a Custom Detector
 --------------------------
 
-As you can see here `<https://github.com/globocom/thumbor/blob/master/thumbor/detectors/face_detector/__init__.py>`_
+As you can see here `<https://github.com/thumbor/thumbor/blob/master/thumbor/detectors/face_detector/__init__.py>`_
 it is pretty easy to implement your own custom detector.
 
 All you have to do is create a class that inherits from BaseDetector and

@@ -17,4 +17,4 @@ Contributors
 ------------
 
 Contributors can be found in the `Contributors
-page <https://github.com/globocom/thumbor/graphs/contributors>`__.
+page <https://github.com/thumbor/thumbor/graphs/contributors>`__.

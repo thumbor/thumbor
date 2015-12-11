@@ -11,7 +11,7 @@ Stable Release
 thumbor Releases
 ----------------
 
-4.1.0 - http://pypi.python.org/pypi/thumbor/4.1.0 - 02-Apr-2014 - `diff <https://github.com/globocom/thumbor/compare/4.0.4...4.1.0>`__
+4.1.0 - http://pypi.python.org/pypi/thumbor/4.1.0 - 02-Apr-2014 - `diff <https://github.com/thumbor/thumbor/compare/4.0.4...4.1.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  New filter: `Extract Focal
@@ -21,7 +21,7 @@ thumbor Releases
    PHASE\_PRE\_LOAD are supported. All existing filters default to
    PHASE\_POST\_TRANSFORM
 
-4.0.4 - http://pypi.python.org/pypi/thumbor/4.0.4 - 28-Mar-2014 - `diff <https://github.com/globocom/thumbor/compare/4.0.3...4.0.4>`__
+4.0.4 - http://pypi.python.org/pypi/thumbor/4.0.4 - 28-Mar-2014 - `diff <https://github.com/thumbor/thumbor/compare/4.0.3...4.0.4>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed issue with blur filter when used with more than 150 of radius
@@ -29,7 +29,7 @@ thumbor Releases
 -  Fixed issue with format filter when used in conjunction with
    auto\_webp (by @cezarsa).
 
-4.0.3 - http://pypi.python.org/pypi/thumbor/4.0.3 - 28-Mar-2014 - `diff <https://github.com/globocom/thumbor/compare/4.0.2...4.0.3>`__
+4.0.3 - http://pypi.python.org/pypi/thumbor/4.0.3 - 28-Mar-2014 - `diff <https://github.com/thumbor/thumbor/compare/4.0.2...4.0.3>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fix in all engines to return both image data and image mode together,
@@ -39,7 +39,7 @@ thumbor Releases
 -  Thumbor Application class now has a ``get_handlers`` method that can
    be overwritten to specify new handlers.
 
-4.0.2 - http://pypi.python.org/pypi/thumbor/4.0.2 - 18-Mar-2014 - `diff <https://github.com/globocom/thumbor/compare/4.0.1...4.0.2>`__
+4.0.2 - http://pypi.python.org/pypi/thumbor/4.0.2 - 18-Mar-2014 - `diff <https://github.com/thumbor/thumbor/compare/4.0.1...4.0.2>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed issue with WebP request path by `Frank
@@ -51,12 +51,12 @@ thumbor Releases
 -  Fixed `#272 <https://github.com/thumbor/thumbor/issues/272>`__ -
    Thumbor works properly with newer tornado.
 
-4.0.1 - http://pypi.python.org/pypi/thumbor/4.0.1 - 18-Mar-2014 - `diff <https://github.com/globocom/thumbor/compare/4.0.0...4.0.1>`__
+4.0.1 - http://pypi.python.org/pypi/thumbor/4.0.1 - 18-Mar-2014 - `diff <https://github.com/thumbor/thumbor/compare/4.0.0...4.0.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed issue #289 - Now URLs with '~' should work properly.
 
-4.0.0 - http://pypi.python.org/pypi/thumbor/4.0.0 - 12-Mar-2014 - `diff <https://github.com/globocom/thumbor/compare/3.14.7...4.0.0>`__
+4.0.0 - http://pypi.python.org/pypi/thumbor/4.0.0 - 12-Mar-2014 - `diff <https://github.com/thumbor/thumbor/compare/3.14.7...4.0.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 WARNING
@@ -136,29 +136,29 @@ New features
 -  New Gaussian Blur filter by `Cezar
    Sá <https://github.com/cezarsa>`__;
 
-3.14.7 - http://pypi.python.org/pypi/thumbor/3.14.7 - 30-Oct-2013 - `diff <https://github.com/globocom/thumbor/compare/3.14.6...3.14.7>`__
+3.14.7 - http://pypi.python.org/pypi/thumbor/3.14.7 - 30-Oct-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.14.6...3.14.7>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Bumping tornado version to allow last update.
 
-3.14.6 - http://pypi.python.org/pypi/thumbor/3.14.6 - 07-Oct-2013 - `diff <https://github.com/globocom/thumbor/compare/3.14.5...3.14.6>`__
+3.14.6 - http://pypi.python.org/pypi/thumbor/3.14.6 - 07-Oct-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.14.5...3.14.6>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Result storage disallows requesting files outside the root path.
 
-3.14.5 - http://pypi.python.org/pypi/thumbor/3.14.5 - 25-Sep-2013 - `diff <https://github.com/globocom/thumbor/compare/3.14.4...3.14.5>`__
+3.14.5 - http://pypi.python.org/pypi/thumbor/3.14.5 - 25-Sep-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.14.4...3.14.5>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Not doing vary header or converting to WebP when image is an animated
    gif or already a WebP.
 
-3.14.4 - http://pypi.python.org/pypi/thumbor/3.14.4 - 24-Sep-2013 - `diff <https://github.com/globocom/thumbor/compare/3.14.1...3.14.4>`__
+3.14.4 - http://pypi.python.org/pypi/thumbor/3.14.4 - 24-Sep-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.14.1...3.14.4>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Thumbor now includes a "Vary": "Accept" header to help cache servers
    to better understand that the image URL can vary by accept header.
 
-3.14.1 - http://pypi.python.org/pypi/thumbor/3.14.1 - 02-Sep-2013 - `diff <https://github.com/globocom/thumbor/compare/3.13.3...3.14.1>`__
+3.14.1 - http://pypi.python.org/pypi/thumbor/3.14.1 - 02-Sep-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.13.3...3.14.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  A new filter has been introduced: max\_bytes. This filter allows
@@ -166,54 +166,54 @@ New features
    will vary the quality of the image for JPEG and WebP images (png and
    gif images do not get affected by this filter).
 
-3.13.3 - http://pypi.python.org/pypi/thumbor/3.13.3 - 31-Aug-2013 - `diff <https://github.com/globocom/thumbor/compare/3.13.2...3.13.3>`__
+3.13.3 - http://pypi.python.org/pypi/thumbor/3.13.3 - 31-Aug-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.13.2...3.13.3>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixed `#193 <https://github.com/globocom/thumbor/issues/193>`__. File
+-  Fixed `#193 <https://github.com/thumbor/thumbor/issues/193>`__. File
    storage now uses atomic storage of files, thus avoiding corruption of
    stored images.
 
-3.13.2 - http://pypi.python.org/pypi/thumbor/3.13.2 - 31-Aug-2013 - `diff <https://github.com/globocom/thumbor/compare/3.13.1...3.13.2>`__
+3.13.2 - http://pypi.python.org/pypi/thumbor/3.13.2 - 31-Aug-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.13.1...3.13.2>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Merged `#202 <https://github.com/globocom/thumbor/pull/202>`__. Proxy
+-  Merged `#202 <https://github.com/thumbor/thumbor/pull/202>`__. Proxy
    support added to default HTTP Loader.
 
-3.13.1 - http://pypi.python.org/pypi/thumbor/3.13.1 - 31-Aug-2013 - `diff <https://github.com/globocom/thumbor/compare/3.13.0...3.13.1>`__
+3.13.1 - http://pypi.python.org/pypi/thumbor/3.13.1 - 31-Aug-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.13.0...3.13.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Merged `#197 <https://github.com/globocom/thumbor/pull/197>`__.
+-  Merged `#197 <https://github.com/thumbor/thumbor/pull/197>`__.
    Healthcheck now replied to HEAD requests.
 
-3.13.0 - http://pypi.python.org/pypi/thumbor/3.13.0 - 28-Aug-2013 - `diff <https://github.com/globocom/thumbor/compare/3.12.2...3.13.0>`__
+3.13.0 - http://pypi.python.org/pypi/thumbor/3.13.0 - 28-Aug-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.12.2...3.13.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#204 <https://github.com/globocom/thumbor/issues/204>`__.
+-  Fixes `#204 <https://github.com/thumbor/thumbor/issues/204>`__.
    Thumbor now allows users to specify that WebP should be automatically
    used whenever the request has the proper Accept header (image/webp).
 
-3.12.2 - http://pypi.python.org/pypi/thumbor/3.12.2 - 12-Aug-2013 - `diff <https://github.com/globocom/thumbor/compare/3.12.1...3.12.2>`__
+3.12.2 - http://pypi.python.org/pypi/thumbor/3.12.2 - 12-Aug-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.12.1...3.12.2>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Added some extra logging to the finish request stage of the image
    handling.
 
-3.12.1 - http://pypi.python.org/pypi/thumbor/3.12.1 - 18-Jul-2013 - `diff <https://github.com/globocom/thumbor/compare/3.12.0...3.12.1>`__
+3.12.1 - http://pypi.python.org/pypi/thumbor/3.12.1 - 18-Jul-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.12.0...3.12.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed leak of Redis connections when using queued detectors.
 
-3.12.0 - http://pypi.python.org/pypi/thumbor/3.12.0 - 05-Jul-2013 - `diff <https://github.com/globocom/thumbor/compare/3.11.1...3.12.0>`__
+3.12.0 - http://pypi.python.org/pypi/thumbor/3.12.0 - 05-Jul-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.11.1...3.12.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed an issue with animated gifs (sigh);
 -  Add detection support for WEBP format. Merge pull request
-   `#194 <https://github.com/globocom/thumbor/pull/194>`__ from
+   `#194 <https://github.com/thumbor/thumbor/pull/194>`__ from
    dhardy92:feature\_Add\_WEBP\_Detection;
 -  Support for the new release of Pillow (2.1.0) and works with Pillow
    master branch for now.
 
-3.11.1 - http://pypi.python.org/pypi/thumbor/3.11.1 - 05-Jul-2013 - `diff <https://github.com/globocom/thumbor/compare/3.11.0...3.11.1>`__
+3.11.1 - http://pypi.python.org/pypi/thumbor/3.11.1 - 05-Jul-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.11.0...3.11.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Finished webp support;
@@ -223,7 +223,7 @@ New features
    will keep the exif metadata in images intact (including webp
    resulting images).
 
-3.11.0 - http://pypi.python.org/pypi/thumbor/3.11.0 - 02-Jul-2013 - `diff <https://github.com/globocom/thumbor/compare/3.10.0...3.11.0>`__
+3.11.0 - http://pypi.python.org/pypi/thumbor/3.11.0 - 02-Jul-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.10.0...3.11.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Added 'format' filter. Now users can specify the output format using
@@ -238,26 +238,26 @@ New features
 -  Proper integration with Pillow version 2.0.0.
 -  Fixed HMAC signing if the key has unicode characters.
 
-3.10.0 - http://pypi.python.org/pypi/thumbor/3.10.0 - 14-May-2013 - `diff <https://github.com/globocom/thumbor/compare/3.9.4...3.10.0>`__
+3.10.0 - http://pypi.python.org/pypi/thumbor/3.10.0 - 14-May-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.9.4...3.10.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#184 <https://github.com/globocom/thumbor/issues/184>`__.
+-  Fixes `#184 <https://github.com/thumbor/thumbor/issues/184>`__.
    Thumbor now reports expected errors as warning, instead of errors.
    This should allow users to use a logger level of ERROR to reduce the
    amount of I/O thumbor does for logging.
--  Fixes `#183 <https://github.com/globocom/thumbor/issues/183>`__.
--  Fixes `#182 <https://github.com/globocom/thumbor/issues/182>`__.
+-  Fixes `#183 <https://github.com/thumbor/thumbor/issues/183>`__.
+-  Fixes `#182 <https://github.com/thumbor/thumbor/issues/182>`__.
    There's two new configuration keys:
    ``HTTP_LOADER_DEFAULT_USER_AGENT`` and
    ``HTTP_LOADER_FORWARD_USER_AGENT``. These are meant to allow
    scenarios where the remote image server won't allow thumbor's user
    agent.
--  Fixes `#180 <https://github.com/globocom/thumbor/issues/180>`__.
+-  Fixes `#180 <https://github.com/thumbor/thumbor/issues/180>`__.
    Thumbor now features a grayscale filter. More information can be
    found in the Filters page.
 -  Code reformatting to conform to PEP-8.
 
-3.9.4 - http://pypi.python.org/pypi/thumbor/3.9.4 - 17-Apr-2013 - `diff <https://github.com/globocom/thumbor/compare/3.9.2...3.9.4>`__
+3.9.4 - http://pypi.python.org/pypi/thumbor/3.9.4 - 17-Apr-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.9.2...3.9.4>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Upgraded Pillow dependency to 2.0.0;
@@ -278,7 +278,7 @@ New features
    break you if you have connect times greater than 5 seconds. This
    setting was previously configured to 20 seconds.
 
-3.9.2 - http://pypi.python.org/pypi/thumbor/3.9.2 - 09-Apr-2013 - `diff <https://github.com/globocom/thumbor/compare/3.9.1...3.9.2>`__
+3.9.2 - http://pypi.python.org/pypi/thumbor/3.9.2 - 09-Apr-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.9.1...3.9.2>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Logging format can now be configured using ``THUMBOR_LOG_FORMAT`` and
@@ -286,22 +286,22 @@ New features
    passed through to python's ``format`` and ``datefmt`` arguments of
    the ``logging.basicConfig`` method.
 
-3.9.1 - http://pypi.python.org/pypi/thumbor/3.9.1 - 09-Apr-2013 - `diff <https://github.com/globocom/thumbor/compare/3.9.0...3.9.1>`__
+3.9.1 - http://pypi.python.org/pypi/thumbor/3.9.1 - 09-Apr-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.9.0...3.9.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Makes error handling a little safer.
 
-3.9.0 - http://pypi.python.org/pypi/thumbor/3.9.0 - 28-Mar-2013 - `diff <https://github.com/globocom/thumbor/compare/3.8.1...3.9.0>`__
+3.9.0 - http://pypi.python.org/pypi/thumbor/3.9.0 - 28-Mar-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.8.1...3.9.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#165 <https://github.com/globocom/thumbor/issues/165>`__.
+-  Fixes `#165 <https://github.com/thumbor/thumbor/issues/165>`__.
    Setting the ``ALLOW_ANIMATED_GIFS`` configuration to ``False`` will
    remove the experimental support for animated gifs.
 
-3.8.1 - http://pypi.python.org/pypi/thumbor/3.8.1 - 27-Mar-2013 - `diff <https://github.com/globocom/thumbor/compare/3.7.1...3.8.1>`__
+3.8.1 - http://pypi.python.org/pypi/thumbor/3.8.1 - 27-Mar-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.7.1...3.8.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#175 <https://github.com/globocom/thumbor/issues/175>`__.
+-  Fixes `#175 <https://github.com/thumbor/thumbor/issues/175>`__.
    Thumbor now support custom error handling. This can be very useful
    for users that have a centralized error application (like
    `sentry <https://github.com/getsentry/sentry>`__).
@@ -310,7 +310,7 @@ New features
 -  Optimized fill filter, which is now implemented in C (by
    fabiomcosta).
 
-3.7.1 - http://pypi.python.org/pypi/thumbor/3.7.1 - 06-Feb-2013 - `diff <https://github.com/globocom/thumbor/compare/3.7.0...3.7.1>`__
+3.7.1 - http://pypi.python.org/pypi/thumbor/3.7.1 - 06-Feb-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.7.0...3.7.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fix bug with quoting valid characters in URL (by cdemonchy);
@@ -318,95 +318,95 @@ New features
 -  Fix in the mongo storage (by phpconnect);
 -  Auto option for the fill filter (by fabiomcosta).
 
-3.7.0 - http://pypi.python.org/pypi/thumbor/3.7.0 - 24-Jan-2013 - `diff <https://github.com/globocom/thumbor/compare/3.6.11...3.7.0>`__
+3.7.0 - http://pypi.python.org/pypi/thumbor/3.7.0 - 24-Jan-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.6.11...3.7.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Multi-Instance deb support. Merge pull request
-   `#146 <https://github.com/globocom/thumbor/pull/146>`__ from
+   `#146 <https://github.com/thumbor/thumbor/pull/146>`__ from
    nhuray/master.
 
-3.6.11 - http://pypi.python.org/pypi/thumbor/3.6.11 - 23-Jan-2013 - `diff <https://github.com/globocom/thumbor/compare/3.6.10...3.6.11>`__
+3.6.11 - http://pypi.python.org/pypi/thumbor/3.6.11 - 23-Jan-2013 - `diff <https://github.com/thumbor/thumbor/compare/3.6.10...3.6.11>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Implementing methods that were missing in the json engine;
 -  Merge pull request
-   `#143 <https://github.com/globocom/thumbor/pull/143>`__ from
+   `#143 <https://github.com/thumbor/thumbor/pull/143>`__ from
    nhuray/master;
 -  Disable REST Upload by default;
 -  Merge pull request
-   `#142 <https://github.com/globocom/thumbor/pull/142>`__ from
+   `#142 <https://github.com/thumbor/thumbor/pull/142>`__ from
    morpheu/master;
 -  Other detector options in thumbor.conf.
 
-3.6.10 - http://pypi.python.org/pypi/thumbor/3.6.10 - 14-Dec-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.9...3.6.10>`__
+3.6.10 - http://pypi.python.org/pypi/thumbor/3.6.10 - 14-Dec-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.9...3.6.10>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#138 <https://github.com/globocom/thumbor/issues/138>`__.
+-  Fixes `#138 <https://github.com/thumbor/thumbor/issues/138>`__.
    Filters are not required for using thumbor.
 
-3.6.9 - http://pypi.python.org/pypi/thumbor/3.6.9 - 12-Dec-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.8...3.6.9>`__
+3.6.9 - http://pypi.python.org/pypi/thumbor/3.6.9 - 12-Dec-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.8...3.6.9>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Improved error handling on http loader.
 
-3.6.8 - http://pypi.python.org/pypi/thumbor/3.6.8 - 12-Dec-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.7...3.6.8>`__
+3.6.8 - http://pypi.python.org/pypi/thumbor/3.6.8 - 12-Dec-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.7...3.6.8>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#139 <https://github.com/globocom/thumbor/issues/139>`__.
+-  Fixes `#139 <https://github.com/thumbor/thumbor/issues/139>`__.
    Libmagic is not required anymore.
 -  Improved image type detection.
 
-3.6.7 - http://pypi.python.org/pypi/thumbor/3.6.7 - 24-Oct-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.6...3.6.7>`__
+3.6.7 - http://pypi.python.org/pypi/thumbor/3.6.7 - 24-Oct-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.6...3.6.7>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Pull request `#133 <https://github.com/globocom/thumbor/pull/133>`__
+-  Pull request `#133 <https://github.com/thumbor/thumbor/pull/133>`__
    from gcirne.
--  Fixes `#132 <https://github.com/globocom/thumbor/issues/132>`__.
+-  Fixes `#132 <https://github.com/thumbor/thumbor/issues/132>`__.
    Thumbor has a rest API for uploading images from this version
    onwards. Documentation to follow.
 
-3.6.6 - http://pypi.python.org/pypi/thumbor/3.6.6 - 24-Oct-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.4...3.6.6>`__
+3.6.6 - http://pypi.python.org/pypi/thumbor/3.6.6 - 24-Oct-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.4...3.6.6>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed some issues with thumbor-url.
 
-3.6.4 - http://pypi.python.org/pypi/thumbor/3.6.4 - 24-Oct-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.3...3.6.4>`__
+3.6.4 - http://pypi.python.org/pypi/thumbor/3.6.4 - 24-Oct-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.3...3.6.4>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fix glasses detector - Pull request
-   `#124 <https://github.com/globocom/thumbor/pull/124>`__.
--  Pull request `#128 <https://github.com/globocom/thumbor/pull/128>`__
+   `#124 <https://github.com/thumbor/thumbor/pull/124>`__.
+-  Pull request `#128 <https://github.com/thumbor/thumbor/pull/128>`__
    from wichert.
 -  Update encrypted string to allow trim parameter;
 -  Allow specifying trim option in URL composure and thumbor-url.
 
-3.6.3 - http://pypi.python.org/pypi/thumbor/3.6.3 - 26-Sep-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.2...3.6.3>`__
+3.6.3 - http://pypi.python.org/pypi/thumbor/3.6.3 - 26-Sep-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.2...3.6.3>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#127 <https://github.com/globocom/thumbor/issues/127>`__.
+-  Fixes `#127 <https://github.com/thumbor/thumbor/issues/127>`__.
 
-3.6.2 - http://pypi.python.org/pypi/thumbor/3.6.2 - 19-Sep-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.1...3.6.2>`__
+3.6.2 - http://pypi.python.org/pypi/thumbor/3.6.2 - 19-Sep-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.1...3.6.2>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#126 <https://github.com/globocom/thumbor/issues/126>`__.
+-  Fixes `#126 <https://github.com/thumbor/thumbor/issues/126>`__.
 
-3.6.1 - http://pypi.python.org/pypi/thumbor/3.6.1 - 19-Sep-2012 - `diff <https://github.com/globocom/thumbor/compare/3.6.0...3.6.1>`__
+3.6.1 - http://pypi.python.org/pypi/thumbor/3.6.1 - 19-Sep-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.6.0...3.6.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#125 <https://github.com/globocom/thumbor/issues/125>`__
+-  Fixes `#125 <https://github.com/thumbor/thumbor/issues/125>`__
    properly. Both libthumbor and ruby-thumbor verified now (Big Kudos to
    @robolson).
 
-3.6.0 - http://pypi.python.org/pypi/thumbor/3.6.0 - 18-Sep-2012 - `diff <https://github.com/globocom/thumbor/compare/3.5.2...3.6.0>`__
+3.6.0 - http://pypi.python.org/pypi/thumbor/3.6.0 - 18-Sep-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.5.2...3.6.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed compilation under clang (Mac OS X Lion);
 -  Included trim option to remove surrounding space in images `more
-   info <https://github.com/globocom/thumbor/wiki/Usage>`__;
--  Fixes `#125 <https://github.com/globocom/thumbor/issues/125>`__.
--  Pull request `#124 <https://github.com/globocom/thumbor/pull/124>`__.
+   info <https://github.com/thumbor/thumbor/wiki/Usage>`__;
+-  Fixes `#125 <https://github.com/thumbor/thumbor/issues/125>`__.
+-  Pull request `#124 <https://github.com/thumbor/thumbor/pull/124>`__.
 
-3.5.2 - http://pypi.python.org/pypi/thumbor/3.5.2 - 14-Aug-2012 - `diff <https://github.com/globocom/thumbor/compare/3.5.1...3.5.2>`__
+3.5.2 - http://pypi.python.org/pypi/thumbor/3.5.2 - 14-Aug-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.5.1...3.5.2>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed support to custom apps;
@@ -415,7 +415,7 @@ New features
 -  Changed filestorage to store uploaded files using a MD5 based hash
    algorithm similar to what git does.
 
-3.5.1 - http://pypi.python.org/pypi/thumbor/3.5.1 - 03-Aug-2012 - `diff <https://github.com/globocom/thumbor/compare/3.5.0...3.5.1>`__
+3.5.1 - http://pypi.python.org/pypi/thumbor/3.5.1 - 03-Aug-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.5.0...3.5.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Added a new exception in the upload handler called
@@ -424,11 +424,11 @@ New features
    This way thumbor can return a ``400 BAD REQUEST`` response to the
    upload request.
 
-3.5.0 - http://pypi.python.org/pypi/thumbor/3.5.0 - 03-Aug-2012 - `diff <https://github.com/globocom/thumbor/compare/3.4.1...3.5.0>`__
+3.5.0 - http://pypi.python.org/pypi/thumbor/3.5.0 - 03-Aug-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.4.1...3.5.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#113 <https://github.com/globocom/thumbor/issues/113>`__ and
-   `#114 <https://github.com/globocom/thumbor/issues/113>`__, that were
+-  Fixes `#113 <https://github.com/thumbor/thumbor/issues/113>`__ and
+   `#114 <https://github.com/thumbor/thumbor/issues/113>`__, that were
    related.
 -  Allow storage classes to retrieve request information in the
    ``resolve_original_path`` method.
@@ -439,17 +439,17 @@ has a new signature. It used to be
 ``resolve_original_photo_path(filename)`` and now is
 ``resolve_original_photo_path(request, filename)``.
 
-3.4.1 - http://pypi.python.org/pypi/thumbor/3.4.1 - 02-Aug-2012 - `diff <https://github.com/globocom/thumbor/compare/3.4.0...3.4.1>`__
+3.4.1 - http://pypi.python.org/pypi/thumbor/3.4.1 - 02-Aug-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.4.0...3.4.1>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#115 <https://github.com/globocom/thumbor/pull/115>`__.
+-  Fixes `#115 <https://github.com/thumbor/thumbor/pull/115>`__.
 
-3.4.0 - http://pypi.python.org/pypi/thumbor/3.4.0 - 01-Aug-2012 - `diff <https://github.com/globocom/thumbor/compare/3.3.0...3.4.0>`__
+3.4.0 - http://pypi.python.org/pypi/thumbor/3.4.0 - 01-Aug-2012 - `diff <https://github.com/thumbor/thumbor/compare/3.3.0...3.4.0>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#107 <https://github.com/globocom/thumbor/pull/107>`__.
+-  Fixes `#107 <https://github.com/thumbor/thumbor/pull/107>`__.
    9-Patch filter to support android 9-patch format-like images.
--  Fixes `#103 <https://github.com/globocom/thumbor/issues/103>`__.
+-  Fixes `#103 <https://github.com/thumbor/thumbor/issues/103>`__.
    Fixes handling special characters in the URLs.
 -  A couple configuration keys renamed. For some time the old names will
    be kept compatible.
@@ -459,11 +459,11 @@ has a new signature. It used to be
 3.3.0 - http://pypi.python.org/pypi/thumbor/3.3.0 - 18-Jul-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#82 <https://github.com/globocom/thumbor/issues/82>`__.
+-  Fixes `#82 <https://github.com/thumbor/thumbor/issues/82>`__.
    There's a new command called 'thumbor-config' that will output
    thumbor's default configuration file.
 
--  Fixes `#94 <https://github.com/globocom/thumbor/issues/94>`__.
+-  Fixes `#94 <https://github.com/thumbor/thumbor/issues/94>`__.
    There's a new configuration called 'RESPECT\_ORIENTATION' that
    instructs thumbor to rotate images according to an EXIF orientation
    (if one can be found in the image headers).
@@ -471,21 +471,21 @@ has a new signature. It used to be
 3.2.0 - http://pypi.python.org/pypi/thumbor/3.2.0 - 18-Jul-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#103 <https://github.com/globocom/thumbor/issues/103>`__.
+-  Fixes `#103 <https://github.com/thumbor/thumbor/issues/103>`__.
    Tornado unquotes URL's passed to thumbor and that screws up some
    URLs.
 
 3.1.1 - http://pypi.python.org/pypi/thumbor/3.1.1 - 17-Jul-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#102 <https://github.com/globocom/thumbor/issues/102>`__.
+-  Fixes `#102 <https://github.com/thumbor/thumbor/issues/102>`__.
    There was an additional issue with images with alpha channels (LA).
 
 3.1.0 - http://pypi.python.org/pypi/thumbor/3.1.0 - 17-Jul-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Fixed issue with gifsicle when optimizing GIF images.
--  Fixes `#102 <https://github.com/globocom/thumbor/issues/102>`__. This
+-  Fixes `#102 <https://github.com/thumbor/thumbor/issues/102>`__. This
    was an issue with OpenCV and palette images.
 -  Fixes with URL regexes.
 
@@ -508,7 +508,7 @@ It's still backwards compatible, but the old style URLs are deprecated
 and will go away in the next major. For more information read the
 3.0.0 release changes.
 
--  Fixes `#98 <https://github.com/globocom/thumbor/issues/98>`__.
+-  Fixes `#98 <https://github.com/thumbor/thumbor/issues/98>`__.
 
 2.8.2 - http://pypi.python.org/pypi/thumbor/2.8.2 - 9-Jul-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -518,10 +518,10 @@ and will go away in the next major. For more information read the
 2.8.1 - http://pypi.python.org/pypi/thumbor/2.8.1 - 29-Jun-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Fixes `#97 <https://github.com/globocom/thumbor/issues/97>`__.
+-  Fixes `#97 <https://github.com/thumbor/thumbor/issues/97>`__.
    Request parameters for the source image are now properly appended to
    the image URI.
--  Fixes `#96 <https://github.com/globocom/thumbor/issues/96>`__.
+-  Fixes `#96 <https://github.com/thumbor/thumbor/issues/96>`__.
    Experimental support for animated gifs. Most filters are working.
    Only for PIL engine. Other engines to come.
 
@@ -545,7 +545,7 @@ and will go away in the next major. For more information read the
 2.7.3 - http://pypi.python.org/pypi/thumbor/2.7.3 - 23-Mar-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Issue #90\|https://github.com/globocom/thumbor/issues/90 fixed.
+-  Issue #90\|https://github.com/thumbor/thumbor/issues/90 fixed.
    thumbor-url command now works properly.
 -  Key file and adaptive cropping support in thumbor-url.
 
@@ -583,9 +583,9 @@ and will go away in the next major. For more information read the
 2.6.2 - http://pypi.python.org/pypi/thumbor/2.6.2 - 20-Feb-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Ticket `#25 <https://github.com/globocom/thumbor/issues/25>`__ in
+-  Ticket `#25 <https://github.com/thumbor/thumbor/issues/25>`__ in
    experimental status.
--  Ticket `#59 <https://github.com/globocom/thumbor/issues/59>`__ done.
+-  Ticket `#59 <https://github.com/thumbor/thumbor/issues/59>`__ done.
 
 2.5.1 - http://pypi.python.org/pypi/thumbor/2.5.1 - 02-Feb-2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -736,7 +736,7 @@ and will go away in the next major. For more information read the
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #41 - Store in the storage the detection results for later
-   usage. <https://github.com/globocom/thumbor/issues#issue/41>`__
+   usage. <https://github.com/thumbor/thumbor/issues#issue/41>`__
 
 0.7.14 - http://pypi.python.org/pypi/thumbor/0.7.14
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -762,65 +762,65 @@ and will go away in the next major. For more information read the
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #36 - Change Mongo Storage to use
-   GridFS <https://github.com/globocom/thumbor/issues#issue/36>`__
+   GridFS <https://github.com/thumbor/thumbor/issues#issue/36>`__
 
 0.7.7 - http://pypi.python.org/pypi/thumbor/0.7.7
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #29 - Create an OpenCV
-   Engine <https://github.com/globocom/thumbor/issues#issue/29>`__
+   Engine <https://github.com/thumbor/thumbor/issues#issue/29>`__
 
 0.7.6 - http://pypi.python.org/pypi/thumbor/0.7.6
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #35 - MySQL
-   Storage <https://github.com/globocom/thumbor/issues#issue/35>`__
+   Storage <https://github.com/thumbor/thumbor/issues#issue/35>`__
 -  `Ticket #31 - NoStorage Storage needs to be updated to include no
    crypto
-   support <https://github.com/globocom/thumbor/issues#issue/31>`__
+   support <https://github.com/thumbor/thumbor/issues#issue/31>`__
 
 0.7.5 - http://pypi.python.org/pypi/thumbor/0.7.5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #34 - Meta should have the option of returning as
-   jsonp <https://github.com/globocom/thumbor/issues#issue/34>`__
+   jsonp <https://github.com/thumbor/thumbor/issues#issue/34>`__
    (REOPENED)
 
 0.7.4 - http://pypi.python.org/pypi/thumbor/0.7.4
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #34 - Meta should have the option of returning as
-   jsonp <https://github.com/globocom/thumbor/issues#issue/34>`__
+   jsonp <https://github.com/thumbor/thumbor/issues#issue/34>`__
 
 0.7.2 - http://pypi.python.org/pypi/thumbor/0.7.2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #32 - Allow unlimited dimensions of
-   images <https://github.com/globocom/thumbor/issues#issue/32>`__
+   images <https://github.com/thumbor/thumbor/issues#issue/32>`__
 
 0.7.0 - http://pypi.python.org/pypi/thumbor/0.7.0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #30 - Allow users to use a fit-in
-   flag <https://github.com/globocom/thumbor/issues#issue/30>`__
+   flag <https://github.com/thumbor/thumbor/issues#issue/30>`__
 
 0.6.5 - http://pypi.python.org/pypi/thumbor/0.6.5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #16 - NoStorage
-   Storage <https://github.com/globocom/thumbor/issues#issue/16>`__
+   Storage <https://github.com/thumbor/thumbor/issues#issue/16>`__
 -  `Ticket #24 - OpenCV File
-   Issue <https://github.com/globocom/thumbor/issues#issue/24>`__
+   Issue <https://github.com/thumbor/thumbor/issues#issue/24>`__
 -  `Ticket #26 - BUG: Redis Configuration does not
-   work <https://github.com/globocom/thumbor/issues#issue/26>`__
+   work <https://github.com/thumbor/thumbor/issues#issue/26>`__
 -  `Ticket #27 - BUG: Issue with
-   cropping <https://github.com/globocom/thumbor/issues#issue/27>`__
+   cropping <https://github.com/thumbor/thumbor/issues#issue/27>`__
 
 0.6.4 - http://pypi.python.org/pypi/thumbor/0.6.4
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #24 - OpenCV File
-   Issue <https://github.com/globocom/thumbor/issues#issue/7>`__
+   Issue <https://github.com/thumbor/thumbor/issues#issue/7>`__
 
 0.6.3 - http://pypi.python.org/pypi/thumbor/0.6.3
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -831,7 +831,7 @@ and will go away in the next major. For more information read the
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #7 - Validate for file size on the http
-   loader <https://github.com/globocom/thumbor/issues#issue/7>`__
+   loader <https://github.com/thumbor/thumbor/issues#issue/7>`__
 
 0.6.1 - http://pypi.python.org/pypi/thumbor/0.6.1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -849,25 +849,25 @@ and will go away in the next major. For more information read the
 
 -  `Ticket #5 - Switch the unencrypted URL to be /unsafe and the
    encrypted to be the
-   default <https://github.com/globocom/thumbor/issues#issue/5>`__
+   default <https://github.com/thumbor/thumbor/issues#issue/5>`__
 
 0.4.1 - http://pypi.python.org/pypi/thumbor/0.4.1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #4 - Bug in the encrypted URL generation and
-   parsing <https://github.com/globocom/thumbor/issues#issue/4>`__
+   parsing <https://github.com/thumbor/thumbor/issues#issue/4>`__
 
 0.4.0 - http://pypi.python.org/pypi/thumbor/0.4.0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #2 - Command-line application to generate
-   urls <https://github.com/globocom/thumbor/issues#issue/2>`__
+   urls <https://github.com/thumbor/thumbor/issues#issue/2>`__
 
 0.3.0 - http://pypi.python.org/pypi/thumbor/0.3.0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Ticket #1 - URL Cryptography
-   Support <https://github.com/globocom/thumbor/issues#issue/1>`__
+   Support <https://github.com/thumbor/thumbor/issues#issue/1>`__
    (FIXED)
 -  Internal logic refactored.
 
