@@ -18,9 +18,13 @@ Arguments
 -  x - Horizontal position that the watermark will be in. Positive
    numbers indicate position from the left and negative numbers indicate
    position from the right.
+   If the value is 'center' (without the single quotes), the watermark will be centered horizontally.
+   If the value is 'repeat' (without the single quotes), the watermark will be repeated horizontally.
 -  y - Vertical position that the watermark will be in. Positive numbers
    indicate position from the top and negative numbers indicate position
    from the bottom.
+   If the value is 'center' (without the single quotes), the watermark will be centered vertically.
+   If the value is 'repeat' (without the single quotes), the watermark will be repeated vertically
 -  alpha - Watermark image transparency. Should be a number between 0
    (fully opaque) and 100 (fully transparent).
 

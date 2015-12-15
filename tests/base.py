@@ -14,7 +14,7 @@ from io import BytesIO
 from unittest import TestCase as PythonTestCase
 import urllib
 import mimetypes
-from os.path import exists
+from os.path import exists, realpath, dirname, join
 import cStringIO
 import mock
 
@@ -208,6 +208,8 @@ class FilterTestCase(PythonTestCase):
     def get_filter(self, filter_name, params_string="", config_context=None):
         config = Config(
             FILTERS=[filter_name],
+            LOADER='thumbor.loaders.file_loader',
+            FILE_LOADER_ROOT_PATH=join(dirname(realpath(__file__)), 'fixtures', 'filters')
         )
         importer = Importer(config)
         importer.import_modules()
