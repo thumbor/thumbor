@@ -495,6 +495,11 @@ class BaseHandler(tornado.web.RequestHandler):
             self.context.request.engine.load(fetch_result.buffer, extension)
 
             fetch_result.normalized = self.context.request.engine.normalize()
+
+            # Allows engine or loader to override storage on the fly for the purpose of
+            # marking a specific file as unstoreable
+            storage = self.context.modules.storage
+
             is_no_storage = isinstance(storage, NoStorage)
             is_mixed_storage = isinstance(storage, MixedStorage)
             is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)

@@ -24,6 +24,8 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context, ServerParameters
 from thumbor.handlers import FetchResult, BaseHandler
+from thumbor.storages.file_storage import Storage as FileStorage
+from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.utils import which
 from tests.base import TestCase, PythonTestCase
 from thumbor.engines.pil import Engine
@@ -693,29 +695,57 @@ class EngineLoadException(BaseImagingTestCase):
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
 
-        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
-        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
-        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
-        cfg.AUTO_WEBP = True
-        cfg.MAX_WIDTH = 150
-        cfg.MAX_HEIGHT = 150
-
         importer = Importer(cfg)
         importer.import_modules()
         server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
         server.security_key = 'ACME-SEC'
-        ctx = Context(server, cfg, importer)
-
-        return ctx
-
-    def load_exc(self, foo, bar):
-        raise Exception('CommandError')
+        return Context(server, cfg, importer)
 
     def test_should_error_on_engine_load_exception(self):
         old_load = Engine.load
-        Engine.load = self.load_exc
+
+        def load_override(self, foo, bar):
+            raise Exception('CommandError')
+
+        Engine.load = load_override
 
         response = self.fetch('/unsafe/smart/image.jpg')
         expect(response.code).to_equal(504)
 
         Engine.load = old_load
+
+
+class StorageOverride(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.file_storage"
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
+
+    def test_shouldnt_call_put_when_storage_overridden_to_nostorage(self):
+        old_load = Engine.load
+        old_put = FileStorage.put
+
+        def load_override(self, foo, bar):
+            self.context.modules.storage = NoStorage(None)
+            return old_load(self, foo, bar)
+
+        def put_override(self, path, contents):
+            expect.not_to_be_here()
+
+        Engine.load = load_override
+        FileStorage.put = put_override
+
+        response = self.fetch('/unsafe/smart/image.jpg')
+
+        expect(response.code).to_equal(200)
+
+        Engine.load = old_load
+        FileStorage.put = old_put
