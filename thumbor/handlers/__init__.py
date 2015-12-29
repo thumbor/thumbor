@@ -16,6 +16,7 @@ import traceback
 
 import tornado.web
 import tornado.gen as gen
+from tornado.locks import Condition
 
 from thumbor import __version__
 from thumbor.context import Context
@@ -44,6 +45,8 @@ class FetchResult(object):
 
 
 class BaseHandler(tornado.web.RequestHandler):
+    url_locks = {}
+
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
@@ -437,25 +440,33 @@ class BaseHandler(tornado.web.RequestHandler):
         fetch_result = FetchResult()
 
         storage = self.context.modules.storage
-        fetch_result.buffer = yield gen.maybe_future(storage.get(url))
-        mime = None
 
-        if fetch_result.buffer is not None:
-            fetch_result.successful = True
+        yield self.acquire_url_lock(url)
 
-            self.context.metrics.incr('storage.hit')
-            mime = BaseEngine.get_mimetype(fetch_result.buffer)
-            self.context.request.extension = EXTENSION.get(mime, '.jpg')
-            if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                self.context.request.engine = self.context.modules.gif_engine
+        try:
+            fetch_result.buffer = yield gen.maybe_future(storage.get(url))
+            mime = None
+
+            if fetch_result.buffer is not None:
+                self.release_url_lock(url)
+
+                fetch_result.successful = True
+
+                self.context.metrics.incr('storage.hit')
+                mime = BaseEngine.get_mimetype(fetch_result.buffer)
+                self.context.request.extension = EXTENSION.get(mime, '.jpg')
+                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                    self.context.request.engine = self.context.modules.gif_engine
+                else:
+                    self.context.request.engine = self.context.modules.engine
+
+                raise gen.Return(fetch_result)
             else:
-                self.context.request.engine = self.context.modules.engine
+                self.context.metrics.incr('storage.miss')
 
-            raise gen.Return(fetch_result)
-        else:
-            self.context.metrics.incr('storage.miss')
-
-        loader_result = yield self.context.modules.loader.load(self.context, url)
+            loader_result = yield self.context.modules.loader.load(self.context, url)
+        finally:
+            self.release_url_lock(url)
 
         if isinstance(loader_result, LoaderResult):
             # TODO _fetch should probably return a result object vs a list to
@@ -526,6 +537,20 @@ class BaseHandler(tornado.web.RequestHandler):
             raise tornado.gen.Return(blacklist)
         else:
             raise tornado.gen.Return("")
+
+    @gen.coroutine
+    def acquire_url_lock(self, url):
+        if not url in BaseHandler.url_locks:
+            BaseHandler.url_locks[url] = Condition()
+        else:
+            yield BaseHandler.url_locks[url].wait()
+
+    def release_url_lock(self, url):
+        try:
+            BaseHandler.url_locks[url].notify_all()
+            del BaseHandler.url_locks[url]
+        except KeyError:
+            pass
 
 
 class ContextHandler(BaseHandler):
