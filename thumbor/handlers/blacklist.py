@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from thumbor.handlers import ContextHandler
+from thumbor.media import Media
 from thumbor.utils import logger
 import tornado
 
@@ -18,17 +19,31 @@ class BlacklistHandler(ContextHandler):
     @tornado.web.asynchronous
     @tornado.gen.coroutine
     def get(self):
-        blacklist = yield self.get_blacklist_contents()
+        result = yield self.get_blacklist_contents()
 
-        self.write(blacklist)
+        blacklist = None
+
+        if isinstance(result, Media):
+            blacklist = result.buffer
+        else:
+            blacklist = result
+
         self.set_header('Content-Type', 'text/plain')
         self.set_status(200)
 
     @tornado.web.asynchronous
     @tornado.gen.coroutine
     def put(self):
-        blacklist = yield self.get_blacklist_contents()
+        result = yield self.get_blacklist_contents()
+
+        blacklist = None
+
+        if isinstance(result, Media):
+            blacklist = result.buffer
+        else:
+            blacklist = result
+
         blacklist += self.request.query + "\n"
         logger.debug('Adding to blacklist: %s' % self.request.query)
-        self.context.modules.storage.put('blacklist.txt', blacklist)
+        self.context.modules.storage.put('blacklist.txt', Media(blacklist))
         self.set_status(200)
