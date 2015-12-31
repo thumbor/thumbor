@@ -38,6 +38,9 @@ class ResultStorageResult(LoaderResult):
 
 
 class BaseStorage(object):
+
+    is_media_aware = False
+
     def __init__(self, context):
         self.context = context
 

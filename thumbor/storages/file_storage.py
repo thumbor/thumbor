@@ -17,13 +17,16 @@ import hashlib
 from uuid import uuid4
 
 import thumbor.storages as storages
+from thumbor.media import Media
 from thumbor.utils import logger
 from tornado.concurrent import return_future
 
 
 class Storage(storages.BaseStorage):
 
-    def put(self, path, bytes):
+    is_media_aware = True
+
+    def put(self, path, media):
         file_abspath = self.path_on_filesystem(path)
         temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace('-', ''))
         file_dir_abspath = dirname(file_abspath)
@@ -33,7 +36,7 @@ class Storage(storages.BaseStorage):
         self.ensure_dir(file_dir_abspath)
 
         with open(temp_abspath, 'w') as _file:
-            _file.write(bytes)
+            _file.write(media.buffer)
 
         logger.debug('moving tempfile %s to %s...' % (temp_abspath, file_abspath))
         move(temp_abspath, file_abspath)
@@ -86,7 +89,12 @@ class Storage(storages.BaseStorage):
             if not resource_available:
                 callback(None)
             else:
-                callback(open(self.path_on_filesystem(path), 'r').read())
+                media = Media()
+
+                with open(self.path_on_filesystem(path), 'r') as _file:
+                    media.buffer = _file.read()
+
+                callback(media)
 
         self.exists(None, file_exists, path_on_filesystem=abs_path)
 

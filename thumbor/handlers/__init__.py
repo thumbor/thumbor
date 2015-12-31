@@ -22,6 +22,7 @@ from thumbor.context import Context
 from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.loaders import LoaderResult
+from thumbor.media import Media
 from thumbor.result_storages import ResultStorageResult
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.storages.mixed_storage import Storage as MixedStorage
@@ -34,13 +35,11 @@ HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
 
 class FetchResult(object):
-
-    def __init__(self, normalized=False, buffer=None, engine=None, successful=False, loader_error=None):
+    def __init__(self, normalized=False, media=None, engine=None, successful=False):
         self.normalized = normalized
         self.engine = engine
-        self.buffer = buffer
+        self.media = media
         self.successful = successful
-        self.loader_error = loader_error
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -67,23 +66,35 @@ class BaseHandler(tornado.web.RequestHandler):
 
             self.context.metrics.timing('result_storage.incoming_time', (finish - start).total_seconds() * 1000)
 
+            media = None
+
             if result is None:
                 self.context.metrics.incr('result_storage.miss')
             else:
-                self.context.metrics.incr('result_storage.hit')
-                self.context.metrics.incr('result_storage.bytes_read', len(result))
+                if isinstance(result, Media):
+                    media = result
+                elif isinstance(result, ResultStorageResult):
+                    media = Media(result.buffer)
+                else:
+                    media = Media(result)
 
-            if result is not None:
-                buffer = result.buffer if isinstance(result, ResultStorageResult) else result
-                mime = BaseEngine.get_mimetype(buffer)
+            if media and media.buffer:
+                self.context.metrics.incr('result_storage.hit')
+                self.context.metrics.incr('result_storage.bytes_read', len(media.buffer))
+
+                mime = BaseEngine.get_mimetype(media.buffer)
+                extension = EXTENSION.get(mime, '.jpg')
+
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
                 else:
                     self.context.request.engine = self.context.modules.engine
-                self.context.request.engine.load(buffer, EXTENSION.get(mime, '.jpg'))
+
+                self.context.request.engine.load(media.buffer, extension)
 
                 logger.debug('[RESULT_STORAGE] IMAGE FOUND: %s' % req.url)
-                self.finish_request(self.context, result)
+
+                self.finish_request(self.context, media)
                 return
 
         if conf.MAX_WIDTH and (not isinstance(req.width, basestring)) and req.width > conf.MAX_WIDTH:
@@ -104,17 +115,23 @@ class BaseHandler(tornado.web.RequestHandler):
             )
 
             if not result.successful:
-                if result.loader_error == LoaderResult.ERROR_NOT_FOUND:
-                    self._error(404)
-                    return
-                elif result.loader_error == LoaderResult.ERROR_UPSTREAM:
-                    # Return a Bad Gateway status if the error came from upstream
-                    self._error(502)
-                    return
-                elif result.loader_error == LoaderResult.ERROR_TIMEOUT:
-                    # Return a Gateway Timeout status if upstream timed out (i.e. 599)
-                    self._error(504)
-                    return
+                if result.media.errors:
+                    for error in result.media.errors:
+                        if error == LoaderResult.ERROR_NOT_FOUND:
+                            self._error(404)
+                            return
+
+                        if error == LoaderResult.ERROR_UPSTREAM:
+                            # Return a Bad Gateway status if the error came
+                            # from upstream
+                            self._error(502)
+                            return
+
+                        if error == LoaderResult.ERROR_TIMEOUT:
+                            # Return a Gateway Timeout status if upstream
+                            # timed out (i.e. 599)
+                            self._error(504)
+                            return
                 else:
                     self._error(500)
                     return
@@ -136,7 +153,7 @@ class BaseHandler(tornado.web.RequestHandler):
             return
 
         normalized = result.normalized
-        buffer = result.buffer
+        buffer = result.media.buffer
         engine = result.engine
 
         req = self.context.request
@@ -199,6 +216,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def after_transform(self, context):
         finish_callback = functools.partial(self.finish_request, context)
+
         if context.request.extension == '.gif' and context.config.USE_GIFSICLE_ENGINE:
             finish_callback()
         else:
@@ -210,15 +228,12 @@ class BaseHandler(tornado.web.RequestHandler):
                 not context.request.engine.is_multiple() and
                 context.request.engine.can_convert_to_webp())
 
-    def define_image_type(self, context, result):
-        if result is not None:
-            if isinstance(result, ResultStorageResult):
-                buffer = result.buffer
-            else:
-                buffer = result
-            image_extension = EXTENSION.get(BaseEngine.get_mimetype(buffer), '.jpg')
+    def define_image_type(self, context, media):
+        if media:
+            image_extension = EXTENSION.get(BaseEngine.get_mimetype(media.buffer), '.jpg')
         else:
             image_extension = context.request.format
+
             if image_extension is not None:
                 image_extension = '.%s' % image_extension
                 logger.debug('Image format specified as %s.' % image_extension)
@@ -240,7 +255,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return (image_extension, content_type)
 
-    def _load_results(self, context):
+    def _load_media(self, context):
         image_extension, content_type = self.define_image_type(context, None)
 
         quality = self.context.request.quality
@@ -249,21 +264,38 @@ class BaseHandler(tornado.web.RequestHandler):
                 quality = self.context.config.get('WEBP_QUALITY')
             else:
                 quality = self.context.config.QUALITY
-        results = context.request.engine.read(image_extension, quality)
+
+        engine_result = context.request.engine.read(image_extension, quality)
+
         if context.request.max_bytes is not None:
-            results = self.reload_to_fit_in_kb(
+            engine_result = self.reload_to_fit_in_kb(
                 context.request.engine,
-                results,
+                engine_result,
                 image_extension,
                 quality,
                 context.request.max_bytes
             )
-        if not context.request.meta:
-            results = self.optimize(context, image_extension, results)
-            # An optimizer might have modified the image format.
-            content_type = BaseEngine.get_mimetype(results)
 
-        return results, content_type
+        optimizers_result = self.optimize(
+            context,
+            image_extension,
+            engine_result
+        )
+
+        media = Media(optimizers_result)
+
+        # Optimizers can change the content type or extension
+        image_extension, content_type = self.define_image_type(
+            context,
+            media
+        )
+
+        media.metadata.update({
+            'ContentType': content_type,
+            'FileExtension': image_extension
+        })
+
+        return media
 
     @gen.coroutine
     def _process_result_from_storage(self, result):
@@ -292,31 +324,41 @@ class BaseHandler(tornado.web.RequestHandler):
                             'Last-Updated headers support is disabled.')
 
     @gen.coroutine
-    def finish_request(self, context, result_from_storage=None):
-        if result_from_storage is not None:
-            self._process_result_from_storage(result_from_storage)
+    def finish_request(self, context, media=None):
+        if media and media.is_valid:
+            self._process_result_from_storage(media)
 
-            image_extension, content_type = self.define_image_type(context, result_from_storage)
-            self._write_results_to_client(context, result_from_storage, content_type)
+            image_extension, content_type = self.define_image_type(context, media)
+            media.metadata.update({
+                'ContentType': content_type,
+                'FileExtension': image_extension
+            })
 
+            self._write_media_to_client(context, media)
             return
 
-        should_store = result_from_storage is None and (
-            context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
+        should_store = (
+            context.config.RESULT_STORAGE_STORES_UNSAFE
+            or not context.request.unsafe
+        )
 
         def inner(future):
-            results, content_type = future.result()
-            self._write_results_to_client(context, results, content_type)
+            media = future.result()
+            self._write_media_to_client(context, media)
 
             if should_store:
-                self._store_results(context, results)
+                self._store_media(context, media)
 
         self.context.thread_pool.queue(
-            operation=functools.partial(self._load_results, context),
+            operation=functools.partial(self._load_media, context),
             callback=inner,
         )
 
-    def _write_results_to_client(self, context, results, content_type):
+    def _write_media_to_client(self, context, media):
+        '''
+        :param context: The current request context
+        :param media: A `Media` instance
+        '''
         max_age = context.config.MAX_AGE
 
         if context.request.max_age is not None:
@@ -330,7 +372,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
 
         self.set_header('Server', 'Thumbor/%s' % __version__)
-        self.set_header('Content-Type', content_type)
+        self.set_header('Content-Type', media.mime)
 
         if context.config.AUTO_WEBP and \
                 not context.request.engine.is_multiple() and \
@@ -340,15 +382,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
         context.headers = self._headers.copy()
 
-        if isinstance(results, ResultStorageResult):
-            buffer = results.buffer
-        else:
-            buffer = results
-
-        self.write(buffer)
+        self.write(media.buffer)
         self.finish()
 
-    def _store_results(self, context, results):
+    def _store_media(self, context, media):
         if not context.modules.result_storage or context.request.prevent_result_storage:
             return
 
@@ -356,7 +393,12 @@ class BaseHandler(tornado.web.RequestHandler):
         def save_to_result_storage():
             start = datetime.datetime.now()
 
-            yield gen.maybe_future(context.modules.result_storage.put(results))
+            result_storage = context.modules.result_storage
+
+            if hasattr(result_storage, 'is_media_aware') and result_storage.is_media_aware:
+                yield gen.maybe_future(context.modules.result_storage.put(media))
+            else:
+                yield gen.maybe_future(context.modules.result_storage.put(media.buffer))
 
             finish = datetime.datetime.now()
             context.metrics.incr('result_storage.bytes_written', len(results))
@@ -437,16 +479,26 @@ class BaseHandler(tornado.web.RequestHandler):
         fetch_result = FetchResult()
 
         storage = self.context.modules.storage
-        fetch_result.buffer = yield gen.maybe_future(storage.get(url))
-        mime = None
+        storage_result = yield gen.maybe_future(storage.get(url))
 
-        if fetch_result.buffer is not None:
-            fetch_result.successful = True
+        if storage_result is not None:
+
+            if isinstance(storage_result, Media):
+                fetch_result.media = storage_result
+                fetch_result.successful = storage_result.is_valid
+            elif storage_result is not None:
+                fetch_result.media = Media(storage_result)
+                fetch_result.successful = True
 
             self.context.metrics.incr('storage.hit')
-            mime = BaseEngine.get_mimetype(fetch_result.buffer)
-            self.context.request.extension = EXTENSION.get(mime, '.jpg')
-            if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+
+            if not fetch_result.media.mime:
+                mime = BaseEngine.get_mimetype(fetch_result.media.buffer)
+                fetch_result.media.metadata.update({'ContentType': mime})
+
+            self.context.request.extension = fetch_result.media.mime
+
+            if fetch_result.media.mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                 self.context.request.engine = self.context.modules.gif_engine
             else:
                 self.context.request.engine = self.context.modules.engine
@@ -457,42 +509,51 @@ class BaseHandler(tornado.web.RequestHandler):
 
         loader_result = yield self.context.modules.loader.load(self.context, url)
 
-        if isinstance(loader_result, LoaderResult):
-            # TODO _fetch should probably return a result object vs a list to
-            # to allow returning metadata
+        if isinstance(loader_result, Media):
+            # 6.x Media aware loaders
+            fetch_result.media = loader_result
+            fetch_result.successful = loader_result.is_valid
+        elif isinstance(loader_result, LoaderResult):
+            # Handle 5.x loaders
             if not loader_result.successful:
-                fetch_result.buffer = None
-                fetch_result.loader_error = loader_result.error
+                media = Media(None)
+                media.errors.append(loader_result.error)
+
+                fetch_result.media = media
+                fetch_result.successful = False
+
                 raise gen.Return(fetch_result)
 
-            fetch_result.buffer = loader_result.buffer
+            fetch_result.media = Media(loader_result.buffer)
         else:
-            # Handle old loaders
-            fetch_result.buffer = loader_result
+            # < 5.x Result aware loaders
+            fetch_result.media = Media(loader_result)
+            if not loader_result:
+                fetch_result.successful = False
+                fetch_result.media.is_valid = False
 
-        if fetch_result.buffer is None:
+        if not fetch_result.media.is_valid:
             raise gen.Return(fetch_result)
 
-        fetch_result.successful = True
+        if not fetch_result.media.mime:
+            mime = BaseEngine.get_mimetype(fetch_result.media.buffer)
+            fetch_result.media.metadata.update({'ContentType': mime})
 
-        if mime is None:
-            mime = BaseEngine.get_mimetype(fetch_result.buffer)
+        media = fetch_result.media
+        extension = EXTENSION.get(media.mime, '.jpg')
 
-        self.context.request.extension = EXTENSION.get(mime, '.jpg')
+        self.context.request.extension = extension
 
         original_preserve = self.context.config.PRESERVE_EXIF_INFO
         self.context.config.PRESERVE_EXIF_INFO = True
 
+        if media.mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+            self.context.request.engine = self.context.modules.gif_engine
+        else:
+            self.context.request.engine = self.context.modules.engine
+
         try:
-            mime = BaseEngine.get_mimetype(fetch_result.buffer)
-            self.context.request.extension = extension = EXTENSION.get(mime, None)
-
-            if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                self.context.request.engine = self.context.modules.gif_engine
-            else:
-                self.context.request.engine = self.context.modules.engine
-
-            self.context.request.engine.load(fetch_result.buffer, extension)
+            self.context.request.engine.load(media.buffer, extension)
 
             fetch_result.normalized = self.context.request.engine.normalize()
             is_no_storage = isinstance(storage, NoStorage)
@@ -500,14 +561,16 @@ class BaseHandler(tornado.web.RequestHandler):
             is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
             if not (is_no_storage or is_mixed_no_file_storage):
-                fetch_result.buffer = self.context.request.engine.read(extension)
-                storage.put(url, fetch_result.buffer)
+                media.buffer = self.context.request.engine.read(extension)
+                if hasattr(storage, 'is_media_aware') and storage.is_media_aware:
+                    storage.put(url, media)
+                else:
+                    storage.put(url, media.buffer)
 
             storage.put_crypto(url)
         finally:
             self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
-        fetch_result.buffer = None
         fetch_result.engine = self.context.request.engine
         raise gen.Return(fetch_result)
 
