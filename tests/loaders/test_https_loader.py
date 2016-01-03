@@ -20,6 +20,7 @@ from tornado.concurrent import Future
 import thumbor.loaders.https_loader as loader
 from thumbor.context import Context
 from thumbor.config import Config
+from thumbor.media import Media
 from thumbor.loaders import LoaderResult
 
 
@@ -70,9 +71,9 @@ class ReturnContentTestCase(PythonTestCase):
         ctx = Context(None, None, None)
         loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
         result = callback_mock.call_args[0][0]
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
+        expect(result.is_valid).to_be_false()
 
     def test_return_body_if_valid(self):
         response_mock = ResponseMock(body='body', code=200)
@@ -80,7 +81,7 @@ class ReturnContentTestCase(PythonTestCase):
         ctx = Context(None, None, None)
         loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
         result = callback_mock.call_args[0][0]
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal('body')
 
     def test_return_upstream_error_on_body_none(self):
@@ -89,10 +90,10 @@ class ReturnContentTestCase(PythonTestCase):
         ctx = Context(None, None, None)
         loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
         result = callback_mock.call_args[0][0]
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
+        expect(result.is_valid).to_be_false()
+        expect(result.errors).to_include(LoaderResult.ERROR_UPSTREAM)
 
     def test_return_upstream_error_on_body_empty(self):
         response_mock = ResponseMock(body='', code=200)
@@ -100,10 +101,10 @@ class ReturnContentTestCase(PythonTestCase):
         ctx = Context(None, None, None)
         loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
         result = callback_mock.call_args[0][0]
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
+        expect(result.is_valid).to_be_false()
+        expect(result.errors).to_include(LoaderResult.ERROR_UPSTREAM)
 
 
 class ValidateUrlTestCase(PythonTestCase):
@@ -174,9 +175,9 @@ class HttpsLoaderTestCase(TestCase):
 
         loader.load(ctx, url, self.stop)
         result = self.wait()
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal('Hello')
-        expect(result.successful).to_be_true()
+        expect(result.is_valid).to_be_true()
 
     def test_load_with_curl(self):
         url = self.get_url('/')
@@ -186,9 +187,9 @@ class HttpsLoaderTestCase(TestCase):
 
         loader.load(ctx, url, self.stop)
         result = self.wait()
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal('Hello')
-        expect(result.successful).to_be_true()
+        expect(result.is_valid).to_be_true()
 
     def test_should_return_a_future(self):
         url = self.get_url('/')
@@ -216,7 +217,7 @@ class HttpLoaderWithUserAgentForwardingTestCase(TestCase):
 
         loader.load(ctx, url, self.stop)
         result = self.wait()
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal('test-user-agent')
 
     def test_load_with_default_user_agent(self):
@@ -228,5 +229,5 @@ class HttpLoaderWithUserAgentForwardingTestCase(TestCase):
 
         loader.load(ctx, url, self.stop)
         result = self.wait()
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal('DEFAULT_USER_AGENT')

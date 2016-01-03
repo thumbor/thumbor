@@ -45,6 +45,7 @@ class Engine(BaseEngine):
 
     def __init__(self, context):
         super(Engine, self).__init__(context)
+
         self.subsampling = None
         self.qtables = None
 
