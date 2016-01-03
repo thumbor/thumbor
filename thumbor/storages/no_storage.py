@@ -14,7 +14,9 @@ from tornado.concurrent import return_future
 
 class Storage(BaseStorage):
 
-    def put(self, path, bytes):
+    is_media_aware = False
+
+    def put(self, path, media):
         return path
 
     def put_crypto(self, path):

@@ -12,6 +12,7 @@ from . import LoaderResult
 from datetime import datetime
 from os import fstat
 from os.path import join, exists, abspath
+from thumbor.media import Media
 from tornado.concurrent import return_future
 
 
@@ -21,22 +22,18 @@ def load(context, path, callback):
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(context.config.FILE_LOADER_ROOT_PATH)
 
-    result = LoaderResult()
+    media = Media()
 
     if inside_root_path and exists(file_path):
 
         with open(file_path, 'r') as f:
             stats = fstat(f.fileno())
 
-            result.successful = True
-            result.buffer = f.read()
-
-            result.metadata.update(
-                size=stats.st_size,
-                updated_at=datetime.utcfromtimestamp(stats.st_mtime)
-            )
+            media.buffer = f.read()
+            media.metadata.update({
+                'LastModified': datetime.utcfromtimestamp(stats.st_mtime)
+            })
     else:
-        result.error = LoaderResult.ERROR_NOT_FOUND
-        result.successful = False
+        media.errors.append(LoaderResult.ERROR_NOT_FOUND)
 
-    callback(result)
+    callback(media)

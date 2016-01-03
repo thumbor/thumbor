@@ -15,10 +15,13 @@ from thumbor.optimizers import BaseOptimizer
 
 class Optimizer(BaseOptimizer):
 
-    def should_run(self, image_extension, buffer):
-        return 'jpg' in image_extension or 'jpeg' in image_extension
+    is_media_aware = True
 
-    def optimize(self, buffer, input_file, output_file):
+    def should_run(self, media):
+        extension = media.metadata.get('FileExtension', '')
+        return 'jpg' in extension or 'jpeg' in extension
+
+    def optimize(self, media, input_file, output_file):
         jpegtran_path = self.context.config.JPEGTRAN_PATH
         command = '%s -copy comments -optimize %s-outfile %s %s ' % (
             jpegtran_path,

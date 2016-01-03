@@ -16,7 +16,7 @@ from pyvows import Vows, expect
 
 from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
-from thumbor.result_storages import ResultStorageResult
+from thumbor.media import Media
 from thumbor.result_storages.file_storage import Storage as FileStorage
 
 TEST_HTTP_PATH = 'http://example.com/path/to/a.jpg'
@@ -68,8 +68,8 @@ class ResultStoragesFileStorageVows(Vows.Context):
 
         def check_has_image(self, topic):
             result = topic.args[0]
-            expect(result).to_be_instance_of(ResultStorageResult)
-            expect(result.successful).to_equal(True)
+            expect(result).to_be_instance_of(Media)
+            expect(result.is_valid).to_equal(True)
             expect(len(result)).to_equal(IMAGE_LEN)
             expect(len(result)).to_equal(result.metadata['ContentLength'])
             expect(result.last_modified).to_be_instance_of(datetime)

@@ -16,6 +16,7 @@ from urlparse import urlparse
 import tornado.httpclient
 
 from . import LoaderResult
+from thumbor.media import Media
 from thumbor.utils import logger
 from tornado.concurrent import return_future
 
@@ -58,22 +59,21 @@ def validate(context, url, normalize_url_func=_normalize_url):
 
 
 def return_contents(response, url, callback, context):
-    result = LoaderResult()
-
     context.metrics.incr('original_image.status.' + str(response.code))
+
+    media = Media()
+
     if response.error:
-        result.successful = False
         if response.code == 599:
             # Return a Gateway Timeout status downstream if upstream times out
-            result.error = LoaderResult.ERROR_TIMEOUT
+            media.errors.append(LoaderResult.ERROR_TIMEOUT)
         else:
-            result.error = LoaderResult.ERROR_NOT_FOUND
+            media.errors.append(LoaderResult.ERROR_NOT_FOUND)
 
         logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
 
     elif response.body is None or len(response.body) == 0:
-        result.successful = False
-        result.error = LoaderResult.ERROR_UPSTREAM
+        media.errors.append(LoaderResult.ERROR_UPSTREAM)
 
         logger.warn("ERROR retrieving image {0}: Empty response.".format(url))
     else:
@@ -81,9 +81,10 @@ def return_contents(response, url, callback, context):
             for x in response.time_info:
                 context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
             context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
-        result.buffer = response.body
 
-    callback(result)
+        media.buffer = response.body
+
+    callback(media)
 
 
 @return_future
@@ -95,12 +96,14 @@ def load_sync(context, url, callback, normalize_url_func):
     using_proxy = context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
     if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
         tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+
     client = tornado.httpclient.AsyncHTTPClient(max_clients=context.config.HTTP_LOADER_MAX_CLIENTS)
 
     user_agent = None
     if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
         if 'User-Agent' in context.request_handler.request.headers:
             user_agent = context.request_handler.request.headers['User-Agent']
+
     if user_agent is None:
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
 

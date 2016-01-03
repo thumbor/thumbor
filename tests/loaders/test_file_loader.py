@@ -16,7 +16,7 @@ from preggy import expect
 from thumbor.context import Context
 from thumbor.config import Config
 from thumbor.loaders.file_loader import load
-from thumbor.loaders import LoaderResult
+from thumbor.media import Media
 
 STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
 
@@ -33,18 +33,18 @@ class FileLoaderTestCase(TestCase):
 
     def test_should_load_file(self):
         result = self.load_file('image.jpg')
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal(open(join(STORAGE_PATH, 'image.jpg')).read())
-        expect(result.successful).to_be_true()
+        expect(result.is_valid).to_be_true()
 
     def test_should_fail_when_inexistent_file(self):
         result = self.load_file('image_NOT.jpg')
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal(None)
-        expect(result.successful).to_be_false()
+        expect(result.is_valid).to_be_false()
 
     def test_should_fail_when_outside_root_path(self):
         result = self.load_file('../__init__.py')
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal(None)
-        expect(result.successful).to_be_false()
+        expect(result.is_valid).to_be_false()

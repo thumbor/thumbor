@@ -13,6 +13,8 @@ from tornado import gen
 
 
 class Storage(BaseStorage):
+    is_media_aware = True
+
     def __init__(self, context, file_storage=None, crypto_storage=None, detector_storage=None):
         BaseStorage.__init__(self, context)
 

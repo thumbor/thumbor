@@ -38,14 +38,16 @@ class ResultStorageResult(LoaderResult):
 
 
 class BaseStorage(object):
+
+    is_media_aware = False
+
     def __init__(self, context):
         self.context = context
 
     def put(self, bytes):
         raise NotImplementedError()
 
-    @return_future
-    def get(self, callback):
+    def get(self):
         raise NotImplementedError()
 
     def last_updated(self):

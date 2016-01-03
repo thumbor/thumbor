@@ -26,6 +26,7 @@ from thumbor.context import Context, ServerParameters
 from thumbor.handlers import FetchResult, BaseHandler
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
+from thumbor.media import Media
 from thumbor.utils import which
 from tests.base import TestCase, PythonTestCase
 from thumbor.engines.pil import Engine
@@ -43,27 +44,23 @@ class FetchResultTestCase(PythonTestCase):
     def test_can_create_default_fetch_result(self):
         result = FetchResult()
         expect(result.normalized).to_be_false()
-        expect(result.buffer).to_be_null()
+        expect(result.media).to_be_null()
         expect(result.engine).to_be_null()
         expect(result.successful).to_be_false()
-        expect(result.loader_error).to_be_null()
 
     def test_can_create_fetch_result(self):
         buffer_mock = Mock()
         engine_mock = Mock()
-        error_mock = Mock()
         result = FetchResult(
             normalized=True,
-            buffer=buffer_mock,
+            media=Media(buffer_mock),
             engine=engine_mock,
-            successful=True,
-            loader_error=error_mock,
+            successful=True
         )
         expect(result.normalized).to_be_true()
-        expect(result.buffer).to_equal(buffer_mock)
+        expect(result.media.buffer).to_equal(buffer_mock)
         expect(result.engine).to_equal(engine_mock)
         expect(result.successful).to_be_true()
-        expect(result.loader_error).to_equal(error_mock)
 
 
 class ErrorHandler(BaseHandler):
@@ -709,10 +706,11 @@ class EngineLoadException(BaseImagingTestCase):
 
         Engine.load = load_override
 
-        response = self.fetch('/unsafe/smart/image.jpg')
-        expect(response.code).to_equal(504)
-
-        Engine.load = old_load
+        try:
+            response = self.fetch('/unsafe/smart/image.jpg')
+            expect(response.code).to_equal(504)
+        finally:
+            Engine.load = old_load
 
 
 class StorageOverride(BaseImagingTestCase):
@@ -743,9 +741,9 @@ class StorageOverride(BaseImagingTestCase):
         Engine.load = load_override
         FileStorage.put = put_override
 
-        response = self.fetch('/unsafe/smart/image.jpg')
-
-        expect(response.code).to_equal(200)
-
-        Engine.load = old_load
-        FileStorage.put = old_put
+        try:
+            response = self.fetch('/unsafe/smart/image.jpg')
+            expect(response.code).to_equal(200)
+        finally:
+            FileStorage.put = old_put
+            Engine.load = old_load
