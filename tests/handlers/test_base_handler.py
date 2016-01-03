@@ -741,15 +741,9 @@ class StorageOverride(BaseImagingTestCase):
         Engine.load = load_override
         FileStorage.put = put_override
 
-        response = self.fetch('/unsafe/smart/image.jpg')
-
-        expect(response.code).to_equal(200)
-
-        Engine.load = old_load
-        FileStorage.put = old_put
-
         try:
             response = self.fetch('/unsafe/smart/image.jpg')
-            expect(response.code).to_equal(504)
+            expect(response.code).to_equal(200)
         finally:
+            FileStorage.put = old_put
             Engine.load = old_load

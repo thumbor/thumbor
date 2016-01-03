@@ -11,9 +11,9 @@ import datetime
 
 from thumbor.handlers import ImageApiHandler
 from thumbor.engines import BaseEngine
+from thumbor.media import Media
 import tornado.gen as gen
 import tornado.web
-
 
 ##
 # Handler to retrieve or modify existing images
@@ -28,10 +28,10 @@ class ImageResourceHandler(ImageApiHandler):
         exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
 
         if exists:
-            body = yield gen.maybe_future(self.context.modules.storage.get(id))
+            media = yield gen.maybe_future(self.context.modules.storage.get(id))
             self.set_status(200)
 
-            mime = BaseEngine.get_mimetype(body)
+            mime = BaseEngine.get_mimetype(media.buffer)
             if mime:
                 self.set_header('Content-Type', mime)
 
@@ -39,7 +39,7 @@ class ImageResourceHandler(ImageApiHandler):
             if max_age:
                 self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
                 self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
-            self.write(body)
+            self.write(media.buffer)
             self.finish()
         else:
             self._error(404, 'Image not found at the given URL')
@@ -53,10 +53,11 @@ class ImageResourceHandler(ImageApiHandler):
 
         # Check if the image uploaded is valid
         if self.validate(self.request.body):
-            self.write_file(id, self.request.body)
+            self.write_file(id, Media(self.request.body))
             self.set_status(204)
+        else:
+            self.set_status(400)
 
-    @tornado.web.asynchronous
     @tornado.gen.coroutine
     def delete(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
@@ -68,7 +69,7 @@ class ImageResourceHandler(ImageApiHandler):
         # Check if image exists
         exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
         if exists:
-            self.context.modules.storage.remove(id)
+            yield gen.maybe_future(self.context.modules.storage.remove(id))
             self.set_status(204)
         else:
             self._error(404, 'Image not found at the given URL')

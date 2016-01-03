@@ -13,6 +13,8 @@ import mimetypes
 
 from thumbor.handlers import ImageApiHandler
 from thumbor.engines import BaseEngine
+from thumbor.media import Media
+import tornado
 
 
 ##
@@ -54,7 +56,7 @@ class ImageUploadHandler(ImageApiHandler):
 
             # Build image id based on a random uuid (32 characters)
             image_id = str(uuid.uuid4().hex)
-            self.write_file(image_id, body)
+            self.write_file(image_id, Media(body))
             self.set_status(201)
             self.set_header('Location', self.location(image_id, filename))
 
@@ -67,3 +69,4 @@ class ImageUploadHandler(ImageApiHandler):
     def location(self, image_id, filename):
         base_uri = self.request.uri
         return '%s/%s/%s' % (base_uri, image_id, filename)
+

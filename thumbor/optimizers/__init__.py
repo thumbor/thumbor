@@ -29,7 +29,7 @@ class BaseOptimizer(object):
             should_run = self.should_run(media)
         else:
             should_run = self.should_run(
-                media.metadata.get('FileExtension', ''),
+                media.file_extension,
                 media.buffer
             )
 

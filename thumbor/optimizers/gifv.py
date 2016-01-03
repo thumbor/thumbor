@@ -12,14 +12,16 @@ import os
 import subprocess
 
 from thumbor.optimizers import BaseOptimizer
-
+from thumbor.utils import logger
 
 class Optimizer(BaseOptimizer):
 
     is_media_aware = True
 
     def should_run(self, media):
-        extension = media.metadata.get('FileExtension', '')
+        extension = media.file_extension
+        logger.debug('gifv extension %s' % extension)
+
         return 'gif' in extension and 'gifv' in self.context.request.filters
 
     def optimize(self, media, input_file, output_file):

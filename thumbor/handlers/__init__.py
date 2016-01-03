@@ -72,29 +72,29 @@ class BaseHandler(tornado.web.RequestHandler):
 
             self.context.metrics.timing('result_storage.incoming_time', (finish - start).total_seconds() * 1000)
 
-            media = None
+            media = Media.from_result(result)
 
-            if result is None:
-                self.context.metrics.incr('result_storage.miss')
-            else:
-                media = Media.from_result(result)
-
+            if media.is_valid:
                 self.context.metrics.incr('result_storage.hit')
                 self.context.metrics.incr('result_storage.bytes_read', len(result))
 
-            if media is not None:
-                mime = BaseEngine.get_mimetype(media.buffer)
-
-                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                if media.mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
                 else:
                     self.context.request.engine = self.context.modules.engine
 
-                self.context.request.engine.load(media.buffer, EXTENSION.get(mime, '.jpg'))
+                self.context.request.engine.load(media.buffer, media.file_extension)
 
-                logger.debug('[RESULT_STORAGE] IMAGE FOUND: %s' % req.url)
+                logger.debug('[RESULT_STORAGE] image found: {url} {extension} {mime}'.format(
+                    url=req.url,
+                    extension=media.extension,
+                    mime=media.mime
+                ))
+
                 self.finish_request(self.context, result)
                 return
+            else:
+                self.context.metrics.incr('result_storage.miss')
 
         if conf.MAX_WIDTH and (not isinstance(req.width, basestring)) and req.width > conf.MAX_WIDTH:
             req.width = conf.MAX_WIDTH
@@ -226,10 +226,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def define_image_type(self, context, result):
         if result is not None:
             media = Media.from_result(result)
-
-            image_extension = EXTENSION.get(BaseEngine.get_mimetype(media.buffer), '.jpg')
+            image_extension = media.file_extension
         else:
             image_extension = context.request.format
+
             if image_extension is not None:
                 image_extension = '.%s' % image_extension
                 logger.debug('Image format specified as %s.' % image_extension)
@@ -238,7 +238,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 logger.debug('Image format set by AUTO_WEBP as %s.' % image_extension)
             else:
                 image_extension = context.request.engine.extension
-                logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
+                logger.debug('No image format specified. Retrieving from the engine extension: %s.' % image_extension)
 
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
@@ -274,8 +274,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if not context.request.meta:
             media = self.optimize(context, media)
-            # An optimizer might have modified the image format.
-            media.metadata.update({'ContentType': BaseEngine.get_mimetype(media.buffer)})
 
         return media
 
@@ -310,12 +308,7 @@ class BaseHandler(tornado.web.RequestHandler):
         if media_from_storage is not None:
             self._process_result_from_storage(media_from_storage)
 
-            image_extension, content_type = self.define_image_type(context, media_from_storage)
-
-            media_from_storage.metadata.update({
-                'ContentType': content_type,
-                'FileExtension': image_extension
-            })
+            self.define_image_type(context, media_from_storage)
 
             self._write_media_to_client(context, media_from_storage)
             return
@@ -326,12 +319,7 @@ class BaseHandler(tornado.web.RequestHandler):
         def inner(future):
             media = future.result()
 
-            image_extension, content_type = self.define_image_type(context, media_from_storage)
-
-            media.metadata.update({
-                'ContentType': content_type,
-                'FileExtension': image_extension
-            })
+            self.define_image_type(context, media_from_storage)
 
             self._write_media_to_client(context, media)
 
@@ -357,7 +345,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
 
         self.set_header('Server', 'Thumbor/%s' % __version__)
-        self.set_header('Content-Type', media.content_type)
+        self.set_header('Content-Type', media.mime)
 
         if context.config.AUTO_WEBP and \
                 not context.request.engine.is_multiple() and \
@@ -399,9 +387,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
             else:
                 buffer = optimizer(context).run_optimizer(
-                    media.metadata.get('FileExtension', None),
+                    media.file_extension,
                     media.buffer
                 )
+
                 if buffer is not None:
                     media = Media(buffer)
 
@@ -643,9 +632,10 @@ class ImageApiHandler(ContextHandler):
             return False
         return True
 
-    def write_file(self, id, body):
+    @gen.coroutine
+    def write_file(self, id, media):
         storage = self.context.modules.upload_photo_storage
         if storage.is_media_aware:
-            storage.put(id, Media(body))
+            yield gen.maybe_future(storage.put(id, media))
         else:
-            storage.put(id, body)
+            yield gen.maybe_future(storage.put(id, media.buffer))
