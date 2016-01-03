@@ -258,6 +258,8 @@ class BaseHandler(tornado.web.RequestHandler):
     def _load_media(self, context):
         image_extension, content_type = self.define_image_type(context, None)
 
+        logger.info('extension: %s' % image_extension)
+
         quality = self.context.request.quality
         if quality is None:
             if image_extension == '.webp' and self.context.config.WEBP_QUALITY is not None:
@@ -289,15 +291,12 @@ class BaseHandler(tornado.web.RequestHandler):
             )
 
             # Optimizers can change the content type or extension
-            image_extension, content_type = self.define_image_type(
-                context,
-                media
-            )
+            content_type = BaseEngine.get_mimetype(media.buffer)
 
-        media.metadata.update({
-            'ContentType': content_type,
-            'FileExtension': image_extension
-        })
+            media.metadata.update({
+                'ContentType': content_type,
+                'FileExtension': EXTENSION.get(content_type, '.jpg')
+            })
 
         return media
 
