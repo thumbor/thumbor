@@ -19,6 +19,7 @@ from tests.base import PythonTestCase
 import thumbor.loaders.strict_https_loader as loader
 from thumbor.context import Context
 from thumbor.config import Config
+from thumbor.media import Media
 from thumbor.loaders import LoaderResult
 
 
@@ -69,9 +70,9 @@ class ReturnContentTestCase(PythonTestCase):
         ctx = Context(None, None, None)
         loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
         result = callback_mock.call_args[0][0]
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
+        expect(result.is_valid).to_be_false()
 
     def test_return_body_if_valid(self):
         response_mock = ResponseMock(body='body', code=200)
@@ -79,7 +80,7 @@ class ReturnContentTestCase(PythonTestCase):
         ctx = Context(None, None, None)
         loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
         result = callback_mock.call_args[0][0]
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_equal('body')
 
     def test_return_upstream_error_on_body_none(self):
@@ -88,10 +89,10 @@ class ReturnContentTestCase(PythonTestCase):
         ctx = Context(None, None, None)
         loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
         result = callback_mock.call_args[0][0]
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
+        expect(result.is_valid).to_be_false()
+        expect(result.errors).to_include(LoaderResult.ERROR_UPSTREAM)
 
     def test_return_upstream_error_on_body_empty(self):
         response_mock = ResponseMock(body='', code=200)
@@ -99,10 +100,10 @@ class ReturnContentTestCase(PythonTestCase):
         ctx = Context(None, None, None)
         loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
         result = callback_mock.call_args[0][0]
-        expect(result).to_be_instance_of(LoaderResult)
+        expect(result).to_be_instance_of(Media)
         expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
+        expect(result.is_valid).to_be_false()
+        expect(result.errors).to_include(LoaderResult.ERROR_UPSTREAM)
 
 
 class ValidateUrlTestCase(PythonTestCase):

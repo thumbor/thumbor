@@ -14,10 +14,12 @@ from tornado.concurrent import return_future
 
 
 class BaseStorage(object):
+    is_media_aware = False
+
     def __init__(self, context):
         self.context = context
 
-    def put(self, path, bytes):
+    def put(self, path, media):
         '''
         :returns: Nothing. This method is expected to be asynchronous.
         :rtype: None
