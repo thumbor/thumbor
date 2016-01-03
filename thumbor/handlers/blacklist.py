@@ -19,30 +19,16 @@ class BlacklistHandler(ContextHandler):
     @tornado.web.asynchronous
     @tornado.gen.coroutine
     def get(self):
-        result = yield self.get_blacklist_contents()
-
-        blacklist = None
-
-        if isinstance(result, Media):
-            blacklist = result.buffer
-        else:
-            blacklist = result
+        blacklist = yield self.get_blacklist_contents()
 
         self.set_header('Content-Type', 'text/plain')
         self.set_status(200)
+        self.write(blacklist)
 
     @tornado.web.asynchronous
     @tornado.gen.coroutine
     def put(self):
-        result = yield self.get_blacklist_contents()
-
-        blacklist = None
-
-        if isinstance(result, Media):
-            blacklist = result.buffer
-        else:
-            blacklist = result
-
+        blacklist = yield self.get_blacklist_contents()
         blacklist += self.request.query + "\n"
         logger.debug('Adding to blacklist: %s' % self.request.query)
         self.context.modules.storage.put('blacklist.txt', Media(blacklist))

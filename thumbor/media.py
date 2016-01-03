@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
 
-from thumbor.engines import BaseEngine
 from thumbor.loaders import LoaderResult
 from thumbor.result_storages import ResultStorageResult
 
@@ -14,8 +13,11 @@ class Media(object):
     @classmethod
     def from_result(self, result):
 
+        media = None
+
         if isinstance(result, Media):
             media = result
+
         elif isinstance(result, LoaderResult):
             media = Media(result.buffer, result.successful)
 
@@ -37,7 +39,7 @@ class Media(object):
 
     @property
     def content_type(self):
-        return self.metadata.get('ContentType', None)
+        return self.mime
 
     @property
     def last_modified(self):
@@ -51,7 +53,7 @@ class Media(object):
         '''
         Retrieves mime metadata if available
         '''
-        return self.metadata['ContentType'] if 'ContentType' in self.metadata else BaseEngine.get_mimetype(self.buffer)
+        return self.metadata.get('ContentType')
 
     def __len__(self):
-        return self.metadata['ContentLength'] if 'ContentLength' in self.metadata else len(self.buffer)
+        return len(self.buffer)

@@ -11,7 +11,6 @@
 from os.path import splitext
 from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
-from thumbor.loaders import LoaderResult
 from thumbor.media import Media
 import tornado.gen
 import math
@@ -97,14 +96,7 @@ class Filter(BaseFilter):
         self.callback()
 
     def on_fetch_done(self, result):
-        media = None
-        # TODO if result.successful is False how can the error be handled?
-        if isinstance(result, Media):
-            media = result
-        elif isinstance(result, LoaderResult):
-            media = Media(result.buffer)
-        else:
-            media = Media(result)
+        media = Media.from_result(result)
 
         self.watermark_engine.load(media.buffer, self.extension)
 
