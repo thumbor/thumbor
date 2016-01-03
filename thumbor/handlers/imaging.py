@@ -12,6 +12,7 @@ from urllib import quote
 
 from thumbor.handlers import ContextHandler
 from thumbor.context import RequestParameters
+from thumbor.media import Media
 from thumbor.url import Url
 import tornado.gen as gen
 import tornado.web
@@ -57,6 +58,10 @@ class ImagingHandler(ContextHandler):
 
         if self.context.config.USE_BLACKLIST:
             blacklist = yield self.get_blacklist_contents()
+
+            if isinstance(blacklist, Media):
+                blacklist = blacklist.buffer
+
             if self.context.request.image_url in blacklist:
                 self._error(400, 'Source image url has been blacklisted: %s' % self.context.request.image_url)
                 return

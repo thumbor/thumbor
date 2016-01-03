@@ -90,8 +90,6 @@ class BaseHandler(tornado.web.RequestHandler):
                     'FileExtension': extension
                 })
 
-                logger.debug('87 {mime} {extension}'.format(mime=mime, extension=extension))
-
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
                 else:
@@ -239,7 +237,6 @@ class BaseHandler(tornado.web.RequestHandler):
     def define_image_type(self, context, media):
         if media:
             image_extension = EXTENSION.get(media.mime or BaseEngine.get_mimetype(media.buffer), '.jpg')
-            logger.debug('ex {extension}'.format(extension=image_extension))
         else:
             image_extension = context.request.format
 
@@ -255,7 +252,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
-        logger.debug('251 {media} {url} {mime} {extension}'.format(media=media, url=context.request.url, mime=content_type, extension=image_extension))
         if context.request.meta:
             context.request.meta_callback = context.config.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
@@ -266,12 +262,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return (image_extension, content_type)
 
     def _load_media(self, context):
-
-        logger.debug('_load_media extension: {extension}'.format(extension=context.request.engine.extension))
-
         image_extension, content_type = self.define_image_type(context, None)
-
-        logger.debug('_load_media extension: %s' % image_extension)
 
         quality = self.context.request.quality
         if quality is None:
