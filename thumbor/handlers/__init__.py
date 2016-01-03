@@ -24,7 +24,6 @@ from thumbor.engines import BaseEngine
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.loaders import LoaderResult
 from thumbor.media import Media
-from thumbor.result_storages import ResultStorageResult
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.transformer import Transformer
@@ -87,7 +86,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
                 logger.debug('[RESULT_STORAGE] image found: {url} {extension} {mime}'.format(
                     url=req.url,
-                    extension=media.extension,
+                    extension=media.file_extension,
                     mime=media.mime
                 ))
 
@@ -146,11 +145,8 @@ class BaseHandler(tornado.web.RequestHandler):
             return
 
         normalized = result.normalized
-
         media = result.media
-
         engine = result.engine
-
         req = self.context.request
 
         if engine is None:
@@ -162,7 +158,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
             try:
                 engine.load(media.buffer, self.context.request.extension)
-            except Exception:
+            except Exception as e:
+                logger.error(e)
                 self._error(504)
                 return
 
@@ -261,6 +258,7 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 quality = self.context.config.QUALITY
 
+        logger.debug('Reading image as {extension}'.format(extension=image_extension))
         media = Media(context.request.engine.read(image_extension, quality))
 
         if context.request.max_bytes is not None:
@@ -278,12 +276,12 @@ class BaseHandler(tornado.web.RequestHandler):
         return media
 
     @gen.coroutine
-    def _process_media_from_storage(self, media):
+    def _process_media_from_storage(self, context, media):
         if self.context.config.SEND_IF_MODIFIED_LAST_MODIFIED_HEADERS:
             # Handle If-Modified-Since & Last-Modified header
             try:
                 if media.last_modified:
-                    last_modified = result.last_modified
+                    last_modified = media.last_modified
                 else:
                     last_modified = yield gen.maybe_future(self.context.modules.result_storage.last_updated())
 
@@ -303,11 +301,12 @@ class BaseHandler(tornado.web.RequestHandler):
                 logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & '
                             'Last-Updated headers support is disabled.')
 
+        self._write_media_to_client(context, media)
+
     @gen.coroutine
     def finish_request(self, context, media_from_storage=None):
         if media_from_storage is not None:
-            self._process_result_from_storage(media_from_storage)
-            self._write_media_to_client(context, media_from_storage)
+            self._process_media_from_storage(context, media_from_storage)
             return
 
         should_store = media_from_storage is None and (
@@ -466,17 +465,14 @@ class BaseHandler(tornado.web.RequestHandler):
             storage_result = yield gen.maybe_future(storage.get(url))
 
             fetch_result.media = Media.from_result(storage_result)
-            mime = None
 
-
-            if fetch_result.media.buffer is not None:
+            if fetch_result.media.is_valid:
                 self.context.metrics.incr('storage.hit')
+                self.context.metrics.incr('storage.bytes_read', len(fetch_result.media))
 
                 fetch_result.successful = True
-                mime = BaseEngine.get_mimetype(fetch_result.media.buffer)
-                self.context.request.extension = EXTENSION.get(mime, '.jpg')
 
-                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                if fetch_result.media.mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
                 else:
                     self.context.request.engine = self.context.modules.engine
@@ -484,35 +480,29 @@ class BaseHandler(tornado.web.RequestHandler):
                 raise gen.Return(fetch_result)
             else:
                 self.context.metrics.incr('storage.miss')
-
-            loader_result = yield self.context.modules.loader.load(self.context, url)
+                loader_result = yield self.context.modules.loader.load(self.context, url)
+                fetch_result.media = Media.from_result(loader_result)
         finally:
             self.release_url_lock(url)
 
-        fetch_result.media = Media.from_result(loader_result)
         if not fetch_result.media.is_valid:
+            fetch_result.successful = False
             raise gen.Return(fetch_result)
 
         fetch_result.successful = True
 
-        if mime is None:
-            mime = BaseEngine.get_mimetype(fetch_result.media.buffer)
-
-        self.context.request.extension = EXTENSION.get(mime, '.jpg')
+        self.context.request.extension = fetch_result.media.file_extension
 
         original_preserve = self.context.config.PRESERVE_EXIF_INFO
         self.context.config.PRESERVE_EXIF_INFO = True
 
         try:
-            mime = BaseEngine.get_mimetype(fetch_result.media.buffer)
-            self.context.request.extension = extension = EXTENSION.get(mime, None)
-
-            if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+            if fetch_result.media.mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                 self.context.request.engine = self.context.modules.gif_engine
             else:
                 self.context.request.engine = self.context.modules.engine
 
-            self.context.request.engine.load(fetch_result.media.buffer, extension)
+            self.context.request.engine.load(fetch_result.media.buffer, fetch_result.media.file_extension)
 
             fetch_result.normalized = self.context.request.engine.normalize()
 
@@ -525,7 +515,7 @@ class BaseHandler(tornado.web.RequestHandler):
             is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
             if not (is_no_storage or is_mixed_no_file_storage):
-                fetch_result.media = Media(self.context.request.engine.read(extension))
+                fetch_result.media.buffer = self.context.request.engine.read(fetch_result.media.file_extension)
 
                 if storage.is_media_aware:
                     storage.put(url, fetch_result.media)
@@ -536,7 +526,6 @@ class BaseHandler(tornado.web.RequestHandler):
         finally:
             self.context.config.PRESERVE_EXIF_INFO = original_preserve
 
-        fetch_result.media = None
         fetch_result.engine = self.context.request.engine
 
         raise gen.Return(fetch_result)

@@ -79,4 +79,7 @@ class Media(object):
         return mime
 
     def __len__(self):
-        return len(self.buffer)
+        if self.is_valid:
+            return len(self.buffer)
+        else:
+            return 0

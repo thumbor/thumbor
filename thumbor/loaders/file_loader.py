@@ -30,9 +30,9 @@ def load(context, path, callback):
             stats = fstat(f.fileno())
 
             media.buffer = f.read()
-            media.metadata.update(
-                updated_at=datetime.utcfromtimestamp(stats.st_mtime)
-            )
+            media.metadata.update({
+                'LastModified': datetime.utcfromtimestamp(stats.st_mtime)
+            })
     else:
         media.errors.append(LoaderResult.ERROR_NOT_FOUND)
 
