@@ -706,10 +706,11 @@ class EngineLoadException(BaseImagingTestCase):
 
         Engine.load = load_override
 
-        response = self.fetch('/unsafe/smart/image.jpg')
-        expect(response.code).to_equal(504)
-
-        Engine.load = old_load
+        try:
+            response = self.fetch('/unsafe/smart/image.jpg')
+            expect(response.code).to_equal(504)
+        finally:
+            Engine.load = old_load
 
 
 class StorageOverride(BaseImagingTestCase):
@@ -746,3 +747,9 @@ class StorageOverride(BaseImagingTestCase):
 
         Engine.load = old_load
         FileStorage.put = old_put
+
+        try:
+            response = self.fetch('/unsafe/smart/image.jpg')
+            expect(response.code).to_equal(504)
+        finally:
+            Engine.load = old_load
