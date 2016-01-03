@@ -108,7 +108,7 @@ class Filter(BaseFilter):
 
         self.watermark_engine.load(media.buffer, self.extension)
 
-        media = self.watermark_engine.read()
+        media.buffer = self.watermark_engine.read()
 
         if self.storage.is_media_aware:
             self.storage.put(self.url, media)
@@ -131,8 +131,15 @@ class Filter(BaseFilter):
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
         self.storage = self.context.modules.storage
 
-        buffer = yield tornado.gen.maybe_future(self.storage.get(self.url))
-        if buffer is not None:
-            self.on_image_ready(Media(buffer))
+        result = yield tornado.gen.maybe_future(self.storage.get(self.url))
+
+        media = None
+        if isinstance(result, Media):
+            media = result
+        elif media is not None:
+            media = Media(buffer)
+
+        if media:
+            self.on_image_ready(media)
         else:
             self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
