@@ -48,9 +48,6 @@ class BaseOptimizer(object):
                 self.optimize(media, ifile.name, ofile.name)
 
                 media.buffer = self._read_output_file(ofile)
-
-                if not media.buffer:
-                    media.is_valid = False
             else:
                 self.optimize(media.buffer, ifile.name, ofile.name)
                 return self._read_output_file(ofile)

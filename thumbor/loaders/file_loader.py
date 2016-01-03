@@ -31,11 +31,9 @@ def load(context, path, callback):
 
             media.buffer = f.read()
             media.metadata.update(
-                size=stats.st_size,
                 updated_at=datetime.utcfromtimestamp(stats.st_mtime)
             )
     else:
         media.errors.append(LoaderResult.ERROR_NOT_FOUND)
-        media.is_valid = False
 
     callback(media)

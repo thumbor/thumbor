@@ -59,13 +59,11 @@ def validate(context, url, normalize_url_func=_normalize_url):
 
 
 def return_contents(response, url, callback, context):
+    context.metrics.incr('original_image.status.' + str(response.code))
 
     media = Media()
 
-    context.metrics.incr('original_image.status.' + str(response.code))
     if response.error:
-        media.is_valid = False
-
         if response.code == 599:
             # Return a Gateway Timeout status downstream if upstream times out
             media.errors.append(LoaderResult.ERROR_TIMEOUT)
@@ -75,7 +73,6 @@ def return_contents(response, url, callback, context):
         logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
 
     elif response.body is None or len(response.body) == 0:
-        media.is_valid = False
         media.errors.append(LoaderResult.ERROR_UPSTREAM)
 
         logger.warn("ERROR retrieving image {0}: Empty response.".format(url))

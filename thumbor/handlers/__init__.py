@@ -264,13 +264,13 @@ class BaseHandler(tornado.web.RequestHandler):
         media = Media(context.request.engine.read(image_extension, quality))
 
         if context.request.max_bytes is not None:
-            media = Media(self.reload_to_fit_in_kb(
+            media.buffer = self.reload_to_fit_in_kb(
                 context.request.engine,
                 media.buffer,
                 image_extension,
                 quality,
                 context.request.max_bytes
-            ))
+            )
 
         if not context.request.meta:
             media = self.optimize(context, media)
@@ -278,27 +278,27 @@ class BaseHandler(tornado.web.RequestHandler):
         return media
 
     @gen.coroutine
-    def _process_result_from_storage(self, result):
+    def _process_media_from_storage(self, media):
         if self.context.config.SEND_IF_MODIFIED_LAST_MODIFIED_HEADERS:
             # Handle If-Modified-Since & Last-Modified header
             try:
-                if isinstance(result, ResultStorageResult):
-                    result_last_modified = result.last_modified
+                if media.last_modified:
+                    last_modified = result.last_modified
                 else:
-                    result_last_modified = yield gen.maybe_future(self.context.modules.result_storage.last_updated())
+                    last_modified = yield gen.maybe_future(self.context.modules.result_storage.last_updated())
 
-                if result_last_modified:
+                if last_modified:
                     if 'If-Modified-Since' in self.request.headers:
                         date_modified_since = datetime.datetime.strptime(
                             self.request.headers['If-Modified-Since'], HTTP_DATE_FMT
                         ).replace(tzinfo=pytz.utc)
 
-                        if result_last_modified <= date_modified_since:
+                        if last_modified <= date_modified_since:
                             self.set_status(304)
                             self.finish()
                             return
 
-                    self.set_header('Last-Modified', result_last_modified.strftime(HTTP_DATE_FMT))
+                    self.set_header('Last-Modified', last_modified.strftime(HTTP_DATE_FMT))
             except NotImplementedError:
                 logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & '
                             'Last-Updated headers support is disabled.')
@@ -307,9 +307,6 @@ class BaseHandler(tornado.web.RequestHandler):
     def finish_request(self, context, media_from_storage=None):
         if media_from_storage is not None:
             self._process_result_from_storage(media_from_storage)
-
-            self.define_image_type(context, media_from_storage)
-
             self._write_media_to_client(context, media_from_storage)
             return
 
@@ -344,6 +341,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
             self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
 
+        logger.debug('mime {mime}'.format(mime=media.mime))
         self.set_header('Server', 'Thumbor/%s' % __version__)
         self.set_header('Content-Type', media.mime)
 

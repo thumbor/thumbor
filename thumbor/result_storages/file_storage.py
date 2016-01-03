@@ -15,7 +15,6 @@ import pytz
 
 from os.path import exists, dirname, join, getmtime, abspath
 
-from thumbor.engines import BaseEngine
 from thumbor.media import Media
 from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger, deprecated
@@ -72,8 +71,6 @@ class Storage(BaseStorage):
                 buffer=buffer,
                 metadata={
                     'LastModified':  datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc),
-                    'ContentLength': len(buffer),
-                    'ContentType':   BaseEngine.get_mimetype(buffer)
                 }
             )
 

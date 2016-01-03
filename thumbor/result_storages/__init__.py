@@ -47,8 +47,7 @@ class BaseStorage(object):
     def put(self, bytes):
         raise NotImplementedError()
 
-    @return_future
-    def get(self, callback):
+    def get(self):
         raise NotImplementedError()
 
     def last_updated(self):
