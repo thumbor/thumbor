@@ -16,10 +16,13 @@ from thumbor.optimizers import BaseOptimizer
 
 class Optimizer(BaseOptimizer):
 
-    def should_run(self, image_extension, buffer):
-        return 'gif' in image_extension and 'gifv' in self.context.request.filters
+    is_media_aware = True
 
-    def optimize(self, buffer, input_file, output_file):
+    def should_run(self, media):
+        extension = media.metadata.get('FileExtension', '')
+        return 'gif' in extension and 'gifv' in self.context.request.filters
+
+    def optimize(self, media, input_file, output_file):
         format, command_params = self.set_format()
         ffmpeg_path = self.context.config.FFMPEG_PATH
         command = '%s -y -f gif -i %s  -an -movflags faststart -f %s -pix_fmt yuv420p %s -qmin 10 -qmax 42 -crf 23' \
@@ -32,8 +35,10 @@ class Optimizer(BaseOptimizer):
             command_params,
             output_file,
         )
+
         with open(os.devnull) as null:
             subprocess.call(command, shell=True, stdin=null)
+
         self.context.request.format = format
 
     def set_format(self):
