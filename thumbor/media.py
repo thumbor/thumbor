@@ -5,10 +5,10 @@ from thumbor.result_storages import ResultStorageResult
 from thumbor.utils import logger, EXTENSION
 
 class Media(object):
-    def __init__(self, buffer=None, metadata={}, errors=[]):
+    def __init__(self, buffer=None, metadata=None, errors=None):
         self.buffer = buffer
-        self.metadata = metadata
-        self.errors = errors
+        self.metadata = metadata or {}
+        self.errors = errors or []
 
     @classmethod
     def from_result(self, result):
@@ -22,7 +22,7 @@ class Media(object):
             media = Media(result.buffer)
 
             if not media.is_valid:
-                media.errors.push(result.error)
+                media.errors.append(result.error)
         else:
             media = Media(result)
 
