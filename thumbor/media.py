@@ -5,14 +5,17 @@ from thumbor.result_storages import ResultStorageResult
 from thumbor.utils import logger, EXTENSION
 
 class Media(object):
-    def __init__(self, buffer=None, metadata=None, errors=None):
+    """
+    This object holds the image and its meta data.
+    """
+    def __init__(self, buffer=None, metadata=None, mimetype=None, errors=None):
         self.buffer = buffer
         self.metadata = metadata or {}
         self.errors = errors or []
+        self._mimetype = mimetype
 
     @classmethod
-    def from_result(self, result):
-
+    def from_result(self, result, mimetype=None):
         media = None
 
         if isinstance(result, Media):
@@ -24,7 +27,7 @@ class Media(object):
             if not media.is_valid:
                 media.errors.append(result.error)
         else:
-            media = Media(result)
+            media = Media(result, mimetype=mimetype)
 
         return media
 
@@ -51,6 +54,8 @@ class Media(object):
 
     @property
     def mime(self):
+        if self._mimetype:
+            return self._mimetype
         mime = None
 
         # magic number detection
@@ -75,6 +80,8 @@ class Media(object):
                     header=self.buffer[0:10]
                 )
             )
+        else:
+            self._mimetype = mime
 
         return mime
 

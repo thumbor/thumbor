@@ -237,6 +237,9 @@ class BaseHandler(tornado.web.RequestHandler):
             elif self.is_webp(context):
                 image_extension = '.webp'
                 logger.debug('Image format set by AUTO_WEBP as %s.' % image_extension)
+            else:
+                image_extension = context.request.extension
+                logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
 
             content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
@@ -272,7 +275,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         try:
             result = context.request.engine.read(image_extension, quality)
-            media = Media.from_result(result)
+            media = Media.from_result(result, content_type)
         except Exception as e:
             logger.error(e)
             self._error(500)
