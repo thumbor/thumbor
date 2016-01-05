@@ -15,11 +15,12 @@ from thumbor.media import Media
 import tornado.gen as gen
 import tornado.web
 
-##
-# Handler to retrieve or modify existing images
-# This handler support GET, PUT and DELETE method to manipulate existing images
-##
+
 class ImageResourceHandler(ImageApiHandler):
+    """
+    Handler to retrieve or modify existing images
+    This handler support GET, PUT and DELETE method to manipulate existing images
+    """
 
     @gen.coroutine
     def check_resource(self, id):

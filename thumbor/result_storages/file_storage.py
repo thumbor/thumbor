@@ -12,7 +12,7 @@ from datetime import datetime
 from uuid import uuid4
 from shutil import move
 import pytz
-
+import os
 from os.path import exists, dirname, join, getmtime, abspath
 
 from thumbor.media import Media
@@ -64,16 +64,21 @@ class Storage(BaseStorage):
             callback(None)
         else:
             buffer = None
+            stats = None
+
             with open(file_abspath, 'r') as f:
                 buffer = f.read()
+                stats = os.fstat(f.fileno())
 
             result = Media(
                 buffer=buffer,
                 metadata={
-                    'LastModified':  datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc),
+                    'LastModified': datetime.utcfromtimestamp(stats.st_mtime),
+                    'ContentLength': stats.st_size,  # TODO: Remove, redundant
                 }
             )
-
+            result._info['creator'] = '{}.{}'.format(
+                __name__, self.__class__.__name__)
             callback(result)
 
     def validate_path(self, path):

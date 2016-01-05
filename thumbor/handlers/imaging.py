@@ -29,7 +29,8 @@ class ImagingHandler(ContextHandler):
     def check_image(self, kw):
         if self.context.config.MAX_ID_LENGTH > 0:
             # Check if an image with an uuid exists in storage
-            exists = yield gen.maybe_future(self.context.modules.storage.exists(kw['image'][:self.context.config.MAX_ID_LENGTH]))
+            exists = yield gen.maybe_future(self.context.modules.storage.exists(
+                    kw['image'][:self.context.config.MAX_ID_LENGTH]))
             if exists:
                 kw['image'] = kw['image'][:self.context.config.MAX_ID_LENGTH]
 

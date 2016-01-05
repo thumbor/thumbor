@@ -10,13 +10,16 @@
 
 import os
 from os.path import exists
-from tornado.concurrent import return_future
 
 from thumbor.loaders import LoaderResult
 from thumbor.engines import BaseEngine
 
 
 class ResultStorageResult(LoaderResult):
+
+    def __init__(self, *args, **kwargs):
+        super(LoaderResult, self).__init__(*args, **kwargs)
+
     @property
     def last_modified(self):
         '''

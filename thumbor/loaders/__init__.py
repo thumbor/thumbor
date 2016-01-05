@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import warnings
+
 
 class LoaderResult(object):
 
@@ -15,7 +17,7 @@ class LoaderResult(object):
     ERROR_UPSTREAM = 'upstream'
     ERROR_TIMEOUT = 'timeout'
 
-    def __init__(self, buffer=None, successful=True, error=None, metadata=dict()):
+    def __init__(self, buffer=None, successful=True, error=None, metadata=None):
         '''
         :param buffer: The media buffer
 
@@ -28,8 +30,10 @@ class LoaderResult(object):
         :param metadata: Dictionary of metadata about the buffer
         :type metadata: dict
         '''
-
+        warnings.warn('The LoaderResult class is deprecated. '
+                      'Use the Media class instead.',
+                      DeprecationWarning, stacklevel=2)
         self.buffer = buffer
         self.successful = successful
         self.error = error
-        self.metadata = metadata
+        self.metadata = metadata or dict()
