@@ -111,7 +111,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @gen.coroutine  # NOQA
     def get_image(self):
-        media = 'Hallo'
 
         try:
             media = yield self._fetch(
