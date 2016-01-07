@@ -50,7 +50,7 @@ class Media(object):
 
         elif isinstance(result, LoaderResult):
             # try to get the mimetype from the Result
-            mime = result.get('mime')
+            mime = getattr(result, 'mime', None)
             media = Media(result.buffer, mimetype=mime)
             media._info['creator'] = '{}.{}'.format(
                 result.__module__, result.__class__.__name__)

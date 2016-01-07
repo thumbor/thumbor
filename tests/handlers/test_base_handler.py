@@ -39,22 +39,6 @@ from tests.fixtures.images import (
     not_so_animated_image,
 )
 
-
-class MediaTestCase(PythonTestCase):
-    def test_can_create_default_fetch_result(self):
-        media = Media()
-        expect(media.normalized).to_be_false()
-        expect(media.buffer).to_be_null()
-        expect(media.engine).to_be_null()
-        expect(media.successful).to_be_false()
-
-    def test_can_create_media_object(self):
-        buffer_mock = Mock()
-        result = Media(buffer_mock)
-        expect(result.buffer).to_equal(buffer_mock)
-        expect(result.is_valid).to_be_true()
-
-
 class ErrorHandler(BaseHandler):
     def get(self):
         self._error(403)

@@ -18,7 +18,7 @@ from thumbor.engines import BaseEngine
 class ResultStorageResult(LoaderResult):
 
     def __init__(self, *args, **kwargs):
-        super(LoaderResult, self).__init__(*args, **kwargs)
+        super(ResultStorageResult, self).__init__(*args, **kwargs)
 
     @property
     def last_modified(self):
