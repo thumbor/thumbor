@@ -74,7 +74,6 @@ class Storage(BaseStorage):
                 buffer=buffer,
                 metadata={
                     'LastModified': datetime.utcfromtimestamp(stats.st_mtime),
-                    'ContentLength': stats.st_size,  # TODO: Remove, redundant
                 }
             )
             result._info['creator'] = '{}.{}'.format(

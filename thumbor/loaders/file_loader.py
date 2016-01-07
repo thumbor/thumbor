@@ -42,7 +42,6 @@ def load(context, path, callback):
             media.buffer = f.read()
             media.metadata.update({
                 'LastModified': datetime.utcfromtimestamp(stats.st_mtime),
-                'ContentLength': stats.st_size
             })
 
     else:

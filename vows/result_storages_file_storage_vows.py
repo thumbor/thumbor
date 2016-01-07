@@ -72,8 +72,6 @@ class ResultStoragesFileStorageVows(Vows.Context):
             expect(result).to_be_instance_of(Media)
             expect(result.is_valid).to_equal(True)
             expect(isinstance(result.metadata, dict)).to_be_true()
-            expect(result.metadata.get('ContentLength')).not_to_be_null()
             expect(result.metadata.get('LastModified')).not_to_be_null()
             expect(len(result)).to_equal(IMAGE_LEN)
-            expect(len(result)).to_equal(result.metadata['ContentLength'])
             expect(result.last_modified).to_be_instance_of(datetime)

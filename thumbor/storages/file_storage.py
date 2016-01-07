@@ -98,7 +98,6 @@ class Storage(storages.BaseStorage):
 
                     media.metadata.update({
                         'LastModified': datetime.utcfromtimestamp(stats.st_mtime),
-                        'ContentLength': stats.st_size,  # TODO: Remove, calculate
                     })
                 media._info['creator'] = '{}.{}'.format(
                         __name__, self.__class__.__name__)

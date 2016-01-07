@@ -252,7 +252,7 @@ class BaseHandler(tornado.web.RequestHandler):
             context.request.meta_callback = context.config.META_CALLBACK_NAME \
                     or self.request.arguments.get('callback', [None])[0]
 
-        logger.debug('Metadata requested. Serving content type of %s.'
+            logger.debug('Metadata requested. Serving content type of %s.'
                      % content_type)
 
         if content_type:
@@ -496,7 +496,6 @@ class BaseHandler(tornado.web.RequestHandler):
             storage_result = yield gen.maybe_future(storage.get(url))
 
             if storage_result is not None:
-                self.release_url_lock(url)
 
                 media = Media.from_result(storage_result)
 
@@ -517,7 +516,6 @@ class BaseHandler(tornado.web.RequestHandler):
             else:  # storage_result is None
                 self.context.metrics.incr('storage.miss')
 
-            # FIXME: Diese Zeile knallt noch.
             loader_result = yield self.context.modules.loader.load(self.context, url)
             media = Media.from_result(loader_result)
 
