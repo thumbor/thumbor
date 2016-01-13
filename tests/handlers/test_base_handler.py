@@ -15,6 +15,7 @@ from os.path import abspath, join, dirname
 import os
 from datetime import datetime, timedelta
 import pytz
+import subprocess
 
 import tornado.web
 from preggy import expect
@@ -749,3 +750,44 @@ class StorageOverride(BaseImagingTestCase):
 
         Engine.load = old_load
         FileStorage.put = old_put
+
+class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.JPEGTRAN_PATH = which('jpegtran')
+        cfg.PROGRESSIVE_JPEG = True
+        cfg.OPTIMIZERS = [
+            'thumbor.optimizers.jpegtran',
+        ]
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        return ctx
+
+    def test_should_optimize_jpeg(self):
+        response = self.fetch('/unsafe/200x200/hidrocarbonetos_9.jpg')
+
+        tmp_fd, tmp_file_path = tempfile.mkstemp(suffix='.jpg')
+        f = os.fdopen(tmp_fd, 'w')
+        f.write(response.body)
+        f.close()
+
+        command = [
+            which('exiftool'),
+            tmp_file_path,
+            '-DeviceModel',
+            '-EncodingProcess'
+        ]
+
+        with open(os.devnull) as null:
+            output = subprocess.check_output(command, stdin=null)
+
+        expect(response.code).to_equal(200)
+        expect(output).to_equal('Encoding Process                : Progressive DCT, Huffman coding\n')
+
+        os.remove(tmp_file_path)

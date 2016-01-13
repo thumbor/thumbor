@@ -19,11 +19,22 @@ class Optimizer(BaseOptimizer):
         return 'jpg' in image_extension or 'jpeg' in image_extension
 
     def optimize(self, buffer, input_file, output_file):
-        jpegtran_path = self.context.config.JPEGTRAN_PATH
-        command = '%s -copy comments -optimize %s-outfile %s %s ' % (
-            jpegtran_path,
-            '-progressive ' if self.context.config.PROGRESSIVE_JPEG else '',
+        command = [
+            self.context.config.JPEGTRAN_PATH,
+            '-copy',
+            'comments',
+            '-optimize',
+        ]
+
+        if self.context.config.PROGRESSIVE_JPEG:
+            command += [
+                '-progressive'
+            ]
+
+        command += [
+            '-outfile',
             output_file,
-            input_file,
-        )
-        subprocess.call(command, shell=True)
+            input_file
+        ]
+
+        subprocess.call(command)
