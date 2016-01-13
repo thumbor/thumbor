@@ -229,7 +229,14 @@ class Engine(BaseEngine):
         f.write(results)
         f.close()
 
-        popen = Popen("gifsicle --colors 256 %s" % tmp_file_path, shell=True, stdout=PIPE)
+        command = [
+            'gifsicle',
+            '--colors',
+            '256',
+            tmp_file_path
+        ]
+
+        popen = Popen(command, stdout=PIPE)
         pipe = popen.stdout
         pipe_output = pipe.read()
         pipe.close()

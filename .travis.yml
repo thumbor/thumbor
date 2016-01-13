@@ -21,7 +21,9 @@ addons:
     - libcurl4-openssl-dev
     - python-numpy
     - python-opencv
+    - libimage-exiftool-perl
     - libopencv-dev
+    - libjpeg-progs
     - libjpeg-dev
     - libpng-dev
     - libx264-dev
