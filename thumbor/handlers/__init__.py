@@ -97,10 +97,15 @@ class BaseHandler(tornado.web.RequestHandler):
         req.meta_callback = conf.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
 
         self.filters_runner = self.context.filters_factory.create_instances(self.context, self.context.request.filters)
+        # Apply all the filters from the PRE_LOAD phase and call get_image() afterwards.
         self.filters_runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD, self.get_image)
 
     @gen.coroutine  # NOQA
     def get_image(self):
+        """
+        This function is called after the PRE_LOAD filters have been applied.
+        It applies the AFTER_LOAD filters on the result, then crops the image.
+        """
         try:
             result = yield self._fetch(
                 self.context.request.image_url
@@ -437,6 +442,13 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @gen.coroutine
     def _fetch(self, url):
+        """
+
+        :param url:
+        :type url:
+        :return:
+        :rtype:
+        """
         fetch_result = FetchResult()
 
         storage = self.context.modules.storage

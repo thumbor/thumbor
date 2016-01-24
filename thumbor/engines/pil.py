@@ -105,6 +105,7 @@ class Engine(BaseEngine):
         ))
 
     def rotate(self, degrees):
+        # PIL rotates counter clockwise
         self.image = self.image.rotate(degrees)
 
     def flip_vertically(self):
