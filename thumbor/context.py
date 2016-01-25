@@ -165,6 +165,7 @@ class RequestParameters:
         self.detection_error = None
         self.quality = quality
         self.buffer = None
+        self.headers = {}
 
         if focal_points is None:
             focal_points = []
@@ -182,6 +183,7 @@ class RequestParameters:
             self.url = request.path
             self.accepts_webp = 'image/webp' in request.headers.get('Accept', '')
             self.image_url = Url.encode_url(self.image_url.encode('utf-8'))
+            self.headers = request.headers
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)
