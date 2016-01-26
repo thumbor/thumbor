@@ -46,7 +46,7 @@ class Context:
         self.request_handler = request_handler
         self.statsd_client = self.metrics  # TODO statsd_client is deprecated, remove me on next minor version bump
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
-        self.headers = {}
+        self.headers = {}  # Response Headers
 
 
 class ServerParameters(object):
@@ -102,6 +102,7 @@ class RequestParameters:
                  fit_in=False,
                  width=0,
                  height=0,
+                 dpr=1,
                  horizontal_flip=False,
                  vertical_flip=False,
                  halign='center',
@@ -150,6 +151,7 @@ class RequestParameters:
 
         self.width = width == "orig" and "orig" or self.int_or_0(width)
         self.height = height == "orig" and "orig" or self.int_or_0(height)
+        self.dpr = dpr
         self.horizontal_flip = bool(horizontal_flip)
         self.vertical_flip = bool(vertical_flip)
         self.halign = halign or 'center'

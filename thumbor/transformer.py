@@ -27,8 +27,10 @@ class Transformer(object):
     def __init__(self, context):
         self.context = context
         self.engine = self.context.request.engine
+        self.target_height = None
+        self.target_width = None
 
-    def calculate_target_dimensions(self):
+    def _calculate_target_dimensions(self):
         source_width, source_height = self.engine.size
         source_width = float(source_width)
         source_height = float(source_height)
@@ -52,6 +54,17 @@ class Transformer(object):
                     self.target_height = float(self.context.request.height)
             else:
                 self.target_height = self.engine.get_proportional_height(self.context.request.width)
+
+    def get_target_dimensions(self):
+        """
+        Returns the target dimensions and calculates them if necessary.
+        The target dimensions are display independent.
+        :return: Target dimensions as a tuple (width, height)
+        :rtype: (int, int)
+        """
+        if self.target_height is None:
+            self._calculate_target_dimensions()
+        return int(self.target_height), int(self.target_width)
 
     def adjust_focal_points(self):
         source_width, source_height = self.engine.size
@@ -188,7 +201,7 @@ class Transformer(object):
             self.extract_cover()
 
         self.manual_crop()
-        self.calculate_target_dimensions()
+        self._calculate_target_dimensions()
         self.adjust_focal_points()
 
         if self.context.request.debug:
@@ -291,39 +304,56 @@ class Transformer(object):
         return x, y
 
     def resize(self):
+        dpr = self.context.request.dpr
         source_width, source_height = self.engine.size
-        if self.target_width == source_width and self.target_height == source_height:
+        target_width = self.target_width * dpr
+        target_height = self.target_height * dpr
+        if target_width == source_width and target_height == source_height:
             return
-        self.engine.resize(self.target_width or 1, self.target_height or 1)  # avoiding 0px images
+        elif self.target_width == source_width \
+                and self.target_height == source_height and dpr >= 1:
+            return  # no 2x upscale if the source is only 1x.
+        self.engine.resize(target_width or 1, target_height or 1)  # avoiding 0px images
 
     def fit_in_resize(self):
+        """
+        Crop the image so it fits in a box specified by self.target_width and
+        self.target_height.
+        If 'adaptive' is selected, then the box might rotate 90°.
+        If 'full' is selected, then the image is scaled so that it fills the box completely.
+        """
+        dpr = self.context.request.dpr
         source_width, source_height = self.engine.size
+        target_width = self.target_width * dpr
+        target_height = self.target_height * dpr
 
-        # invert width and height if image orientation is not the same as request orientation and need adaptive
+        # invert width and height if image orientation is not the same as request
+        # orientation and need adaptive
         if self.context.request.adaptive and (
-            (source_width - source_height < 0 and self.target_width - self.target_height > 0) or
-            (source_width - source_height > 0 and self.target_width - self.target_height < 0)
+            (source_width - source_height < 0 and target_width - target_height > 0) or
+            (source_width - source_height > 0 and target_width - target_height < 0)
         ):
             tmp = self.context.request.width
             self.context.request.width = self.context.request.height
             self.context.request.height = tmp
-            tmp = self.target_width
-            self.target_width = self.target_height
-            self.target_height = tmp
+
+            target_height, target_width = target_width, target_height
 
         sign = 1
         if self.context.request.full:
             sign = -1
 
-        if sign == 1 and self.target_width >= source_width and self.target_height >= source_height:
+        # No upscale
+        if sign == 1 and target_width >= source_width * dpr \
+                and target_height >= source_height * dpr:
             return
 
-        if source_width / self.target_width * sign >= source_height / self.target_height * sign:
-            resize_height = round(source_height * self.target_width / source_width)
-            resize_width = self.target_width
+        if source_width / target_width * sign >= source_height / target_height * sign:
+            resize_height = round(source_height * target_width / source_width)
+            resize_width = target_width
         else:
-            resize_height = self.target_height
-            resize_width = round(source_width * self.target_height / source_height)
+            resize_height = target_height
+            resize_width = round(source_width * target_height / source_height)
 
         self.engine.resize(resize_width, resize_height)
 

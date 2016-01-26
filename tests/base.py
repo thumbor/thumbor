@@ -23,6 +23,7 @@ from PIL import Image
 from skimage.measure import structural_similarity
 from preggy import create_assertions
 
+from thumbor.filters import PHASE_PRE_LOAD, PHASE_AFTER_LOAD, PHASE_POST_TRANSFORM
 from thumbor.app import ThumborServiceApp
 from thumbor.context import Context, RequestParameters
 from thumbor.config import Config
@@ -244,10 +245,18 @@ class FilterTestCase(PythonTestCase):
         img_buffer = BytesIO()
         im.save(img_buffer, 'JPEG', quality=100)
 
+        if getattr(fltr, 'phase', None) == PHASE_PRE_LOAD:
+            fltr.run()
+
         fltr.engine.load(img_buffer.getvalue(), '.jpg')
+
+        if getattr(fltr, 'phase', None) == PHASE_AFTER_LOAD:
+            fltr.run()
+
         fltr.context.transformer.img_operation_worker()
 
-        fltr.run()
+        if getattr(fltr, 'phase', PHASE_POST_TRANSFORM) == PHASE_POST_TRANSFORM:
+            fltr.run()
 
         fltr.engine.image = fltr.engine.image.convert('RGBA')
 
