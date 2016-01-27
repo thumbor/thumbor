@@ -30,9 +30,10 @@ class Filter(BaseFilter):
     MAX_DPR = 4.0
     MIN_DOWNLINK = 1.0  # mbit/s
 
-    @filter_method(BaseFilter.DecimalNumber)
+    @filter_method(r'(0\.[5-9]([0-9]*)?|[1-4](\.[0-9]+)?)?')  #
     def responsive(self, initial_dpr=None):
         logger.debug('DPR filter activated. Initial value: %s ' % initial_dpr)
+
         dpr = self._get_dpr(initial_dpr, self.context.request.headers)
 
         if self.context and self.context.request:
@@ -57,9 +58,11 @@ class Filter(BaseFilter):
             logger.debug('Dpr in header found. Using this value: %s'
                          % header_dpr)
             dpr = float(header_dpr)
+            self.context.vary_headers.add('Dpr')
 
         # args can override Headers
         if initial_dpr:
+            initial_dpr = float(initial_dpr)
             if self.MIN_DPR <= initial_dpr <= self.MAX_DPR:
                 dpr = initial_dpr
             else:
@@ -69,5 +72,6 @@ class Filter(BaseFilter):
         header_downlink = request_headers.get('Downlink')
         if header_downlink and float(header_downlink) < self.MIN_DOWNLINK:
             dpr = min(dpr, 1.0)
+            self.context.vary_headers.add('Downlink')
 
         return dpr

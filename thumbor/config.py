@@ -287,6 +287,7 @@ Config.define(
         'thumbor.filters.frame',
         'thumbor.filters.grayscale',
         'thumbor.filters.rotate',
+        'thumbor.filters.responsive',
         'thumbor.filters.format',
         'thumbor.filters.max_bytes',
         'thumbor.filters.convolution',
