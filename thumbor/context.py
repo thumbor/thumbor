@@ -46,7 +46,8 @@ class Context:
         self.request_handler = request_handler
         self.statsd_client = self.metrics  # TODO statsd_client is deprecated, remove me on next minor version bump
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
-        self.headers = {}
+        self.headers = {}  # Response Headers
+        self.vary_headers = set()
 
 
 class ServerParameters(object):
@@ -102,6 +103,7 @@ class RequestParameters:
                  fit_in=False,
                  width=0,
                  height=0,
+                 dpr=1,
                  horizontal_flip=False,
                  vertical_flip=False,
                  halign='center',
@@ -150,6 +152,7 @@ class RequestParameters:
 
         self.width = width == "orig" and "orig" or self.int_or_0(width)
         self.height = height == "orig" and "orig" or self.int_or_0(height)
+        self.dpr = dpr
         self.horizontal_flip = bool(horizontal_flip)
         self.vertical_flip = bool(vertical_flip)
         self.halign = halign or 'center'
@@ -165,6 +168,7 @@ class RequestParameters:
         self.detection_error = None
         self.quality = quality
         self.buffer = None
+        self.headers = {}
 
         if focal_points is None:
             focal_points = []
@@ -182,6 +186,7 @@ class RequestParameters:
             self.url = request.path
             self.accepts_webp = 'image/webp' in request.headers.get('Accept', '')
             self.image_url = Url.encode_url(self.image_url.encode('utf-8'))
+            self.headers = request.headers
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)

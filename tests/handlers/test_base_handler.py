@@ -690,6 +690,39 @@ class ImageOperationsWithMaxPixels(BaseImagingTestCase):
         response = self.fetch('/unsafe/200x200/wellsford.jpg')
         expect(response.code).to_equal(500)
 
+
+class ImageOperationWithVaryHeaderTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.file_storage"
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
+
+    def test_should_add_Dpr(self):
+        response = self.fetch(
+                '/unsafe/filters:responsive()/wellsford.jpg',
+                headers={'Dpr': '2'}
+        )
+        expect(response.code).to_equal(200)
+        expect(response.headers.keys()).to_include('Vary')
+        expect(response.headers.get('Vary')).to_include('Dpr')
+
+    def test_should_not_add_dpr(self):
+        # dpr is in the URL and therefore unique
+        response = self.fetch(
+                '/unsafe/filters:responsive(2)/wellsford.jpg'
+        )
+        expect(response.code).to_equal(200)
+        expect(response.headers.keys()).Not.to_include('Vary')
+
+
 class EngineLoadException(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')

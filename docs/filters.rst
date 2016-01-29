@@ -18,6 +18,7 @@ Filters
    noise
    quality
    red_eye
+   responsive
    rgb
    rotate
    round_corners

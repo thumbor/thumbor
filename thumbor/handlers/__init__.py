@@ -344,8 +344,16 @@ class BaseHandler(tornado.web.RequestHandler):
                 not context.request.engine.is_multiple() and \
                 context.request.engine.can_convert_to_webp() and \
                 context.request.engine.extension != '.webp':
-            self.set_header('Vary', 'Accept')
+            context.vary_headers.add('Accept')
 
+        # context.vary_headers is a set and has to be converted
+        # to a comma separated list first.
+        if len(context.vary_headers) > 0:
+            if self._headers.get('Vary'):
+                current = self._headers.get('Vary').split(',')
+                for value in current:
+                    context.vary_headers.add(value)
+            self.set_header('Vary', ','.join(context.vary_headers))
         context.headers = self._headers.copy()
 
         if isinstance(results, ResultStorageResult):
