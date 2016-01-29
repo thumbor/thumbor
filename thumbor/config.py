@@ -170,6 +170,9 @@ Config.define(
 Config.define(
     'HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT', False,
     'If the CurlAsyncHTTPClient should be used', 'HTTP Loader')
+Config.define(
+    'MAX_SOURCE_SIZE', 104857600,
+    'The maximum image size that will be fetched, in bytes', 'HTTP Loader')
 
 # FILE STORAGE GENERIC OPTIONS
 Config.define(
