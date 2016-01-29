@@ -64,7 +64,7 @@ class Transformer(object):
         """
         if self.target_height is None:
             self._calculate_target_dimensions()
-        return int(self.target_height), int(self.target_width)
+        return int(self.target_width), int(self.target_height)
 
     def adjust_focal_points(self):
         source_width, source_height = self.engine.size
