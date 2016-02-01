@@ -10,5 +10,5 @@
 
 '''This is the main module in thumbor'''
 
-__version__ = "5.2.1"
-__release_date__ = "29-Oct-2015"
+__version__ = "6.0.0b1"
+__release_date__ = "01-Feb-2016"
