@@ -56,7 +56,6 @@ class BaseHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def execute_image_operations(self):
         self.context.request.quality = None
-
         req = self.context.request
         conf = self.context.config
 
@@ -475,7 +474,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 raise gen.Return(fetch_result)
             else:
                 self.context.metrics.incr('storage.miss')
-
             loader_result = yield self.context.modules.loader.load(self.context, url)
         finally:
             self.release_url_lock(url)
@@ -629,4 +627,7 @@ class ImageApiHandler(ContextHandler):
 
     def write_file(self, id, body):
         storage = self.context.modules.upload_photo_storage
+        if hasattr(self.context.modules.engine, 'transformed_body'):
+            body = self.context.modules.engine.transformed_body
+
         storage.put(id, body)

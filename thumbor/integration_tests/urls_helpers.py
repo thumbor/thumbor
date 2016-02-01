@@ -108,6 +108,7 @@ original_images_base = [
     'jescharlie_16bit.png',
     'olified_transp.png',
     'wellsford.jpg',
+    'escudo.svg',
 ]
 
 original_images_gif_webp = [
