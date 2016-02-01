@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import re
-from urllib import quote
+from urllib import quote, unquote
 
 
 class Url(object):
@@ -24,7 +24,10 @@ class Url(object):
     halign = r'(?:(?P<halign>left|right|center)/)?'
     valign = r'(?:(?P<valign>top|bottom|middle)/)?'
     smart = r'(?:(?P<smart>smart)/)?'
-    filters = r'(?:filters:(?P<filters>.+?\))/)?'
+    # allow trailing ) or url-encoded %29 since tornado apparently doesn't unescape this at the point where it
+    # matches the regex. This allows bad clients and proxies that re-encode extra chars to still pass security
+    # see https://github.com/thumbor/thumbor/issues/598
+    filters = r'(?:filters:(?P<filters>.+?(?:\)|%29))/)?'
     image = r'(?P<image>.+)'
 
     compiled_regex = None
@@ -171,3 +174,30 @@ class Url(object):
     @classmethod
     def encode_url(kls, url):
         return quote(url, '/:?%=&()~",\'$')
+
+    @classmethod
+    def reencode_url(kls, url):
+        '''
+        Takes the raw URL and decodes any percent encoded characters that occur before the
+        source URL starts. We then re-encode the URL using encode_url which has a custom whitelist
+        of chars to leave unencoded (the same ones presumably used while generating URL in first place).
+
+        This is to work around clients that add additional encoding to thumbor URLs (for example percent
+        encoding the parentheses in filter strings) which cause original security hash to be invalidated.
+
+        By decoding and re-encoding with our permissive list, we should recover
+        the original URL to validate, even if clients added additional encoding in the process.
+
+        We leave the source URL alone as that may have legitimately contained other percent encoded chars.
+
+        This does make this only a partial solution - if source URL had unescaped chars like parens that
+        were escaped further by a bad client, the hash will still not match... But clients should be able to
+        fix that by escaping all special chars in the source URL in the first place.
+
+        See https://github.com/thumbor/thumbor/issues/598
+        '''
+        last_slash = url.rfind('/')
+        if last_slash > 0:
+            url = unquote(url[0:last_slash]) + url[last_slash:]
+
+        return url
