@@ -104,7 +104,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "derpconf>=0.2.0",
             "python-magic>=0.4.3",
             "pexif>=0.15,<1.0",
-            "CairoSVG>=1.0.19"
+            "CairoSVG>=1.0.19",
             "statsd>=3.0.1",
             "libthumbor",
             "futures",
