@@ -8,8 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+try:
+    import cairosvg
+except:
+    cairosvg = None
+
 from pexif import ExifSegment
-import cairosvg
 from thumbor.utils import logger, EXTENSION
 
 WEBP_SIDE_LIMIT = 16383
@@ -95,6 +99,13 @@ class BaseEngine(object):
         return self.multiple_engine.frame_engines
 
     def convert_svg_to_png(self, buffer):
+        if not cairosvg:
+            msg = """[BaseEngine] convert_svg_to_png failed cairosvg not
+            imported (if you want svg conversion to png please install cairosvg)
+            """
+            logger.error(msg)
+            return
+
         buffer = cairosvg.svg2png(bytestring=buffer)
         mime = self.get_mimetype(buffer)
         self.extension = EXTENSION.get(mime, '.jpg')
