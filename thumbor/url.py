@@ -167,7 +167,3 @@ class Url(object):
             url.append('filters:%s' % filters)
 
         return '/'.join(url)
-
-    @classmethod
-    def encode_url(kls, url):
-        return quote(url, '/:?%=&()~",\'$')

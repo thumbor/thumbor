@@ -10,11 +10,10 @@
 
 from thumbor.loaders import http_loader
 from tornado.concurrent import return_future
-from urllib import unquote
 
 
 def _normalize_url(url):
-    url = http_loader.quote_url(unquote(url))
+    url = http_loader.quote_url(url)
     return url if url.startswith('http') else 'https://%s' % url
 
 

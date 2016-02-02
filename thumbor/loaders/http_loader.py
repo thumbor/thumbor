@@ -10,7 +10,6 @@
 
 import re
 from functools import partial
-from urllib import unquote, quote
 from urlparse import urlparse
 
 import tornado.httpclient
@@ -27,16 +26,11 @@ def quote_url(url):
         url = url.encode('utf-8')
     except UnicodeDecodeError:
         pass
-
-    url = QUOTE_PATH_REGEX.split(url)
-    if len(url) > 2:
-        url[2] = quote(url[2])
-    url = ''.join(url)
-    return url
+    return re.sub(r'^(https?)\%3a', r'\1:', url, flags=re.IGNORECASE)
 
 
 def _normalize_url(url):
-    url = quote_url(unquote(url))
+    url = quote_url(url)
     return url if url.startswith('http') else 'http://%s' % url
 
 
