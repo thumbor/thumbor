@@ -36,7 +36,7 @@ addons:
     - python-numpy
     - python-scipy
     - cython
-    - cairosvg
+    - libcairo2-dev
 install:
   - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
     -O /tmp/ffmpeg-release.tar.xz
@@ -47,6 +47,7 @@ install:
   - pip install --upgrade pip
   - make setup
   - pip install coveralls
+  - pip install cairosvg
 before_script:
   - make redis
 script:
