@@ -11,6 +11,7 @@
 import re
 from functools import partial
 from urlparse import urlparse
+from urllib import unquote
 
 import tornado.httpclient
 
@@ -18,15 +19,17 @@ from . import LoaderResult
 from thumbor.utils import logger
 from tornado.concurrent import return_future
 
-QUOTE_PATH_REGEX = re.compile(r"((?:https?:\/\/)?[^/]+)(\/.*)")
-
 
 def quote_url(url):
     try:
         url = url.encode('utf-8')
     except UnicodeDecodeError:
         pass
-    return re.sub(r'^(https?)\%3a', r'\1:', url, flags=re.IGNORECASE)
+    parsed_url = re.search(r'((?:https?)?.*\/)(.*)', url)
+    if not parsed_url:
+        return url
+    parsed_url = parsed_url.groups()
+    return "%s%s" % (unquote(parsed_url[0]), parsed_url[1])
 
 
 def _normalize_url(url):

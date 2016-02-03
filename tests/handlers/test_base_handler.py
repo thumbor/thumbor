@@ -18,18 +18,22 @@ import pytz
 import subprocess
 
 import tornado.web
+from tornado.httpserver import HTTPServer
+from tornado.testing import bind_unused_port
 from preggy import expect
 from mock import Mock, patch
 
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context, ServerParameters
+from thumbor.app import ThumborServiceApp
 from thumbor.handlers import FetchResult, BaseHandler
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.utils import which
 from tests.base import TestCase, PythonTestCase
 from thumbor.engines.pil import Engine
+from libthumbor import CryptoURL
 from tests.fixtures.images import (
     default_image,
     alabama1,
@@ -100,6 +104,39 @@ class BaseImagingTestCase(TestCase):
     @classmethod
     def tearDownClass(cls, *args, **kw):
         shutil.rmtree(cls.root_path)
+
+
+class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.http_loader"
+        cfg.STORAGE = "thumbor.storages.file_storage"
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
+
+    def test_image_already_generated_by_thumbor(self):
+        with open('./tests/fixtures/images/image.jpg', 'r') as f:
+            self.context.modules.storage.put(
+                quote("http://test.com/smart/image.jpg"),
+                f.read()
+            )
+        crypto = CryptoURL('ACME-SEC')
+        image_url = self.get_url(
+            crypto.generate(
+                image_url=quote("http://test.com/smart/image.jpg")
+            )
+        )
+        url = crypto.generate(
+            image_url=quote(image_url)
+        )
+
+        response = self.fetch(url)
+        expect(response.code).to_equal(200)
 
 
 class ImagingOperationsTestCase(BaseImagingTestCase):

@@ -22,7 +22,8 @@ from thumbor.config import Config
 from thumbor.loaders import LoaderResult
 
 
-fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
+def fixture_for(filename):
+    return abspath(join(dirname(__file__), 'fixtures', filename))
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -150,8 +151,9 @@ class NormalizeUrlTestCase(PythonTestCase):
         expect(loader._normalize_url('some.url/my%20image')).\
             to_equal('http://some.url/my%20image')
 
-    from nose_focus import focus
-    @focus
+        expect(loader._normalize_url('http%3A//some.url%3A3000/my%20image')).\
+            to_equal('http://some.url:3000/my%20image')
+
     def test_should_normalize_quoted_url(self):
         url = 'https%3A//www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
         expected = 'https://www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
