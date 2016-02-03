@@ -23,7 +23,6 @@ from preggy import expect
 from thumbor.context import Context
 from thumbor.config import Config
 from thumbor.engines import BaseEngine
-from thumbor.utils import logger
 
 
 exif_str = lambda x: b'Exif\x00\x00II*\x00\x08\x00\x00\x00\x05\x00\x12\x01\x03\x00\x01\x00\x00\x00%s\x00\x00\x1a\x01\x05\x00\x01\x00\x00\x00J\x00\x00\x00\x1b\x01\x05\x00\x01\x00\x00\x00R\x00\x00\x00(\x01\x03\x00\x01\x00\x00\x00\x02\x00\x00\x00\x13\x02\x03\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00H\x00\x00\x00\x01\x00\x00\x00H\x00\x00\x00\x01\x00\x00\x00' % pack('h', x)  # noqa
@@ -91,20 +90,23 @@ class BaseEngineTestCase(TestCase):
         expect(self.engine).to_be_instance_of(BaseEngine)
 
     def test_convert_svg_to_png(self):
-        buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20" xmlns="http://www.w3.org/2000/svg">
+        buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
+                    xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>"""
         self.engine.convert_svg_to_png(buffer)
         expect(self.engine.extension).to_equal('.png')
 
-    def test_not_imported_cairosvg_failed_to_convert_svg_to_png(self):
-        self.engine.cairosvg = mock.MagicMock(return_value=None)
-        logger.error = mock.MagicMock()
-        buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20" xmlns="http://www.w3.org/2000/svg">
+    @mock.patch('thumbor.engines.cairosvg', new=None)
+    @mock.patch('thumbor.engines.logger.error')
+    def test_not_imported_cairosvg_failed_to_convert_svg_to_png(self, mockLogError):
+        buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
+                    xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>"""
-        self.engine.convert_svg_to_png(buffer)
-        expect(logger.error).to_be_true()
+        returned_buffer = self.engine.convert_svg_to_png(buffer)
+        expect(mockLogError.called).to_be_true()
+        expect(buffer).to_equal(returned_buffer)
 
     def test_get_orientation(self):
         self.engine.exif = exif_str(1)

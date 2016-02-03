@@ -104,7 +104,7 @@ class BaseEngine(object):
             imported (if you want svg conversion to png please install cairosvg)
             """
             logger.error(msg)
-            return
+            return buffer
 
         buffer = cairosvg.svg2png(bytestring=buffer)
         mime = self.get_mimetype(buffer)
