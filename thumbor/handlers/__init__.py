@@ -552,7 +552,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @gen.coroutine
     def acquire_url_lock(self, url):
-        if not url in BaseHandler.url_locks:
+        if url not in BaseHandler.url_locks:
             BaseHandler.url_locks[url] = Condition()
         else:
             yield BaseHandler.url_locks[url].wait()

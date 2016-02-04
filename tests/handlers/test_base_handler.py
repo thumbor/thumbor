@@ -134,8 +134,7 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
 
         response = self.fetch(url)
         expect(response.code).to_equal(200)
-    from nose_focus import focus
-    @focus
+
     def test_image_already_generated_by_thumbor_2_times(self):
         with open(
             normalize_unicode_path(u'./tests/fixtures/images/alabama1_ap620é.jpg'), 'r'

@@ -15,7 +15,6 @@ import functools
 
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
-from thumbor.url import Url
 
 
 class Context:

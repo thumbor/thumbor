@@ -22,7 +22,8 @@ from thumbor.config import Config
 from thumbor.loaders import LoaderResult
 
 
-fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
+def fixture_for(filename):
+    return abspath(join(dirname(__file__), 'fixtures', filename))
 
 
 class MainHandler(tornado.web.RequestHandler):

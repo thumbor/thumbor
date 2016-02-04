@@ -13,11 +13,10 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 
 from pyvows import Vows, expect
-ctx = Vows.Context
-
 import thumbor.engines.pil as PIL
 
 from os.path import join, abspath, dirname
+ctx = Vows.Context
 
 FIXTURES_FOLDER = join(abspath(dirname(__file__)), 'fixtures')
 

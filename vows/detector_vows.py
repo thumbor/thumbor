@@ -9,9 +9,9 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 from pyvows import Vows, expect
-ctx = Vows.Context
-
 from thumbor.detectors import BaseDetector
+
+ctx = Vows.Context
 
 
 def get_detector(name):

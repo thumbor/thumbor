@@ -18,7 +18,8 @@ from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 
 
-fixture_for = lambda path: abspath(join(dirname(__file__), 'fixtures', path))
+def fixture_for(path):
+    return abspath(join(dirname(__file__), 'fixtures', path))
 
 
 def get_url():
