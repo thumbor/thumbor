@@ -147,10 +147,6 @@ class NormalizeUrlTestCase(PythonTestCase):
         expect(loader._normalize_url('http://some.url')).to_equal('http://some.url')
         expect(loader._normalize_url('some.url')).to_equal('https://some.url')
 
-    def test_should_normalize_url_but_keep_quotes_after_the_domain(self):
-        expect(loader._normalize_url('some.url/my%20image'))\
-            .to_equal('https://some.url/my%20image')
-
     def test_should_normalize_quoted_url(self):
         url = 'https%3A//www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
         expected = 'https://www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'

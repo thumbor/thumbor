@@ -18,20 +18,17 @@ import pytz
 import subprocess
 
 import tornado.web
-from tornado.httpserver import HTTPServer
-from tornado.testing import bind_unused_port
 from preggy import expect
 from mock import Mock, patch
 
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context, ServerParameters
-from thumbor.app import ThumborServiceApp
 from thumbor.handlers import FetchResult, BaseHandler
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.utils import which
-from tests.base import TestCase, PythonTestCase
+from tests.base import TestCase, PythonTestCase, normalize_unicode_path
 from thumbor.engines.pil import Engine
 from libthumbor import CryptoURL
 from tests.fixtures.images import (
@@ -131,6 +128,33 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
                 image_url=quote("http://test.com/smart/image.jpg")
             )
         )
+        url = crypto.generate(
+            image_url=quote(image_url)
+        )
+
+        response = self.fetch(url)
+        expect(response.code).to_equal(200)
+    from nose_focus import focus
+    @focus
+    def test_image_already_generated_by_thumbor_2_times(self):
+        with open(
+            normalize_unicode_path(u'./tests/fixtures/images/alabama1_ap620é.jpg'), 'r'
+        ) as f:
+            self.context.modules.storage.put(
+                quote("http://test.com/smart/alabama1_ap620é"),
+                f.read()
+            )
+        crypto = CryptoURL('ACME-SEC')
+        image_url = self.get_url(
+            crypto.generate(
+                image_url=quote(self.get_url(
+                    crypto.generate(
+                        image_url=quote("http://test.com/smart/alabama1_ap620é")
+                    )
+                ))
+            )
+        )
+
         url = crypto.generate(
             image_url=quote(image_url)
         )
@@ -727,6 +751,7 @@ class ImageOperationsWithMaxPixels(BaseImagingTestCase):
         response = self.fetch('/unsafe/200x200/wellsford.jpg')
         expect(response.code).to_equal(500)
 
+
 class EngineLoadException(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
@@ -787,6 +812,7 @@ class StorageOverride(BaseImagingTestCase):
 
         Engine.load = old_load
         FileStorage.put = old_put
+
 
 class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
     def get_context(self):

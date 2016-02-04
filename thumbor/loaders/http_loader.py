@@ -25,11 +25,7 @@ def quote_url(url):
         url = url.encode('utf-8')
     except UnicodeDecodeError:
         pass
-    parsed_url = re.search(r'((?:https?)?.*\/)(.*)', url)
-    if not parsed_url:
-        return url
-    parsed_url = parsed_url.groups()
-    return "%s%s" % (unquote(parsed_url[0]), parsed_url[1])
+    return unquote(url)
 
 
 def _normalize_url(url):
