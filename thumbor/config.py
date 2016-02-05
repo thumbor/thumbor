@@ -292,6 +292,7 @@ Config.define(
         'thumbor.filters.convolution',
         'thumbor.filters.blur',
         'thumbor.filters.extract_focal',
+        'thumbor.filters.focal',
         'thumbor.filters.no_upscale',
         'thumbor.filters.saturation',
         'thumbor.filters.max_age',
