@@ -556,6 +556,7 @@ class GetImageResultStorage(BaseContext):
         cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
         cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = tempfile.mkdtemp(prefix='thumbor_test')
         cfg.USE_GIFSICLE_ENGINE = True
+        cfg.FFMPEG_PATH = which('ffmpeg')
         cfg.AUTO_WEBP = True
         cfg.OPTIMIZERS = [
             'thumbor.optimizers.gifv',
