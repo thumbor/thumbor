@@ -33,8 +33,8 @@ class BaseOptimizer(object):
 
             self.optimize(buffer, ifile.name, ofile.name)
 
-            ofile = open(ofile.name, 'rb')  # reopen with file thats been changed with the optimizer
-            return ofile.read()
+            with open(ofile.name, 'rb') as f:  # reopen with file thats been changed with the optimizer
+                return f.read()
 
         finally:
             os.unlink(ifile.name)
