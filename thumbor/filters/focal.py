@@ -12,6 +12,7 @@ import re
 from thumbor.filters import BaseFilter, filter_method, PHASE_PRE_LOAD
 from thumbor.point import FocalPoint
 
+
 class Filter(BaseFilter):
     phase = PHASE_PRE_LOAD
 
