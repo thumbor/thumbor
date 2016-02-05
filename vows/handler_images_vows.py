@@ -482,6 +482,7 @@ class GetImageWithGIFV(BaseContext):
         cfg = Config(SECURITY_KEY='ACME-SEC')
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = storage_path
+        cfg.FFMPEG_PATH = which('ffmpeg')
         cfg.OPTIMIZERS = [
             'thumbor.optimizers.gifv',
         ]
