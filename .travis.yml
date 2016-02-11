@@ -36,6 +36,9 @@ addons:
     - python-numpy
     - python-scipy
     - cython
+    - gfortran
+    - libopenblas-dev
+    - liblapack-dev
 install:
   - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
     -O /tmp/ffmpeg-release.tar.xz
