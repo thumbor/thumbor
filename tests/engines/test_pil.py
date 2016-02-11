@@ -10,7 +10,6 @@
 
 from __future__ import unicode_literals, absolute_import
 from os.path import abspath, join, dirname
-import warnings
 
 from unittest import TestCase, skipUnless
 from preggy import expect
@@ -20,20 +19,21 @@ from thumbor.config import Config
 from thumbor.engines.pil import Engine
 
 try:
-    from pyexiv2 import ImageMetadata
+    from pyexiv2 import ImageMetadata  # noqa
     METADATA_AVAILABLE = True
 except ImportError:
     METADATA_AVAILABLE = False
 
 STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
 
+
 class PilEngineTestCase(TestCase):
 
     def get_context(self):
         cfg = Config(
-                SECURITY_KEY='ACME-SEC',
-                ENGINE = 'thumbor.engines.pil',
-                IMAGE_METADATA_READ_FORMATS = 'exif,xmp'
+            SECURITY_KEY='ACME-SEC',
+            ENGINE='thumbor.engines.pil',
+            IMAGE_METADATA_READ_FORMATS='exif,xmp'
         )
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = STORAGE_PATH

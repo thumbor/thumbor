@@ -3,7 +3,7 @@ Image Metadata
 
 Thumbor uses `Pyexiv2 <http://tilloy.net/dev/pyexiv2/>`_ to read and write image metadata.
 
-If the Pyexif2 Python library is available, the PIL engine also stores image metadata
+If the Pyexif2 or Py3exif2 Python library is available, the PIL engine also stores image metadata
 in ``engine.metadata``.
 
 
@@ -118,6 +118,10 @@ If you are updating thumbor and already have an existing virtualenv, then you ha
 If you have both a System Python and a Homebrew Python with the same version, then make sure
 the Virtualenv uses the Homebrew Python binary.
 
+On Linux Pyexiv2 can be installed with apt-get:
+
+    apt-get install python-pyexiv2
+
 
 pyexiv2.metadata API reference
 ------------------------------
@@ -131,4 +135,4 @@ pyexiv2.metadata API reference
 
 
 Currently PyExiv is deprecated in favor of GExiv. However, it is really difficult
-to install GExiv with Python on a non-Ubuntu system. Therefore we use PyExiv for now.
+to install GExiv with Python on a non-Ubuntu system. Therefore Pyexiv2 is used.

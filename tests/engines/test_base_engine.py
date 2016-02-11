@@ -33,8 +33,8 @@ class BaseEngineTestCase(TestCase):
 
     def get_context(self):
         cfg = Config(
-                SECURITY_KEY='ACME-SEC',
-                ENGINE='thumbor.engines',
+            SECURITY_KEY='ACME-SEC',
+            ENGINE='thumbor.engines',
         )
         cfg.STORAGE = 'thumbor.storages.no_storage'
 

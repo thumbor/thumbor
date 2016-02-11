@@ -38,8 +38,8 @@ class MultipleEngine:
 
     def read(self, extension=None, quality=None):
         return self.source_engine.read_multiple(
-                [frame_engine.image for frame_engine in self.frame_engines],
-                extension)
+            [frame_engine.image for frame_engine in self.frame_engines],
+            extension)
 
     def size(self):
         return self.frame_engines[0].size
