@@ -13,6 +13,7 @@ from thumbor import __version__
 
 import glob
 import os
+import logging
 
 
 tests_require = [
@@ -129,6 +130,8 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
 try:
     run_setup(gather_filter_extensions())
 except SystemExit as exit:
-    print "\n\n*******************************************************************"
-    print "Couldn't build one or more native extensions, skipping compilation.\n\n"
+    print("\n\n*******************************************************************")
+    logging.exception(exit)
+    print("\n\n*******************************************************************")
+    print("Couldn't build one or more native extensions, skipping compilation.\n\n")
     run_setup()
