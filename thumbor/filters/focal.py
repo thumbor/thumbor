@@ -20,12 +20,15 @@ class Filter(BaseFilter):
 
     @filter_method(BaseFilter.String)
     def focal(self, focal_string):
-        left, top, right, bottom = self.focal_regex.match(focal_string).groups()
-        left, top, right, bottom = int(left), int(top), int(right), int(bottom)
-        width = right - left
-        height = bottom - top
+        parsed = self.focal_regex.match(focal_string)
 
-        if width and height:
-            self.context.request.focal_points.append(
-                FocalPoint.from_square(left, top, width, height, origin="Explicit")
-            )
+        if parsed:
+            left, top, right, bottom = parsed.groups()
+            left, top, right, bottom = int(left), int(top), int(right), int(bottom)
+            width = right - left
+            height = bottom - top
+
+            if width and height:
+                self.context.request.focal_points.append(
+                    FocalPoint.from_square(left, top, width, height, origin="Explicit")
+                )
