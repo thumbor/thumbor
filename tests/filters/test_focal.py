@@ -20,9 +20,6 @@ class FocalFilterTestCase(FilterTestCase):
             context.request.fit_in = True
             context.request.width = 400
             context.request.height = 100
-            print "3333333 CONTEXT REQUES"
-            print context.request.__dict__
-            print "poo poo poo"
 
         image = self.get_filtered(
             'source.jpg',
