@@ -31,7 +31,7 @@ After
 Warning
 -------
 
-Unpredictable behavior may occur if using this filter with other functionality that sets focal points, such as:
+Unpredictable behavior may occur if using this filter with other functionality that set focal points, such as:
 
 .. toctree::
    :maxdepth: 1
