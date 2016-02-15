@@ -27,8 +27,10 @@ class Transformer(object):
     def __init__(self, context):
         self.context = context
         self.engine = self.context.request.engine
+        self.target_height = None
+        self.target_width = None
 
-    def calculate_target_dimensions(self):
+    def _calculate_target_dimensions(self):
         source_width, source_height = self.engine.size
         source_width = float(source_width)
         source_height = float(source_height)
@@ -52,6 +54,17 @@ class Transformer(object):
                     self.target_height = float(self.context.request.height)
             else:
                 self.target_height = self.engine.get_proportional_height(self.context.request.width)
+
+    def get_target_dimensions(self):
+        """
+        Returns the target dimensions and calculates them if necessary.
+        The target dimensions are display independent.
+        :return: Target dimensions as a tuple (width, height)
+        :rtype: (int, int)
+        """
+        if self.target_height is None:
+            self._calculate_target_dimensions()
+        return int(self.target_width), int(self.target_height)
 
     def adjust_focal_points(self):
         source_width, source_height = self.engine.size
@@ -188,7 +201,7 @@ class Transformer(object):
             self.extract_cover()
 
         self.manual_crop()
-        self.calculate_target_dimensions()
+        self._calculate_target_dimensions()
         self.adjust_focal_points()
 
         if self.context.request.debug:

@@ -39,6 +39,7 @@ addons:
     - gfortran
     - libopenblas-dev
     - liblapack-dev
+    - python-pyexiv2
 install:
   - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
     -O /tmp/ffmpeg-release.tar.xz

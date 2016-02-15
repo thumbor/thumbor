@@ -10,6 +10,12 @@
 
 from pexif import ExifSegment
 
+try:
+    from pyexiv2 import ImageMetadata
+    METADATA_AVAILABLE = True
+except ImportError:
+    METADATA_AVAILABLE = False
+
 from thumbor.utils import logger, EXTENSION
 
 WEBP_SIDE_LIMIT = 16383
@@ -32,8 +38,8 @@ class MultipleEngine:
 
     def read(self, extension=None, quality=None):
         return self.source_engine.read_multiple(
-                [frame_engine.image for frame_engine in self.frame_engines],
-                extension)
+            [frame_engine.image for frame_engine in self.frame_engines],
+            extension)
 
     def size(self):
         return self.frame_engines[0].size
@@ -57,6 +63,7 @@ class BaseEngine(object):
         self.source_height = None
         self.icc_profile = None
         self.frame_count = 1
+        self.metadata = None
 
     @classmethod
     def get_mimetype(cls, buffer):
@@ -100,6 +107,13 @@ class BaseEngine(object):
             self.extension = EXTENSION.get(mime, '.jpg')
 
         image_or_frames = self.create_image(buffer)
+
+        if METADATA_AVAILABLE:
+            try:
+                self.metadata = ImageMetadata.from_buffer(buffer)
+                self.metadata.read()
+            except Exception as e:
+                logger.error('Error reading image metadata: %s' % e)
 
         if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(
                 image_or_frames, (list, tuple)):

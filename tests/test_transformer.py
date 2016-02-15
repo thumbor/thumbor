@@ -225,3 +225,19 @@ class TransformerTestCase(TestCase):
             self.has_handled = True
             expect(engine.calls['cover']).to_equal(1)
         return handle
+
+    def test_get_target_dimensions(self):
+        data = TestData(
+            source_width=800, source_height=600,
+            target_width=600, target_height=400,
+            halign="right", valign="top",
+            focal_points=[],
+            crop_left=200, crop_top=0, crop_right=100, crop_bottom=100
+        )
+
+        ctx = data.to_context()
+        trans = Transformer(ctx)
+        dimensions = trans.get_target_dimensions()
+        expect(dimensions).to_equal((600, 400))
+        trans.transform(lambda: 1)
+        expect(dimensions).to_equal((600, 400))

@@ -161,6 +161,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 self._error(504)
                 return
 
+        self.context.transformer = Transformer(self.context)
+
         def transform():
             self.normalize_crops(normalized, req, engine)
 
@@ -168,7 +170,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
 
             after_transform_cb = functools.partial(self.after_transform, self.context)
-            Transformer(self.context).transform(after_transform_cb)
+            self.context.transformer.transform(after_transform_cb)
 
         self.filters_runner.apply_filters(thumbor.filters.PHASE_AFTER_LOAD, transform)
 
