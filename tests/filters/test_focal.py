@@ -15,19 +15,30 @@ from tests.base import FilterTestCase
 
 
 class FocalFilterTestCase(FilterTestCase):
-    def test_focal_filter_fit_in(self):
+    def test_focal_filter_valid(self):
+        self.get_filtered(
+            'source.jpg',
+            'thumbor.filters.focal',
+            'focal(146x156:279x208)'
+        )
+
+        expect(self.context.request.focal_points[0].origin).to_equal("Explicit")
+        expect(self.context.request.focal_points[0].height).to_equal(52)
+        expect(self.context.request.focal_points[0].width).to_equal(133)
+        expect(self.context.request.focal_points[0].y).to_equal(182)
+        expect(self.context.request.focal_points[0].x).to_equal(212)
+
+    def test_focal_filter_no_change(self):
         def config_context(context):
-            context.request.fit_in = True
             context.request.width = 400
-            context.request.height = 100
+            context.request.height = 600
 
         image = self.get_filtered(
             'source.jpg',
             'thumbor.filters.focal',
-            'focal(146x156:279x208)',
-            config_context=config_context
+            'focal(0x0:400x600)'
         )
-        expected = self.get_fixture('focal.jpg')
+        expected = self.get_fixture('source.jpg')
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.99)
