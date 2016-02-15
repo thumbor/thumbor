@@ -27,3 +27,15 @@ After
 
 .. image:: ../tests/fixtures/filters/focal.jpg
     :alt: Picture after the RGB filter
+
+Warning
+-------
+
+Unpredictable behavior may occur if using this filter with other functionality that sets focal points, such as:
+
+.. toctree::
+   :maxdepth: 1
+
+   extract_focal_points
+   available_detectors
+   metadata
