@@ -36,6 +36,7 @@ addons:
     - python-numpy
     - python-scipy
     - cython
+    - libcairo2-dev
     - gfortran
     - libopenblas-dev
     - liblapack-dev
@@ -50,6 +51,7 @@ install:
   - pip install --upgrade pip
   - make setup
   - pip install coveralls
+  - pip install cairosvg
 before_script:
   - make redis
 script:
@@ -59,4 +61,3 @@ notifications:
     secure: Sf6TJa/H3mq+RGqpLwKNRpNw0YQKX3+5bt5e37CSs8rOC+SoFHVNr29QhbXFPwmqQuy9qKb0t5rzChDIIvXErywU2lEw3/JlQtCt1xLsoUfpBF8g8ldoy6ESO2j9Jj6Y/M/4RN2zN3AAd5gfXPrdLHa++eiRaiAXXU+9ZvtUxuc=
 after_success:
   coveralls
-

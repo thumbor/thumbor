@@ -22,6 +22,8 @@ def get_abs_path(img):
     return abspath(join(dirname(__file__), img))
 
 valid_image_path = get_abs_path(u'alabama1_ap620é.jpg')
+svg_image_path = get_abs_path(u'escudo.svg')
+svg_converted_image_path = get_abs_path(u'escudo_converted_image.png')
 too_small_image_path = get_abs_path(u'crocodile.jpg')
 too_heavy_image_path = get_abs_path(u'conselheira_tutelar.jpg')
 default_image_path = get_abs_path(u'image.jpg')
@@ -48,6 +50,10 @@ def get_image(img):
 
 def valid_image():
     return get_image(valid_image_path)
+
+
+def svg_image():
+    return get_image(svg_image_path)
 
 
 def too_small_image():

@@ -253,6 +253,11 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.body).to_be_png()
 
+    def test_can_read_image_svg_and_convert_png(self):
+        response = self.fetch('/unsafe/escudo.svg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
 
 class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
     def get_context(self):

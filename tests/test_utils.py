@@ -35,6 +35,7 @@ class UtilsTestCase(TestCase):
         expect(CONTENT_TYPE.get('.webp')).to_equal('image/webp')
         expect(CONTENT_TYPE.get('.mp4')).to_equal('video/mp4')
         expect(CONTENT_TYPE.get('.webm')).to_equal('video/webm')
+        expect(CONTENT_TYPE.get('.svg')).to_equal('image/svg+xml')
 
     def test_can_get_extension(self):
         expect(EXTENSION.get('image/jpeg')).to_equal('.jpg')
@@ -43,6 +44,7 @@ class UtilsTestCase(TestCase):
         expect(EXTENSION.get('image/webp')).to_equal('.webp')
         expect(EXTENSION.get('video/mp4')).to_equal('.mp4')
         expect(EXTENSION.get('video/webm')).to_equal('.webm')
+        expect(EXTENSION.get('image/svg+xml')).to_equal('.svg')
 
     def test_can_get_logger(self):
         expect(logger.name).to_equal('thumbor')

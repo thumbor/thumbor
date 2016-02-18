@@ -21,6 +21,7 @@ CONTENT_TYPE = {
     '.webp': 'image/webp',
     '.mp4': 'video/mp4',
     '.webm': 'video/webm',
+    '.svg': 'image/svg+xml',
 }
 
 EXTENSION = {
@@ -30,6 +31,7 @@ EXTENSION = {
     'image/webp': '.webp',
     'video/mp4': '.mp4',
     'video/webm': '.webm',
+    'image/svg+xml': '.svg',
 }
 
 

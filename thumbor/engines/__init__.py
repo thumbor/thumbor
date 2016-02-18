@@ -11,6 +11,11 @@
 from pexif import ExifSegment
 
 try:
+    import cairosvg
+except:
+    cairosvg = None
+
+try:
     from pyexiv2 import ImageMetadata
     METADATA_AVAILABLE = True
 except ImportError:
@@ -84,7 +89,8 @@ class BaseEngine(object):
             mime = 'video/mp4'
         elif buffer.startswith('\x1aE\xdf\xa3'):
             mime = 'video/webm'
-
+        elif buffer.startswith('<svg'):
+            mime = 'image/svg+xml'
         return mime
 
     def wrap(self, multiple_engine):
@@ -100,11 +106,29 @@ class BaseEngine(object):
     def frame_engines(self):
         return self.multiple_engine.frame_engines
 
+    def convert_svg_to_png(self, buffer):
+        if not cairosvg:
+            msg = """[BaseEngine] convert_svg_to_png failed cairosvg not
+            imported (if you want svg conversion to png please install cairosvg)
+            """
+            logger.error(msg)
+            return buffer
+
+        buffer = cairosvg.svg2png(bytestring=buffer)
+        mime = self.get_mimetype(buffer)
+        self.extension = EXTENSION.get(mime, '.jpg')
+        self.transformed_body = buffer
+        return buffer
+
     def load(self, buffer, extension):
         self.extension = extension
+
         if extension is None:
             mime = self.get_mimetype(buffer)
             self.extension = EXTENSION.get(mime, '.jpg')
+
+        if self.extension == '.svg':
+            buffer = self.convert_svg_to_png(buffer)
 
         image_or_frames = self.create_image(buffer)
 
