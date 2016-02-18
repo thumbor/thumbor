@@ -169,6 +169,7 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.STORAGE = "thumbor.storages.file_storage"
         cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.QUALITY = 'keep'
 
         importer = Importer(cfg)
         importer.import_modules()

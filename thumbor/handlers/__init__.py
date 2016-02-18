@@ -257,8 +257,6 @@ class BaseHandler(tornado.web.RequestHandler):
         if quality is None:
             if image_extension == '.webp' and self.context.config.WEBP_QUALITY is not None:
                 quality = self.context.config.get('WEBP_QUALITY')
-            else:
-                quality = self.context.config.QUALITY
         results = context.request.engine.read(image_extension, quality)
         if context.request.max_bytes is not None:
             results = self.reload_to_fit_in_kb(

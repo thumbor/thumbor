@@ -129,7 +129,6 @@ class Engine(BaseEngine):
         options = {
             'quality': quality
         }
-
         if ext == '.jpg' or ext == '.jpeg':
             options['optimize'] = True
             if self.context.config.PROGRESSIVE_JPEG:
@@ -142,7 +141,6 @@ class Engine(BaseEngine):
             if self.image.mode != 'RGB':
                 self.image = self.image.convert('RGB')
             else:
-
                 subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
                 qtables_config = self.context.config.PILLOW_JPEG_QTABLES
 
@@ -186,7 +184,7 @@ class Engine(BaseEngine):
 
             if ext in ['.png', '.gif'] and self.image.mode == 'CMYK':
                 self.image = self.image.convert('RGBA')
-
+            self.image.format = FORMATS[ext]
             self.image.save(img_buffer, FORMATS[ext], **options)
         except IOError:
             logger.exception('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
@@ -203,7 +201,7 @@ class Engine(BaseEngine):
         return results
 
     def read_multiple(self, images, extension=None):
-        gifWriter = GifWriter()
+        gif_writer = GifWriter()
         img_buffer = BytesIO()
 
         duration = []
@@ -219,8 +217,8 @@ class Engine(BaseEngine):
 
         loop = int(self.image.info.get('loop', 1))
 
-        images = gifWriter.convertImagesToPIL(converted_images, False, None)
-        gifWriter.writeGifToFile(img_buffer, images, duration, loop, xy, dispose)
+        images = gif_writer.convertImagesToPIL(converted_images, False, None)
+        gif_writer.writeGifToFile(img_buffer, images, duration, loop, xy, dispose)
 
         results = img_buffer.getvalue()
         img_buffer.close()
