@@ -161,6 +161,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 self._error(504)
                 return
 
+        self.context.transformer = Transformer(self.context)
+
         def transform():
             self.normalize_crops(normalized, req, engine)
 
@@ -168,7 +170,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
 
             after_transform_cb = functools.partial(self.after_transform, self.context)
-            Transformer(self.context).transform(after_transform_cb)
+            self.context.transformer.transform(after_transform_cb)
 
         self.filters_runner.apply_filters(thumbor.filters.PHASE_AFTER_LOAD, transform)
 
@@ -255,8 +257,6 @@ class BaseHandler(tornado.web.RequestHandler):
         if quality is None:
             if image_extension == '.webp' and self.context.config.WEBP_QUALITY is not None:
                 quality = self.context.config.get('WEBP_QUALITY')
-            else:
-                quality = self.context.config.QUALITY
         results = context.request.engine.read(image_extension, quality)
         if context.request.max_bytes is not None:
             results = self.reload_to_fit_in_kb(
@@ -552,7 +552,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @gen.coroutine
     def acquire_url_lock(self, url):
-        if not url in BaseHandler.url_locks:
+        if url not in BaseHandler.url_locks:
             BaseHandler.url_locks[url] = Condition()
         else:
             yield BaseHandler.url_locks[url].wait()

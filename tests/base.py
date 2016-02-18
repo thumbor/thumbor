@@ -205,6 +205,9 @@ class TestCase(AsyncHTTPTestCase):
 class FilterTestCase(PythonTestCase):
     _multiprocess_can_split_ = True
 
+    def setUp(self):
+        self.context = {}
+
     def get_filter(self, filter_name, params_string="", config_context=None):
         config = Config(
             FILTERS=[filter_name],
@@ -222,6 +225,8 @@ class FilterTestCase(PythonTestCase):
 
         if config_context is not None:
             config_context(context)
+
+        self.context = context
 
         fltr = importer.filters[0]
         fltr.pre_compile()

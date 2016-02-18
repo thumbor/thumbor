@@ -158,7 +158,10 @@ class FilterVows(Vows.Context):
             ctx = Any()
             ctx.modules = Any()
             engine = Any()
-            is_multiple = lambda: False
+
+            def is_multiple():
+                return False
+
             engine.is_multiple = is_multiple
             ctx.modules.engine = engine
             fact = FiltersFactory([MyFilter, StringFilter, OptionalParamFilter, PreLoadFilter])

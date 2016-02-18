@@ -28,8 +28,9 @@ from thumbor.handlers import FetchResult, BaseHandler
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.utils import which
-from tests.base import TestCase, PythonTestCase
+from tests.base import TestCase, PythonTestCase, normalize_unicode_path
 from thumbor.engines.pil import Engine
+from libthumbor import CryptoURL
 from tests.fixtures.images import (
     default_image,
     alabama1,
@@ -102,6 +103,65 @@ class BaseImagingTestCase(TestCase):
         shutil.rmtree(cls.root_path)
 
 
+class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.http_loader"
+        cfg.STORAGE = "thumbor.storages.file_storage"
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
+
+    def test_image_already_generated_by_thumbor(self):
+        with open('./tests/fixtures/images/image.jpg', 'r') as f:
+            self.context.modules.storage.put(
+                quote("http://test.com/smart/image.jpg"),
+                f.read()
+            )
+        crypto = CryptoURL('ACME-SEC')
+        image_url = self.get_url(
+            crypto.generate(
+                image_url=quote("http://test.com/smart/image.jpg")
+            )
+        )
+        url = crypto.generate(
+            image_url=quote(image_url)
+        )
+
+        response = self.fetch(url)
+        expect(response.code).to_equal(200)
+
+    def test_image_already_generated_by_thumbor_2_times(self):
+        with open(
+            normalize_unicode_path(u'./tests/fixtures/images/alabama1_ap620é.jpg'), 'r'
+        ) as f:
+            self.context.modules.storage.put(
+                quote("http://test.com/smart/alabama1_ap620é"),
+                f.read()
+            )
+        crypto = CryptoURL('ACME-SEC')
+        image_url = self.get_url(
+            crypto.generate(
+                image_url=quote(self.get_url(
+                    crypto.generate(
+                        image_url=quote("http://test.com/smart/alabama1_ap620é")
+                    )
+                ))
+            )
+        )
+
+        url = crypto.generate(
+            image_url=quote(image_url)
+        )
+
+        response = self.fetch(url)
+        expect(response.code).to_equal(200)
+
+
 class ImagingOperationsTestCase(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
@@ -109,6 +169,7 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.STORAGE = "thumbor.storages.file_storage"
         cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.QUALITY = 'keep'
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -695,6 +756,7 @@ class ImageOperationsWithMaxPixels(BaseImagingTestCase):
         response = self.fetch('/unsafe/200x200/wellsford.jpg')
         expect(response.code).to_equal(500)
 
+
 class EngineLoadException(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
@@ -755,6 +817,7 @@ class StorageOverride(BaseImagingTestCase):
 
         Engine.load = old_load
         FileStorage.put = old_put
+
 
 class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
     def get_context(self):

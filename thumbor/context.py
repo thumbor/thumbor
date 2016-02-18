@@ -15,7 +15,6 @@ import functools
 
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
-from thumbor.url import Url
 
 
 class Context:
@@ -181,7 +180,6 @@ class RequestParameters:
         if request:
             self.url = request.path
             self.accepts_webp = 'image/webp' in request.headers.get('Accept', '')
-            self.image_url = Url.encode_url(self.image_url.encode('utf-8'))
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)

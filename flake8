@@ -1,4 +1,4 @@
 [flake8]
-exclude = ./.tox/*,./build/*
+exclude = ./.tox/*,./build/*,./docs/conf.py
 max-line-length = 130
 max-complexity = 20

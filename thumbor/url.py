@@ -9,7 +9,6 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import re
-from urllib import quote
 
 
 class Url(object):
@@ -63,7 +62,8 @@ class Url(object):
 
         result = result.groupdict()
 
-        int_or_0 = lambda value: 0 if value is None else int(value)
+        def int_or_0(value):
+            return 0 if value is None else int(value)
 
         adaptive = (result.get('adaptive', '') or '').startswith('adaptive')
         full = (result.get('full', '') or '').startswith('full')
@@ -167,7 +167,3 @@ class Url(object):
             url.append('filters:%s' % filters)
 
         return '/'.join(url)
-
-    @classmethod
-    def encode_url(kls, url):
-        return quote(url, '/:?%=&()~",\'$')

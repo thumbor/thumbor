@@ -1,7 +1,7 @@
 language: python
 python:
   - 2.7_with_system_site_packages
-  - '3.2'
+  - '3.5.1'
   - pypy
 cache:
   directories:
@@ -10,7 +10,7 @@ sudo: false
 matrix:
   fast_finish: true
   allow_failures:
-    - python: '3.2'
+    - python: '3.5.1'
     - python: pypy
 env:
   - INTEGRATION_TEST=1
@@ -37,6 +37,10 @@ addons:
     - python-scipy
     - cython
     - libcairo2-dev
+    - gfortran
+    - libopenblas-dev
+    - liblapack-dev
+    - python-pyexiv2
 install:
   - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
     -O /tmp/ffmpeg-release.tar.xz

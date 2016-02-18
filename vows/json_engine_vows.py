@@ -12,10 +12,9 @@ import re
 from json import loads
 
 from pyvows import Vows, expect
-ctx = Vows.Context
-
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.point import FocalPoint
+ctx = Vows.Context
 
 
 class MockImage:

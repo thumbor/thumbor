@@ -11,6 +11,7 @@ Filters
    equalize
    extract_focal_points
    filling
+   focal
    format
    grayscale
    max_bytes

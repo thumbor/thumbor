@@ -144,8 +144,3 @@ class UrlTestCase(TestCase):
         expect(url).to_equal(
             'debug/meta/trim:300x200/100x100:400x400/adaptive-full-fit-in/-300x-200/left/top/smart/filters:brightness(100)'
         )
-
-    def test_can_encode_url(self):
-        url = '/tes+ t:?%=&()~",\'$'
-
-        expect(Url.encode_url(url)).to_equal('/tes%2B%20t:?%=&()~",\'$')

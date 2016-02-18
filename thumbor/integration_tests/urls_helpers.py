@@ -87,6 +87,8 @@ filters = [
     'filters:fill(transparent,true)',
     'filters:blur(2)',
     'filters:extract_focal()',
+    'filters:focal()',
+    'filters:focal(0x0:1x1)',
     'filters:no_upscale()',
     'filters:gifv()',
     'filters:gifv(webm)',

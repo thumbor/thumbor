@@ -22,7 +22,8 @@ from thumbor.config import Config
 from thumbor.loaders import LoaderResult
 
 
-fixture_for = lambda filename: abspath(join(dirname(__file__), 'fixtures', filename))
+def fixture_for(filename):
+    return abspath(join(dirname(__file__), 'fixtures', filename))
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -145,18 +146,6 @@ class NormalizeUrlTestCase(PythonTestCase):
     def test_should_normalize_url(self):
         for url in ['http://some.url', 'some.url']:
             expect(loader._normalize_url(url)).to_equal('http://some.url')
-
-    def test_should_normalize_url_but_keep_quotes_after_the_domain(self):
-        for url in ['http://some.url/my image', 'some.url/my%20image']:
-            expect(loader._normalize_url(url)).to_equal('http://some.url/my%20image')
-
-    def test_should_normalize_unicode_urls(self):
-        for url in [
-            u'https://s3.amazonaws.com/game-screenshots/star_wars\u2122_kotor_cover.png',
-            u'https://s3.amazonaws.com/game-screenshots/star_wars™_kotor_cover.png'
-        ]:
-            expect(loader._normalize_url(url)).\
-                to_equal('https://s3.amazonaws.com/game-screenshots/star_wars%E2%84%A2_kotor_cover.png')
 
     def test_should_normalize_quoted_url(self):
         url = 'https%3A//www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'

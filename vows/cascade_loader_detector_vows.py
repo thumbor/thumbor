@@ -11,12 +11,11 @@
 from os import path
 
 from pyvows import Vows, expect
-ctx = Vows.Context
 
 from mock import Mock
 from thumbor.detectors.local_detector import CascadeLoaderDetector
 from thumbor.point import FocalPoint
-
+ctx = Vows.Context
 
 cascade_file_path = path.join(
     __file__, '..', '..', 'thumbor',

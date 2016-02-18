@@ -64,7 +64,9 @@ class Cryptor(object):
 
         url = "%s/%s" % (generated_url, hashlib.md5(image).hexdigest())
 
-        pad = lambda s: s + (16 - len(s) % 16) * "{"
+        def pad(s):
+            return s + (16 - len(s) % 16) * "{"
+
         cipher = AES.new(self.security_key)
         encrypted = base64.urlsafe_b64encode(cipher.encrypt(pad(url.encode('utf-8'))))
 
