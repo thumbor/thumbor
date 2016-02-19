@@ -763,6 +763,7 @@ class EngineLoadException(BaseImagingTestCase):
         cfg = Config(SECURITY_KEY='ACME-SEC')
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.FILTERS = []
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -772,7 +773,7 @@ class EngineLoadException(BaseImagingTestCase):
 
     def test_should_error_on_engine_load_exception(self):
         with patch.object(Engine, 'load', side_effect=Exception('CommandError')):
-            response = self.fetch('/unsafe/smart/image.jpg')
+            response = self.fetch('/unsafe/image.jpg')
         expect(response.code).to_equal(504)
 
 
@@ -804,7 +805,7 @@ class StorageOverride(BaseImagingTestCase):
         Engine.load = load_override
         FileStorage.put = put_override
 
-        response = self.fetch('/unsafe/smart/image.jpg')
+        response = self.fetch('/unsafe/image.jpg')
 
         Engine.load = old_load
         FileStorage.put = old_put
