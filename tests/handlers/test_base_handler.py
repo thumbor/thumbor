@@ -912,3 +912,8 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         obj = loads(response.body)
         expect(obj['thumbor']['source']['frameCount']).to_equal(2)
+
+    def test_max_bytes(self):
+        response = self.fetch('/unsafe/filters:max_bytes(10000)/conselheira_tutelar.jpg')
+        expect(response.code).to_equal(200)
+        expect(len(response.body)).to_be_lesser_or_equal_to(10000)
