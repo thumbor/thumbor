@@ -20,7 +20,7 @@ import mock
 
 import numpy as np
 from PIL import Image
-from skimage.measure import structural_similarity
+from skimage.measure import compare_ssim
 from preggy import create_assertions
 
 from thumbor.app import ThumborServiceApp
@@ -116,7 +116,7 @@ def get_ssim(actual, expected):
                 im2.size[0], im2.size[1],
             )
         )
-    return structural_similarity(np.array(im), np.array(im2), multichannel=True)
+    return compare_ssim(np.array(im), np.array(im2), multichannel=True)
 
 
 @create_assertions
