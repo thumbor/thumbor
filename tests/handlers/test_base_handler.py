@@ -771,17 +771,9 @@ class EngineLoadException(BaseImagingTestCase):
         return Context(server, cfg, importer)
 
     def test_should_error_on_engine_load_exception(self):
-        old_load = Engine.load
-
-        def load_override(self, foo, bar):
-            raise Exception('CommandError')
-
-        Engine.load = load_override
-
-        response = self.fetch('/unsafe/smart/image.jpg')
+        with patch.object(Engine, 'load', side_effect=Exception('CommandError')):
+            response = self.fetch('/unsafe/smart/image.jpg')
         expect(response.code).to_equal(504)
-
-        Engine.load = old_load
 
 
 class StorageOverride(BaseImagingTestCase):
@@ -814,10 +806,10 @@ class StorageOverride(BaseImagingTestCase):
 
         response = self.fetch('/unsafe/smart/image.jpg')
 
-        expect(response.code).to_equal(200)
-
         Engine.load = old_load
         FileStorage.put = old_put
+
+        expect(response.code).to_equal(200)
 
 
 class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
