@@ -167,7 +167,9 @@ class BaseHandler(tornado.web.RequestHandler):
             self.normalize_crops(normalized, req, engine)
 
             if req.meta:
-                self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
+                self.context.transformer.engine = \
+                    self.context.request.engine = \
+                    JSONEngine(engine, req.image_url, req.meta_callback)
 
             after_transform_cb = functools.partial(self.after_transform, self.context)
             self.context.transformer.transform(after_transform_cb)

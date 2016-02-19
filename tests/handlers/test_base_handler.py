@@ -16,6 +16,7 @@ import os
 from datetime import datetime, timedelta
 import pytz
 import subprocess
+from json import loads
 
 import tornado.web
 from preggy import expect
@@ -825,7 +826,8 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.JPEGTRAN_PATH = which('jpegtran')
-        cfg.PROGRESSIVE_JPEG = True
+        cfg.PROGRESSIVE_JPEG = True,
+        cfg.RESULT_STORAGE_STORES_UNSAFE = True,
         cfg.OPTIMIZERS = [
             'thumbor.optimizers.jpegtran',
         ]
@@ -859,3 +861,54 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
         expect(output).to_equal('Encoding Process                : Progressive DCT, Huffman coding\n')
 
         os.remove(tmp_file_path)
+
+    def test_with_meta(self):
+        response = self.fetch('/unsafe/meta/800x400/image.jpg')
+        expect(response.code).to_equal(200)
+
+    def test_with_meta_cached(self):
+        self.fetch('/unsafe/meta/800x400/image.jpg')
+        response = self.fetch('/unsafe/meta/800x400/image.jpg')
+        expect(response.code).to_equal(200)
+
+
+class ImageOperationsWithoutStorage(BaseImagingTestCase):
+
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.no_storage"
+        cfg.AUTO_WEBP = True
+        cfg.USE_GIFSICLE_ENGINE = True
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        ctx.server.gifsicle_path = which('gifsicle')
+        return ctx
+
+    def test_meta(self):
+        response = self.fetch('/unsafe/meta/800x400/image.jpg')
+        expect(response.code).to_equal(200)
+
+    def test_meta_with_unicode(self):
+        response = self.fetch('/unsafe/meta/200x300/alabama1_ap620%C3%A9.jpg')
+        expect(response.code).to_equal(200)
+        obj = loads(response.body)
+        expect(obj['thumbor']['target']['width']).to_equal(200)
+        expect(obj['thumbor']['target']['height']).to_equal(300)
+
+    def test_meta_frame_count(self):
+        response = self.fetch('/unsafe/meta/800x400/image.jpg')
+        expect(response.code).to_equal(200)
+        obj = loads(response.body)
+        expect(obj['thumbor']['source']['frameCount']).to_equal(1)
+
+    def test_meta_frame_count_with_gif(self):
+        response = self.fetch('/unsafe/meta/animated_image.gif')
+        expect(response.code).to_equal(200)
+        obj = loads(response.body)
+        expect(obj['thumbor']['source']['frameCount']).to_equal(2)
