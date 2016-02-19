@@ -536,7 +536,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 storage.put(url, fetch_result.buffer)
 
             storage.put_crypto(url)
-        except:
+        except Exception:
             fetch_result.successful = False
         finally:
             self.context.config.PRESERVE_EXIF_INFO = original_preserve

@@ -772,7 +772,7 @@ class EngineLoadException(BaseImagingTestCase):
         return Context(server, cfg, importer)
 
     def test_should_error_on_engine_load_exception(self):
-        with patch.object(Engine, 'load', side_effect=Exception('CommandError')):
+        with patch.object(Engine, 'load', side_effect=ValueError):
             response = self.fetch('/unsafe/image.jpg')
         expect(response.code).to_equal(504)
 
