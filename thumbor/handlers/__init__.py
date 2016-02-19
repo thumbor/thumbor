@@ -536,12 +536,15 @@ class BaseHandler(tornado.web.RequestHandler):
                 storage.put(url, fetch_result.buffer)
 
             storage.put_crypto(url)
+        except:
+            fetch_result.successful = False
         finally:
             self.context.config.PRESERVE_EXIF_INFO = original_preserve
-
-        fetch_result.buffer = None
-        fetch_result.engine = self.context.request.engine
-        raise gen.Return(fetch_result)
+            if not fetch_result.successful:
+                raise
+            fetch_result.buffer = None
+            fetch_result.engine = self.context.request.engine
+            raise gen.Return(fetch_result)
 
     @gen.coroutine
     def get_blacklist_contents(self):
