@@ -50,7 +50,7 @@ Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP image
 Config.define('AUTO_WEBP', False, 'Specifies whether WebP format should be used automatically if the request accepts it '
               '(via Accept header)', 'Imaging')
 Config.define('SVG_DPI', 150,
-              'Specify the ratio between 1in and 1px for SVG images. This is only used when' \
+              'Specify the ratio between 1in and 1px for SVG images. This is only used when'
               'rasterizing SVG images having their size units in cm or inches.', 'Imaging')
 Config.define('MAX_AGE', 24 * 60 * 60, 'Max AGE sent as a header for the image served by thumbor in seconds', 'Imaging')
 Config.define(
