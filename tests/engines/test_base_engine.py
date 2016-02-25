@@ -97,6 +97,24 @@ class BaseEngineTestCase(TestCase):
         self.engine.convert_svg_to_png(buffer)
         expect(self.engine.extension).to_equal('.png')
 
+    def test_convert_svg_with_xml_preamble_to_png(self):
+        buffer = """<?xml version="1.0" encoding="utf-8"?>
+                    <svg width="10px" height="20px" viewBox="0 0 10 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100%" height="10" x="0" y="0"/>
+                    </svg>""".encode('utf-8')
+        self.engine.convert_svg_to_png(buffer)
+        expect(self.engine.extension).to_equal('.png')
+
+    def test_convert_svg_utf16_to_png(self):
+        buffer = """<?xml version="1.0" encoding="utf-16"?>
+                    <svg width="10px" height="20px" viewBox="0 0 10 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100%" height="10" x="0" y="0"/>
+                    </svg>""".encode('utf-16')
+        self.engine.convert_svg_to_png(buffer)
+        expect(self.engine.extension).to_equal('.png')
+
     @mock.patch('thumbor.engines.cairosvg', new=None)
     @mock.patch('thumbor.engines.logger.error')
     def test_not_imported_cairosvg_failed_to_convert_svg_to_png(self, mockLogError):
