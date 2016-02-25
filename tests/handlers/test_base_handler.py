@@ -172,6 +172,7 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         cfg.STORAGE = "thumbor.storages.file_storage"
         cfg.FILE_STORAGE_ROOT_PATH = self.root_path
         cfg.QUALITY = 'keep'
+        cfg.SVG_DPI = 200
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -255,10 +256,23 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.body).to_be_png()
 
-    def test_can_read_image_svg_and_convert_png(self):
+    def test_can_read_image_svg_with_px_units_and_convert_png(self):
         response = self.fetch('/unsafe/escudo.svg')
         expect(response.code).to_equal(200)
         expect(response.body).to_be_png()
+
+        engine = Engine(self.context)
+        engine.load(response.body, '.png')
+        expect(engine.size).to_equal((1080, 1080))
+
+    def test_can_read_image_svg_with_inch_units_and_convert_png(self):
+        response = self.fetch('/unsafe/escudo-in.svg')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
+        engine = Engine(self.context)
+        engine.load(response.body, '.png')
+        expect(engine.size).to_equal((2400, 2400))
 
 
 class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
