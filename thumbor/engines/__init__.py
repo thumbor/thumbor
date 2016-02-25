@@ -21,10 +21,13 @@ try:
 except ImportError:
     METADATA_AVAILABLE = False
 
+import re
+
 from thumbor.utils import logger, EXTENSION
 
 WEBP_SIDE_LIMIT = 16383
 
+SVG_RE = re.compile(r'<svg\s[^>]*(["\'])http://www.w3.org/2000/svg\1', re.I)
 
 class MultipleEngine:
 
@@ -89,7 +92,7 @@ class BaseEngine(object):
             mime = 'video/mp4'
         elif buffer.startswith('\x1aE\xdf\xa3'):
             mime = 'video/webm'
-        elif buffer.startswith('<svg'):
+        elif SVG_RE.search(buffer[:1024].replace(b'\0', '')):
             mime = 'image/svg+xml'
         return mime
 
