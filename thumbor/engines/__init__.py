@@ -29,6 +29,7 @@ WEBP_SIDE_LIMIT = 16383
 
 SVG_RE = re.compile(r'<svg\s[^>]*(["\'])http://www.w3.org/2000/svg\1', re.I)
 
+
 class MultipleEngine:
 
     def __init__(self, source_engine):
