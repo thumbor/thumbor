@@ -121,7 +121,6 @@ class BaseEngine(object):
         buffer = cairosvg.svg2png(bytestring=buffer, dpi=self.context.config.SVG_DPI)
         mime = self.get_mimetype(buffer)
         self.extension = EXTENSION.get(mime, '.jpg')
-        self.transformed_body = buffer
         return buffer
 
     def load(self, buffer, extension):
