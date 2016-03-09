@@ -249,10 +249,10 @@ class Engine(BaseEngine):
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_data(self):
-        return self.image.tostring()
+        return self.image.tobytes()
 
     def set_image_data(self, data):
-        self.image.fromstring(data)
+        self.image.frombytes(data)
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_mode(self):
@@ -267,7 +267,7 @@ class Engine(BaseEngine):
                 converted_image = converted_image.convert('RGB')
         if update_image:
             self.image = converted_image
-        return converted_image.mode, converted_image.tostring()
+        return converted_image.mode, converted_image.tobytes()
 
     def convert_to_grayscale(self, update_image=True, with_alpha=True):
         if 'A' in self.image.mode and with_alpha:

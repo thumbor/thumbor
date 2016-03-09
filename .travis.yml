@@ -35,7 +35,6 @@ addons:
     - gifsicle
     - python-numpy
     - python-scipy
-    - cython
     - libcairo2-dev
     - gfortran
     - libopenblas-dev
