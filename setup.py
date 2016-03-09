@@ -29,12 +29,12 @@ tests_require = [
     "colorama",
     "numpy",
     "scipy",
-    "cython",
+    # "cython",
     "flake8",
     "yanc",
     "remotecv",
     "hiredis",
-    "scikit-image",
+    "scikit-image>=0.12.3",
     "celery"
 ]
 

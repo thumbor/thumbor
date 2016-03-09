@@ -2,9 +2,6 @@ run: compile_ext
 	@thumbor -l debug
 
 setup:
-	@pip install Cython==0.22
-	@pip install numpy==1.9.2
-	@pip install https://github.com/scikit-image/scikit-image/archive/master.zip
 	@pip install -e .[tests]
 	@echo
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
