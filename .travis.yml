@@ -41,6 +41,7 @@ addons:
     - liblapack-dev
     - python-pyexiv2
 install:
+  - pip install -U pip
   - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
     -O /tmp/ffmpeg-release.tar.xz
   - mkdir /tmp/ffmpeg-release
