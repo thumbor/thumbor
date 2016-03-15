@@ -12,6 +12,8 @@ from pyvows import Vows, expect
 
 from thumbor.config import Config
 
+from os.path import expanduser
+
 STORAGE_DEFAULT_VALUE = 'thumbor.storages.file_storage'
 
 TEST_DATA = (
@@ -25,7 +27,7 @@ TEST_DATA = (
     ('GIF_ENGINE', 'thumbor.engines.gif'),
     ('URL_SIGNER', 'thumbor.url_signers.base64_hmac_sha1'),
     ('ALLOW_UNSAFE_URL', True),
-    ('FILE_LOADER_ROOT_PATH', '/tmp'),
+    ('FILE_LOADER_ROOT_PATH', expanduser("~")),
     ('STORAGE_EXPIRATION_SECONDS', 60 * 60 * 24 * 30),
     ('STORES_CRYPTO_KEY_FOR_EACH_IMAGE', False),
     ('MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage'),

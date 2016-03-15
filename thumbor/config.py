@@ -8,13 +8,15 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import join
+from os.path import expanduser, join
 import tempfile
 
 import derpconf.config as config
 from derpconf.config import Config
 
 from thumbor import __version__
+
+home = expanduser("~")
 
 Config.define('THUMBOR_LOG_CONFIG', None, 'Logging configuration as json', 'Logging')
 Config.define(
@@ -130,7 +132,7 @@ Config.define('STATSD_PORT', 8125, 'Port to send statsd instrumentation to', 'Me
 Config.define('STATSD_PREFIX', None, 'Prefix for statsd', 'Metrics')
 
 # FILE LOADER OPTIONS
-Config.define('FILE_LOADER_ROOT_PATH', '/tmp', 'The root path where the File Loader will try to find images', 'File Loader')
+Config.define('FILE_LOADER_ROOT_PATH', home, 'The root path where the File Loader will try to find images', 'File Loader')
 
 # HTTP LOADER OPTIONS
 Config.define(
