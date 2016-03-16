@@ -21,7 +21,6 @@ class Filter(BaseFilter):
 
     @filter_method(r'[\w]+', BaseFilter.Boolean)
     def fill(self, color, fill_transparent=False):
-
         self.fill_engine = self.engine.__class__(self.context)
         bx = self.context.request.width if self.context.request.width != 0 else self.engine.size[0]
         by = self.context.request.height if self.context.request.height != 0 else self.engine.size[1]

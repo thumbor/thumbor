@@ -11,12 +11,11 @@
 from os import path
 
 from pyvows import Vows, expect
-ctx = Vows.Context
 
 from mock import Mock
 from thumbor.detectors.local_detector import CascadeLoaderDetector
 from thumbor.point import FocalPoint
-
+ctx = Vows.Context
 
 cascade_file_path = path.join(
     __file__, '..', '..', 'thumbor',
@@ -45,7 +44,7 @@ class CascadeLoaderDetectorVows(ctx):
                 # ugly check because there is no becautifull way to see
                 # if this object is an instance of some class or if it has some
                 # kind of attribute
-                expect(repr(topic.__class__.cascade)).to_include('<HaarClassifierCascade')
+                expect(repr(topic.__class__.cascade)).to_include('<CascadeClassifier')
 
         class GetMinSizeFor(ctx):
 

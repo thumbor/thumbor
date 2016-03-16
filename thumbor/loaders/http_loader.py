@@ -9,8 +9,9 @@
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
 import re
-from urlparse import urlparse
 from functools import partial
+from urlparse import urlparse
+from urllib import unquote
 
 import tornado.httpclient
 
@@ -19,7 +20,16 @@ from thumbor.utils import logger
 from tornado.concurrent import return_future
 
 
+def quote_url(url):
+    try:
+        url = url.encode('utf-8')
+    except UnicodeDecodeError:
+        pass
+    return unquote(url)
+
+
 def _normalize_url(url):
+    url = quote_url(url)
     return url if url.startswith('http') else 'http://%s' % url
 
 
@@ -46,7 +56,11 @@ def return_contents(response, url, callback, context):
     context.metrics.incr('original_image.status.' + str(response.code))
     if response.error:
         result.successful = False
-        result.error = LoaderResult.ERROR_NOT_FOUND
+        if response.code == 599:
+            # Return a Gateway Timeout status downstream if upstream times out
+            result.error = LoaderResult.ERROR_TIMEOUT
+        else:
+            result.error = LoaderResult.ERROR_NOT_FOUND
 
         logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
 
@@ -63,6 +77,7 @@ def return_contents(response, url, callback, context):
         result.buffer = response.body
 
     callback(result)
+
 
 @return_future
 def load(context, url, callback, normalize_url_func=_normalize_url):

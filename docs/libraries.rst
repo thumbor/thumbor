@@ -80,6 +80,11 @@ Objective-C
    Objective-C for the Thumbor image service which allows you to build
    URIs in an expressive fashion using a fluent API.
 
+.NET
+~~~~
+-  `DotNetThumbor <https://github.com/mi9/DotNetThumbor>`__ - DotNet client for the Thumbor image service. 
+   Provides an expressive fluent API.
+
 Implementing a library
 ----------------------
 

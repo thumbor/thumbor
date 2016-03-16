@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+import warnings
 import os
 from tempfile import mkstemp
 from subprocess import Popen, PIPE
@@ -46,6 +47,11 @@ class Engine(BaseEngine):
         super(Engine, self).__init__(context)
         self.subsampling = None
         self.qtables = None
+
+        if self.context and self.context.config.MAX_PIXELS:
+            Image.MAX_IMAGE_PIXELS = self.context.config.MAX_PIXELS
+        # Error on Image.open when image pixel count is above MAX_IMAGE_PIXELS
+        warnings.simplefilter('error', Image.DecompressionBombWarning)
 
     def gen_image(self, size, color):
         if color == 'transparent':
@@ -99,6 +105,7 @@ class Engine(BaseEngine):
         ))
 
     def rotate(self, degrees):
+        # PIL rotates counter clockwise
         self.image = self.image.rotate(degrees)
 
     def flip_vertically(self):
@@ -122,7 +129,6 @@ class Engine(BaseEngine):
         options = {
             'quality': quality
         }
-
         if ext == '.jpg' or ext == '.jpeg':
             options['optimize'] = True
             if self.context.config.PROGRESSIVE_JPEG:
@@ -135,18 +141,23 @@ class Engine(BaseEngine):
             if self.image.mode != 'RGB':
                 self.image = self.image.convert('RGB')
             else:
+                subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
+                qtables_config = self.context.config.PILLOW_JPEG_QTABLES
 
-                quantization = self.qtables
-                subsampling = self.subsampling
-                copy_jpg_settings = self.context.config.PILLOW_COPY_JPEG_SETTINGS
-
-                if copy_jpg_settings and (subsampling is not None) and quantization and 2 <= len(quantization) <= 4:
+                if subsampling_config is not None or qtables_config is not None:
                     options['quality'] = 0  # can't use 'keep' here as Pillow would try to extract qtables/subsampling and fail
-                    options['qtables'] = quantization
-                    options['subsampling'] = subsampling
+                    orig_subsampling = self.subsampling
+                    orig_qtables = self.qtables
 
-            if self.context.config.PILLOW_JPEG_SUBSAMPLING:
-                options['subsampling'] = int(self.context.config.PILLOW_JPEG_SUBSAMPLING)
+                    if (subsampling_config == 'keep' or subsampling_config is None) and (orig_subsampling is not None):
+                        options['subsampling'] = orig_subsampling
+                    else:
+                        options['subsampling'] = subsampling_config
+
+                    if (qtables_config == 'keep' or qtables_config is None) and (orig_qtables and 2 <= len(orig_qtables) <= 4):
+                        options['qtables'] = orig_qtables
+                    else:
+                        options['qtables'] = qtables_config
 
         if options['quality'] is None:
             options['quality'] = self.context.config.QUALITY
@@ -171,9 +182,9 @@ class Engine(BaseEngine):
                         mode = 'RGBA' if self.image.mode[-1] == 'A' else 'RGB'
                     self.image = self.image.convert(mode)
 
-            if ext == '.png' and self.image.mode == 'CMYK':
+            if ext in ['.png', '.gif'] and self.image.mode == 'CMYK':
                 self.image = self.image.convert('RGBA')
-
+            self.image.format = FORMATS[ext]
             self.image.save(img_buffer, FORMATS[ext], **options)
         except IOError:
             logger.exception('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
@@ -190,7 +201,7 @@ class Engine(BaseEngine):
         return results
 
     def read_multiple(self, images, extension=None):
-        gifWriter = GifWriter()
+        gif_writer = GifWriter()
         img_buffer = BytesIO()
 
         duration = []
@@ -206,8 +217,8 @@ class Engine(BaseEngine):
 
         loop = int(self.image.info.get('loop', 1))
 
-        images = gifWriter.convertImagesToPIL(converted_images, False, None)
-        gifWriter.writeGifToFile(img_buffer, images, duration, loop, xy, dispose)
+        images = gif_writer.convertImagesToPIL(converted_images, False, None)
+        gif_writer.writeGifToFile(img_buffer, images, duration, loop, xy, dispose)
 
         results = img_buffer.getvalue()
         img_buffer.close()
@@ -217,7 +228,14 @@ class Engine(BaseEngine):
         f.write(results)
         f.close()
 
-        popen = Popen("gifsicle --colors 256 %s" % tmp_file_path, shell=True, stdout=PIPE)
+        command = [
+            'gifsicle',
+            '--colors',
+            '256',
+            tmp_file_path
+        ]
+
+        popen = Popen(command, stdout=PIPE)
         pipe = popen.stdout
         pipe_output = pipe.read()
         pipe.close()
@@ -231,10 +249,10 @@ class Engine(BaseEngine):
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_data(self):
-        return self.image.tostring()
+        return self.image.tobytes()
 
     def set_image_data(self, data):
-        self.image.fromstring(data)
+        self.image.frombytes(data)
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_mode(self):
@@ -249,13 +267,16 @@ class Engine(BaseEngine):
                 converted_image = converted_image.convert('RGB')
         if update_image:
             self.image = converted_image
-        return converted_image.mode, converted_image.tostring()
+        return converted_image.mode, converted_image.tobytes()
 
-    def convert_to_grayscale(self):
-        if 'A' in self.image.mode:
-            self.image = self.image.convert('LA')
+    def convert_to_grayscale(self, update_image=True, with_alpha=True):
+        if 'A' in self.image.mode and with_alpha:
+            image = self.image.convert('LA')
         else:
-            self.image = self.image.convert('L')
+            image = self.image.convert('L')
+        if update_image:
+            self.image = image
+        return image
 
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:

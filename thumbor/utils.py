@@ -21,6 +21,7 @@ CONTENT_TYPE = {
     '.webp': 'image/webp',
     '.mp4': 'video/mp4',
     '.webm': 'video/webm',
+    '.svg': 'image/svg+xml',
 }
 
 EXTENSION = {
@@ -30,13 +31,14 @@ EXTENSION = {
     'image/webp': '.webp',
     'video/mp4': '.mp4',
     'video/webm': '.webm',
+    'image/svg+xml': '.svg',
 }
 
 
 logger = logging.getLogger('thumbor')
 
 
-class on_exception(object):  # NOQA
+class on_exception(object):
 
     def __init__(self, callback, exception_class=Exception):
         self.callback = callback
@@ -69,7 +71,7 @@ class on_exception(object):  # NOQA
         return wrapper
 
 
-class deprecated(object):  # NOQA
+class deprecated(object):
 
     def __init__(self, msg=None):
         self.msg = ": {0}".format(msg) if msg else "."

@@ -15,7 +15,6 @@ import functools
 
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
-from thumbor.url import Url
 
 
 class Context:
@@ -179,11 +178,8 @@ class RequestParameters:
         self.max_age = max_age
 
         if request:
-            if request.query:
-                self.image_url += '?%s' % request.query
             self.url = request.path
             self.accepts_webp = 'image/webp' in request.headers.get('Accept', '')
-            self.image_url = Url.encode_url(self.image_url.encode('utf-8'))
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)
@@ -229,9 +225,11 @@ class ThreadPool(object):
         Cache threadpool since context is
         recreated for each request
         """
-        if not hasattr(cls, "_instance"):
-            cls._instance = ThreadPool(size)
-        return cls._instance
+        if not getattr(cls, "_instance", None):
+            cls._instance = {}
+        if size not in cls._instance:
+            cls._instance[size] = ThreadPool(size)
+        return cls._instance[size]
 
     def __init__(self, thread_pool_size):
         if thread_pool_size:

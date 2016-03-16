@@ -10,7 +10,7 @@
 
 import random
 from datetime import datetime
-from os.path import getmtime, abspath, join, dirname
+from os.path import abspath, join, dirname
 
 from pyvows import Vows, expect
 
@@ -73,4 +73,3 @@ class ResultStoragesFileStorageVows(Vows.Context):
             expect(len(result)).to_equal(IMAGE_LEN)
             expect(len(result)).to_equal(result.metadata['ContentLength'])
             expect(result.last_modified).to_be_instance_of(datetime)
-

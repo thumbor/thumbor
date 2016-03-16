@@ -128,4 +128,4 @@ configuration.
 
 All you have to do is create a class called Storage that inherits from
 BaseStorage in your module, as can be seen in 
-`<https://github.com/globocom/thumbor/blob/master/thumbor/storages/file_storage.py>`_.
+`<https://github.com/thumbor/thumbor/blob/master/thumbor/storages/file_storage.py>`_.

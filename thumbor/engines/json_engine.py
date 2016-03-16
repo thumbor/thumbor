@@ -65,7 +65,6 @@ class JSONEngine(BaseEngine):
     def get_target_dimensions(self):
         width = self.width
         height = self.height
-
         for operation in self.operations:
             if operation['type'] == 'crop':
                 width = operation['right'] - operation['left']

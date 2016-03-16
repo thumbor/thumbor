@@ -15,6 +15,7 @@ from tornado.concurrent import return_future
 from thumbor.loaders import LoaderResult
 from thumbor.engines import BaseEngine
 
+
 class ResultStorageResult(LoaderResult):
     @property
     def last_modified(self):
@@ -34,6 +35,7 @@ class ResultStorageResult(LoaderResult):
 
     def __len__(self):
         return self.metadata['ContentLength'] if 'ContentLength' in self.metadata else len(self.buffer)
+
 
 class BaseStorage(object):
     def __init__(self, context):

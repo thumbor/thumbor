@@ -11,10 +11,12 @@
 import sys
 import functools
 import datetime
+import pytz
 import traceback
 
 import tornado.web
 import tornado.gen as gen
+from tornado.locks import Condition
 
 from thumbor import __version__
 from thumbor.context import Context
@@ -43,6 +45,8 @@ class FetchResult(object):
 
 
 class BaseHandler(tornado.web.RequestHandler):
+    url_locks = {}
+
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
@@ -77,9 +81,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 mime = BaseEngine.get_mimetype(buffer)
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
-                    self.context.request.engine.load(buffer, '.gif')
                 else:
                     self.context.request.engine = self.context.modules.engine
+                self.context.request.engine.load(buffer, EXTENSION.get(mime, '.jpg'))
 
                 logger.debug('[RESULT_STORAGE] IMAGE FOUND: %s' % req.url)
                 self.finish_request(self.context, result)
@@ -93,10 +97,15 @@ class BaseHandler(tornado.web.RequestHandler):
         req.meta_callback = conf.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
 
         self.filters_runner = self.context.filters_factory.create_instances(self.context, self.context.request.filters)
+        # Apply all the filters from the PRE_LOAD phase and call get_image() afterwards.
         self.filters_runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD, self.get_image)
 
-    @gen.coroutine
+    @gen.coroutine  # NOQA
     def get_image(self):
+        """
+        This function is called after the PRE_LOAD filters have been applied.
+        It applies the AFTER_LOAD filters on the result, then crops the image.
+        """
         try:
             result = yield self._fetch(
                 self.context.request.image_url
@@ -109,6 +118,10 @@ class BaseHandler(tornado.web.RequestHandler):
                 elif result.loader_error == LoaderResult.ERROR_UPSTREAM:
                     # Return a Bad Gateway status if the error came from upstream
                     self._error(502)
+                    return
+                elif result.loader_error == LoaderResult.ERROR_TIMEOUT:
+                    # Return a Gateway Timeout status if upstream timed out (i.e. 599)
+                    self._error(504)
                     return
                 else:
                     self._error(500)
@@ -142,16 +155,24 @@ class BaseHandler(tornado.web.RequestHandler):
                 return
 
             engine = self.context.request.engine
-            engine.load(buffer, self.context.request.extension)
+            try:
+                engine.load(buffer, self.context.request.extension)
+            except Exception:
+                self._error(504)
+                return
+
+        self.context.transformer = Transformer(self.context)
 
         def transform():
             self.normalize_crops(normalized, req, engine)
 
             if req.meta:
-                self.context.request.engine = JSONEngine(engine, req.image_url, req.meta_callback)
+                self.context.transformer.engine = \
+                    self.context.request.engine = \
+                    JSONEngine(engine, req.image_url, req.meta_callback)
 
             after_transform_cb = functools.partial(self.after_transform, self.context)
-            Transformer(self.context).transform(after_transform_cb)
+            self.context.transformer.transform(after_transform_cb)
 
         self.filters_runner.apply_filters(thumbor.filters.PHASE_AFTER_LOAD, transform)
 
@@ -268,7 +289,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
                 if result_last_modified:
                     if 'If-Modified-Since' in self.request.headers:
-                        date_modified_since = datetime.datetime.strptime(self.request.headers['If-Modified-Since'], HTTP_DATE_FMT)
+                        date_modified_since = datetime.datetime.strptime(
+                            self.request.headers['If-Modified-Since'], HTTP_DATE_FMT
+                        ).replace(tzinfo=pytz.utc)
 
                         if result_last_modified <= date_modified_since:
                             self.set_status(304)
@@ -321,7 +344,10 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Server', 'Thumbor/%s' % __version__)
         self.set_header('Content-Type', content_type)
 
-        if context.config.AUTO_WEBP and not context.request.engine.is_multiple() and context.request.engine.extension != '.webp':
+        if context.config.AUTO_WEBP and \
+                not context.request.engine.is_multiple() and \
+                context.request.engine.can_convert_to_webp() and \
+                context.request.engine.extension != '.webp':
             self.set_header('Vary', 'Accept')
 
         context.headers = self._headers.copy()
@@ -335,18 +361,20 @@ class BaseHandler(tornado.web.RequestHandler):
         self.finish()
 
     def _store_results(self, context, results):
-        if context.modules.result_storage and not context.request.prevent_result_storage:
+        if not context.modules.result_storage or context.request.prevent_result_storage:
+            return
 
-            def save_to_result_storage():
-                start = datetime.datetime.now()
+        @gen.coroutine
+        def save_to_result_storage():
+            start = datetime.datetime.now()
 
-                context.modules.result_storage.put(results)
+            yield gen.maybe_future(context.modules.result_storage.put(results))
 
-                finish = datetime.datetime.now()
-                context.metrics.incr('result_storage.bytes_written', len(results))
-                context.metrics.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
+            finish = datetime.datetime.now()
+            context.metrics.incr('result_storage.bytes_written', len(results))
+            context.metrics.timing('result_storage.outgoing_time', (finish - start).total_seconds() * 1000)
 
-            tornado.ioloop.IOLoop.instance().add_callback(save_to_result_storage)
+        tornado.ioloop.IOLoop.instance().add_callback(save_to_result_storage)
 
     def optimize(self, context, image_extension, results):
         for optimizer in context.modules.optimizers:
@@ -418,28 +446,43 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @gen.coroutine
     def _fetch(self, url):
+        """
+
+        :param url:
+        :type url:
+        :return:
+        :rtype:
+        """
         fetch_result = FetchResult()
 
         storage = self.context.modules.storage
-        fetch_result.buffer = yield gen.maybe_future(storage.get(url))
-        mime = None
 
-        if fetch_result.buffer is not None:
-            fetch_result.successful = True
+        yield self.acquire_url_lock(url)
 
-            self.context.metrics.incr('storage.hit')
-            mime = BaseEngine.get_mimetype(fetch_result.buffer)
-            self.context.request.extension = EXTENSION.get(mime, '.jpg')
-            if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                self.context.request.engine = self.context.modules.gif_engine
+        try:
+            fetch_result.buffer = yield gen.maybe_future(storage.get(url))
+            mime = None
+
+            if fetch_result.buffer is not None:
+                self.release_url_lock(url)
+
+                fetch_result.successful = True
+
+                self.context.metrics.incr('storage.hit')
+                mime = BaseEngine.get_mimetype(fetch_result.buffer)
+                self.context.request.extension = EXTENSION.get(mime, '.jpg')
+                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
+                    self.context.request.engine = self.context.modules.gif_engine
+                else:
+                    self.context.request.engine = self.context.modules.engine
+
+                raise gen.Return(fetch_result)
             else:
-                self.context.request.engine = self.context.modules.engine
+                self.context.metrics.incr('storage.miss')
 
-            raise gen.Return(fetch_result)
-        else:
-            self.context.metrics.incr('storage.miss')
-
-        loader_result = yield self.context.modules.loader.load(self.context, url)
+            loader_result = yield self.context.modules.loader.load(self.context, url)
+        finally:
+            self.release_url_lock(url)
 
         if isinstance(loader_result, LoaderResult):
             # TODO _fetch should probably return a result object vs a list to
@@ -479,6 +522,11 @@ class BaseHandler(tornado.web.RequestHandler):
             self.context.request.engine.load(fetch_result.buffer, extension)
 
             fetch_result.normalized = self.context.request.engine.normalize()
+
+            # Allows engine or loader to override storage on the fly for the purpose of
+            # marking a specific file as unstoreable
+            storage = self.context.modules.storage
+
             is_no_storage = isinstance(storage, NoStorage)
             is_mixed_storage = isinstance(storage, MixedStorage)
             is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
@@ -488,12 +536,15 @@ class BaseHandler(tornado.web.RequestHandler):
                 storage.put(url, fetch_result.buffer)
 
             storage.put_crypto(url)
+        except Exception:
+            fetch_result.successful = False
         finally:
             self.context.config.PRESERVE_EXIF_INFO = original_preserve
-
-        fetch_result.buffer = None
-        fetch_result.engine = self.context.request.engine
-        raise gen.Return(fetch_result)
+            if not fetch_result.successful:
+                raise
+            fetch_result.buffer = None
+            fetch_result.engine = self.context.request.engine
+            raise gen.Return(fetch_result)
 
     @gen.coroutine
     def get_blacklist_contents(self):
@@ -505,6 +556,20 @@ class BaseHandler(tornado.web.RequestHandler):
             raise tornado.gen.Return(blacklist)
         else:
             raise tornado.gen.Return("")
+
+    @gen.coroutine
+    def acquire_url_lock(self, url):
+        if url not in BaseHandler.url_locks:
+            BaseHandler.url_locks[url] = Condition()
+        else:
+            yield BaseHandler.url_locks[url].wait()
+
+    def release_url_lock(self, url):
+        try:
+            BaseHandler.url_locks[url].notify_all()
+            del BaseHandler.url_locks[url]
+        except KeyError:
+            pass
 
 
 class ContextHandler(BaseHandler):

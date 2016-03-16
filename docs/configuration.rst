@@ -88,7 +88,7 @@ Thumbor ships with three imaging engines:
       </del>
 
    (This engine isn't supported anymore, check
-   `#52 <https://github.com/globocom/thumbor/issues/52>`__)
+   `#52 <https://github.com/thumbor/thumbor/issues/52>`__)
 
 RESULT\_STORAGE
 ~~~~~~~~~~~~~~~
@@ -665,6 +665,7 @@ Example of Configuration File
     #QUALITY = 80
 
     ## Max AGE sent as a header for the image served by thumbor in seconds
+    ## Set to False to disable setting of Expires and Cache-Control headers 
     ## Defaults to: 86400
     #MAX_AGE = 86400
 

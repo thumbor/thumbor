@@ -13,7 +13,7 @@ Storages
 `thumbor\_hbase <https://github.com/dhardy92/thumbor_hbase>`__ (by `Damien Hardy <https://github.com/dhardy92>`__)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`Thumbor <https://github.com/globocom/thumbor/wiki>`__ is a smart
+`Thumbor <https://github.com/thumbor/thumbor/wiki>`__ is a smart
 imaging service. It enables on-demand crop, resizing and flipping of
 images.
 
@@ -52,7 +52,7 @@ your thumbor.conf to read:
 `thumbor\_mongodb <https://github.com/dhardy92/thumbor_mongodb>`__ (by `Damien Hardy <https://github.com/dhardy92>`__)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`Thumbor <https://github.com/globocom/thumbor/wiki>`__ is a smart
+`Thumbor <https://github.com/thumbor/thumbor/wiki>`__ is a smart
 imaging service. It enables on-demand crop, resizing and flipping of
 images.
 
@@ -112,7 +112,7 @@ Using it is simple, just change your configuration in thumbor.conf:
 ::
 
     # Use rackspace for result storage. 
-    # For more info on result storage: https://github.com/globocom/thumbor/wiki/Result-storage
+    # For more info on result storage: https://github.com/thumbor/thumbor/wiki/Result-storage
     RESULT_STORAGE = 'thumbor_rackspace.result_storages.cloudfile_storage'
 
     # Pyrax Rackspace configuration file location

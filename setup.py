@@ -13,11 +13,11 @@ from thumbor import __version__
 
 import glob
 import os
+import logging
 
 
 tests_require = [
     "simplejson>=2.1.6,<2.2.0",
-    "pymongo>=2.1.1",
     "redis==2.4.9",
     "gevent",
     "tornado-pyvows>=0.6.0",
@@ -25,9 +25,16 @@ tests_require = [
     "mock==1.0.1",
     "raven",
     "nose",
+    "nose-focus",
     "colorama",
     "numpy",
+    "scipy",
     "flake8",
+    "yanc",
+    "remotecv",
+    "hiredis",
+    "scikit-image>=0.12.3",
+    "celery"
 ]
 
 
@@ -93,13 +100,15 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "tornado>=4.1.0,<5.0.0",
             "pyCrypto>=2.1.0",
             "pycurl>=7.19.0,<7.20.0",
-            "Pillow>=2.7.0,<3.0.0",
+            "Pillow>=3.0.0,<4.0.0",
             "derpconf>=0.2.0",
             "python-magic>=0.4.3",
             "pexif>=0.15,<1.0",
             "statsd>=3.0.1",
             "libthumbor",
             "futures",
+            "argparse",
+            "pytz",
         ],
 
         extras_require={
@@ -120,6 +129,8 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
 try:
     run_setup(gather_filter_extensions())
 except SystemExit as exit:
-    print "\n\n*******************************************************************"
-    print "Couldn't build one or more native extensions, skipping compilation.\n\n"
+    print("\n\n*******************************************************************")
+    logging.exception(exit)
+    print("\n\n*******************************************************************")
+    print("Couldn't build one or more native extensions, skipping compilation.\n\n")
     run_setup()

@@ -10,6 +10,7 @@
 
 import uuid
 import mimetypes
+
 from thumbor.handlers import ImageApiHandler
 from thumbor.engines import BaseEngine
 
@@ -52,10 +53,10 @@ class ImageUploadHandler(ImageApiHandler):
                 filename = self.context.config.UPLOAD_DEFAULT_FILENAME + extension
 
             # Build image id based on a random uuid (32 characters)
-            id = str(uuid.uuid4().hex)
-            self.write_file(id, body)
+            image_id = str(uuid.uuid4().hex)
+            self.write_file(image_id, body)
             self.set_status(201)
-            self.set_header('Location', self.location(id, filename))
+            self.set_header('Location', self.location(image_id, filename))
 
     def multipart_form_data(self):
         if 'media' not in self.request.files or not self.request.files['media']:
@@ -63,6 +64,6 @@ class ImageUploadHandler(ImageApiHandler):
         else:
             return True
 
-    def location(self, id, filename):
+    def location(self, image_id, filename):
         base_uri = self.request.uri
-        return base_uri + '/' + id + '/' + filename
+        return '%s/%s/%s' % (base_uri, image_id, filename)

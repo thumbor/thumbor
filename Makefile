@@ -13,17 +13,18 @@ compile_ext:
 	@python setup.py build_ext -i
 
 f ?= "vows/"
-test pyvows: compile_ext redis mongo
+test pyvows: compile_ext redis
 	@pyvows -vv --profile --cover --cover-package=thumbor --cover-threshold=90 $f
+	@$(MAKE) unit coverage
 	@nosetests -sv thumbor/integration_tests/
 	@$(MAKE) static
-	$(MAKE) kill_mongo kill_redis
+	$(MAKE) kill_redis
 
 ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@if [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) pyvows_run; else $(MAKE) integration_run; fi
+	@if [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) pyvows_run unit static coverage; else $(MAKE) integration_run; fi
 
 pyvows_run:
 	@pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
@@ -31,17 +32,21 @@ pyvows_run:
 integration_run:
 	@nosetests -sv thumbor/integration_tests/
 
+coverage:
+	@coverage report -m --fail-under=10
+
+unit:
+	@coverage run --branch `which nosetests` -v --with-yanc -s tests/
+
+unit-parallel:
+	@`which nosetests` -v --with-yanc --processes=4 -s tests/
+
+focus:
+	@coverage run --branch `which nosetests` -vv --with-yanc --logging-level=WARNING --with-focus -i -s tests/
+
 
 mysql_test: pretest
 	PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py
-
-kill_mongo:
-	@ps aux | awk '(/mongod/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
-
-mongo: kill_mongo
-	@rm -rf /tmp/thumbor/mongodata && mkdir -p /tmp/thumbor/mongodata
-	@mongod --dbpath /tmp/thumbor/mongodata --logpath /tmp/thumbor/mongolog --port 7777 --quiet --fork --smallfiles
-	@mongo --nodb mongo_check_start.js
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown

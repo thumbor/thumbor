@@ -89,13 +89,13 @@ From the latest version of the source
 
 Clone thumbor's repository and install it using one of the following:
 
-``pip install git+git://github.com/globocom/thumbor.git``
+``pip install git+git://github.com/thumbor/thumbor.git``
 
 or
 
 .. code:: bash
 
-    git clone git://github.com/globocom/thumbor.git
+    git clone git://github.com/thumbor/thumbor.git
 
     cd thumbor
 
