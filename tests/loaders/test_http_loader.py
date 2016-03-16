@@ -15,6 +15,7 @@ import mock
 import tornado.web
 from tests.base import PythonTestCase, TestCase
 from tornado.concurrent import Future
+import re
 
 import thumbor.loaders.http_loader as loader
 from thumbor.context import Context
@@ -110,7 +111,10 @@ class ValidateUrlTestCase(PythonTestCase):
 
     def test_with_allowed_sources(self):
         config = Config()
-        config.ALLOWED_SOURCES = ['s.glbimg.com']
+        config.ALLOWED_SOURCES = [
+            's.glbimg.com',
+            re.compile(r'https:\/\/www\.google\.com/img/.*')
+        ]
         ctx = Context(None, config, None)
         expect(
             loader.validate(
@@ -130,6 +134,12 @@ class ValidateUrlTestCase(PythonTestCase):
                 '/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass='
             )
         ).to_be_false()
+        expect(
+            loader.validate(
+                ctx,
+                'https://www.google.com/img/logo.jpg'
+            )
+        ).to_be_true()
         expect(
             loader.validate(ctx, 'http://s.glbimg.com/logo.jpg')).to_be_true()
 

@@ -44,7 +44,13 @@ def validate(context, url, normalize_url_func=_normalize_url):
         return True
 
     for pattern in context.config.ALLOWED_SOURCES:
-        if re.match('^%s$' % pattern, res.hostname):
+        if isinstance(pattern, re._pattern_type):
+            match = url
+        else:
+            pattern = '^%s$' % pattern
+            match = res.hostname
+
+        if re.match(pattern, match):
             return True
 
     return False
