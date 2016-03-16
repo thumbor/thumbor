@@ -11,7 +11,7 @@
 import re
 from functools import partial
 from urlparse import urlparse
-from urllib import unquote
+from urllib import unquote, quote
 
 import tornado.httpclient
 
@@ -118,4 +118,10 @@ def load_sync(context, url, callback, normalize_url_func):
 
 
 def encode(string):
-    return None if string is None else string.encode('ascii')
+    if string is None:
+        return None
+
+    parsed_url = urlparse(string)
+    string = parsed_url.scheme + '://' +  parsed_url.netloc + quote(parsed_url.path)
+
+    return string.encode('ascii')
