@@ -11,6 +11,7 @@
 from os.path import abspath, join, dirname
 from preggy import expect
 import mock
+from urllib import quote
 # from tornado.concurrent import Future
 import tornado.web
 from tests.base import PythonTestCase, TestCase
@@ -183,6 +184,15 @@ class HttpLoaderTestCase(TestCase):
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_equal('Hello')
         expect(result.successful).to_be_true()
+
+    def test_load_with_utf8_url(self):
+        url = self.get_url(quote(u'/maracujá.jpg'.encode('utf-8')))
+        config = Config()
+        ctx = Context(None, config, None)
+
+        with expect.error_not_to_happen(UnicodeDecodeError):
+            loader.load(ctx, url, self.stop)
+            self.wait()
 
     def test_load_with_curl(self):
         url = self.get_url('/')

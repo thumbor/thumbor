@@ -11,7 +11,7 @@
 import re
 from functools import partial
 from urlparse import urlparse
-from urllib import unquote
+from urllib2 import unquote
 
 import tornado.httpclient
 
@@ -21,11 +21,7 @@ from tornado.concurrent import return_future
 
 
 def quote_url(url):
-    try:
-        url = url.encode('utf-8')
-    except UnicodeDecodeError:
-        pass
-    return unquote(url)
+    return unquote(url).decode('utf-8')
 
 
 def _normalize_url(url):
@@ -68,13 +64,13 @@ def return_contents(response, url, callback, context):
         else:
             result.error = LoaderResult.ERROR_NOT_FOUND
 
-        logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
+        logger.warn(u"ERROR retrieving image {0}: {1}".format(url, str(response.error)))
 
     elif response.body is None or len(response.body) == 0:
         result.successful = False
         result.error = LoaderResult.ERROR_UPSTREAM
 
-        logger.warn("ERROR retrieving image {0}: Empty response.".format(url))
+        logger.warn(u"ERROR retrieving image {0}: Empty response.".format(url))
     else:
         if response.time_info:
             for x in response.time_info:
@@ -105,7 +101,7 @@ def load_sync(context, url, callback, normalize_url_func):
 
     url = normalize_url_func(url)
     req = tornado.httpclient.HTTPRequest(
-        url=encode(url),
+        url=url,
         connect_timeout=context.config.HTTP_LOADER_CONNECT_TIMEOUT,
         request_timeout=context.config.HTTP_LOADER_REQUEST_TIMEOUT,
         follow_redirects=context.config.HTTP_LOADER_FOLLOW_REDIRECTS,

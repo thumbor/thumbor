@@ -34,13 +34,12 @@ class ImagingHandler(ContextHandler):
 
         url = self.request.path
 
+        kw['image'] = quote(kw['image'].encode('utf-8'))
         if not self.validate(kw['image']):
             self._error(400, 'No original image was specified in the given URL')
             return
 
         kw['request'] = self.request
-        kw['image'] = quote(kw['image'].encode('utf-8'))
-
         self.context.request = RequestParameters(**kw)
 
         has_none = not self.context.request.unsafe and not self.context.request.hash
