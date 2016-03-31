@@ -60,7 +60,10 @@ class Engine(BaseEngine):
         return img
 
     def create_image(self, buffer):
-        img = Image.open(BytesIO(buffer))
+        try:
+            img = Image.open(BytesIO(buffer))
+        except Image.DecompressionBombWarning:
+            return None
         self.icc_profile = img.info.get('icc_profile')
         self.transparency = img.info.get('transparency')
         self.exif = img.info.get('exif')

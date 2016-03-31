@@ -402,9 +402,13 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         expect(response.headers).not_to_include('Vary')
         expect(response.body).to_be_webp()
 
-    def test_should_error_if_bigger_than_75_megapixels(self):
+    def test_should_bad_request_if_bigger_than_75_megapixels(self):
         response = self.get_as_webp('/unsafe/16384.png')
-        expect(response.code).to_equal(500)
+        expect(response.code).to_equal(400)
+
+    def test_should_bad_request_if_bigger_than_75_megapixels_jpeg(self):
+        response = self.get_as_webp('/unsafe/gisele.jpg')
+        expect(response.code).to_equal(400)
 
     def test_should_not_convert_animated_gifs_to_webp(self):
         response = self.get_as_webp('/unsafe/animated_image.gif')
@@ -786,7 +790,7 @@ class ImageOperationsWithMaxPixels(BaseImagingTestCase):
 
     def test_should_error(self):
         response = self.fetch('/unsafe/200x200/wellsford.jpg')
-        expect(response.code).to_equal(500)
+        expect(response.code).to_equal(400)
 
 
 class EngineLoadException(BaseImagingTestCase):
