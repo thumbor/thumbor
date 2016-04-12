@@ -146,7 +146,7 @@ HTTP status code
 -  405 Method Not Allowed (if thumbor's configuration disallows deleting
    images)
 
-Exemple :
+Example :
 ---------
 
 Assuming the thumbor server is located at : ``http://thumbor-server``
