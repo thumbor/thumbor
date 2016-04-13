@@ -60,7 +60,8 @@ class ResultStoragesFileStorageVows(Vows.Context):
     class GetResultStorageResult(Vows.Context):
         @Vows.async_topic
         def topic(self, callback):
-            config = Config(RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=STORAGE_PATH)
+            config = Config(RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=STORAGE_PATH,
+                            STORAGE_EXPIRATION_SECONDS=100)
             context = Context(config=config)
             context.request = RequestParameters(url='image.jpg')
             fs = FileStorage(context)
@@ -70,6 +71,7 @@ class ResultStoragesFileStorageVows(Vows.Context):
             result = topic.args[0]
             expect(result).to_be_instance_of(Media)
             expect(result.is_valid).to_equal(True)
+            expect(isinstance(result.metadata, dict)).to_be_true()
+            expect(result.metadata.get('LastModified')).not_to_be_null()
             expect(len(result)).to_equal(IMAGE_LEN)
-            expect(len(result)).to_equal(result.metadata['ContentLength'])
             expect(result.last_modified).to_be_instance_of(datetime)

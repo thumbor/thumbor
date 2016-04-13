@@ -30,6 +30,8 @@ EXTENSION = {
     'image/webp': '.webp',
     'video/mp4': '.mp4',
     'video/webm': '.webm',
+    'application/json': '.json',
+    'text/javascript': '.js',
 }
 
 

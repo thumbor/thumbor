@@ -1,6 +1,6 @@
+cython
+gifsicle
 libcurl4-openssl-dev
-python-numpy
-python-opencv
 libopencv-dev
 libjpeg-dev
 libpng-dev
@@ -9,11 +9,10 @@ libass-dev
 libvpx1
 libvpx-dev
 libwebp-dev
-webp
-gifsicle
-memcached
 libmemcache-dev
 libmemcached-dev
+memcached
 python-numpy
+python-opencv
 python-scipy
-cython
+webp

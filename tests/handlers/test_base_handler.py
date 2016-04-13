@@ -23,7 +23,7 @@ from mock import Mock, patch
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context, ServerParameters
-from thumbor.handlers import FetchResult, BaseHandler
+from thumbor.handlers import BaseHandler
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.media import Media
@@ -38,30 +38,6 @@ from tests.fixtures.images import (
     animated_image,
     not_so_animated_image,
 )
-
-
-class FetchResultTestCase(PythonTestCase):
-    def test_can_create_default_fetch_result(self):
-        result = FetchResult()
-        expect(result.normalized).to_be_false()
-        expect(result.media).to_be_null()
-        expect(result.engine).to_be_null()
-        expect(result.successful).to_be_false()
-
-    def test_can_create_fetch_result(self):
-        buffer_mock = Mock()
-        engine_mock = Mock()
-        result = FetchResult(
-            normalized=True,
-            media=Media(buffer_mock),
-            engine=engine_mock,
-            successful=True
-        )
-        expect(result.normalized).to_be_true()
-        expect(result.media.buffer).to_equal(buffer_mock)
-        expect(result.engine).to_equal(engine_mock)
-        expect(result.successful).to_be_true()
-
 
 class ErrorHandler(BaseHandler):
     def get(self):

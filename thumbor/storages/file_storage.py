@@ -87,12 +87,20 @@ class Storage(storages.BaseStorage):
 
         def file_exists(resource_available):
             if not resource_available:
+                logger.debug('Resource {} not available.'.format(abs_path))
                 callback(None)
             else:
                 media = Media()
 
                 with open(self.path_on_filesystem(path), 'r') as _file:
+                    stats = os.fstat(_file.fileno())
                     media.buffer = _file.read()
+
+                    media.metadata.update({
+                        'LastModified': datetime.utcfromtimestamp(stats.st_mtime),
+                    })
+                media._info['creator'] = '{}.{}'.format(
+                        __name__, self.__class__.__name__)
 
                 callback(media)
 
@@ -133,7 +141,9 @@ class Storage(storages.BaseStorage):
     def exists(self, path, callback, path_on_filesystem=None):
         if path_on_filesystem is None:
             path_on_filesystem = self.path_on_filesystem(path)
-        callback(os.path.exists(path_on_filesystem) and not self.__is_expired(path_on_filesystem))
+
+        callback(os.path.exists(path_on_filesystem) and
+                 not self.__is_expired(path_on_filesystem))
 
     def remove(self, path):
         n_path = self.path_on_filesystem(path)
