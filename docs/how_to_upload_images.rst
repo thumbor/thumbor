@@ -183,7 +183,7 @@ and the Thumbor server should return :
 
 The image is created at
 ``http://thumbor-server/image/05b2eda857314e559630c6f3334d818d/photo.jpg``.
-It can be retrieve, modify or delete via this URI.
+It can be retrieved, modified or deleted via this URI.
 
 The optional ``Slug`` HTTP header specifies the filename to use for the
 image uploaded.
