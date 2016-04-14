@@ -22,7 +22,7 @@ defacing your website.
 
 In order to post a new image, all you have to do is send a multi-part
 form with a file field called media and action of
-``http://{thumbor-server}/upload`` and method of ``POST``.
+``http://{thumbor-server}/image`` and method of ``POST``.
 
 HTTP status code
 ~~~~~~~~~~~~~~~~
@@ -36,12 +36,12 @@ Putting
 -------
 
 Putting is a little more dangerous if you don't have strict control of
-who can access the ``/upload`` route. This is because whatever is sent
+who can access the ``/image`` route. This is because whatever is sent
 using this method gets saved to storage, overwriting the previous entry.
 
 In order to put a new image, all you have to do is send a multi-part
 form with a file field called ``media`` and action of
-``http://{thumbor-server}/upload`` and method of ``PUT``.
+``http://{thumbor-server}/image`` and method of ``PUT``.
 
 HTTP status code
 ~~~~~~~~~~~~~~~~
@@ -57,7 +57,7 @@ Deleting
 Deleting can be very dangerous, thus is disabled by default.
 
 If you do enable it, in order to delete an image, all you have to do is
-send a request to ``http://{thumbor-server}/upload`` with a method of
+send a request to ``http://{thumbor-server}/image`` with a method of
 ``DELETE`` and a field called ``file_path`` with the same path that was
 used when uploading the image.
 
