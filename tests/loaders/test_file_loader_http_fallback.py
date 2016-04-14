@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+from mock import patch
 from os.path import abspath, join, dirname
 
 from unittest import TestCase
@@ -17,37 +18,37 @@ from preggy import expect
 from thumbor.context import Context
 from thumbor.config import Config
 
+import thumbor
 import thumbor.loaders.file_loader_http_fallback as loader
+
 
 STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
 
 
-class FileLoaderHttpFallbackFileTestCase(TestCase):
-    @staticmethod
-    def dummy_load(context, url, callback, normalize_url_func={}):
-        callback('file')
+def dummy_file_load(context, url, callback, normalize_url_func={}):
+    callback('file')
 
+
+def dummy_http_load(context, url, callback, normalize_url_func={}):
+    callback('http')
+
+
+class FileLoaderHttpFallbackFileTestCase(TestCase):
     def setUp(self):
         config = Config(
             FILE_LOADER_ROOT_PATH=STORAGE_PATH
         )
         self.ctx = Context(config=config)
 
+    @patch.object(thumbor.loaders.file_loader, 'load', dummy_file_load)
     def test_should_load_file(self):
-        loader.file_loader.load = self.dummy_load
         result = loader.load(self.ctx, 'image.jpg', lambda x: x).result()
-
         expect(result).to_equal('file')
 
 
 class FileLoaderHttpFallbackHttpTestCase(AsyncTestCase):
-    @staticmethod
-    def dummy_load(context, url, callback, normalize_url_func={}):
-        callback('http')
-
+    @patch.object(thumbor.loaders.http_loader, 'load', dummy_http_load)
     def test_should_load_http(self):
-        loader.http_loader.load = self.dummy_load
-
         url = self.get_url('http:/www.google.com/example_image.png')
         config = Config()
         ctx = Context(None, config, None)
