@@ -15,22 +15,29 @@ from unittest import TestCase
 from tests.base import TestCase as AsyncTestCase
 from preggy import expect
 
+import thumbor
+
 from thumbor.context import Context
 from thumbor.config import Config
+from thumbor.loaders import LoaderResult
 
-import thumbor
 import thumbor.loaders.file_loader_http_fallback as loader
 
 
 STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
 
+result = LoaderResult()
+result.successful = True
+
 
 def dummy_file_load(context, url, callback, normalize_url_func={}):
-    callback('file')
+    result.buffer = 'file'
+    callback(result)
 
 
 def dummy_http_load(context, url, callback, normalize_url_func={}):
-    callback('http')
+    result.buffer = 'http'
+    callback(result)
 
 
 class FileLoaderHttpFallbackFileTestCase(TestCase):
@@ -43,7 +50,8 @@ class FileLoaderHttpFallbackFileTestCase(TestCase):
     @patch.object(thumbor.loaders.file_loader, 'load', dummy_file_load)
     def test_should_load_file(self):
         result = loader.load(self.ctx, 'image.jpg', lambda x: x).result()
-        expect(result).to_equal('file')
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal('file')
 
 
 class FileLoaderHttpFallbackHttpTestCase(AsyncTestCase):
@@ -56,4 +64,5 @@ class FileLoaderHttpFallbackHttpTestCase(AsyncTestCase):
         loader.load(ctx, url, self.stop)
         result = self.wait()
 
-        expect(result).to_equal('http')
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal('http')
