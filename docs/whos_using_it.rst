@@ -113,6 +113,14 @@ slogan into an original tee and order it immediately.
     TypeTees was developed by www.prolificinteractive.com and you can
     learn more about how thumbor helped them at `their engineering blog
     post <http://prolificinteractive.com/blog/2014/05/29/threadless-typetees-neat-and-easy-thumbnails-using-thumbor-and-php/>`__.
+    
+    
+.. figure:: https://cloud.githubusercontent.com/assets/306014/14242873/8771528a-fa52-11e5-894c-0cdbf66580ce.png
+   :alt: Ridelink
+
+`Ridelink <https://ridelink.com/>`
+
+    Here at RideLink we use Thumbor to serve images to our apps.
 
 How to add my site or product here
 ----------------------------------
