@@ -118,9 +118,16 @@ slogan into an original tee and order it immediately.
 .. figure:: https://cloud.githubusercontent.com/assets/306014/14242873/8771528a-fa52-11e5-894c-0cdbf66580ce.png
    :alt: Ridelink
 
-`Ridelink <https://ridelink.com/>`
+`Ridelink <https://ridelink.com/>`__
 
-    Here at RideLink we use Thumbor to serve images to our apps.
+    RideLink uses Thumbor to provide the most appropriate, and optimized, image for the platform our customer is using.
+
+    Setting it up and enhancing it was an easy task thanks to the good documentation and the available plugins.
+
+    Thanks to the team behind Thumbor for making our lifes easier!
+
+    Cheers!
+    Erico Andrei - CTO
 
 How to add my site or product here
 ----------------------------------
