@@ -876,20 +876,25 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
         f.write(response.body)
         f.close()
 
+        exiftool = which('exiftool')
+        if not exiftool:
+            raise AssertionError('exiftool was not found. Please install it to run thumbor\'s tests.')
+
         command = [
-            which('exiftool'),
+            exiftool,
             tmp_file_path,
             '-DeviceModel',
             '-EncodingProcess'
         ]
 
-        with open(os.devnull) as null:
-            output = subprocess.check_output(command, stdin=null)
+        try:
+            with open(os.devnull) as null:
+                output = subprocess.check_output(command, stdin=null)
 
-        expect(response.code).to_equal(200)
-        expect(output).to_equal('Encoding Process                : Progressive DCT, Huffman coding\n')
-
-        os.remove(tmp_file_path)
+            expect(response.code).to_equal(200)
+            expect(output).to_equal('Encoding Process                : Progressive DCT, Huffman coding\n')
+        finally:
+            os.remove(tmp_file_path)
 
     def test_with_meta(self):
         response = self.fetch('/unsafe/meta/800x400/image.jpg')
