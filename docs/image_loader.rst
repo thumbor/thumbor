@@ -56,6 +56,20 @@ image file if it exists.
 To use it you should set the **LOADER** configuration to
 **'thumbor.loaders.file\_loader'**.
 
+File loader with http loader fallback
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In some environments you need both kinds of file loading. For this use case
+you can use as loader with built-in fallback.
+
+This loader will try to load images from local file storage. In case
+of an error the loader retry to load image with http\_loader. If both attempts failed
+you'll get an error.
+
+To use it you should set the **LOADER** configuration to
+**'thumbor.loaders.file\_loader\_http\_fallback'**.
+
+
 Custom loaders
 --------------
 
