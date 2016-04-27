@@ -32,6 +32,7 @@ EXTENSION = {
     'video/mp4': '.mp4',
     'video/webm': '.webm',
     'image/svg+xml': '.svg',
+    'image/tiff': '.tif'
 }
 
 

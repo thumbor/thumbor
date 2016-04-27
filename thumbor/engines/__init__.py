@@ -16,6 +16,18 @@ except:
     cairosvg = None
 
 try:
+    import cv2
+except:
+    cv2 = None
+
+from io import BytesIO
+
+try:
+    import numpy
+except:
+    numpy = None
+
+try:
     from pyexiv2 import ImageMetadata
     METADATA_AVAILABLE = True
 except ImportError:
@@ -117,6 +129,8 @@ class BaseEngine(object):
             mime = 'video/mp4'
         elif buffer.startswith('\x1aE\xdf\xa3'):
             mime = 'video/webm'
+        elif buffer.startswith('\x49\x49\x2A\x00'):
+            mime = 'image/tiff'
         elif SVG_RE.search(buffer[:1024].replace(b'\0', '')):
             mime = 'image/svg+xml'
         return mime
@@ -147,6 +161,20 @@ class BaseEngine(object):
         self.extension = EXTENSION.get(mime, '.jpg')
         return buffer
 
+    def convert_tif_to_png(self, buffer):
+        if not numpy:
+            msg = """[BaseEngin] convert_tif_to_png failed numpy not imported"""
+            logger.error(msg)
+            return buffer
+        if not cv2:
+            msg = """[BaseEngin] convert_tif_to_png failed opencv not imported"""
+            logger.error(msg)
+            return buffer
+
+        img = cv2.imdecode(numpy.fromstring(buffer), -1)
+        img_str = cv2.imencode('.png', img)[1].tostring()
+        return img_str
+
     def load(self, buffer, extension):
         self.extension = extension
 
@@ -156,6 +184,10 @@ class BaseEngine(object):
 
         if self.extension == '.svg':
             buffer = self.convert_svg_to_png(buffer)
+
+        # added by zhaorong, if it is a tif picture, convert it to png
+        if self.extension == '.tif':
+            buffer = self.convert_tif_to_png(buffer)
 
         image_or_frames = self.create_image(buffer)
         if image_or_frames is None:
