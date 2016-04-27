@@ -117,6 +117,8 @@ class BaseEngine(object):
             mime = 'video/mp4'
         elif buffer.startswith('\x1aE\xdf\xa3'):
             mime = 'video/webm'
+        elif buffer.startswith('\x49\x49\x2A\x00') or buffer.startswith('\x4D\x4D\x00\x2A'):
+            mime = 'image/tiff'
         elif SVG_RE.search(buffer[:1024].replace(b'\0', '')):
             mime = 'image/svg+xml'
         return mime

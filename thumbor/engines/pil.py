@@ -16,9 +16,19 @@ from io import BytesIO
 
 from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 
+try:
+    import cv2
+except:
+    cv2 = None
+
+try:
+    import numpy
+except:
+    numpy = None
+
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
-from thumbor.utils import logger, deprecated
+from thumbor.utils import logger, deprecated, EXTENSION
 
 try:
     from thumbor.ext.filters import _composite
@@ -249,6 +259,34 @@ class Engine(BaseEngine):
         os.remove(tmp_file_path)
 
         return results
+
+    def convert_tif_to_png(self, buffer):
+        if not numpy:
+            msg = """[PILEngine] convert_tif_to_png failed: numpy not imported"""
+            logger.error(msg)
+            return buffer
+        if not cv2:
+            msg = """[PILEngine] convert_tif_to_png failed: opencv not imported"""
+            logger.error(msg)
+            return buffer
+
+        img = cv2.imdecode(numpy.fromstring(buffer, dtype='uint16'), -1)
+        buffer = cv2.imencode('.png', img)[1].tostring()
+        mime = self.get_mimetype(buffer)
+        self.extension = EXTENSION.get(mime, '.jpg')
+        return buffer
+
+    def load(self, buffer, extension):
+        self.extension = extension
+
+        if extension is None:
+            mime = self.get_mimetype(buffer)
+            self.extension = EXTENSION.get(mime, '.jpg')
+
+        if self.extension == '.tif': # Pillow does not support 16bit per channel TIFF images
+            buffer = self.convert_tif_to_png(buffer)
+
+        super(Engine, self).load(buffer, self.extension)
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_data(self):

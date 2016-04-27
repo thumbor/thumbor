@@ -24,6 +24,11 @@ try:
 except ImportError:
     METADATA_AVAILABLE = False
 
+try:
+    from unittest import mock  # Python 3.3 +
+except ImportError:
+    import mock  # Python 2.7
+
 STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
 
 
@@ -54,6 +59,48 @@ class PilEngineTestCase(TestCase):
             buffer = im.read()
         image = engine.create_image(buffer)
         expect(image.format).to_equal('JPEG')
+
+    def test_convert_tif_16bit_per_channel_lsb_to_png(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, 'gradient_lsb_16bperchannel.tif'), 'r') as im:
+            buffer = im.read()
+        expect(buffer).not_to_equal(None)
+        engine.convert_tif_to_png(buffer)
+        expect(engine.extension).to_equal('.png')
+
+    def test_convert_tif_16bit_per_channel_msb_to_png(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, 'gradient_msb_16bperchannel.tif'), 'r') as im:
+            buffer = im.read()
+        engine.convert_tif_to_png(buffer)
+        expect(engine.extension).to_equal('.png')
+
+    def test_convert_tif_8bit_per_channel_to_png(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, 'gradient_8bit.tif'), 'r') as im:
+            buffer = im.read()
+        engine.convert_tif_to_png(buffer)
+        expect(engine.extension).to_equal('.png')
+
+    @mock.patch('thumbor.engines.pil.numpy', new=None)
+    @mock.patch('thumbor.engines.logger.error')
+    def test_not_imported_numpy_failed_to_convert_tif_to_png(self, mockLogError):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, 'gradient_8bit.tif'), 'r') as im:
+            buffer = im.read()
+        returned_buffer = engine.convert_tif_to_png(buffer)
+        expect(mockLogError.called).to_be_true()
+        expect(buffer).to_equal(returned_buffer)
+
+    @mock.patch('thumbor.engines.pil.cv2', new=None)
+    @mock.patch('thumbor.engines.logger.error')
+    def test_not_imported_cv2_failed_to_convert_tif_to_png(self, mockLogError):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, 'gradient_8bit.tif'), 'r') as im:
+            buffer = im.read()
+        returned_buffer = engine.convert_tif_to_png(buffer)
+        expect(mockLogError.called).to_be_true()
+        expect(buffer).to_equal(returned_buffer)
 
     @skipUnless(METADATA_AVAILABLE, 'Pyexiv2 library not found. Skipping metadata tests.')
     def test_load_image_with_metadata(self):
