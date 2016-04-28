@@ -140,5 +140,4 @@ def main(arguments=None):
         context.thread_pool.cleanup()
 
 if __name__ == "__main__":
-    #main(sys.argv)
-    main()
+    main(sys.argv)
