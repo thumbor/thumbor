@@ -20,8 +20,6 @@ try:
 except:
     cv2 = None
 
-from io import BytesIO
-
 try:
     import numpy
 except:
