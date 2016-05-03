@@ -125,19 +125,17 @@ def main(arguments=None):
 
     validate_config(config, server_parameters)
 
-    context = get_context(server_parameters, config, importer)
+    with get_context(server_parameters, config, importer) as context:
+        application = get_application(context)
+        run_server(application, context)
 
-    application = get_application(context)
-    run_server(application, context)
+        try:
+            logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
+            tornado.ioloop.IOLoop.instance().start()
+        except KeyboardInterrupt:
+            sys.stdout.write('\n')
+            sys.stdout.write("-- thumbor closed by user interruption --\n")
 
-    try:
-        logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
-        tornado.ioloop.IOLoop.instance().start()
-    except KeyboardInterrupt:
-        sys.stdout.write('\n')
-        sys.stdout.write("-- thumbor closed by user interruption --\n")
-    finally:
-        context.thread_pool.cleanup()
 
 if __name__ == "__main__":
     main(sys.argv)
