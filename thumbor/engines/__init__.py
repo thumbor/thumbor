@@ -242,3 +242,6 @@ class BaseEngine(object):
 
     def extract_cover(self):
         raise NotImplementedError()
+
+    def cleanup(self):
+        pass
