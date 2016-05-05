@@ -47,6 +47,12 @@ class Context:
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
         self.headers = {}
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.thread_pool.cleanup()
+
 
 class ServerParameters(object):
     def __init__(self, port, ip, config_path, keyfile, log_level, app_class, fd=None, gifsicle_path=None):
