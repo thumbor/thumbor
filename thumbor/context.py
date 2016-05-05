@@ -51,6 +51,9 @@ class Context:
         return self
 
     def __exit__(self, type, value, traceback):
+        if self.modules:
+            self.modules.cleanup()
+
         self.thread_pool.cleanup()
 
 
@@ -221,6 +224,10 @@ class ContextImporter:
         self.filters = importer.filters
         self.optimizers = importer.optimizers
         self.url_signer = importer.url_signer
+
+    def cleanup(self):
+        if self.engine:
+            self.engine.cleanup()
 
 
 class ThreadPool(object):
