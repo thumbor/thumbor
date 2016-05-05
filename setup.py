@@ -17,7 +17,6 @@ import logging
 
 
 tests_require = [
-    "simplejson>=2.1.6,<2.2.0",
     "redis==2.4.9",
     "gevent",
     "tornado-pyvows>=0.6.0",
