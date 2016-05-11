@@ -27,7 +27,7 @@ tests_require = [
     "nose-focus",
     "colorama",
     "numpy",
-    "scipy==0.16.1",
+    "scipy>=0.16.1",
     "flake8",
     "yanc",
     "remotecv",
