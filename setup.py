@@ -17,7 +17,7 @@ import logging
 
 
 tests_require = [
-    "redis==2.4.9",
+    "redis>=2.4.9",
     "gevent",
     "tornado-pyvows>=0.6.0",
     "coverage",
