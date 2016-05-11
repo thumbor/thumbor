@@ -17,7 +17,7 @@ import logging
 
 
 tests_require = [
-    "redis==2.4.9",
+    "redis>=2.4.9,<3.0.0",
     "gevent",
     "tornado-pyvows>=0.6.0",
     "coverage",
@@ -27,7 +27,7 @@ tests_require = [
     "nose-focus",
     "colorama",
     "numpy",
-    "scipy==0.16.1",
+    "scipy>=0.16.1,<1.0.0",
     "flake8",
     "yanc",
     "remotecv",
