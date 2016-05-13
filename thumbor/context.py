@@ -47,6 +47,15 @@ class Context:
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
         self.headers = {}
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        if self.modules:
+            self.modules.cleanup()
+
+        self.thread_pool.cleanup()
+
 
 class ServerParameters(object):
     def __init__(self, port, ip, config_path, keyfile, log_level, app_class, fd=None, gifsicle_path=None):
@@ -215,6 +224,10 @@ class ContextImporter:
         self.filters = importer.filters
         self.optimizers = importer.optimizers
         self.url_signer = importer.url_signer
+
+    def cleanup(self):
+        if self.engine:
+            self.engine.cleanup()
 
 
 class ThreadPool(object):
