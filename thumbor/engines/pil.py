@@ -145,19 +145,20 @@ class Engine(BaseEngine):
                 self.image = self.image.convert('RGB')
             else:
                 subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
-                qtables_config = self.context.config.PILLOW_JPEG_QTABLES
-
-                if subsampling_config is not None or qtables_config is not None:
-                    options['quality'] = 0  # can't use 'keep' here as Pillow would try to extract qtables/subsampling and fail
+                if subsampling_config is not None:
                     orig_subsampling = self.subsampling
-                    orig_qtables = self.qtables
 
-                    if (subsampling_config == 'keep' or subsampling_config is None) and (orig_subsampling is not None):
+                    if subsampling_config == 'keep' and orig_subsampling is not None:
                         options['subsampling'] = orig_subsampling
                     else:
                         options['subsampling'] = subsampling_config
 
-                    if (qtables_config == 'keep' or qtables_config is None) and (orig_qtables and 2 <= len(orig_qtables) <= 4):
+                qtables_config = self.context.config.PILLOW_JPEG_QTABLES
+                if qtables_config is not None:
+                    options['quality'] = 0  # can't use 'keep' here as Pillow would try to extract qtables and fail
+                    orig_qtables = self.qtables
+
+                    if qtables_config == 'keep' and orig_qtables and 2 <= len(orig_qtables) <= 4:
                         options['qtables'] = orig_qtables
                     else:
                         options['qtables'] = qtables_config
