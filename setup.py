@@ -32,7 +32,7 @@ tests_require = [
     "yanc",
     "remotecv",
     "hiredis",
-    "scikit-image>=0.12.3",
+    "pyssim",
     "celery",
     "cairosvg",
 ]
