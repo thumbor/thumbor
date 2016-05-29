@@ -25,7 +25,7 @@ TEST_DATA = (
     ('STORAGE', STORAGE_DEFAULT_VALUE),
     ('ENGINE', 'thumbor.engines.pil'),
     ('GIF_ENGINE', 'thumbor.engines.gif'),
-    ('URL_SIGNER', 'thumbor.url_signers.base64_hmac_sha1'),
+    ('URL_SIGNER', 'libthumbor.url_signers.base64_hmac_sha1'),
     ('ALLOW_UNSAFE_URL', True),
     ('FILE_LOADER_ROOT_PATH', expanduser("~")),
     ('STORAGE_EXPIRATION_SECONDS', 60 * 60 * 24 * 30),

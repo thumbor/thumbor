@@ -4,7 +4,7 @@ import hashlib
 import base64
 import hmac
 from pyvows import Vows, expect
-from thumbor.url_signers.base64_hmac_sha1 import UrlSigner
+from libthumbor.url_signers.base64_hmac_sha1 import UrlSigner
 
 
 @Vows.batch

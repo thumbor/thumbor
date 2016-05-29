@@ -40,23 +40,6 @@ class UrlComposerTestCase(TestCase):
         expect(mock_stdout.getvalue()).to_equal('URL:\n/G_dykuWBGyEil5JnNh9cBke0Ajo=/200x300/myserver.com/myimg.jpg\n')
 
     @mock.patch('sys.stdout', new_callable=StringIO)
-    def test_can_compose_old_url(self, mock_stdout):
-        url = main([
-            '-k', 'MY-SECURITY-KEY',
-            '-w', '200',
-            '-e', '300',
-            '--old-format',
-            'myserver.com/myimg.jpg'
-        ])
-
-        expect(url).to_equal(
-            '/6LSog0KmY0NQg8GK4Tsti0FAR9emvaF4xfyLY3FUmOI0HVcqF8HxibsAjVCbxFfl/myserver.com/myimg.jpg'
-        )
-        expect(mock_stdout.getvalue()).to_equal(
-            'URL:\n/6LSog0KmY0NQg8GK4Tsti0FAR9emvaF4xfyLY3FUmOI0HVcqF8HxibsAjVCbxFfl/myserver.com/myimg.jpg\n'
-        )
-
-    @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(composer.Config, 'load')
     def test_fails_when_no_config_or_key(self, load_mock, mock_stdout):
         load_mock.side_effect = RuntimeError('fail to load')

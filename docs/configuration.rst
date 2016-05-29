@@ -75,7 +75,7 @@ Thumbor ships with three imaging engines:
 -  thumbor.engines.pil
 -  thumbor.engines.opencv
 -  thumbor.engines.graphicsmagick
--  
+-
 
    .. raw:: html
 
@@ -107,7 +107,7 @@ The url signer is responsible for validation and signing of requests to prevent 
 which could lead to denial of service (example: filling the result_storage by specifying a different size).
 **This must be a full namespace module (a.k.a. python has to be able to **import** it).**
 
-i.e.: thumbor.url\_signers.base64\_hmac\_sha1
+i.e.: libthumbor.url\_signers.base64\_hmac\_sha1
 
 Filters Section
 ---------------
@@ -193,7 +193,7 @@ i.e.:
 ::
 
     MAX_WIDTH = 1200
-    MAX_HEIGHT = 800 
+    MAX_HEIGHT = 800
 
 MIN\_WIDTH and MIN\_HEIGHT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,7 +207,7 @@ i.e.:
 ::
 
     MIN_WIDTH = 1
-    MIN_HEIGHT = 1 
+    MIN_HEIGHT = 1
 
 QUALITY
 ~~~~~~~
@@ -665,7 +665,7 @@ Example of Configuration File
     #QUALITY = 80
 
     ## Max AGE sent as a header for the image served by thumbor in seconds
-    ## Set to False to disable setting of Expires and Cache-Control headers 
+    ## Set to False to disable setting of Expires and Cache-Control headers
     ## Defaults to: 86400
     #MAX_AGE = 86400
 
@@ -980,7 +980,7 @@ Example of Configuration File
 
     ## Sentry thumbor project dsn. i.e.: http://5a63d58ae7b94f1dab3dee740b301d6a:73ee
     ## a45d3e8649239a973087e8f21f98@localhost:9000/2
-    ## Defaults to: 
+    ## Defaults to:
     #SENTRY_DSN_URL = ''
 
     ################################################################################

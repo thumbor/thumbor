@@ -15,8 +15,8 @@ from Crypto.Cipher import AES
 
 # Import the Signer class to support backward-compatibility
 # and existing documentation
-from thumbor.url_signers.base64_hmac_sha1 import UrlSigner as Signer  # NOQA
-from thumbor.url import Url
+from libthumbor.url_signers.base64_hmac_sha1 import UrlSigner as Signer  # NOQA
+from libthumbor.url import Url
 
 
 class Cryptor(object):

@@ -77,10 +77,6 @@ def get_parser():
         '', '--filters', dest='filters', action='append',
         help='Filters to be applied to the image, e.g. brightness(10).'
     )
-    parser.add_option(
-        '-o', '--old-format', dest='old', action='store_true', default=False,
-        help='Indicates that thumbor should generate old-format urls [default: %default].'
-    )
 
     parser.add_option(
         '-c', '--crop', dest='crop', default=None,
@@ -121,7 +117,6 @@ def get_thumbor_params(image_url, params, config):
         crop_right, crop_bottom = crops[1].split('x')
 
     options = {
-        'old': params.old,
         'width': params.width,
         'height': params.height,
         'smart': params.smart,

@@ -10,11 +10,12 @@
 import tornado.web
 import tornado.ioloop
 
+from libthumbor.url import Url
+
 from thumbor.handlers.blacklist import BlacklistHandler
 from thumbor.handlers.healthcheck import HealthcheckHandler
 from thumbor.handlers.upload import ImageUploadHandler
 from thumbor.handlers.image_resource import ImageResourceHandler
-from thumbor.url import Url
 from thumbor.handlers.imaging import ImagingHandler
 
 

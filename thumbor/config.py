@@ -349,7 +349,7 @@ Config.define('ERROR_FILE_NAME_USE_CONTEXT', False, 'File of error log name is p
 
 # SIGNER MODULE
 Config.define(
-    'URL_SIGNER', 'thumbor.url_signers.base64_hmac_sha1',
+    'URL_SIGNER', 'libthumbor.url_signers.base64_hmac_sha1',
     'The url signer thumbor should use to verify url signatures.' +
     'This must be the full name of a python module ' +
     '(python must be able to import it)', 'Extensibility'
