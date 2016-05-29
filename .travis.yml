@@ -48,7 +48,6 @@ install:
   - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
   - export PATH=/tmp/ffmpeg-release:$PATH
   - ffmpeg -version
-  - "pip install scikit-image --no-binary :all:"
   - pip install --upgrade pip
   - make setup
   - pip install coveralls
