@@ -21,7 +21,6 @@ The following packages are required:
 * pyvows
 * tornado_pyvows
 * argparse
-* gevent >= 0.13.6 (requires libevent - http://libevent.org/)
 
 You'll also need a recent version of OpenCV (http://opencv.willowgarage.com/wiki/) installed. When installing OpenCV, it will create a python binding. Make sure this binding is visible to your current virtualenv (if you are using it).
 

@@ -30,7 +30,6 @@ The following packages are required:
 -  pyvows
 -  tornado\_pyvows
 -  argparse
--  gevent >= 0.13.6 (requires `libevent <http://libevent.org/>`__)
 
 You'll also need a recent version of
 `OpenCV <http://opencv.willowgarage.com/wiki/>`__ installed. When
