@@ -32,7 +32,6 @@ tests_require = [
     "yanc",
     "remotecv",
     "pyssim",
-    "celery",
     "cairosvg",
 ]
 
