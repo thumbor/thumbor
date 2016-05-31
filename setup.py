@@ -33,7 +33,6 @@ tests_require = [
     "remotecv",
     "hiredis",
     "pyssim",
-    "celery",
     "cairosvg",
 ]
 
