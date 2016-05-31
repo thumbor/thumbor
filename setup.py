@@ -31,7 +31,6 @@ tests_require = [
     "flake8",
     "yanc",
     "remotecv",
-    "hiredis",
     "pyssim",
     "celery",
     "cairosvg",
