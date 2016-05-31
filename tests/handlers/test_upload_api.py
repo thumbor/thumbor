@@ -21,7 +21,8 @@ from tests.base import TestCase
 from tests.fixtures.images import (
     valid_image, valid_image_path,
     too_small_image, too_small_image_path,
-    too_heavy_image
+    too_heavy_image, svg_image,
+    svg_converted_image_path
 )
 
 
@@ -75,6 +76,21 @@ class UploadAPINewFileTestCase(UploadTestCase):
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         expect(expected_path).to_exist()
         expect(expected_path).to_be_the_same_as(valid_image_path)
+
+    def test_can_post_svg_image_and_convert_to_png(self):
+        filename = 'new_converted_image.png'
+        response = self.post(self.base_uri, {'Content-Type': 'image/svg+xml"', 'Slug': filename}, svg_image())
+
+        expect(response.code).to_equal(201)
+
+        expect(response.headers).to_include('Location')
+        expect(response.headers['Location']).to_match(self.base_uri + r'/[^\/]{32}/' + filename)
+
+        expected_path = self.get_path_from_location(response.headers['Location'])
+        expected_path = self.upload_storage.path_on_filesystem(expected_path)
+        expect(expected_path).to_exist()
+        expect(expected_path).to_be_the_same_as(svg_converted_image_path)
+
 
     def test_can_post_image_with_charset(self):
         filename = self.default_filename + '.jpg'
@@ -228,6 +244,7 @@ class UploadAPIDeleteTestCase(UploadTestCase):
     def test_can_delete_existing_image(self):
         filename = self.default_filename + '.jpg'
         response = self.post(self.base_uri, {'Content-Type': 'image/jpeg'}, valid_image())
+
         expect(response.code).to_equal(201)
 
         location = response.headers['Location']
