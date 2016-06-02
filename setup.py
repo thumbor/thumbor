@@ -20,7 +20,7 @@ tests_require = [
     "redis>=2.4.9,<3.0.0",
     "tornado-pyvows>=0.6.0",
     "coverage",
-    "mock==1.0.1",
+    "mock>=1.0.1,<3.0.0",
     "raven",
     "nose",
     "nose-focus",
