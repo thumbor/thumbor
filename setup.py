@@ -32,6 +32,7 @@ tests_require = [
     "remotecv",
     "pyssim",
     "cairosvg",
+    "preggy>=1.3.0",
 ]
 
 
