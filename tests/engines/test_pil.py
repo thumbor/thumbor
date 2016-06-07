@@ -82,17 +82,7 @@ class PilEngineTestCase(TestCase):
         engine.convert_tif_to_png(buffer)
         expect(engine.extension).to_equal('.png')
 
-    @mock.patch('thumbor.engines.pil.numpy', new=None)
-    @mock.patch('thumbor.engines.logger.error')
-    def test_not_imported_numpy_failed_to_convert_tif_to_png(self, mockLogError):
-        engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'gradient_8bit.tif'), 'r') as im:
-            buffer = im.read()
-        returned_buffer = engine.convert_tif_to_png(buffer)
-        expect(mockLogError.called).to_be_true()
-        expect(buffer).to_equal(returned_buffer)
-
-    @mock.patch('thumbor.engines.pil.cv2', new=None)
+    @mock.patch('thumbor.engines.pil.cv', new=None)
     @mock.patch('thumbor.engines.logger.error')
     def test_not_imported_cv2_failed_to_convert_tif_to_png(self, mockLogError):
         engine = Engine(self.context)

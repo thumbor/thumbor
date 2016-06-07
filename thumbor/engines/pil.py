@@ -17,14 +17,9 @@ from io import BytesIO
 from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 
 try:
-    import cv2
+    from cv2 import cv
 except:
-    cv2 = None
-
-try:
-    import numpy
-except:
-    numpy = None
+    cv = None
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
@@ -261,17 +256,20 @@ class Engine(BaseEngine):
         return results
 
     def convert_tif_to_png(self, buffer):
-        if not numpy:
-            msg = """[PILEngine] convert_tif_to_png failed: numpy not imported"""
-            logger.error(msg)
-            return buffer
-        if not cv2:
+        if not cv:
             msg = """[PILEngine] convert_tif_to_png failed: opencv not imported"""
             logger.error(msg)
             return buffer
 
-        img = cv2.imdecode(numpy.fromstring(buffer, dtype='uint16'), -1)
-        buffer = cv2.imencode('.png', img)[1].tostring()
+        # can not use cv2 here, because ubuntu precise shipped with python-opencv 2.3 which has bug with imencode
+        # requires 3rd parameter buf which could not be created in python. Could be replaced with these lines:
+        # img = cv2.imdecode(numpy.fromstring(buffer, dtype='uint16'), -1)
+        # buffer = cv2.imencode('.png', img)[1].tostring()
+        mat_data = cv.CreateMatHeader(1, len(buffer), cv.CV_8UC1)
+        cv.SetData(mat_data, buffer, len(buffer))
+        img = cv.DecodeImage(mat_data, -1)
+        buffer = cv.EncodeImage(".png", img).tostring()
+
         mime = self.get_mimetype(buffer)
         self.extension = EXTENSION.get(mime, '.jpg')
         return buffer
@@ -283,7 +281,7 @@ class Engine(BaseEngine):
             mime = self.get_mimetype(buffer)
             self.extension = EXTENSION.get(mime, '.jpg')
 
-        if self.extension == '.tif': # Pillow does not support 16bit per channel TIFF images
+        if self.extension == '.tif':  # Pillow does not support 16bit per channel TIFF images
             buffer = self.convert_tif_to_png(buffer)
 
         super(Engine, self).load(buffer, self.extension)
