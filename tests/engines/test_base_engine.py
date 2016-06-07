@@ -14,10 +14,7 @@ from os.path import abspath, join, dirname
 
 from unittest import TestCase
 
-try:
-    from unittest import mock  # Python 3.3 +
-except ImportError:
-    import mock  # Python 2.7
+import mock
 
 from preggy import expect
 

@@ -24,10 +24,7 @@ try:
 except ImportError:
     METADATA_AVAILABLE = False
 
-try:
-    from unittest import mock  # Python 3.3 +
-except ImportError:
-    import mock  # Python 2.7
+import mock
 
 STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
 
