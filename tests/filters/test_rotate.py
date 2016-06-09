@@ -19,11 +19,11 @@ class RotateFilterTestCase(FilterTestCase):
         expected = self.get_fixture('rotate.jpg')
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        expect(ssim).to_equal(1)
 
     def test_rotate_filter_with_invalid_value(self):
         image = self.get_filtered('source.jpg', 'thumbor.filters.rotate', 'rotate(181)')
         expected = self.get_fixture('source.jpg')
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        expect(ssim).to_equal(1)
