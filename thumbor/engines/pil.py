@@ -109,7 +109,14 @@ class Engine(BaseEngine):
 
     def rotate(self, degrees):
         # PIL rotates counter clockwise
-        self.image = self.image.rotate(degrees)
+        if degrees == 90:
+            self.image = self.image.transpose(Image.ROTATE_90)
+        elif degrees == 180:
+            self.image = self.image.transpose(Image.ROTATE_180)
+        elif degrees == 270:
+            self.image = self.image.transpose(Image.ROTATE_270)
+        else:
+            self.image = self.image.rotate(degrees, expand=1)
 
     def flip_vertically(self):
         self.image = self.image.transpose(Image.FLIP_TOP_BOTTOM)

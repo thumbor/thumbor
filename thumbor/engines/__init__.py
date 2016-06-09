@@ -259,7 +259,6 @@ class BaseEngine(object):
         :param override_exif: If the metadata should be adjusted as well.
         :type override_exif: Boolean
         """
-
         orientation = self.get_orientation()
 
         if orientation == 2:
@@ -283,7 +282,7 @@ class BaseEngine(object):
 
         if orientation != 1 and override_exif:
             segment = self._get_exif_segment()
-            if segment:
+            if segment and segment.get_primary():
                 segment.primary['Orientation'] = [1]
                 self.exif = segment.get_data()
 
