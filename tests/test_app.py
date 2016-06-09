@@ -16,7 +16,7 @@ from preggy import expect
 from thumbor.app import (
     ThumborServiceApp
 )
-from libthumbor.url import Url
+from thumbor.url import Url
 
 
 class AppTestCase(TestCase):
