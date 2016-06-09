@@ -349,8 +349,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if context.config.AUTO_WEBP and \
                 not context.request.engine.is_multiple() and \
-                context.request.engine.can_convert_to_webp() and \
-                context.request.engine.extension != '.webp':
+                context.request.engine.can_convert_to_webp():
             self.set_header('Vary', 'Accept')
 
         context.headers = self._headers.copy()
