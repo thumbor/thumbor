@@ -355,6 +355,11 @@ Config.define(
     '(python must be able to import it)', 'Extensibility'
 )
 
+Config.define(
+    'APP_CLASS', 'thumbor.app.ThumborServiceApp',
+    'Custom app class to override ThumborServiceApp. This config value is overridden by the -a command-line parameter.'
+)
+
 
 def generate_config():
     config.generate_config()
