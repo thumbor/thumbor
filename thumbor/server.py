@@ -90,7 +90,7 @@ def get_context(server_parameters, config, importer):
 
 
 def get_application(context):
-    return context.modules.importer.import_class(context.server.app_class)(context)
+    return context.modules.importer.import_class(context.app_class)(context)
 
 
 def run_server(application, context):
