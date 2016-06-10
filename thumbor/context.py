@@ -41,6 +41,14 @@ class Context:
             self.modules = None
             self.metrics = Metrics(config)
 
+        self.app_class = 'thumbor.app.ThumborServiceApp'
+
+        if hasattr(self.config, 'APP_CLASS'):
+            self.app_class = self.config.APP_CLASS
+
+        if hasattr(self.server, 'app_class') and self.server.app_class != 'thumbor.app.ThumborServiceApp':
+            self.app_class = self.server.app_class
+
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
         self.statsd_client = self.metrics  # TODO statsd_client is deprecated, remove me on next minor version bump

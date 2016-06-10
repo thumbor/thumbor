@@ -61,6 +61,42 @@ class ContextTestCase(TestCase):
         expect(ctx.modules).not_to_be_null()
         expect(ctx.modules.importer).to_equal(importer)
 
+    def test_can_config_define_app_class(self):
+        server = ServerParameters(
+            port=8888,
+            ip='0.0.0.0',
+            config_path='/tmp/config_path.conf',
+            keyfile='./tests/fixtures/thumbor.key',
+            log_level='debug',
+            app_class='thumbor.app.ThumborServiceApp',
+        )
+
+        cfg = Config(
+            APP_CLASS='config.app',
+        )
+        importer = Importer(cfg)
+        ctx = Context(config=cfg, importer=importer, server=server)
+
+        expect(ctx.app_class).to_equal('config.app')
+
+    def test_can_server_app_class_override_config(self):
+        server = ServerParameters(
+            port=8888,
+            ip='0.0.0.0',
+            config_path='/tmp/config_path.conf',
+            keyfile='./tests/fixtures/thumbor.key',
+            log_level='debug',
+            app_class='server.app',
+        )
+
+        cfg = Config(
+            APP_CLASS='config.app',
+        )
+        importer = Importer(cfg)
+        ctx = Context(config=cfg, importer=importer, server=server)
+
+        expect(ctx.app_class).to_equal('server.app')
+
 
 class ServerParametersTestCase(TestCase):
     def test_can_create_server_parameters(self):
