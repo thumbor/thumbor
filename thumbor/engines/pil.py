@@ -99,10 +99,13 @@ class Engine(BaseEngine):
         del d
 
     def resize(self, width, height):
+        mode = self.image.mode
         if self.image.mode == 'P':
             logger.debug('converting image from 8-bit palette to 32-bit RGBA for resize')
-            self.image = self.image.convert('RGBA')
-        self.image = self.image.resize((int(width), int(height)), Image.ANTIALIAS)
+            mode = 'RGBA'
+
+        self.image.draft(mode, (int(width), int(height)))
+        self.image = self.image.resize((int(width), int(height)), Image.BICUBIC)
 
     def crop(self, left, top, right, bottom):
         self.image = self.image.crop((
