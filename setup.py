@@ -102,7 +102,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "derpconf>=0.2.0",
             "pexif>=0.15,<1.0",
             "statsd>=3.0.1",
-            "libthumbor",
+            "libthumbor>=1.3.2",
             "futures",
             "argparse",
             "pytz",
