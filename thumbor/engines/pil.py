@@ -169,6 +169,9 @@ class Engine(BaseEngine):
                     else:
                         options['qtables'] = qtables_config
 
+        if ext == '.png':
+            options['optimize'] = True
+
         if options['quality'] is None:
             options['quality'] = self.context.config.QUALITY
 
@@ -185,7 +188,6 @@ class Engine(BaseEngine):
         try:
             if ext == '.webp':
                 if self.image.mode not in ['RGB', 'RGBA']:
-                    mode = None
                     if self.image.mode == 'P':
                         mode = 'RGBA'
                     else:
