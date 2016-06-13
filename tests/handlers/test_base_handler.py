@@ -290,6 +290,21 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         engine.load(response.body, '.png')
         expect(engine.size).to_equal((2400, 2400))
 
+    def test_can_read_8bit_tiff_as_png(self):
+        response = self.fetch('/unsafe/gradient_8bit.tif')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
+    def test_can_read_16bit_lsb_tiff_as_png(self):
+        response = self.fetch('/unsafe/gradient_lsb_16bperchannel.tif')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
+    def test_can_read_16bit_msb_tiff_as_png(self):
+        response = self.fetch('/unsafe/gradient_msb_16bperchannel.tif')
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
 
 class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
     def get_context(self):

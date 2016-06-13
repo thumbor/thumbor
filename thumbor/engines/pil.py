@@ -16,9 +16,14 @@ from io import BytesIO
 
 from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 
+try:
+    from cv2 import cv
+except:
+    cv = None
+
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
-from thumbor.utils import logger, deprecated
+from thumbor.utils import logger, deprecated, EXTENSION
 
 try:
     from thumbor.ext.filters import _composite
@@ -256,6 +261,37 @@ class Engine(BaseEngine):
         os.remove(tmp_file_path)
 
         return results
+
+    def convert_tif_to_png(self, buffer):
+        if not cv:
+            msg = """[PILEngine] convert_tif_to_png failed: opencv not imported"""
+            logger.error(msg)
+            return buffer
+
+        # can not use cv2 here, because ubuntu precise shipped with python-opencv 2.3 which has bug with imencode
+        # requires 3rd parameter buf which could not be created in python. Could be replaced with these lines:
+        # img = cv2.imdecode(numpy.fromstring(buffer, dtype='uint16'), -1)
+        # buffer = cv2.imencode('.png', img)[1].tostring()
+        mat_data = cv.CreateMatHeader(1, len(buffer), cv.CV_8UC1)
+        cv.SetData(mat_data, buffer, len(buffer))
+        img = cv.DecodeImage(mat_data, -1)
+        buffer = cv.EncodeImage(".png", img).tostring()
+
+        mime = self.get_mimetype(buffer)
+        self.extension = EXTENSION.get(mime, '.jpg')
+        return buffer
+
+    def load(self, buffer, extension):
+        self.extension = extension
+
+        if extension is None:
+            mime = self.get_mimetype(buffer)
+            self.extension = EXTENSION.get(mime, '.jpg')
+
+        if self.extension == '.tif':  # Pillow does not support 16bit per channel TIFF images
+            buffer = self.convert_tif_to_png(buffer)
+
+        super(Engine, self).load(buffer, self.extension)
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_data(self):

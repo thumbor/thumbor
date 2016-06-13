@@ -10,13 +10,11 @@
 
 from __future__ import unicode_literals, absolute_import
 from struct import pack
+from os.path import abspath, join, dirname
 
 from unittest import TestCase
 
-try:
-    from unittest import mock  # Python 3.3 +
-except ImportError:
-    import mock  # Python 2.7
+import mock
 
 from preggy import expect
 
@@ -24,13 +22,14 @@ from thumbor.context import Context
 from thumbor.config import Config
 from thumbor.engines import BaseEngine
 
+STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
+
 
 def exif_str(x):
     return b'Exif\x00\x00II*\x00\x08\x00\x00\x00\x05\x00\x12\x01\x03\x00\x01\x00\x00\x00%s\x00\x00\x1a\x01\x05\x00\x01\x00\x00\x00J\x00\x00\x00\x1b\x01\x05\x00\x01\x00\x00\x00R\x00\x00\x00(\x01\x03\x00\x01\x00\x00\x00\x02\x00\x00\x00\x13\x02\x03\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00H\x00\x00\x00\x01\x00\x00\x00H\x00\x00\x00\x01\x00\x00\x00' % pack('h', x)  # noqa
 
 
 class BaseEngineTestCase(TestCase):
-
     def get_context(self):
         cfg = Config(
             SECURITY_KEY='ACME-SEC',
@@ -125,6 +124,18 @@ class BaseEngineTestCase(TestCase):
         returned_buffer = self.engine.convert_svg_to_png(buffer)
         expect(mockLogError.called).to_be_true()
         expect(buffer).to_equal(returned_buffer)
+
+    def test_can_identify_msb_tiff(self):
+        with open(join(STORAGE_PATH, 'gradient_msb_16bperchannel.tif'), 'r') as im:
+            buffer = im.read()
+        mime = self.engine.get_mimetype(buffer)
+        expect(mime).to_equal('image/tiff')
+
+    def test_can_identify_lsb_tiff(self):
+        with open(join(STORAGE_PATH, 'gradient_lsb_16bperchannel.tif'), 'r') as im:
+            buffer = im.read()
+        mime = self.engine.get_mimetype(buffer)
+        expect(mime).to_equal('image/tiff')
 
     def test_get_orientation(self):
         self.engine.exif = exif_str(1)
