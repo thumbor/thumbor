@@ -43,40 +43,6 @@ class BaseContext(TornadoHTTPContext):
 
 
 @Vows.batch
-class Blacklist(BaseContext):
-
-    class BaseBlacklist(TornadoHTTPContext):
-        def topic(self):
-            response = self.get('/blacklist')
-            return (response.code, response.body)
-
-        def should_return_blank(self, topic):
-            expect(topic[1]).to_equal("")
-
-        def should_return_200(self, topic):
-            expect(topic[0]).to_equal(200)
-
-        class AddingToBlacklist(TornadoHTTPContext):
-            def topic(self):
-                response = self.fetch('/blacklist?blocked.jpg', method='PUT', body='')
-                return (response.code, response.body)
-
-            def should_return_200(self, topic):
-                expect(topic[0]).to_equal(200)
-
-            class ReadingUpdatedBlacklist(TornadoHTTPContext):
-                def topic(self):
-                    response = self.get('/blacklist')
-                    return (response.code, response.body)
-
-                def should_return_200(self, topic):
-                    expect(topic[0]).to_equal(200)
-
-                def should_contain_blacklisted_file(self, topic):
-                    expect("blocked.jpg\n" in topic[1]).to_equal(True)
-
-
-@Vows.batch
 class BlacklistIntegration(BaseContext):
 
     class NormalGetImage(TornadoHTTPContext):
