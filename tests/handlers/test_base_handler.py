@@ -987,3 +987,38 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
         response = self.fetch('/unsafe/filters:max_bytes(10000)/conselheira_tutelar.jpg')
         expect(response.code).to_equal(200)
         expect(len(response.body)).to_be_lesser_or_equal_to(10000)
+
+
+class TranslateCoordinatesTestCase(TestCase):
+    def setUp(self, *args, **kwargs):
+        super(TranslateCoordinatesTestCase, self).setUp(*args, **kwargs)
+        coords = self.get_coords()
+        self.translate_crop_coordinates = BaseHandler.translate_crop_coordinates(
+            original_width=coords['original_width'],
+            original_height=coords['original_height'],
+            width=coords['width'],
+            height=coords['height'],
+            crop_left=coords['crop_left'],
+            crop_top=coords['crop_top'],
+            crop_right=coords['crop_right'],
+            crop_bottom=coords['crop_bottom']
+        )
+
+    def get_coords(self):
+        return {
+            'original_width': 3000,
+            'original_height': 2000,
+            'width': 1200,
+            'height': 800,
+            'crop_left': 100,
+            'crop_top': 100,
+            'crop_right': 200,
+            'crop_bottom': 200,
+            'expected_crop': (40, 40, 80, 80)
+        }
+
+    def test_should_be_a_list_of_coords(self):
+        expect(self.translate_crop_coordinates).to_be_instance_of(tuple)
+
+    def test_should_translate_from_original_to_resized(self):
+        expect(self.translate_crop_coordinates).to_equal(self.get_coords()['expected_crop'])
