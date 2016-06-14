@@ -29,13 +29,11 @@ class BlacklistHandlerTestCase(TestCase):
         cfg = Config()
         cfg.USE_BLACKLIST = True
         cfg.LOADER = "thumbor.loaders.file_loader"
-        cfg.FILE_LOADER_ROOT_PATH = abspath(join(dirname(__file__), 'fixtures/'))
+        cfg.FILE_LOADER_ROOT_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
         cfg.STORAGE = 'thumbor.storages.file_storage'
         cfg.FILE_STORAGE_ROOT_PATH = file_storage_root_path
-
         importer = Importer(cfg)
         importer.import_modules()
-
         return Context(None, cfg, importer)
 
     def test_can_get_blacklist(self):
@@ -53,3 +51,10 @@ class BlacklistHandlerTestCase(TestCase):
         response = self.fetch('/blacklist')
         expect(response.code).to_equal(200)
         expect("blocked.jpg\n" in response.body).to_equal(True)
+
+    def test_cant_get_blacklisted_image(self):
+        response = self.fetch('/unsafe/image.jpg')
+        expect(response.code).to_equal(200)
+        self.fetch('/blacklist?image.jpg', method='PUT', body='')
+        response = self.fetch('/unsafe/image.jpg')
+        expect(response.code).to_equal(400)
