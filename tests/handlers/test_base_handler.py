@@ -83,16 +83,6 @@ class BaseHandlerTestApp(tornado.web.Application):
         ])
 
 
-class BaseHandlerTestCase(TestCase):
-    def get_app(self):
-        self.context = self.get_context()
-        return BaseHandlerTestApp(self.context)
-
-    def test_can_get_an_error(self):
-        response = self.fetch('/error')
-        expect(response.code).to_equal(403)
-
-
 class BaseImagingTestCase(TestCase):
     @classmethod
     def setUpClass(cls, *args, **kw):
