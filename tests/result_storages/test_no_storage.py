@@ -16,7 +16,7 @@ from thumbor.result_storages.no_storage import Storage as NoStorage
 from tests.base import TestCase
 
 
-class NoResultStorageFilterTestCase(TestCase):
+class NoResultStorageTestCase(TestCase):
     def get_context(self):
         cfg = Config()
         ctx = Context(None, cfg, None)
