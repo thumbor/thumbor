@@ -160,8 +160,29 @@ class TestCase(AsyncHTTPTestCase):
         self.context = self.get_context()
         return ThumborServiceApp(self.context)
 
+    def get_config(self):
+        return Config()
+
+    def get_server(self):
+        return None
+
+    def get_importer(self):
+        return None
+
+    def get_request_handler(self):
+        return None
+
     def get_context(self):
-        return Context(None, Config(), None)
+        self.server = self.get_server()
+        self.config = self.get_config()
+        self.importer = self.get_importer()
+        self.request_handler = self.get_request_handler()
+        return Context(
+            self.server,
+            self.config,
+            self.importer,
+            self.request_handler
+        )
 
     def get(self, path, headers):
         return self.fetch(path,
