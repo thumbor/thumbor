@@ -30,8 +30,7 @@ class ErrorHandler(object):
 
     def get_modules(self):
         resolved = {}
-        modules = [mod[1] for mod in tuple(pkgutil.iter_modules())]
-        for module in modules:
+        for _, module, _ in pkgutil.iter_modules():
             try:
                 res_mod = pkg_resources.get_distribution(module)
                 if res_mod is not None:
