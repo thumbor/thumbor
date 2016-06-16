@@ -30,7 +30,7 @@ tests_require = [
     "yanc",
     "remotecv",
     "pyssim",
-    "cairosvg>=1.0.20,<1.1,!=1.0.21",
+    "cairosvg!=1.0.21",
     "preggy>=1.3.0",
 ]
 
