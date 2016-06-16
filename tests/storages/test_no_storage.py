@@ -11,7 +11,7 @@
 from os.path import join, abspath, dirname
 from preggy import expect
 
-from thumbor.context import Context, RequestParameters
+from thumbor.context import Context
 from thumbor.config import Config
 from thumbor.storages.no_storage import Storage as NoStorage
 from tests.base import TestCase
