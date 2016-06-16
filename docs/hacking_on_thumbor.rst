@@ -27,8 +27,6 @@ The following packages are required:
 -  Pillow >= 1.7.5
 -  redis >= 2.4.11
 -  pymongo >= 2.1.1
--  pyvows
--  tornado\_pyvows
 -  argparse
 
 You'll also need a recent version of

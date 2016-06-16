@@ -99,7 +99,7 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         expect(got).to_be_null()
 
     @tornado.testing.gen_test
-    def test_detector_vows_can_store_detector_data(self):
+    def test_detector_can_store_detector_data(self):
         iurl = self.get_image_url('image_7.jpg')
         ibytes = self.get_image_bytes('image.jpg')
         storage = FileStorage(self.context)
@@ -111,7 +111,7 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         expect(got).to_equal('some-data')
 
     @tornado.testing.gen_test
-    def test_detector_vows_returns_none_if_no_detector_data(self):
+    def test_detector_returns_none_if_no_detector_data(self):
         iurl = self.get_image_url('image_10000.jpg')
         storage = FileStorage(self.context)
         got = yield storage.get_detector_data(iurl)

@@ -10,7 +10,7 @@
 from os.path import abspath
 
 LOADER = 'thumbor.loaders.file_loader'
-FILE_LOADER_ROOT_PATH = abspath('./vows/fixtures')
+FILE_LOADER_ROOT_PATH = abspath('./tests/fixtures/images/')
 STORAGE = 'thumbor.storages.no_storage'
 
 MAX_AGE = 2

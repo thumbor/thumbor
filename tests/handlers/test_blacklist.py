@@ -19,10 +19,9 @@ from thumbor.importer import Importer
 from tests.base import TestCase
 
 
-
 class BlacklistHandlerTestCase(TestCase):
     def get_context(self):
-        file_storage_root_path = '/tmp/thumbor-vows/storage'
+        file_storage_root_path = '/tmp/thumbor/storage'
         if exists(file_storage_root_path):
             rmtree(file_storage_root_path)
 

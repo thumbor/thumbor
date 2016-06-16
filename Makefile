@@ -12,9 +12,7 @@ setup:
 compile_ext:
 	@python setup.py build_ext -i
 
-f ?= "vows/"
-test pyvows: compile_ext redis
-	@pyvows -vv --profile --cover --cover-package=thumbor --cover-threshold=90 $f
+test: compile_ext redis
 	@$(MAKE) unit coverage
 	@nosetests -sv thumbor/integration_tests/
 	@$(MAKE) static
@@ -24,10 +22,7 @@ ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@if [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) pyvows_run unit static coverage; else $(MAKE) integration_run; fi
-
-pyvows_run:
-	@pyvows -vvv --profile --cover --cover-package=thumbor --cover-threshold=90 vows/
+	@if [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit static coverage; else $(MAKE) integration_run; fi
 
 integration_run:
 	@nosetests -sv thumbor/integration_tests/
