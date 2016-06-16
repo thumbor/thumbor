@@ -121,4 +121,3 @@ class ConfigValuesTestCase(TestCase):
         expect(cfg.STORAGE_ALIAS).to_equal(self.get_default_storage())
         expect(cfg.STORAGE_ALIAS_ALIAS).to_equal(self.get_default_storage())
         expect(cfg.__class__.__module__).to_equal('derpconf.config')
-
