@@ -43,9 +43,9 @@ class MaxAgeFilterTestCase(BaseMaxAgeFilterTestCase):
         expect(response.headers).to_include('Expires')
 
 
-class MaxAge2FilterTestCase(BaseMaxAgeFilterTestCase):
+class MaxAgeDetectorFilterTestCase(BaseMaxAgeFilterTestCase):
     def get_config(self):
-        config = super(MaxAge2FilterTestCase, self).get_config()
+        config = super(MaxAgeDetectorFilterTestCase, self).get_config()
         config.DETECTORS = ['tests.fixtures.prevent_result_storage_detector']
         return config
 
@@ -56,9 +56,9 @@ class MaxAge2FilterTestCase(BaseMaxAgeFilterTestCase):
         expect(response.headers).to_include('Expires')
 
 
-class MaxAge3FilterTestCase(BaseMaxAgeFilterTestCase):
+class MaxAgeErrorDectectorFilterTestCase(BaseMaxAgeFilterTestCase):
     def get_config(self):
-        config = super(MaxAge3FilterTestCase, self).get_config()
+        config = super(MaxAgeErrorDectectorFilterTestCase, self).get_config()
         config.DETECTORS = ['tests.fixtures.detection_error_detector']
         return config
 
