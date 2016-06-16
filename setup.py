@@ -30,7 +30,7 @@ tests_require = [
     "yanc",
     "remotecv",
     "pyssim",
-    "cairosvg",
+    "cairosvg==1.0.20",  # cairosvg 1.0.21 has a bug, see more: https://github.com/Kozea/CairoSVG/issues/105!
     "preggy>=1.3.0",
 ]
 
