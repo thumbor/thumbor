@@ -89,6 +89,15 @@ class PilEngineTestCase(TestCase):
         expect(mockLogError.called).to_be_true()
         expect(buffer).to_equal(returned_buffer)
 
+    def test_resize_truncated_image(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, 'BlueSquare_truncated.jpg'), 'r') as im:
+            buffer = im.read()
+        engine.load(buffer, '.jpg')
+        engine.resize(10, 10)
+        mode, _ = engine.image_data_as_rgb()
+        expect(mode).to_equal('RGB')
+
     @skipUnless(METADATA_AVAILABLE, 'Pyexiv2 library not found. Skipping metadata tests.')
     def test_load_image_with_metadata(self):
         engine = Engine(self.context)
