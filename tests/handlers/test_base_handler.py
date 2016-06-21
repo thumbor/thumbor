@@ -186,8 +186,8 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
                 f.read()
             )
 
-        url = quote(u"/unsafe/http://test.com/maracujá.jpg".encode('utf-8'));
-        response = self.fetch(image_url)
+        url = quote(u"/unsafe/http://test.com/maracujá.jpg".encode('utf-8'))
+        response = self.fetch(url)
         expect(response.code).to_equal(200)
 
 
