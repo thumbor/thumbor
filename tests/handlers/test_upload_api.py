@@ -60,8 +60,42 @@ class UploadTestCase(TestCase):
 
         return Context(None, cfg, importer)
 
+class Upload_with_respect_orientation_true(UploadTestCase):
+    def test_can_post_image_exif_and_respect_orientation(self):
+        filename = 'new_image_with_a_filename.jpg'
+        response = self.post(self.base_uri, {'Slug': filename}, valid_image())
 
-class UploadAPINewFileTestCase(UploadTestCase):
+        expect(response.code).to_equal(201)
+
+        expect(response.headers).to_include('Location')
+        expect(response.headers['Location']).to_match(self.base_uri + r'/[^\/]{32}/' + filename)
+
+        expected_path = self.get_path_from_location(response.headers['Location'])
+        expected_path = self.upload_storage.path_on_filesystem(expected_path)
+        expect(expected_path).to_exist()
+        expect(expected_path).to_be_the_same_as(valid_image_path)
+        
+        
+    def get_context(self):
+        self.default_filename = 'image'
+
+        cfg = Config()
+        cfg.UPLOAD_ENABLED = True
+        cfg.UPLOAD_PHOTO_STORAGE = 'thumbor.storages.file_storage'
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.RESPECT_ORIENTATION =True
+        cfg.UPLOAD_DELETE_ALLOWED = False
+        cfg.UPLOAD_PUT_ALLOWED = False
+        cfg.UPLOAD_DEFAULT_FILENAME = self.default_filename
+
+        importer = Importer(cfg)
+        importer.import_modules()
+
+        return Context(None, cfg, importer)
+
+class UploadAPINewFileTestCase(UploadTestCase):`
+
+
     def test_can_post_image_with_content_type(self):
         filename = 'new_image_with_a_filename.jpg'
         response = self.post(self.base_uri, {'Content-Type': 'image/jpeg', 'Slug': filename}, valid_image())

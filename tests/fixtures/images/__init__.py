@@ -32,7 +32,7 @@ space_image_path = get_abs_path(u'image%20space.jpg')
 invalid_quantization_image_path = get_abs_path(u'invalid_quantization.jpg')
 animated_image_path = get_abs_path(u'animated_image.gif')
 not_so_animated_image_path = get_abs_path(u'not_so_animated_image.gif')
-
+exif_image_path = get_abs_path(u'IMG_6494.JPG')
 
 def get_image(img):
     encode_formats = ['NFD', 'NFC', 'NFKD', 'NFKC']
@@ -46,7 +46,6 @@ def get_image(img):
     else:
         raise IOError('%s not found' % img)
     return body
-
 
 def valid_image():
     return get_image(valid_image_path)
@@ -86,3 +85,6 @@ def animated_image():
 
 def not_so_animated_image():
     return get_image(not_so_animated_image_path)
+
+def exif_image():
+    return get_image(exif_image_path)
