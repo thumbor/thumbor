@@ -267,11 +267,21 @@ class RequestParametersTestCase(TestCase):
             path='/test.jpg',
             headers={
                 'Accept': 'image/webp',
-            }
+            },
+            query=None
         )
         params = RequestParameters(request=request, image='/test.jpg')
         expect(params.accepts_webp).to_be_true()
         expect(params.image_url).to_equal('/test.jpg')
+
+    def test_can_get_params_from_request_with_query(self):
+        request = mock.Mock(
+            path='/test.jpg',
+            headers={},
+            query='ts=12345'
+        )
+        params = RequestParameters(request=request, image='/test.jpg')
+        expect(params.image_url).to_equal('/test.jpg?ts=12345')
 
 
 class ContextImporterTestCase(TestCase):
