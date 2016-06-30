@@ -169,8 +169,8 @@ class Engine(BaseEngine):
                     else:
                         options['qtables'] = qtables_config
 
-        if ext == '.png':
-            options['optimize'] = True
+        if ext == '.png' and self.context.config.PNG_COMPRESSION_LEVEL is not None:
+            options['compress_level'] = self.context.config.PNG_COMPRESSION_LEVEL
 
         if options['quality'] is None:
             options['quality'] = self.context.config.QUALITY
