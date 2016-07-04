@@ -8,7 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-from os.path import expanduser, join
+from os.path import join
+import os
+import pwd
 import tempfile
 
 import derpconf.config as config
@@ -16,7 +18,7 @@ from derpconf.config import Config
 
 from thumbor import __version__
 
-home = expanduser("~")
+home = pwd.getpwuid(os.getuid()).pw_dir
 
 Config.define('THUMBOR_LOG_CONFIG', None, 'Logging configuration as json', 'Logging')
 Config.define(
