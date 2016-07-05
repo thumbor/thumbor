@@ -18,8 +18,8 @@ class FillFilterTestCase(FilterTestCase):
     def test_fill_filter_with_fixed_color(self):
         def config_context(context):
             context.request.fit_in = True
-            context.request.width = 400
-            context.request.height = 400
+            context.request.width = 800
+            context.request.height = 800
 
         image = self.get_filtered(
             'source.jpg',
@@ -36,8 +36,8 @@ class FillFilterTestCase(FilterTestCase):
     def test_fill_filter_with_average(self):
         def config_context(context):
             context.request.fit_in = True
-            context.request.width = 400
-            context.request.height = 400
+            context.request.width = 800
+            context.request.height = 800
 
         image = self.get_filtered(
             'source.jpg',
@@ -49,4 +49,4 @@ class FillFilterTestCase(FilterTestCase):
         expected = self.get_fixture('fill2.jpg')
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        expect(ssim).to_be_greater_than(0.97)

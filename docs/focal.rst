@@ -16,7 +16,7 @@ Arguments
 Example
 -------
 
-``http://localhost:8888/unsafe/400x100/filters:focal(146x156:279x208)/http://i.imgur.com/cldZwwc.jpg``
+``http://localhost:8888/unsafe/400x100/filters:focal(146x206:279x360)/https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Katherine_Maher.jpg/800px-Katherine_Maher.jpg``
 
 Before
 

@@ -18,7 +18,6 @@ from os.path import exists, realpath, dirname, join
 import cStringIO
 import mock
 
-import numpy as np
 from PIL import Image
 from ssim import compute_ssim
 from preggy import create_assertions
@@ -57,28 +56,18 @@ def to_be_the_same_as(topic, expected):
     if not exists(expected):
         raise AssertionError("File at %s does not exist" % expected)
 
-    im = Image.open(topic)
-    im = im.convert('RGBA')
-    topic_contents = np.array(im)
+    topic_image = Image.open(topic)
+    expected_image = Image.open(expected)
 
-    im = Image.open(expected)
-    im = im.convert('RGBA')
-    expected_contents = np.array(im)
-
-    return get_ssim(topic_contents, expected_contents) > 0.95
+    return get_ssim(topic_image, expected_image) > 0.95
 
 
 @create_assertions
 def to_be_similar_to(topic, expected):
-    im = Image.open(cStringIO.StringIO(topic))
-    im = im.convert('RGBA')
-    topic_contents = np.array(im)
+    topic_image = Image.open(cStringIO.StringIO(topic))
+    expected_image = Image.open(cStringIO.StringIO(expected))
 
-    im = Image.open(cStringIO.StringIO(expected))
-    im = im.convert('RGBA')
-    expected_contents = np.array(im)
-
-    return get_ssim(topic_contents, expected_contents) > 0.95
+    return get_ssim(topic_image, expected_image) > 0.95
 
 
 @create_assertions
@@ -106,18 +95,15 @@ def to_be_jpeg(topic):
 
 
 def get_ssim(actual, expected):
-    im = Image.fromarray(actual)
-    im2 = Image.fromarray(expected)
-
-    if im.size[0] != im2.size[0] or im.size[1] != im2.size[1]:
+    if actual.size[0] != expected.size[0] or actual.size[1] != expected.size[1]:
         raise RuntimeError(
             "Can't calculate SSIM for images of different sizes (one is %dx%d, the other %dx%d)." % (
-                im.size[0], im.size[1],
-                im2.size[0], im2.size[1],
+                actual.size[0], actual.size[1],
+                expected.size[0], expected.size[1],
             )
         )
 
-    return compute_ssim(im, im2)
+    return compute_ssim(actual, expected)
 
 
 @create_assertions
@@ -262,23 +248,30 @@ class FilterTestCase(PythonTestCase):
 
     def get_fixture(self, name):
         im = Image.open(self.get_fixture_path(name))
-        im = im.convert('RGBA')
-        return np.array(im)
+        return im.convert('RGB')
 
     def get_filtered(self, source_image, filter_name, params_string, config_context=None):
         fltr = self.get_filter(filter_name, params_string, config_context)
         im = Image.open(self.get_fixture_path(source_image))
         img_buffer = BytesIO()
-        im.save(img_buffer, 'JPEG', quality=100)
 
-        fltr.engine.load(img_buffer.getvalue(), '.jpg')
+        # Special case for the quality test, because the quality filter doesn't really affect
+        # the image, it only sets a context value for use on save. But here we convert the result,
+        # we do not save it
+        if params_string == 'quality(10)':
+            im.save(img_buffer, 'JPEG', quality=10)
+            fltr.engine.load(img_buffer.getvalue(), '.jpg')
+        else:
+            im.save(img_buffer, 'PNG', quality=100)
+            fltr.engine.load(img_buffer.getvalue(), '.png')
+
         fltr.context.transformer.img_operation_worker()
 
         fltr.run()
 
-        fltr.engine.image = fltr.engine.image.convert('RGBA')
+        fltr.engine.image = fltr.engine.image.convert('RGB')
 
-        return np.array(fltr.engine.image)
+        return fltr.engine.image
 
     def get_ssim(self, actual, expected):
         return get_ssim(actual, expected)

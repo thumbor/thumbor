@@ -76,10 +76,10 @@ filters = [
     'filters:sharpen(6,2.5,false)',
     'filters:sharpen(6,2.5,true)',
     'filters:strip_icc()',
-    'filters:watermark(brasil_45.png,10,10,50)',
-    'filters:watermark(brasil_45.png,center,center,50)',
-    'filters:watermark(brasil_45.png,repeat,repeat,50)',
-    'filters:frame(frame.9.png)',
+    'filters:watermark(rgba-interlaced.png,10,10,50)',
+    'filters:watermark(rgba-interlaced.png,center,center,50)',
+    'filters:watermark(rgba-interlaced.png,repeat,repeat,50)',
+    'filters:frame(rgba.png)',
     'filters:fill(ff0000)',
     'filters:fill(auto)',
     'filters:fill(ff0000,true)',
@@ -103,20 +103,17 @@ filters = [
 ]
 
 original_images_base = [
-    'dilmahaddad.jpg',
+    'gradient.jpg',
     'cmyk.jpg',
-    'logo-FV.png-menor.png',
-    'alabama_grayscale.jpg',
-    'jescharlie_16bit.png',
-    'olified_transp.png',
-    'wellsford.jpg',
-    'ycck.jpg',
+    'rgba.png',
+    'grayscale.jpg',
+    '16bit.png',
 ]
 
 original_images_gif_webp = [
-    '5.webp',
-    'alerta.gif',
-    'tumblr_m9u52mZMgk1qz99y7o1_400.gif',
+    'gradient.webp',
+    'gradient.gif',
+    'animated.gif',
 ]
 
 
