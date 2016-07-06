@@ -77,6 +77,7 @@ def return_contents(response, url, callback, context):
                 context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
             context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
         result.buffer = response.body
+        context.metrics.incr('original_image.response_bytes', len(response.body))
 
     callback(result)
 
