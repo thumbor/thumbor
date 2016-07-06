@@ -14,7 +14,7 @@ compile_ext:
 
 test: compile_ext redis
 	@$(MAKE) unit coverage
-	@nosetests -sv thumbor/integration_tests/
+	@nosetests -sv integration_tests/
 	@$(MAKE) static
 	$(MAKE) kill_redis
 
@@ -25,7 +25,7 @@ ci_test: compile_ext
 	@if [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit static coverage; else $(MAKE) integration_run; fi
 
 integration_run:
-	@nosetests -sv thumbor/integration_tests/
+	@nosetests -sv integration_tests/
 
 coverage:
 	@coverage report -m --fail-under=10
@@ -66,26 +66,26 @@ static:
 	@flake8 --config=./flake8 .
 
 sample_images:
-	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 thumbor/integration_tests/imgs/animated.gif
-	convert -size 100x100 gradient:blue thumbor/integration_tests/imgs/gradient.jpg
-	convert -size 100x100 gradient:blue thumbor/integration_tests/imgs/gradient.gif
-	convert -size 100x100 gradient:blue thumbor/integration_tests/imgs/gradient.webp
-	convert -size 100x100 gradient:gray -colorspace gray thumbor/integration_tests/imgs/grayscale.jpg
-	convert -size 100x100 gradient:blue -depth 16 thumbor/integration_tests/imgs/16bit.png
-	convert -size 100x100 gradient:blue -colorspace CMYK thumbor/integration_tests/imgs/cmyk.jpg
-	convert -size 100x100 xc:none -fill gradient:blue -draw "circle 50,50 50,1" -depth 8 thumbor/integration_tests/imgs/rgba.png
-	convert -size 100x100 xc:none -fill gradient:blue -draw "circle 50,50 50,1" -interlace PNG -depth 8 thumbor/integration_tests/imgs/rgba-interlaced.png
+	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 integration_tests/imgs/animated.gif
+	convert -size 100x100 gradient:blue integration_tests/imgs/gradient.jpg
+	convert -size 100x100 gradient:blue integration_tests/imgs/gradient.gif
+	convert -size 100x100 gradient:blue integration_tests/imgs/gradient.webp
+	convert -size 100x100 gradient:gray -colorspace gray integration_tests/imgs/grayscale.jpg
+	convert -size 100x100 gradient:blue -depth 16 integration_tests/imgs/16bit.png
+	convert -size 100x100 gradient:blue -colorspace CMYK integration_tests/imgs/cmyk.jpg
+	convert -size 100x100 xc:none -fill gradient:blue -draw "circle 50,50 50,1" -depth 8 integration_tests/imgs/rgba.png
+	convert -size 100x100 xc:none -fill gradient:blue -draw "circle 50,50 50,1" -interlace PNG -depth 8 integration_tests/imgs/rgba-interlaced.png
 	convert -size 16383x16383 canvas:blue tests/fixtures/images/16383x16383.png
 	convert -size 16384x16384 canvas:blue tests/fixtures/images/16384x16384.png
 	convert -size 9643x10328 canvas:blue tests/fixtures/images/9643x10328.jpg
 	convert -size 1x1 canvas:white png24:tests/fixtures/images/1x1.png
-	cp thumbor/integration_tests/imgs/animated.gif tests/fixtures/images/animated.gif
+	cp integration_tests/imgs/animated.gif tests/fixtures/images/animated.gif
 	convert -size 20x20 gradient:blue tests/fixtures/images/20x20.jpg
 	echo "" > tests/fixtures/images/image_invalid.jpg
 	convert -size 300x400 gradient:blue tests/fixtures/images/image.jpg
 	convert -delay 100 -size 100x100 gradient:blue tests/fixtures/images/animated-one-frame.gif
-	cp thumbor/integration_tests/imgs/grayscale.jpg tests/fixtures/images/grayscale.jpg
-	cp thumbor/integration_tests/imgs/cmyk.jpg tests/fixtures/images/cmyk.jpg
+	cp integration_tests/imgs/grayscale.jpg tests/fixtures/images/grayscale.jpg
+	cp integration_tests/imgs/cmyk.jpg tests/fixtures/images/cmyk.jpg
 	convert -size 100x100 gradient:blue -depth 8 tests/fixtures/images/gradient_8bit.tif
 	convert -size 100x100 gradient:blue tests/fixtures/images/gradient_lsb_16bperchannel.tif
 	convert -size 100x100 gradient:blue -define tiff:endian=msb tests/fixtures/images/gradient_msb_16bperchannel.tif

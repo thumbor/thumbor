@@ -4,4 +4,3 @@ recursive-include thumbor *.py
 recursive-include thumbor *.conf
 recursive-include thumbor *.xml
 recursive-include thumbor *.h
-recursive-include thumbor/integration_tests/imgs *

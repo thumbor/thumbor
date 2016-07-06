@@ -7,7 +7,7 @@ from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
-from thumbor.integration_tests.urls_helpers import single_dataset  # , combined_dataset
+from .urls_helpers import single_dataset  # , combined_dataset
 from thumbor.utils import which
 
 

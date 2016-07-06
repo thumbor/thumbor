@@ -1,4 +1,4 @@
-from thumbor.integration_tests import EngineCase
+from . import EngineCase
 
 
 class PILTest(EngineCase):
