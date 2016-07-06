@@ -46,8 +46,23 @@ if hasattr(ImageFile, 'IGNORE_DECODING_ERRORS'):
     ImageFile.IGNORE_DECODING_ERRORS = True
 
 
-class Engine(BaseEngine):
+def get_resize_filter(config):
+    resample = config.PILLOW_RESAMPLING_FILTER if config.PILLOW_RESAMPLING_FILTER is not None else 'LANCZOS'
 
+    available = {
+        'LANCZOS': Image.LANCZOS,
+        'NEAREST': Image.NEAREST,
+        'BILINEAR': Image.BILINEAR,
+        'BICUBIC': Image.BICUBIC,
+    }
+
+    if hasattr(Image, 'HAMMING'):
+        available['HAMMING'] = Image.HAMMING
+
+    return available.get(resample.upper(), Image.LANCZOS)
+
+
+class Engine(BaseEngine):
     def __init__(self, context):
         super(Engine, self).__init__(context)
         self.subsampling = None
@@ -104,8 +119,10 @@ class Engine(BaseEngine):
             logger.debug('converting image from 8-bit palette to 32-bit RGBA for resize')
             mode = 'RGBA'
 
+        resample = get_resize_filter(self.context.config)
+
         self.image.draft(mode, (int(width), int(height)))
-        self.image = self.image.resize((int(width), int(height)), Image.BICUBIC)
+        self.image = self.image.resize((int(width), int(height)), resample)
 
     def crop(self, left, top, right, bottom):
         self.image = self.image.crop((

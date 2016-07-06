@@ -47,6 +47,10 @@ Config.define('PILLOW_JPEG_QTABLES', None,
               in http://pillow.readthedocs.org/en/latest/handbook/image-file-formats.html#jpeg). '
               'Will ignore `quality`. Using `keep` will copy the original file\'s qtables.', 'Imaging')
 
+Config.define('PILLOW_RESAMPLING_FILTER', 'LANCZOS',
+              'Specify resampling filter for Pillow resize method.'
+              'One of LANCZOS, NEAREST, BILINEAR, BICUBIC, HAMMING (Pillow>=3.4.0).', 'Imaging')
+
 Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP images. If not set (None) the same level of '
               'JPEG quality will be used.', 'Imaging')
 Config.define('AUTO_WEBP', False, 'Specifies whether WebP format should be used automatically if the request accepts it '
