@@ -89,6 +89,6 @@ class ResultStorageResultTestCase(BaseFileStorageTestCase):
         result = callback.call_args[0][0]
         expect(result).to_be_instance_of(ResultStorageResult)
         expect(result.successful).to_equal(True)
-        expect(len(result)).to_equal(87371)
+        expect(len(result)).to_equal(5319)
         expect(len(result)).to_equal(result.metadata['ContentLength'])
         expect(result.last_modified).to_be_instance_of(datetime)

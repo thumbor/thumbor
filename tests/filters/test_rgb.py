@@ -19,4 +19,4 @@ class RGBFilterTestCase(FilterTestCase):
         expected = self.get_fixture('rgb.jpg')
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        expect(ssim).to_be_greater_than(0.98)

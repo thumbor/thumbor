@@ -22,16 +22,15 @@ def get_abs_path(img):
     return abspath(join(dirname(__file__), img))
 
 valid_image_path = get_abs_path(u'alabama1_ap620é.jpg')
-svg_image_path = get_abs_path(u'escudo.svg')
-svg_converted_image_path = get_abs_path(u'escudo_converted_image.png')
-too_small_image_path = get_abs_path(u'crocodile.jpg')
-too_heavy_image_path = get_abs_path(u'conselheira_tutelar.jpg')
+svg_image_path = get_abs_path(u'Commons-logo.svg')
+too_small_image_path = get_abs_path(u'20x20.jpg')
+too_heavy_image_path = get_abs_path(u'Giunchedi%2C_Filippo_January_2015_01.jpg')
 default_image_path = get_abs_path(u'image.jpg')
 alabama1_image_path = get_abs_path(u'alabama1_ap620%C3%A9.jpg')
 space_image_path = get_abs_path(u'image%20space.jpg')
 invalid_quantization_image_path = get_abs_path(u'invalid_quantization.jpg')
-animated_image_path = get_abs_path(u'animated_image.gif')
-not_so_animated_image_path = get_abs_path(u'not_so_animated_image.gif')
+animated_image_path = get_abs_path(u'animated.gif')
+not_so_animated_image_path = get_abs_path(u'animated-one-frame.gif')
 
 
 def get_image(img):

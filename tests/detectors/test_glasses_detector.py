@@ -30,7 +30,7 @@ class GlassesDetectorTestCase(DetectorTestCase):
         expect(detector).not_to_be_null()
 
     def test_should_detect_glasses(self):
-        with open(abspath('./tests/fixtures/images/glasses.jpg')) as f:
+        with open(abspath('./tests/fixtures/images/Christophe_Henner_-_June_2016.jpg')) as f:
             self.engine.load(f.read(), None)
 
         self.context.config.GLASSES_DETECTOR_CASCADE_FILE = abspath(

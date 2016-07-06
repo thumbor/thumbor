@@ -28,7 +28,7 @@ class FeatureDetectorTestCase(DetectorTestCase):
         expect(detection_result[0].origin).to_equal('alignment')
 
     def test_should_not_detect_points(self):
-        with open(abspath('./tests/fixtures/images/white-block.png')) as f:
+        with open(abspath('./tests/fixtures/images/1x1.png')) as f:
             self.engine.load(f.read(), None)
 
         FeatureDetector(self.context, 0, []).detect(lambda: None)

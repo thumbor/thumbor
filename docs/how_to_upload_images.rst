@@ -160,7 +160,7 @@ REST API :
 ::
 
     curl -i -H "Content-Type: image/jpeg" -H "Slug: photo.jpg"
-            -XPOST http://thumbor-server/image --data-binary "@tests/fixtures/images/crocodile.jpg"
+            -XPOST http://thumbor-server/image --data-binary "@tests/fixtures/images/20x20.jpg"
 
 the HTTP **POST** request was send to the server :
 
@@ -198,7 +198,7 @@ form, the user is free to choose the filename of the image via the
 ::
 
     curl -i -XPOST http://thumbor-server/image
-            -F "media=@tests/fixtures/images/crocodile.jpg;type=image/jpeg;filename=croco.jpg"
+            -F "media=@tests/fixtures/images/20x20.jpg;type=image/jpeg;filename=croco.jpg"
 
 the HTTP **POST** request was send to the server :
 
@@ -229,7 +229,7 @@ To replace the previously uploaded image by another we use:
 ::
 
     curl -i -H "Content-Type: image/jpeg" -H "Slug: modified_image.jpg"
-            -XPUT http://thumbor-server/image/05b2eda857314e559630c6f3334d818d/photo.jpg --data-binary "@tests/fixtures/images/crocodile.jpg"
+            -XPUT http://thumbor-server/image/05b2eda857314e559630c6f3334d818d/photo.jpg --data-binary "@tests/fixtures/images/20x20.jpg"
 
 the HTTP **PUT** request was send to the server :
 

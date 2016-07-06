@@ -1,0 +1,5 @@
+# Requirements
+
+All test images in this folder must be generated or freely licensed.
+
+They should ideally all be regenerated (or, should they not be possible to create from scratch, re-downloaded from a reliable source) via "make sample_images".

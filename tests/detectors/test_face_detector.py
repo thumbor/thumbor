@@ -18,7 +18,7 @@ from tests.base import DetectorTestCase
 
 class FaceDetectorTestCase(DetectorTestCase):
     def test_should_detect_one_face(self):
-        with open(abspath('./tests/fixtures/images/one_face.jpg')) as f:
+        with open(abspath('./tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg')) as f:
             self.engine.load(f.read(), None)
 
         for i, detector in enumerate([
@@ -52,7 +52,7 @@ class FaceDetectorTestCase(DetectorTestCase):
         expect(self.context.request.focal_points).to_be_empty()
 
     def test_should_run_on_grayscale_images(self):
-        with open(abspath('./tests/fixtures/images/multiple_faces_bw.jpg')) as f:
+        with open(abspath('./tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01-grayscale.jpg')) as f:
             self.engine.load(f.read(), None)
 
         self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
@@ -69,7 +69,7 @@ class FaceDetectorTestCase(DetectorTestCase):
         expect(detection_result.height).to_be_numeric()
 
     def test_should_run_on_cmyk_images(self):
-        with open(abspath('./tests/fixtures/images/one_face_cmyk.jpg')) as f:
+        with open(abspath('./tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01-cmyk.jpg')) as f:
             self.engine.load(f.read(), None)
 
         self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
@@ -86,7 +86,7 @@ class FaceDetectorTestCase(DetectorTestCase):
         expect(detection_result.height).to_be_numeric()
 
     def test_should_run_on_images_with_alpha(self):
-        with open(abspath('./tests/fixtures/images/one_face.png')) as f:
+        with open(abspath('./tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.png')) as f:
             self.engine.load(f.read(), None)
 
         self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(

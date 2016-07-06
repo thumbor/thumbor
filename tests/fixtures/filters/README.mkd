@@ -1,0 +1,11 @@
+# Requirements
+
+All test images in this folder must be generated or freely licensed.
+
+They should ideally all be regenerated (or, should they not be possible to create from scratch, re-downloaded from a reliable source) via "make sample_images".
+
+# Licensed images
+
+[source.jpg and many variants](https://commons.wikimedia.org/wiki/File:Katherine_Maher.jpg) - Victor Grigas - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
+
+[watermark.svg watermark.png](https://commons.wikimedia.org/wiki/File:Wikimedia-logo.svg) - Public domain
