@@ -8,17 +8,21 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-import subprocess
+from subprocess import Popen, PIPE
 
 from thumbor.optimizers import BaseOptimizer
+from thumbor.utils import logger
 
 
 class Optimizer(BaseOptimizer):
 
     def should_run(self, image_extension, buffer):
-        return 'jpg' in image_extension or 'jpeg' in image_extension
+        return image_extension in ['.jpg', '.jpeg']
 
-    def optimize(self, buffer, input_file, output_file):
+    def run_optimizer(self, image_extension, buffer):
+        if not self.should_run(image_extension, buffer):
+            return buffer
+
         command = [
             self.context.config.JPEGTRAN_PATH,
             '-copy',
@@ -31,10 +35,12 @@ class Optimizer(BaseOptimizer):
                 '-progressive'
             ]
 
-        command += [
-            '-outfile',
-            output_file,
-            input_file
-        ]
+        jpg_process = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output_stdout, output_stderr = jpg_process.communicate(buffer)
 
-        subprocess.call(command)
+        if jpg_process.returncode != 0:
+            logger.warn('jpegtran finished with non-zero return code (%d): %s'
+                        % jpg_process.returncode, output_stderr)
+            return buffer
+
+        return output_stdout
