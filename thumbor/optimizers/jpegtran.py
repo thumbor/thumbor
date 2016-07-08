@@ -40,7 +40,7 @@ class Optimizer(BaseOptimizer):
 
         if jpg_process.returncode != 0:
             logger.warn('jpegtran finished with non-zero return code (%d): %s'
-                        % jpg_process.returncode, output_stderr)
+                        % (jpg_process.returncode, output_stderr))
             return buffer
 
         return output_stdout
