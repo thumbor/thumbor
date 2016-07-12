@@ -47,6 +47,37 @@ class FetchResult(object):
 class BaseHandler(tornado.web.RequestHandler):
     url_locks = {}
 
+    def prepare(self, *args, **kwargs):
+        super(BaseHandler, self).prepare(*args, **kwargs)
+
+        if not hasattr(self, 'context'):
+            return
+
+        self._response_start = datetime.datetime.now()
+        self.context.metrics.incr('response.count')
+
+    def on_finish(self, *args, **kwargs):
+        super(BaseHandler, self).on_finish(*args, **kwargs)
+
+        if not hasattr(self, 'context'):
+            return
+
+        total_time = (datetime.datetime.now() - self._response_start).total_seconds() * 1000
+        status = self.get_status()
+        self.context.metrics.timing('response.time', total_time)
+        self.context.metrics.timing('response.time.{0}'.format(status), total_time)
+        self.context.metrics.incr('response.status.{0}'.format(status))
+
+        if hasattr(self.context, 'request') and self.context.request.engine:
+            ext = self.context.request.engine.extension
+            self.context.metrics.incr('response.format{0}'.format(ext))
+            self.context.metrics.timing('response.time{0}'.format(ext), total_time)
+            if self.context.request.engine.image:
+                self.context.metrics.incr(
+                    'response.bytes{0}'.format(ext),
+                    len(self.context.request.engine.image.tobytes())
+                )
+
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
