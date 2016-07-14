@@ -545,9 +545,6 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.config.PRESERVE_EXIF_INFO = True
 
         try:
-            mime = BaseEngine.get_mimetype(fetch_result.buffer)
-            self.context.request.extension = extension = EXTENSION.get(mime, None)
-
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                 self.context.request.engine = self.context.modules.gif_engine
             else:
