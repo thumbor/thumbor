@@ -48,7 +48,7 @@ Java
 -  `Pollexor <http://square.github.com/pollexor>`__ - Java client for
    the Thumbor image service which allows you to build URIs in an
    expressive fashion using a fluent API.
--  
+-
 
    .. raw:: html
 
@@ -82,7 +82,7 @@ Objective-C
 
 .NET
 ~~~~
--  `DotNetThumbor <https://github.com/mi9/DotNetThumbor>`__ - DotNet client for the Thumbor image service. 
+-  `DotNetThumbor <https://github.com/mi9/DotNetThumbor>`__ - DotNet client for the Thumbor image service.
    Provides an expressive fluent API.
 
 Implementing a library
@@ -90,7 +90,7 @@ Implementing a library
 
 If you want to provide a library to enable easy usage of thumbor in your
 favorite programming language, please send an e-mail to
-**timehome@corp.globo.com** and we'll add it here.
+**thumbor@googlegroups.com** and we'll add it here.
 
 Below are all the scenarios we think are worth testing automatically so
 you can guarantee compatibility with thumbor. Please note that this is

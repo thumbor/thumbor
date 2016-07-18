@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from setuptools import setup, Extension
 from thumbor import __version__
@@ -72,7 +72,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
 """,
         keywords='imaging face detection feature thumbnail imagemagick pil opencv',
         author='globo.com',
-        author_email='timehome@corp.globo.com',
+        author_email='thumbor@googlegroups.com',
         url='https://github.com/thumbor/thumbor/wiki',
         license='MIT',
         classifiers=[
