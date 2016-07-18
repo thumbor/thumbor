@@ -14,9 +14,12 @@ from os.path import abspath, join, dirname
 from unittest import TestCase, skipUnless
 from preggy import expect
 
+from PIL import Image
+
 from thumbor.context import Context
 from thumbor.config import Config
 from thumbor.engines.pil import Engine
+from thumbor.engines.pil import get_resize_filter
 
 try:
     from pyexiv2 import ImageMetadata  # noqa
@@ -79,6 +82,25 @@ class PilEngineTestCase(TestCase):
             buffer = im.read()
         engine.convert_tif_to_png(buffer)
         expect(engine.extension).to_equal('.png')
+
+    def test_can_set_resampling_filter(self):
+        to_test = {
+            'LANCZOS': Image.LANCZOS,
+            'NEAREST': Image.NEAREST,
+            'BiLinear': Image.BILINEAR,
+            'bicubic': Image.BICUBIC,
+            'garbage': Image.LANCZOS,
+        }
+
+        if hasattr(Image, 'HAMMING'):
+            to_test['HAMMING'] = Image.HAMMING
+
+        for setting, expected in to_test.items():
+            cfg = Config(PILLOW_RESAMPLING_FILTER=setting)
+            expect(get_resize_filter(cfg)).to_equal(expected)
+
+        cfg = Config()
+        expect(get_resize_filter(cfg)).to_equal(Image.LANCZOS)
 
     @mock.patch('thumbor.engines.pil.cv', new=None)
     @mock.patch('thumbor.engines.logger.error')
