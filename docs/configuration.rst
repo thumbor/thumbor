@@ -368,7 +368,7 @@ thumbor instance. It is boolean (True or False).
 ALLOW\_OLD\_URLS
 ~~~~~~~~~~~~~~~~
 
-This option specifies that the format prior to [[3.0.0-release-changes]]
+This option specifies that the format prior to `3.0.0 release changes`_
 should be allowed. It defaults to True.
 
 **THIS OPTION IS DEPRECATED AND WILL DEFAULT TO FALSE IN THE NEXT
@@ -985,3 +985,5 @@ Example of Configuration File
 
     ################################################################################
 
+
+.. _3.0.0 release changes: https://github.com/thumbor/thumbor/wiki/3.0.0-release-changes

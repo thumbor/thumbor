@@ -2,7 +2,7 @@ Libraries
 =========
 
 Even though the process of generating safe image URLs is explained in
-the [[Security]] page, we'll try to provide libraries in each
+the :doc:`security` page, we'll try to provide libraries in each
 programming language to ease this process.
 
 Available Libraries

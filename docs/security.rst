@@ -100,7 +100,7 @@ The old way
 
 thumbor used to generate URL's differently using AES
 encryption/decryption. If you need more info on the old way of
-generating URLs, read the [[3.0.0 release changes]].
+generating URLs, read the `3.0.0 release changes`_.
 
 Loading Images over HTTPS
 -------------------------
@@ -121,3 +121,5 @@ More Information
 
 -  :doc:`release_notes`
 
+
+.. _3.0.0 release changes: https://github.com/thumbor/thumbor/wiki/3.0.0-release-changes
