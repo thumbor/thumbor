@@ -13,6 +13,8 @@ from os.path import abspath, join, dirname
 from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.optimizers.jpegtran import Optimizer
+from thumbor.utils import which
+
 from unittest import TestCase
 
 
@@ -20,6 +22,7 @@ class JpegtranOptimizerTest(TestCase):
     def get_optimizer(self):
         conf = Config()
         conf.STATSD_HOST = ''
+        conf.JPEGTRAN_PATH = which('jpegtran')
         ctx = Context(config=conf)
         optimizer = Optimizer(ctx)
 
