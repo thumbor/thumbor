@@ -378,10 +378,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Server', 'Thumbor/%s' % __version__)
         self.set_header('Content-Type', content_type)
 
-        if context.config.AUTO_WEBP and \
-                not context.request.engine.is_multiple() and \
-                context.request.engine.can_convert_to_webp() and \
-                context.request.engine.extension != '.webp':
+        if self.is_webp(self.context):
             self.set_header('Vary', 'Accept')
 
         context.headers = self._headers.copy()

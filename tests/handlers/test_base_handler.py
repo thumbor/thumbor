@@ -400,13 +400,6 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
 
         expect(response.body).to_be_webp()
 
-    def test_should_not_convert_webp_if_already_webp(self):
-        response = self.get_as_webp('/unsafe/image.webp')
-
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include('Vary')
-        expect(response.body).to_be_webp()
-
     def test_should_bad_request_if_bigger_than_75_megapixels(self):
         response = self.get_as_webp('/unsafe/16384x16384.png')
         expect(response.code).to_equal(400)
