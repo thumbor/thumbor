@@ -39,8 +39,8 @@ configuration in your thumbor.conf file to ``True``.
 
 Thumbor will then use the storage specified in the
 ``UPLOAD_PHOTO_STORAGE`` configuration to save your images. You can use
-an existing storage (filesytem, redis, mongo, hbase...) or [[create your
-own storage\|Creating my own Storage]] if needed .
+an existing storage (filesytem, redis, mongo, hbase...) or
+:doc:`create your own storage <create_my_own_storage>` if needed .
 
 You can manage image putting and deletions simply set the configuration
 parameters ``UPLOAD_PUT_ALLOWED`` and ``UPLOAD_DELETE_ALLOWED`` to

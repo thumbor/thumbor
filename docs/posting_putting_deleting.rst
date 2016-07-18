@@ -8,7 +8,7 @@ put, post and delete.
 
 By default, put and delete are disabled. This is done to tighten
 thumbor's security. If you wish to enable them, please refer to the
-[[How Upload works in thumbor]] page.
+:doc:`how_to_upload_images` page.
 
 Posting
 -------
