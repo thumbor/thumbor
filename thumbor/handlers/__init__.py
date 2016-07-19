@@ -68,7 +68,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.metrics.timing('response.time.{0}'.format(status), total_time)
         self.context.metrics.incr('response.status.{0}'.format(status))
 
-        if hasattr(self.context, 'request') and self.context.request.engine:
+        if hasattr(self.context, 'request') and hasattr(self.context.request, 'engine'):
             ext = self.context.request.engine.extension
             self.context.metrics.incr('response.format{0}'.format(ext))
             self.context.metrics.timing('response.time{0}'.format(ext), total_time)
