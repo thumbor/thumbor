@@ -220,16 +220,10 @@ class Engine(BaseEngine):
 
             if ext in ['.png', '.gif'] and self.image.mode == 'CMYK':
                 self.image = self.image.convert('RGBA')
-            self.image.format = FORMATS[ext]
-            self.image.save(img_buffer, FORMATS[ext], **options)
+            self.image.format = FORMATS.get(ext, FORMATS[self.get_default_extension()])
+            self.image.save(img_buffer, self.image.format, **options)
         except IOError:
             logger.exception('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
-            self.image.save(img_buffer, FORMATS[ext])
-        except KeyError:
-            logger.exception('Image format not found in PIL: %s' % ext)
-            ext = self.get_default_extension()
-            # extension could not help determine format => use default
-            self.image.format = FORMATS[ext]
             self.image.save(img_buffer, FORMATS[ext])
 
         results = img_buffer.getvalue()
