@@ -25,7 +25,7 @@ import unittest
 
 from thumbor.config import Config
 from thumbor.importer import Importer
-from thumbor.context import Context, ServerParameters
+from thumbor.context import Context, ServerParameters, RequestParameters
 from thumbor.handlers import FetchResult, BaseHandler
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
@@ -449,6 +449,66 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
     def test_converting_return_etags(self):
         response = self.get_as_webp('/unsafe/image.jpg')
         expect(response.headers).to_include('Etag')
+
+
+class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
+    def get_request(self, *args, **kwargs):
+        return RequestParameters(*args, **kwargs)
+
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.AUTO_WEBP = True
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        ctx = Context(server, cfg, importer)
+        ctx.request = self.get_request()
+        ctx.server.gifsicle_path = which('gifsicle')
+        return ctx
+
+    @property
+    def result_storage(self):
+        return self.context.modules.result_storage
+
+    def get_as_webp(self, url):
+        return self.fetch(url, headers={
+            "Accept": 'image/webp,*/*;q=0.8'
+        })
+
+    @patch('thumbor.handlers.Context')
+    def test_can_auto_convert_jpeg_from_result_storage(self, context_mock):
+        context_mock.return_value = self.context
+        crypto = CryptoURL('ACME-SEC')
+        url = crypto.generate(image_url=quote("http://test.com/smart/image.jpg"))
+        self.context.request = self.get_request(url=url, accepts_webp=True)
+        with open('./tests/fixtures/images/image.webp', 'r') as f:
+            self.context.modules.result_storage.put(f.read())
+
+        response = self.get_as_webp(url)
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.headers['Vary']).to_include('Accept')
+        expect(response.body).to_be_webp()
+        expect(self.context.request.engine.extension).to_equal('.webp')
+
+    @patch('thumbor.handlers.Context')
+    def test_can_auto_convert_unsafe_jpeg_from_result_storage(self, context_mock):
+        context_mock.return_value = self.context
+        self.context.request = self.get_request(accepts_webp=True)
+
+        response = self.get_as_webp('/unsafe/image.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.headers['Vary']).to_include('Accept')
+        expect(response.body).to_be_webp()
+        expect(self.context.request.engine.extension).to_equal('.webp')
 
 
 class ImageOperationsWithoutEtagsTestCase(BaseImagingTestCase):

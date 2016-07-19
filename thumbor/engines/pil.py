@@ -33,6 +33,7 @@ except ImportError:
 
 
 FORMATS = {
+    '.tif': 'PNG',  # serve tif as png
     '.jpg': 'JPEG',
     '.jpeg': 'JPEG',
     '.gif': 'GIF',
@@ -233,6 +234,7 @@ class Engine(BaseEngine):
 
         results = img_buffer.getvalue()
         img_buffer.close()
+        self.extension = ext
         return results
 
     def read_multiple(self, images, extension=None):
