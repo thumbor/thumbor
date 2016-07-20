@@ -16,6 +16,11 @@ from io import BytesIO
 
 from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 
+try:
+    import numpy
+except ImportError:
+    numpy = None
+
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
 from thumbor.utils import logger, deprecated
@@ -253,6 +258,7 @@ class Engine(BaseEngine):
 
             if ext in ['.png', '.gif'] and self.image.mode == 'CMYK':
                 self.image = self.image.convert('RGBA')
+
             self.image.format = FORMATS.get(ext, FORMATS[self.get_default_extension()])
             self.image.save(img_buffer, self.image.format, **options)
         except IOError:
@@ -341,6 +347,25 @@ class Engine(BaseEngine):
         if update_image:
             self.image = image
         return image
+
+    def has_transparency(self):
+        has_transparency = 'A' in self.image.mode or 'transparency' in self.image.info
+        if has_transparency and numpy:
+            # If the image has alpha channel and numpy is installed
+            # we check for any pixels that are not opaque (255)
+            img = self.image.convert('RGBA')
+            im = numpy.array(img)
+            alpha = im[:, :, -1]  # just alpha layer
+            has_transparency = alpha.min() < 255
+        return has_transparency
+
+    def can_auto_convert_png_to_jpg(self, *args, **kwargs):
+        can_convert = super(Engine, self).can_auto_convert_png_to_jpg(*args, **kwargs)
+
+        if can_convert and not self.has_transparency():
+            return True
+
+        return False
 
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:

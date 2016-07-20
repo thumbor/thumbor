@@ -370,3 +370,7 @@ class BaseEngine(object):
 
     def cleanup(self):
         pass
+
+    def can_auto_convert_png_to_jpg(self, *args, **kwargs):
+        return (self.context.config.AUTO_PNG_TO_JPG and
+                self.context.request.engine.extension == '.png')
