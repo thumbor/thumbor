@@ -66,13 +66,14 @@ class Context:
 
 
 class ServerParameters(object):
-    def __init__(self, port, ip, config_path, keyfile, log_level, app_class, fd=None, gifsicle_path=None):
+    def __init__(self, port, ip, config_path, keyfile, log_level, app_class, debug=False, fd=None, gifsicle_path=None):
         self.port = port
         self.ip = ip
         self.config_path = config_path
         self.keyfile = keyfile
         self.log_level = log_level
         self.app_class = app_class
+        self.debug = debug
         self._security_key = None
         self.fd = fd
         self.load_security_key()

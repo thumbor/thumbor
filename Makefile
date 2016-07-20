@@ -1,5 +1,5 @@
 run: compile_ext
-	@thumbor -l debug
+	@thumbor -l debug -d
 
 setup:
 	@pip install -e .[tests]

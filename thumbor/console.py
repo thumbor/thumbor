@@ -59,6 +59,11 @@ def get_server_parameters(arguments=None):
         help="A custom app to use for this thumbor server in case you subclassed ThumborServiceApp [default: %(default)s]."
     )
 
+    parser.add_argument(
+        "-d", "--debug", default=False, action='store_true',
+        help="Debug mode [default: %(default)s]."
+    )
+
     options = parser.parse_args(arguments)
 
     return ServerParameters(port=options.port,
@@ -67,4 +72,5 @@ def get_server_parameters(arguments=None):
                             keyfile=options.keyfile,
                             log_level=options.log_level,
                             app_class=options.app,
+                            debug=options.debug,
                             fd=options.fd)
