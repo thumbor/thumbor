@@ -19,7 +19,6 @@ from PIL import Image
 from thumbor.context import Context
 from thumbor.config import Config
 from thumbor.engines.pil import Engine
-from thumbor.engines.pil import get_resize_filter
 
 try:
     from pyexiv2 import ImageMetadata  # noqa
@@ -97,10 +96,12 @@ class PilEngineTestCase(TestCase):
 
         for setting, expected in to_test.items():
             cfg = Config(PILLOW_RESAMPLING_FILTER=setting)
-            expect(get_resize_filter(cfg)).to_equal(expected)
+            engine = Engine(Context(config=cfg))
+            expect(engine.get_resize_filter()).to_equal(expected)
 
         cfg = Config()
-        expect(get_resize_filter(cfg)).to_equal(Image.LANCZOS)
+        engine = Engine(Context(config=cfg))
+        expect(engine.get_resize_filter()).to_equal(Image.LANCZOS)
 
     @mock.patch('thumbor.engines.pil.cv', new=None)
     @mock.patch('thumbor.engines.logger.error')

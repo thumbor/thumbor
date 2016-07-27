@@ -47,22 +47,6 @@ if hasattr(ImageFile, 'IGNORE_DECODING_ERRORS'):
     ImageFile.IGNORE_DECODING_ERRORS = True
 
 
-def get_resize_filter(config):
-    resample = config.PILLOW_RESAMPLING_FILTER if config.PILLOW_RESAMPLING_FILTER is not None else 'LANCZOS'
-
-    available = {
-        'LANCZOS': Image.LANCZOS,
-        'NEAREST': Image.NEAREST,
-        'BILINEAR': Image.BILINEAR,
-        'BICUBIC': Image.BICUBIC,
-    }
-
-    if hasattr(Image, 'HAMMING'):
-        available['HAMMING'] = Image.HAMMING
-
-    return available.get(resample.upper(), Image.LANCZOS)
-
-
 class Engine(BaseEngine):
     def __init__(self, context):
         super(Engine, self).__init__(context)
@@ -104,6 +88,22 @@ class Engine(BaseEngine):
 
         return img
 
+    def get_resize_filter(self):
+        config = self.context.config
+        resample = config.PILLOW_RESAMPLING_FILTER if config.PILLOW_RESAMPLING_FILTER is not None else 'LANCZOS'
+
+        available = {
+            'LANCZOS': Image.LANCZOS,
+            'NEAREST': Image.NEAREST,
+            'BILINEAR': Image.BILINEAR,
+            'BICUBIC': Image.BICUBIC,
+        }
+
+        if hasattr(Image, 'HAMMING'):
+            available['HAMMING'] = Image.HAMMING
+
+        return available.get(resample.upper(), Image.LANCZOS)
+
     def draw_rectangle(self, x, y, width, height):
         # Nasty retry if the image is loaded for the first time and it's truncated
         try:
@@ -120,7 +120,7 @@ class Engine(BaseEngine):
             logger.debug('converting image from 8-bit palette to 32-bit RGBA for resize')
             mode = 'RGBA'
 
-        resample = get_resize_filter(self.context.config)
+        resample = self.get_resize_filter()
 
         self.image.draft(mode, (int(width), int(height)))
         self.image = self.image.resize((int(width), int(height)), resample)
