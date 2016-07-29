@@ -13,11 +13,15 @@ from datetime import datetime
 from os import fstat
 from os.path import join, exists, abspath
 from tornado.concurrent import return_future
+from urllib2 import unquote
+
 
 
 @return_future
 def load(context, path, callback):
-    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+
+    file_path = unquote(path).decode('utf-8')
+    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), file_path.lstrip('/'))
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(context.config.FILE_LOADER_ROOT_PATH)
 
