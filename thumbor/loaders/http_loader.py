@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import datetime
 import re
 from functools import partial
 from urlparse import urlparse
@@ -52,9 +53,16 @@ def validate(context, url, normalize_url_func=_normalize_url):
     return False
 
 
-def return_contents(response, url, callback, context):
-    result = LoaderResult()
+def return_contents(response, url, callback, context, req_start=None):
+    if req_start:
+        finish = datetime.datetime.now()
+        res = urlparse(url)
+        context.metrics.timing(
+            'original_image.fetch.{0}.{1}'.format(response.code, res.netloc),
+            (finish - req_start).total_seconds() * 1000
+        )
 
+    result = LoaderResult()
     context.metrics.incr('original_image.status.' + str(response.code))
     if response.error:
         result.successful = False
@@ -117,7 +125,8 @@ def load_sync(context, url, callback, normalize_url_func):
         client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT)
     )
 
-    client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context))
+    start = datetime.datetime.now()
+    client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context, req_start=start))
 
 
 def encode(string):
