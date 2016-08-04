@@ -901,6 +901,14 @@ class EngineLoadException(BaseImagingTestCase):
             response = self.fetch('/unsafe/image.jpg')
         expect(response.code).to_equal(504)
 
+    def test_should_release_ioloop_on_error_on_engine_exception(self):
+        response = self.fetch('/unsafe/fit-in/134x134/940x2.png')
+        expect(response.code).to_equal(200)
+
+    def test_should_exec_other_operations_on_error_on_engine_exception(self):
+        response = self.fetch('/unsafe/fit-in/134x134/filters:equalize()/940x2.png')
+        expect(response.code).to_equal(200)
+
 
 class StorageOverride(BaseImagingTestCase):
     def get_context(self):

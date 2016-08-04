@@ -347,6 +347,21 @@ class ThreadPoolTestCase(TestCase):
         instance.queue(add, handle_operation)
         expect(self.handled).to_be_true()
 
+    def test_queueing_task_when_no_pool_runs_sync_and_exception_happens(self):
+        instance = ThreadPool.instance(0)
+        expect(instance).not_to_be_null()
+        exception = Exception('Boom')
+
+        def add():
+            raise exception
+
+        def handle_operation(result):
+            self.handled = True
+            expect(result.result()).to_equal(exception)
+
+        instance.queue(add, handle_operation)
+        expect(self.handled).to_be_true()
+
     @skip('Gotta think of a way to implement async here')
     def test_can_run_async(self):
         expect.not_to_be_here()
