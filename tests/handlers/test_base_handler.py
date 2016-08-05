@@ -224,6 +224,11 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(alabama1())
 
+    def test_url_with_encoded_hash(self):
+        url = '/%D1%80=/alabama1_ap620%C3%A9.jpg'
+        response = self.fetch(url)
+        expect(response.code).to_equal(400)
+
     def test_image_with_spaces_on_url(self):
         response = self.fetch(u'/unsafe/image%20space.jpg')
         expect(response.code).to_equal(200)
