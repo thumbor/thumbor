@@ -42,6 +42,7 @@ FORMATS = {
 }
 
 ImageFile.MAXBLOCK = 2 ** 25
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 if hasattr(ImageFile, 'IGNORE_DECODING_ERRORS'):
     ImageFile.IGNORE_DECODING_ERRORS = True
