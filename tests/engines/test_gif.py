@@ -73,7 +73,13 @@ class GitEngineTestCase(TestCase):
             GifSicleError,
             message='gifsicle command returned errorlevel 1 for command'
                     ' "{0} --some-invalid-opt /foo/'
+<<<<<<< 22abe38a7bef55915b14443a965c787c82e2816e
                     'bar.gif" (image maybe corrupted?)'.format(server.gifsicle_path)
+=======
+                    'bar.gif" (image maybe corrupted?)'.format(
+                        self.server.gifsicle_path
+                    )
+>>>>>>> Fixed tests
         ):
             engine.run_gifsicle('--some-invalid-opt')
 
