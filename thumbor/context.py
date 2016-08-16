@@ -267,6 +267,7 @@ class ThreadPool(object):
             returned = operation()
         except Exception as e:
             # just log exception and release ioloop
+            returned = e
             logger.exception(e)
         result.set_result(returned)
         callback(result)
