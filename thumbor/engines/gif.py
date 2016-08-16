@@ -20,6 +20,10 @@ GIFSICLE_SIZE_REGEX = re.compile(r'(?:logical\sscreen\s(\d+x\d+))')
 GIFSICLE_IMAGE_COUNT_REGEX = re.compile(r'(?:(\d+)\simage)')
 
 
+class GifSicleError(RuntimeError):
+    pass
+
+
 class Engine(PILEngine):
     @property
     def size(self):
@@ -28,6 +32,16 @@ class Engine(PILEngine):
     def run_gifsicle(self, command):
         p = Popen([self.context.server.gifsicle_path] + command.split(' '), stdout=PIPE, stdin=PIPE, stderr=PIPE)
         stdout_data = p.communicate(input=self.buffer)[0]
+        if p.returncode != 0:
+            raise GifSicleError(
+                'gifsicle command returned errorlevel {0} for command "{1}" (image maybe corrupted?)'.format(
+                    p.returncode, ' '.join(
+                        [self.context.server.gifsicle_path] +
+                        command.split(' ') +
+                        [self.context.request.url]
+                    )
+                )
+            )
         return stdout_data
 
     def is_multiple(self):
