@@ -615,6 +615,7 @@ class ContextHandler(BaseHandler):
             importer=context.modules.importer,
             request_handler=self
         )
+        self.context.metrics.initialize(self)
 
     def log_exception(self, *exc_info):
         if isinstance(exc_info[1], tornado.web.HTTPError):
