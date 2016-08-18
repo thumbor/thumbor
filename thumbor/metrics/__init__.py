@@ -14,6 +14,9 @@ class BaseMetrics(object):
     def __init__(self, config):
         self.config = config
 
+    def initialize(self, handler):
+        pass
+
     def incr(self, metricname, value=1):
         raise NotImplementedError()
 
