@@ -70,7 +70,7 @@ class ImagingHandler(ContextHandler):
                 return
 
             url_to_validate = url.replace('/%s/' % self.context.request.hash, '') \
-                .replace('/%s/' % quote(quoted_hash), '')
+                .replace('/%s/' % quoted_hash, '')
 
             valid = signer.validate(unquote(url_signature), url_to_validate)
 
