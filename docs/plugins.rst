@@ -10,6 +10,22 @@ details and we'll add it here.
 Storages
 --------
 
+`thumbor\_aws <https://github.com/thumbor-community/aws>`__ (by `Thumbor Community <https://github.com/thumbor-community>`__)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Thumbor <https://github.com/thumbor/thumbor/wiki>`__ is a smart
+imaging service. It enables on-demand crop, resizing and flipping of
+images.
+
+`AWS <https://aws.amazon.com/>`__ is a cloud service, providing - among other things - storage capabilities.
+
+This module provides support for AWS S3 interconnection, as a loader, a storage and/or a result storage.
+
+-  *URL:* https://github.com/thumbor-community/aws
+-  *Installing:* ``pip install tc_aws``
+
+To get exhaustive details about configuration options & setting it up, go to the `documentation of the plugin <https://github.com/thumbor-community>`__.
+
 `thumbor\_hbase <https://github.com/dhardy92/thumbor_hbase>`__ (by `Damien Hardy <https://github.com/dhardy92>`__)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -111,7 +127,7 @@ Using it is simple, just change your configuration in thumbor.conf:
 
 ::
 
-    # Use rackspace for result storage. 
+    # Use rackspace for result storage.
     # For more info on result storage: https://github.com/thumbor/thumbor/wiki/Result-storage
     RESULT_STORAGE = 'thumbor_rackspace.result_storages.cloudfile_storage'
 
@@ -153,3 +169,22 @@ Configuration in thumbor.conf:
 
 For monitors and keys, the values ​​used are those defined in the
 configuration file ceph.conf.
+
+Extensions
+----------
+
+`thumbor\shortener <https://github.com/thumbor-community/shortener>`__ (by `Thumbor Community <https://github.com/thumbor-community>`__)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Thumbor <https://github.com/thumbor/thumbor/wiki>`__ is a smart
+imaging service. It enables on-demand crop, resizing and flipping of
+images.
+
+This module provides URL shortening capabilities for Thumbor. It will create an API that can shorten a thumbor URL, and then routing capabilities to reroute the shortened URL to the correct image.
+
+The shortened URL / real URL mapping is stored within redis.
+
+-  *URL:* https://github.com/thumbor-community/shortener
+-  *Installing:* ``pip install tc_shortener``
+
+To get exhaustive details about configuration options & setting it up, go to the `documentation of the plugin <http://thumbor-shortener.readthedocs.io/en/latest/>`__.
