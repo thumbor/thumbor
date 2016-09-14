@@ -35,6 +35,7 @@ class GitEngineTestCase(TestCase):
             FILE_LOADER_ROOT_PATH=STORAGE_PATH,
             STORAGE='thumbor.storages.no_storage',
             USE_GIFSICLE_ENGINE=True,
+            RESPECT_ORIENTATION=True,
         )
 
     def get_importer(self):
