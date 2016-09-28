@@ -25,7 +25,10 @@ class Detector(CascadeLoaderDetector):
         return top
 
     def detect(self, callback):
-        features = self.get_features()
+        try:
+            features = self.get_features()
+        except Exception:
+            features = None
 
         if features:
             for (left, top, width, height), neighbors in features:
