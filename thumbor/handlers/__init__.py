@@ -296,18 +296,19 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 quality = self.context.config.QUALITY
         results = context.request.engine.read(image_extension, quality)
-        if context.request.max_bytes is not None:
-            results = self.reload_to_fit_in_kb(
-                context.request.engine,
-                results,
-                image_extension,
-                quality,
-                context.request.max_bytes
-            )
-        if not context.request.meta:
-            results = self.optimize(context, image_extension, results)
-            # An optimizer might have modified the image format.
-            content_type = BaseEngine.get_mimetype(results)
+        if results:
+            if context.request.max_bytes is not None:
+                results = self.reload_to_fit_in_kb(
+                    context.request.engine,
+                    results,
+                    image_extension,
+                    quality,
+                    context.request.max_bytes
+                )
+            if not context.request.meta:
+                results = self.optimize(context, image_extension, results)
+                # An optimizer might have modified the image format.
+                content_type = BaseEngine.get_mimetype(results)
 
         return results, content_type
 
@@ -351,11 +352,16 @@ class BaseHandler(tornado.web.RequestHandler):
             context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         def inner(future):
-            results, content_type = future.result()
-            self._write_results_to_client(context, results, content_type)
+            result = future.result()
+            if result:
+                results, content_type = future.result()
+                if results:
+                    self._write_results_to_client(context, results, content_type)
 
-            if should_store:
-                self._store_results(context, results)
+                    if should_store:
+                        self._store_results(context, results)
+                else:
+                    self._error(500)
 
         self.context.thread_pool.queue(
             operation=functools.partial(self._load_results, context),
@@ -571,7 +577,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
             if not (is_no_storage or is_mixed_no_file_storage):
                 fetch_result.buffer = self.context.request.engine.read(extension)
-                storage.put(url, fetch_result.buffer)
+                if not (fetch_result.buffer is None):
+                    storage.put(url, fetch_result.buffer)
 
             storage.put_crypto(url)
         except Exception:

@@ -117,40 +117,55 @@ class Engine(BaseEngine):
         del d
 
     def resize(self, width, height):
-        mode = self.image.mode
-        if self.image.mode == 'P':
-            logger.debug('converting image from 8-bit palette to 32-bit RGBA for resize')
-            mode = 'RGBA'
+        try:
+            mode = self.image.mode
+            if self.image.mode == 'P':
+                logger.debug('converting image from 8-bit palette to 32-bit RGBA for resize')
+                mode = 'RGBA'
 
-        resample = self.get_resize_filter()
+            resample = self.get_resize_filter()
 
-        self.image.draft(mode, (int(width), int(height)))
-        self.image = self.image.resize((int(width), int(height)), resample)
+            self.image.draft(mode, (int(width), int(height)))
+            self.image = self.image.resize((int(width), int(height)), resample)
+        except OSError:
+            return
 
     def crop(self, left, top, right, bottom):
-        self.image = self.image.crop((
-            int(left),
-            int(top),
-            int(right),
-            int(bottom)
-        ))
+        try:
+            self.image = self.image.crop((
+                int(left),
+                int(top),
+                int(right),
+                int(bottom)
+            ))
+        except OSError:
+            return
 
     def rotate(self, degrees):
-        # PIL rotates counter clockwise
-        if degrees == 90:
-            self.image = self.image.transpose(Image.ROTATE_90)
-        elif degrees == 180:
-            self.image = self.image.transpose(Image.ROTATE_180)
-        elif degrees == 270:
-            self.image = self.image.transpose(Image.ROTATE_270)
-        else:
-            self.image = self.image.rotate(degrees, expand=1)
+        try:
+            # PIL rotates counter clockwise
+            if degrees == 90:
+                self.image = self.image.transpose(Image.ROTATE_90)
+            elif degrees == 180:
+                self.image = self.image.transpose(Image.ROTATE_180)
+            elif degrees == 270:
+                self.image = self.image.transpose(Image.ROTATE_270)
+            else:
+                self.image = self.image.rotate(degrees, expand=1)
+        except OSError:
+            return
 
     def flip_vertically(self):
-        self.image = self.image.transpose(Image.FLIP_TOP_BOTTOM)
+        try:
+            self.image = self.image.transpose(Image.FLIP_TOP_BOTTOM)
+        except OSError:
+            return
 
     def flip_horizontally(self):
-        self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        try:
+            self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        except OSError:
+            return
 
     def get_default_extension(self):
         # extension is not present => force JPEG or PNG
@@ -227,6 +242,8 @@ class Engine(BaseEngine):
         except IOError:
             logger.exception('Could not save as improved image, consider to increase ImageFile.MAXBLOCK')
             self.image.save(img_buffer, FORMATS[ext])
+        except OSError:
+            return
 
         results = img_buffer.getvalue()
         img_buffer.close()
@@ -334,13 +351,16 @@ class Engine(BaseEngine):
         return converted_image.mode, converted_image.tobytes()
 
     def convert_to_grayscale(self, update_image=True, with_alpha=True):
-        if 'A' in self.image.mode and with_alpha:
-            image = self.image.convert('LA')
-        else:
-            image = self.image.convert('L')
-        if update_image:
-            self.image = image
-        return image
+        try:
+            if 'A' in self.image.mode and with_alpha:
+                image = self.image.convert('LA')
+            else:
+                image = self.image.convert('L')
+            if update_image:
+                self.image = image
+            return image
+        except OSError:
+            return
 
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:
@@ -367,8 +387,11 @@ class Engine(BaseEngine):
             image.paste(other_image, pos)
 
     def enable_alpha(self):
-        if self.image.mode != 'RGBA':
-            self.image = self.image.convert('RGBA')
+        try:
+            if self.image.mode != 'RGBA':
+                self.image = self.image.convert('RGBA')
+        except OSError:
+            return
 
     def strip_icc(self):
         self.icc_profile = None
