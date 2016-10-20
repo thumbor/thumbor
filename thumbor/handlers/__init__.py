@@ -12,6 +12,7 @@ import sys
 import functools
 import datetime
 import pytz
+import schedule
 import traceback
 
 import tornado.web
@@ -362,6 +363,8 @@ class BaseHandler(tornado.web.RequestHandler):
                         self._store_results(context, results)
                 else:
                     self._error(500)
+
+                schedule.run_pending()
 
         self.context.thread_pool.queue(
             operation=functools.partial(self._load_results, context),
