@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from unittest import TestCase, skip
 
@@ -60,6 +60,42 @@ class ContextTestCase(TestCase):
 
         expect(ctx.modules).not_to_be_null()
         expect(ctx.modules.importer).to_equal(importer)
+
+    def test_can_config_define_app_class(self):
+        server = ServerParameters(
+            port=8888,
+            ip='0.0.0.0',
+            config_path='/tmp/config_path.conf',
+            keyfile='./tests/fixtures/thumbor.key',
+            log_level='debug',
+            app_class='thumbor.app.ThumborServiceApp',
+        )
+
+        cfg = Config(
+            APP_CLASS='config.app',
+        )
+        importer = Importer(cfg)
+        ctx = Context(config=cfg, importer=importer, server=server)
+
+        expect(ctx.app_class).to_equal('config.app')
+
+    def test_can_server_app_class_override_config(self):
+        server = ServerParameters(
+            port=8888,
+            ip='0.0.0.0',
+            config_path='/tmp/config_path.conf',
+            keyfile='./tests/fixtures/thumbor.key',
+            log_level='debug',
+            app_class='server.app',
+        )
+
+        cfg = Config(
+            APP_CLASS='config.app',
+        )
+        importer = Importer(cfg)
+        ctx = Context(config=cfg, importer=importer, server=server)
+
+        expect(ctx.app_class).to_equal('server.app')
 
 
 class ServerParametersTestCase(TestCase):
@@ -307,6 +343,21 @@ class ThreadPoolTestCase(TestCase):
         def handle_operation(result):
             self.handled = True
             expect(result.result()).to_equal(10)
+
+        instance.queue(add, handle_operation)
+        expect(self.handled).to_be_true()
+
+    def test_queueing_task_when_no_pool_runs_sync_and_exception_happens(self):
+        instance = ThreadPool.instance(0)
+        expect(instance).not_to_be_null()
+        exception = Exception('Boom')
+
+        def add():
+            raise exception
+
+        def handle_operation(result):
+            self.handled = True
+            expect(result.result()).to_equal(exception)
 
         instance.queue(add, handle_operation)
         expect(self.handled).to_be_true()

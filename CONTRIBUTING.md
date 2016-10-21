@@ -18,10 +18,7 @@ The following packages are required:
 * Pillow >= 2.3.0
 * redis >= 2.4.11
 * pymongo >= 2.1.1
-* pyvows
-* tornado_pyvows
 * argparse
-* gevent >= 0.13.6 (requires libevent - http://libevent.org/)
 
 You'll also need a recent version of OpenCV (http://opencv.willowgarage.com/wiki/) installed. When installing OpenCV, it will create a python binding. Make sure this binding is visible to your current virtualenv (if you are using it).
 

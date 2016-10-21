@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from urllib import quote, unquote
 
@@ -34,13 +34,12 @@ class ImagingHandler(ContextHandler):
 
         url = self.request.path
 
+        kw['image'] = quote(kw['image'].encode('utf-8'))
         if not self.validate(kw['image']):
             self._error(400, 'No original image was specified in the given URL')
             return
 
         kw['request'] = self.request
-        kw['image'] = quote(kw['image'].encode('utf-8'))
-
         self.context.request = RequestParameters(**kw)
 
         has_none = not self.context.request.unsafe and not self.context.request.hash
@@ -64,8 +63,14 @@ class ImagingHandler(ContextHandler):
         if url_signature:
             signer = self.context.modules.url_signer(self.context.server.security_key)
 
+            try:
+                quoted_hash = quote(self.context.request.hash)
+            except KeyError:
+                self._error(400, 'Invalid hash: %s' % self.context.request.hash)
+                return
+
             url_to_validate = url.replace('/%s/' % self.context.request.hash, '') \
-                .replace('/%s/' % quote(self.context.request.hash), '')
+                .replace('/%s/' % quoted_hash, '')
 
             valid = signer.validate(unquote(url_signature), url_to_validate)
 

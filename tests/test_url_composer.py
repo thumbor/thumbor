@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from unittest import TestCase
 import mock
@@ -38,23 +38,6 @@ class UrlComposerTestCase(TestCase):
 
         expect(url).to_equal('/G_dykuWBGyEil5JnNh9cBke0Ajo=/200x300/myserver.com/myimg.jpg')
         expect(mock_stdout.getvalue()).to_equal('URL:\n/G_dykuWBGyEil5JnNh9cBke0Ajo=/200x300/myserver.com/myimg.jpg\n')
-
-    @mock.patch('sys.stdout', new_callable=StringIO)
-    def test_can_compose_old_url(self, mock_stdout):
-        url = main([
-            '-k', 'MY-SECURITY-KEY',
-            '-w', '200',
-            '-e', '300',
-            '--old-format',
-            'myserver.com/myimg.jpg'
-        ])
-
-        expect(url).to_equal(
-            '/6LSog0KmY0NQg8GK4Tsti0FAR9emvaF4xfyLY3FUmOI0HVcqF8HxibsAjVCbxFfl/myserver.com/myimg.jpg'
-        )
-        expect(mock_stdout.getvalue()).to_equal(
-            'URL:\n/6LSog0KmY0NQg8GK4Tsti0FAR9emvaF4xfyLY3FUmOI0HVcqF8HxibsAjVCbxFfl/myserver.com/myimg.jpg\n'
-        )
 
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(composer.Config, 'load')

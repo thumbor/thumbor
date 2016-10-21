@@ -6,15 +6,16 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 import tornado.web
 import tornado.ioloop
+
+from libthumbor.url import Url
 
 from thumbor.handlers.blacklist import BlacklistHandler
 from thumbor.handlers.healthcheck import HealthcheckHandler
 from thumbor.handlers.upload import ImageUploadHandler
 from thumbor.handlers.image_resource import ImageResourceHandler
-from thumbor.url import Url
 from thumbor.handlers.imaging import ImagingHandler
 
 
@@ -22,7 +23,8 @@ class ThumborServiceApp(tornado.web.Application):
 
     def __init__(self, context):
         self.context = context
-        super(ThumborServiceApp, self).__init__(self.get_handlers())
+        self.debug = getattr(self.context.server, 'debug', False)
+        super(ThumborServiceApp, self).__init__(self.get_handlers(), debug=self.debug)
 
     def get_handlers(self):
         handlers = [

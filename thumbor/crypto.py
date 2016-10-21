@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import base64
 import hashlib
@@ -15,8 +15,8 @@ from Crypto.Cipher import AES
 
 # Import the Signer class to support backward-compatibility
 # and existing documentation
-from thumbor.url_signers.base64_hmac_sha1 import UrlSigner as Signer  # NOQA
-from thumbor.url import Url
+from libthumbor.url_signers.base64_hmac_sha1 import UrlSigner as Signer  # NOQA
+from libthumbor.url import Url
 
 
 class Cryptor(object):

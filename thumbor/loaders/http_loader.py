@@ -6,12 +6,13 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import datetime
 import re
 from functools import partial
 from urlparse import urlparse
-from urllib import unquote
+from urllib2 import unquote
 
 import tornado.httpclient
 
@@ -21,11 +22,7 @@ from tornado.concurrent import return_future
 
 
 def quote_url(url):
-    try:
-        url = url.encode('utf-8')
-    except UnicodeDecodeError:
-        pass
-    return unquote(url)
+    return unquote(url).decode('utf-8')
 
 
 def _normalize_url(url):
@@ -44,15 +41,28 @@ def validate(context, url, normalize_url_func=_normalize_url):
         return True
 
     for pattern in context.config.ALLOWED_SOURCES:
-        if re.match('^%s$' % pattern, res.hostname):
+        if isinstance(pattern, re._pattern_type):
+            match = url
+        else:
+            pattern = '^%s$' % pattern
+            match = res.hostname
+
+        if re.match(pattern, match):
             return True
 
     return False
 
 
-def return_contents(response, url, callback, context):
-    result = LoaderResult()
+def return_contents(response, url, callback, context, req_start=None):
+    if req_start:
+        finish = datetime.datetime.now()
+        res = urlparse(url)
+        context.metrics.timing(
+            'original_image.fetch.{0}.{1}'.format(response.code, res.netloc),
+            (finish - req_start).total_seconds() * 1000
+        )
 
+    result = LoaderResult()
     context.metrics.incr('original_image.status.' + str(response.code))
     if response.error:
         result.successful = False
@@ -62,19 +72,20 @@ def return_contents(response, url, callback, context):
         else:
             result.error = LoaderResult.ERROR_NOT_FOUND
 
-        logger.warn("ERROR retrieving image {0}: {1}".format(url, str(response.error)))
+        logger.warn(u"ERROR retrieving image {0}: {1}".format(url, str(response.error)))
 
     elif response.body is None or len(response.body) == 0:
         result.successful = False
         result.error = LoaderResult.ERROR_UPSTREAM
 
-        logger.warn("ERROR retrieving image {0}: Empty response.".format(url))
+        logger.warn(u"ERROR retrieving image {0}: Empty response.".format(url))
     else:
         if response.time_info:
             for x in response.time_info:
                 context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
             context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
         result.buffer = response.body
+        context.metrics.incr('original_image.response_bytes', len(response.body))
 
     callback(result)
 
@@ -100,7 +111,7 @@ def load_sync(context, url, callback, normalize_url_func):
 
     url = normalize_url_func(url)
     req = tornado.httpclient.HTTPRequest(
-        url=encode(url),
+        url=url,
         connect_timeout=context.config.HTTP_LOADER_CONNECT_TIMEOUT,
         request_timeout=context.config.HTTP_LOADER_REQUEST_TIMEOUT,
         follow_redirects=context.config.HTTP_LOADER_FOLLOW_REDIRECTS,
@@ -115,7 +126,8 @@ def load_sync(context, url, callback, normalize_url_func):
         client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT)
     )
 
-    client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context))
+    start = datetime.datetime.now()
+    client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context, req_start=start))
 
 
 def encode(string):

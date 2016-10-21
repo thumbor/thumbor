@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from preggy import expect
 
@@ -19,4 +19,4 @@ class RGBFilterTestCase(FilterTestCase):
         expected = self.get_fixture('rgb.jpg')
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        expect(ssim).to_be_greater_than(0.98)

@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from os.path import abspath
 
@@ -28,7 +28,7 @@ class FeatureDetectorTestCase(DetectorTestCase):
         expect(detection_result[0].origin).to_equal('alignment')
 
     def test_should_not_detect_points(self):
-        with open(abspath('./tests/fixtures/images/white-block.png')) as f:
+        with open(abspath('./tests/fixtures/images/1x1.png')) as f:
             self.engine.load(f.read(), None)
 
         FeatureDetector(self.context, 0, []).detect(lambda: None)

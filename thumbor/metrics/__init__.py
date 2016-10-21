@@ -6,13 +6,16 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 
 class BaseMetrics(object):
 
     def __init__(self, config):
         self.config = config
+
+    def initialize(self, handler):
+        pass
 
     def incr(self, metricname, value=1):
         raise NotImplementedError()

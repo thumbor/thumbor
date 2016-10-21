@@ -83,7 +83,7 @@ the top and the left side the *center of mass* is:
 
 **From the top** - (93 / 600 \* 100 = 15.50%)
 
-Using the same example from the [[Crop and resize algorithms]] page, we
+Using the same example from the :doc:`crop_and_resize_algorithms` page, we
 need to crop *300px* out of the height of the image. In possession of
 the percentages of crop above, we can calculate how much we need to crop
 out of the top and bottom with:

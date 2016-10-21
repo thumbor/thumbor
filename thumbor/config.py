@@ -6,15 +6,17 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from os.path import join
+from os.path import expanduser, join
 import tempfile
 
 import derpconf.config as config
 from derpconf.config import Config
 
 from thumbor import __version__
+
+home = expanduser("~")
 
 Config.define('THUMBOR_LOG_CONFIG', None, 'Logging configuration as json', 'Logging')
 Config.define(
@@ -44,6 +46,10 @@ Config.define('PILLOW_JPEG_QTABLES', None,
               'Specify quantization tables for Pillow (see `qtables` \
               in http://pillow.readthedocs.org/en/latest/handbook/image-file-formats.html#jpeg). '
               'Will ignore `quality`. Using `keep` will copy the original file\'s qtables.', 'Imaging')
+
+Config.define('PILLOW_RESAMPLING_FILTER', 'LANCZOS',
+              'Specify resampling filter for Pillow resize method.'
+              'One of LANCZOS, NEAREST, BILINEAR, BICUBIC, HAMMING (Pillow>=3.4.0).', 'Imaging')
 
 Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP images. If not set (None) the same level of '
               'JPEG quality will be used.', 'Imaging')
@@ -130,7 +136,7 @@ Config.define('STATSD_PORT', 8125, 'Port to send statsd instrumentation to', 'Me
 Config.define('STATSD_PREFIX', None, 'Prefix for statsd', 'Metrics')
 
 # FILE LOADER OPTIONS
-Config.define('FILE_LOADER_ROOT_PATH', '/tmp', 'The root path where the File Loader will try to find images', 'File Loader')
+Config.define('FILE_LOADER_ROOT_PATH', home, 'The root path where the File Loader will try to find images', 'File Loader')
 
 # HTTP LOADER OPTIONS
 Config.define(
@@ -350,10 +356,15 @@ Config.define('ERROR_FILE_NAME_USE_CONTEXT', False, 'File of error log name is p
 
 # SIGNER MODULE
 Config.define(
-    'URL_SIGNER', 'thumbor.url_signers.base64_hmac_sha1',
+    'URL_SIGNER', 'libthumbor.url_signers.base64_hmac_sha1',
     'The url signer thumbor should use to verify url signatures.' +
     'This must be the full name of a python module ' +
     '(python must be able to import it)', 'Extensibility'
+)
+
+Config.define(
+    'APP_CLASS', 'thumbor.app.ThumborServiceApp',
+    'Custom app class to override ThumborServiceApp. This config value is overridden by the -a command-line parameter.'
 )
 
 

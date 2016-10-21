@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from unittest import TestCase
 import mock
@@ -28,6 +28,7 @@ from thumbor.server import (
     run_server,
     main,
 )
+from thumbor.engines import BaseEngine
 
 from tests.fixtures.custom_error_handler import ErrorHandler as CustomErrorHandler
 
@@ -207,6 +208,7 @@ class ServerTestCase(TestCase):
         server_parameters = mock.Mock(
             config_path='./tests/fixtures/thumbor_config_server_test.conf',
             log_level='DEBUG',
+            debug=False,
             security_key='sec',
             app_class='thumbor.app.ThumborServiceApp',
             fd=None,
@@ -220,6 +222,9 @@ class ServerTestCase(TestCase):
         main()
         ioloop_instance_mock.start.assert_any_call()
 
+    def cleanup(self):
+        ServerTestCase.cleanup_called = True
+
     @mock.patch.object(thumbor.server, 'HTTPServer')
     @mock.patch.object(thumbor.server, 'get_server_parameters')
     @mock.patch('tornado.ioloop.IOLoop.instance', create=True)
@@ -229,6 +234,7 @@ class ServerTestCase(TestCase):
             config_path='./tests/fixtures/thumbor_config_server_test.conf',
             log_level='DEBUG',
             security_key='sec',
+            debug=False,
             app_class='thumbor.app.ThumborServiceApp',
             fd=None,
             ip='0.0.0.0',
@@ -236,8 +242,17 @@ class ServerTestCase(TestCase):
         )
         get_server_parameters_mock.return_value = server_parameters
 
+        old_cleanup = BaseEngine.cleanup
+        BaseEngine.cleanup = self.cleanup
+        ServerTestCase.cleanup_called = False
+
         ioloop_instance_mock = mock.Mock()
         ioloop_mock.return_value = ioloop_instance_mock
         ioloop_instance_mock.start.side_effect = KeyboardInterrupt()
+
         main()
+
         stdout_mock.write.assert_called_with('-- thumbor closed by user interruption --\n')
+        self.assertTrue(ServerTestCase.cleanup_called)
+
+        BaseEngine.cleanup = old_cleanup

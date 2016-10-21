@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from os.path import abspath
 import mock
@@ -30,7 +30,7 @@ class GlassesDetectorTestCase(DetectorTestCase):
         expect(detector).not_to_be_null()
 
     def test_should_detect_glasses(self):
-        with open(abspath('./tests/fixtures/images/glasses.jpg')) as f:
+        with open(abspath('./tests/fixtures/images/Christophe_Henner_-_June_2016.jpg')) as f:
             self.engine.load(f.read(), None)
 
         self.context.config.GLASSES_DETECTOR_CASCADE_FILE = abspath(

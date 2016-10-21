@@ -6,10 +6,11 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from unittest import TestCase
 from mock import Mock, patch
+from unittest import TestCase
+import logging
 
 from preggy import expect
 
@@ -36,6 +37,8 @@ class UtilsTestCase(TestCase):
         expect(CONTENT_TYPE.get('.mp4')).to_equal('video/mp4')
         expect(CONTENT_TYPE.get('.webm')).to_equal('video/webm')
         expect(CONTENT_TYPE.get('.svg')).to_equal('image/svg+xml')
+        expect(CONTENT_TYPE.get('.tif')).to_equal('image/tiff')
+        expect(CONTENT_TYPE.get('.tiff')).to_equal('image/tiff')
 
     def test_can_get_extension(self):
         expect(EXTENSION.get('image/jpeg')).to_equal('.jpg')
@@ -45,6 +48,7 @@ class UtilsTestCase(TestCase):
         expect(EXTENSION.get('video/mp4')).to_equal('.mp4')
         expect(EXTENSION.get('video/webm')).to_equal('.webm')
         expect(EXTENSION.get('image/svg+xml')).to_equal('.svg')
+        expect(EXTENSION.get('image/tiff')).to_equal('.tif')
 
     def test_can_get_logger(self):
         expect(logger.name).to_equal('thumbor')
@@ -121,3 +125,12 @@ class UtilsTestCase(TestCase):
 
         result = which('invalid-command')
         expect(result).to_be_null()
+
+    def test_logger_should_be_instance_of_python_logger(self):
+        expect(logger).to_be_instance_of(logging.Logger)
+
+    def test_logger_should_not_be_null(self):
+        expect(logger).not_to_be_null()
+
+    def test_logger_should_not_be_an_error(self):
+        expect(logger).not_to_be_an_error()

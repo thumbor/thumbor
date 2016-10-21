@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from pexif import ExifSegment
 
@@ -28,6 +28,30 @@ from thumbor.utils import logger, EXTENSION
 WEBP_SIDE_LIMIT = 16383
 
 SVG_RE = re.compile(r'<svg\s[^>]*(["\'])http://www.w3.org/2000/svg\1', re.I)
+
+
+class EngineResult(object):
+
+    COULD_NOT_LOAD_IMAGE = 'could not load image'
+
+    def __init__(self, buffer_=None, successful=True, error=None, metadata=dict()):
+        '''
+        :param buffer: The media buffer
+
+        :param successful: True when the media has been read by the engine.
+        :type successful: bool
+
+        :param error: Error code
+        :type error: str
+
+        :param metadata: Dictionary of metadata about the buffer
+        :type metadata: dict
+        '''
+
+        self.buffer = buffer_
+        self.successful = successful
+        self.error = error
+        self.metadata = metadata
 
 
 class MultipleEngine:
@@ -93,6 +117,8 @@ class BaseEngine(object):
             mime = 'video/mp4'
         elif buffer.startswith('\x1aE\xdf\xa3'):
             mime = 'video/webm'
+        elif buffer.startswith('\x49\x49\x2A\x00') or buffer.startswith('\x4D\x4D\x00\x2A'):
+            mime = 'image/tiff'
         elif SVG_RE.search(buffer[:1024].replace(b'\0', '')):
             mime = 'image/svg+xml'
         return mime
@@ -134,6 +160,8 @@ class BaseEngine(object):
             buffer = self.convert_svg_to_png(buffer)
 
         image_or_frames = self.create_image(buffer)
+        if image_or_frames is None:
+            return
 
         if METADATA_AVAILABLE:
             try:
@@ -233,7 +261,6 @@ class BaseEngine(object):
         :param override_exif: If the metadata should be adjusted as well.
         :type override_exif: Boolean
         """
-
         orientation = self.get_orientation()
 
         if orientation == 2:
@@ -257,7 +284,7 @@ class BaseEngine(object):
 
         if orientation != 1 and override_exif:
             segment = self._get_exif_segment()
-            if segment:
+            if segment and segment.get_primary():
                 segment.primary['Orientation'] = [1]
                 self.exif = segment.get_data()
 
@@ -318,3 +345,6 @@ class BaseEngine(object):
 
     def extract_cover(self):
         raise NotImplementedError()
+
+    def cleanup(self):
+        pass

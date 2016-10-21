@@ -39,8 +39,8 @@ configuration in your thumbor.conf file to ``True``.
 
 Thumbor will then use the storage specified in the
 ``UPLOAD_PHOTO_STORAGE`` configuration to save your images. You can use
-an existing storage (filesytem, redis, mongo, hbase...) or [[create your
-own storage\|Creating my own Storage]] if needed .
+an existing storage (filesytem, redis, mongo, hbase...) or
+:doc:`create your own storage <create_my_own_storage>` if needed .
 
 You can manage image putting and deletions simply set the configuration
 parameters ``UPLOAD_PUT_ALLOWED`` and ``UPLOAD_DELETE_ALLOWED`` to
@@ -146,7 +146,7 @@ HTTP status code
 -  405 Method Not Allowed (if thumbor's configuration disallows deleting
    images)
 
-Exemple :
+Example :
 ---------
 
 Assuming the thumbor server is located at : ``http://thumbor-server``
@@ -159,8 +159,8 @@ REST API :
 
 ::
 
-    curl -i -H "Content-Type: image/jpeg" -H "Slug: photo.jpg" 
-            -XPOST http://thumbor-server/image --data-binary "@vows/crocodile.jpg"
+    curl -i -H "Content-Type: image/jpeg" -H "Slug: photo.jpg"
+            -XPOST http://thumbor-server/image --data-binary "@tests/fixtures/images/20x20.jpg"
 
 the HTTP **POST** request was send to the server :
 
@@ -183,7 +183,7 @@ and the Thumbor server should return :
 
 The image is created at
 ``http://thumbor-server/image/05b2eda857314e559630c6f3334d818d/photo.jpg``.
-It can be retrieve, modify or delete via this URI.
+It can be retrieved, modified or deleted via this URI.
 
 The optional ``Slug`` HTTP header specifies the filename to use for the
 image uploaded.
@@ -197,8 +197,8 @@ form, the user is free to choose the filename of the image via the
 
 ::
 
-    curl -i -XPOST http://thumbor-server/image  
-            -F "media=@vows/crocodile.jpg;type=image/jpeg;filename=croco.jpg"
+    curl -i -XPOST http://thumbor-server/image
+            -F "media=@tests/fixtures/images/20x20.jpg;type=image/jpeg;filename=croco.jpg"
 
 the HTTP **POST** request was send to the server :
 
@@ -228,8 +228,8 @@ To replace the previously uploaded image by another we use:
 
 ::
 
-    curl -i -H "Content-Type: image/jpeg" -H "Slug: modified_image.jpg" 
-            -XPUT http://thumbor-server/image/05b2eda857314e559630c6f3334d818d/photo.jpg --data-binary "@vows/crocodile.jpg"
+    curl -i -H "Content-Type: image/jpeg" -H "Slug: modified_image.jpg"
+            -XPUT http://thumbor-server/image/05b2eda857314e559630c6f3334d818d/photo.jpg --data-binary "@tests/fixtures/images/20x20.jpg"
 
 the HTTP **PUT** request was send to the server :
 

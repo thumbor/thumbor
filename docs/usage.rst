@@ -10,7 +10,7 @@ Image Endpoint
     **http://\ *thumbor-server*/hmac/trim/AxB:CxD/fit-in/-Ex-F/HALIGN/VALIGN/smart/filters:FILTERNAME(ARGUMENT):FILTERNAME(ARGUMENT)/*image-uri***
 
 -  *thumbor-server* is the address of the service currently running;
--  hmac is the signature that ensures doc:`security` ;
+-  hmac is the signature that ensures :doc:`security` ;
 -  trim removes surrounding space in images using top-left pixel color
    unless specified otherwise;
 -  AxB:CxD means manually crop the image at left-top point AxB and

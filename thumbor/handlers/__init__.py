@@ -6,7 +6,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import sys
 import functools
@@ -20,7 +20,7 @@ from tornado.locks import Condition
 
 from thumbor import __version__
 from thumbor.context import Context
-from thumbor.engines import BaseEngine
+from thumbor.engines import BaseEngine, EngineResult
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.loaders import LoaderResult
 from thumbor.result_storages import ResultStorageResult
@@ -46,6 +46,37 @@ class FetchResult(object):
 
 class BaseHandler(tornado.web.RequestHandler):
     url_locks = {}
+
+    def prepare(self, *args, **kwargs):
+        super(BaseHandler, self).prepare(*args, **kwargs)
+
+        if not hasattr(self, 'context'):
+            return
+
+        self._response_start = datetime.datetime.now()
+        self.context.metrics.incr('response.count')
+
+    def on_finish(self, *args, **kwargs):
+        super(BaseHandler, self).on_finish(*args, **kwargs)
+
+        if not hasattr(self, 'context'):
+            return
+
+        total_time = (datetime.datetime.now() - self._response_start).total_seconds() * 1000
+        status = self.get_status()
+        self.context.metrics.timing('response.time', total_time)
+        self.context.metrics.timing('response.time.{0}'.format(status), total_time)
+        self.context.metrics.incr('response.status.{0}'.format(status))
+
+        if hasattr(self.context, 'request') and hasattr(self.context.request, 'engine'):
+            ext = self.context.request.engine.extension
+            self.context.metrics.incr('response.format{0}'.format(ext))
+            self.context.metrics.timing('response.time{0}'.format(ext), total_time)
+            if self.context.request.engine.image:
+                self.context.metrics.incr(
+                    'response.bytes{0}'.format(ext),
+                    len(self.context.request.engine.image.tobytes())
+                )
 
     def _error(self, status, msg=None):
         self.set_status(status)
@@ -122,6 +153,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 elif result.loader_error == LoaderResult.ERROR_TIMEOUT:
                     # Return a Gateway Timeout status if upstream timed out (i.e. 599)
                     self._error(504)
+                    return
+                elif result.engine_error == EngineResult.COULD_NOT_LOAD_IMAGE:
+                    self._error(400)
                     return
                 else:
                     self._error(500)
@@ -344,10 +378,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Server', 'Thumbor/%s' % __version__)
         self.set_header('Content-Type', content_type)
 
-        if context.config.AUTO_WEBP and \
-                not context.request.engine.is_multiple() and \
-                context.request.engine.can_convert_to_webp() and \
-                context.request.engine.extension != '.webp':
+        if self.is_webp(self.context):
             self.set_header('Vary', 'Accept')
 
         context.headers = self._headers.copy()
@@ -505,21 +536,25 @@ class BaseHandler(tornado.web.RequestHandler):
         if mime is None:
             mime = BaseEngine.get_mimetype(fetch_result.buffer)
 
-        self.context.request.extension = EXTENSION.get(mime, '.jpg')
+        self.context.request.extension = extension = EXTENSION.get(mime, '.jpg')
 
         original_preserve = self.context.config.PRESERVE_EXIF_INFO
         self.context.config.PRESERVE_EXIF_INFO = True
 
         try:
-            mime = BaseEngine.get_mimetype(fetch_result.buffer)
-            self.context.request.extension = extension = EXTENSION.get(mime, None)
-
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                 self.context.request.engine = self.context.modules.gif_engine
             else:
                 self.context.request.engine = self.context.modules.engine
 
             self.context.request.engine.load(fetch_result.buffer, extension)
+
+            if self.context.request.engine.image is None:
+                fetch_result.successful = False
+                fetch_result.buffer = None
+                fetch_result.engine = self.context.request.engine
+                fetch_result.engine_error = EngineResult.COULD_NOT_LOAD_IMAGE
+                raise gen.Return(fetch_result)
 
             fetch_result.normalized = self.context.request.engine.normalize()
 
@@ -580,6 +615,7 @@ class ContextHandler(BaseHandler):
             importer=context.modules.importer,
             request_handler=self
         )
+        self.context.metrics.initialize(self)
 
     def log_exception(self, *exc_info):
         if isinstance(exc_info[1], tornado.web.HTTPError):

@@ -30,7 +30,7 @@ Now all we need to do is cropping 300px of the picture height. To
 determine whether to crop from the top, bottom or both we use the focal
 points or the horizontal alignment. If any focal points have been
 specified we'll use those to find the center of mass of the image (more
-on that in [[Detection Algorithms]]). Otherwise we'll use the horizontal
+on that in :doc:`detection_algorithms`). Otherwise we'll use the horizontal
 and vertical alignments.
 
 .. image:: images/focal-points.png

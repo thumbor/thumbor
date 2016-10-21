@@ -5,12 +5,13 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2011 globo.com timehome@corp.globo.com
+# Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import re
 
+from libthumbor.url import Url
+
 from thumbor.filters import BaseFilter, filter_method, PHASE_PRE_LOAD
-from thumbor.url import Url
 from thumbor.point import FocalPoint
 
 
