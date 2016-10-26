@@ -9,14 +9,24 @@ setup:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@echo
 
+setup_mac:
+	@brew tap homebrew/science
+	@brew update
+	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool
+	@brew install ffmpeg --with-libvpx
+	@opencv_path=`realpath $$(dirname $$(brew --prefix opencv))/$$(readlink $$(brew --prefix opencv))`; \
+		echo 'Enter in your site-packages directory and run the following lines:';\
+		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv.py ./";\
+		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv2.so ./"
+
 compile_ext:
 	@python setup.py build_ext -i
 
 test: compile_ext redis
 	@$(MAKE) unit coverage
-	@nosetests -sv integration_tests/
+	@$(MAKE) integration_run
 	@$(MAKE) static
-	$(MAKE) kill_redis
+	@$(MAKE) kill_redis
 
 ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
