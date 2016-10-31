@@ -9,14 +9,24 @@ setup:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@echo
 
+setup_mac:
+	@brew tap homebrew/science
+	@brew update
+	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool
+	@brew install ffmpeg --with-libvpx
+	@opencv_path=`realpath $$(dirname $$(brew --prefix opencv))/$$(readlink $$(brew --prefix opencv))`; \
+		echo 'Enter in your site-packages directory and run the following lines:';\
+		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv.py ./";\
+		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv2.so ./"
+
 compile_ext:
 	@python setup.py build_ext -i
 
 test: compile_ext redis
 	@$(MAKE) unit coverage
-	@nosetests -sv integration_tests/
+	@$(MAKE) integration_run
 	@$(MAKE) static
-	$(MAKE) kill_redis
+	@$(MAKE) kill_redis
 
 ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -122,5 +132,9 @@ sample_images:
 	convert tests/fixtures/filters/source.jpg -gamma 1.1,1.02,1.04 tests/fixtures/filters/rgb.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/8/81/Wikimedia-logo.svg -o tests/fixtures/filters/watermark.svg
 	convert tests/fixtures/filters/watermark.svg -transparent white -resize 30x30 tests/fixtures/filters/watermark.png
+	curl -s www.publicdomainpictures.net/pictures/10000/velka/1-1251904084vZF6.jpg -o tests/fixtures/filters/1-1251904084vZF6.jpg
+	curl -s www.publicdomainpictures.net/pictures/10000/velka/1-1243170613iVFA.jpg -o tests/fixtures/filters/1-1243170613iVFA.jpg
+	cp tests/fixtures/filters/source.jpg tests/fixtures/filters/800px-Katherine_Maher.jpg
+	cp tests/fixtures/images/Christophe_Henner_-_June_2016.jpg tests/fixtures/filters/Christophe_Henner_-_June_2016.jpg
 	# the watermark filter's logic is too complicated to reproduce with IM, the watermark test images can't be generated here
 	# similarly, the noise, colorize and fill filters generate output too unique to be reproduce with IM and can't be generated here
