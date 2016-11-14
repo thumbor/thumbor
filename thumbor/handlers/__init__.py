@@ -53,6 +53,9 @@ class BaseHandler(tornado.web.RequestHandler):
         if not hasattr(self, 'context'):
             return
 
+        self._response_ext = None
+        self._response_length = None
+
         self._response_start = datetime.datetime.now()
         self.context.metrics.incr('response.count')
 
@@ -68,15 +71,12 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.metrics.timing('response.time.{0}'.format(status), total_time)
         self.context.metrics.incr('response.status.{0}'.format(status))
 
-        if hasattr(self.context, 'request') and hasattr(self.context.request, 'engine'):
-            ext = self.context.request.engine.extension
+        if self._response_ext is not None:
+            ext = self._response_ext
             self.context.metrics.incr('response.format{0}'.format(ext))
             self.context.metrics.timing('response.time{0}'.format(ext), total_time)
-            if self.context.request.engine.image:
-                self.context.metrics.incr(
-                    'response.bytes{0}'.format(ext),
-                    len(self.context.request.engine.image.tobytes())
-                )
+            if self._response_length is not None:
+                self.context.metrics.incr('response.bytes{0}'.format(ext), self._response_length)
 
     def _error(self, status, msg=None):
         self.set_status(status)
@@ -387,6 +387,9 @@ class BaseHandler(tornado.web.RequestHandler):
             buffer = results.buffer
         else:
             buffer = results
+
+        self._response_ext = EXTENSION.get(content_type)
+        self._response_length = len(buffer)
 
         self.write(buffer)
         self.finish()
