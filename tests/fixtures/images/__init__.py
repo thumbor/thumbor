@@ -21,6 +21,7 @@ from os.path import abspath, join, dirname
 def get_abs_path(img):
     return abspath(join(dirname(__file__), img))
 
+
 valid_image_path = get_abs_path(u'alabama1_ap620é.jpg')
 svg_image_path = get_abs_path(u'Commons-logo.svg')
 too_small_image_path = get_abs_path(u'20x20.jpg')

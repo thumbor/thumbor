@@ -122,6 +122,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
         ext_modules=extension_modules
     )
 
+
 try:
     run_setup(gather_filter_extensions())
 except SystemExit as exit:
