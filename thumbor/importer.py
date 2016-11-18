@@ -84,9 +84,9 @@ class Importer:
                         else:
                             module = self.import_class(module_name, get_module=True)
                         modules.append(module)
-                    except ImportError:
+                    except ImportError as e:
                         if ignore_errors:
-                            logger.warn('Module %s could not be imported.' % module_name)
+                            logger.warn('Module %s could not be imported: %s', module_name, e)
                         else:
                             raise
             setattr(self, config_key.lower(), tuple(modules))
