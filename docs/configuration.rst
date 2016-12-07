@@ -129,6 +129,7 @@ An example:
         'thumbor.filters.quality',
         'thumbor.filters.noise',
         'thumbor.filters.watermark',
+        'thumbor.filters.textwatermark',
     ]
 
 Metadata Section
