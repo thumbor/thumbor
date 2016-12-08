@@ -127,7 +127,6 @@ class Filter(BaseFilter):
     )
     @tornado.gen.coroutine
     def text_watermark(self, callback, name, date, address, x, y):
-        logging.error('name is: %s', name)
         self.name = name
         self.date = date
         self.address = address
