@@ -140,7 +140,6 @@ class Filter(BaseFilter):
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
         try:
             fontFile = self.context.config.WATER_MARK_FONT_FILE_PATH
-            logging.error('font file is: %s', fontFile)
         except Exception, err:
             logging.error(err)
         buffer = yield tornado.gen.maybe_future(self.watermark(contents, fontFile))
