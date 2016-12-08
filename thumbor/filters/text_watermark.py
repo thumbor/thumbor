@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import logging
+
 try:
     import cv
 except ImportError:
@@ -168,39 +170,42 @@ class Filter(BaseFilter):
         return lines, split_points, content
 
     def watermark(self, contents, fontFile):
-        sz = self.engine.size
-        self.watermark_width = sz[0]
-        line_num = 0  # 总行数
-        content_infos = []
-        for item in contents:  # 对换行之后的内容逐行判断继续分割的行数
-            result = self.cal_lines(item, self.watermark_width - ONE_LINE_TOTAL)
-            line_num += result[0]
-            content_infos.append(result)
-        self.watermark_high = line_num * EVERY_LINE_HIGH + HIGH
-        watermark = Image.new('RGBA', (self.watermark_width, self.watermark_high),
-                              (255, 255, 255, 0))
-        font = ImageFont.truetype(fontFile, FONT_SIZE)
-        draw = ImageDraw.Draw(watermark, 'RGBA')
-        cur_line = 0  # 当前行数
-        for _, split_points, text in content_infos:
-            start = 0
-            for end in split_points:  # 如果存在分割点(即当前内容需要换行)
-                draw.text(
-                    (FONT_X, FONT_LINE_Y + cur_line * FONT_LINE_Y),  # 每行开始坐标
-                    text[start:end],  # 内容
-                    FONT_COLOUR,
-                    font=font,
-                )
-                start = end
-                cur_line += 1
-            remain = text[start:]
-            if remain:
-                draw.text(
-                    (FONT_X, FONT_LINE_Y + cur_line * FONT_LINE_Y),
-                    remain,
-                    FONT_COLOUR,
-                    font=font,
-                )
-                cur_line += 1
-        buffer = cv.EncodeImage(PIC_TYPE, cv.fromarray(array(watermark))).tostring()
-        return buffer
+        try:
+            sz = self.engine.size
+            self.watermark_width = sz[0]
+            line_num = 0  # 总行数
+            content_infos = []
+            for item in contents:  # 对换行之后的内容逐行判断继续分割的行数
+                result = self.cal_lines(item, self.watermark_width - ONE_LINE_TOTAL)
+                line_num += result[0]
+                content_infos.append(result)
+            self.watermark_high = line_num * EVERY_LINE_HIGH + HIGH
+            watermark = Image.new('RGBA', (self.watermark_width, self.watermark_high),
+                                  (255, 255, 255, 0))
+            font = ImageFont.truetype(fontFile, FONT_SIZE)
+            draw = ImageDraw.Draw(watermark, 'RGBA')
+            cur_line = 0  # 当前行数
+            for _, split_points, text in content_infos:
+                start = 0
+                for end in split_points:  # 如果存在分割点(即当前内容需要换行)
+                    draw.text(
+                        (FONT_X, FONT_LINE_Y + cur_line * FONT_LINE_Y),  # 每行开始坐标
+                        text[start:end],  # 内容
+                        FONT_COLOUR,
+                        font=font,
+                    )
+                    start = end
+                    cur_line += 1
+                remain = text[start:]
+                if remain:
+                    draw.text(
+                        (FONT_X, FONT_LINE_Y + cur_line * FONT_LINE_Y),
+                        remain,
+                        FONT_COLOUR,
+                        font=font,
+                    )
+                    cur_line += 1
+            buffer = cv.EncodeImage(PIC_TYPE, cv.fromarray(array(watermark))).tostring()
+            return buffer
+        except Exception, err:
+            logging.error(err)
