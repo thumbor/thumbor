@@ -138,6 +138,7 @@ class Filter(BaseFilter):
         self.extension = PIC_TYPE
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
         fontFile = self.context.config.WATER_MARK_FONT_FILE_PATH
+        logging.error('font file is: %s', fontFile)
         buffer = yield tornado.gen.maybe_future(self.watermark(contents, fontFile))
         self.on_image_ready(buffer)
 
