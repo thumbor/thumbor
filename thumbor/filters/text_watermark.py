@@ -127,6 +127,7 @@ class Filter(BaseFilter):
     )
     @tornado.gen.coroutine
     def text_watermark(self, callback, name, date, address, x, y):
+        logging.error('name is: %s', name)
         self.name = name
         self.date = date
         self.address = address
@@ -137,8 +138,11 @@ class Filter(BaseFilter):
         self.callback = callback
         self.extension = PIC_TYPE
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
-        fontFile = self.context.config.WATER_MARK_FONT_FILE_PATH
-        logging.error('font file is: %s', fontFile)
+        try:
+            fontFile = self.context.config.WATER_MARK_FONT_FILE_PATH
+            logging.error('font file is: %s', fontFile)
+        except Exception, err:
+            logging.error(err)
         buffer = yield tornado.gen.maybe_future(self.watermark(contents, fontFile))
         self.on_image_ready(buffer)
 
