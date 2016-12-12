@@ -131,3 +131,7 @@ class Engine(PILEngine):
 
     def convert_to_grayscale(self):
         self.operations.append('--use-colormap gray')
+
+    # gif have no exif data and thus can't be auto oriented
+    def reorientate(self, override_exif=True):
+        pass
