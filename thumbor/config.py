@@ -306,6 +306,7 @@ Config.define(
         'thumbor.filters.saturation',
         'thumbor.filters.max_age',
         'thumbor.filters.curve',
+        'thumbor.filters.distributed_collage',
     ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')
@@ -379,6 +380,7 @@ def format_value(value):
         representation += '#]'
         return representation
     return value
+
 
 if __name__ == '__main__':
     generate_config()

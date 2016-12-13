@@ -30,7 +30,7 @@ tests_require = [
     "yanc",
     "remotecv",
     "pyssim",
-    "cairosvg!=1.0.21",
+    "cairosvg>=1.0.0,<2.0.0,!=1.0.21",
     "preggy>=1.3.0",
 ]
 
@@ -121,6 +121,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
 
         ext_modules=extension_modules
     )
+
 
 try:
     run_setup(gather_filter_extensions())
