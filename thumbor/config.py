@@ -289,6 +289,7 @@ Config.define(
         'thumbor.filters.quality',
         'thumbor.filters.noise',
         'thumbor.filters.watermark',
+        'thumbor.filters.text_watermark',
         'thumbor.filters.equalize',
         'thumbor.filters.fill',
         'thumbor.filters.sharpen',
@@ -310,6 +311,11 @@ Config.define(
     ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')
+
+# WATERMARK
+Config.define(
+    'WATER_MARK_FONT_FILE_PATH', './simhei.ttf',
+    'Watermark font file', 'Watermark')  # Never expires
 
 # RESULT STORAGE
 Config.define(
