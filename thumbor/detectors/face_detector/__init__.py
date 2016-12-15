@@ -10,6 +10,7 @@
 
 from thumbor.detectors.local_detector import CascadeLoaderDetector
 from thumbor.point import FocalPoint
+from thumbor.utils import logger
 
 HAIR_OFFSET = 0.12
 
@@ -28,7 +29,9 @@ class Detector(CascadeLoaderDetector):
         try:
             features = self.get_features()
         except Exception:
-            features = None
+            logger.warn('Error during face detection; skipping to next detector')
+            self.next(callback)
+            return
 
         if features:
             for (left, top, width, height), neighbors in features:
