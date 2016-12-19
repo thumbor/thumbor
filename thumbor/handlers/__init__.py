@@ -12,6 +12,7 @@ import sys
 import functools
 import datetime
 import pytz
+import schedule
 import traceback
 
 import tornado.web
@@ -351,11 +352,18 @@ class BaseHandler(tornado.web.RequestHandler):
             context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         def inner(future):
-            results, content_type = future.result()
-            self._write_results_to_client(context, results, content_type)
+            result = future.result()
+            if result:
+                results, content_type = future.result()
+                if results:
+                    self._write_results_to_client(context, results, content_type)
 
-            if should_store:
-                self._store_results(context, results)
+                    if should_store:
+                        self._store_results(context, results)
+                else:
+                    self._error(500)
+
+                schedule.run_pending()
 
         self.context.thread_pool.queue(
             operation=functools.partial(self._load_results, context),
