@@ -114,7 +114,7 @@ Config.define(
     'The result storage thumbor should use to store generated images. This must be the full name of a python ' +
     'module (python must be able to import it)', 'Extensibility')
 Config.define(
-    'ENGINE', 'thumbor.engines.pil',
+    'ENGINE', 'opencv_engine',
     'The imaging engine thumbor should use to perform image operations. This must be the full name of a ' +
     'python module (python must be able to import it)', 'Extensibility')
 
@@ -129,6 +129,7 @@ Config.define('ALLOW_UNSAFE_URL', True, 'Indicates if the /unsafe URL should be 
 Config.define('ALLOW_OLD_URLS', True, 'Indicates if encrypted (old style) URLs should be allowed', 'Security')
 Config.define('ENABLE_ETAGS', True, 'Enables automatically generated etags', 'HTTP')
 Config.define('MAX_ID_LENGTH', 32, 'Set maximum id length for images when stored', 'Storage')
+Config.define('GC_INTERVAL', 60, 'Set garbage collection interval in seconds', 'Performance')
 
 # METRICS OPTIONS
 Config.define('STATSD_HOST', None, 'Host to send statsd instrumentation to', 'Metrics')
