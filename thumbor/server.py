@@ -127,7 +127,7 @@ def main(arguments=None):
 
     server_parameters = get_server_parameters(arguments)
     config = get_config(server_parameters.config_path)
-    configure_log(config, server_parameters.log_level.upper())
+    configure_log(config, config.LOG_LEVEL)
 
     importer = get_importer(config)
 

@@ -130,7 +130,7 @@ Config.define('ALLOW_OLD_URLS', True, 'Indicates if encrypted (old style) URLs s
 Config.define('ENABLE_ETAGS', True, 'Enables automatically generated etags', 'HTTP')
 Config.define('MAX_ID_LENGTH', 32, 'Set maximum id length for images when stored', 'Storage')
 Config.define('GC_INTERVAL', 60, 'Set garbage collection interval in seconds', 'Performance')
-
+Config.define('LOG_LEVEL', 'warning', 'Set log level', 'Log Level')
 # METRICS OPTIONS
 Config.define('STATSD_HOST', None, 'Host to send statsd instrumentation to', 'Metrics')
 Config.define('STATSD_PORT', 8125, 'Port to send statsd instrumentation to', 'Metrics')
