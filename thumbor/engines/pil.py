@@ -10,6 +10,7 @@
 
 import warnings
 import os
+import gc
 from tempfile import mkstemp
 from subprocess import Popen, PIPE
 from io import BytesIO
@@ -231,6 +232,7 @@ class Engine(BaseEngine):
         results = img_buffer.getvalue()
         img_buffer.close()
         self.extension = ext
+        gc.collect()
         return results
 
     def read_multiple(self, images, extension=None):
