@@ -19,20 +19,28 @@ class Detector(BaseDetector):
 
     def detect(self, callback):
         engine = self.context.modules.engine
-        img = np.array(
-            engine.convert_to_grayscale(
-                update_image=False,
-                with_alpha=False
+        try:
+            img = np.array(
+                engine.convert_to_grayscale(
+                    update_image=False,
+                    with_alpha=False
+                )
             )
-        )
+        except Exception:
+            self.next(callback)
+            return
 
-        points = cv2.goodFeaturesToTrack(
-            img,
-            maxCorners=20,
-            qualityLevel=0.04,
-            minDistance=1.0,
-            useHarrisDetector=False,
-        )
+        try:
+            points = cv2.goodFeaturesToTrack(
+                img,
+                maxCorners=20,
+                qualityLevel=0.04,
+                minDistance=1.0,
+                useHarrisDetector=False,
+            )
+        except Exception:
+            points = None
+
         if points is not None:
             for x, y in points.squeeze():
                 self.context.request.focal_points.append(FocalPoint(x.item(), y.item(), 1))

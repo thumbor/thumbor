@@ -1,0 +1,42 @@
+build:
+  image: centos:6.8
+  pull: true
+  commands:
+    - yum install -y http://centos6.iuscommunity.org/ius-release.rpm
+    - yum install -y git-core python27 python27-libs python27-pip python27-virtualenv
+    - yum install -y libjpeg-turbo-devel libpng-devel libcurl-devel gcc gcc-c++
+    - /usr/bin/virtualenv-2.7 venv
+    - venv/bin/pip install --upgrade .
+    - make package
+
+publish:
+  s3:
+    acl: private
+    region: eu-west-1
+    bucket: nrcbuilds
+    access_key: $$AWS_KEY
+    secret_key: $$AWS_SECRET
+    source: builds/$$COMMIT.tar.gz
+    target: github.com/nrcmedia/thumbor/$$BRANCH/$$COMMIT.tar.gz
+    when:
+      owner: nrcmedia
+
+notify:
+  slack:
+    webhook_url: $$SLACK_URL
+    channel: "#nrcnldev"
+    username: Drone
+    when:
+      success: false
+      failure: false
+
+  slack_blame:
+    token: $$SLACK_TOKEN
+    channel: "#nrcnldev"
+    when:
+      success: false
+      failure: true
+    failure:
+      username: "Dizzy Deep"
+      icon: ":deep:"
+      message: "The build is broken!"
