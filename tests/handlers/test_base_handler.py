@@ -169,6 +169,17 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
         response = self.fetch(url)
         expect(response.code).to_equal(200)
 
+    def test_image_with_http_utf8_url(self):
+        with open('./tests/fixtures/images/maracujá.jpg', 'r') as f:
+            self.context.modules.storage.put(
+                quote(u"http://test.com/maracujá.jpg".encode('utf-8')),
+                f.read()
+            )
+
+        url = quote(u"/unsafe/http://test.com/maracujá.jpg".encode('utf-8'))
+        response = self.fetch(url)
+        expect(response.code).to_equal(200)
+
 
 class ImagingOperationsTestCase(BaseImagingTestCase):
     def get_context(self):
