@@ -118,8 +118,8 @@ class Engine(PILEngine):
 
         # Make sure gifsicle produced a valid gif.
         try:
-            with Image.open(BytesIO(self.buffer)) as image:
-                image.verify()
+            with BytesIO(self.buffer) as buff:
+                Image.open(buff).verify()
         except Exception:
             self.context.metrics.incr('gif_engine.no_output')
             logger.error("[GIF_ENGINE] invalid gif engine result for url `{url}`.".format(
@@ -131,3 +131,7 @@ class Engine(PILEngine):
 
     def convert_to_grayscale(self):
         self.operations.append('--use-colormap gray')
+
+    # gif have no exif data and thus can't be auto oriented
+    def reorientate(self, override_exif=True):
+        pass

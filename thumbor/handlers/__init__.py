@@ -11,6 +11,7 @@
 import sys
 import functools
 import datetime
+import re
 import pytz
 import schedule
 import traceback
@@ -31,12 +32,10 @@ from thumbor.transformer import Transformer
 from thumbor.utils import logger, CONTENT_TYPE, EXTENSION
 import thumbor.filters
 
-
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
 
 class FetchResult(object):
-
     def __init__(self, normalized=False, buffer=None, engine=None, successful=False, loader_error=None):
         self.normalized = normalized
         self.engine = engine
@@ -107,16 +106,6 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 self.context.metrics.incr('result_storage.hit')
                 self.context.metrics.incr('result_storage.bytes_read', len(result))
-
-            if result is not None:
-                buffer = result.buffer if isinstance(result, ResultStorageResult) else result
-                mime = BaseEngine.get_mimetype(buffer)
-                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                    self.context.request.engine = self.context.modules.gif_engine
-                else:
-                    self.context.request.engine = self.context.modules.engine
-                self.context.request.engine.load(buffer, EXTENSION.get(mime, '.jpg'))
-
                 logger.debug('[RESULT_STORAGE] IMAGE FOUND: %s' % req.url)
                 self.finish_request(self.context, result)
                 return
@@ -257,6 +246,41 @@ class BaseHandler(tornado.web.RequestHandler):
                 not context.request.engine.is_multiple() and
                 context.request.engine.can_convert_to_webp())
 
+    def is_animated_gif(self, data):
+        if data[:6] not in [b"GIF87a", b"GIF89a"]:
+            return False
+        i = 10  # skip header
+        frames = 0
+
+        def skip_color_table(i, flags):
+            if flags & 0x80:
+                i += 3 << ((flags & 7) + 1)
+            return i
+
+        flags = ord(data[i])
+        i = skip_color_table(i + 3, flags)
+        while frames < 2:
+            block = data[i]
+            i += 1
+            if block == b'\x3B':
+                break
+            if block == b'\x21':
+                i += 1
+            elif block == b'\x2C':
+                frames += 1
+                i += 8
+                i = skip_color_table(i + 1, ord(data[i]))
+                i += 1
+            else:
+                return False
+            while True:
+                l = ord(data[i])
+                i += 1
+                if not l:
+                    break
+                i += l
+        return frames > 1
+
     def define_image_type(self, context, result):
         if result is not None:
             if isinstance(result, ResultStorageResult):
@@ -279,7 +303,8 @@ class BaseHandler(tornado.web.RequestHandler):
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
         if context.request.meta:
-            context.request.meta_callback = context.config.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
+            context.request.meta_callback = context.config.META_CALLBACK_NAME or \
+                                            self.request.arguments.get('callback', [None])[0]
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
             logger.debug('Metadata requested. Serving content type of %s.' % content_type)
 
@@ -335,8 +360,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
                     self.set_header('Last-Modified', result_last_modified.strftime(HTTP_DATE_FMT))
             except NotImplementedError:
-                logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & '
-                            'Last-Updated headers support is disabled.')
+                logger.warn(
+                    'last_updated method is not supported by your result storage service, hence If-Modified-Since & '
+                    'Last-Updated headers support is disabled.')
 
     @gen.coroutine
     def finish_request(self, context, result_from_storage=None):
@@ -386,15 +412,27 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Server', 'Thumbor/%s' % __version__)
         self.set_header('Content-Type', content_type)
 
-        if self.is_webp(self.context):
-            self.set_header('Vary', 'Accept')
-
-        context.headers = self._headers.copy()
-
         if isinstance(results, ResultStorageResult):
             buffer = results.buffer
         else:
             buffer = results
+
+        # auto-convert configured?
+        should_vary = context.config.AUTO_WEBP
+        # we have image (not video)
+        should_vary = should_vary and content_type.startswith("image/")
+        # output format is not requested via format filter
+        should_vary = should_vary and not (
+            context.request.format  # format is supported by filter
+            and bool(re.search(r"format\([^)]+\)", context.request.filters))  # filter is in request
+        )
+        # our image is not animated gif
+        should_vary = should_vary and not self.is_animated_gif(buffer)
+
+        if should_vary:
+            self.set_header('Vary', 'Accept')
+
+        context.headers = self._headers.copy()
 
         self._response_ext = EXTENSION.get(content_type)
         self._response_length = len(buffer)
@@ -482,7 +520,8 @@ class BaseHandler(tornado.web.RequestHandler):
         is_valid = self.context.modules.loader.validate(self.context, path)
 
         if not is_valid:
-            logger.warn('Request denied because the specified path "%s" was not identified by the loader as a valid path' % path)
+            logger.warn(
+                'Request denied because the specified path "%s" was not identified by the loader as a valid path' % path)
 
         return is_valid
 
@@ -638,7 +677,8 @@ class ContextHandler(BaseHandler):
 
         try:
             if self.context.config.USE_CUSTOM_ERROR_HANDLING:
-                self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self, exception=exc_info)
+                self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self,
+                                                                         exception=exc_info)
         finally:
             del exc_info
             logger.error('ERROR: %s' % "".join(msg))
@@ -648,7 +688,6 @@ class ContextHandler(BaseHandler):
 # Base handler for Image API operations
 ##
 class ImageApiHandler(ContextHandler):
-
     def validate(self, body):
         conf = self.context.config
         mime = BaseEngine.get_mimetype(body)

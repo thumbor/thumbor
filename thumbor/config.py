@@ -388,5 +388,6 @@ def format_value(value):
         return representation
     return value
 
+
 if __name__ == '__main__':
     generate_config()

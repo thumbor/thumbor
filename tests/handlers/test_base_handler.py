@@ -169,6 +169,17 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
         response = self.fetch(url)
         expect(response.code).to_equal(200)
 
+    def test_image_with_http_utf8_url(self):
+        with open('./tests/fixtures/images/maracujá.jpg', 'r') as f:
+            self.context.modules.storage.put(
+                quote(u"http://test.com/maracujá.jpg".encode('utf-8')),
+                f.read()
+            )
+
+        url = quote(u"/unsafe/http://test.com/maracujá.jpg".encode('utf-8'))
+        response = self.fetch(url)
+        expect(response.code).to_equal(200)
+
 
 class ImagingOperationsTestCase(BaseImagingTestCase):
     def get_context(self):
@@ -424,32 +435,54 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         response = self.get_as_webp('/unsafe/0x0:1681x596/1x/image.jpg')
 
         expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.headers['Vary']).to_include('Accept')
         expect(response.body).to_be_webp()
 
     def test_should_convert_monochromatic_jpeg(self):
         response = self.get_as_webp('/unsafe/grayscale.jpg')
         expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.headers['Vary']).to_include('Accept')
         expect(response.body).to_be_webp()
 
     def test_should_convert_cmyk_jpeg(self):
         response = self.get_as_webp('/unsafe/cmyk.jpg')
         expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.headers['Vary']).to_include('Accept')
         expect(response.body).to_be_webp()
 
     def test_shouldnt_convert_cmyk_jpeg_if_format_specified(self):
         response = self.get_as_webp('/unsafe/filters:format(png)/cmyk.jpg')
         expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
         expect(response.body).to_be_png()
 
     def test_shouldnt_convert_cmyk_jpeg_if_gif(self):
         response = self.get_as_webp('/unsafe/filters:format(gif)/cmyk.jpg')
         expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
         expect(response.body).to_be_gif()
 
-    def test_shouldnt_convert_cmyk_if_format_specified(self):
+    def test_shouldnt_convert_if_format_specified(self):
         response = self.get_as_webp('/unsafe/filters:format(gif)/image.jpg')
         expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
         expect(response.body).to_be_gif()
+
+    def test_shouldnt_add_vary_if_format_specified(self):
+        response = self.get_as_webp('/unsafe/filters:format(webp)/image.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_webp()
+
+    def test_should_add_vary_if_format_invalid(self):
+        response = self.get_as_webp('/unsafe/filters:format(asdf)/image.jpg')
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.headers['Vary']).to_include('Accept')
+        expect(response.body).to_be_webp()
 
     def test_converting_return_etags(self):
         response = self.get_as_webp('/unsafe/image.jpg')
@@ -501,7 +534,6 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
         expect(response.headers).to_include('Vary')
         expect(response.headers['Vary']).to_include('Accept')
         expect(response.body).to_be_webp()
-        expect(self.context.request.engine.extension).to_equal('.webp')
 
     @patch('thumbor.handlers.Context')
     def test_can_auto_convert_unsafe_jpeg_from_result_storage(self, context_mock):

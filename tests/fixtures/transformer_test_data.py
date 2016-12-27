@@ -241,6 +241,7 @@ class TestData(object):
 
         return True
 
+
 TESTITEMS = [
     TestData(
         source_width=800, source_height=600,
