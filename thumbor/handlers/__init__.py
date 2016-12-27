@@ -485,6 +485,7 @@ class BaseHandler(tornado.web.RequestHandler):
         :rtype:
         """
         fetch_result = FetchResult()
+        loader_result = None
 
         storage = self.context.modules.storage
 
@@ -492,50 +493,37 @@ class BaseHandler(tornado.web.RequestHandler):
 
         try:
             fetch_result.buffer = yield gen.maybe_future(storage.get(url))
-            mime = None
 
             if fetch_result.buffer is not None:
                 self.release_url_lock(url)
-
                 fetch_result.successful = True
-
                 self.context.metrics.incr('storage.hit')
-                mime = BaseEngine.get_mimetype(fetch_result.buffer)
-                self.context.request.extension = EXTENSION.get(mime, '.jpg')
-                if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
-                    self.context.request.engine = self.context.modules.gif_engine
-                else:
-                    self.context.request.engine = self.context.modules.engine
-
-                raise gen.Return(fetch_result)
             else:
                 self.context.metrics.incr('storage.miss')
-
-            loader_result = yield self.context.modules.loader.load(self.context, url)
+                loader_result = yield self.context.modules.loader.load(self.context, url)
         finally:
             self.release_url_lock(url)
 
-        if isinstance(loader_result, LoaderResult):
-            # TODO _fetch should probably return a result object vs a list to
-            # to allow returning metadata
-            if not loader_result.successful:
-                fetch_result.buffer = None
-                fetch_result.loader_error = loader_result.error
-                raise gen.Return(fetch_result)
+        if loader_result is not None:
+            if isinstance(loader_result, LoaderResult):
+                # TODO _fetch should probably return a result object vs a list to
+                # to allow returning metadata
+                if not loader_result.successful:
+                    fetch_result.buffer = None
+                    fetch_result.loader_error = loader_result.error
+                    raise gen.Return(fetch_result)
 
-            fetch_result.buffer = loader_result.buffer
-        else:
-            # Handle old loaders
-            fetch_result.buffer = loader_result
+                fetch_result.buffer = loader_result.buffer
+            else:
+                # Handle old loaders
+                fetch_result.buffer = loader_result
 
         if fetch_result.buffer is None:
             raise gen.Return(fetch_result)
 
         fetch_result.successful = True
 
-        if mime is None:
-            mime = BaseEngine.get_mimetype(fetch_result.buffer)
-
+        mime = BaseEngine.get_mimetype(fetch_result.buffer)
         self.context.request.extension = extension = EXTENSION.get(mime, '.jpg')
 
         original_preserve = self.context.config.PRESERVE_EXIF_INFO
