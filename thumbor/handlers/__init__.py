@@ -375,7 +375,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
             self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
 
-        if self.context.config.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER:
+        if hasattr(self.context.config, 'ACCESS_CONTROL_ALLOW_ORIGIN_HEADER'):
             ac_header = self.context.config.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER
             self.set_header('Access-Control-Allow-Origin', ac_header)
             logger.debug('CORS header found. Set to: %s' % ac_header)
