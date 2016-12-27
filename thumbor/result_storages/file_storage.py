@@ -19,7 +19,7 @@ from thumbor.engines import BaseEngine
 from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger, deprecated
 from tornado.concurrent import return_future
-
+from urllib2 import unquote
 from . import ResultStorageResult
 
 
@@ -77,6 +77,7 @@ class Storage(BaseStorage):
         return abspath(path).startswith(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH)
 
     def normalize_path(self, path):
+        path = unquote(path).decode('utf-8')
         path_segments = [self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), Storage.PATH_FORMAT_VERSION, ]
         if self.is_auto_webp:
             path_segments.append("webp")

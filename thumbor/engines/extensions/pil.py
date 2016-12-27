@@ -429,7 +429,7 @@ class GifWriter:
                 # Gather info
                 data = getdata(im)
 
-                imdes, data = data[0], data[1:]
+                imdes, data = b''.join(data[:-2]), data[-2:]
                 graphext = self.getGraphicsControlExt(durations[frames], disposes[frames])
                 # Make image descriptor suitable for using 256 local color palette
                 lid = self.getImageDescriptor(im, xys[frames])

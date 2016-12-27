@@ -15,10 +15,10 @@ from tests.base import FilterTestCase
 
 class DistributedCollageFilterTestCase(FilterTestCase):
     urls = (
-        '1-1251904084vZF6.jpg',
+        '800px-Guido-portrait-2014.jpg',
         '800px-Katherine_Maher.jpg',
-        '1-1243170613iVFA.jpg',
-        'Christophe_Henner_-_June_2016.jpg'
+        'Giunchedi%2C_Filippo_January_2015_01.jpg',
+        '800px-Christophe_Henner_-_June_2016.jpg',
     )
 
     def test_fallback_when_have_not_enough_images(self):
