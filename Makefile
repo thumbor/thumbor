@@ -1,18 +1,26 @@
+OS := $(shell uname)
+
 run: compile_ext
 	@thumbor -l debug -d
 
 setup:
+    ifeq ($(OS), xx)
+	    @$(MAKE) setup_mac
+    else
+	    @echo
+	    @echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+	    @echo ">>> MAKE SURE SYSTEM DEPENDENCIES IS INSTALLED IF RUNNING TESTS <<<<<<<<<<<<<<<"
+	    @echo ">>> imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo ffmpeg <<<"
+	    @echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+	    @echo
+    endif
 	@pip install -e .[tests]
-	@echo
-	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	@echo ">>>>>>>>>>>>>>> MAKE SURE GIFSICLE IS INSTALLED IF RUNNING TESTS <<<<<<<<<<<<<<"
-	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	@echo
+
 
 setup_mac:
 	@brew tap homebrew/science
 	@brew update
-	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool
+	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo
 	@brew install ffmpeg --with-libvpx
 	@opencv_path=`realpath $$(dirname $$(brew --prefix opencv))/$$(readlink $$(brew --prefix opencv))`; \
 		echo 'Enter in your site-packages directory and run the following lines:';\
