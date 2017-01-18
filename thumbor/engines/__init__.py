@@ -227,6 +227,9 @@ class BaseEngine(object):
         return round(float(new_width) * height / width, 0)
 
     def _get_exif_segment(self):
+        if (not hasattr(self, 'exif')) or self.exif is None:
+            return None
+
         try:
             segment = ExifSegment(None, None, self.exif, 'ro')
         except Exception:
@@ -243,9 +246,6 @@ class BaseEngine(object):
         :return: Orientation value (1 - 8)
         :rtype: int or None
         """
-        if (not hasattr(self, 'exif')) or self.exif is None:
-            return None
-
         segment = self._get_exif_segment()
         if segment:
             orientation = segment.primary['Orientation']
@@ -262,6 +262,9 @@ class BaseEngine(object):
         :type override_exif: Boolean
         """
         orientation = self.get_orientation()
+
+        if orientation is None:
+            return
 
         if orientation == 2:
             self.flip_horizontally()
