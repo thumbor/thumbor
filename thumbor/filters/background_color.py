@@ -10,8 +10,8 @@
 
 from thumbor.filters import BaseFilter, filter_method
 
-class Filter(BaseFilter):
 
+class Filter(BaseFilter):
 
     @filter_method(r'[\w]+')
     def background_color(self, color):
