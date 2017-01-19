@@ -9,9 +9,9 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from thumbor.filters import BaseFilter, filter_method
-from thumbor.ext.filters import _fill
 
 class Filter(BaseFilter):
+
 
     @filter_method(r'[\w]+')
     def background_color(self, color):
