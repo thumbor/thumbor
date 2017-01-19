@@ -6,7 +6,7 @@ Usage: background_color(color)
 Description
 -----------
 
-The background_color filter sets the background layer set to specified color.
+The background_color filter sets the background layer to the specified color.
 This is specifically useful when converting transparent images (PNG) to JPEG
 
 Arguments
@@ -21,7 +21,7 @@ Arguments
 Example
 -------
 
-As original image is:
+The original image is:
 
 .. image:: images/tom_before_background_color.png
     :alt: Original picture
