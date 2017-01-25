@@ -96,7 +96,9 @@ class Filter(BaseFilter):
         self.callback()
 
     def on_fetch_done(self, result):
-        # TODO if result.successful is False how can the error be handled?
+        if not result.successful:
+            raise tornado.web.HTTPError(422)
+
         if isinstance(result, LoaderResult):
             buffer = result.buffer
         else:
