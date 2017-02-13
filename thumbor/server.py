@@ -94,7 +94,7 @@ def get_application(context):
 
 
 def run_server(application, context):
-    server = HTTPServer(application)
+    server = HTTPServer(application, xheaders=True)
 
     if context.server.fd is not None:
         fd_number = get_as_integer(context.server.fd)
