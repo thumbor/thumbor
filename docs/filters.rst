@@ -4,6 +4,7 @@ Filters
 .. toctree::
    :maxdepth: 1
 
+   background_color
    blur
    brightness
    contrast
