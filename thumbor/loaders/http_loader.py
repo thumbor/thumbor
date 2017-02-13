@@ -129,7 +129,8 @@ def load_sync(context, url, callback, normalize_url_func):
         proxy_password=encode(context.config.HTTP_LOADER_PROXY_PASSWORD),
         ca_certs=encode(context.config.HTTP_LOADER_CA_CERTS),
         client_key=encode(context.config.HTTP_LOADER_CLIENT_KEY),
-        client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT)
+        client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT),
+        validate_cert=context.config.HTTP_LOADER_VALIDATE_CERTS
     )
 
     start = datetime.datetime.now()
