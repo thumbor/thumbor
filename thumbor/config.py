@@ -53,6 +53,8 @@ Config.define('PILLOW_RESAMPLING_FILTER', 'LANCZOS',
 
 Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP images. If not set (None) the same level of '
               'JPEG quality will be used.', 'Imaging')
+
+Config.define('PNG_COMPRESSION_LEVEL', 6, 'Compression level for generated PNG images.', 'Imaging')
 Config.define('AUTO_WEBP', False, 'Specifies whether WebP format should be used automatically if the request accepts it '
               '(via Accept header)', 'Imaging')
 Config.define('SVG_DPI', 150,
