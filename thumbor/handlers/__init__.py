@@ -145,7 +145,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     # Return a Gateway Timeout status if upstream timed out (i.e. 599)
                     self._error(504)
                     return
-                elif result.engine_error == EngineResult.COULD_NOT_LOAD_IMAGE:
+                elif hasattr(result, 'engine_error') and result.engine_error == EngineResult.COULD_NOT_LOAD_IMAGE:
                     self._error(400)
                     return
                 else:
