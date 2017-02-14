@@ -117,8 +117,8 @@ class Engine(BaseEngine):
         del d
 
     def resize(self, width, height):
-        if self.image.mode == 'P':
-            logger.debug('converting image from 8-bit palette to 32-bit RGBA for resize')
+        if self.image.mode in ['1', 'P']:
+            logger.debug('converting image from 8-bit/1-bit palette to 32-bit RGBA for resize')
             self.image = self.image.convert('RGBA')
 
         resample = self.get_resize_filter()
