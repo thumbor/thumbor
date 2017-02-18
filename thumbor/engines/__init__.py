@@ -27,7 +27,7 @@ from thumbor.utils import logger, EXTENSION
 
 WEBP_SIDE_LIMIT = 16383
 
-SVG_RE = re.compile(r'<svg\s[^>]*(["\'])http://www.w3.org/2000/svg\1', re.I)
+SVG_RE = re.compile(r'<svg\s[^>]*([\"\'])http[^\"\']*svg[^\"\']*', re.I)
 
 
 class EngineResult(object):

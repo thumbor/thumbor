@@ -137,6 +137,14 @@ class BaseEngineTestCase(TestCase):
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal('image/tiff')
 
+    def test_can_identify_svg_with_xml_namespace_other_than_w3(self):
+        buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
+                    xmlns="http://ns.foo.com/FooSVGViewerExtensions/3.0/">
+                        <rect width="100%" height="10" x="0" y="0"/>
+                    </svg>""".encode('utf-8')
+        mime = self.engine.get_mimetype(buffer)
+        expect(mime).to_equal('image/svg+xml')
+
     def test_get_orientation(self):
         self.engine.exif = exif_str(1)
         expect(self.engine.get_orientation()).to_equal(1)
