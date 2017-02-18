@@ -145,6 +145,29 @@ class BaseEngineTestCase(TestCase):
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal('image/svg+xml')
 
+    def test_can_identify_svg_with_xml_preamble_and_lots_of_gibberish(self):
+        buffer = """<?xml version="1.0" encoding="utf-8"?>
+                    <!-- Generator: Proprietary Drawing Software, SVG Export Plug-In. SVG Version: 3.0.0 Build 77) -->
+                    <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" [
+                        <!ENTITY ns_flows "http://ns.foo.com/Flows/1.0/">
+                        <!ENTITY ns_extend "http://ns.foo.com/Extensibility/1.0/">
+                        <!ENTITY ns_ai "http://ns.foo.com/foobar/10.0/">
+                        <!ENTITY ns_graphs "http://ns.foo.com/Graphs/1.0/">
+                        <!ENTITY ns_vars "http://ns.foo.com/Variables/1.0/">
+                        <!ENTITY ns_imrep "http://ns.foo.com/ImageReplacement/1.0/">
+                        <!ENTITY ns_sfw "http://ns.foo.com/SaveForWeb/1.0/">
+                        <!ENTITY ns_custom "http://ns.foo.com/GenericCustomNamespace/1.0/">
+                        <!ENTITY ns_foo_xpath "http://ns.foo.com/XPath/1.0/">
+                        <!ENTITY ns_svg "http://www.w3.org/2000/svg">
+                        <!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+                    ]>
+                    <svg width="10px" height="20px" viewBox="0 0 10 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100%" height="10" x="0" y="0"/>
+                    </svg>""".encode('utf-8')
+        mime = self.engine.get_mimetype(buffer)
+        expect(mime).to_equal('image/svg+xml')
+
     def test_get_orientation(self):
         self.engine.exif = exif_str(1)
         expect(self.engine.get_orientation()).to_equal(1)
