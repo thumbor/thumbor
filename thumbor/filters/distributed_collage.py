@@ -112,7 +112,7 @@ class StandaloneFaceDetector:
         for (left, top, width, height), neighbors in features:
             top = cls.add_hair_offset(top, height)
             focal_points.append(
-                FocalPoint.from_square(left, top, width, height, origin="Face Detection"))
+                FocalPoint.from_square(left, top, width, height, origin='Face Detection'))
         return focal_points
 
 
@@ -238,12 +238,12 @@ class Filter(BaseFilter):
             self.assembly()
 
     def divide_size(self, size, parts):
-        """
+        '''
         Solves the problem with division where the result isn't integer.
         For example, when dividing a 100px image in 3 parts, the collage
         division should be like 33px + 33px + 34px = 100px. In this case,
         slice_size is 33px and major_slice_size is 34px.
-        """
+        '''
         slice_size = size / float(parts)
         major_slice_size = math.ceil(slice_size)
         slice_size = math.floor(slice_size)
@@ -255,20 +255,17 @@ class Filter(BaseFilter):
         canvas_width, canvas_height = self.engine.size
         canvas.image = canvas.gen_image((canvas_width, canvas_height), '#fff')
 
-        i = 0
-        total = len(self.images)
-        slice_size, major_slice_size = self.divide_size(canvas_width, total)
-        for url in self.urls:
+        slice_size, major_slice_size = self.divide_size(canvas_width, len(self.images))
+        for i, url in enumerate(self.urls):
             image = self.images[url]
             x, y = i * slice_size, 0
-            if i + 1 == total:
+            if i == len(self.images) - 1:
                 slice_size = major_slice_size
             try:
                 image.process(canvas_width, canvas_height, slice_size)
                 canvas.paste(image.engine, (x, y), merge=True)
             except Exception as err:
                 logger.exception(err)
-            i += 1
 
         self.engine.image = canvas.image
         logger.debug('filters.distributed_collage: assembly finished')
