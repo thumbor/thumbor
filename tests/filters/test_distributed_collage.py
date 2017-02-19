@@ -19,6 +19,9 @@ class DistributedCollageFilterTestCase(FilterTestCase):
         '800px-Katherine_Maher.jpg',
         'Giunchedi%2C_Filippo_January_2015_01.jpg',
         '800px-Christophe_Henner_-_June_2016.jpg',
+        '800px-Coffee_berries_1.jpg',
+        '800px-A_small_cup_of_coffee.JPG',
+        '513px-Coffee_beans_-_ziarna_kawy.jpg',
     )
 
     def test_fallback_when_have_not_enough_images(self):
@@ -63,6 +66,28 @@ class DistributedCollageFilterTestCase(FilterTestCase):
             'thumbor.filters.distributed_collage',
             'distributed_collage(horizontal,smart,%s)' % '|'.join(self.urls[:4]))
         expected = self.get_fixture('distributed_collage_4i.png')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.89)
+
+    def test_with_two_images_centered_when_no_feature_detected(self):
+        image = self.get_filtered(
+            'distributed_collage_fallback.png',
+            'thumbor.filters.distributed_collage',
+            'distributed_collage(horizontal,smart,%s)' % '|'.join(self.urls[4:6]))
+        expected = self.get_fixture('distributed_collage_2i_centered.png')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
+
+    def test_with_two_images_of_different_heights(self):
+        def config_context(context):
+            context.request.width = 200
+            context.request.height = 200
+        image = self.get_filtered(
+            'distributed_collage_fallback.png',
+            'thumbor.filters.distributed_collage',
+            'distributed_collage(horizontal,smart,%s)' % '|'.join(self.urls[5:]),
+            config_context)
+        expected = self.get_fixture('distributed_collage_2i_diff_heights.png')
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.98)
 

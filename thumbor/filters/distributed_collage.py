@@ -19,7 +19,7 @@ from thumbor.utils import logger
 
 def calc_new_size_by_height(width, height, bound):
     new_width = width * (bound * 100 / float(height)) / float(100)
-    return (new_width, bound)
+    return int(round(new_width)), bound
 
 
 class StandaloneFaceDetector:
@@ -163,15 +163,26 @@ class Picture:
         self.save_on_disc()
         self.thumbor_filter.on_image_fetch()
 
+    def resize_focal_points(self, focal_points, ratio):
+        for fp in focal_points:
+            fp.x *= ratio
+            fp.y *= ratio
+            fp.width *= ratio
+            fp.height *= ratio
+            fp.weight *= ratio
+
     def process(self, canvas_width, canvas_height, size):
         try:
             self.engine.load(self.buffer, self.extension)
             width, height = self.engine.size
-            if width > height:
-                self.engine.resize(*calc_new_size_by_height(
-                    width, height, canvas_height))
+            new_width, new_height = calc_new_size_by_height(width, height, canvas_height)
             focal_points = StandaloneFaceDetector.features_to_focal_points(
                 StandaloneFaceDetector.get_features(self.thumbor_filter.context, self.engine))
+            if focal_points:
+                self.resize_focal_points(focal_points, float(new_width) / width)
+            else:
+                focal_points.append(FocalPoint.from_alignment('center', 'top', new_width, new_height))
+            self.engine.resize(new_width, new_height)
             self.engine.focus(focal_points)
             StandaloneFaceDetector.auto_crop(self.engine, focal_points, size, canvas_height)
         except Exception as err:

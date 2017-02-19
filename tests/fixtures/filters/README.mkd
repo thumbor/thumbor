@@ -11,3 +11,9 @@ They should ideally all be regenerated (or, should they not be possible to creat
 [watermark.svg watermark.png](https://commons.wikimedia.org/wiki/File:Wikimedia-logo.svg) - Public domain
 
 [Guido-portrait-2014.jpg](https://commons.wikimedia.org/wiki/File:Guido-portrait-2014.jpg) - Daniel Stroud - [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
+
+[Coffee_berries_1.jpg](https://commons.wikimedia.org/wiki/File:Coffee_berries_1.jpg) - Stanislaw Szydlo - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
+
+[A_small_cup_of_coffee.JPG](https://commons.wikimedia.org/wiki/File:A_small_cup_of_coffee.JPG) - Julius Schorzman - [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/deed.en)
+
+[Coffee_beans_-_ziarna_kawy.jpg](https://commons.wikimedia.org/wiki/File:Coffee_beans_-_ziarna_kawy.jpg) - Alina Zienowicz (Ala z) - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
