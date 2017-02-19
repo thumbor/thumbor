@@ -5,7 +5,6 @@
 # TODO: separator line between images
 # TODO: custom alignment
 
-import logging
 import math
 from os.path import abspath, dirname, isabs, join, splitext
 
@@ -15,6 +14,7 @@ import tornado.gen
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.loaders import LoaderResult
 from thumbor.point import FocalPoint
+from thumbor.utils import logger
 
 
 def calc_new_size_by_height(width, height, bound):
@@ -135,23 +135,27 @@ class Picture:
         try:
             self.thumbor_filter.context.modules.loader.load(
                 self.thumbor_filter.context, self.url, self.on_fetch_done)
-        except Exception, err:
-            self.error(err)
+        except Exception as err:
+            self.failed = True
+            logger.exception(err)
 
     def save_on_disc(self):
         if self.fetched:
             try:
                 self.engine.load(self.buffer, self.extension)
-            except Exception, err:
-                self.error(err)
+            except Exception as err:
+                self.failed = True
+                logger.exception(err)
 
             try:
                 self.thumbor_filter.storage.put(self.url, self.engine.read())
                 self.thumbor_filter.storage.put_crypto(self.url)
-            except Exception, err:
-                self.error(err)
+            except Exception as err:
+                self.failed = True
+                logger.exception(err)
         else:
-            self.error("Can't save unfetched image")
+            self.failed = True
+            logger.error("filters.distributed_collage: Can't save unfetched image")
 
     def on_fetch_done(self, result):
         # TODO if result.successful is False how can the error be handled?
@@ -170,12 +174,8 @@ class Picture:
                 StandaloneFaceDetector.get_features(self.thumbor_filter.context, self.engine))
             self.engine.focus(focal_points)
             StandaloneFaceDetector.auto_crop(self.engine, focal_points, size, canvas_height)
-        except Exception, err:
-            logging.error(err)
-
-    def error(self, msg):
-        logging.error(msg)
-        self.failed = True
+        except Exception as err:
+            logger.exception(err)
 
 
 class Filter(BaseFilter):
@@ -185,7 +185,7 @@ class Filter(BaseFilter):
     @filter_method(r'horizontal', r'smart', r'[^\)]+', async=True)
     @tornado.gen.coroutine
     def distributed_collage(self, callback, orientation, alignment, urls):
-        logging.debug('distributed_collage invoked')
+        logger.debug('filters.distributed_collage: distributed_collage invoked')
         self.storage = self.context.modules.storage
 
         self.callback = callback
@@ -196,10 +196,10 @@ class Filter(BaseFilter):
 
         total = len(self.urls)
         if total > self.MAX_IMAGES:
-            logging.error('Too many images to join')
+            logger.error('filters.distributed_collage: Too many images to join')
             callback()
         elif total == 0:
-            logging.error('No images to join')
+            logger.error('filters.distributed_collage: No images to join')
             callback()
         else:
             self.urls = self.urls[:self.MAX_IMAGES]
@@ -227,12 +227,12 @@ class Filter(BaseFilter):
     def create_engine(self):
         try:
             return self.context.modules.engine.__class__(self.context)
-        except Exception, err:
-            logging.error(err)
+        except Exception as err:
+            logger.exception(err)
 
     def on_image_fetch(self):
         if (self.is_any_failed()):
-            logging.error('some images failed')
+            logger.error('filters.distributed_collage: Some images failed')
             self.callback()
         elif self.is_all_fetched():
             self.assembly()
@@ -250,7 +250,7 @@ class Filter(BaseFilter):
         return int(slice_size), int(major_slice_size)
 
     def assembly(self):
-        logging.debug('assembly started')
+        logger.debug('filters.distributed_collage: assembly started')
         canvas = self.create_engine()
         canvas_width, canvas_height = self.engine.size
         canvas.image = canvas.gen_image((canvas_width, canvas_height), '#fff')
@@ -266,10 +266,10 @@ class Filter(BaseFilter):
             try:
                 image.process(canvas_width, canvas_height, slice_size)
                 canvas.paste(image.engine, (x, y), merge=True)
-            except Exception, err:
-                logging.error(err)
+            except Exception as err:
+                logger.exception(err)
             i += 1
 
         self.engine.image = canvas.image
-        logging.debug('assembled')
+        logger.debug('filters.distributed_collage: assembly finished')
         self.callback()
