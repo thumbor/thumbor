@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from pexif import ExifSegment
+from xml.etree.ElementTree import ParseError
 
 try:
     import cairosvg
@@ -144,9 +145,17 @@ class BaseEngine(object):
             logger.error(msg)
             return buffer
 
-        buffer = cairosvg.svg2png(bytestring=buffer, dpi=self.context.config.SVG_DPI)
-        mime = self.get_mimetype(buffer)
-        self.extension = EXTENSION.get(mime, '.jpg')
+        try:
+            buffer = cairosvg.svg2png(bytestring=buffer, dpi=self.context.config.SVG_DPI)
+            mime = self.get_mimetype(buffer)
+            self.extension = EXTENSION.get(mime, '.jpg')
+        except ParseError:
+            mime = self.get_mimetype(buffer)
+            extension = EXTENSION.get(mime)
+            if extension is None or extension == '.svg':
+                raise
+            self.extension = extension
+
         return buffer
 
     def load(self, buffer, extension):

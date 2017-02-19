@@ -13,6 +13,7 @@ from struct import pack
 from os.path import abspath, join, dirname
 
 from unittest import TestCase
+from xml.etree.ElementTree import ParseError
 
 import mock
 
@@ -167,6 +168,25 @@ class BaseEngineTestCase(TestCase):
                     </svg>""".encode('utf-8')
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal('image/svg+xml')
+
+    def test_convert_svg_already_converted_to_png(self):
+        svg_buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100%" height="10" x="0" y="0"/>
+                    </svg>"""
+        png_buffer = self.engine.convert_svg_to_png(svg_buffer)
+        png_buffer_dupe = self.engine.convert_svg_to_png(png_buffer)
+        expect(self.engine.extension).to_equal('.png')
+        expect(png_buffer).to_equal(png_buffer_dupe)
+
+    def test_convert_not_well_formed_svg_to_png(self):
+        buffer = """<<svg width="10px" height="20px" viewBox="0 0 10 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100%" height="10" x="0" y="0"/>
+                    </svg>""".encode('utf-8')
+        with expect.error_to_happen(ParseError):
+            self.engine.convert_svg_to_png(buffer)
+        expect(self.engine.extension).to_be_null()
 
     def test_get_orientation(self):
         self.engine.exif = exif_str(1)
