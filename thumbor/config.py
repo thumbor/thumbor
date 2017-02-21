@@ -136,6 +136,7 @@ Config.define('MAX_ID_LENGTH', 32, 'Set maximum id length for images when stored
 Config.define('STATSD_HOST', None, 'Host to send statsd instrumentation to', 'Metrics')
 Config.define('STATSD_PORT', 8125, 'Port to send statsd instrumentation to', 'Metrics')
 Config.define('STATSD_PREFIX', None, 'Prefix for statsd', 'Metrics')
+Config.define('PROMETHEUS_SCRAPE_PORT', 8000, 'Port the prometheus client should listen on', 'Metrics')
 
 # FILE LOADER OPTIONS
 Config.define('FILE_LOADER_ROOT_PATH', home, 'The root path where the File Loader will try to find images', 'File Loader')
