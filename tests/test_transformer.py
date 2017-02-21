@@ -116,8 +116,8 @@ class TransformerTestCase(TestCase):
         )
         context = test_data.to_context(detectors=[MockErrorSyncDetector], ignore_detector_error=False)
         trans = Transformer(context)
-        with expect.error_to_happen(Exception, message='x'):
-            trans.transform(None)
+
+        trans.transform(None)
 
         expect(test_data.engine.calls['resize']).to_length(0)
 
