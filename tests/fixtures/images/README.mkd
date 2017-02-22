@@ -13,5 +13,3 @@ They should ideally all be regenerated (or, should they not be possible to creat
 [Commons-logo.svg](https://en.wikipedia.org/wiki/File:Commons-logo.svg) - Wikimedia Foundation - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
 
 [10_years_of_Wikipedia_by_Guillaume_Paumier.jpg](https://commons.wikimedia.org/wiki/File:10_years_of_Wikipedia_by_Guillaume_Paumier.jpg) - Pierre-Selim Huard - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
-
-[Guido-portrait-2014.jpg](https://commons.wikimedia.org/wiki/File:Guido-portrait-2014.jpg) - Daniel Stroud - [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en)

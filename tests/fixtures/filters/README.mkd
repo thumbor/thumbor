@@ -9,3 +9,5 @@ They should ideally all be regenerated (or, should they not be possible to creat
 [source.jpg and many variants](https://commons.wikimedia.org/wiki/File:Katherine_Maher.jpg) - Victor Grigas - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
 
 [watermark.svg watermark.png](https://commons.wikimedia.org/wiki/File:Wikimedia-logo.svg) - Public domain
+
+[Guido-portrait-2014.jpg](https://commons.wikimedia.org/wiki/File:Guido-portrait-2014.jpg) - Daniel Stroud - [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
