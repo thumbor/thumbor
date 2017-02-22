@@ -101,28 +101,24 @@ class BaseEngine(object):
 
     @classmethod
     def get_mimetype(cls, buffer):
-        mime = None
-
-        # magic number detection
         if buffer.startswith('GIF8'):
-            mime = 'image/gif'
+            return 'image/gif'
         elif buffer.startswith('\x89PNG\r\n\x1a\n'):
-            mime = 'image/png'
+            return 'image/png'
         elif buffer.startswith('\xff\xd8'):
-            mime = 'image/jpeg'
+            return 'image/jpeg'
         elif buffer.startswith('WEBP', 8):
-            mime = 'image/webp'
+            return 'image/webp'
         elif buffer.startswith('\x00\x00\x00\x0c'):
-            mime = 'image/jp2'
+            return 'image/jp2'
         elif buffer.startswith('\x00\x00\x00 ftyp'):
-            mime = 'video/mp4'
+            return 'video/mp4'
         elif buffer.startswith('\x1aE\xdf\xa3'):
-            mime = 'video/webm'
+            return 'video/webm'
         elif buffer.startswith('\x49\x49\x2A\x00') or buffer.startswith('\x4D\x4D\x00\x2A'):
-            mime = 'image/tiff'
+            return 'image/tiff'
         elif SVG_RE.search(buffer[:2048].replace(b'\0', '')):
-            mime = 'image/svg+xml'
-        return mime
+            return 'image/svg+xml'
 
     def wrap(self, multiple_engine):
         for method_name in ['resize', 'crop', 'flip_vertically',
