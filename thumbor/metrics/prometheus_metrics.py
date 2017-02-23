@@ -20,23 +20,23 @@ class Metrics(BaseMetrics):
         if not hasattr(Metrics, 'http_server_started'):
             start_http_server(config.PROMETHEUS_SCRAPE_PORT)
             Metrics.http_server_started = True
-            Metrics.counters  = {}
+            Metrics.counters = {}
             Metrics.summaries = {}
 
         # hard coded mapping right now
         self.mapping = {
-                'response.status'       : ['statuscode'],
-                'response.format'       : ['extension'],
-                'response.bytes'        : ['extension'],
-                'original_image.status' : ['statuscode'],
-                'original_image.fetch'  : ['statuscode','networklocation'],
-                'response.time'         : ['statuscode_extension'],
+                'response.status': ['statuscode'],
+                'response.format': ['extension'],
+                'response.bytes': ['extension'],
+                'original_image.status': ['statuscode'],
+                'original_image.fetch': ['statuscode', 'networklocation'],
+                'response.time': ['statuscode_extension'],
         }
 
     def incr(self, metricname, value=1):
         name, labels = self.__data(metricname)
 
-        if not name in Metrics.counters:
+        if name not in Metrics.counters:
             Metrics.counters[name] = Counter(name, name, labels.keys())
 
         counter = Metrics.counters[name]
@@ -49,7 +49,7 @@ class Metrics(BaseMetrics):
     def timing(self, metricname, value):
         name, labels = self.__data(metricname)
 
-        if not name in Metrics.summaries:
+        if name not in Metrics.summaries:
             Metrics.summaries[name] = Summary(name, name, labels.keys())
 
         summary = Metrics.summaries[name]
@@ -69,10 +69,10 @@ class Metrics(BaseMetrics):
         # _ -> __
         # - -> __
         # . -> _
-        return basename.replace('_','__').replace('-','__').replace('.','_')
+        return basename.replace('_', '__').replace('-', '__').replace('.', '_')
 
     def __labels(self, name, metricname):
-        if not name in self.mapping:
+        if name not in self.mapping:
             return {}
 
         # the split('.', MAXSPLIT) is mainly necessary to get the correct
@@ -91,4 +91,3 @@ class Metrics(BaseMetrics):
             if metricname.startswith(mapped + "."):
                 metricname = mapped
         return "thumbor.{0}".format(metricname)
-
