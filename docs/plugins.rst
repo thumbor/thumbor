@@ -170,6 +170,30 @@ Configuration in thumbor.conf:
 For monitors and keys, the values ​​used are those defined in the
 configuration file ceph.conf.
 
+Metrics
+--------
+
+`thumbor\_prometheus <https://github.com/thumbor-community/prometheus>`__ (by `Simon Effenberg <https://github.com/savar>`__)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Prometheus <https://prometheus.io/>`__ a monitoring and alerting toolkit.
+
+This module provide support for Prometheus as metrics collector.
+
+-  *URL:* https://github.com/thumbor-community/prometheus
+-  *Installing:*
+   ``pip install tc_prometheus``
+
+Configuration in thumbor.conf:
+
+::
+
+    ################################# Extensibility #################################
+    METRICS = 'tc_prometheus.metrics.prometheus_metrics'
+
+    # optional with defaults
+    PROMETHEUS_SCRAPE_PORT = 8000 # Port the prometheus client should listen on
+
 Extensions
 ----------
 
