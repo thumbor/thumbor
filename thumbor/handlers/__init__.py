@@ -377,7 +377,22 @@ class BaseHandler(tornado.web.RequestHandler):
             context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         def inner(future):
-            results, content_type = future.result()
+            try:
+                # depending of ENGINE_THREADPOOLSIZE >0 or ==0 the
+                # future.result() is calling the corresponding
+                # operation right here, so exception can occur here or
+                # it was already called and the result() is simply
+                # returning the already cached result
+                future_result = future.result()
+            except Exception as e:
+                future_result = e
+
+            if isinstance(future_result, Exception):
+                logger.exception(future_result)
+                self._error(500)
+                return
+
+            results, content_type = future_result
             self._write_results_to_client(context, results, content_type)
 
             if should_store:
