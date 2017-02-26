@@ -13,7 +13,6 @@ import tornado
 from concurrent.futures import ThreadPoolExecutor, Future
 import functools
 
-from thumbor.utils import logger
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
 
