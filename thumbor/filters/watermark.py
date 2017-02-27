@@ -12,6 +12,7 @@ from os.path import splitext
 from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.loaders import LoaderResult
+from thumbor.utils import logger
 import tornado.gen
 import math
 
@@ -97,7 +98,10 @@ class Filter(BaseFilter):
 
     def on_fetch_done(self, result):
         if not result.successful:
-            raise tornado.web.HTTPError(422)
+            logger.warn(
+                    'bad watermark result error=%s metadata=%s' %
+                    (result.error, result.metadata))
+            raise tornado.web.HTTPError(400)
 
         if isinstance(result, LoaderResult):
             buffer = result.buffer

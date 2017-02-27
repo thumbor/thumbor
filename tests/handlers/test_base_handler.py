@@ -258,6 +258,10 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         response = self.fetch('/unsafe/image_invalid.jpg')
         expect(response.code).to_equal(400)
 
+    def test_getting_invalid_watermark_returns_bad_request(self):
+        response = self.fetch('/unsafe/filters:watermark(boom.jpg,0,0,0)/image.jpg')
+        expect(response.code).to_equal(400)
+
     def test_can_read_monochromatic_jpeg(self):
         response = self.fetch('/unsafe/grayscale.jpg')
         expect(response.code).to_equal(200)
