@@ -117,12 +117,22 @@ class Engine(BaseEngine):
         del d
 
     def resize(self, width, height):
+        # Indexed color modes (such as 1 and P) will be forced to use a
+        # nearest neighbor resampling algorithm. So we convert them to
+        # RGBA mode before resizing to avoid nasty scaling artifacts.
+        original_mode = self.image.mode
         if self.image.mode in ['1', 'P']:
             logger.debug('converting image from 8-bit/1-bit palette to 32-bit RGBA for resize')
             self.image = self.image.convert('RGBA')
 
         resample = self.get_resize_filter()
         self.image = self.image.resize((int(width), int(height)), resample)
+
+        # 1 and P mode images will be much smaller if converted back to
+        # their original mode. So let's do that after resizing. Get $$.
+        if original_mode != self.image.mode:
+            self.image = self.image.convert(original_mode)
+
 
     def crop(self, left, top, right, bottom):
         self.image = self.image.crop((
