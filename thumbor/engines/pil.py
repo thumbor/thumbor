@@ -133,7 +133,6 @@ class Engine(BaseEngine):
         if original_mode != self.image.mode:
             self.image = self.image.convert(original_mode)
 
-
     def crop(self, left, top, right, bottom):
         self.image = self.image.crop((
             int(left),
