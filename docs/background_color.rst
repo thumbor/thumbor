@@ -1,5 +1,5 @@
-Filling
-=======
+Background Color
+================
 
 Usage: background_color(color)
 
