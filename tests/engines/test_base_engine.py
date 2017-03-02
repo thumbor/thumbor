@@ -188,6 +188,14 @@ class BaseEngineTestCase(TestCase):
             self.engine.convert_svg_to_png(buffer)
         expect(self.engine.extension).to_be_null()
 
+    def test_get_orientation_no_exif(self):
+        expect(hasattr(self.engine, 'exif')).to_be_false()
+        expect(self.engine.get_orientation()).to_be_null()
+
+    def test_get_orientation_null_exif(self):
+        self.engine.exif = None
+        expect(self.engine.get_orientation()).to_be_null()
+
     def test_get_orientation(self):
         self.engine.exif = exif_str(1)
         expect(self.engine.get_orientation()).to_equal(1)
@@ -198,6 +206,16 @@ class BaseEngineTestCase(TestCase):
         self.engine.exif = exif_str(8)
         expect(self.engine.get_orientation()).to_equal(8)
         expect(self.engine.get_orientation()).to_equal(8)
+
+    def test_reorientate_no_exif(self):
+        expect(hasattr(self.engine, 'exif')).to_be_false()
+        self.engine.reorientate()
+        expect(self.engine.get_orientation()).to_be_null()
+
+    def test_reorientate_null_exif(self):
+        self.engine.exif = None
+        self.engine.reorientate()
+        expect(self.engine.get_orientation()).to_be_null()
 
     def test_reorientate1(self):
         # No rotation
