@@ -23,20 +23,20 @@ Example
 
 The original image is:
 
-.. image:: images/tom_before_background_color.png
+.. image:: images/dice_transparent_background.png
     :alt: Original picture
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(blue)/https://github.com/thumbor/thumbor/wiki/tom_before_background_color.png>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(blue)/https://github.com/thumbor/thumbor/wiki/dice_transparent_background.png>`_
 
-.. image:: images/tom_background_color_blue.png
+.. image:: images/dice_blue_background.png
     :alt: Picture after the background_color(blue) filter
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(f00)/https://github.com/thumbor/thumbor/wiki/tom_before_background_color.png>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(f00)/https://github.com/thumbor/thumbor/wiki/dice_transparent_background.png>`_
 
-.. image:: images/tom_background_color_red.png
+.. image:: images/dice_red_background.png
     :alt: Picture after the background_color(f00) filter
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(add8e6)/https://github.com/thumbor/thumbor/wiki/tom_before_background_color.png>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(add8e6)/https://github.com/thumbor/thumbor/wiki/dice_transparent_background.png>`_
 
-.. image:: images/tom_background_color_lightblue.png
+.. image:: images/dice_lightblue_background.png
     :alt: Picture after the background_color(add8e6)

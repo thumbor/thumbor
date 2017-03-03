@@ -22,13 +22,13 @@ class BackgroundColorFilterTestCase(FilterTestCase):
             context.request.height = 300
 
         image = self.get_filtered(
-            'background_ color_transparent_source.png',
+            'PNG_transparency_demonstration_1.png',
             'thumbor.filters.background_color',
             'background_color(blue)',
             config_context=config_context
         )
 
-        expected = self.get_fixture('background_ color_transparent_blue.png')
+        expected = self.get_fixture('PNG_transparency_demonstration_1_blue.png')
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)
