@@ -21,15 +21,15 @@ To install using aptitude, add the following lines to your sources list:
 
 ::
 
-    deb http://ppa.launchpad.net/thumbor/ppa/ubuntu <your release> main 
-    deb-src http://ppa.launchpad.net/thumbor/ppa/ubuntu <your release> main 
+    deb http://ppa.launchpad.net/thumbor/ppa/ubuntu <your release> main
+    deb-src http://ppa.launchpad.net/thumbor/ppa/ubuntu <your release> main
 
 If you are using ubuntu 12.10 (quantal), it would be:
 
 ::
 
-    deb http://ppa.launchpad.net/thumbor/ppa/ubuntu quantal main 
-    deb-src http://ppa.launchpad.net/thumbor/ppa/ubuntu quantal main 
+    deb http://ppa.launchpad.net/thumbor/ppa/ubuntu quantal main
+    deb-src http://ppa.launchpad.net/thumbor/ppa/ubuntu quantal main
 
 Or you can add the repository to you sources list via the command line:
 
@@ -111,4 +111,3 @@ seem to work :(
 
     apt-get install ffmpeg libjpeg-dev libpng-dev libtiff-dev libjasper-dev libgtk2.0-dev python-numpy python-pycurl webp python-opencv python-dev python-pip
     pip install thumbor
-

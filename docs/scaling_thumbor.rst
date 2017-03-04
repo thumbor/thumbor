@@ -17,4 +17,3 @@ Scaling Thumbor
    enabling their mobile app to show proper thumbnails even when facing
    original images meant for printing in `their engineering
    blog <http://prolificinteractive.com/blog/2014/05/29/threadless-typetees-neat-and-easy-thumbnails-using-thumbor-and-php>`__.
-

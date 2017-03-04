@@ -91,8 +91,8 @@ The description of the base64 method is:
 ::
 
     base64.urlsafe_b64encode(s)
-    Encode string s using a URL-safe alphabet, which substitutes 
-    - instead of + and _ instead of / in the standard Base64 alphabet. 
+    Encode string s using a URL-safe alphabet, which substitutes
+    - instead of + and _ instead of / in the standard Base64 alphabet.
     The result can still contain =.
 
 The old way

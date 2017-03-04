@@ -67,4 +67,3 @@ HTTP status code
 -  200 OK (success)
 -  405 Method Not Allowed (if thumbor's configuration disallows deleting
    images)
-

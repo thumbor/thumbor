@@ -273,4 +273,3 @@ and the Thumbor server should return :
     Content-Length: 0
     Content-Type: text/html; charset=UTF-8
     Server: TornadoServer/2.1.1
-

@@ -25,4 +25,3 @@ Example
 
 .. image:: images/tom_after_rotate.jpg
     :alt: Picture after the 90 degrees rotate
-
