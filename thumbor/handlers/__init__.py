@@ -378,16 +378,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
         def inner(future):
             try:
-                # depending of ENGINE_THREADPOOLSIZE >0 or ==0 the
-                # future.result() is calling the corresponding
-                # operation right here, so an exception can occur here
-                # or it was already been called and the result() is simply
-                # returning the already cached result
                 future_result = future.result()
             except Exception as e:
-                future_result = e
-
-            if isinstance(future_result, Exception):
                 logger.exception(future_result)
                 self._error(500)
                 return

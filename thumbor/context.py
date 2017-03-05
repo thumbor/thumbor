@@ -266,10 +266,10 @@ class ThreadPool(object):
         try:
             returned = operation()
         except Exception as e:
-            # just release ioloop
-            returned = e
+            result.set_exception(e)
+        else:
+            result.set_result(returned)
 
-        result.set_result(returned)
         callback(result)
 
     def _execute_in_pool(self, operation, callback):
