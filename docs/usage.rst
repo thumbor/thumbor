@@ -64,8 +64,8 @@ Fit in
 ~~~~~~
 
 The fit-in argument specifies that the image should not be auto-cropped
-and auto-resized to be **EXACTLY** the specified size, and should be fit
-in an imaginary box of "E" width and "F" height, instead.
+but auto-resized (shrinked) to fit in an imaginary box of "E" width and
+"F" height, instead.
 
 Consider an image of 800px x 600px, and a fit of 300px x 200px. This is
 how thumbor would resize it:
@@ -81,6 +81,10 @@ how thumbor would resize it:
 
 This is very useful when you need to fit an image somewhere, but you
 have no idea about the original image dimensions.
+
+Keep in mind that it won't enlarge your image in case it is smaller than
+the specified "E" width and "F" height! One way of getting the image in the
+size requested is to use the :doc:`filling` filter.
 
 Image Size
 ~~~~~~~~~~
