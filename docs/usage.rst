@@ -83,7 +83,7 @@ This is very useful when you need to fit an image somewhere, but you
 have no idea about the original image dimensions.
 
 Keep in mind that it won't enlarge your image in case it is smaller than
-the specified "E" withd and "F" height! One way of getting the image in the
+the specified "E" width and "F" height! One way of getting the image in the
 size requested is to use the :doc:`filling` filter.
 
 Image Size
