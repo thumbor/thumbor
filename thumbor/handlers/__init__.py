@@ -14,6 +14,7 @@ import datetime
 import re
 import pytz
 import traceback
+import schedule
 
 import tornado.web
 import tornado.gen as gen
@@ -394,6 +395,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
             if should_store:
                 self._store_results(context, results)
+
+            schedule.run_pending()
 
         self.context.thread_pool.queue(
             operation=functools.partial(self._load_results, context),

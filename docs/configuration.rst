@@ -617,6 +617,13 @@ Default filename for image uploaded.
 
 i.e.: ``UPLOAD_DEFAULT_FILENAME = 'image'``
 
+GC\_INTERVAL
+~~~~~~~~~~~~
+
+Set manual garbage collection interval in seconds. Defaults to None (no manual garbage collection). Try this if your Thumbor is running out of memory. May cause an increase in CPU load.
+
+i.e.: ``GC_INTERVAL=60``
+
 Example of Configuration File
 -----------------------------
 

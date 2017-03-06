@@ -8,9 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import gc
 import sys
 import logging
 import logging.config
+import schedule
 
 import os
 import socket
@@ -112,6 +114,12 @@ def run_server(application, context):
     server.start(1)
 
 
+def gc_collect():
+    collected = gc.collect()
+    if collected > 0:
+        logging.warn('Garbage collector: collected %d objects.' % collected)
+
+
 def main(arguments=None):
     '''Runs thumbor server with the specified arguments.'''
     if arguments is None:
@@ -128,6 +136,9 @@ def main(arguments=None):
     with get_context(server_parameters, config, importer) as context:
         application = get_application(context)
         run_server(application, context)
+
+        if (config.GC_INTERVAL and config.GC_INTERVAL > 0):
+            schedule.every(config.GC_INTERVAL).seconds.do(gc_collect)
 
         try:
             logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
