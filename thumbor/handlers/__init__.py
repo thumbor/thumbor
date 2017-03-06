@@ -380,7 +380,7 @@ class BaseHandler(tornado.web.RequestHandler):
             try:
                 future_result = future.result()
             except Exception as e:
-                logger.exception(future_result)
+                logger.exception(e)
                 self._error(500)
                 return
 
