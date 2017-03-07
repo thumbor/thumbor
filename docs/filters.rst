@@ -25,4 +25,5 @@ Filters
    round_corners
    sharpen
    strip_icc
+   upscale
    watermark
