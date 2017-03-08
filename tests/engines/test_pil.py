@@ -89,7 +89,16 @@ class PilEngineTestCase(TestCase):
         engine.load(buffer, '.png')
         engine.resize(10, 10)
         mode, _ = engine.image_data_as_rgb()
-        expect(mode).to_equal('RGBA')
+        expect(mode).to_equal('P')  # Note that this is not a true 1bit image, it's 8bit in black/white.
+
+    def test_convert_should_preserve_palette_mode(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, '256_color_palette.png'), 'r') as im:
+            buffer = im.read()
+        engine.load(buffer, '.png')
+        engine.resize(10, 10)
+        mode, _ = engine.image_data_as_rgb()
+        expect(mode).to_equal('P')
 
     def test_can_set_resampling_filter(self):
         to_test = {
