@@ -1,4 +1,4 @@
-So you want to contribute with thumbor? Welcome onboard!
+So you want to contribute with thumbor? Welcome aboard!
 
 There are a few things you'll need in order to properly start hacking on it.
 
