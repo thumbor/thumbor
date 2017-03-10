@@ -116,7 +116,7 @@ Config.define(
     'The result storage thumbor should use to store generated images. This must be the full name of a python ' +
     'module (python must be able to import it)', 'Extensibility')
 Config.define(
-    'ENGINE', 'thumbor.engines.pil',
+    'ENGINE', 'opencv_engine',
     'The imaging engine thumbor should use to perform image operations. This must be the full name of a ' +
     'python module (python must be able to import it)', 'Extensibility')
 
@@ -131,7 +131,8 @@ Config.define('ALLOW_UNSAFE_URL', True, 'Indicates if the /unsafe URL should be 
 Config.define('ALLOW_OLD_URLS', True, 'Indicates if encrypted (old style) URLs should be allowed', 'Security')
 Config.define('ENABLE_ETAGS', True, 'Enables automatically generated etags', 'HTTP')
 Config.define('MAX_ID_LENGTH', 32, 'Set maximum id length for images when stored', 'Storage')
-
+Config.define('GC_INTERVAL', 60, 'Set garbage collection interval in seconds', 'Performance')
+Config.define('LOG_LEVEL', 'warning', 'Set log level', 'Log Level')
 # METRICS OPTIONS
 Config.define('STATSD_HOST', None, 'Host to send statsd instrumentation to', 'Metrics')
 Config.define('STATSD_PORT', 8125, 'Port to send statsd instrumentation to', 'Metrics')
@@ -294,6 +295,7 @@ Config.define(
         'thumbor.filters.quality',
         'thumbor.filters.noise',
         'thumbor.filters.watermark',
+        'thumbor.filters.text_watermark',
         'thumbor.filters.equalize',
         'thumbor.filters.fill',
         'thumbor.filters.sharpen',
@@ -316,6 +318,11 @@ Config.define(
     ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')
+
+# WATERMARK
+Config.define(
+    'WATER_MARK_FONT_FILE_PATH', './simhei.ttf',
+    'Watermark font file', 'Watermark')  # Never expires
 
 # RESULT STORAGE
 Config.define(

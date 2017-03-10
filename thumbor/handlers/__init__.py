@@ -13,6 +13,7 @@ import functools
 import datetime
 import re
 import pytz
+import schedule
 import traceback
 
 import tornado.web
@@ -31,12 +32,10 @@ from thumbor.transformer import Transformer
 from thumbor.utils import logger, CONTENT_TYPE, EXTENSION
 import thumbor.filters
 
-
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
 
 class FetchResult(object):
-
     def __init__(self, normalized=False, buffer=None, engine=None, successful=False, loader_error=None):
         self.normalized = normalized
         self.engine = engine
@@ -304,7 +303,8 @@ class BaseHandler(tornado.web.RequestHandler):
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE['.jpg'])
 
         if context.request.meta:
-            context.request.meta_callback = context.config.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
+            context.request.meta_callback = context.config.META_CALLBACK_NAME or \
+                                            self.request.arguments.get('callback', [None])[0]
             content_type = 'text/javascript' if context.request.meta_callback else 'application/json'
             logger.debug('Metadata requested. Serving content type of %s.' % content_type)
 
@@ -360,8 +360,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
                     self.set_header('Last-Modified', result_last_modified.strftime(HTTP_DATE_FMT))
             except NotImplementedError:
-                logger.warn('last_updated method is not supported by your result storage service, hence If-Modified-Since & '
-                            'Last-Updated headers support is disabled.')
+                logger.warn(
+                    'last_updated method is not supported by your result storage service, hence If-Modified-Since & '
+                    'Last-Updated headers support is disabled.')
 
     @gen.coroutine
     def finish_request(self, context, result_from_storage=None):
@@ -377,11 +378,18 @@ class BaseHandler(tornado.web.RequestHandler):
             context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         def inner(future):
-            results, content_type = future.result()
-            self._write_results_to_client(context, results, content_type)
+            result = future.result()
+            if result:
+                results, content_type = future.result()
+                if results:
+                    self._write_results_to_client(context, results, content_type)
 
-            if should_store:
-                self._store_results(context, results)
+                    if should_store:
+                        self._store_results(context, results)
+                else:
+                    self._error(500)
+
+                schedule.run_pending()
 
         self.context.thread_pool.queue(
             operation=functools.partial(self._load_results, context),
@@ -512,7 +520,8 @@ class BaseHandler(tornado.web.RequestHandler):
         is_valid = self.context.modules.loader.validate(self.context, path)
 
         if not is_valid:
-            logger.warn('Request denied because the specified path "%s" was not identified by the loader as a valid path' % path)
+            logger.warn(
+                'Request denied because the specified path "%s" was not identified by the loader as a valid path' % path)
 
         return is_valid
 
@@ -668,7 +677,8 @@ class ContextHandler(BaseHandler):
 
         try:
             if self.context.config.USE_CUSTOM_ERROR_HANDLING:
-                self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self, exception=exc_info)
+                self.context.modules.importer.error_handler.handle_error(context=self.context, handler=self,
+                                                                         exception=exc_info)
         finally:
             del exc_info
             logger.error('ERROR: %s' % "".join(msg))
@@ -678,7 +688,6 @@ class ContextHandler(BaseHandler):
 # Base handler for Image API operations
 ##
 class ImageApiHandler(ContextHandler):
-
     def validate(self, body):
         conf = self.context.config
         mime = BaseEngine.get_mimetype(body)

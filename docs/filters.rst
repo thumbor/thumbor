@@ -26,3 +26,5 @@ Filters
    sharpen
    strip_icc
    watermark
+   text_watermark
+
