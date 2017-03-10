@@ -333,6 +333,22 @@ class ThreadPoolTestCase(TestCase):
         instance._execute_in_foreground(add, handle_operation)
         expect(self.handled).to_be_true()
 
+    def test_can_run_task_in_foreground_and_exception_happens(self):
+        instance = ThreadPool.instance(0)
+        expect(instance).not_to_be_null()
+        exception = Exception('Boom')
+
+        def add():
+            raise exception
+
+        def handle_operation(result):
+            self.handled = True
+            with expect.error_to_happen(Exception, message='Boom'):
+                result.result()
+
+        instance._execute_in_foreground(add, handle_operation)
+        expect(self.handled).to_be_true()
+
     def test_queueing_task_when_no_pool_runs_sync(self):
         instance = ThreadPool.instance(0)
         expect(instance).not_to_be_null()
@@ -357,7 +373,8 @@ class ThreadPoolTestCase(TestCase):
 
         def handle_operation(result):
             self.handled = True
-            expect(result.result()).to_equal(exception)
+            with expect.error_to_happen(Exception, message='Boom'):
+                result.result()
 
         instance.queue(add, handle_operation)
         expect(self.handled).to_be_true()
