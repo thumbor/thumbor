@@ -15,6 +15,7 @@ import functools
 
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
+from thumbor.utils import logger
 
 
 class Context:
@@ -266,6 +267,7 @@ class ThreadPool(object):
         try:
             returned = operation()
         except Exception as e:
+            logger.exception('[ThreadPool] %s', e)
             result.set_exception(e)
         else:
             result.set_result(returned)
