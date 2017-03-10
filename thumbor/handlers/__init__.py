@@ -384,8 +384,8 @@ class BaseHandler(tornado.web.RequestHandler):
             try:
                 future_result = future.result()
             except Exception as e:
-                logger.exception(e)
-                self._error(500)
+                logger.exception('[BaseHander.finish_request] %s', e)
+                self._error(500, 'Error while trying to fetch the image: {}'.format(e))
                 return
 
             results, content_type = future_result
