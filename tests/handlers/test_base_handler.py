@@ -27,6 +27,7 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context, ServerParameters, RequestParameters
 from thumbor.handlers import FetchResult, BaseHandler
+from thumbor.result_storages.file_storage import Storage as FileResultStorage
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.utils import which
@@ -774,6 +775,12 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
         response = self.fetch('/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif')
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(animated_image())
+
+    @patch.object(FileResultStorage, 'get', side_effect=Exception)
+    def test_loads_image_from_result_storage_fails_on_exception(self, get_mock_1):
+        response = self.fetch('/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif')
+        expect(response.code).to_equal(500)
+        expect(response.body).to_be_empty()
 
 
 class ImageOperationsWithGifWithoutGifsicle(BaseImagingTestCase):

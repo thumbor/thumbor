@@ -99,7 +99,8 @@ class BaseHandler(tornado.web.RequestHandler):
             try:
                 result = yield gen.maybe_future(self.context.modules.result_storage.get())
             except Exception as e:
-                self._error(500, 'Error while trying to get the image from the result storage: {error}'.format(error=e))
+                logger.exception('[BaseHander.execute_image_operations] %s', e)
+                self._error(500, 'Error while trying to get the image from the result storage: {}'.format(e))
                 return
 
             finish = datetime.datetime.now()
