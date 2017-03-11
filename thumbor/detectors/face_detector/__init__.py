@@ -28,7 +28,8 @@ class Detector(CascadeLoaderDetector):
     def detect(self, callback):
         try:
             features = self.get_features()
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             logger.warn('Error during face detection; skipping to next detector')
             self.next(callback)
             return
