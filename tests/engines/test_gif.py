@@ -81,10 +81,32 @@ class GitEngineTestCase(TestCase):
         engine.load(buffer, '.gif')
         expect(engine.is_multiple()).to_be_true()
 
-    def test_is_multiple_should_returns_false_if_gif_has_many_frames(self):
+    def test_is_multiple_should_returns_false_if_gif_has_one_frame(self):
         engine = Engine(self.context)
         with open(join(STORAGE_PATH, 'animated-one-frame.gif'), 'r') as im:
             buffer = im.read()
 
         engine.load(buffer, '.gif')
         expect(engine.is_multiple()).to_be_false()
+
+    def test_convert_to_grayscale_should_update_image(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, 'animated.gif'), 'r') as im:
+            buffer = im.read()
+
+        engine.load(buffer, '.gif')
+        buffer = engine.read()
+        engine.convert_to_grayscale()
+
+        expect(buffer).not_to_equal(engine.read())
+
+    def test_convert_to_grayscale_should_not_update_image(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, 'animated.gif'), 'r') as im:
+            buffer = im.read()
+
+        engine.load(buffer, '.gif')
+        buffer = engine.read()
+        engine.convert_to_grayscale(False)
+
+        expect(buffer).to_equal(engine.read())

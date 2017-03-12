@@ -109,20 +109,28 @@ class Engine(PILEngine):
         self.flush_operations()
         self.update_image_info()
 
-    def flush_operations(self):
+    def flush_operations(self, update_image=True):
         if not self.operations:
-            return
+            return self.buffer
 
-        self.buffer = self.run_gifsicle(" ".join(self.operations))
+        buffer = self.run_gifsicle(" ".join(self.operations))
 
         self.operations = []
 
+        if update_image:
+            self.buffer = buffer
+
+        return buffer
+
     def read(self, extension=None, quality=None):
-        self.flush_operations()
+        return self._read()
+
+    def _read(self, update_image=True):
+        buffer = self.flush_operations(update_image)
 
         # Make sure gifsicle produced a valid gif.
         try:
-            with BytesIO(self.buffer) as buff:
+            with BytesIO(buffer) as buff:
                 Image.open(buff).verify()
         except Exception:
             self.context.metrics.incr('gif_engine.no_output')
@@ -131,10 +139,11 @@ class Engine(PILEngine):
             ))
             raise
 
-        return self.buffer
+        return buffer
 
-    def convert_to_grayscale(self):
+    def convert_to_grayscale(self, update_image=True, with_alpha=True):
         self.operations.append('--use-colormap gray')
+        return self._read(update_image)
 
     # gif have no exif data and thus can't be auto oriented
     def reorientate(self, override_exif=True):

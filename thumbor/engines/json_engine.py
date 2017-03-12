@@ -115,7 +115,7 @@ class JSONEngine(BaseEngine):
     def image_data_as_rgb(self, update_image=True):
         return self.engine.image_data_as_rgb(update_image)
 
-    def convert_to_grayscale(self):
+    def convert_to_grayscale(self, update_image=True, alpha=True):
         pass
 
     def get_frame_count(self):

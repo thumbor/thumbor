@@ -296,16 +296,16 @@ class BaseEngine(object):
                 segment.primary['Orientation'] = [1]
                 self.exif = segment.get_data()
 
-    def gen_image(self):
+    def gen_image(self, size, color):
         raise NotImplementedError()
 
-    def create_image(self):
+    def create_image(self, buffer):
         raise NotImplementedError()
 
-    def crop(self):
+    def crop(self, left, top, right, bottom):
         raise NotImplementedError()
 
-    def resize(self):
+    def resize(self, width, height):
         raise NotImplementedError()
 
     def focus(self, points):
@@ -317,13 +317,16 @@ class BaseEngine(object):
     def flip_vertically(self):
         raise NotImplementedError()
 
-    def rotate(self, amount):
+    def rotate(self, degrees):
         """
         Rotates the image the given amount CCW.
-        :param amount: Amount to rotate in degrees.
+        :param degrees: Amount to rotate in degrees.
         :type amount: int
         """
         pass
+
+    def read_multiple(self, images, extension=None):
+        raise NotImplementedError()
 
     def read(self, extension, quality):
         raise NotImplementedError()
@@ -339,7 +342,7 @@ class BaseEngine(object):
             BRG, BGR, RGBA, AGBR, ...  """
         raise NotImplementedError()
 
-    def paste(self):
+    def paste(self, other_engine, pos, merge=True):
         raise NotImplementedError()
 
     def enable_alpha(self):
@@ -350,6 +353,12 @@ class BaseEngine(object):
 
     def strip_exif(self):
         pass
+
+    def convert_to_grayscale(self, update_image=True, alpha=True):
+        raise NotImplementedError()
+
+    def draw_rectangle(self, x, y, width, height):
+        raise NotImplementedError()
 
     def strip_icc(self):
         pass
