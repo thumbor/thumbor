@@ -48,7 +48,7 @@ _composite_apply(PyObject *self, PyObject *args)
     }
 
     for (y = start_y; y < height2; ++y) {
-        if (y_pos + y >= height1) {
+        if (y_pos - start_y + y >= height1) {
             break;
         }
         int line_offset1 = ((y_pos + y - start_y) * width1 * num_bytes),
@@ -58,7 +58,7 @@ _composite_apply(PyObject *self, PyObject *args)
         aux2 = ptr2 + line_offset2 + (start_x * num_bytes);
 
         for (x = start_x; x < width2; ++x, aux1 += num_bytes, aux2 += num_bytes) {
-            if (x_pos + x >= width1) {
+            if (x_pos - start_x + x >= width1) {
                 break;
             }
 
