@@ -178,7 +178,7 @@ Config.define(
     'HTTP_LOADER_CA_CERTS', None,
     'The filename of CA certificates in PEM format', 'HTTP Loader')
 Config.define(
-    'HTTP_LOADER_VALIDATE_CERTS', True,
+    'HTTP_LOADER_VALIDATE_CERTS', None,
     'Validate the server’s certificate for HTTPS requests', 'HTTP Loader')
 Config.define(
     'HTTP_LOADER_CLIENT_KEY', None,
