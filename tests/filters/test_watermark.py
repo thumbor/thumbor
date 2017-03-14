@@ -12,7 +12,7 @@ from preggy import expect
 
 from tests.base import FilterTestCase
 from thumbor.filters import watermark
-from tests.fixtures.watermark_fixtures import POSITIONS
+from tests.fixtures.watermark_fixtures import SOURCE_IMAGE_SIZES, WATERMARK_IMAGE_SIZES, RATIOS, POSITIONS
 
 
 class WatermarkFilterTestCase(FilterTestCase):
@@ -99,3 +99,67 @@ class WatermarkFilterTestCase(FilterTestCase):
         expected = self.get_fixture('watermarkSimpleBig.jpg')
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.98)
+
+    def test_watermark_filter_simple_50p_width(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,30,-50,20,50)')
+        expected = self.get_fixture('watermarkResize50pWidth.jpg')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
+
+    def test_watermark_filter_simple_70p_height(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,30,-50,20,none,70)')
+        expected = self.get_fixture('watermarkResize70pHeight.jpg')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
+
+    def test_watermark_filter_simple_60p_80p(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,-30,-200,20,60,80)')
+        expected = self.get_fixture('watermarkResize60p80p.jpg')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
+
+    def test_watermark_filter_calculated_resizing(self):
+        watermark.Filter.pre_compile()
+        filter = watermark.Filter("http://dummy,0,0,0", self.context)
+
+        for source_image_width, source_image_height in SOURCE_IMAGE_SIZES:
+            for watermark_source_image_width, watermark_source_image_height in WATERMARK_IMAGE_SIZES:
+                for w_ratio, h_ratio in RATIOS:
+                    max_width = source_image_width * (float(w_ratio)/100) if w_ratio else float('inf')
+                    max_height = source_image_height * (float(h_ratio)/100) if h_ratio else float('inf')
+                    w_ratio = float(w_ratio) / 100.0 if w_ratio else False
+                    h_ratio = float(h_ratio) / 100.0 if h_ratio else False
+
+                    ratio = float(watermark_source_image_width)/watermark_source_image_height
+
+                    watermark_image_width, watermark_image_height = filter.calc_watermark_size(
+                        (source_image_width, source_image_height),
+                        (watermark_source_image_width, watermark_source_image_height),
+                        w_ratio,
+                        h_ratio
+                    )
+                    watermark_image = float(watermark_image_width)/watermark_image_height
+
+                    test = {
+                        'source_image_width': source_image_width,
+                        'source_image_height': source_image_height,
+                        'watermark_source_image_width': watermark_source_image_width,
+                        'watermark_source_image_height': watermark_source_image_height,
+                        'watermark_image_width': watermark_image_width,
+                        'watermark_image_height': watermark_image_height,
+                        'w_ratio': w_ratio,
+                        'h_ratio': h_ratio
+                    }
+
+                    test['topic_name'] = 'watermark_image_width'
+                    expect(watermark_image_width).to_fit_into(max_width, **test)
+                    test['topic_name'] = 'watermark_image_height'
+                    expect(watermark_image_height).to_fit_into(max_height, **test)
+
+                    test['topic_name'] = 'fill out'
+                    expect(
+                        (watermark_image_width == max_width or watermark_image_height == max_height)
+                    ).to_be_true_with_additional_info(**test)
+
+                    test['topic_name'] = 'image ratio'
+                    expect(watermark_image).to_almost_equal(ratio, 2, **test)
