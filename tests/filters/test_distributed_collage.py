@@ -21,7 +21,7 @@ class DistributedCollageFilterTestCase(FilterTestCase):
         '800px-Christophe_Henner_-_June_2016.jpg',
         '800px-Coffee_berries_1.jpg',
         '800px-A_small_cup_of_coffee.JPG',
-        '513px-Coffee_beans_-_ziarna_kawy.jpg',
+        '513px-Coffee_beans_-_ziarna_kawy',
     )
 
     def test_fallback_when_have_not_enough_images(self):

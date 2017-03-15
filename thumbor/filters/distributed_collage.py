@@ -6,7 +6,7 @@
 # TODO: custom alignment
 
 import math
-from os.path import abspath, dirname, isabs, join, splitext
+from os.path import abspath, dirname, isabs, join
 
 import cv2
 import numpy as np
@@ -120,7 +120,6 @@ class Picture:
     def __init__(self, url, thumbor_filter):
         self.url = url
         self.thumbor_filter = thumbor_filter
-        self.extension = splitext(url)[-1].lower()
         self.engine = None
         self.fetched = False
         self.failed = False
@@ -142,7 +141,7 @@ class Picture:
     def save_on_disc(self):
         if self.fetched:
             try:
-                self.engine.load(self.buffer, self.extension)
+                self.engine.load(self.buffer, None)
             except Exception as err:
                 self.failed = True
                 logger.exception(err)
@@ -173,7 +172,7 @@ class Picture:
 
     def process(self, canvas_width, canvas_height, size):
         try:
-            self.engine.load(self.buffer, self.extension)
+            self.engine.load(self.buffer, None)
             width, height = self.engine.size
             new_width, new_height = calc_new_size_by_height(width, height, canvas_height)
             focal_points = StandaloneFaceDetector.features_to_focal_points(

@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from os.path import splitext
 from thumbor.ext.filters import _nine_patch
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.loaders import LoaderResult
@@ -19,7 +18,7 @@ class Filter(BaseFilter):
     regex = r'(?:frame\((?P<url>.*?))'
 
     def on_image_ready(self, buffer):
-        self.nine_patch_engine.load(buffer, self.extension)
+        self.nine_patch_engine.load(buffer, None)
         self.nine_patch_engine.enable_alpha()
         self.engine.enable_alpha()
 
@@ -83,7 +82,7 @@ class Filter(BaseFilter):
         else:
             buffer = result
 
-        self.nine_patch_engine.load(buffer, self.extension)
+        self.nine_patch_engine.load(buffer, None)
         self.storage.put(self.url, self.nine_patch_engine.read())
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
@@ -93,7 +92,6 @@ class Filter(BaseFilter):
     def frame(self, callback, url):
         self.url = url
         self.callback = callback
-        self.extension = splitext(self.url)[-1].lower()
         self.nine_patch_engine = self.context.modules.engine.__class__(self.context)
         self.storage = self.context.modules.storage
 
