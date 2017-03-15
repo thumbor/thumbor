@@ -41,11 +41,11 @@ class Filter(BaseFilter):
             wm_max_height = watermark_sz[1] * wm_max_width / watermark_sz[0]
 
         if float(watermark_sz[0])/wm_max_width >= float(watermark_sz[1])/wm_max_height:
-            wm_height = int(round(watermark_sz[1] * wm_max_width / watermark_sz[0]))
-            wm_width = int(round(wm_max_width))
+            wm_height = round(watermark_sz[1] * wm_max_width / watermark_sz[0])
+            wm_width = round(wm_max_width)
         else:
-            wm_height = int(round(wm_max_height))
-            wm_width = int(round(watermark_sz[0] * wm_max_height / watermark_sz[1]))
+            wm_height = round(wm_max_height)
+            wm_width = round(watermark_sz[0] * wm_max_height / watermark_sz[1])
 
         return (wm_width, wm_height)
 
