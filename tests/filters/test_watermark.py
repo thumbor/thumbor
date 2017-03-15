@@ -11,6 +11,8 @@
 from preggy import expect
 
 from tests.base import FilterTestCase
+from thumbor.filters import watermark
+from tests.fixtures.watermark_fixtures import POSITIONS
 
 
 class WatermarkFilterTestCase(FilterTestCase):
@@ -55,3 +57,33 @@ class WatermarkFilterTestCase(FilterTestCase):
         expected = self.get_fixture('watermarkSimple.jpg')
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.98)
+
+    def test_watermark_filter_calculated(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,4p,-30p,60)')
+        expected = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,32,-160,60)')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
+
+    def test_watermark_filter_calculated_center(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,4p,center,60)')
+        expected = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,32,center,60)')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
+
+    def test_watermark_filter_calculated_repeat(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,repeat,30p,60)')
+        expected = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,repeat,160,60)')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
+
+    def test_watermark_filter_calculated_position(self):
+        watermark.Filter.pre_compile()
+        filter = watermark.Filter("http://dummy,0,0,0", self.context)
+
+        for length, pos, expected in POSITIONS:
+            test = {
+                'length': length,
+                'pos': pos,
+            }
+
+            expect(filter.detect_and_get_ratio_position(pos, length)).to_be_equal_with_additional_info(expected, **test)
