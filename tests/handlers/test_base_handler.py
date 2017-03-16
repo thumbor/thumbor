@@ -958,7 +958,7 @@ class EngineLoadException(BaseImagingTestCase):
         expect(response.code).to_equal(200)
 
     @patch.object(Engine, 'read', side_effect=Exception)
-    def test_shakumacka(self, read_mock):
+    def test_should_fail_with_500_upon_engine_read_exception(self, read_mock):
         response = self.fetch('/unsafe/fit-in/134x134/940x2.png')
         expect(response.code).to_equal(500)
 
