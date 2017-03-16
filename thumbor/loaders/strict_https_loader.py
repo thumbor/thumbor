@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from thumbor.loaders import http_loader
-from tornado.concurrent import return_future
+from tornado import gen
 
 
 def _normalize_url(url):
@@ -27,13 +27,14 @@ def validate(context, url):
     return http_loader.validate(context, url, normalize_url_func=_normalize_url)
 
 
-def return_contents(response, url, callback, context):
-    return http_loader.return_contents(response, url, callback, context)
+def return_contents(response, url, context):
+    return http_loader.return_contents(response, url, context)
 
 
-@return_future
-def load(context, url, callback):
-    return http_loader.load_sync(context, url, callback, normalize_url_func=_normalize_url)
+@gen.coroutine
+def load(context, url):
+    result = yield http_loader.load(context, url, normalize_url_func=_normalize_url)
+    raise gen.Return(result)
 
 
 def encode(string):

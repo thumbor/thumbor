@@ -10,15 +10,14 @@
 
 import datetime
 import re
-from functools import partial
 from urlparse import urlparse
 from urllib2 import unquote, quote
 
+import tornado.gen as gen
 import tornado.httpclient
 
 from . import LoaderResult
 from thumbor.utils import logger
-from tornado.concurrent import return_future
 
 
 def encode_url(url):
@@ -60,7 +59,7 @@ def validate(context, url, normalize_url_func=_normalize_url):
     return False
 
 
-def return_contents(response, url, callback, context, req_start=None):
+def return_contents(response, url, context, req_start=None):
     if req_start:
         finish = datetime.datetime.now()
         res = urlparse(url)
@@ -94,15 +93,11 @@ def return_contents(response, url, callback, context, req_start=None):
         result.buffer = response.body
         context.metrics.incr('original_image.response_bytes', len(response.body))
 
-    callback(result)
+    return result
 
 
-@return_future
-def load(context, url, callback, normalize_url_func=_normalize_url):
-    load_sync(context, url, callback, normalize_url_func)
-
-
-def load_sync(context, url, callback, normalize_url_func):
+@gen.coroutine
+def load(context, url, normalize_url_func=_normalize_url):
     using_proxy = context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
     if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
         tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
@@ -134,7 +129,8 @@ def load_sync(context, url, callback, normalize_url_func):
     )
 
     start = datetime.datetime.now()
-    client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context, req_start=start))
+    response = yield client.fetch(req)
+    raise gen.Return(return_contents(response, url, context, req_start=start))
 
 
 def encode(string):

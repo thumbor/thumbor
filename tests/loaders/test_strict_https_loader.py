@@ -11,7 +11,6 @@
 from os.path import abspath, join, dirname
 
 from preggy import expect
-import mock
 # from tornado.concurrent import Future
 import tornado.web
 from tests.base import PythonTestCase
@@ -66,29 +65,23 @@ class ReturnContentTestCase(PythonTestCase):
 
     def test_return_none_on_error(self):
         response_mock = ResponseMock(error='Error', code=599)
-        callback_mock = mock.Mock()
         ctx = Context(None, None, None)
-        loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
-        result = callback_mock.call_args[0][0]
+        result = loader.return_contents(response_mock, 'some-url', ctx)
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_be_null()
         expect(result.successful).to_be_false()
 
     def test_return_body_if_valid(self):
         response_mock = ResponseMock(body='body', code=200)
-        callback_mock = mock.Mock()
         ctx = Context(None, None, None)
-        loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
-        result = callback_mock.call_args[0][0]
+        result = loader.return_contents(response_mock, 'some-url', ctx)
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_equal('body')
 
     def test_return_upstream_error_on_body_none(self):
         response_mock = ResponseMock(body=None, code=200)
-        callback_mock = mock.Mock()
         ctx = Context(None, None, None)
-        loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
-        result = callback_mock.call_args[0][0]
+        result = loader.return_contents(response_mock, 'some-url', ctx)
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_be_null()
         expect(result.successful).to_be_false()
@@ -96,10 +89,8 @@ class ReturnContentTestCase(PythonTestCase):
 
     def test_return_upstream_error_on_body_empty(self):
         response_mock = ResponseMock(body='', code=200)
-        callback_mock = mock.Mock()
         ctx = Context(None, None, None)
-        loader.return_contents(response_mock, 'some-url', callback_mock, ctx)
-        result = callback_mock.call_args[0][0]
+        result = loader.return_contents(response_mock, 'some-url', ctx)
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_be_null()
         expect(result.successful).to_be_false()
