@@ -8,61 +8,35 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from mock import patch
-from os.path import abspath, join, dirname
+from functools import partial
 
-from unittest import TestCase
-from tests.base import TestCase as AsyncTestCase
+from mock import patch
 from preggy import expect
 
-import thumbor
+from thumbor.loaders import LoaderResult, file_loader_http_fallback as loader
 
-from thumbor.context import Context
-from thumbor.config import Config
-from thumbor.loaders import LoaderResult
-
-import thumbor.loaders.file_loader_http_fallback as loader
+from tests.base import TestCase
 
 
-STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
-
-result = LoaderResult()
-result.successful = True
-
-
-def dummy_file_load(context, url, callback, normalize_url_func={}):
-    result.buffer = 'file'
-    callback(result)
-
-
-def dummy_http_load(context, url, callback, normalize_url_func={}):
-    result.buffer = 'http'
-    callback(result)
+def dummy_load(context, path, callback, buffer=None, successful=True):
+    callback(LoaderResult(buffer, successful))
 
 
 class FileLoaderHttpFallbackFileTestCase(TestCase):
-    def setUp(self):
-        config = Config(
-            FILE_LOADER_ROOT_PATH=STORAGE_PATH
-        )
-        self.ctx = Context(config=config)
 
-    @patch.object(thumbor.loaders.file_loader, 'load', dummy_file_load)
+    @patch.object(loader.file_loader, 'load', partial(dummy_load, buffer='file'))
     def test_should_load_file(self):
-        result = loader.load(self.ctx, 'image.jpg', lambda x: x).result()
+        result = loader.load({}, 'image.jpg', lambda x: x).result()
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_equal('file')
 
 
-class FileLoaderHttpFallbackHttpTestCase(AsyncTestCase):
-    @patch.object(thumbor.loaders.http_loader, 'load', dummy_http_load)
+class FileLoaderHttpFallbackHttpTestCase(TestCase):
+
+    @patch.object(loader.file_loader, 'load', partial(dummy_load, successful=False))
+    @patch.object(loader.http_loader, 'load', partial(dummy_load, buffer='http'))
     def test_should_load_http(self):
-        url = self.get_url('http:/www.google.com/example_image.png')
-        config = Config()
-        ctx = Context(None, config, None)
-
-        loader.load(ctx, url, self.stop)
-        result = self.wait()
-
+        url = 'http:/www.google.com/example_image.png'
+        result = loader.load({}, url, self.stop).result()
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_equal('http')
