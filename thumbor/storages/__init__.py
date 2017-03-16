@@ -10,7 +10,7 @@
 
 import os
 from os.path import exists
-from tornado.concurrent import return_future
+from tornado import gen
 
 
 class BaseStorage(object):
@@ -38,20 +38,20 @@ class BaseStorage(object):
         '''
         raise NotImplementedError()
 
-    @return_future
-    def get_crypto(self, path, callback):
+    @gen.coroutine
+    def get_crypto(self, path):
         raise NotImplementedError()
 
-    @return_future
-    def get_detector_data(self, path, callback):
+    @gen.coroutine
+    def get_detector_data(self, path):
         raise NotImplementedError()
 
-    @return_future
-    def get(self, path, callback):
+    @gen.coroutine
+    def get(self, path):
         raise NotImplementedError()
 
-    @return_future
-    def exists(self, path, callback):
+    @gen.coroutine
+    def exists(self, path):
         raise NotImplementedError()
 
     def remove(self, path):

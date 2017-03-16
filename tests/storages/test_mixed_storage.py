@@ -16,12 +16,12 @@ from preggy import expect
 from thumbor.context import ServerParameters
 from thumbor.importer import Importer
 from thumbor.storages.mixed_storage import Storage as MixedStorage
-from thumbor.storages.no_storage import Storage as NoStorage
+from thumbor.storages.no_storage import Storage as NoStorage, BaseStorage
 
 from tests.base import TestCase
 
 
-class Storage(object):
+class Storage(BaseStorage):
     def __init__(self, security_key):
         self.storage = defaultdict(dict)
         self.security_key = security_key
@@ -36,23 +36,26 @@ class Storage(object):
     def put_detector_data(self, path, data):
         self.storage[path]['detector'] = data
 
+    @tornado.gen.coroutine
     def get_crypto(self, path):
         if path not in self.storage:
             raise RuntimeError('%s was not found in storage' % path)
 
-        return self.storage[path]['crypto']
+        raise tornado.gen.Return(self.storage[path]['crypto'])
 
+    @tornado.gen.coroutine
     def get_detector_data(self, path):
         if path not in self.storage or 'detector' not in self.storage[path]:
-            return None
+            raise tornado.gen.Return(None)
 
-        return self.storage[path]['detector']
+        raise tornado.gen.Return(self.storage[path]['detector'])
 
+    @tornado.gen.coroutine
     def get(self, path):
         if path not in self.storage:
             raise RuntimeError('%s was not found in storage' % path)
 
-        return self.storage[path]['contents']
+        raise tornado.gen.Return(self.storage[path]['contents'])
 
 
 class BaseMidexStorageTestCase(TestCase):

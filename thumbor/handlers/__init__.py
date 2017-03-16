@@ -638,7 +638,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def get_blacklist_contents(self):
         filename = 'blacklist.txt'
 
-        exists = yield gen.maybe_future(self.context.modules.storage.exists(filename))
+        exists = yield self.context.modules.storage.exists(filename)
         if exists:
             blacklist = yield gen.maybe_future(self.context.modules.storage.get(filename))
             raise tornado.gen.Return(blacklist)

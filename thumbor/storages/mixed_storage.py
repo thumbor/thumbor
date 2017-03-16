@@ -65,25 +65,25 @@ class Storage(BaseStorage):
     @gen.coroutine
     def get_crypto(self, path):
         self._init_crypto_storage()
-        result = yield gen.maybe_future(self.crypto_storage.get_crypto(path))
+        result = yield self.crypto_storage.get_crypto(path)
         raise gen.Return(result)
 
     @gen.coroutine
     def get_detector_data(self, path):
         self._init_detector_storage()
-        result = yield gen.maybe_future(self.detector_storage.get_detector_data(path))
+        result = yield self.detector_storage.get_detector_data(path)
         raise gen.Return(result)
 
     @gen.coroutine
     def get(self, path):
         self._init_file_storage()
-        result = yield gen.maybe_future(self.file_storage.get(path))
+        result = yield self.file_storage.get(path)
         raise gen.Return(result)
 
     @gen.coroutine
     def exists(self, path):
         self._init_file_storage()
-        result = yield gen.maybe_future(self.file_storage.exists(path))
+        result = yield self.file_storage.exists(path)
         raise gen.Return(result)
 
     def resolve_original_photo_path(self, request, filename):
