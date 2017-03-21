@@ -25,8 +25,8 @@ class ImageResourceHandler(ImageApiHandler):
     def check_resource(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image exists
-        exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
 
+        exists = yield self.context.modules.storage.exists(id)
         if exists:
             body = yield gen.maybe_future(self.context.modules.storage.get(id))
             self.set_status(200)
@@ -66,7 +66,7 @@ class ImageResourceHandler(ImageApiHandler):
             return
 
         # Check if image exists
-        exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
+        exists = yield self.context.modules.storage.exists(id)
         if exists:
             self.context.modules.storage.remove(id)
             self.set_status(204)

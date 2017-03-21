@@ -18,7 +18,7 @@ from uuid import uuid4
 
 import thumbor.storages as storages
 from thumbor.utils import logger
-from tornado.concurrent import return_future
+from tornado import gen
 
 
 class Storage(storages.BaseStorage):
@@ -78,41 +78,38 @@ class Storage(storages.BaseStorage):
 
         return file_abspath
 
-    @return_future
-    def get(self, path, callback):
+    @gen.coroutine
+    def get(self, path):
         abs_path = self.path_on_filesystem(path)
 
-        def file_exists(resource_available):
-            if not resource_available:
-                callback(None)
-            else:
-                with open(self.path_on_filesystem(path), 'r') as f:
-                    callback(f.read())
+        exists = yield self.exists(abs_path, on_filesystem=False)
+        if exists:
+            with open(self.path_on_filesystem(path), 'r') as f:
+                raise gen.Return(f.read())
 
-        self.exists(None, file_exists, path_on_filesystem=abs_path)
+        raise gen.Return(None)
 
-    @return_future
-    def get_crypto(self, path, callback):
+    @gen.coroutine
+    def get_crypto(self, path):
         file_abspath = self.path_on_filesystem(path)
         crypto_file = "%s.txt" % (splitext(file_abspath)[0])
 
-        if not exists(crypto_file):
-            callback(None)
-        else:
+        if exists(crypto_file):
             with open(crypto_file, 'r') as crypto_f:
-                callback(crypto_f.read())
+                raise gen.Return(crypto_f.read())
 
-    @return_future
-    def get_detector_data(self, path, callback):
+        raise gen.Return(None)
+
+    @gen.coroutine
+    def get_detector_data(self, path):
         file_abspath = self.path_on_filesystem(path)
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
 
-        def file_exists(resource_available):
-            if not resource_available:
-                callback(None)
-            else:
-                callback(loads(open(path, 'r').read()))
-        self.exists(None, file_exists, path_on_filesystem=path)
+        exists = yield self.exists(path, on_filesystem=False)
+        if exists:
+            raise gen.Return(loads(open(path, 'r').read()))
+
+        raise gen.Return(None)
 
     def path_on_filesystem(self, path):
         digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
@@ -122,11 +119,12 @@ class Storage(storages.BaseStorage):
             digest[2:]
         )
 
-    @return_future
-    def exists(self, path, callback, path_on_filesystem=None):
-        if path_on_filesystem is None:
-            path_on_filesystem = self.path_on_filesystem(path)
-        callback(os.path.exists(path_on_filesystem) and not self.__is_expired(path_on_filesystem))
+    @gen.coroutine
+    def exists(self, path, on_filesystem=True):
+        if on_filesystem:
+            path = self.path_on_filesystem(path)
+
+        raise gen.Return(os.path.exists(path) and not self.__is_expired(path))
 
     def remove(self, path):
         n_path = self.path_on_filesystem(path)

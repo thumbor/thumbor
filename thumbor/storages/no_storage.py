@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from thumbor.storages import BaseStorage
-from tornado.concurrent import return_future
+from tornado import gen
 
 
 class Storage(BaseStorage):
@@ -23,21 +23,21 @@ class Storage(BaseStorage):
     def put_detector_data(self, path, data):
         return path
 
-    @return_future
-    def get_crypto(self, path, callback):
-        callback(None)
+    @gen.coroutine
+    def get_crypto(self, path):
+        raise gen.Return(None)
 
-    @return_future
-    def get_detector_data(self, path, callback):
-        callback(None)
+    @gen.coroutine
+    def get_detector_data(self, path):
+        raise gen.Return(None)
 
-    @return_future
-    def get(self, path, callback):
-        callback(None)
+    @gen.coroutine
+    def get(self, path):
+        raise gen.Return(None)
 
-    @return_future
-    def exists(self, path, callback):
-        callback(False)
+    @gen.coroutine
+    def exists(self, path):
+        raise gen.Return(None)
 
     def remove(self, path):
         pass
