@@ -247,6 +247,10 @@ class BaseHandler(tornado.web.RequestHandler):
             self.filters_runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, finish_callback)
 
     def is_webp(self, context):
+        logger.debug('AUTO_WEBP: {0}'.format(context.config.AUTO_WEBP))
+        logger.debug('accepts_webp: {0}'.format(context.request.accepts_webp))
+        logger.debug('mul: {0}'.format(context.request.engine.is_multiple()))
+        logger.debug('can_convert_to_webp: {0}'.format(context.request.engine.can_convert_to_webp()))
         return (context.config.AUTO_WEBP and
                 context.request.accepts_webp and
                 not context.request.engine.is_multiple() and

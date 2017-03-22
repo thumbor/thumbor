@@ -288,6 +288,14 @@ Config.define(
     'Optimizers'
 )
 
+
+Config.define(
+    'FFPROBE_PATH',
+    '/usr/local/bin/ffprobe',
+    'Path for the ffmpeg binary used to generate gifv(h.264)',
+    'Optimizers'
+)
+
 # AVAILABLE FILTERS
 Config.define(
     'FILTERS', [
