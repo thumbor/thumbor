@@ -32,3 +32,9 @@ opencv
 .ropeproject/
 .venv
 docs/_build
+
+# virtualenv folder
+/env/
+
+# storage folder
+/storage/

@@ -217,6 +217,10 @@ class ContextImporter:
         if importer.gif_engine:
             self.gif_engine = importer.gif_engine(context)
 
+        self.mp4_engine = None
+        if importer.mp4_engine:
+            self.mp4_engine = importer.mp4_engine(context)
+
         self.storage = None
         if importer.storage:
             self.storage = importer.storage(context)

@@ -557,6 +557,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.context.request.extension = EXTENSION.get(mime, '.jpg')
                 if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                     self.context.request.engine = self.context.modules.gif_engine
+                elif mime == 'video/mp4' and self.context.config.MP4_ENGINE:
+                    self.context.request.engine = self.context.modules.mp4_engine
                 else:
                     self.context.request.engine = self.context.modules.engine
 
@@ -597,6 +599,8 @@ class BaseHandler(tornado.web.RequestHandler):
         try:
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
                 self.context.request.engine = self.context.modules.gif_engine
+            elif mime == 'video/mp4' and self.context.config.MP4_ENGINE:
+                self.context.request.engine = self.context.modules.mp4_engine
             else:
                 self.context.request.engine = self.context.modules.engine
 
@@ -697,6 +701,8 @@ class ImageApiHandler(ContextHandler):
 
         if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
             engine = self.context.modules.gif_engine
+        elif mime == 'video/mp4' and self.context.config.MP4_ENGINE:
+            engine = self.context.modules.mp4_engine
         else:
             engine = self.context.modules.engine
 

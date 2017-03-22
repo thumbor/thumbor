@@ -28,6 +28,7 @@ class Importer:
         self.config = config
         self.engine = None
         self.gif_engine = None
+        self.mp4_engine = None
         self.loader = None
         self.url_signer = None
         self.upload_photo_storage = None
@@ -44,12 +45,13 @@ class Importer:
 
     def import_modules(self):
         self.config.validates_presence_of(
-            'ENGINE', 'GIF_ENGINE', 'LOADER', 'STORAGE', 'DETECTORS',
+            'ENGINE', 'GIF_ENGINE', 'MP4_ENGINE', 'LOADER', 'STORAGE', 'DETECTORS',
             'FILTERS', 'URL_SIGNER', 'METRICS'
         )
 
         self.import_item('ENGINE', 'Engine')
         self.import_item('GIF_ENGINE', 'Engine')
+        self.import_item('MP4_ENGINE', 'Engine')
         self.import_item('LOADER')
         self.import_item('STORAGE', 'Storage')
         self.import_item('METRICS', 'Metrics')
