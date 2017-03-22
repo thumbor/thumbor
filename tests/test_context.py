@@ -288,6 +288,7 @@ class ContextImporterTestCase(TestCase):
         expect(ctx_importer.importer).to_equal(importer)
         expect(ctx_importer.engine).to_be_instance_of(importer.engine)
         expect(ctx_importer.gif_engine).to_be_instance_of(importer.gif_engine)
+        expect(ctx_importer.mp4_engine).to_be_instance_of(importer.mp4_engine)
 
         expect(ctx_importer.storage).to_be_instance_of(importer.storage)
         expect(ctx_importer.result_storage).to_be_instance_of(importer.result_storage)

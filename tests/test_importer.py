@@ -14,6 +14,7 @@ from thumbor.importer import Importer
 from thumbor.config import Config
 from thumbor.engines.pil import Engine as pil_engine
 from thumbor.engines.gif import Engine as gif_engine
+from thumbor.engines.mp4 import Engine as mp4_engine
 from thumbor.loaders import http_loader
 from thumbor.storages.file_storage import Storage as file_storage
 from thumbor.result_storages.file_storage import Storage as result_file_storage
@@ -29,6 +30,7 @@ class ImporterTestCase(TestCase):
         return Config(
             ENGINE='thumbor.engines.pil',
             GIF_ENGINE='thumbor.engines.gif',
+            MP4_ENGINE='thumbor.engines.mp4',
             LOADER='thumbor.loaders.http_loader',
             STORAGE='thumbor.storages.file_storage',
             UPLOAD_PHOTO_STORAGE='thumbor.storages.file_storage',
@@ -43,6 +45,7 @@ class ImporterTestCase(TestCase):
         data = {
             'ENGINE': pil_engine,
             'GIF_ENGINE': gif_engine,
+            'MP4_ENGINE': mp4_engine,
             'LOADER': http_loader,
             'STORAGE': file_storage,
             'UPLOAD_PHOTO_STORAGE': file_storage,

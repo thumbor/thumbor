@@ -47,6 +47,7 @@ class ConfigValuesTestCase(TestCase):
             ('STORAGE', self.get_default_storage()),
             ('ENGINE', 'thumbor.engines.pil'),
             ('GIF_ENGINE', 'thumbor.engines.gif'),
+            ('MP4_ENGINE', 'thumbor.engines.mp4'),
             ('URL_SIGNER', 'libthumbor.url_signers.base64_hmac_sha1'),
             ('ALLOW_UNSAFE_URL', True),
             ('FILE_LOADER_ROOT_PATH', expanduser("~")),
