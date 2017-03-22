@@ -11,8 +11,10 @@
 from thumbor.engines import BaseEngine
 from subprocess import Popen, PIPE
 
+
 class FfmpegError(RuntimeError):
     pass
+
 
 class Engine(BaseEngine):
 
