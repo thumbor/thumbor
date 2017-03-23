@@ -37,9 +37,12 @@ class Engine(BaseEngine):
         return self.image_size
 
     def transcode(self, extension):
+        if extension == '.mp4':
+            return self.buffer
+
         mp4_file = NamedTemporaryFile(suffix='.mp4', delete=False)
 
-        if extension == 'webp':
+        if extension == '.webp':
             output_suffix = '.webp'
         else:
             output_suffix = '.gif'
