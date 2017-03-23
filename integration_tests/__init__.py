@@ -28,8 +28,11 @@ class EngineCase(AsyncHTTPTestCase):
         cfg.LOADER = 'thumbor.loaders.file_loader'
         cfg.FILE_LOADER_ROOT_PATH = os.path.join(os.path.dirname(__file__), 'imgs')
         cfg.ENGINE = getattr(self, 'engine', None)
+        cfg.MP4_ENGINE = 'thumbor.engines.mp4'
         cfg.USE_GIFSICLE_ENGINE = True
         cfg.FFMPEG_PATH = which('ffmpeg')
+        cfg.FFPROBE_PATH = which('ffprobe')
+        cfg.CONVERT_PATH = which('convert')
         cfg.ENGINE_THREADPOOL_SIZE = 10
         cfg.OPTIMIZERS = [
             'thumbor.optimizers.gifv',
