@@ -130,6 +130,20 @@ Config.define(
     'The mp4 engine thumbor should use to perform image operations. This must be the full name of a ' +
     'python module (python must be able to import it)', 'Extensibility')
 
+Config.define(
+    'FFPROBE_PATH',
+    '/usr/local/bin/ffprobe',
+    'Path for the ffmpeg binary used to detect mp4 for animated gif / webp',
+    'Extensibility'
+)
+
+Config.define(
+    'CONVERT_PATH',
+    '/usr/bin/convert',
+    'Path for the imagemagick convert binary used to generate gif from mp4',
+    'Extensibility'
+)
+
 Config.define('SECURITY_KEY', 'MY_SECURE_KEY', 'The security key thumbor uses to sign image URLs', 'Security')
 
 Config.define('ALLOW_UNSAFE_URL', True, 'Indicates if the /unsafe URL should be available', 'Security')
@@ -284,21 +298,7 @@ Config.define(
 Config.define(
     'FFMPEG_PATH',
     '/usr/local/bin/ffmpeg',
-    'Path for the ffmpeg binary used to generate gifv(h.264)',
-    'Optimizers'
-)
-
-Config.define(
-    'FFPROBE_PATH',
-    '/usr/local/bin/ffprobe',
-    'Path for the ffmpeg binary used to generate gifv(h.264) / animated webp',
-    'Optimizers'
-)
-
-Config.define(
-    'CONVERT_PATH',
-    '/usr/bin/convert',
-    'Path for the imagemagick convert binary used to generate gif',
+    'Path for the ffmpeg binary used to generate gifv(h.264) and transcode from mp4 to webp / gif',
     'Optimizers'
 )
 
