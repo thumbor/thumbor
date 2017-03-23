@@ -40,6 +40,7 @@ addons:
     - libopenblas-dev
     - liblapack-dev
     - python-pyexiv2
+    - imagemagick
 install:
   - pip install -U pip
   - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
