@@ -37,4 +37,4 @@ docs/_build
 /env/
 
 # storage folder
-/storage/
+/*storage/
