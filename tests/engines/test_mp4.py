@@ -33,6 +33,9 @@ class Mp4EngineTestCase(TestCase):
             LOADER="thumbor.loaders.file_loader",
             FILE_LOADER_ROOT_PATH=STORAGE_PATH,
             STORAGE='thumbor.storages.no_storage',
+            FFMPEG_PATH=which('ffmpeg'),
+            FFPROBE_PATH=which('ffprobe'),
+            CONVERT_PATH=which('convert')
         )
 
     def get_importer(self):
