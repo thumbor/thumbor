@@ -166,7 +166,6 @@ class Engine(BaseEngine):
             return '.jpeg'
 
     def read(self, extension=None, quality=None):  # NOQA
-        logger.info('> extension={0}, quality={1}'.format(extension, quality))
         # returns image buffer in byte format.
         img_buffer = BytesIO()
         ext = extension or self.extension or self.get_default_extension()
