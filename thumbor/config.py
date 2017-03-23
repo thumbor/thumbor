@@ -288,11 +288,17 @@ Config.define(
     'Optimizers'
 )
 
-
 Config.define(
     'FFPROBE_PATH',
     '/usr/local/bin/ffprobe',
-    'Path for the ffmpeg binary used to generate gifv(h.264)',
+    'Path for the ffmpeg binary used to generate gifv(h.264) / animated webp',
+    'Optimizers'
+)
+
+Config.define(
+    'CONVERT_PATH',
+    '/usr/bin/convert',
+    'Path for the imagemagick convert binary used to generate gif',
     'Optimizers'
 )
 
