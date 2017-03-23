@@ -88,7 +88,7 @@ class Engine(BaseEngine):
                         return f.read()
                 finally:
                     os.unlink(result_file.name)
-            else: # gif
+            else:  # to gif
                 palette_file = NamedTemporaryFile(suffix='.png', delete=False)
                 ffmpeg_gif_file = NamedTemporaryFile(suffix='.gif', delete=False)
                 convert_gif_file = NamedTemporaryFile(suffix='.gif', delete=False)
@@ -235,7 +235,6 @@ class Engine(BaseEngine):
         logger.debug('resize {0} {1}'.format(width, height))
         self.image_size = int(width), int(height)
 
-
     def crop(self, left, top, right, bottom):
         logger.debug('crop {0} {1} {2} {3}'.format(left, top, right, bottom))
         old_out_width, old_out_height, old_left, old_top = self.corp_info
@@ -249,7 +248,7 @@ class Engine(BaseEngine):
         out_height = int(1.0 * height / old_height * old_out_height)
         new_left = int(old_left + 1.0 * left / old_width * old_out_width)
         new_top = int(old_top + 1.0 * top / old_height * old_out_height)
-        self.corp_info = out_width, out_height, left, top
+        self.corp_info = out_width, out_height, new_left, new_top
 
     def rotate(self, degrees):
         self.rotate_degrees = degrees
@@ -268,6 +267,6 @@ class Engine(BaseEngine):
         pass
 
     def read(self, extension=None, quality=None):
-        if quality is None: # if quality is None, it's called in the storage missed
-            return self.buffer # return the original data, the mp4 file
+        if quality is None:  # if quality is None, it's called in the storage missed
+            return self.buffer  # return the original data, the mp4 file
         return self.transcode(extension)

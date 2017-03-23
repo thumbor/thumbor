@@ -120,6 +120,7 @@ original_mp4 = [
     'test.mp4'
 ]
 
+
 class UrlsTester(object):
 
     def __init__(self, fetcher, group):
