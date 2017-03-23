@@ -165,7 +165,8 @@ def single_dataset(fetcher, with_gif=True, with_mp4=True):
     if with_gif:
         images += original_images_gif_webp
     if with_mp4:
-        images += original_mp4
+        mp4_options = crops + sizes
+        UrlsTester(fetcher, product(mp4_options, original_mp4))
     all_options = metas + trims + crops + fitins + sizes + haligns + valigns + smarts + filters
     UrlsTester(fetcher, product(all_options, images))
 
@@ -175,7 +176,8 @@ def combined_dataset(fetcher, with_gif=True, with_mp4=True):
     if with_gif:
         images += original_images_gif_webp
     if with_mp4:
-        images += original_mp4
+        mp4_options = crops + sizes
+        UrlsTester(fetcher, product(mp4_options, original_mp4))
     combined_options = product(
         trims[:2], crops[:2], fitins[:2], sizes[:2], haligns[:2], valigns[:2], smarts[:2], filters[:2], images
     )
