@@ -25,7 +25,7 @@ class Engine(BaseEngine):
     def __init__(self, context):
         super(Engine, self).__init__(context)
         self.origial_size = 1, 1
-        self.corp = 1, 1, 0, 0
+        self.corp_info = 1, 1, 0, 0
         self.image_size = 1, 1
         self.rotate_degrees = 0
         self.flipped_vertically = False
@@ -37,9 +37,6 @@ class Engine(BaseEngine):
         return self.image_size
 
     def transcode(self, extension):
-        if extension == '.mp4':
-            return self.buffer
-
         mp4_file = NamedTemporaryFile(suffix='.mp4', delete=False)
 
         if extension == '.webp':
@@ -62,19 +59,21 @@ class Engine(BaseEngine):
             if self.flip_horizontally:
                 video_filters.append('hflip')
             video_filters.append('rotate={0}'.format(self.rotate_degrees))
-            video_filters.append('crop={0}'.format(':'.join(map(str, self.corp))))
+            video_filters.append('crop={0}'.format(':'.join(map(str, self.corp_info))))
             video_filters.append('scale={0}'.format(':'.join(map(str, self.image_size))))
 
             command = [
                 self.context.config.FFMPEG_PATH,
                 '-i', mp4_file.name,
-                '-vf', ', '.join(video_filters),
-                '-y', result_file.name
+                '-vf', ', '.join(video_filters)
             ]
+            if extension == '.webp':
+                command += [ '-loop', '0' ]
+            command += [ '-y', result_file.name ]
+
             p = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE)
             stdout_data = p.communicate()[0]
             if p.returncode != 0:
-                logger.debug(p.communicate()[0])
                 raise FfmpegError(
                     'ffmpeg command returned errorlevel {0} for command "{1}"'.format(
                         p.returncode, ' '.join(
@@ -132,28 +131,31 @@ class Engine(BaseEngine):
 
         logger.debug('probe result: width={0}, height={1}'.format(width, height))
         self.origial_size = width, height
-        self.corp = width, height, 0, 0
+        self.corp_info = width, height, 0, 0
         self.image_size = width, height
 
     def draw_rectangle(self, x, y, width, height):
         raise NotImplementedError()
 
     def resize(self, width, height):
-        self.image_size = width, height
+        logger.debug('resize {0} {1}'.format(width, height))
+        self.image_size = int(width), int(height)
+
 
     def crop(self, left, top, right, bottom):
-        old_out_width, old_out_height, old_left, old_top = self.corp
+        logger.debug('crop {0} {1} {2} {3}'.format(left, top, right, bottom))
+        old_out_width, old_out_height, old_left, old_top = self.corp_info
         old_width, old_height = self.image_size
 
-        width = right - left
-        height = bottom - top
+        width = int(right - left)
+        height = int(bottom - top)
         self.image_size = width, height
 
-        out_width = width / old_width * old_out_width
-        out_height = height / old_height * old_out_height
-        new_left = old_left + left / old_width * old_out_width
-        new_top = old_top + top / old_height * old_out_height
-        self.crop = out_width, out_height, left, top
+        out_width = int(1.0 * width / old_width * old_out_width)
+        out_height = int(1.0 * height / old_height * old_out_height)
+        new_left = int(old_left + 1.0 * left / old_width * old_out_width)
+        new_top = int(old_top + 1.0 * top / old_height * old_out_height)
+        self.corp_info = out_width, out_height, left, top
 
     def rotate(self, degrees):
         self.rotate_degrees = degrees
@@ -172,5 +174,6 @@ class Engine(BaseEngine):
         pass
 
     def read(self, extension=None, quality=None):
-        logger.debug('extension={0}, quality={1}'.format(extension, quality))
+        if quality is None:
+            return self.buffer
         return self.transcode(extension)
