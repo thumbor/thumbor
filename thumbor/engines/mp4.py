@@ -167,10 +167,10 @@ class Engine(BaseEngine):
                     with open(result_file_name, 'r') as f:
                         return f.read()
                 finally:
-                    logger.debug(palette_file.name)
-                    logger.debug(ffmpeg_gif_file.name)
-                    logger.debug(convert_gif_file.name)
-                    logger.debug(convert_optimized_gif_file.name)
+                    os.unlink(palette_file.name)
+                    os.unlink(ffmpeg_gif_file.name)
+                    os.unlink(convert_gif_file.name)
+                    os.unlink(convert_optimized_gif_file.name)
         finally:
             os.unlink(mp4_file.name)
 
