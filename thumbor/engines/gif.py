@@ -31,8 +31,11 @@ class Engine(PILEngine):
 
     def run_gifsicle(self, command):
         p = Popen([self.context.server.gifsicle_path] + command.split(' '), stdout=PIPE, stdin=PIPE, stderr=PIPE)
-        stdout_data = p.communicate(input=self.buffer)[0]
+        stdout_data, stderr_data = p.communicate(input=self.buffer)
         if p.returncode != 0:
+            logger.error(stderr_data)
+
+        if stdout_data is None:
             raise GifSicleError(
                 'gifsicle command returned errorlevel {0} for command "{1}" (image maybe corrupted?)'.format(
                     p.returncode, ' '.join(
@@ -42,6 +45,7 @@ class Engine(PILEngine):
                     )
                 )
             )
+
         return stdout_data
 
     def is_multiple(self):

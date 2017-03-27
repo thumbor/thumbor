@@ -15,7 +15,7 @@ from preggy import expect
 
 from thumbor.context import ServerParameters, RequestParameters
 from thumbor.config import Config
-from thumbor.engines.gif import Engine, GifSicleError
+from thumbor.engines.gif import Engine
 from thumbor.utils import which
 from thumbor.importer import Importer
 
@@ -64,21 +64,14 @@ class GitEngineTestCase(TestCase):
         image = engine.create_image(buffer)
         expect(image.format).to_equal('GIF')
 
-    def test_errors_on_gifsicle_should_raises_errors(self):
+    def test_errors_on_gifsicle_should_not_raises_errors_when_output(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'animated.gif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'SmallFullColourGIF.gif'), 'r') as im:
             buffer = im.read()
 
         engine.load(buffer, '.gif')
-        with expect.error_to_happen(
-            GifSicleError,
-            message='gifsicle command returned errorlevel 1 for command'
-                    ' "{0} --some-invalid-opt /foo/'
-                    'bar.gif" (image maybe corrupted?)'.format(
-                        self.server.gifsicle_path
-                    )
-        ):
-            engine.run_gifsicle('--some-invalid-opt')
+        result = engine.run_gifsicle('--some-invalid-opt')
+        expect(result).Not.to_be_null()
 
     def test_is_multiple_should_returns_true_if_gif_has_many_frames(self):
         engine = Engine(self.context)
