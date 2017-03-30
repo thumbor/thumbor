@@ -85,12 +85,29 @@ class ImagingHandler(ContextHandler):
                 self._error(400, 'Malformed URL: %s' % url)
                 return
 
-        self.execute_image_operations()
-
     @tornado.web.asynchronous
     def get(self, **kw):
         self.check_image(kw)
+        self.execute_image_operations()
 
     @tornado.web.asynchronous
     def head(self, **kw):
         self.check_image(kw)
+        self.execute_image_operations()
+
+    @tornado.web.asynchronous
+    @tornado.gen.coroutine
+    def delete(self, **kw):
+        # Check if image deleting is allowed
+        if not self.context.config.ALLOW_DELETE:
+            self._error(405, 'Unable to delete an image')
+            return
+
+        self.check_image(kw)
+        exists = yield gen.maybe_future(self.context.modules.storage.exists(self.context.request.image_url))
+
+        if exists:
+            self.context.modules.storage.remove(self.context.request.image_url)
+            self.set_status(204)
+        else:
+            self._error(404, 'Image not found at the given URL')
