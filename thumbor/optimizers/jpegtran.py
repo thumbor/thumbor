@@ -23,10 +23,16 @@ class Optimizer(BaseOptimizer):
         if not self.should_run(image_extension, buffer):
             return buffer
 
+        if 'strip_icc' in self.context.request.filters:
+            copy_chunks = 'comments'
+        else:
+            # have to copy everything to preserve icc profile
+            copy_chunks = 'all'
+
         command = [
             self.context.config.JPEGTRAN_PATH,
             '-copy',
-            'comments',
+            copy_chunks,
             '-optimize',
         ]
 
