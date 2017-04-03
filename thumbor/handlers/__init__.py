@@ -10,6 +10,7 @@
 
 import sys
 import functools
+import copy
 import datetime
 import re
 import pytz
@@ -592,7 +593,6 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.request.extension = extension = EXTENSION.get(mime, '.jpg')
 
         original_preserve = self.context.config.PRESERVE_EXIF_INFO
-        self.context.config.PRESERVE_EXIF_INFO = True
 
         try:
             if mime == 'image/gif' and self.context.config.USE_GIFSICLE_ENGINE:
@@ -620,6 +620,20 @@ class BaseHandler(tornado.web.RequestHandler):
             is_mixed_no_file_storage = is_mixed_storage and isinstance(storage.file_storage, NoStorage)
 
             if not (is_no_storage or is_mixed_no_file_storage):
+                # in the case that we have local storage, it's important that we don't try
+                # and strip the exif data - so that we can make the choice about stripping
+                # it on output, instead of input.
+                # unfortunately, the only interface to the engine is the global config
+                # referenced by our context, which has the current setting of preserving
+                # the exif info or not. this is also being read by concurrent
+                # coroutine-threads, so just setting this value outright causes a race.
+                # we solve this in order not to influence these other coroutine-threads
+                # by doing an effective copy-on-write for the config until the end of this
+                # context (ie. this request).
+                # at some point in the future - the API should change, and this horrid hack
+                # should go away.
+                self.context.config = copy.deepcopy(self.context.config)
+                self.context.config.PRESERVE_EXIF_INFO = True
                 fetch_result.buffer = self.context.request.engine.read(extension)
                 storage.put(url, fetch_result.buffer)
 
