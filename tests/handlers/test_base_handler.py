@@ -665,6 +665,14 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers['Content-Type']).to_equal('video/webm')
 
+    def test_should_convert_animated_gif_to_video_and_force_even_dimensions(self):
+        response = self.fetch('/unsafe/meta/51x51/filters:gifv()/animated.gif')
+
+        expect(response.code).to_equal(200)
+        obj = loads(response.body)
+        expect(obj['thumbor']['target']['width']).to_equal(50)
+        expect(obj['thumbor']['target']['height']).to_equal(50)
+
 
 class ImageOperationsImageCoverTestCase(BaseImagingTestCase):
     def get_context(self):
