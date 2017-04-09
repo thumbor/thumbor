@@ -49,8 +49,6 @@ class Optimizer(BaseOptimizer):
             '23',
             '-maxrate',
             '500k',
-            '-vf',
-            'scale=trunc(iw/2)*2:trunc(ih/2)*2',
             output_file,
             '-loglevel',
             'error'
