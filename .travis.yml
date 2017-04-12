@@ -40,20 +40,24 @@ addons:
     - libopenblas-dev
     - liblapack-dev
     - python-pyexiv2
+    - yasm
 install:
   - pip install -U pip
-  - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
-    -O /tmp/ffmpeg-release.tar.xz
-  - mkdir /tmp/ffmpeg-release
-  - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
-  - export PATH=/tmp/ffmpeg-release:$PATH
-  - ffmpeg -version
   - pip install --upgrade pip
-  - make setup
+  - cd $TRAVIS_BUILD_DIR && make setup
   - pip install coveralls
   - pip install cairosvg
+  - wget https://ffmpeg.org/releases/ffmpeg-3.2.4.tar.xz
+    -O /tmp/ffmpeg-3.2.4.tar.xz
+  - mkdir /tmp/ffmpeg-source
+  - tar -C /tmp/ffmpeg-source --strip 1 -xvf /tmp/ffmpeg-3.2.4.tar.xz
+  - cd /tmp/ffmpeg-source && ./configure --prefix=/tmp --enable-gpl --enable-libx264 --enable-libvpx
+  - cd /tmp/ffmpeg-source && make
+  - cd /tmp/ffmpeg-source && make install
+  - export PATH=/tmp/bin:$PATH
+  - ffmpeg -version
 before_script:
-  - make redis
+  - cd $TRAVIS_BUILD_DIR && make redis
 script:
   make compile_ext ci_test
 notifications:

@@ -15,3 +15,4 @@ Imaging
    lazy_detection
    posting_putting_deleting
    result_storage
+   optimizers
