@@ -119,6 +119,7 @@ Config.define(
     'ENGINE', 'thumbor.engines.pil',
     'The imaging engine thumbor should use to perform image operations. This must be the full name of a ' +
     'python module (python must be able to import it)', 'Extensibility')
+Config.define('CUSTOM_HANDLERS', [], "Extra handlers to be prepended to Thumbor Service App with custom URLs", 'Extensibility')
 
 Config.define(
     'GIF_ENGINE', 'thumbor.engines.gif',

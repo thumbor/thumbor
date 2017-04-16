@@ -38,6 +38,7 @@ class Importer:
         self.filters = []
         self.optimizers = []
         self.error_handler_class = None
+        self.custom_handlers = []
 
     def import_class(self, name, get_module=False):
         return import_class(name, get_module)
@@ -57,6 +58,9 @@ class Importer:
         self.import_item('FILTERS', 'Filter', is_multiple=True, ignore_errors=True)
         self.import_item('OPTIMIZERS', 'Optimizer', is_multiple=True)
         self.import_item('URL_SIGNER', 'UrlSigner')
+
+        if self.config.CUSTOM_HANDLERS:
+            self.import_item('CUSTOM_HANDLERS', 'HttpHandler', is_multiple=True, ignore_errors=True)
 
         if self.config.RESULT_STORAGE:
             self.import_item('RESULT_STORAGE', 'Storage')
