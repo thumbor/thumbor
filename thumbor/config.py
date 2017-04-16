@@ -93,6 +93,8 @@ Config.define(
     'USE_BLACKLIST', False,
     'Indicates whether thumbor should enable blacklist functionality to prevent processing certain images.', 'Imaging')
 
+Config.define('FULL_FIT_IN_ENTIRE_IMAGE', False, 'Change full-fit-in behaviour to preserve entire image without cropping.', 'Imaging')
+
 Config.define(
     'ENGINE_THREADPOOL_SIZE', 0,
     'Size of the thread pool used for image transformations.  The default value is 0 (don\'t use a threadpoool. '
