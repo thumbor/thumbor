@@ -106,8 +106,10 @@ def load_sync(context, url, callback, normalize_url_func):
     using_proxy = context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
     if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
         http_client_implementation = 'tornado.curl_httpclient.CurlAsyncHTTPClient'
+        prepare_curl_callback = _get_prepare_curl_callback(context.config)
     else:
         http_client_implementation = None  # default
+        prepare_curl_callback = None
 
     tornado.httpclient.AsyncHTTPClient.configure(http_client_implementation, max_clients=context.config.HTTP_LOADER_MAX_CLIENTS)
     client = tornado.httpclient.AsyncHTTPClient()
@@ -135,7 +137,7 @@ def load_sync(context, url, callback, normalize_url_func):
         client_key=encode(context.config.HTTP_LOADER_CLIENT_KEY),
         client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT),
         validate_cert=context.config.HTTP_LOADER_VALIDATE_CERTS,
-        prepare_curl_callback=_get_prepare_curl_callback(context.config)
+        prepare_curl_callback=prepare_curl_callback
     )
 
     start = datetime.datetime.now()
