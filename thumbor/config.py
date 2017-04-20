@@ -190,6 +190,16 @@ Config.define(
 Config.define(
     'HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT', False,
     'If the CurlAsyncHTTPClient should be used', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_CURL_LOW_SPEED_TIME', 0,
+    'If HTTP_LOADER_CURL_LOW_SPEED_LIMIT and HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT ' +
+    'are set, then this is the time in seconds as integer after a download should ' +
+    'timeout if the speed is below HTTP_LOADER_CURL_LOW_SPEED_LIMIT for that long')
+Config.define(
+    'HTTP_LOADER_CURL_LOW_SPEED_LIMIT', 0,
+    'If HTTP_LOADER_CURL_LOW_SPEED_TIME and HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT ' +
+    'are set, then this is the limit in bytes per second as integer which should ' +
+    'timeout if the speed is below that limit for HTTP_LOADER_CURL_LOW_SPEED_TIME seconds')
 
 # FILE STORAGE GENERIC OPTIONS
 Config.define(

@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import time
 from os.path import abspath, join, dirname
 from preggy import expect
 import mock
@@ -30,6 +31,12 @@ def fixture_for(filename):
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
+        self.write('Hello')
+
+
+class TimeoutHandler(tornado.web.RequestHandler):
+    def get(self):
+        time.sleep(1.2)
         self.write('Hello')
 
 
@@ -174,6 +181,16 @@ class HttpLoaderTestCase(TestCase):
 
         return application
 
+    def setUp(self):
+        super(HttpLoaderTestCase, self).setUp()
+        # not sure how AsyncHTTPClient really works (see the
+        # magic regarding quasi-singleton) but I need to
+        # force the connection to be closed so that it can
+        # be configured with the right http client implementation
+        # afterwards, otherwise I will get a cached (and normally
+        # wrong) implementation
+        tornado.httpclient.AsyncHTTPClient().close()
+
     def test_load_with_callback(self):
         url = self.get_url('/')
         config = Config()
@@ -246,3 +263,83 @@ class HttpLoaderWithUserAgentForwardingTestCase(TestCase):
         result = self.wait()
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_equal('DEFAULT_USER_AGENT')
+
+
+class HttpCurlTimeoutLoaderTestCase(TestCase):
+
+    def get_app(self):
+        application = tornado.web.Application([
+            (r"/", TimeoutHandler),
+        ])
+
+        return application
+
+    def setUp(self):
+        super(HttpCurlTimeoutLoaderTestCase, self).setUp()
+        # not sure how AsyncHTTPClient really works (see the
+        # magic regarding quasi-singleton) but I need to
+        # force the connection to be closed so that it can
+        # be configured with the right http client implementation
+        # afterwards, otherwise I will get a cached (and normally
+        # wrong) implementation
+        tornado.httpclient.AsyncHTTPClient().close()
+
+    def test_load_with_timeout(self):
+        url = self.get_url('/')
+        config = Config()
+        config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT = True
+        config.HTTP_LOADER_REQUEST_TIMEOUT = 1
+        ctx = Context(None, config, None)
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_be_null()
+        expect(result.successful).to_be_false()
+
+    def test_load_with_speed_timeout(self):
+        url = self.get_url('/')
+        config = Config()
+        config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT = True
+        config.HTTP_LOADER_CURL_LOW_SPEED_TIME = 1
+        config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT = 1000000000000
+        ctx = Context(None, config, None)
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_be_null()
+        expect(result.successful).to_be_false()
+
+
+class HttpTimeoutLoaderTestCase(TestCase):
+
+    def get_app(self):
+        application = tornado.web.Application([
+            (r"/", TimeoutHandler),
+        ])
+
+        return application
+
+    def setUp(self):
+        super(HttpTimeoutLoaderTestCase, self).setUp()
+        # not sure how AsyncHTTPClient really works (see the
+        # magic regarding quasi-singleton) but I need to
+        # force the connection to be closed so that it can
+        # be configured with the right http client implementation
+        # afterwards, otherwise I will get a cached (and normally
+        # wrong) implementation
+        tornado.httpclient.AsyncHTTPClient().close()
+
+    def test_load_without_curl_but_speed_timeout(self):
+        url = self.get_url('/')
+        config = Config()
+        config.HTTP_LOADER_CURL_LOW_SPEED_TIME = 1
+        config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT = 1000000000000
+        ctx = Context(None, config, None)
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal('Hello')
+        expect(result.successful).to_be_true()
