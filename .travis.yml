@@ -52,6 +52,7 @@ install:
   - make setup
   - pip install coveralls
   - pip install cairosvg
+  - pip install prometheus_client
 before_script:
   - make redis
 script:
