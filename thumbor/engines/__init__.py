@@ -348,6 +348,9 @@ class BaseEngine(object):
     def image_data_as_rgb(self, update_image=True):
         raise NotImplementedError()
 
+    def strip_exif(self):
+        pass
+
     def strip_icc(self):
         pass
 

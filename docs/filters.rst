@@ -36,6 +36,7 @@ Filters
    rotate
    round_corners
    sharpen
+   strip_exif
    strip_icc
    upscale
    watermark

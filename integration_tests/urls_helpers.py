@@ -75,6 +75,7 @@ filters = [
     'filters:round_corner(20,255,255,100)',
     'filters:sharpen(6,2.5,false)',
     'filters:sharpen(6,2.5,true)',
+    'filters:strip_exif()',
     'filters:strip_icc()',
     'filters:watermark(rgba-interlaced.png,10,10,50)',
     'filters:watermark(rgba-interlaced.png,center,center,50)',

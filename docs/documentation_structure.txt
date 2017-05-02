@@ -53,6 +53,7 @@ Index (* About)
         * Rotate
         * Round corners
         * Sharpen
+        * Strip exif
         * Strip icc
         * Watermark
     Releases
