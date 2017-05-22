@@ -9,7 +9,12 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from pexif import ExifSegment
-from xml.etree.ElementTree import ParseError
+
+try:
+    from xml.etree.ElementTree import ParseError
+except:
+    # python 2.6 support
+    from xml.parsers.expat import ExpatError as ParseError
 
 try:
     import cairosvg
