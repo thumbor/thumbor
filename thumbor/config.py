@@ -235,6 +235,12 @@ Config.alias('ALLOW_ORIGINAL_PHOTO_PUTTING', 'UPLOAD_PUT_ALLOWED')
 # MEMCACHE STORAGE OPTIONS
 Config.define('MEMCACHE_STORAGE_SERVERS', ['localhost:11211'], 'List of Memcache storage server hosts', 'Memcache Storage')
 
+# HBASE STORAGE OPTIONS
+Config.define('HBASE_STORAGE_SERVER_HOST', 'localhost')
+Config.define('HBASE_STORAGE_SERVER_PORT', 9090)
+Config.define('HBASE_STORAGE_TABLE', 'thumbor')
+Config.define('HBASE_STORAGE_FAMILY', 'images')
+
 # MIXED STORAGE OPTIONS
 Config.define(
     'MIXED_STORAGE_FILE_STORAGE', 'thumbor.storages.no_storage',
