@@ -197,6 +197,8 @@ class RequestParameters:
         self.max_age = max_age
 
         if request:
+            if request.query:
+                self.image_url += '?%s' % request.query
             self.url = request.path
             self.accepts_webp = 'image/webp' in request.headers.get('Accept', '')
 
