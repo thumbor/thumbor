@@ -19,6 +19,7 @@ import subprocess
 from json import loads
 
 import tornado.web
+from tornado.concurrent import return_future
 from preggy import expect
 from mock import Mock, patch
 import unittest
@@ -27,6 +28,7 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context, ServerParameters, RequestParameters
 from thumbor.handlers import FetchResult, BaseHandler
+from thumbor.loaders import LoaderResult
 from thumbor.result_storages.file_storage import Storage as FileResultStorage
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
@@ -1183,3 +1185,36 @@ class ImageBadRequestDecompressionBomb(TestCase):
     def test_should_bad_request_if_bigger_than_75_megapixels_jpeg(self):
         response = self.get_as_webp('/unsafe/9643x10328.jpg')
         expect(response.code).to_equal(400)
+
+
+class LoaderErrorTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.file_storage"
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
+
+    def test_should_propagate_custom_loader_error(self):
+        old_load = self.context.modules.loader.load
+
+        @return_future
+        def load_override(context, path, callback):
+            result = LoaderResult()
+            result.successful = False
+            result.error = 409
+            callback(result)
+
+        self.context.modules.loader.load = load_override
+
+        response = self.fetch('/unsafe/image.jpg')
+
+        self.context.modules.loader.load = old_load
+
+        expect(response.code).to_equal(409)
