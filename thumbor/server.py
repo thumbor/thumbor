@@ -13,6 +13,7 @@ import sys
 import logging
 import logging.config
 import schedule
+import warnings
 
 import os
 import socket
@@ -26,6 +27,8 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context
 from thumbor.utils import which
+
+from PIL import Image
 
 
 def get_as_integer(value):
@@ -74,6 +77,10 @@ def validate_config(config, server_parameters):
             'No security key was found for this instance of thumbor. ' +
             'Please provide one using the conf file or a security key file.')
 
+    if config.ENGINE or config.USE_GIFSICLE_ENGINE:
+        # Error on Image.open when image pixel count is above MAX_IMAGE_PIXELS
+        warnings.simplefilter('error', Image.DecompressionBombWarning)
+
     if config.USE_GIFSICLE_ENGINE:
         server_parameters.gifsicle_path = which('gifsicle')
         if server_parameters.gifsicle_path is None:
@@ -81,6 +88,7 @@ def validate_config(config, server_parameters):
                 'If using USE_GIFSICLE_ENGINE configuration to True, the `gifsicle` binary must be in the PATH '
                 'and must be an executable.'
             )
+
 
 
 def get_context(server_parameters, config, importer):
@@ -129,9 +137,9 @@ def main(arguments=None):
     config = get_config(server_parameters.config_path)
     configure_log(config, server_parameters.log_level.upper())
 
-    importer = get_importer(config)
-
     validate_config(config, server_parameters)
+
+    importer = get_importer(config)
 
     with get_context(server_parameters, config, importer) as context:
         application = get_application(context)

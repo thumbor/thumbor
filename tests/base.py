@@ -159,8 +159,8 @@ class TestCase(AsyncHTTPTestCase):
         return None
 
     def get_context(self):
-        self.server = self.get_server()
         self.config = self.get_config()
+        self.server = self.get_server()
         self.importer = self.get_importer()
         self.request_handler = self.get_request_handler()
         return Context(

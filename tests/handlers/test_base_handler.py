@@ -31,6 +31,7 @@ from thumbor.result_storages.file_storage import Storage as FileResultStorage
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.utils import which
+from thumbor.server import validate_config
 from tests.base import TestCase, PythonTestCase, normalize_unicode_path
 from thumbor.engines.pil import Engine
 from libthumbor import CryptoURL
@@ -420,14 +421,6 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         expect(response.headers['Vary']).to_include('Accept')
 
         expect(response.body).to_be_webp()
-
-    def test_should_bad_request_if_bigger_than_75_megapixels(self):
-        response = self.get_as_webp('/unsafe/16384x16384.png')
-        expect(response.code).to_equal(400)
-
-    def test_should_bad_request_if_bigger_than_75_megapixels_jpeg(self):
-        response = self.get_as_webp('/unsafe/9643x10328.jpg')
-        expect(response.code).to_equal(400)
 
     def test_should_not_convert_animated_gifs_to_webp(self):
         response = self.get_as_webp('/unsafe/animated.gif')
@@ -1147,3 +1140,46 @@ class TranslateCoordinatesTestCase(TestCase):
 
     def test_should_translate_from_original_to_resized(self):
         expect(self.translate_crop_coordinates).to_equal(self.get_coords()['expected_crop'])
+
+
+class ImageBadRequestDecompressionBomb(TestCase):
+    @classmethod
+    def setUpClass(cls, *args, **kw):
+        cls.root_path = tempfile.mkdtemp()
+        cls.loader_path = abspath(join(dirname(__file__), '../fixtures/images/'))
+        cls.base_uri = "/image"
+
+    @classmethod
+    def tearDownClass(cls, *args, **kw):
+        shutil.rmtree(cls.root_path)
+
+    def get_as_webp(self, url):
+        return self.fetch(url, headers={
+            "Accept": 'image/webp,*/*;q=0.8'
+        })
+
+    def get_config(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.no_storage"
+        cfg.AUTO_WEBP = True
+        return cfg
+
+    def get_server(self):
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        validate_config(self.config, server)
+        return server
+
+    def get_importer(self):
+        importer = Importer(self.config)
+        importer.import_modules()
+        return importer
+
+    def test_should_bad_request_if_bigger_than_75_megapixels(self):
+        response = self.get_as_webp('/unsafe/16384x16384.png')
+        expect(response.code).to_equal(400)
+
+    def test_should_bad_request_if_bigger_than_75_megapixels_jpeg(self):
+        response = self.get_as_webp('/unsafe/9643x10328.jpg')
+        expect(response.code).to_equal(400)
