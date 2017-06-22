@@ -90,7 +90,6 @@ def validate_config(config, server_parameters):
             )
 
 
-
 def get_context(server_parameters, config, importer):
     return Context(
         server=server_parameters,
