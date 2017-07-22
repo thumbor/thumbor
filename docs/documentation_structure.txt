@@ -22,7 +22,7 @@ Index (* About)
         * Creating my own storage
     * Imaging
         * Crop and resize algorithms
-        * Detection algorithims
+        * Detection algorithms
         * How to upload images
         * How upload works in thumbor
         * Image loader

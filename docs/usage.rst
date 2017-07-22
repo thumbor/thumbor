@@ -222,7 +222,7 @@ simulates the operations.
 
 Since it has the same options as the other endpoint, we won't repeat all
 of them. To use the metadata endpoint, just add a */meta* in the
-beggining of the url.
+beginning of the url.
 
 Say we have the following crop URL:
 

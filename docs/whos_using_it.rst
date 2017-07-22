@@ -49,7 +49,7 @@ post <http://tech.yipit.com/2013/01/03/how-yipit-scales-thumbnailing-with-thumbo
 
 .. image:: images/oony.png
 
-http://oony.com is using thumbor to serve thumbnail images behing
+http://oony.com is using thumbor to serve thumbnail images behind
 Amazon's Cloudfront CDN.
 
     We've previously adapted the size of the thumbnails to what was

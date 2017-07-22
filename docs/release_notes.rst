@@ -1,4 +1,4 @@
-Relase Notes
+Release Notes
 ===========
 
 ** THIS PAGE IS HERE ONLY FOR HISTORIC PURPOSES, since we are now using `github releases page <https://github.com/thumbor/thumbor/releases>`__. **

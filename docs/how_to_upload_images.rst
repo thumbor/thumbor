@@ -39,7 +39,7 @@ configuration in your thumbor.conf file to ``True``.
 
 Thumbor will then use the storage specified in the
 ``UPLOAD_PHOTO_STORAGE`` configuration to save your images. You can use
-an existing storage (filesytem, redis, mongo, hbase...) or
+an existing storage (filesystem, redis, mongo, hbase...) or
 :doc:`create your own storage <create_my_own_storage>` if needed .
 
 You can manage image putting and deletions simply set the configuration
@@ -58,7 +58,7 @@ The Thumbor ``/image`` REST end-point supports the commons `HTTP
 methods <http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol>`__ :
 \* POST : to upload a new image \* GET : to display an image uploaded \*
 PUT : to replace an image uploaded by another preserving the URI \*
-DELETE : to remove an image uploded from storage
+DELETE : to remove an image uploaded from storage
 
 By default, ``PUT`` and ``DELETE`` methods are disabled as explained
 above. This is done to tighten thumbor's security.

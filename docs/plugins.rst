@@ -95,7 +95,7 @@ Using it is simple, just change your configuration in thumbor.conf:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `Riak <http://basho.com/riak/>`__ is a distributed document oriented
-database implementing the consistent hashing algorythm from the Dynanmo
+database implementing the consistent hashing algorithm from the Dynanmo
 publication by Amazon.
 
 This module provide support for Riak as a large auto replicant key/value
