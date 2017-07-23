@@ -12,6 +12,7 @@ matrix:
   fast_finish: true
   allow_failures:
     - python: '3.5.1'
+    - python: '3.6.2'
     - python: pypy
 env:
   - INTEGRATION_TEST=1
@@ -44,7 +45,6 @@ addons:
     - yasm
 install:
   - pip install -U pip
-  - pip install flake8
   - cd $TRAVIS_BUILD_DIR && make setup
   - pip install coveralls
   - pip install cairosvg
