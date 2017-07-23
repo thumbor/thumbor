@@ -36,6 +36,11 @@ import thumbor.filters
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
+try:
+    basestring        # Python 2
+except NameError:
+    basestring = str  # Python 3
+
 
 class FetchResult(object):
 
