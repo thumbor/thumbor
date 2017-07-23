@@ -9,6 +9,11 @@ import time
 
 from thumbor import __version__
 
+try:
+    basestring        # Python 2
+except NameError:
+    basestring = str  # Python 3
+
 
 class ErrorHandler(object):
     def __init__(self, config):
