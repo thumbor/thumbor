@@ -17,6 +17,11 @@ from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
 from thumbor.utils import logger
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 
 class Context:
     '''
@@ -290,5 +295,5 @@ class ThreadPool(object):
 
     def cleanup(self):
         if self.pool:
-            print "Joining threads...."
+            print("Joining threads....")
             self.pool.shutdown()
