@@ -61,7 +61,7 @@ class BaseStorage(object):
         if not exists(path):
             try:
                 os.makedirs(path)
-            except OSError, err:
+            except OSError as err:
                 # FILE ALREADY EXISTS = 17
                 if err.errno != 17:
                     raise
