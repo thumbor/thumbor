@@ -14,6 +14,11 @@ from thumbor.ext.filters import _convolution
 
 MAX_RADIUS = 150
 
+try:
+    xrange          # Python 2
+except NameError:
+    xrange = range  # Python 3
+
 
 class Filter(BaseFilter):
     """
