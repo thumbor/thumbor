@@ -16,6 +16,11 @@ from derpconf.config import Config
 
 from thumbor import __version__
 
+try:
+    basestring        # Python 2
+except NameError:
+    basestring = str  # Python 3
+
 home = expanduser("~")
 
 Config.define('THUMBOR_LOG_CONFIG', None, 'Logging configuration as json', 'Logging')
