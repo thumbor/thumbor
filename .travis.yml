@@ -3,6 +3,8 @@ python:
   - 2.7_with_system_site_packages
   - '3.5.1'
   - pypy
+git:
+  depth: 1
 cache:
   directories:
     - $HOME/.cache/pip
