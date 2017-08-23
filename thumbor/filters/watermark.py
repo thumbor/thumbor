@@ -15,10 +15,21 @@ from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
 import tornado.gen
 import math
+import re
 
 
 class Filter(BaseFilter):
-    regex = r'(?:watermark\((?P<url>.*?),(?P<x>(?:-?\d+)|center|repeat),(?P<y>(?:-?\d+)|center|repeat),(?P<alpha>[\d]*?)\))'
+
+    def detect_and_get_ratio_position(self, pos, length):
+        match = re.match('^(-?)([0-9]+)p$', pos)
+
+        if not match:
+            return pos
+
+        sign, ratio = match.groups()
+        pos = "{sign}{pos}".format(sign=sign, pos=int(round(length * float(ratio) / 100, 0)))
+
+        return pos
 
     def on_image_ready(self, buffer):
         self.watermark_engine.load(buffer, self.extension)
@@ -31,6 +42,12 @@ class Filter(BaseFilter):
 
         self.watermark_engine.set_image_data(imgdata)
 
+        sz = self.engine.size
+        watermark_sz = self.watermark_engine.size
+
+        self.x = self.detect_and_get_ratio_position(self.x, sz[0])
+        self.y = self.detect_and_get_ratio_position(self.y, sz[1])
+
         mos_x = self.x == 'repeat'
         mos_y = self.y == 'repeat'
         center_x = self.x == 'center'
@@ -41,9 +58,6 @@ class Filter(BaseFilter):
         if not center_y and not mos_y:
             inv_y = self.y[0] == '-'
             y = int(self.y)
-
-        sz = self.engine.size
-        watermark_sz = self.watermark_engine.size
 
         if not mos_x:
             repeat_x = (1, 0)
@@ -115,8 +129,8 @@ class Filter(BaseFilter):
 
     @filter_method(
         BaseFilter.String,
-        r'(?:-?\d+)|center|repeat',
-        r'(?:-?\d+)|center|repeat',
+        r'(?:-?\d+p?)|center|repeat',
+        r'(?:-?\d+p?)|center|repeat',
         BaseFilter.PositiveNumber,
         async=True
     )
