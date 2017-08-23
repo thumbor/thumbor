@@ -12,7 +12,7 @@ Arguments
 ---------
 
 angle - 0 to 359 - The angle to rotate the image. Numbers greater or
-equal than 360 will be tranformed to a equivalent angle between 0 and
+equal than 360 will be transformed to a equivalent angle between 0 and
 359.
 
 Example
