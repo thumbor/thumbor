@@ -97,6 +97,9 @@ class JSONEngine(BaseEngine):
     def enable_alpha(self):
         return self.engine.enable_alpha()
 
+    def strip_exif(self):
+        return self.engine.strip_exif()
+
     def strip_icc(self):
         return self.engine.strip_icc()
 

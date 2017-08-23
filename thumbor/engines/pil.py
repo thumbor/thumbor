@@ -378,3 +378,6 @@ class Engine(BaseEngine):
 
     def strip_icc(self):
         self.icc_profile = None
+
+    def strip_exif(self):
+        self.exif = None
