@@ -267,7 +267,10 @@ class FilterTestCase(PythonTestCase):
 
         fltr.context.transformer.img_operation_worker()
 
-        fltr.run()
+        def dummy_callback(*args):
+            pass
+
+        fltr.run(dummy_callback)
 
         fltr.engine.image = fltr.engine.image.convert('RGB')
 
