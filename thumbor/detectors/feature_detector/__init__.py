@@ -27,7 +27,8 @@ class Detector(BaseDetector):
                     with_alpha=False
                 )
             )
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             logger.warn('Error during feature detection; skipping to next detector')
             self.next(callback)
             return
