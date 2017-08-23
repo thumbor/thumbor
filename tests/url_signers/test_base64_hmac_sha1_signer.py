@@ -22,6 +22,7 @@ try:
 except NameError:
     unicode = str  # Python 3
 
+
 class Base64HmacSha1UrlSignerTestCase(TestCase):
     def test_can_create_signer(self):
         signer = UrlSigner(security_key="something")
