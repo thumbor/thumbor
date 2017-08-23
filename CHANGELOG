@@ -1,46 +1,338 @@
-* Add pluggable metrics
+6.3.2 (6.3.2)
+Fixes a gif to video conversion (gifv) bug for mp4s. See https://github.com/thumbor/thumbor/pull/904 and https://github.com/thumbor/thumbor/issues/903 for more details.
 
-configuration setting `METRICS` defaults to `thumbor.metrics.logger_metrics`
+Release 6.3.1 (6.3.1)
+## Features:
+- Raises error only when gifsicle returns empty result, logs any gifsicle errors/warnings
 
-possible values are:
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.3.0...6.3.1)
 
-* `thumbor.metrics.logger_metrics`
-* `thumbor.metrics.statsd_metrics`
 
-see the respective sections in the `config.py`
+Release 6.3.0 (6.3.0)
+## Features
 
-please note that `context.statsd_client` is deprecated and will be removed, use `context.metrics` instead!
+* New [`background_color`][background_color] filter (thanks @hermanmaritz – #875)
+* Enable [`xheaders`][xheaders] for Tornado, allowing discovery of the true client IP at the Thumbor level when behind a proxy (thanks @gi11es – #847)
+* Allow specifying [`validate_cert`][validate_cert] to Tornado via the new `HTTP_LOADER_VALIDATE_CERTS` config variable (default is `None`) (thanks @kkopachev – #751)
+* Allow specifying PNG [compression level][compression_level] by means of the `PNG_COMPRESSION_LEVEL` config variable (default is `6`) (thanks @dkhabarov – #825)
+
+
+## Fixes / Improvements
+
+* Fix reorientation when no Exif information is available (thanks @seffenberg-naspers – #849)
+* Fix a quality loss issue by removing the `draft` option so PNGs get colorspace converted before resizing operations (thanks @okor – #858)
+* Convert 1bit PNGs before resizing (thanks @kevin1024 – #859)
+* Make `Transformer.smart_detect()` a coroutine and fix issues with S3 storage (thanks @mpilar and @decebal – #859, #721 and #722)
+* Improve SVG detection and conversion
+* Improve the [`distributed_collage`][distributed_collage] filter
+* Fix unhandled `'NoneType' object has no attribute 'mode'` detector exceptions (thanks @mvdklip – #841)
+* Return `400 - Bad Request` on [watermark][watermark] errors (thanks @noamsml and @nerdrew – #854)
+* Convert indexed color images back to their original mode after resizing (thanks @okor – #873)
+* Do not hang request on `Engine.read()` exceptions (thanks @Savar – #871)
+* Do not hang request on `Storage.get()` exceptions
+
+
+## Docs
+
+* Add docs for new [metrics plugin `Prometheus`][metrics] (thanks @Savar – #869)
+* Replace copyrighted images with copylefted ones
+* Improve [`filling`][filling] documentation
+* Improve [`fit-in`][fit-in] usage (thanks @Savar – #870)
+
+[Diff to previous release][diff-release]
+[pypi release][pypi-release]
+
+[background_color]:    http://thumbor.readthedocs.io/en/latest/background_color.html
+[xheaders]:            http://www.tornadoweb.org/en/branch4.4/httpserver.html?highlight=httpserver#http-server
+[validate_cert]:       http://www.tornadoweb.org/en/branch4.4/httpclient.html#tornado.httpclient.HTTPRequest
+[compression_level]:   http://pillow.readthedocs.io/en/3.4.x/handbook/image-file-formats.html?highlight=compression_level#png
+[distributed_collage]: https://github.com/thumbor/thumbor/blob/master/thumbor/filters/distributed_collage.py
+[metrics]:             http://thumbor.readthedocs.io/en/latest/plugins.html#metrics
+[watermark]:           http://thumbor.readthedocs.io/en/latest/watermark.html
+[filling]:             http://thumbor.readthedocs.io/en/latest/filling.html
+[fit-in]:              http://thumbor.readthedocs.io/en/latest/usage.html#fit-in
+
+[diff-release]: https://github.com/thumbor/thumbor/compare/6.1.4...6.3.0
+[pypi-release]: https://pypi.python.org/pypi/thumbor/6.3.0
+
+
+Release 6.1.4 (6.1.4)
+## Features:
+- Fix: Catching exception in ThreadPool to force callback to be executed
+- Raises error when gitsicle returns error in GifEngine
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.1.3...6.1.4)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.1.4)
+
+
+Release 6.1.3 (6.1.3)
+## Features:
+- Fix: #781 Added some log when Image.DecompressionBombWarning happens, thanks @phoet
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.1.2...6.1.3)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.1.3)
+
+
+Release 6.1.2 (6.1.2)
+## Features:
+- Fix: #757 Ignore sentry package parsing error, thanks @kkopachev
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.1.2...6.1.3)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.1.3)
+
+
+Release 6.1.1 (6.1.1)
+## Features:
+- Fix: #782 Check if context.request has engine
+- Set engine.extension when reading image with PIL engine
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.1.0...6.1.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.1.1)
+
+
+Release 6.1.0 (6.1.0)
+## Features:
+- Added some response metrics
+- Make app_class definable in config, thanks @gi11es
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.0.2...6.1.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.1.0)
+
+
+Release 6.0.2 (6.0.2)
+## Features:
+- no_storage for result_storages #669, thanks @cerber717
+- Add new loader, that implements a http loader fallback if image file loading failed #710, thanks @werfux
+- Add ability for engines to do cleanup on shutdown #719, thanks @gi11es
+
+## BUGFIXES
+- Images above MAX_PIXELS result in HTTP 400
+- Fix path to documentation #694,thanks @mpdude
+- Fix upload URL to be /image instead of /upload #706, thanks @cweiske
+- Doc fixes #707, thanks @cweiske
+- Remove unused simplejson dependency #717, thanks @gi11es
+- Dependencies clean up #724 #742 #741 #743, thanks @gi11es
+- Use pyssim instead of scikit-image for SSIM calculation #732, thanks @gi11es
+- Unused dependencies removed #734 #735 #736 #737, thanks @gi11es
+- Image rotation fixed
+- Always set Vary header if AUTO_WEBP is True
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.0.1...6.0.2)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.0.2)
+
+
+Release 6.0.1 (6.0.1)
+## Features:
+- Allowing regex pattern as ALLOWED_SOURCES
+
+## BUGFIXES
+- Fix utf-8 urls encoding
+- Fix setuptools 20.3+ compatibility, thanks @gi11es #692
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.0.0...6.0.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.0.1)
+
+
+Release 6.0.0 (6.0.0)
+### THIS RELEASE HAS BREAKING CHANGES
+
+## Features:
+- Face detection speed improved and using cv2 interface
+- Legay upload API removed
+- Redis storage removed from core, now on [tc_redis](https://github.com/thumbor-community/redis)
+- Memcached storage removed from core, now on [thumbor-memcached](https://github.com/thumbor-community/thumbor-memcached)
+- MongoDB storage removed from core, now on [tc_mongodb](https://github.com/thumbor-community/mongodb), thanks @masom #591
+- Better Pillow JPEG options, thanks @seichner #578
+- Watermark centering on filter, thanks @adeboisanger #545
+- Re-read storage value to allow for override, thanks @gi11es #632
+- Focal point filter, thanks @okor #664
+- Focal point filter [docs](http://thumbor.readthedocs.org/en/latest/focal.html), thanks @okor #665
+- Add Metadata extraction and make this and the target size available for filters, thanks @sbaechler #661
+- SVG support #648, thanks @rodrigolourenco
+- Add SVG_DPI configuration directive #676 thanks @znerol
+- Improve detection of SVG images #677 thanks @znerol
+- Updated to Pillow 3
+
+## BUGFIXES
+- More accurate result storage metrics, thanks @masom #590
+- CDN cache on loader timeout fixed, thanks @andrew-a-dev #595
+- last-modified now in UTC, thanks @Bladrak #600
+- Pixel count limit protection, thanks @gi11es #614
+- Error treatment inside Engine.load, thanks @gi11es #626
+- MAX_AGE=False docs, thanks @Bertg #621
+- Repository url fixed on files, thanks @jordi12100 #627
+- Subprocess running without shell=True, thanks @gi11es #639
+- get_orientation now won't change the original image, thanks @sbaechler #643
+- Fixing http_loader behavior with url already generated by thumbor
+- Fixed a file descriptor leak.
+- Fixed JPEG CMYK with quality='keep' error
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.2.1...6.0.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.0.0)
+
+
+Release 6.0.0b5 (6.0.0b5)
+## Features:
+- Add SVG_DPI configuration directive #676 thanks @znerol
+- Improve detection of SVG images #677 thanks @znerol
+- Updated to Pillow 3
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.0.0b4...6.0.0b5)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.0.0b5)
+
+
+Release 6.0.0b4 (6.0.0b4)
+## Features:
+- SVG support #648, thanks @rodrigolourenco
+
+## BUGFIXES
+- Fixed JPEG CMYK with quality='keep' error
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.0.0b3...6.0.0b4)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.0.0b4)
+
+
+Release 6.0.0b3 (6.0.0b3)
+## Features:
+- Focal point filter, thanks @okor #664
+- Focal point filter [docs](http://thumbor.readthedocs.org/en/latest/focal.html), thanks @okor #665
+- Add Metadata extraction and make this and the target size available for filters, thanks @sbaechler #661
+
+## BUGFIXES
+- Fixed a file descriptor leak.
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.0.0b2...6.0.0b3)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.0.0b3)
+
+
+Release 6.0.0b2 (6.0.0b2)
+### THIS RELEASE HAS BREAKING CHANGES
+
+## BUGFIXES
+- Fixing http_loader behavior with url already generated by thumbor
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/6.0.0b1...6.0.0b2)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.0.0b2)
+
+
+Release 6.0.0b1 (6.0.0b1)
+## Features:
+- Face detection speed improved and using cv2 interface
+- Legay upload API removed
+- Redis storage removed from core, now on [tc_redis](https://github.com/thumbor-community/redis)
+- Memcached storage removed from core, now on [thumbor-memcached](https://github.com/thumbor-community/thumbor-memcached)
+- MongoDB storage removed from core, now on [tc_mongodb](https://github.com/thumbor-community/mongodb), thanks @masom #591
+- Better Pillow JPEG options, thanks @seichner #578
+- Watermark centering on filter, thanks @adeboisanger #545
+- Re-read storage value to allow for override, thanks @gi11es #632
+
+## BUGFIXES
+- More accurate result storage metrics, thanks @masom #590
+- CDN cache on loader timeout fixed, thanks @andrew-a-dev #595
+- last-modified now in UTC, thanks @Bladrak #600
+- Pixel count limit protection, thanks @gi11es #614
+- Error treatment inside Engine.load, thanks @gi11es #626
+- MAX_AGE=False docs, thanks @Bertg #621
+- Repository url fixed on files, thanks @jordi12100 #627
+- Subprocess running without shell=True, thanks @gi11es #639
+- get_orientation now won't change the original image, thanks @sbaechler #643
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.2.1...6.0.0b1)
+[pypi release](https://pypi.python.org/pypi/thumbor/6.0.0b1)
+
+
+Release 5.2.1 (5.2.1)
+## Bug fix:
+- Fixed meta handler
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.2.0...5.2.1)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.2.1)
+
+
+Release 5.2.0 (5.2.0)
+## Features:
+- LoaderResult object #554 thanks @masom
+- qtable/subsampling configurable #563 thanks @seichner
+- Adds the jp2 aka jpeg2000 MIME type #572 thanks @okor
+- Allow result_storages to be asynchronous #573 thanks @masom
+- Implemented ResultStorageResult class #575 thanks @Bladrak
+
+## Bug fix:
+- Fixed PEP8 issues
+- $ encode fixed #571 thanks @ryanio
+- Set content type based on mime #569 thanks @okor
+- Fixed async result storage with last modified header #574 thanks @Bladrak
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.1.0...5.2.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.2.0)
+
+
+Release 5.1.0 (5.1.0)
+## Features:
+- allow to specify jpg-subsampling for Pillow #519 Thanks @seichner
+- pluggable metrics backend #521 Thanks @phoet
+- Modular url signer #524 Thanks @masom
+
+## Bug Fix:
+- Pallete mode fixed on WebP #520
+- Handle invalid images and return a 400 or 500 depending on the cause #541 Thanks @masom
+- Cache poisoning on timeout fixed #529
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.6...5.1.0)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.1.0)
+
+
+Release 5.0.6 (5.0.6)
+- fix segfault in round corners filter.
+- CHANGELOG replaces stale History.md. #511 Thanks @pda
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.5...5.0.6)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.0.6)
+
+
+Release 5.0.5 (5.0.5)
+- Using MIME to define extension
+- fix webp with max_bytes filter and there's no quality defined. #506 Thanks @lfalcao
+- STORAGE_EXPIRATION_SECONDS ignored when it's None or 0
+
+[Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.4...5.0.5)
+[pypi release](https://pypi.python.org/pypi/thumbor/5.0.5)
+
 
 Release 5.0.4 (5.0.4)
-* Fix image extension with query string #499 Thanks @dhardy92 and @kuhess 
+- Fix image extension with query string #499 Thanks @dhardy92 and @kuhess
 
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.3...5.0.4)
 [pypi release](https://pypi.python.org/pypi/thumbor/5.0.4)
 
+
 Release 5.0.3 (5.0.3)
-* Fixing filters on thumbor-url #482
+- Fixing filters on thumbor-url #482
 
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.2...5.0.3)
 [pypi release](https://pypi.python.org/pypi/thumbor/5.0.3)
 
+
 Release 5.0.2 (5.0.2)
-* Fixing filters on thumbor-url
+- Fixing filters on thumbor-url
 
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.1...5.0.2)
 [pypi release](https://pypi.python.org/pypi/thumbor/5.0.2)
 
+
 Release 5.0.1 (5.0.1)
-* Fixing adaptive and full fit-in on thumbor-url
+- Fixing adaptive and full fit-in on thumbor-url
 
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/5.0.0...5.0.1)
 [pypi release](https://pypi.python.org/pypi/thumbor/5.0.1)
 
+
 Release 5.0.0 (5.0.0)
 # WHY the major release?
 
-Thumbor's storage and result storage all used synchronous interfaces. That's not an issue per-se, but it's not the proper way to use tornado. 
+Thumbor's storage and result storage all used synchronous interfaces. That's not an issue per-se, but it's not the proper way to use tornado.
 
-Several users were having issues in production due to timeouts and broken requests. 
+Several users were having issues in production due to timeouts and broken requests.
 
 We were at a cross-roads. Fix the issue in a "broken" way but without any breaking changes, or go with what the community feels is the right way for thumbor to go, while being incompatible with currently developed extensions.
 
@@ -55,16 +347,14 @@ Feedback on this is highly encouraged. Feel free to create issues if something i
 > This version contains breaking changes. If you use your own version of a Storage or ResultStorage, all of those are async now and should return a Future. For more info, check the built-in one from thumbor's codebase.
 
 # BREAKING Changes
-
-* Async contract for all of thumbor's imported modules #459. thanks @masom 
+- Async contract for all of thumbor's imported modules #459. thanks @masom
 
 # Changes
-
-* Tornado updated to 4.1
-* Better GifEngine error handling  #448. thanks @masom 
-* Fixing error log on cache miss  #453. thanks @dhardy92 
-* Meta now has frame count #451
-* Https loader and strict https loader added  #471. thanks @lukaselmer  
+- Tornado updated to 4.1
+- Better GifEngine error handling  #448. thanks @masom
+- Fixing error log on cache miss  #453. thanks @dhardy92
+- Meta now has frame count #451
+- Https loader and strict https loader added  #471. thanks @lukaselmer
 
 # Benchmark
 
@@ -125,34 +415,36 @@ Transfer/sec:    436.80KB
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/4.12.2...5.0.0)
 [pypi release](https://pypi.python.org/pypi/thumbor/5.0.0)
 
+
 Release 5.0.0rc2 (5.0.0rc2)
-* Tornado updated to 4.1
-* Async storage #459. thanks @masom 
-* Better GifEngine error treatment  #448. thanks @masom 
-* Fixing error log on cache miss  #453. thanks @dhardy92 
-* Meta now has frame count #451
-
-
+- Tornado updated to 4.1
+- Async storage #459. thanks @masom
+- Better GifEngine error treatment  #448. thanks @masom
+- Fixing error log on cache miss  #453. thanks @dhardy92
+- Meta now has frame count #451
 
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/4.12.2...5.0.0rc2)
 [pypi release](https://pypi.python.org/pypi/thumbor/5.0.0rc2)
 
+
 Release 4.12.2 (4.12.2)
-* Fixing Redis Storage behavior #437. thanks @masom 
+- Fixing Redis Storage behavior #437. thanks @masom
 
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/4.12.1...4.12.2)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.12.2)
 
+
 Release 4.12.1 (4.12.1)
-* Better WebM encoding.
+- Better WebM encoding.
 
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/4.12.0...4.12.1)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.12.1)
 
+
 Release 4.12.0 (4.12.0)
-* Thumbor now using threadpool for image operations #429. Thank you @kevin1024 
-* Async optimizers and StatsD #436 #435. Thank you @kevin1024 
-* Config for max clients limit #430. Thank you @kevin1024  
+- Thumbor now using threadpool for image operations #429. Thank you @kevin1024
+- Async optimizers and StatsD #436 #435. Thank you @kevin1024
+- Config for max clients limit #430. Thank you @kevin1024
 
 [Diff to previous release](https://github.com/thumbor/thumbor/compare/4.11.1...4.12.0)
 [pypi release](https://pypi.python.org/pypi/thumbor/4.12.0)
