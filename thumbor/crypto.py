@@ -18,6 +18,11 @@ from Crypto.Cipher import AES
 from thumbor.url_signers.base64_hmac_sha1 import UrlSigner as Signer  # NOQA
 from thumbor.url import Url
 
+try:
+    unicode        # Python 2
+except NameError:
+    unicode = str  # Python 3
+
 
 class Cryptor(object):
     def __init__(self, security_key):
