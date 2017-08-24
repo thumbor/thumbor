@@ -8,6 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
+try:
+    unicode        # Python 2
+except NameError:
+    unicode = str  # Python 3
+
 
 class BaseUrlSigner(object):
     def __init__(self, security_key):

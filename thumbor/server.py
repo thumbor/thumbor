@@ -30,6 +30,11 @@ from thumbor.utils import which
 
 from PIL import Image
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 
 def get_as_integer(value):
     try:

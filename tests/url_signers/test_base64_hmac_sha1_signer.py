@@ -15,9 +15,12 @@ from unittest import TestCase
 
 from preggy import expect
 
-from thumbor.url_signers.base64_hmac_sha1 import (
-    UrlSigner
-)
+from thumbor.url_signers.base64_hmac_sha1 import UrlSigner
+
+try:
+    unicode        # Python 2
+except NameError:
+    unicode = str  # Python 3
 
 
 class Base64HmacSha1UrlSignerTestCase(TestCase):

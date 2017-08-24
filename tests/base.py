@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from __future__ import print_function
 import random
 import unicodedata
 from io import BytesIO
@@ -30,6 +31,11 @@ from thumbor.transformer import Transformer
 from thumbor.engines.pil import Engine as PilEngine
 
 from tornado.testing import AsyncHTTPTestCase
+
+try:
+    unicode        # Python 2
+except NameError:
+    unicode = str  # Python 3
 
 
 @create_assertions
@@ -283,11 +289,11 @@ class FilterTestCase(PythonTestCase):
         im = Image.fromarray(image)
         path = '/tmp/debug_image_%s.jpg' % random.randint(1, 10000)
         im.save(path, 'JPEG')
-        print 'The debug image was in %s.' % path
+        print('The debug image was in %s.' % path)
 
     def debug_size(self, image):
         im = Image.fromarray(image)
-        print "Image dimensions are %dx%d (shape is %s)" % (im.size[0], im.size[1], image.shape)
+        print("Image dimensions are %dx%d (shape is %s)" % (im.size[0], im.size[1], image.shape))
 
 
 class DetectorTestCase(PythonTestCase):

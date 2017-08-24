@@ -5,6 +5,11 @@ import hashlib
 import hmac
 from thumbor.url_signers import BaseUrlSigner
 
+try:
+    unicode        # Python 2
+except NameError:
+    unicode = str  # Python 3
+
 
 class UrlSigner(BaseUrlSigner):
     """Validate urls and sign them using base64 hmac-sha1
