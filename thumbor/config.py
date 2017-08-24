@@ -160,6 +160,12 @@ Config.define(
     'HTTP_LOADER_FORWARD_USER_AGENT', False,
     'Indicates whether thumbor should forward the user agent of the requesting user', 'HTTP Loader')
 Config.define(
+    'HTTP_LOADER_FORWARD_ALL_HEADERS', False,
+    'Indicates whether thumbor should forward the headers of the request', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_FORWARD_HEADERS_WHITELIST', [],
+    'Indicates which headers should be forwarded among all the headers of the request', 'HTTP Loader')
+Config.define(
     'HTTP_LOADER_DEFAULT_USER_AGENT', "Thumbor/%s" % __version__,
     'Default user agent for thumbor http loader requests', 'HTTP Loader')
 Config.define(
