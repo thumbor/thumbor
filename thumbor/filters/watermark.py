@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from os.path import splitext
 from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.loaders import LoaderResult
@@ -32,7 +31,7 @@ class Filter(BaseFilter):
         return pos
 
     def on_image_ready(self, buffer):
-        self.watermark_engine.load(buffer, self.extension)
+        self.watermark_engine.load(buffer, None)
         self.watermark_engine.enable_alpha()
 
         mode, data = self.watermark_engine.image_data_as_rgb()
@@ -122,7 +121,7 @@ class Filter(BaseFilter):
         else:
             buffer = result
 
-        self.watermark_engine.load(buffer, self.extension)
+        self.watermark_engine.load(buffer, None)
         self.storage.put(self.url, self.watermark_engine.read())
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
@@ -141,7 +140,6 @@ class Filter(BaseFilter):
         self.y = y
         self.alpha = alpha
         self.callback = callback
-        self.extension = splitext(self.url)[-1].lower()
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
         self.storage = self.context.modules.storage
 

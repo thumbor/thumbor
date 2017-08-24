@@ -52,6 +52,12 @@ class WatermarkFilterTestCase(FilterTestCase):
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.98)
 
+    def test_watermark_filter_detect_extension_simple(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark,30,-50,60)')
+        expected = self.get_fixture('watermarkSimple.jpg')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
+
     def test_watermark_filter_simple(self):
         image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermark.png,30,-50,60)')
         expected = self.get_fixture('watermarkSimple.jpg')
