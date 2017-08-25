@@ -114,12 +114,14 @@ def load_sync(context, url, callback, normalize_url_func):
         headers = context.request_handler.request.headers
     else:
         if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
-            context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST.append('User-Agent')
+            if 'User-Agent' in context.request_handler.request.headers:
+                user_agent = context.request_handler.request.headers['User-Agent']
         if context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
             for header_key in context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
                 if header_key in context.request_handler.request.headers:
                     headers[header_key] = context.request_handler.request.headers[header_key]
-    if user_agent is None and not 'User-Agent' in headers:
+
+    if user_agent is None and 'User-Agent' not in headers:
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
 
     url = normalize_url_func(url)
