@@ -3,6 +3,7 @@
 
 import logging
 import logging.handlers
+import operator
 import json
 import re
 import time
@@ -24,7 +25,7 @@ class ErrorHandler(object):
             )
         if (config.ERROR_FILE_NAME_USE_CONTEXT and not re.search('^(\w+\.)?\w+$', config.ERROR_FILE_NAME_USE_CONTEXT)):
             raise RuntimeError(
-                "ERROR_FILE_NAME_USE_CONTEXT config must reffer an attribute of context "
+                "ERROR_FILE_NAME_USE_CONTEXT config must refer an attribute of context "
                 "object and be form of ^(\w+.)?\w+$ : %s" % config.ERROR_FILE_NAME_USE_CONTEXT
             )
         self.file_name = config.ERROR_FILE_LOGGER
@@ -38,12 +39,7 @@ class ErrorHandler(object):
         # create log file if not existing
         if not self.logger:
             if self.use_context:
-                if '.' in self.use_context:
-                    parts = self.use_context.split('.')
-                    obj = getattr(context, parts[0], None)
-                    obj = reduce(getattr, parts[1:], obj)
-                else:
-                    obj = getattr(context, self.use_context, None)
+                obj = operator.attrgetter(self.use_context)(context)
                 file = self.file_name % obj
             else:
                 file = self.file_name
