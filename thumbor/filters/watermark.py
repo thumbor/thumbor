@@ -19,7 +19,8 @@ import re
 
 class Filter(BaseFilter):
 
-    def detect_and_get_ratio_position(self, pos, length):
+    @staticmethod
+    def detect_and_get_ratio_position(pos, length):
         match = re.match('^(-?)([0-9]+)p$', pos)
 
         if not match:
@@ -30,7 +31,8 @@ class Filter(BaseFilter):
 
         return pos
 
-    def calc_watermark_size(self, sz, watermark_sz, w_ratio, h_ratio):
+    @staticmethod
+    def calc_watermark_size(sz, watermark_sz, w_ratio, h_ratio):
         wm_max_width = sz[0] * w_ratio if w_ratio else None
         wm_max_height = sz[1] * h_ratio if h_ratio else None
 

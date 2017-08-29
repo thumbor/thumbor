@@ -99,12 +99,14 @@ def to_be_true_with_additional_info(topic, **kwargs):
     assert topic, \
         "Expected topic to be true with test: {test}".format(test=kwargs)
 
+
 @preggy.assertion
 def to_be_equal_with_additional_info(topic, expected, **kwargs):
     assert topic == expected, \
         "Expected topic({topic}) to be ({expected}) with test: {test}".format(
             topic=topic, expected=expected, test=kwargs
         )
+
 
 @preggy.assertion
 def to_almost_equal(topic, expected, differ, **kwargs):
