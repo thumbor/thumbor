@@ -93,3 +93,9 @@ class WatermarkFilterTestCase(FilterTestCase):
             }
 
             expect(filter.detect_and_get_ratio_position(pos, length)).to_be_equal_with_additional_info(expected, **test)
+
+    def test_watermark_filter_simple_big(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.watermark', 'watermark(watermarkBig.png,-10,-100,50)')
+        expected = self.get_fixture('watermarkSimpleBig.jpg')
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
