@@ -340,6 +340,12 @@ class Transformer(object):
             resize_height = self.target_height
             resize_width = round(source_width * self.target_height / source_height)
 
+        # ensure that filter should work on the real image size and not on the request
+        # size which might be smaller than the resized image in case `full-fit-in` is
+        # being used
+        self.context.request.width = int(max(self.context.request.width, resize_width))
+        self.context.request.height = int(max(self.context.request.height, resize_height))
+
         self.engine.resize(resize_width, resize_height)
 
     def debug(self):
