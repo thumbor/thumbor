@@ -45,6 +45,12 @@ class EchoUserAgentHandler(tornado.web.RequestHandler):
         self.write(self.request.headers['User-Agent'])
 
 
+class EchoAllHeadersHandler(tornado.web.RequestHandler):
+    def get(self):
+        for header, value in sorted(self.request.headers.iteritems()):
+            self.write("%s:%s\n" % (header, value))
+
+
 class HandlerMock(object):
     def __init__(self, headers):
         self.request = RequestMock(headers)
@@ -230,6 +236,65 @@ class HttpLoaderTestCase(TestCase):
 
         future = loader.load(ctx, url)
         expect(isinstance(future, Future)).to_be_true()
+
+
+class HttpLoaderWithHeadersForwardingTestCase(TestCase):
+
+    def get_app(self):
+        application = tornado.web.Application([
+            (r"/", EchoAllHeadersHandler),
+        ])
+
+        return application
+
+    def test_load_with_some_headers(self):
+        url = self.get_url('/')
+        config = Config()
+        config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST = ["X-Server"]
+        handler_mock_options = {
+            "Accept-Encoding": "gzip",
+            "User-Agent": "Thumbor",
+            "Host": "localhost",
+            "Accept": "*/*",
+            "X-Server": "thumbor"
+        }
+        ctx = Context(None, config, None, HandlerMock(handler_mock_options))
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_include("X-Server:thumbor")
+
+    def test_load_with_some_excluded_headers(self):
+        url = self.get_url('/')
+        config = Config()
+        handler_mock_options = {
+            "Accept-Encoding": "gzip",
+            "User-Agent": "Thumbor",
+            "Host": "localhost",
+            "Accept": "*/*",
+            "X-Server": "thumbor"
+        }
+        ctx = Context(None, config, None, HandlerMock(handler_mock_options))
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).Not.to_include("X-Server:thumbor")
+
+    def test_load_with_all_headers(self):
+        url = self.get_url('/')
+        config = Config()
+        config.HTTP_LOADER_FORWARD_ALL_HEADERS = True
+        handler_mock_options = {"X-Test": "123", "DNT": "1", "X-Server": "thumbor"}
+        ctx = Context(None, config, None, HandlerMock(handler_mock_options))
+
+        loader.load(ctx, url, self.stop)
+        result = self.wait()
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_include("Dnt:1\n")
+        expect(result.buffer).to_include("X-Server:thumbor\n")
+        expect(result.buffer).to_include("X-Test:123\n")
 
 
 class HttpLoaderWithUserAgentForwardingTestCase(TestCase):

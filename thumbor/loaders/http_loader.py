@@ -115,15 +115,25 @@ def load_sync(context, url, callback, normalize_url_func):
     client = tornado.httpclient.AsyncHTTPClient()
 
     user_agent = None
-    if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
-        if 'User-Agent' in context.request_handler.request.headers:
-            user_agent = context.request_handler.request.headers['User-Agent']
-    if user_agent is None:
+    headers = {}
+    if context.config.HTTP_LOADER_FORWARD_ALL_HEADERS:
+        headers = context.request_handler.request.headers
+    else:
+        if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
+            if 'User-Agent' in context.request_handler.request.headers:
+                user_agent = context.request_handler.request.headers['User-Agent']
+        if context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
+            for header_key in context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
+                if header_key in context.request_handler.request.headers:
+                    headers[header_key] = context.request_handler.request.headers[header_key]
+
+    if user_agent is None and 'User-Agent' not in headers:
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
 
     url = normalize_url_func(url)
     req = tornado.httpclient.HTTPRequest(
         url=url,
+        headers=headers,
         connect_timeout=context.config.HTTP_LOADER_CONNECT_TIMEOUT,
         request_timeout=context.config.HTTP_LOADER_REQUEST_TIMEOUT,
         follow_redirects=context.config.HTTP_LOADER_FOLLOW_REDIRECTS,
