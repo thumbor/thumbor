@@ -17,9 +17,11 @@ from io import BytesIO
 from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 
 try:
-    from cv2 import cv
+    import cv2
+    import numpy
 except:
     cv = None
+    numpy = None
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
@@ -284,19 +286,17 @@ class Engine(BaseEngine):
         return results
 
     def convert_tif_to_png(self, buffer):
-        if not cv:
+        if not cv2:
+            msg = """[PILEngine] convert_tif_to_png failed: opencv not imported"""
+            logger.error(msg)
+            return buffer
+        if not numpy:
             msg = """[PILEngine] convert_tif_to_png failed: opencv not imported"""
             logger.error(msg)
             return buffer
 
-        # can not use cv2 here, because ubuntu precise shipped with python-opencv 2.3 which has bug with imencode
-        # requires 3rd parameter buf which could not be created in python. Could be replaced with these lines:
-        # img = cv2.imdecode(numpy.fromstring(buffer, dtype='uint16'), -1)
-        # buffer = cv2.imencode('.png', img)[1].tostring()
-        mat_data = cv.CreateMatHeader(1, len(buffer), cv.CV_8UC1)
-        cv.SetData(mat_data, buffer, len(buffer))
-        img = cv.DecodeImage(mat_data, -1)
-        buffer = cv.EncodeImage(".png", img).tostring()
+        img = cv2.imdecode(numpy.fromstring(buffer, dtype='uint16'), -1)
+        buffer = cv2.imencode('.png', img)[1].tostring()
 
         mime = self.get_mimetype(buffer)
         self.extension = EXTENSION.get(mime, '.jpg')
