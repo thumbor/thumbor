@@ -80,14 +80,6 @@ except ImportError:
     np = None
 
 
-def get_cKDTree():
-    try:
-        from scipy.spatial import cKDTree
-    except ImportError:
-        cKDTree = None
-    return cKDTree
-
-
 # getheader gives a 87a header and a color palette (two elements in a list).
 # getdata()[0] gives the Image Descriptor up to (including) "LZW min code size".
 # getdatas()[1:] is the image data itself in chuncks of 256 bytes (well

@@ -121,7 +121,7 @@ class PilEngineTestCase(TestCase):
         engine = Engine(Context(config=cfg))
         expect(engine.get_resize_filter()).to_equal(Image.LANCZOS)
 
-    @mock.patch('thumbor.engines.pil.cv', new=None)
+    @mock.patch('thumbor.engines.pil.cv2', new=None)
     @mock.patch('thumbor.engines.logger.error')
     def test_not_imported_cv2_failed_to_convert_tif_to_png(self, mockLogError):
         engine = Engine(self.context)
