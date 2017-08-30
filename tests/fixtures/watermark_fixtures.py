@@ -25,9 +25,93 @@ POSITIONS = [
 ]
 
 
+SOURCE_IMAGE_SIZES = [
+    (800, 600),
+    (600, 600),
+    (600, 800),
+]
+
+WATERMARK_IMAGE_SIZES = [
+    # bigger ones
+    (1200, 900),
+    (900, 900),
+    (900, 1200),
+
+    # one size bigger
+    (1200, 500),
+    (700, 400),
+    (400, 700),
+
+    # equal
+    (800, 600),
+    (600, 600),
+
+    # smaller
+    (500, 300),
+    (300, 300),
+    (300, 500),
+]
+
+RATIOS = [
+    # only X
+    (300, None),
+    (200, None),
+    (100, None),
+    (50,  None),
+    (25,  None),
+
+    # only Y
+    (None, 300),
+    (None, 200),
+    (None, 100),
+    (None, 50),
+    (None, 25),
+
+    # X and Y
+    (300, 300),
+    (200, 200),
+    (100, 100),
+    (50, 50),
+    (25, 25),
+    (300, 25),
+    (300, 50),
+    (300, 100),
+    (300, 200),
+    (25, 300),
+    (50, 300),
+    (100, 300),
+    (200, 300),
+    (25,  50),
+    (50, 25),
+]
+
+
+@preggy.assertion
+def to_fit_into(topic, boundary, **kwargs):
+    assert topic <= boundary, \
+        "Expected topic({topic}) to fit into boundary {boundary} with test: {test}".format(
+            topic=topic, boundary=boundary, test=kwargs
+        )
+
+
+@preggy.assertion
+def to_be_true_with_additional_info(topic, **kwargs):
+    assert topic, \
+        "Expected topic to be true with test: {test}".format(test=kwargs)
+
+
 @preggy.assertion
 def to_be_equal_with_additional_info(topic, expected, **kwargs):
     assert topic == expected, \
         "Expected topic({topic}) to be ({expected}) with test: {test}".format(
             topic=topic, expected=expected, test=kwargs
+        )
+
+
+@preggy.assertion
+def to_almost_equal(topic, expected, differ, **kwargs):
+    assert abs(1 - topic / expected) <= (differ/100.0), \
+        "Expected topic({topic}) to be almost equal expected({expected}) differing only in {percent}% with test: {test}".format(
+            topic=topic, expected=expected, test=kwargs,
+            percent=differ
         )

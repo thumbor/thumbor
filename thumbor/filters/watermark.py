@@ -19,7 +19,8 @@ import re
 
 class Filter(BaseFilter):
 
-    def detect_and_get_ratio_position(self, pos, length):
+    @staticmethod
+    def detect_and_get_ratio_position(pos, length):
         match = re.match('^(-?)([0-9]+)p$', pos)
 
         if not match:
@@ -29,6 +30,26 @@ class Filter(BaseFilter):
         pos = "{sign}{pos}".format(sign=sign, pos=int(round(length * float(ratio) / 100, 0)))
 
         return pos
+
+    @staticmethod
+    def calc_watermark_size(sz, watermark_sz, w_ratio, h_ratio):
+        wm_max_width = sz[0] * w_ratio if w_ratio else None
+        wm_max_height = sz[1] * h_ratio if h_ratio else None
+
+        if not wm_max_width:
+            wm_max_width = watermark_sz[0] * wm_max_height / watermark_sz[1]
+
+        if not wm_max_height:
+            wm_max_height = watermark_sz[1] * wm_max_width / watermark_sz[0]
+
+        if float(watermark_sz[0])/wm_max_width >= float(watermark_sz[1])/wm_max_height:
+            wm_height = round(watermark_sz[1] * wm_max_width / watermark_sz[0])
+            wm_width = round(wm_max_width)
+        else:
+            wm_height = round(wm_max_height)
+            wm_width = round(watermark_sz[0] * wm_max_height / watermark_sz[1])
+
+        return (wm_width, wm_height)
 
     def on_image_ready(self, buffer):
         self.watermark_engine.load(buffer, None)
@@ -43,6 +64,10 @@ class Filter(BaseFilter):
 
         sz = self.engine.size
         watermark_sz = self.watermark_engine.size
+
+        if self.w_ratio or self.h_ratio:
+            watermark_sz = self.calc_watermark_size(sz, watermark_sz, self.w_ratio, self.h_ratio)
+            self.watermark_engine.resize(watermark_sz[0], watermark_sz[1])
 
         self.x = self.detect_and_get_ratio_position(self.x, sz[0])
         self.y = self.detect_and_get_ratio_position(self.y, sz[1])
@@ -126,25 +151,34 @@ class Filter(BaseFilter):
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
 
+    @tornado.gen.coroutine
     @filter_method(
         BaseFilter.String,
         r'(?:-?\d+p?)|center|repeat',
         r'(?:-?\d+p?)|center|repeat',
         BaseFilter.PositiveNumber,
+        r'(?:-?\d+)|none',
+        r'(?:-?\d+)|none',
         async=True
     )
-    @tornado.gen.coroutine
-    def watermark(self, callback, url, x, y, alpha):
+    def watermark(self, callback, url, x, y, alpha, w_ratio=False, h_ratio=False):
         self.url = url
         self.x = x
         self.y = y
         self.alpha = alpha
+        self.w_ratio = float(w_ratio) / 100.0 if w_ratio and w_ratio != 'none' else False
+        self.h_ratio = float(h_ratio) / 100.0 if h_ratio and h_ratio != 'none' else False
         self.callback = callback
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
         self.storage = self.context.modules.storage
 
-        buffer = yield tornado.gen.maybe_future(self.storage.get(self.url))
-        if buffer is not None:
-            self.on_image_ready(buffer)
-        else:
-            self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
+        try:
+            buffer = yield tornado.gen.maybe_future(self.storage.get(self.url))
+            if buffer is not None:
+                self.on_image_ready(buffer)
+            else:
+                self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
+        except Exception as e:
+            logger.exception(e)
+            logger.warn("bad watermark")
+            raise tornado.web.HTTPError(500)
