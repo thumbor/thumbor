@@ -127,8 +127,7 @@ class BaseEngine(object):
         setattr(self, 'read', multiple_engine.read)
 
     def is_multiple(self):
-        return hasattr(self, 'multiple_engine') \
-               and self.multiple_engine is not None
+        return hasattr(self, 'multiple_engine') and self.multiple_engine is not None
 
     def frame_engines(self):
         return self.multiple_engine.frame_engines
@@ -198,8 +197,7 @@ class BaseEngine(object):
         return self.image.size
 
     def can_convert_to_webp(self):
-        return self.size[0] <= WEBP_SIDE_LIMIT \
-               and self.size[1] <= WEBP_SIDE_LIMIT
+        return self.size[0] <= WEBP_SIDE_LIMIT and self.size[1] <= WEBP_SIDE_LIMIT
 
     def normalize(self):
         width, height = self.size
@@ -212,12 +210,14 @@ class BaseEngine(object):
             height_diff = height - self.context.config.MAX_HEIGHT
             if self.context.config.MAX_WIDTH and width_diff > height_diff:
                 height = self.get_proportional_height(
-                        self.context.config.MAX_WIDTH)
+                    self.context.config.MAX_WIDTH
+                )
                 self.resize(self.context.config.MAX_WIDTH, height)
                 return True
             elif self.context.config.MAX_HEIGHT and height_diff > width_diff:
                 width = self.get_proportional_width(
-                        self.context.config.MAX_HEIGHT)
+                    self.context.config.MAX_HEIGHT
+                )
                 self.resize(width, self.context.config.MAX_HEIGHT)
                 return True
 

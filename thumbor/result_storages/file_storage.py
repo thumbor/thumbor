@@ -65,9 +65,9 @@ class Storage(BaseStorage):
             result = ResultStorageResult(
                 buffer=buffer,
                 metadata={
-                    'LastModified':  datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc),
+                    'LastModified': datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc),
                     'ContentLength': len(buffer),
-                    'ContentType':   BaseEngine.get_mimetype(buffer)
+                    'ContentType': BaseEngine.get_mimetype(buffer)
                 }
             )
 

@@ -15,9 +15,9 @@ POSITIONS = [
     (800, '-20p', '-160'),
     (800, '30p', '240'),
     (800, '230p', '1840'),
-    (50,  '37p', '19'),
-    (55,  '53p', '29'),
-    (55,  '-53p', '-29'),
+    (50, '37p', '19'),
+    (55, '53p', '29'),
+    (55, '-53p', '-29'),
     (800, 'center', 'center'),
     (800, '30', '30'),
     (800, '-40', '-40'),
@@ -57,8 +57,8 @@ RATIOS = [
     (300, None),
     (200, None),
     (100, None),
-    (50,  None),
-    (25,  None),
+    (50, None),
+    (25, None),
 
     # only Y
     (None, 300),
@@ -81,7 +81,7 @@ RATIOS = [
     (50, 300),
     (100, 300),
     (200, 300),
-    (25,  50),
+    (25, 50),
     (50, 25),
 ]
 
@@ -110,8 +110,8 @@ def to_be_equal_with_additional_info(topic, expected, **kwargs):
 
 @preggy.assertion
 def to_almost_equal(topic, expected, differ, **kwargs):
-    assert abs(1 - topic / expected) <= (differ/100.0), \
+    assert abs(1 - topic / expected) <= (differ / 100.0), \
         "Expected topic({topic}) to be almost equal expected({expected}) differing only in {percent}% with test: {test}".format(
             topic=topic, expected=expected, test=kwargs,
             percent=differ
-        )
+    )

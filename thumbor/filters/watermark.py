@@ -42,7 +42,7 @@ class Filter(BaseFilter):
         if not wm_max_height:
             wm_max_height = watermark_sz[1] * wm_max_width / watermark_sz[0]
 
-        if float(watermark_sz[0])/wm_max_width >= float(watermark_sz[1])/wm_max_height:
+        if float(watermark_sz[0]) / wm_max_width >= float(watermark_sz[1]) / wm_max_height:
             wm_height = round(watermark_sz[1] * wm_max_width / watermark_sz[0])
             wm_width = round(wm_max_width)
         else:
@@ -86,7 +86,7 @@ class Filter(BaseFilter):
         if not mos_x:
             repeat_x = (1, 0)
             if center_x:
-                x = (sz[0] - watermark_sz[0])/2
+                x = (sz[0] - watermark_sz[0]) / 2
             elif inv_x:
                 x = (sz[0] - watermark_sz[0]) + x
         else:
@@ -97,7 +97,7 @@ class Filter(BaseFilter):
         if not mos_y:
             repeat_y = (1, 0)
             if center_y:
-                y = (sz[1] - watermark_sz[1])/2
+                y = (sz[1] - watermark_sz[1]) / 2
             elif inv_y:
                 y = (sz[1] - watermark_sz[1]) + y
         else:
@@ -137,8 +137,9 @@ class Filter(BaseFilter):
     def on_fetch_done(self, result):
         if not result.successful:
             logger.warn(
-                    'bad watermark result error=%s metadata=%s' %
-                    (result.error, result.metadata))
+                'bad watermark result error=%s metadata=%s' %
+                (result.error, result.metadata)
+            )
             raise tornado.web.HTTPError(400)
 
         if isinstance(result, LoaderResult):
