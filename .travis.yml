@@ -14,9 +14,17 @@ matrix:
     - python: '3.5.1'
     - python: '3.6.2'
     - python: pypy
+  exclude:
+    - python: 3.5.1
+      env: LINT_TEST=1
+    - python: 3.6.2
+      env: LINT_TEST=1
+    - python: pypy
+      env: LINT_TEST=1
 env:
-  - INTEGRATION_TEST=1
-  - UNIT_TEST=1
+  - LINT_TEST=1
+  - INTEGRATION_TEST=1 run lint and unitest
+  - UNIT_TEST= run lint and unitest1
 addons:
   apt:
     packages:
