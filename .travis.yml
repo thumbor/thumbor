@@ -7,7 +7,7 @@ python:
 cache:
   directories:
     - $HOME/.cache/pip
-sudo: false
+sudo: required
 matrix:
   fast_finish: true
   allow_failures:
@@ -43,20 +43,15 @@ addons:
     - liblapack-dev
     - python-pyexiv2
     - yasm
+before_install:
+  - echo "deb http://archive.ubuntu.com/ubuntu zesty main universe" | sudo tee --append /etc/apt/sources.list
+  - sudo apt-get update
+  - sudo apt-get install ffmpeg -y -f
 install:
   - pip install -U --upgrade pip
   - cd $TRAVIS_BUILD_DIR && make setup
   - pip install coveralls
   - pip install cairosvg
-  - wget https://ffmpeg.org/releases/ffmpeg-3.2.4.tar.xz
-    -O /tmp/ffmpeg-3.2.4.tar.xz
-  - mkdir /tmp/ffmpeg-source
-  - tar -C /tmp/ffmpeg-source --strip 1 -xvf /tmp/ffmpeg-3.2.4.tar.xz
-  - cd /tmp/ffmpeg-source && ./configure --prefix=/tmp --enable-gpl --enable-libx264 --enable-libvpx
-  - cd /tmp/ffmpeg-source && make
-  - cd /tmp/ffmpeg-source && make install
-  - export PATH=/tmp/bin:$PATH
-  - ffmpeg -version
 before_script:
   - cd $TRAVIS_BUILD_DIR && make redis
 script:
