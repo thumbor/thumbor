@@ -125,12 +125,12 @@ class WatermarkFilterTestCase(FilterTestCase):
         for source_image_width, source_image_height in SOURCE_IMAGE_SIZES:
             for watermark_source_image_width, watermark_source_image_height in WATERMARK_IMAGE_SIZES:
                 for w_ratio, h_ratio in RATIOS:
-                    max_width = source_image_width * (float(w_ratio)/100) if w_ratio else float('inf')
-                    max_height = source_image_height * (float(h_ratio)/100) if h_ratio else float('inf')
+                    max_width = source_image_width * (float(w_ratio) / 100) if w_ratio else float('inf')
+                    max_height = source_image_height * (float(h_ratio) / 100) if h_ratio else float('inf')
                     w_ratio = float(w_ratio) / 100.0 if w_ratio else False
                     h_ratio = float(h_ratio) / 100.0 if h_ratio else False
 
-                    ratio = float(watermark_source_image_width)/watermark_source_image_height
+                    ratio = float(watermark_source_image_width) / watermark_source_image_height
 
                     watermark_image_width, watermark_image_height = filter.calc_watermark_size(
                         (source_image_width, source_image_height),
@@ -138,7 +138,7 @@ class WatermarkFilterTestCase(FilterTestCase):
                         w_ratio,
                         h_ratio
                     )
-                    watermark_image = float(watermark_image_width)/watermark_image_height
+                    watermark_image = float(watermark_image_width) / watermark_image_height
 
                     test = {
                         'source_image_width': source_image_width,

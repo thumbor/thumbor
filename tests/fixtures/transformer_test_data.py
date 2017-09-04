@@ -228,7 +228,7 @@ class TestData(object):
             assert not self.engine.calls['crop'], \
                 'The engine crop should NOT have been called but was with %(left)dx%(top)d %(right)dx%(bottom)d' % (
                     self.engine.calls['crop'][0]
-                )
+            )
             return True
         assert self.engine.calls['crop'], self.crop_error_message
         assert self.engine.calls['crop'][0]['left'] == self.crop_left, self.crop_error_message
@@ -990,7 +990,7 @@ FIT_IN_CROP_DATA = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True, full=True
-        ), (500, 625, 1)),
+    ), (500, 625, 1)),
 
     (TestData(
         source_width=800, source_height=400,
@@ -999,5 +999,5 @@ FIT_IN_CROP_DATA = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True, adaptive=True, full=True
-        ), (400, 200, 1))
+    ), (400, 200, 1))
 ]

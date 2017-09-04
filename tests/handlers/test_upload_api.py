@@ -194,7 +194,7 @@ class UploadAPIUpdateSmallIdFileTestCase(UploadTestCase):
         response = self.put(path, {'Content-Type': 'image/jpeg'}, valid_image())
         expect(response.code).to_equal(204)
 
-        response = self.get(path[:7+32], {'Accept': 'image/jpeg'})
+        response = self.get(path[:7 + 32], {'Accept': 'image/jpeg'})
         expect(response.code).to_equal(404)
 
     def test_can_get_actual_id_when_stored_with_large_id(self):
