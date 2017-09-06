@@ -10,7 +10,8 @@
 
 from os.path import abspath, dirname, join
 
-import cv
+import cv2
+import numpy as np
 
 from thumbor.filters import BaseFilter, filter_method
 
@@ -19,121 +20,90 @@ CASCADE_FILE_PATH = abspath(join(dirname(__file__), 'haarcascade_eye.xml'))
 MIN_SIZE = (20, 20)
 HAAR_SCALE = 1.2
 MIN_NEIGHBORS = 3
-HAAR_FLAGS = 0
 RED_THRESHOLD = 2.0
 
 
 class Filter(BaseFilter):
-
-    def get_pixels(self, image, w, h, mode):
-        pixels = []
-
-        for row in range(h):
-            for col in range(w):
-                pixel = cv.Get2D(image, row, col)
-
-                pixels.append({
-                    'x': col,
-                    'y': row,
-                    'r': pixel[mode.index('r')],
-                    'g': pixel[mode.index('g')],
-                    'b': pixel[mode.index('b')]
-                })
-
-        return pixels
-
-    def filter_eyes(self, eyes):
-        intersected_eyes = []
-
-        for eye in eyes:
-            # if eye in intersected_eyes: continue
-            (x, y, w, h), other = eye
-            for eye2 in eyes:
-                (x2, y2, w2, h2), other2 = eye2
-                if x == x2 and w == w2 and y == y2 and h == h2:
-                    continue
-                # if eye2 in intersected_eyes: continue
-
-                if (y2 >= y and y2 + h2 <= y + h) or (y2 + h2 >= y and y2 <= y + h):
-                    intersected_eyes.append(eye)
-                    # intersected_eyes.append(eye2)
-
-        return intersected_eyes
-
     @filter_method()
     def red_eye(self):
-        self.load_cascade_file()
         faces = [face for face in self.context.request.focal_points if face.origin == 'Face Detection']
-        if faces:
-            engine = self.context.modules.engine
-            mode, data = engine.image_data_as_rgb()
-            mode = mode.lower()
-            sz = engine.size
-            image = cv.CreateImageHeader(sz, cv.IPL_DEPTH_8U, 3)
-            cv.SetData(image, data)
+        if not faces:
+            return
 
-            for face in faces:
-                face_x = int(face.x - face.width / 2)
-                face_y = int(face.y - face.height / 2)
+        mode, data = self.engine.image_data_as_rgb()
+        mode = mode.lower()
+        size = self.engine.size
 
-                face_roi = (
-                    int(face_x),
-                    int(face_y),
-                    int(face.width),
-                    int(face.height)
-                )
+        image = np.ndarray(shape=(size[1], size[0], 4 if mode == 'rgba' else 3), dtype='|u1', buffer=data)
+        image.setflags(write=1)
 
-                cv.SetImageROI(image, face_roi)
+        for face in faces:
+            face_x = int(face.x - face.width / 2)
+            face_y = int(face.y - face.height / 2)
 
-                eyes = cv.HaarDetectObjects(
-                    image,
-                    self.cascade,
-                    cv.CreateMemStorage(0),
-                    HAAR_SCALE,
-                    MIN_NEIGHBORS,
-                    HAAR_FLAGS,
-                    MIN_SIZE)
+            face_image = image[face_y:face_y + face.height, face_x:face_x + face.width]
 
-                for (x, y, w, h), other in self.filter_eyes(eyes):
-                    # Set the image Region of interest to be the eye area [this reduces processing time]
-                    cv.SetImageROI(image, (face_x + x, face_y + y, w, h))
+            eyeRects = self.cascade.detectMultiScale(
+                face_image,
+                scaleFactor=HAAR_SCALE,
+                minNeighbors=MIN_NEIGHBORS,
+                minSize=MIN_SIZE)
 
-                    if self.context.request.debug:
-                        cv.Rectangle(
-                            image,
-                            (0, 0),
-                            (w, h),
-                            cv.RGB(255, 255, 255),
-                            2,
-                            8,
-                            0
-                        )
+            for x, y, w, h in eyeRects:
+                # Crop the eye region
+                eyeImage = face_image[y:y + h, x:x + w]
 
-                    for pixel in self.get_pixels(image, w, h, mode):
-                        green_blue_avg = (pixel['g'] + pixel['b']) / 2
+                # split the images into 3 channels
+                r, g, b = cv2.split(eyeImage)
 
-                        if not green_blue_avg:
-                            red_intensity = RED_THRESHOLD
-                        else:
-                            # Calculate the intensity compared to blue and green average
-                            red_intensity = pixel['r'] / green_blue_avg
+                # Add blue and green channels
+                bg = cv2.add(b, g)
+                mean = bg / 2
+                # threshold the mask based on red color and combination of blue and green color
+                mask = ((r > RED_THRESHOLD * mean) & (r > 60)).astype(np.uint8) * 255
+                # Some extra region may also get detected , we find the largest region
+                # find all contours
+                contours_return = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+                                                   cv2.CHAIN_APPROX_NONE)  # It return contours and Hierarchy
 
-                        # If the red intensity is greater than 2.0, lower the value
-                        if red_intensity >= RED_THRESHOLD:
-                            new_red_value = (pixel['g'] + pixel['b']) / 2
-                            # Insert the new red value for the pixel to the image
-                            cv.Set2D(
-                                image,
-                                pixel['y'],
-                                pixel['x'],
-                                cv.RGB(new_red_value, pixel['g'], pixel['b'])
-                            )
+                if len(contours_return) == 2:
+                    contours, _ = contours_return
+                else:
+                    _, contours, _ = contours_return
 
-                    # Reset the image region of interest back to full image
-                    cv.ResetImageROI(image)
+                # find contour with max area
+                maxArea = 0
+                maxCont = None
+                for cont in contours:
+                    area = cv2.contourArea(cont)
+                    if area > maxArea:
+                        maxArea = area
+                        maxCont = cont
 
-            self.context.modules.engine.set_image_data(image.tostring())
+                if maxCont is None:
+                    continue
 
-    def load_cascade_file(self):
-        if not hasattr(self.__class__, 'cascade'):
-            setattr(self.__class__, 'cascade', cv.Load(CASCADE_FILE_PATH))
+                mask = mask * 0  # Reset the mask image to complete black image
+                # draw the biggest contour on mask
+                cv2.drawContours(mask, [maxCont], 0, (255), -1)
+                # Close the holes to make a smooth region
+                mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_DILATE, (5, 5)))
+                mask = cv2.dilate(mask, (3, 3), iterations=3)
+
+                # The information of only red color is lost,
+                # So we fill the mean of blue and green color in all three channels(BGR) to maintain the texture
+                # Fill this black mean value to masked image
+                mean = cv2.bitwise_and(mean, mask)  # mask the mean image
+                mean = cv2.cvtColor(mean, cv2.COLOR_GRAY2RGB)  # convert mean to 3 channel
+                mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)  # convert mask to 3 channel
+                eye = cv2.bitwise_and(~mask, eyeImage) + mean  # Copy the mean color to masked region to color image
+                face_image[y:y + h, x:x + w] = eye
+
+        self.engine.set_image_data(image.tobytes())
+
+    @property
+    def cascade(self):
+        if not hasattr(self, '_cascade'):
+            setattr(self, '_cascade', cv2.CascadeClassifier(CASCADE_FILE_PATH))
+
+        return getattr(self, '_cascade')
