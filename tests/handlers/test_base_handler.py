@@ -21,7 +21,6 @@ import tornado.web
 from tornado.concurrent import return_future
 from preggy import expect
 from mock import Mock, patch
-import unittest
 from six.moves.urllib.parse import quote
 
 from thumbor.config import Config
@@ -935,6 +934,7 @@ class EngineLoadException(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
         cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.STORAGE = "thumbor.storages.no_storage"
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.FILTERS = []
 
@@ -944,11 +944,10 @@ class EngineLoadException(BaseImagingTestCase):
         server.security_key = 'ACME-SEC'
         return Context(server, cfg, importer)
 
-    @unittest.skip("For some strange reason, this test breaks on Travis.")
-    def test_should_error_on_engine_load_exception(self):
-        with patch.object(Engine, 'load', side_effect=ValueError):
-            response = self.fetch('/unsafe/image.jpg')
-        expect(response.code).to_equal(504)
+    @patch.object(Engine, 'load', side_effect=ValueError)
+    def test_should_error_on_engine_load_exception(self, load_mock):
+        response = self.fetch('/unsafe/image.jpg')
+        expect(response.code).to_equal(500)
 
     def test_should_release_ioloop_on_error_on_engine_exception(self):
         response = self.fetch('/unsafe/fit-in/134x134/940x2.png')
