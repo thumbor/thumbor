@@ -236,7 +236,7 @@ class BaseEngine(object):
             return None
 
         try:
-            segment = ExifSegment(None, None, self.exif, 'ro')
+            segment = ExifSegment(None, None, self.exif, 'rw')
         except Exception:
             logger.exception('Ignored error handling exif for reorientation')
         else:
