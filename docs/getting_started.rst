@@ -15,14 +15,14 @@ look at this repository:
 https://github.com/torchbox/vagrant-thumbor-base.
 
 This tutorial assumes the image you picked is
-``http://www.waterfalls.hamilton.ca/images/Waterfall_Collage_home_sm1.jpg``.
+``https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
 Replace it with whatever image you want accordingly.
 
 Changing its size
 -----------------
 
 Go to your browser and enter in the url:
-``http://localhost:8888/unsafe/300x200/http://www.waterfalls.hamilton.ca/images/Waterfall_Collage_home_sm1.jpg``.
+``http://localhost:8888/unsafe/300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
 
 You should see the waterfall image with 300px of width and 200px of
 height. Just play with it in the url to see the image change.
@@ -30,7 +30,7 @@ height. Just play with it in the url to see the image change.
 If you just want it to be proportional to the width, enter a height of
 0, like:
 
-``http://localhost:8888/unsafe/300x0/http://www.waterfalls.hamilton.ca/images/Waterfall_Collage_home_sm1.jpg``.
+``http://localhost:8888/unsafe/300x0/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
 
 Flipping the image
 ------------------
@@ -38,7 +38,7 @@ Flipping the image
 How about seeing it backwards? Or upside down?
 
 Go to your browser and enter in the url:
-``http://localhost:8888/unsafe/-0x-0/http://www.waterfalls.hamilton.ca/images/Waterfall_Collage_home_sm1.jpg``.
+``http://localhost:8888/unsafe/-0x-0/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
 
 You should see the waterfall backwards and upside down.
 
@@ -48,7 +48,7 @@ Filters
 What if I want to change contrast or brightness?
 
 Go to your browser and enter in the url:
-``http://localhost:8888/unsafe/filters:brightness(10):contrast(30)/http://www.waterfalls.hamilton.ca/images/Waterfall_Collage_home_sm1.jpg``.
+``http://localhost:8888/unsafe/filters:brightness(10):contrast(30)/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
 
 There are many more filters to explore. Check the
 :doc:`filters` page for more details.
