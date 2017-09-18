@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from pexif import ExifSegment
+import piexif
 from xml.etree.ElementTree import ParseError
 
 try:
@@ -236,11 +236,11 @@ class BaseEngine(object):
             return None
 
         try:
-            segment = ExifSegment(None, None, self.exif, 'ro')
+            exif_dict = piexif.load(self.exif)
         except Exception:
             logger.exception('Ignored error handling exif for reorientation')
         else:
-            return segment
+            return exif_dict
         return None
 
     def get_orientation(self):
@@ -251,11 +251,9 @@ class BaseEngine(object):
         :return: Orientation value (1 - 8)
         :rtype: int or None
         """
-        segment = self._get_exif_segment()
-        if segment:
-            orientation = segment.primary['Orientation']
-            if orientation:
-                return orientation[0]
+        exif_dict = self._get_exif_segment()
+        if exif_dict and piexif.ImageIFD.Orientation in exif_dict["0th"]:
+            return exif_dict["0th"][piexif.ImageIFD.Orientation]
         return None
 
     def reorientate(self, override_exif=True):
@@ -291,10 +289,10 @@ class BaseEngine(object):
             self.rotate(90)
 
         if orientation != 1 and override_exif:
-            segment = self._get_exif_segment()
-            if segment and segment.get_primary():
-                segment.primary['Orientation'] = [1]
-                self.exif = segment.get_data()
+            exif_dict = self._get_exif_segment()
+            if exif_dict and piexif.ImageIFD.Orientation in exif_dict["0th"]:
+                exif_dict["0th"][piexif.ImageIFD.Orientation] = 1
+                self.exif = piexif.dump(exif_dict)
 
     def gen_image(self, size, color):
         raise NotImplementedError()
