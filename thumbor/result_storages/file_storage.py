@@ -19,7 +19,7 @@ from thumbor.engines import BaseEngine
 from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger, deprecated
 from tornado.concurrent import return_future
-from urllib2 import unquote
+from six.moves.urllib.parse import unquote
 from . import ResultStorageResult
 
 

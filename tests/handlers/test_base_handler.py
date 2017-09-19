@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from urllib import quote
 import tempfile
 import shutil
 from os.path import abspath, join, dirname
@@ -23,6 +22,7 @@ from tornado.concurrent import return_future
 from preggy import expect
 from mock import Mock, patch
 import unittest
+from six.moves.urllib.parse import quote
 
 from thumbor.config import Config
 from thumbor.importer import Importer

@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from urllib import quote, unquote
+from six.moves.urllib.parse import quote, unquote
 
 from thumbor.handlers import ContextHandler
 from thumbor.context import RequestParameters
