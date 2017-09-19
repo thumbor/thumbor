@@ -12,12 +12,12 @@ import time
 from os.path import abspath, join, dirname
 from preggy import expect
 import mock
-from urllib import quote
 # from tornado.concurrent import Future
 import tornado.web
 from tests.base import PythonTestCase, TestCase
 from tornado.concurrent import Future
 import re
+from six.moves.urllib.parse import quote
 
 import thumbor.loaders.http_loader as loader
 from thumbor.context import Context

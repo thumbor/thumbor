@@ -11,10 +11,9 @@
 import datetime
 import re
 from functools import partial
-from urlparse import urlparse
-from urllib2 import unquote, quote
 
 import tornado.httpclient
+from six.moves.urllib.parse import quote, unquote, urlparse
 
 from . import LoaderResult
 from thumbor.utils import logger

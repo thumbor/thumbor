@@ -13,7 +13,6 @@ import random
 import unicodedata
 from io import BytesIO
 from unittest import TestCase as PythonTestCase
-import urllib
 import mimetypes
 from os.path import exists, realpath, dirname, join
 import cStringIO
@@ -22,6 +21,7 @@ import mock
 from PIL import Image
 from ssim import compute_ssim
 from preggy import create_assertions
+from six.moves.urllib.parse import urlencode
 
 from thumbor.app import ThumborServiceApp
 from thumbor.context import Context, RequestParameters
@@ -179,7 +179,7 @@ class TestCase(AsyncHTTPTestCase):
     def get(self, path, headers):
         return self.fetch(path,
                           method='GET',
-                          body=urllib.urlencode({}, doseq=True),
+                          body=urlencode({}, doseq=True),
                           headers=headers,
                           allow_nonstandard_methods=True)
 
@@ -200,7 +200,7 @@ class TestCase(AsyncHTTPTestCase):
     def delete(self, path, headers):
         return self.fetch(path,
                           method='DELETE',
-                          body=urllib.urlencode({}, doseq=True),
+                          body=urlencode({}, doseq=True),
                           headers=headers,
                           allow_nonstandard_methods=True)
 
