@@ -120,8 +120,12 @@ class Engine(BaseEngine):
             logger.debug('converting image from 8-bit/1-bit palette to 32-bit RGBA for resize')
             self.image = self.image.convert('RGBA')
 
+        size = (int(width), int(height))
+        # Tell image loader what target size we want (only JPG for a moment)
+        self.image.draft(None, size)
+
         resample = self.get_resize_filter()
-        self.image = self.image.resize((int(width), int(height)), resample)
+        self.image = self.image.resize(size, resample)
 
         # 1 and P mode images will be much smaller if converted back to
         # their original mode. So let's do that after resizing. Get $$.
