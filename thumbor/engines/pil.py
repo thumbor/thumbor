@@ -123,8 +123,12 @@ class Engine(BaseEngine):
             # Workaround for pillow < 4.3.0. See https://github.com/python-pillow/Pillow/issues/2702
             self.image.palette = None
 
+        size = (int(width), int(height))
+        # Tell image loader what target size we want (only JPG for a moment)
+        self.image.draft(None, size)
+
         resample = self.get_resize_filter()
-        self.image = self.image.resize((int(width), int(height)), resample)
+        self.image = self.image.resize(size, resample)
 
         # 1 and P mode images will be much smaller if converted back to
         # their original mode. So let's do that after resizing. Get $$.
