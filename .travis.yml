@@ -41,7 +41,7 @@ before_install:
   - sudo apt-get install ffmpeg -y -f
 install:
   - pip install --upgrade pip
-  - pip install -I https://github.com/escaped/pyexiv2/archive/master.zip
+  - pip install -I https://github.com/escaped/pyexiv2/archive/69dd6448f9831bd826137b7519f9d797b23ab4ec.zip
   - cd $TRAVIS_BUILD_DIR && make setup
   - pip install coveralls
 before_script:
