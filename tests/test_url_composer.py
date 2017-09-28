@@ -10,7 +10,7 @@
 
 from unittest import TestCase
 import mock
-from StringIO import StringIO
+from six import StringIO
 import sys
 import optparse
 
