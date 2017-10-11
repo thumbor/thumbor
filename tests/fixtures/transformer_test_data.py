@@ -999,5 +999,6 @@ FIT_IN_CROP_DATA = [
         focal_points=[],
         crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
         fit_in=True, adaptive=True, full=True
-    ), (400, 200, 1))
+    ), (400, 200, 1)),
+
 ]
