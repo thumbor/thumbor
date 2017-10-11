@@ -97,7 +97,7 @@ class TransformerTestCase(TestCase):
         )
         context = test_data.to_context(detectors=[MockErrorSyncDetector], ignore_detector_error=True)
         trans = Transformer(context)
-        trans.transform(lambda : None)
+        trans.transform(lambda: None)
         self.validate_resize(test_data)
 
     def test_can_resize_images_with_detection_error_not_ignoring_it(self):
@@ -124,12 +124,13 @@ class TransformerTestCase(TestCase):
             trans.transform(lambda: None)
 
             expect(engine.calls['crop']).to_be_empty()
-            expect(engine.calls['resize']).to_length(should_resize)
 
             if should_resize:
+                expect(engine.calls['resize']).to_length(1)
                 expect(engine.calls['resize'][0]['width']).to_equal(width)
                 expect(engine.calls['resize'][0]['height']).to_equal(height)
-
+            else:
+                expect(engine.calls['resize']).to_be_empty()
 
     def test_can_transform_meta_with_orientation(self):
         data = TestData(
@@ -165,7 +166,6 @@ class TransformerTestCase(TestCase):
         trans.transform(lambda: None)
         expect(engine.calls['horizontal_flip']).to_equal(1)
         expect(engine.calls['vertical_flip']).to_equal(1)
-
 
     def test_can_extract_cover(self):
         data = TestData(

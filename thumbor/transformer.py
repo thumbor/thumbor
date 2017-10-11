@@ -343,8 +343,10 @@ class Transformer(object):
         # ensure that filter should work on the real image size and not on the request
         # size which might be smaller than the resized image in case `full-fit-in` is
         # being used
-        self.context.request.width = int(max(self.context.request.width, resize_width))
-        self.context.request.height = int(max(self.context.request.height, resize_height))
+        requested_width = source_width if self.context.request.width == 'orig' else self.context.request.width
+        requested_height = source_height if self.context.request.height == 'orig' else self.context.request.height
+        self.context.request.width = int(max(requested_width, resize_width))
+        self.context.request.height = int(max(requested_height, resize_height))
 
         self.engine.resize(resize_width, resize_height)
 
