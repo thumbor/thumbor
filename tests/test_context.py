@@ -7,10 +7,11 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
-from time import sleep
 from unittest import TestCase
 
 import mock
+import time
+import tornado
 from preggy import expect
 from tornado.testing import AsyncTestCase
 
@@ -303,7 +304,6 @@ class ContextImporterTestCase(TestCase):
 class ThreadPoolTestCase(AsyncTestCase):
     def setUp(self):
         super(ThreadPoolTestCase, self).setUp()
-        self.handled = False
         ThreadPool._instance = None
 
     def test_can_get_threadpool_instance(self):
@@ -319,6 +319,7 @@ class ThreadPoolTestCase(AsyncTestCase):
         instance3 = ThreadPool.instance(11)
         expect(instance3).not_to_equal(instance)
 
+    @tornado.testing.gen_test
     def test_can_run_task_in_foreground(self):
         instance = ThreadPool.instance(0)
         expect(instance).not_to_be_null()
@@ -326,13 +327,10 @@ class ThreadPoolTestCase(AsyncTestCase):
         def add():
             return 10
 
-        def handle_operation(result):
-            self.handled = True
-            expect(result.result()).to_equal(10)
+        result = yield instance._execute_in_foreground(add)
+        expect(result).to_equal(10)
 
-        instance._execute_in_foreground(add, handle_operation)
-        expect(self.handled).to_be_true()
-
+    @tornado.testing.gen_test
     def test_can_run_task_in_foreground_and_exception_happens(self):
         instance = ThreadPool.instance(0)
         expect(instance).not_to_be_null()
@@ -341,14 +339,10 @@ class ThreadPoolTestCase(AsyncTestCase):
         def add():
             raise exception
 
-        def handle_operation(result):
-            self.handled = True
-            with expect.error_to_happen(Exception, message='Boom'):
-                result.result()
+        with expect.error_to_happen(Exception, message='Boom'):
+            yield instance._execute_in_foreground(add)
 
-        instance._execute_in_foreground(add, handle_operation)
-        expect(self.handled).to_be_true()
-
+    @tornado.testing.gen_test
     def test_queueing_task_when_no_pool_runs_sync(self):
         instance = ThreadPool.instance(0)
         expect(instance).not_to_be_null()
@@ -356,13 +350,10 @@ class ThreadPoolTestCase(AsyncTestCase):
         def add():
             return 10
 
-        def handle_operation(result):
-            self.handled = True
-            expect(result.result()).to_equal(10)
+        result = yield instance.queue(add)
+        expect(result).to_equal(10)
 
-        instance.queue(add, handle_operation)
-        expect(self.handled).to_be_true()
-
+    @tornado.testing.gen_test
     def test_queueing_task_when_no_pool_runs_sync_and_exception_happens(self):
         instance = ThreadPool.instance(0)
         expect(instance).not_to_be_null()
@@ -371,29 +362,49 @@ class ThreadPoolTestCase(AsyncTestCase):
         def add():
             raise exception
 
-        def handle_operation(result):
-            self.handled = True
-            with expect.error_to_happen(Exception, message='Boom'):
-                result.result()
+        with expect.error_to_happen(Exception, message='Boom'):
+            yield instance.queue(add)
 
-        instance.queue(add, handle_operation)
-        expect(self.handled).to_be_true()
-
+    @tornado.testing.gen_test()
     def test_can_run_async(self):
-        instance = ThreadPool.instance(10)
+        instance = ThreadPool.instance(1)
         expect(instance).not_to_be_null()
 
-        def add():
-            sleep(1)
+        self.handled = False
+
+        def handle():
+            time.sleep(1)
             self.handled = True
             return 10
 
-        instance._execute_in_pool(add, self.stop)
+        future = instance.queue(handle)
+
         expect(self.handled).to_be_false()
-        result = self.wait()
+        result = yield future
+        expect(self.handled).to_be_true()
+        expect(result).to_equal(10)
+
+    @tornado.testing.gen_test()
+    def test_can_run_async_and_exception_happens(self):
+        instance = ThreadPool.instance(1)
+        expect(instance).not_to_be_null()
+
+        self.handled = False
+
+        exception = Exception('Boom')
+
+        def handle():
+            time.sleep(0.5)
+            self.handled = True
+            raise exception
+
+        future = instance.queue(handle)
+
+        expect(self.handled).to_be_false()
+        with expect.error_to_happen(Exception, message='Boom'):
+            yield future
 
         expect(self.handled).to_be_true()
-        expect(result.result()).to_equal(10)
 
     def test_can_cleanup_pool(self):
         instance = ThreadPool.instance(0)

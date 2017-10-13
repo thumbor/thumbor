@@ -45,7 +45,6 @@ class Filter(BaseFilter):
                                     self.nine_patch_engine.size[0],
                                     self.nine_patch_engine.size[1])
         self.engine.set_image_data(imgdata)
-        self.callback()
 
     def handle_padding(self, padding):
         '''Pads the image with transparent pixels if necessary.'''
@@ -89,9 +88,8 @@ class Filter(BaseFilter):
 
     @filter_method(BaseFilter.String, async=True)
     @tornado.gen.coroutine
-    def frame(self, callback, url):
+    def frame(self, url):
         self.url = url
-        self.callback = callback
         self.nine_patch_engine = self.context.modules.engine.__class__(self.context)
         self.storage = self.context.modules.storage
 
@@ -99,4 +97,5 @@ class Filter(BaseFilter):
         if buffer is not None:
             self.on_image_ready(buffer)
         else:
-            self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
+            load_result = yield self.context.modules.loader.load(self.context, self.url)
+            self.on_fetch_done(load_result)

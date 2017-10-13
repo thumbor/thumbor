@@ -9,9 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from os.path import abspath, exists
-
 from concurrent.futures import ThreadPoolExecutor, Future
-from tornado.ioloop import IOLoop
 
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
@@ -265,7 +263,7 @@ class ThreadPool(object):
         else:
             self.pool = None
 
-    def _execute_in_foreground(self, operation, callback):
+    def _execute_in_foreground(self, operation):
         result = Future()
 
         try:
@@ -276,18 +274,16 @@ class ThreadPool(object):
         else:
             result.set_result(returned)
 
-        callback(result)
+        return result
 
-    def _execute_in_pool(self, operation, callback):
-        future = self.pool.submit(operation)
+    def _execute_in_pool(self, operation):
+        return self.pool.submit(operation)
 
-        IOLoop.current().add_future(future, callback)
-
-    def queue(self, operation, callback):
+    def queue(self, operation):
         if not self.pool:
-            self._execute_in_foreground(operation, callback)
+            return self._execute_in_foreground(operation)
         else:
-            self._execute_in_pool(operation, callback)
+            return self._execute_in_pool(operation)
 
     def cleanup(self):
         if self.pool:

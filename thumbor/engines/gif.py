@@ -52,8 +52,6 @@ class Engine(PILEngine):
         return self.frame_count > 1
 
     def update_image_info(self):
-        self._is_multiple = False
-
         result = self.run_gifsicle('--info')
         size = GIFSICLE_SIZE_REGEX.search(result)
         self.image_size = size.groups()[0].split('x')

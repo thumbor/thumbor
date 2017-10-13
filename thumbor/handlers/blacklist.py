@@ -15,7 +15,6 @@ import tornado
 
 class BlacklistHandler(ContextHandler):
 
-    @tornado.web.asynchronous
     @tornado.gen.coroutine
     def get(self):
         blacklist = yield self.get_blacklist_contents()
@@ -24,7 +23,6 @@ class BlacklistHandler(ContextHandler):
         self.set_header('Content-Type', 'text/plain')
         self.set_status(200)
 
-    @tornado.web.asynchronous
     @tornado.gen.coroutine
     def put(self):
         blacklist = yield self.get_blacklist_contents()

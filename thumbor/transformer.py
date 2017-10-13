@@ -94,12 +94,12 @@ class Transformer(object):
 
         self.engine.focus(self.focal_points)
 
-    def transform(self, callback):
-        self.done_callback = callback
+    @gen.coroutine
+    def transform(self):
         if self.context.config.RESPECT_ORIENTATION:
             self.engine.reorientate()
         self.trim()
-        self.smart_detect()
+        yield self.smart_detect()
 
     def trim(self):
         is_gifsicle = (self.context.request.engine.extension == '.gif' and self.context.config.USE_GIFSICLE_ENGINE)
@@ -121,6 +121,7 @@ class Transformer(object):
             return
 
         self.engine.crop(box[0], box[1], box[2] + 1, box[3] + 1)
+
         if self.context.request.should_crop:
             self.context.request.crop['left'] -= box[0]
             self.context.request.crop['top'] -= box[1]
@@ -135,7 +136,7 @@ class Transformer(object):
     def smart_detect(self):
         is_gifsicle = (self.context.request.engine.extension == '.gif' and self.context.config.USE_GIFSICLE_ENGINE)
         if (not (self.context.modules.detectors and self.context.request.smart)) or is_gifsicle:
-            self.do_image_operations()
+            yield self.do_image_operations()
             return
 
         try:
@@ -165,20 +166,21 @@ class Transformer(object):
 
             self.context.request.prevent_result_storage = True
             self.context.request.detection_error = True
-            self.do_image_operations()
+            yield self.do_image_operations()
 
         if self.should_run_image_operations:
-            self.do_image_operations()
+            yield self.do_image_operations()
 
     @gen.coroutine
     def do_smart_detection(self):
         focal_points = yield gen.maybe_future(self.context.modules.storage.get_detector_data(self.smart_storage_key))
         if focal_points is not None:
-            self.after_smart_detect(focal_points, points_from_storage=True)
+            yield self.after_smart_detect(focal_points, points_from_storage=True)
         else:
             detectors = self.context.modules.detectors
             detectors[0](self.context, index=0, detectors=detectors).detect(self.after_smart_detect)
 
+    @gen.coroutine
     def after_smart_detect(self, focal_points=[], points_from_storage=False):
         for point in focal_points:
             self.context.request.focal_points.append(FocalPoint.from_dict(point))
@@ -195,7 +197,7 @@ class Transformer(object):
             self.should_run_image_operations = True
             return
 
-        self.do_image_operations()
+        yield self.do_image_operations()
 
     def img_operation_worker(self):
         if '.gif' == self.context.request.engine.extension and 'cover()' in self.context.request.filters:
@@ -215,21 +217,16 @@ class Transformer(object):
                 self.resize()
             self.flip()
 
+    @gen.coroutine
     def do_image_operations(self):
         """
         If ENGINE_THREADPOOL_SIZE > 0, this will schedule the image operations
-        into a threadpool.  If not, it just executes them synchronously, and
-        calls self.done_callback when it's finished.
+        into a threadpool.  If not, it just executes them synchronously
 
         The actual work happens in self.img_operation_worker
         """
-        def inner(future):
-            self.done_callback()
 
-        self.context.thread_pool.queue(
-            operation=self.img_operation_worker,
-            callback=inner
-        )
+        yield self.context.thread_pool.queue(self.img_operation_worker)
 
     def extract_cover(self):
         self.engine.extract_cover()

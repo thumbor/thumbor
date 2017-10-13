@@ -132,25 +132,6 @@ class Filter(BaseFilter):
                 y = j * space_y + j * watermark_sz[1]
                 self.engine.paste(self.watermark_engine, (x, y), merge=True)
 
-        self.callback()
-
-    def on_fetch_done(self, result):
-        if isinstance(result, LoaderResult) and not result.successful:
-            logger.warn(
-                'bad watermark result error=%s metadata=%s' %
-                (result.error, result.metadata)
-            )
-            raise tornado.web.HTTPError(400)
-
-        if isinstance(result, LoaderResult):
-            buffer = result.buffer
-        else:
-            buffer = result
-
-        self.storage.put(self.url, buffer)
-        self.storage.put_crypto(self.url)
-        self.on_image_ready(buffer)
-
     @tornado.gen.coroutine
     @filter_method(
         BaseFilter.String,
@@ -161,14 +142,13 @@ class Filter(BaseFilter):
         r'(?:-?\d+)|none',
         async=True
     )
-    def watermark(self, callback, url, x, y, alpha, w_ratio=False, h_ratio=False):
+    def watermark(self, url, x, y, alpha, w_ratio=False, h_ratio=False):
         self.url = url
         self.x = x
         self.y = y
         self.alpha = alpha
         self.w_ratio = float(w_ratio) / 100.0 if w_ratio and w_ratio != 'none' else False
         self.h_ratio = float(h_ratio) / 100.0 if h_ratio and h_ratio != 'none' else False
-        self.callback = callback
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
         self.storage = self.context.modules.storage
 
@@ -177,8 +157,27 @@ class Filter(BaseFilter):
             if buffer is not None:
                 self.on_image_ready(buffer)
             else:
-                self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
+                result = yield self.context.modules.loader.load(self.context, self.url)
+                if isinstance(result, LoaderResult):
+                    if not result.successful:
+                        logger.warn(
+                            'bad watermark result error=%s metadata=%s' %
+                            (result.error, result.metadata)
+                        )
+                        raise tornado.web.HTTPError(400)
+
+                    buffer = result.buffer
+                else:
+                    buffer = result
+
+                self.storage.put(self.url, buffer)
+                self.storage.put_crypto(self.url)
+                self.on_image_ready(buffer)
+
         except Exception as e:
+            if isinstance(e, tornado.web.HTTPError):
+                raise
+
             logger.exception(e)
             logger.warn("bad watermark")
             raise tornado.web.HTTPError(500)

@@ -39,31 +39,27 @@ class ImageResourceHandler(ImageApiHandler):
             if max_age:
                 self.set_header('Cache-Control', 'max-age=' + str(max_age) + ',public')
                 self.set_header('Expires', datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age))
-            self.write(body)
-            self.finish()
+            self.finish(body)
         else:
-            self._error(404, 'Image not found at the given URL')
+            raise tornado.web.HTTPError(404, 'Image not found at the given URL')
 
     def put(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image overwriting is allowed
         if not self.context.config.UPLOAD_PUT_ALLOWED:
-            self._error(405, 'Unable to modify an uploaded image')
-            return
+            raise tornado.web.HTTPError(405, 'Unable to modify an uploaded image')
 
         # Check if the image uploaded is valid
         if self.validate(self.request.body):
             self.write_file(id, self.request.body)
             self.set_status(204)
 
-    @tornado.web.asynchronous
     @tornado.gen.coroutine
     def delete(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image deleting is allowed
         if not self.context.config.UPLOAD_DELETE_ALLOWED:
-            self._error(405, 'Unable to delete an uploaded image')
-            return
+            raise tornado.web.HTTPError(405, 'Unable to delete an uploaded image')
 
         # Check if image exists
         exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
@@ -71,12 +67,12 @@ class ImageResourceHandler(ImageApiHandler):
             self.context.modules.storage.remove(id)
             self.set_status(204)
         else:
-            self._error(404, 'Image not found at the given URL')
+            raise tornado.web.HTTPError(404, 'Image not found at the given URL')
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def get(self, id):
-        self.check_resource(id)
+        yield self.check_resource(id)
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def head(self, id):
-        self.check_resource(id)
+        yield self.check_resource(id)

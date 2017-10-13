@@ -8,15 +8,15 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import mock
+import tornado
 
 from preggy import expect
+from tornado.testing import AsyncTestCase
 
 from thumbor.filters import BaseFilter, FiltersFactory, filter_method
 import thumbor.filters
 
 from tests.base import PythonTestCase
-
 
 FILTER_PARAMS_DATA = [
     {
@@ -99,42 +99,43 @@ class FilterParamsTestCase(PythonTestCase):
 class MyFilter(BaseFilter):
     @filter_method(BaseFilter.Number, BaseFilter.DecimalNumber)
     def my_filter(self, value1, value2):
-        return (value1, value2)
+        self.context.result_value = (value1, value2)
 
 
 class StringFilter(BaseFilter):
     @filter_method(BaseFilter.String)
     def my_string_filter(self, value):
-        return value
+        self.context.result_value = value
 
 
 class EmptyFilter(BaseFilter):
     @filter_method()
     def my_empty_filter(self):
-        return 'ok'
+        self.context.result_value = 'ok'
 
 
 class AsyncFilter(BaseFilter):
     @filter_method(BaseFilter.String, async=True)
-    def my_async_filter(self, callback, value):
-        callback(value)
+    @tornado.gen.coroutine
+    def my_async_filter(self, value):
+        self.context.result_value = value
 
 
 class InvalidFilter(BaseFilter):
     def my_invalid_filter(self, value):
-        return value
+        return
 
 
 class DoubleStringFilter(BaseFilter):
     @filter_method(BaseFilter.String, BaseFilter.String)
     def my_string_filter(self, value1, value2):
-        return (value1, value2)
+        self.context.result_value = (value1, value2)
 
 
 class OptionalParamFilter(BaseFilter):
     @filter_method(BaseFilter.String, BaseFilter.String)
     def my_optional_filter(self, value1, value2="not provided"):
-        return (value1, value2)
+        self.context.result_value = (value1, value2)
 
 
 class PreLoadFilter(BaseFilter):
@@ -142,10 +143,10 @@ class PreLoadFilter(BaseFilter):
 
     @filter_method(BaseFilter.String)
     def my_pre_load_filter(self, value):
-        return value
+        self.context.result_value = value
 
 
-class BaseFilterTestCase(PythonTestCase):
+class BaseFilterTestCase(AsyncTestCase):
     def setUp(self, *args, **kwargs):
         super(BaseFilterTestCase, self).setUp(*args, **kwargs)
         self.context = self.get_context()
@@ -186,16 +187,18 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         expect(len(pre_instances)).to_equal(1)
         expect(pre_instances[0].__class__).to_equal(PreLoadFilter)
 
+    @tornado.testing.gen_test
     def test_running_post_filters_should_run_only_post_filters(self):
-        self.runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, mock.Mock())
+        yield self.runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM)
         post_instances = self.runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
         pre_instances = self.runner.filter_instances[thumbor.filters.PHASE_PRE_LOAD]
         expect(len(post_instances)).to_equal(0)
         expect(len(pre_instances)).to_equal(1)
 
+    @tornado.testing.gen_test
     def test_running_pre_filters_should_run_only_pre_filters(self):
-        self.runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM, mock.Mock())
-        self.runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD, mock.Mock())
+        yield self.runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM)
+        yield self.runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD)
         post_instances = self.runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
         pre_instances = self.runner.filter_instances[thumbor.filters.PHASE_PRE_LOAD]
         expect(len(post_instances)).to_equal(0)
@@ -209,58 +212,58 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         MyFilter.pre_compile()
         expect(MyFilter.runnable_method).to_equal(MyFilter.my_filter)
 
+    @tornado.testing.gen_test
     def test_valid_filter_sets_correct_result_value(self):
-        f = MyFilter("my_filter(1, -1.1)")
-        result = f.run()
-        expect(result).to_equal([(1, -1.1)])
+        f = MyFilter("my_filter(1, -1.1)", self.context)
+        yield f.run()
+        expect(self.context.result_value).to_equal((1, -1.1))
 
+    @tornado.testing.gen_test
     def test_invalid_number_throws_an_error(self):
-        f = MyFilter("my_invalid_filter(x, 1)")
-        result = f.run()
-        expect(hasattr(result, 'result')).to_be_false()
+        f = MyFilter("my_invalid_filter(x, 1)", self.context)
+        yield f.run()
+        expect(hasattr(self.context, 'result_value')).to_be_false()
 
-    def test_when_passed_callback_calls_callback(self):
-        f = MyFilter("my_filter(1, -1.1)")
-        callback = mock.Mock()
-        f.run(callback)
-        callback.assert_called_once_with()
-
+    @tornado.testing.gen_test
     def test_double_string_filter_sets_correct_values(self):
         DoubleStringFilter.pre_compile()
-        f = DoubleStringFilter("my_string_filter(a, b)")
-        result = f.run()
-        expect(result).to_equal([('a', 'b')])
+        f = DoubleStringFilter("my_string_filter(a, b)", self.context)
+        yield f.run()
+        expect(self.context.result_value).to_equal(('a', 'b'))
 
+    @tornado.testing.gen_test
     def test_WithStringsWithCommas_sets_correct_values(self):
         DoubleStringFilter.pre_compile()
         tests = [
-            ("my_string_filter(a,'b, c')", [('a', 'b, c')]),
-            ("my_string_filter('a,b', c)", [('a,b', 'c')]),
-            ("my_string_filter('ab', c)", [('ab', 'c')]),
-            ("my_string_filter('ab,', c)", [('ab,', 'c')]),
-            ("my_string_filter('ab,', ',c')", [('ab,', ',c')]),
-            ("my_string_filter('ab, c)", [('\'ab', 'c')]),
-            ("my_string_filter('ab, c',d)", [('ab, c', 'd')]),
+            ("my_string_filter(a,'b, c')", ('a', 'b, c')),
+            ("my_string_filter('a,b', c)", ('a,b', 'c')),
+            ("my_string_filter('ab', c)", ('ab', 'c')),
+            ("my_string_filter('ab,', c)", ('ab,', 'c')),
+            ("my_string_filter('ab,', ',c')", ('ab,', ',c')),
+            ("my_string_filter('ab, c)", ('\'ab', 'c')),
+            ("my_string_filter('ab, c',d)", ('ab, c', 'd')),
             ("my_string_filter('a,b, c)", None),
             ("my_string_filter('a,b, c')", None),
         ]
         for test, expected in tests:
-            f = DoubleStringFilter(test)
-            result = f.run()
-            expect(result).to_equal(expected)
+            self.context.result_value = None
+            f = DoubleStringFilter(test, self.context)
+            yield f.run()
+            expect(self.context.result_value).to_equal(expected)
 
+    @tornado.testing.gen_test
     def test_with_empty_filter_should_call_filter(self):
         EmptyFilter.pre_compile()
-        f = EmptyFilter('my_empty_filter()')
-        result = f.run()
-        expect(result).to_equal(['ok'])
+        f = EmptyFilter('my_empty_filter()', self.context)
+        yield f.run()
+        expect(self.context.result_value).to_equal('ok')
 
-    def test_with_async_filter_should_call_callback(self):
+    @tornado.testing.gen_test
+    def test_with_async_filter_should_run(self):
         AsyncFilter.pre_compile()
-        f = AsyncFilter("my_async_filter(yyy)")
-        callback = mock.Mock()
-        f.run(callback)
-        callback.assert_called_once_with('yyy')
+        f = AsyncFilter("my_async_filter(yyy)", self.context)
+        yield f.run()
+        expect(self.context.result_value).to_equal('yyy')
 
 
 class WithOneValidParamFilterTestCase(BaseFilterTestCase):
@@ -308,13 +311,16 @@ class WithValidParamsFilterTestCase(BaseFilterTestCase):
         expect(instances[0].__class__).to_equal(MyFilter)
         expect(instances[1].__class__).to_equal(StringFilter)
 
+    @tornado.testing.gen_test
     def test_when_running_should_create_two_instances(self):
         result = []
         instances = self.runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
         for instance in instances:
-            result.append(instance.run())
-        expect(result[0]).to_equal([(1, 0.0)])
-        expect(result[1]).to_equal(['aaaa'])
+            yield instance.run()
+            result.append(self.context.result_value)
+
+        expect(result[0]).to_equal((1, 0.0))
+        expect(result[1]).to_equal('aaaa')
 
 
 class WithOptionalParamFilterTestCase(BaseFilterTestCase):
@@ -329,9 +335,11 @@ class WithOptionalParamFilterTestCase(BaseFilterTestCase):
         expect(len(instances)).to_equal(1)
         expect(instances[0].__class__).to_equal(OptionalParamFilter)
 
+    @tornado.testing.gen_test
     def test_should_understand_parameters(self):
         instances = self.runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
-        expect(instances[0].run()).to_equal([("aa", "bb")])
+        yield instances[0].run()
+        expect(self.context.result_value).to_equal(("aa", "bb"))
 
 
 class WithOptionalParamsInOptionalFilterTestCase(BaseFilterTestCase):
@@ -341,14 +349,16 @@ class WithOptionalParamsInOptionalFilterTestCase(BaseFilterTestCase):
             'my_optional_filter(aa)'
         )
 
-    def test_should_create_two_instances(self):
+    def test_should_create_one_instance(self):
         instances = self.runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
         expect(len(instances)).to_equal(1)
         expect(instances[0].__class__).to_equal(OptionalParamFilter)
 
+    @tornado.testing.gen_test
     def test_should_understand_parameters(self):
         instances = self.runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
-        expect(instances[0].run()).to_equal([("aa", "not provided")])
+        yield instances[0].run()
+        expect(self.context.result_value).to_equal(("aa", "not provided"))
 
 
 class WithInvalidOptionalFilterTestCase(BaseFilterTestCase):

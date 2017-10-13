@@ -14,10 +14,8 @@ from os.path import abspath, join, dirname
 import os
 from datetime import datetime, timedelta
 import pytz
-import subprocess
 from json import loads
 
-import tornado.web
 from tornado.concurrent import return_future
 from preggy import expect
 from mock import Mock, patch
@@ -26,7 +24,7 @@ from six.moves.urllib.parse import quote
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context, ServerParameters, RequestParameters
-from thumbor.handlers import FetchResult, BaseHandler
+from thumbor.handlers.imaging import FetchResult, ImagingHandler
 from thumbor.loaders import LoaderResult
 from thumbor.result_storages.file_storage import Storage as FileResultStorage
 from thumbor.storages.file_storage import Storage as FileStorage
@@ -71,19 +69,6 @@ class FetchResultTestCase(PythonTestCase):
         expect(result.engine).to_equal(engine_mock)
         expect(result.successful).to_be_true()
         expect(result.loader_error).to_equal(error_mock)
-
-
-class ErrorHandler(BaseHandler):
-    def get(self):
-        self._error(403)
-
-
-class BaseHandlerTestApp(tornado.web.Application):
-    def __init__(self, context):
-        self.context = context
-        super(BaseHandlerTestApp, self).__init__([
-            (r'/error', ErrorHandler),
-        ])
 
 
 class BaseImagingTestCase(TestCase):
@@ -909,7 +894,6 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
     def test_loads_image_from_result_storage_fails_on_exception(self, get_mock_1):
         response = self.fetch('/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif')
         expect(response.code).to_equal(500)
-        expect(response.body).to_be_empty()
 
 
 class ImageOperationsWithGifWithoutGifsicle(BaseImagingTestCase):
@@ -1076,19 +1060,15 @@ class EngineLoadException(BaseImagingTestCase):
     @patch.object(Engine, 'load', side_effect=ValueError)
     def test_should_error_on_engine_load_exception(self, load_mock):
         response = self.fetch('/unsafe/image.jpg')
-        expect(response.code).to_equal(500)
+        expect(response.code).to_equal(400)
 
-    def test_should_release_ioloop_on_error_on_engine_exception(self):
+    def test_should_return_error_on_engine_exception(self):
         response = self.fetch('/unsafe/fit-in/134x134/940x2.png')
-        expect(response.code).to_equal(200)
-
-    def test_should_exec_other_operations_on_error_on_engine_exception(self):
-        response = self.fetch('/unsafe/fit-in/134x134/filters:equalize()/940x2.png')
-        expect(response.code).to_equal(200)
+        expect(response.code).to_equal(500)
 
     @patch.object(Engine, 'read', side_effect=Exception)
     def test_should_fail_with_500_upon_engine_read_exception(self, read_mock):
-        response = self.fetch('/unsafe/fit-in/134x134/940x2.png')
+        response = self.fetch('/unsafe/fit-in/2x2/940x2.png')
         expect(response.code).to_equal(500)
 
 
@@ -1125,63 +1105,6 @@ class StorageOverride(BaseImagingTestCase):
         Engine.load = old_load
         FileStorage.put = old_put
 
-        expect(response.code).to_equal(200)
-
-
-class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
-    def get_context(self):
-        cfg = Config(SECURITY_KEY='ACME-SEC')
-        cfg.LOADER = "thumbor.loaders.file_loader"
-        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
-        cfg.JPEGTRAN_PATH = which('jpegtran')
-        cfg.PROGRESSIVE_JPEG = True,
-        cfg.RESULT_STORAGE_STORES_UNSAFE = True,
-        cfg.OPTIMIZERS = [
-            'thumbor.optimizers.jpegtran',
-        ]
-
-        importer = Importer(cfg)
-        importer.import_modules()
-        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
-        server.security_key = 'ACME-SEC'
-        ctx = Context(server, cfg, importer)
-        return ctx
-
-    def test_should_optimize_jpeg(self):
-        response = self.fetch('/unsafe/200x200/image.jpg')
-
-        tmp_fd, tmp_file_path = tempfile.mkstemp(suffix='.jpg')
-        f = os.fdopen(tmp_fd, 'w')
-        f.write(response.body)
-        f.close()
-
-        exiftool = which('exiftool')
-        if not exiftool:
-            raise AssertionError('exiftool was not found. Please install it to run thumbor\'s tests.')
-
-        command = [
-            exiftool,
-            tmp_file_path,
-            '-DeviceModel',
-            '-EncodingProcess'
-        ]
-
-        try:
-            with open(os.devnull) as null:
-                output = subprocess.check_output(command, stdin=null)
-
-            expect(response.code).to_equal(200)
-            expect(output).to_equal('Encoding Process                : Progressive DCT, Huffman coding\n')
-        finally:
-            os.remove(tmp_file_path)
-
-    def test_with_meta(self):
-        response = self.fetch('/unsafe/meta/800x400/image.jpg')
-        expect(response.code).to_equal(200)
-
-    def test_with_meta_cached(self):
-        self.fetch('/unsafe/meta/800x400/image.jpg')
-        response = self.fetch('/unsafe/meta/800x400/image.jpg')
         expect(response.code).to_equal(200)
 
 
@@ -1237,11 +1160,11 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
         expect(len(response.body)).to_be_greater_than(1000)
 
 
-class TranslateCoordinatesTestCase(TestCase):
+class TranslateCoordinatesTestCase(PythonTestCase):
     def setUp(self, *args, **kwargs):
         super(TranslateCoordinatesTestCase, self).setUp(*args, **kwargs)
         coords = self.get_coords()
-        self.translate_crop_coordinates = BaseHandler.translate_crop_coordinates(
+        self.translate_crop_coordinates = ImagingHandler.translate_crop_coordinates(
             original_width=coords['original_width'],
             original_height=coords['original_height'],
             width=coords['width'],

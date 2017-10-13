@@ -7,15 +7,16 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
-
+import tornado
 from preggy import expect
 
 from tests.base import FilterTestCase
 
 
 class QualityFilterTestCase(FilterTestCase):
+    @tornado.testing.gen_test
     def test_quality_filter(self):
-        image = self.get_filtered('source.jpg', 'thumbor.filters.quality', 'quality(10)')
+        image = yield self.get_filtered('source.jpg', 'thumbor.filters.quality', 'quality(10)')
         expected = self.get_fixture('quality-10%.jpg')
 
         expect(self.context.request.quality).to_equal(10)

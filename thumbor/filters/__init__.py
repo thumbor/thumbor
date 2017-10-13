@@ -11,6 +11,8 @@
 import re
 import collections
 
+from tornado import gen
+
 STRIP_QUOTE = re.compile(r"^'(.+)'$")
 PHASE_POST_TRANSFORM = 'post_transform'
 PHASE_PRE_LOAD = 'pre-load'
@@ -75,20 +77,15 @@ class FiltersRunner:
     def __init__(self, filter_instances):
         self.filter_instances = filter_instances
 
-    def apply_filters(self, phase, callback):
+    @gen.coroutine
+    def apply_filters(self, phase):
         filters = self.filter_instances.get(phase, None)
-        if not filters:
-            callback()
-            return
 
-        def exec_one_filter():
-            if len(filters) == 0:
-                callback()
-                return
-
+        while filters:
             f = filters.pop(0)
-            f.run(exec_one_filter)
-        exec_one_filter()
+            yield f.run()
+
+        return
 
 
 class BaseFilter(object):
@@ -179,7 +176,8 @@ class BaseFilter(object):
                 callback(*args)
         return single_callback
 
-    def run(self, callback=None):
+    @gen.coroutine
+    def run(self):
         if self.params is None:
             return
 
@@ -191,17 +189,6 @@ class BaseFilter(object):
         else:
             engines_to_run = [None]
 
-        results = []
-        if self.async_filter:
-            callback = self.create_multi_engine_callback(callback, len(engines_to_run))
         for engine in engines_to_run:
             self.engine = engine
-            if self.async_filter:
-                self.runnable_method(callback, *self.params)
-            else:
-                results.append(self.runnable_method(*self.params))
-
-        if (not self.async_filter) and callback:
-            callback()
-
-        return results
+            yield gen.maybe_future(self.runnable_method(*self.params))

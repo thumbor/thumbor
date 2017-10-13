@@ -7,16 +7,16 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
-
-
+import tornado
 from preggy import expect
 
 from tests.base import FilterTestCase
 
 
 class NoiseFilterTestCase(FilterTestCase):
+    @tornado.testing.gen_test
     def test_noise_filter(self):
-        image = self.get_filtered('source.jpg', 'thumbor.filters.noise', 'noise(200,123)')
+        image = yield self.get_filtered('source.jpg', 'thumbor.filters.noise', 'noise(200,123)')
         expected = self.get_fixture('noise.png')
 
         ssim = self.get_ssim(image, expected)

@@ -7,15 +7,16 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
-
+import tornado
 from preggy import expect
 
 from tests.base import FilterTestCase
 
 
 class RGBFilterTestCase(FilterTestCase):
+    @tornado.testing.gen_test
     def test_rgb_filter(self):
-        image = self.get_filtered('source.jpg', 'thumbor.filters.rgb', 'rgb(10,2,4)')
+        image = yield self.get_filtered('source.jpg', 'thumbor.filters.rgb', 'rgb(10,2,4)')
         expected = self.get_fixture('rgb.jpg')
 
         ssim = self.get_ssim(image, expected)

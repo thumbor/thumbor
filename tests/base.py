@@ -16,6 +16,7 @@ from unittest import TestCase as PythonTestCase
 import mimetypes
 from os.path import exists, realpath, dirname, join
 import mock
+import tornado
 
 from PIL import Image
 from ssim import compute_ssim
@@ -30,7 +31,7 @@ from thumbor.importer import Importer
 from thumbor.transformer import Transformer
 from thumbor.engines.pil import Engine as PilEngine
 
-from tornado.testing import AsyncHTTPTestCase
+from tornado.testing import AsyncHTTPTestCase, AsyncTestCase
 
 try:
     unicode        # Python 2
@@ -216,10 +217,11 @@ class TestCase(AsyncHTTPTestCase):
                           allow_nonstandard_methods=True)
 
 
-class FilterTestCase(PythonTestCase):
+class FilterTestCase(AsyncTestCase):
     _multiprocess_can_split_ = True
 
     def setUp(self):
+        super(FilterTestCase, self).setUp()
         self.context = {}
 
     def get_filter(self, filter_name, params_string="", config_context=None):
@@ -256,6 +258,7 @@ class FilterTestCase(PythonTestCase):
         im = Image.open(self.get_fixture_path(name))
         return im.convert('RGB')
 
+    @tornado.gen.coroutine
     def get_filtered(self, source_image, filter_name, params_string, config_context=None):
         fltr = self.get_filter(filter_name, params_string, config_context)
         im = Image.open(self.get_fixture_path(source_image))
@@ -273,14 +276,11 @@ class FilterTestCase(PythonTestCase):
 
         fltr.context.transformer.img_operation_worker()
 
-        def dummy_callback(*args):
-            pass
-
-        fltr.run(dummy_callback)
+        yield fltr.run()
 
         fltr.engine.image = fltr.engine.image.convert('RGB')
 
-        return fltr.engine.image
+        raise tornado.gen.Return(fltr.engine.image)
 
     def get_ssim(self, actual, expected):
         return get_ssim(actual, expected)

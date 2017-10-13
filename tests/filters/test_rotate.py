@@ -7,7 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
-
+import tornado
 from preggy import expect
 
 from thumbor.context import Context, RequestParameters
@@ -20,15 +20,17 @@ from tests.base import FilterTestCase
 
 
 class RotateFilterTestCase(FilterTestCase):
+    @tornado.testing.gen_test
     def test_rotate_filter(self):
-        image = self.get_filtered('source.jpg', 'thumbor.filters.rotate', 'rotate(180)')
+        image = yield self.get_filtered('source.jpg', 'thumbor.filters.rotate', 'rotate(180)')
         expected = self.get_fixture('rotate.jpg')
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)
 
+    @tornado.testing.gen_test
     def test_rotate_filter_with_invalid_value(self):
-        image = self.get_filtered('source.jpg', 'thumbor.filters.rotate', 'rotate(181)')
+        image = yield self.get_filtered('source.jpg', 'thumbor.filters.rotate', 'rotate(181)')
         expected = self.get_fixture('source.jpg')
 
         ssim = self.get_ssim(image, expected)
