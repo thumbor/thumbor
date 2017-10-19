@@ -135,7 +135,7 @@ class Filter(BaseFilter):
         self.callback()
 
     def on_fetch_done(self, result):
-        if not result.successful:
+        if isinstance(result, LoaderResult) and not result.successful:
             logger.warn(
                 'bad watermark result error=%s metadata=%s' %
                 (result.error, result.metadata)
