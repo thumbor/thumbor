@@ -18,7 +18,7 @@ import logging
 
 tests_require = [
     "redis>=2.4.9,<3.0.0",
-    "coverage",
+    "coverage>=4.4.1",
     "mock>=1.0.1,<3.0.0",
     "raven",
     "nose",
@@ -32,6 +32,7 @@ tests_require = [
     "cairosvg>=1.0.0,<2.0.0,!=1.0.21",
     "preggy>=1.3.0",
     "opencv-python",
+    "yanc>=0.3.3",
 ]
 
 
