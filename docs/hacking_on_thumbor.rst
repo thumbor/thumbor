@@ -22,7 +22,7 @@ You'll also need python >= 2.6 and < 3.0.
 The following packages are required:
 
 -  Tornado >= 2.1.1
--  pyCrypto >= 2.4.1
+-  pycryptodome >= 3.4.7
 -  pycurl >= 7.19.0
 -  Pillow >= 1.7.5
 -  redis >= 2.4.11
