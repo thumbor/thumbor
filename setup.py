@@ -105,7 +105,6 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "futures",
             "argparse",
             "pytz",
-            "schedule",
             "six",
             "webcolors",
         ],

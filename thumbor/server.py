@@ -12,7 +12,6 @@ import gc
 import sys
 import logging
 import logging.config
-import schedule
 import warnings
 
 import os
@@ -149,9 +148,6 @@ def main(arguments=None):
         application = get_application(context)
         run_server(application, context)
 
-        if (config.GC_INTERVAL and config.GC_INTERVAL > 0):
-            schedule.every(config.GC_INTERVAL).seconds.do(gc_collect)
-
         try:
             logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
             tornado.ioloop.IOLoop.instance().start()
@@ -161,4 +157,4 @@ def main(arguments=None):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main(sys.argv[1:])
