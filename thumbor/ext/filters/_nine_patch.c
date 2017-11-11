@@ -299,6 +299,27 @@ static PyMethodDef _nine_patch_methods[] = {
     { 0, 0, 0, 0 }
 };
 
+#if PY_MAJOR_VERSION >= 3
+
+static struct PyModuleDef _nine_patch_moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_nine_patch",
+    "_nine_patch native module",
+    -1,
+    _nine_patch_methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+};
+PyMODINIT_FUNC PyInit_nine_patch(void) {
+   return PyModule_Create(&_nine_patch_moduledef);
+};
+
+#else
+
 PyMODINIT_FUNC init_nine_patch(void) {
     Py_InitModule3("_nine_patch", _nine_patch_methods, "_nine_patch native module");
 }
+
+#endif
