@@ -10,7 +10,7 @@
 import datetime
 import re
 import sys
-
+import functools
 import pytz
 import tornado.gen as gen
 import tornado.web
@@ -463,7 +463,7 @@ class ImagingHandler(ContextHandler):
             self.context.config.RESULT_STORAGE_STORES_UNSAFE or not self.context.request.unsafe)
 
         try:
-            results, content_type = yield self.context.thread_pool.queue(self._load_results)
+            results, content_type = yield self._load_results()
         except Exception as e:
             logger.exception('[BaseHander.finish_request] %s', e)
             raise tornado.web.HTTPError(504, 'Error while trying to fetch the image: {}'.format(e))
@@ -475,6 +475,7 @@ class ImagingHandler(ContextHandler):
         if should_store:
             self._store_results(result_storage, metrics, results)
 
+    @gen.coroutine
     def _load_results(self):
         image_extension, content_type = self.define_image_type()
 
@@ -484,9 +485,12 @@ class ImagingHandler(ContextHandler):
                 quality = self.context.config.get('WEBP_QUALITY')
             else:
                 quality = self.context.config.QUALITY
-        results = self.context.request.engine.read(image_extension, quality)
+        results = yield self.context.thread_pool.queue(
+            functools.partial(self.context.request.engine.read, image_extension, quality)
+        )
+
         if self.context.request.max_bytes is not None:
-            results = self.reload_to_fit_in_kb(
+            results = yield self.reload_to_fit_in_kb(
                 self.context.request.engine,
                 results,
                 image_extension,
@@ -494,23 +498,27 @@ class ImagingHandler(ContextHandler):
                 self.context.request.max_bytes
             )
         if not self.context.request.meta:
-            results = self.optimize(image_extension, results)
+            results = yield self.optimize(image_extension, results)
             # An optimizer might have modified the image format.
             content_type = BaseEngine.get_mimetype(results)
 
-        return results, content_type
+        raise gen.Return((results, content_type))
 
+    @gen.coroutine
     def optimize(self, image_extension, results):
         for optimizer in self.context.modules.optimizers:
-            new_results = optimizer(self.context).run_optimizer(image_extension, results)
+            new_results = yield self.context.thread_pool.queue(
+                functools.partial(optimizer(self.context).run_optimizer, image_extension, results)
+            )
             if new_results is not None:
                 results = new_results
 
-        return results
+        raise gen.Return(results)
 
+    @gen.coroutine
     def reload_to_fit_in_kb(self, engine, initial_results, extension, initial_quality, max_bytes):
         if extension not in ['.webp', '.jpg', '.jpeg'] or len(initial_results) <= max_bytes:
-            return initial_results
+            raise gen.Return(initial_results)
 
         results = initial_results
         quality = initial_quality
@@ -520,19 +528,23 @@ class ImagingHandler(ContextHandler):
 
             if quality < 10:
                 logger.debug('Could not find any reduction that matches required size of %d bytes.' % max_bytes)
-                return initial_results
+                raise gen.Return(initial_results)
 
             logger.debug('Trying to downsize image with quality of %d...' % quality)
-            results = engine.read(extension, quality)
+            results = yield self.context.thread_pool.queue(
+                functools.partial(engine.read, extension, quality)
+            )
 
         prev_result = results
         while len(results) <= max_bytes:
             quality = int(quality * 1.1)
             logger.debug('Trying to upsize image with quality of %d...' % quality)
             prev_result = results
-            results = engine.read(extension, quality)
+            results = yield self.context.thread_pool.queue(
+                functools.partial(engine.read, extension, quality)
+            )
 
-        return prev_result
+        raise gen.Return(prev_result)
 
     @gen.coroutine
     def _store_results(self, result_storage, metrics, results):
