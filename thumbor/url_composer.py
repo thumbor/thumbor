@@ -166,7 +166,7 @@ def main(arguments=None):
 
     try:
         config = Config.load(None)
-    except:
+    except Exception:
         config = None
 
     if not parsed_options.key and not config:

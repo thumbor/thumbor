@@ -19,7 +19,7 @@ from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 try:
     import cv2
     import numpy
-except:
+except ImportError:
     cv = None
     numpy = None
 

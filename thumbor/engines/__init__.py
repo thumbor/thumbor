@@ -13,7 +13,7 @@ from xml.etree.ElementTree import ParseError
 
 try:
     import cairosvg
-except:
+except ImportError:
     cairosvg = None
 
 try:
