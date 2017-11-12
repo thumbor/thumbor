@@ -289,11 +289,11 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 return False
             while True:
-                l = ord(data[i])
+                _l = ord(data[i])
                 i += 1
-                if not l:
+                if not _l:
                     break
-                i += l
+                i += _l
         return frames > 1
 
     def define_image_type(self, context, result):
