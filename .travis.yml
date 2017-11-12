@@ -23,8 +23,8 @@ matrix:
       env: LINT_TEST=1
 env:
   - LINT_TEST=1
-  - INTEGRATION_TEST=1 run lint and unitest
-  - UNIT_TEST= run lint and unitest1
+  - INTEGRATION_TEST=1
+  - UNIT_TEST=1
 addons:
   apt:
     packages:
