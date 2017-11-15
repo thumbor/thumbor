@@ -485,6 +485,7 @@ class ImagingHandler(ContextHandler):
                 quality = self.context.config.get('WEBP_QUALITY')
             else:
                 quality = self.context.config.QUALITY
+
         results = yield self.context.thread_pool.queue(
             functools.partial(self.context.request.engine.read, image_extension, quality)
         )
@@ -506,12 +507,14 @@ class ImagingHandler(ContextHandler):
 
     @gen.coroutine
     def optimize(self, image_extension, results):
-        for optimizer in self.context.modules.optimizers:
-            new_results = yield self.context.thread_pool.queue(
-                functools.partial(optimizer(self.context).run_optimizer, image_extension, results)
-            )
-            if new_results is not None:
-                results = new_results
+        for optimizer_cls in self.context.modules.optimizers:
+            optimizer = optimizer_cls(self.context)
+            if (optimizer.should_run(image_extension, results)):
+                new_results = yield self.context.thread_pool.queue(
+                    functools.partial(optimizer.run_optimizer, image_extension, results)
+                )
+                if new_results is not None:
+                    results = new_results
 
         raise gen.Return(results)
 
