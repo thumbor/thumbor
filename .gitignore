@@ -32,3 +32,5 @@ opencv
 .ropeproject/
 .venv
 docs/_build
+mprofile*
+.python-version

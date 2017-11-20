@@ -15,9 +15,15 @@ Handler responsible for:
 '''
 
 import tornado.web
+import tornado.gen
+
+import thumbor.context
 
 
-class ImagingHandler(tornado.web.RequestHandler):
+class CoreHandler(tornado.web.RequestHandler):
 
+    @tornado.gen.coroutine
     def get(self, **kw):
-        print(kw)
+        req = thumbor.context.RequestParameters.from_route_arguments(self.request, kw)
+
+        req = None

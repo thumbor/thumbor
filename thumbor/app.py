@@ -16,6 +16,7 @@ from thumbor.handlers.upload import ImageUploadHandler
 from thumbor.handlers.image_resource import ImageResourceHandler
 from thumbor.url import Url
 from thumbor.handlers.imaging import ImagingHandler
+from thumbor.handlers.core import CoreHandler
 
 
 class ThumborServiceApp(tornado.web.Application):
@@ -47,8 +48,12 @@ class ThumborServiceApp(tornado.web.Application):
             )
 
         # Imaging handler (GET)
+        # handlers.append(
+            # (Url.regex(), ImagingHandler, {'context': self.context})
+        # )
+
         handlers.append(
-            (Url.regex(), ImagingHandler, {'context': self.context})
+            (Url.regex(), CoreHandler),
         )
 
         return handlers

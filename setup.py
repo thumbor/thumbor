@@ -33,6 +33,9 @@ tests_require = [
     "preggy>=1.3.0",
     "opencv-python",
     "yanc>=0.3.3",
+    "matplotlib",
+    "memory_profiler",
+    "psutil",
 ]
 
 
@@ -97,6 +100,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
         install_requires=[
             "tornado>=4.1.0,<5.0.0",
             "pycryptodome >= 3.4.7",
+            "asyncblink>=0.2,<1.0",
             "pycurl>=7.19.0,<7.44.0",
             "Pillow>=3.0.0,<5.0.0",
             "derpconf>=0.2.0",
