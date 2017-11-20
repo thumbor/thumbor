@@ -63,14 +63,11 @@ def on_after_loading_source_image(sender, request, details, request_parameters):
     temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace('-', ''))
     file_dir_abspath = dirname(file_abspath)
 
-    # logger.debug('creating tempfile for %s in %s...' % (path, temp_abspath))
-
     ensure_dir(file_dir_abspath)
 
     with open(temp_abspath, 'wb') as _file:
         _file.write(details.source_image)
 
-    # logger.debug('moving tempfile %s to %s...' % (temp_abspath, file_abspath))
     move(temp_abspath, file_abspath)
 
     return
