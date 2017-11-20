@@ -31,12 +31,14 @@ file_storage_init()
 
 
 class RequestDetails(object):
-    def __init__(self):
+    def __init__(self, request_parameters=None):
         self.finish_early = False
         self.status_code = 200
         self.body = None
         self.headers = {}
         self.source_image = None
+        self.transformed_image = None
+        self.request_parameters = request_parameters
 
 
 class CoreHandler(tornado.web.RequestHandler):
@@ -46,8 +48,8 @@ class CoreHandler(tornado.web.RequestHandler):
         yield Events.trigger(Events.Imaging.before_finish_request, self, request=self.request, details=details)
         self.set_status(details.status_code)
         self.write(details.body)
-        for header, value in details.headers:
-            self.set-header(header, value)
+        for header, value in details.headers.items():
+            self.set_header(header, value)
         yield Events.trigger(Events.Imaging.after_finish_request, self, request=self.request, details=details)
 
     @tornado.gen.coroutine
@@ -62,12 +64,19 @@ class CoreHandler(tornado.web.RequestHandler):
         if finish:
             return
 
+        if details.transformed_image is not None:
+            details.body = details.transformed_image
+            yield self.finish_request(details)
+            return
+
         finish = yield self._load_image(details, req)
         if finish:
             return
 
-        # TODO: this is temp
-        details.body = details.source_image
+        # TODO: Change this!
+        details.transformed_image = details.source_image
+
+        details.body = details.transformed_image
 
         yield self.finish_request(details)
         del(req)
@@ -90,7 +99,11 @@ class CoreHandler(tornado.web.RequestHandler):
             return None, True
 
         req = thumbor.context.RequestParameters.from_route_arguments(self.request, kw)
-        yield Events.trigger(Events.Imaging.after_parsing_arguments, self, request=self.request, details=details, arguments=kw)
+        details.request_parameters = req
+        yield Events.trigger(
+            Events.Imaging.after_parsing_arguments, self,
+            request=self.request, details=details,
+        )
         if details.finish_early:
             yield self.finish_request(details)
             return None, True
@@ -101,7 +114,7 @@ class CoreHandler(tornado.web.RequestHandler):
     def _load_image(self, details, req):
         yield Events.trigger(
             Events.Imaging.before_loading_source_image, self,
-            request=self.request, details=details, request_parameters=req,
+            request=self.request, details=details,
         )
         if details.finish_early:
             yield self.finish_request(details)
@@ -110,19 +123,19 @@ class CoreHandler(tornado.web.RequestHandler):
         if details.source_image is not None:
             yield Events.trigger(
                 Events.Imaging.source_image_already_loaded, self,
-                request=self.request, details=details, request_parameters=req,
+                request=self.request, details=details,
             )
             return False
 
         yield Events.trigger(
             Events.Imaging.load_source_image, self,
-            request=self.request, details=details, request_parameters=req
+            request=self.request, details=details,
         )
 
         if details.source_image is None:
             yield Events.trigger(
                 Events.Imaging.source_image_not_found, self,
-                request=self.request, details=details, request_parameters=req
+                request=self.request, details=details,
             )
             if details.status_code == 200:
                 details.status_code = 404
@@ -132,7 +145,7 @@ class CoreHandler(tornado.web.RequestHandler):
 
         yield Events.trigger(
             Events.Imaging.after_loading_source_image, self,
-            request=self.request, details=details, request_parameters=req,
+            request=self.request, details=details,
         )
         if details.finish_early:
             yield self.finish_request(details)

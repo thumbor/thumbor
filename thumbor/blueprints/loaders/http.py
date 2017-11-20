@@ -18,7 +18,8 @@ def plug_into_lifecycle():
 
 
 @tornado.gen.coroutine
-def on_load_source_image(sender, request, details, request_parameters):
+def on_load_source_image(sender, request, details):
+    request_parameters = details.request_parameters
     # using_proxy = context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
     # if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
         # http_client_implementation = 'tornado.curl_httpclient.CurlAsyncHTTPClient'
