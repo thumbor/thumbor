@@ -3,6 +3,10 @@ OS := $(shell uname)
 run: compile_ext
 	@thumbor -l debug -d
 
+profile: compile_ext
+	@mprof run thumbor -l debug -d
+	@mprof plot
+
 setup:
     ifeq ($(OS), xx)
 	@$(MAKE) setup_mac

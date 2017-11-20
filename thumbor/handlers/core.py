@@ -19,11 +19,15 @@ import tornado.gen
 
 import thumbor.context
 from thumbor.lifecycle import Events
+
+# Blueprints
 from thumbor.blueprints.loaders.http import plug_into_lifecycle as http_loader_init
+from thumbor.blueprints.storages.file import plug_into_lifecycle as file_storage_init
 
 
 # TODO: proper loading of blueprints
 http_loader_init()
+file_storage_init()
 
 
 class RequestDetails(object):
@@ -58,17 +62,17 @@ class CoreHandler(tornado.web.RequestHandler):
         if finish:
             return
 
-        yield self._load_image(details, req)
-        if details.finish_early:
-            yield self.finish_request(details)
+        finish = yield self._load_image(details, req)
+        if finish:
             return
 
         # TODO: this is temp
         details.body = details.source_image
 
         yield self.finish_request(details)
-        req = None
-        details = None
+        del(req)
+        del(details)
+        del(finish)
 
     @tornado.gen.coroutine
     def _before_request(self, details, kw):
@@ -101,7 +105,14 @@ class CoreHandler(tornado.web.RequestHandler):
         )
         if details.finish_early:
             yield self.finish_request(details)
-            return None, True
+            return True
+
+        if details.source_image is not None:
+            yield Events.trigger(
+                Events.Imaging.source_image_already_loaded, self,
+                request=self.request, details=details, request_parameters=req,
+            )
+            return False
 
         yield Events.trigger(
             Events.Imaging.load_source_image, self,
@@ -117,7 +128,7 @@ class CoreHandler(tornado.web.RequestHandler):
                 details.status_code = 404
                 details.body = "Source Image was not found at %s" % req.image_url
             yield self.finish_request(details)
-            return None, True
+            return True
 
         yield Events.trigger(
             Events.Imaging.after_loading_source_image, self,
@@ -125,6 +136,6 @@ class CoreHandler(tornado.web.RequestHandler):
         )
         if details.finish_early:
             yield self.finish_request(details)
-            return None, True
+            return True
 
-        return req, False
+        return False

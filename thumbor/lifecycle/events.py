@@ -50,6 +50,7 @@ class Events(object):
         load_source_image = signal('imaging.loading_source_image')
         after_loading_source_image = signal('imaging.after_loading_source_image')
         source_image_not_found = signal('imaging.source_image_not_found')
+        source_image_already_loaded = signal('imaging.source_image_already_loaded')
 
     class Healthcheck(object):
         before_healthcheck = signal('healthcheck.before_healthcheck')
