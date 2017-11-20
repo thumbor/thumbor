@@ -25,7 +25,7 @@ Example:
         # do something
         return 'done'
 
-       Events.on_request_received.connect(on_request_received_handler, scheduler=Events.scheduler)
+    Events.subscribe(Events.Imaging.request_received, on_request_received_handler)
 '''
 
 import tornado.gen
@@ -37,13 +37,24 @@ class Events(object):
     '''Thumbor's request lifecycle events'''
 
     class Imaging(object):
+        before_finish_request = signal('imaging.before_finish_request')
+        after_finish_request = signal('imaging.after_finish_request')
+
         # Event executed before processing anything else
-        on_request_received = signal('request.received')
+        request_received = signal('imaging.received')
+
+        before_parsing_arguments = signal('imaging.before_parsing_arguments')
+        after_parsing_arguments = signal('imaging.after_parsing_arguments')
+
+        before_loading_source_image = signal('imaging.before_loading_source_image')
+        load_source_image = signal('imaging.loading_source_image')
+        after_loading_source_image = signal('imaging.after_loading_source_image')
+        source_image_not_found = signal('imaging.source_image_not_found')
 
     class Healthcheck(object):
-        on_before_healthcheck = signal('healthcheck.before_healthcheck')
-        on_healthcheck = signal('healthcheck.execute')
-        on_after_healthcheck = signal('healthcheck.after_healthcheck')
+        before_healthcheck = signal('healthcheck.before_healthcheck')
+        healthcheck = signal('healthcheck.execute')
+        after_healthcheck = signal('healthcheck.after_healthcheck')
 
     def __init__(self):
         raise RuntimeError('Events class should not be instantiated.')
@@ -62,7 +73,7 @@ class Events(object):
 
     @classmethod
     @tornado.gen.coroutine
-    def trigger(cls, sender, event, **kw):
+    def trigger(cls, event, sender, **kw):
         event_action = event.send(sender, **kw)
         if event_action:
             resp = yield event_action[0][1]
