@@ -30,8 +30,18 @@ http_loader_init()
 file_storage_init()
 
 
+class ConfigWrapper(object):
+    def __init__(self, config):
+        self._config = config
+
+    def __getattr__(self, name):
+        if name != '_config' and name not in self.__dict__:
+            return getattr(self._config, name)
+        return object.__getattr__(name)
+
+
 class RequestDetails(object):
-    def __init__(self, request_parameters=None):
+    def __init__(self, config, request_parameters=None):
         self.finish_early = False
         self.status_code = 200
         self.body = None
@@ -39,6 +49,8 @@ class RequestDetails(object):
         self.source_image = None
         self.transformed_image = None
         self.request_parameters = request_parameters
+        self._config = config
+        self.config = ConfigWrapper(config)
 
 
 class CoreHandler(tornado.web.RequestHandler):
@@ -54,7 +66,7 @@ class CoreHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def get(self, **kw):
-        details = RequestDetails()
+        details = RequestDetails(self.application.context.config)
 
         finish = yield self._before_request(details=details, kw=kw)
         if finish:

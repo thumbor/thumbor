@@ -37,9 +37,9 @@ class HealthcheckHandler(BaseHandler):
     @tornado.gen.coroutine
     def get(self):
         health = Health()
-        yield Events.trigger(self, Events.Healthcheck.before_healthcheck, health=health)
-        yield Events.trigger(self, Events.Healthcheck.healthcheck, health=health)
-        yield Events.trigger(self, Events.Healthcheck.after_healthcheck, health=health)
+        yield Events.trigger(Events.Healthcheck.before_healthcheck, self, health=health)
+        yield Events.trigger(Events.Healthcheck.healthcheck, self, health=health)
+        yield Events.trigger(Events.Healthcheck.after_healthcheck, self, health=health)
 
         if health.healthy:
             self.write('WORKING')
