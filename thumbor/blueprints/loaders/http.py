@@ -9,12 +9,29 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import tornado.gen
+from six.moves.urllib.parse import quote, unquote
 
 from thumbor.lifecycle import Events
 
 
 def plug_into_lifecycle():
     Events.subscribe(Events.Imaging.load_source_image, on_load_source_image)
+
+
+def encode_url(url):
+    if url == unquote(url):
+        return quote(url.encode('utf-8'), safe='~@#$&()*!+=:;,.?/\'')
+    else:
+        return url
+
+
+def quote_url(url):
+    return encode_url(unquote(url))
+
+
+def _normalize_url(url):
+    url = quote_url(url)
+    return url if url.startswith('http') else 'http://%s' % url
 
 
 @tornado.gen.coroutine
@@ -51,8 +68,8 @@ def on_load_source_image(sender, request, details):
     if user_agent is None and 'User-Agent' not in headers:
         user_agent = details.config.HTTP_LOADER_DEFAULT_USER_AGENT
 
-    # url = _normalize_url(request_parameters.image_url)
-    url = request_parameters.image_url
+    url = _normalize_url(request_parameters.image_url)
+    # url = request_parameters.image_url
     image_request = tornado.httpclient.HTTPRequest(
         url=url,
         headers=headers,

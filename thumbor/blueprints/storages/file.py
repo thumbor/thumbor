@@ -67,6 +67,11 @@ def is_expired(path):
 @tornado.gen.coroutine
 def on_after_parsing_argument(sender, request, details):
     request_parameters = details.request_parameters
+
+    should_store = details.config.RESULT_STORAGE_STORES_UNSAFE or not details.request_parameters.unsafe
+    if not should_store:
+        return
+
     file_abspath = path_on_filesystem(request_parameters.url)
     if not validate_path(file_abspath):
         return
@@ -78,9 +83,6 @@ def on_after_parsing_argument(sender, request, details):
         details.transformed_image = f.read()
 
     details.headers['Last-Modified'] = datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc)
-    details.headers['Content-Length'] = len(details.transformed_image)
-    # details.headers['ContentType'] = BaseEngine.get_mimetype(details.transformed_image)
-    details.headers['Content-Type'] = 'image/jpeg'
 
 
 @tornado.gen.coroutine
@@ -118,6 +120,10 @@ def on_after_loading_source_image(sender, request, details):
 def on_after_finish_request(sender, request, details):
     request_parameters = details.request_parameters
     if details.status_code != 200 or details.transformed_image is None:
+        return
+
+    should_store = details.config.RESULT_STORAGE_STORES_UNSAFE or not details.request_parameters.unsafe
+    if not should_store:
         return
 
     file_abspath = path_on_filesystem(request_parameters.url)

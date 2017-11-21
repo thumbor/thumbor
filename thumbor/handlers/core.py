@@ -16,6 +16,7 @@ Handler responsible for:
 
 import tornado.web
 import tornado.gen
+import magic
 
 import thumbor.context
 from thumbor.lifecycle import Events
@@ -51,6 +52,7 @@ class RequestDetails(object):
         self.request_parameters = request_parameters
         self._config = config
         self.config = ConfigWrapper(config)
+        self.metadata = {}
 
 
 class CoreHandler(tornado.web.RequestHandler):
@@ -60,8 +62,16 @@ class CoreHandler(tornado.web.RequestHandler):
         yield Events.trigger(Events.Imaging.before_finish_request, self, request=self.request, details=details)
         self.set_status(details.status_code)
         self.write(details.body)
+
+        if details.body is not None:
+            if 'Content-Type' not in details.headers:
+                details.headers['Content-Type'] = magic.from_buffer(details.body[:1024], True)
+
+            details.headers['Content-Length'] = len(details.body)
+
         for header, value in details.headers.items():
             self.set_header(header, value)
+
         yield Events.trigger(Events.Imaging.after_finish_request, self, request=self.request, details=details)
 
     @tornado.gen.coroutine
@@ -81,7 +91,11 @@ class CoreHandler(tornado.web.RequestHandler):
             yield self.finish_request(details)
             return
 
-        finish = yield self._load_image(details, req)
+        finish = yield self._load_image(details)
+        if finish:
+            return
+
+        finish = yield self._transform_image(details)
         if finish:
             return
 
@@ -123,7 +137,8 @@ class CoreHandler(tornado.web.RequestHandler):
         return req, False
 
     @tornado.gen.coroutine
-    def _load_image(self, details, req):
+    def _load_image(self, details):
+        # Before loading source image
         yield Events.trigger(
             Events.Imaging.before_loading_source_image, self,
             request=self.request, details=details,
@@ -133,28 +148,31 @@ class CoreHandler(tornado.web.RequestHandler):
             return True
 
         if details.source_image is not None:
+            # Source Image was found in storage
             yield Events.trigger(
                 Events.Imaging.source_image_already_loaded, self,
                 request=self.request, details=details,
             )
-            return False
-
-        yield Events.trigger(
-            Events.Imaging.load_source_image, self,
-            request=self.request, details=details,
-        )
-
-        if details.source_image is None:
+        else:
+            # Source image must be loaded
             yield Events.trigger(
-                Events.Imaging.source_image_not_found, self,
+                Events.Imaging.load_source_image, self,
                 request=self.request, details=details,
             )
-            if details.status_code == 200:
-                details.status_code = 404
-                details.body = "Source Image was not found at %s" % req.image_url
-            yield self.finish_request(details)
-            return True
 
+            if details.source_image is None:
+                # Source image could not be loaded
+                yield Events.trigger(
+                    Events.Imaging.source_image_not_found, self,
+                    request=self.request, details=details,
+                )
+                if details.status_code == 200:
+                    details.status_code = 404
+                    details.body = "Source Image was not found at %s" % details.request_parameters.image_url
+                yield self.finish_request(details)
+                return True
+
+        # Source image has been loaded successfully
         yield Events.trigger(
             Events.Imaging.after_loading_source_image, self,
             request=self.request, details=details,
@@ -164,3 +182,7 @@ class CoreHandler(tornado.web.RequestHandler):
             return True
 
         return False
+
+    @tornado.gen.coroutine
+    def _transform_image(self, details):
+        pass
