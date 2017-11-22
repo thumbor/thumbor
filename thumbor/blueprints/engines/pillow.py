@@ -15,7 +15,7 @@ Engine responsible for image operations using pillow.
 from io import BytesIO
 
 import tornado.gen
-from PIL import Image
+from PIL import Image, JpegImagePlugin, ImageSequence
 
 from thumbor.lifecycle import Events
 
@@ -38,31 +38,33 @@ def plug_into_lifecycle():
 @tornado.gen.coroutine
 def on_before_transforming_image(sender, request, details):
     try:
-        details.metadata['image'] = Image.open(BytesIO(details.source_image))
+        img = Image.open(BytesIO(details.source_image))
     except Image.DecompressionBombWarning as e:
         details.finish_early = True
         details.body = 'Image could not be loaded by PIL engine'
         details.status_code = 500
         return False
 
-        # self.icc_profile = img.info.get('icc_profile')
-        # self.transparency = img.info.get('transparency')
-        # self.exif = img.info.get('exif')
+    details.metadata['icc_profile'] = img.info.get('icc_profile')
 
-        # self.subsampling = JpegImagePlugin.get_sampling(img)
-        # if (self.subsampling == -1):  # n/a for this file
-            # self.subsampling = None
-        # self.qtables = getattr(img, 'quantization', None)
+    details.metadata['transparency'] = img.info.get('transparency')
+    details.metadata['exif'] = img.info.get('exif')
 
-        # if self.context.config.ALLOW_ANIMATED_GIFS and self.extension == '.gif':
-            # frames = []
-            # for frame in ImageSequence.Iterator(img):
-                # frames.append(frame.convert('P'))
-            # img.seek(0)
-            # self.frame_count = len(frames)
-            # return frames
+    details.metadata['subsampling'] = JpegImagePlugin.get_sampling(img)
+    if (details.metadata['subsampling'] == -1):  # n/a for this file
+        details.metadata['subsampling'] = None
+    details.metadata['qtables'] = getattr(img, 'quantization', None)
 
-        # return img
+    if details.config.ALLOW_ANIMATED_GIFS and details.mimetype == 'image/gif':
+        frames = []
+        for frame in ImageSequence.Iterator(img):
+            frames.append(frame.convert('P'))
+        img.seek(0)
+        details.metadata['frame_count'] = len(frames)
+        return frames
+
+    details.metadata['image'] = img
+    return True
 
 
 @tornado.gen.coroutine
@@ -129,70 +131,73 @@ def on_after_transforming_image(sender, request, details):
 
 
 def serialize_image(details):
+    img = details.metadata['image']
     # returns image buffer in byte format.
     img_buffer = BytesIO()
 
     options = {
         'quality': details.config.QUALITY,
     }
-    # if ext == '.jpg' or ext == '.jpeg':
-        # options['optimize'] = True
-        # if self.context.config.PROGRESSIVE_JPEG:
-            # # Can't simply set options['progressive'] to the value
-            # # of self.context.config.PROGRESSIVE_JPEG because save
-            # # operates on the presence of the key in **options, not
-            # # the value of that setting.
-            # options['progressive'] = True
+    if details.mimetype in ['image/jpeg', 'image/jpg']:
+        options['optimize'] = True
+        if details.config.PROGRESSIVE_JPEG:
+            # Can't simply set options['progressive'] to the value
+            # of details.config.PROGRESSIVE_JPEG because save
+            # operates on the presence of the key in **options, not
+            # the value of that setting.
+            options['progressive'] = True
 
-        # if self.image.mode != 'RGB':
-            # self.image = self.image.convert('RGB')
-        # else:
-            # subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
-            # qtables_config = self.context.config.PILLOW_JPEG_QTABLES
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        else:
+            subsampling_config = details.config.PILLOW_JPEG_SUBSAMPLING
+            qtables_config = details.config.PILLOW_JPEG_QTABLES
 
-            # if subsampling_config is not None or qtables_config is not None:
-                # options['quality'] = 0  # can't use 'keep' here as Pillow would try to extract qtables/subsampling and fail
-                # orig_subsampling = self.subsampling
-                # orig_qtables = self.qtables
+            if subsampling_config is not None or qtables_config is not None:
+                options['quality'] = 0  # can't use 'keep' here as Pillow would try to extract qtables/subsampling and fail
+                orig_subsampling = details.metadata.get('subsampling', None)
+                orig_qtables = details.metadata.get('qtables', None)
 
-                # if (subsampling_config == 'keep' or subsampling_config is None) and (orig_subsampling is not None):
-                    # options['subsampling'] = orig_subsampling
-                # else:
-                    # options['subsampling'] = subsampling_config
+                if (subsampling_config == 'keep' or subsampling_config is None) and (orig_subsampling is not None):
+                    options['subsampling'] = orig_subsampling
+                else:
+                    options['subsampling'] = subsampling_config
 
-                # if (qtables_config == 'keep' or qtables_config is None) and (orig_qtables and 2 <= len(orig_qtables) <= 4):
-                    # options['qtables'] = orig_qtables
-                # else:
-                    # options['qtables'] = qtables_config
+                if (qtables_config == 'keep' or qtables_config is None) and (orig_qtables and 2 <= len(orig_qtables) <= 4):
+                    options['qtables'] = orig_qtables
+                else:
+                    options['qtables'] = qtables_config
 
-    # if ext == '.png' and self.context.config.PNG_COMPRESSION_LEVEL is not None:
-        # options['compress_level'] = self.context.config.PNG_COMPRESSION_LEVEL
+    if details.mimetype == 'image/png' and details.config.PNG_COMPRESSION_LEVEL is not None:
+        options['compress_level'] = details.config.PNG_COMPRESSION_LEVEL
 
-    # if options['quality'] is None:
-        # options['quality'] = self.context.config.QUALITY
+    if options['quality'] is None:
+        options['quality'] = details.config.QUALITY
 
-    # if self.icc_profile is not None:
-        # options['icc_profile'] = self.icc_profile
+    icc = details.metadata.get('icc_profile', None)
+    if icc is not None:
+        options['icc_profile'] = icc
 
-    # if self.context.config.PRESERVE_EXIF_INFO:
-        # if self.exif is not None:
-            # options['exif'] = self.exif
+    if details.config.PRESERVE_EXIF_INFO:
+        exif = details.metadata.get('exif', None)
+        if exif is not None:
+            options['exif'] = exif
 
-    # if self.image.mode == 'P' and self.transparency:
-        # options['transparency'] = self.transparency
+    transparency = details.metadata.get('transparency', None)
+    if img.mode == 'P' and transparency is not None:
+        options['transparency'] = transparency
 
     try:
-        # if ext == '.webp':
-            # if self.image.mode not in ['RGB', 'RGBA']:
-                # if self.image.mode == 'P':
-                    # mode = 'RGBA'
-                # else:
-                    # mode = 'RGBA' if self.image.mode[-1] == 'A' else 'RGB'
-                # self.image = self.image.convert(mode)
+        if details.mimetype == 'image/webp':
+            if img.mode not in ['RGB', 'RGBA']:
+                if img.mode == 'P':
+                    mode = 'RGBA'
+                else:
+                    mode = 'RGBA' if img.mode[-1] == 'A' else 'RGB'
+                img = img.convert(mode)
 
-        # if ext in ['.png', '.gif'] and self.image.mode == 'CMYK':
-            # self.image = self.image.convert('RGBA')
-        img = details.metadata['image']
+        if details.mimetype in ['image/png', 'image/gif'] and img.mode == 'CMYK':
+            img = img.convert('RGBA')
 
         img.format = FORMATS.get(details.mimetype, FORMATS['image/jpeg'])
         img.save(img_buffer, img.format, **options)
