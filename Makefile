@@ -19,7 +19,7 @@ setup_mac:
 	@brew tap homebrew/science
 	@brew update
 	@brew install ffmpeg --with-libvpx
-	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo
+	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo libmagic
 	@opencv_path=`realpath $$(dirname $$(brew --prefix opencv))/$$(readlink $$(brew --prefix opencv))`; \
 		echo 'Enter in your site-packages directory and run the following lines:';\
 		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv.py ./";\

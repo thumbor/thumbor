@@ -43,14 +43,25 @@ class Events(object):
         # Event executed before processing anything else
         request_received = signal('imaging.received')
 
+        # Parsing Arguments Events
         before_parsing_arguments = signal('imaging.before_parsing_arguments')
         after_parsing_arguments = signal('imaging.after_parsing_arguments')
 
+        # Source Image loading events
         before_loading_source_image = signal('imaging.before_loading_source_image')
         load_source_image = signal('imaging.loading_source_image')
         after_loading_source_image = signal('imaging.after_loading_source_image')
         source_image_not_found = signal('imaging.source_image_not_found')
         source_image_already_loaded = signal('imaging.source_image_already_loaded')
+
+        # Image transformation events
+        before_transforming_image = signal('imaging.before_transforming_image')
+        image_transforming_phase_1 = signal('imaging.image_transforming_phase_1')
+        image_transforming_phase_2 = signal('imaging.image_transforming_phase_2')
+        image_transforming_phase_3 = signal('imaging.image_transforming_phase_3')
+        image_transforming_phase_4 = signal('imaging.image_transforming_phase_4')
+        image_transforming_phase_5 = signal('imaging.image_transforming_phase_5')
+        after_transforming_image = signal('imaging.after_transforming_image')
 
     class Healthcheck(object):
         before_healthcheck = signal('healthcheck.before_healthcheck')
@@ -70,7 +81,7 @@ class Events(object):
     @classmethod
     def get(cls, name):
         '''returns an event by name'''
-        return getattr(cls, name)
+        return signal(name)
 
     @classmethod
     @tornado.gen.coroutine

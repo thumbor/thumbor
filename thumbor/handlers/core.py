@@ -24,11 +24,13 @@ from thumbor.lifecycle import Events
 # Blueprints
 from thumbor.blueprints.loaders.http import plug_into_lifecycle as http_loader_init
 from thumbor.blueprints.storages.file import plug_into_lifecycle as file_storage_init
+from thumbor.blueprints.engines.pillow import plug_into_lifecycle as pillow_engine_init
 
 
 # TODO: proper loading of blueprints
 http_loader_init()
 file_storage_init()
+pillow_engine_init()
 
 
 class ConfigWrapper(object):
@@ -65,7 +67,7 @@ class CoreHandler(tornado.web.RequestHandler):
 
         if details.body is not None:
             if 'Content-Type' not in details.headers:
-                details.headers['Content-Type'] = magic.from_buffer(details.body[:1024], True)
+                details.headers['Content-Type'] = details.metadata['mimetype']
 
             details.headers['Content-Length'] = len(details.body)
 
@@ -88,6 +90,7 @@ class CoreHandler(tornado.web.RequestHandler):
 
         if details.transformed_image is not None:
             details.body = details.transformed_image
+            self.determine_mimetype(details, details.body)
             yield self.finish_request(details)
             return
 
@@ -95,19 +98,22 @@ class CoreHandler(tornado.web.RequestHandler):
         if finish:
             return
 
+        self.determine_mimetype(details, details.source_image)
+
         finish = yield self._transform_image(details)
         if finish:
             return
 
-        # TODO: Change this!
-        details.transformed_image = details.source_image
-
         details.body = details.transformed_image
+        self.determine_mimetype(details, details.body)
 
         yield self.finish_request(details)
         del(req)
         del(details)
         del(finish)
+
+    def determine_mimetype(self, details, buffer):
+        details.metadata['mimetype'] = magic.from_buffer(buffer[:1024], True)
 
     @tornado.gen.coroutine
     def _before_request(self, details, kw):
@@ -185,4 +191,36 @@ class CoreHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def _transform_image(self, details):
-        pass
+        # Before transforming the image
+        yield Events.trigger(
+            Events.Imaging.before_transforming_image, self,
+            request=self.request, details=details,
+        )
+        if details.finish_early:
+            yield self.finish_request(details)
+            return True
+
+        # Image transformation phases
+        for i in range(5):
+            ev = Events.get('imaging.image_transforming_phase_%d' % (i + 1))
+            yield Events.trigger(
+                ev, self,
+                request=self.request, details=details,
+            )
+            if details.finish_early:
+                yield self.finish_request(details)
+                return True
+
+        if details.transformed_image is None:
+            details.transformed_image = details.source_image
+
+        # After transforming the image
+        yield Events.trigger(
+            Events.Imaging.after_transforming_image, self,
+            request=self.request, details=details,
+        )
+        if details.finish_early:
+            yield self.finish_request(details)
+            return True
+
+        return False
