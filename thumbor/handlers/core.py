@@ -45,6 +45,7 @@ class ConfigWrapper(object):
 
 class RequestDetails(object):
     def __init__(self, config, request_parameters=None):
+        self.mimetype = None
         self.finish_early = False
         self.status_code = 200
         self.body = None
@@ -67,7 +68,7 @@ class CoreHandler(tornado.web.RequestHandler):
 
         if details.body is not None:
             if 'Content-Type' not in details.headers:
-                details.headers['Content-Type'] = details.metadata['mimetype']
+                details.headers['Content-Type'] = details.mimetype
 
             details.headers['Content-Length'] = len(details.body)
 
@@ -113,7 +114,7 @@ class CoreHandler(tornado.web.RequestHandler):
         del(finish)
 
     def determine_mimetype(self, details, buffer):
-        details.metadata['mimetype'] = magic.from_buffer(buffer[:1024], True)
+        details.mimetype = magic.from_buffer(buffer[:1024], True)
 
     @tornado.gen.coroutine
     def _before_request(self, details, kw):

@@ -194,10 +194,10 @@ def serialize_image(details):
             # self.image = self.image.convert('RGBA')
         img = details.metadata['image']
 
-        img.format = FORMATS.get(details.metadata['mimetype'], FORMATS['image/jpeg'])
+        img.format = FORMATS.get(details.mimetype, FORMATS['image/jpeg'])
         img.save(img_buffer, img.format, **options)
     except IOError:
-        img.save(img_buffer, FORMATS.get(details.metadata['mimetype'], FORMATS['image/jpeg']))
+        img.save(img_buffer, FORMATS.get(details.mimetype, FORMATS['image/jpeg']))
 
     results = img_buffer.getvalue()
     img_buffer.close()
