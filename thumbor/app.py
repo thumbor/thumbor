@@ -17,6 +17,7 @@ from thumbor.handlers.image_resource import ImageResourceHandler
 from thumbor.url import Url
 from thumbor.handlers.imaging import ImagingHandler
 from thumbor.handlers.core import CoreHandler
+from thumbor.lifecycle import Events
 
 
 class ThumborServiceApp(tornado.web.Application):
@@ -30,6 +31,8 @@ class ThumborServiceApp(tornado.web.Application):
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
         ]
+
+        Events.trigger_sync(Events.Server.before_app_handlers, self, handlers=handlers)
 
         if self.context.config.UPLOAD_ENABLED:
             # Handler to upload images (POST).
@@ -47,13 +50,15 @@ class ThumborServiceApp(tornado.web.Application):
                 (r'/blacklist', BlacklistHandler, {'context': self.context})
             )
 
-        # Imaging handler (GET)
-        # handlers.append(
-            # (Url.regex(), ImagingHandler, {'context': self.context})
-        # )
-
         handlers.append(
-            (Url.regex(), CoreHandler),
+            ("/v2/%s" % Url.regex(), CoreHandler),
         )
+
+        # Imaging handler (GET)
+        handlers.append(
+            (Url.regex(), ImagingHandler, {'context': self.context})
+        )
+
+        Events.trigger_sync(Events.Server.after_app_handlers, self, handlers=handlers)
 
         return handlers

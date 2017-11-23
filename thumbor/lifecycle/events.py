@@ -30,11 +30,43 @@ Example:
 
 import tornado.gen
 from tornado import ioloop
-from asyncblink import signal
+from blinker import signal as sync_signal
+from blinker.base import NamedSignal
+from asyncblink import signal, NamedAsyncSignal
 
 
 class Events(object):
     '''Thumbor's request lifecycle events'''
+
+    class Server(object):
+        # Server Parameter Parsing Events
+        before_server_parameters = sync_signal('server.before_server_parameters')
+        after_server_parameters = sync_signal('server.after_server_parameters')
+
+        # Configuration loading events
+        before_config = sync_signal('server.before_config')
+        after_config = sync_signal('server.after_config')
+
+        # Configuration loading events
+        before_log_configuration = sync_signal('server.before_log_configuration')
+        after_log_configuration = sync_signal('server.after_log_configuration')
+
+        # Importer loading events
+        before_importer = sync_signal('server.before_importer')
+        after_importer = sync_signal('server.after_importer')
+
+        # Application Start events
+        before_application_start = sync_signal('server.before_application_start')
+        after_application_start = sync_signal('server.after_application_start')
+
+        # Application Handler events
+        before_app_handlers = sync_signal('server.before_app_handlers')
+        after_app_handlers = sync_signal('server.after_app_handlers')
+
+        # Server Run events
+        before_server_run = sync_signal('server.before_server_run')
+        after_server_run = sync_signal('server.after_server_run')
+        before_server_block = sync_signal('server.before_server_block')
 
     class Imaging(object):
         before_finish_request = signal('imaging.before_finish_request')
@@ -82,11 +114,21 @@ class Events(object):
     @classmethod
     def get(cls, name):
         '''returns an event by name'''
-        return signal(name)
+        if 'server' not in name:
+            return signal(name)
+        return sync_signal(name)
+
+    @classmethod
+    def trigger_sync(cls, event, sender, **kw):
+        if not isinstance(event, NamedSignal):
+            raise RuntimeError('Async signals can\'t be triggered synchronously: %s.' % event.name)
+        return event.send(sender, **kw)
 
     @classmethod
     @tornado.gen.coroutine
     def trigger(cls, event, sender, **kw):
+        if not isinstance(event, NamedAsyncSignal):
+            raise RuntimeError('Sync signals can\'t be triggered asynchronously: %s.' % event.name)
         event_action = event.send(sender, **kw)
         if event_action:
             resp = yield event_action[0][1]

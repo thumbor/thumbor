@@ -27,6 +27,7 @@ from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context
 from thumbor.utils import which
+from thumbor.lifecycle import Events
 
 from PIL import Image
 
@@ -137,23 +138,48 @@ def main(arguments=None):
     if arguments is None:
         arguments = sys.argv[1:]
 
+    kw = {}
+
+    Events.trigger_sync(Events.Server.before_server_parameters, None, **kw)
     server_parameters = get_server_parameters(arguments)
+    kw['server_parameters'] = server_parameters
+    Events.trigger_sync(Events.Server.after_server_parameters, None, **kw)
+
+    kw['config_instance'] = Config
+    Events.trigger_sync(Events.Server.before_config, None, **kw)
     config = get_config(server_parameters.config_path)
+    del kw['config_instance']
+    kw['config'] = config
+    Events.trigger_sync(Events.Server.after_config, None, **kw)
+
+    Events.trigger_sync(Events.Server.before_log_configuration, None, **kw)
     configure_log(config, server_parameters.log_level.upper())
+    Events.trigger_sync(Events.Server.after_log_configuration, None, **kw)
 
     validate_config(config, server_parameters)
 
+    Events.trigger_sync(Events.Server.before_importer, None, **kw)
     importer = get_importer(config)
+    kw['importer'] = importer
+    Events.trigger_sync(Events.Server.after_importer, None, **kw)
 
     with get_context(server_parameters, config, importer) as context:
+        Events.trigger_sync(Events.Server.before_application_start, None, **kw)
         application = get_application(context)
+        kw['application'] = application
+        Events.trigger_sync(Events.Server.after_application_start, None, **kw)
+
+        Events.trigger_sync(Events.Server.before_server_run, None, **kw)
         run_server(application, context)
+        Events.trigger_sync(Events.Server.after_server_run, None, **kw)
 
         if (config.GC_INTERVAL and config.GC_INTERVAL > 0):
             schedule.every(config.GC_INTERVAL).seconds.do(gc_collect)
 
         try:
             logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
+            Events.trigger_sync(Events.Server.before_server_block, None, **kw)
+            del kw
             tornado.ioloop.IOLoop.instance().start()
         except KeyboardInterrupt:
             sys.stdout.write('\n')
