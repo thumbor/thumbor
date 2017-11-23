@@ -202,8 +202,8 @@ class CoreHandler(tornado.web.RequestHandler):
             return True
 
         # Image transformation phases
-        for i in range(5):
-            ev = Events.get('imaging.image_transforming_phase_%d' % (i + 1))
+        for i in range(1, 7):
+            ev = Events.get('imaging.image_transforming_phase_%d' % i)
             yield Events.trigger(
                 ev, self,
                 request=self.request, details=details,

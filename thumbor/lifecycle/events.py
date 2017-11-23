@@ -61,6 +61,7 @@ class Events(object):
         image_transforming_phase_3 = signal('imaging.image_transforming_phase_3')
         image_transforming_phase_4 = signal('imaging.image_transforming_phase_4')
         image_transforming_phase_5 = signal('imaging.image_transforming_phase_5')
+        image_transforming_phase_6 = signal('imaging.image_transforming_phase_6')
         after_transforming_image = signal('imaging.after_transforming_image')
 
     class Healthcheck(object):
