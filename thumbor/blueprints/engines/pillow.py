@@ -78,7 +78,7 @@ def _serialize_image(details):
     img_buffer = BytesIO()
 
     options = {
-        'quality': details.config.QUALITY,
+        'quality': details.metadata.get('quality', details.config.QUALITY),
     }
 
     _configure_jpeg(img, details, options)

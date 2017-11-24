@@ -20,17 +20,21 @@ import magic
 
 import thumbor.context
 from thumbor.lifecycle import Events
+from thumbor.filters.quality import Filter as QualityFilter
 
 # Blueprints
 from thumbor.blueprints.loaders.http import plug_into_lifecycle as http_loader_init
 from thumbor.blueprints.storages.file import plug_into_lifecycle as file_storage_init
 from thumbor.blueprints.engines.pillow import plug_into_lifecycle as pillow_engine_init
+# from thumbor.blueprints.filters import plug_into_lifecycle as filters_init
+from thumbor.blueprints.filters.quality import plug_into_lifecycle as quality_filter_init
 
 
 # TODO: proper loading of blueprints
 http_loader_init()
 file_storage_init()
 pillow_engine_init()
+quality_filter_init()
 
 
 class ConfigWrapper(object):
@@ -56,6 +60,29 @@ class RequestDetails(object):
         self._config = config
         self.config = ConfigWrapper(config)
         self.metadata = {}
+        self.filters_map = {
+            'quality': {'regex': QualityFilter.regex, 'parsers': QualityFilter.parsers},
+        }
+        self.filters = {}
+
+    def build_filters_map(self):
+        filters_map = {}
+        for filter, values in self.filters_map.items():
+            regex = values['regex']
+            parsers = values['parsers']
+            params = regex.match(self.request_parameters.filters) if regex else None
+            if params:
+                params = [parser(param) if parser else param for parser, param in zip(parsers, params.groups()) if param]
+                if len(params) == 1:
+                    params = params[0]
+            filters_map[filter] = params
+        self.filters = filters_map
+
+    def has_filter(self, name):
+        return name in self.filters
+
+    def get_filter_arguments(self, name):
+        return self.filters.get(name, [])
 
 
 class CoreHandler(tornado.web.RequestHandler):
@@ -100,6 +127,8 @@ class CoreHandler(tornado.web.RequestHandler):
             return
 
         self.determine_mimetype(details, details.source_image)
+
+        details.build_filters_map()
 
         finish = yield self._transform_image(details)
         if finish:
@@ -202,7 +231,7 @@ class CoreHandler(tornado.web.RequestHandler):
             return True
 
         # Image transformation phases
-        for i in range(1, 7):
+        for i in range(1, 9):
             ev = Events.get('imaging.image_transforming_phase_%d' % i)
             yield Events.trigger(
                 ev, self,

@@ -321,7 +321,8 @@ Config.define(
         'thumbor.filters.sharpen',
         'thumbor.filters.strip_exif',
         'thumbor.filters.strip_icc',
-        'thumbor.filters.frame',
+        # TODO: Fix frame filter. Maybe @rfloriano has fixed it in his branch?
+        # 'thumbor.filters.frame',
         'thumbor.filters.grayscale',
         'thumbor.filters.rotate',
         'thumbor.filters.format',

@@ -94,6 +94,8 @@ class Events(object):
         image_transforming_phase_4 = signal('imaging.image_transforming_phase_4')
         image_transforming_phase_5 = signal('imaging.image_transforming_phase_5')
         image_transforming_phase_6 = signal('imaging.image_transforming_phase_6')
+        image_transforming_phase_7 = signal('imaging.image_transforming_phase_7')
+        image_transforming_phase_8 = signal('imaging.image_transforming_phase_8')
         after_transforming_image = signal('imaging.after_transforming_image')
 
     class Healthcheck(object):
@@ -137,4 +139,7 @@ class Events(object):
 
     @classmethod
     def subscribe(cls, event, handler):
-        event.connect(handler, scheduler=Events.scheduler)
+        if isinstance(event, NamedAsyncSignal):
+            event.connect(handler, scheduler=Events.scheduler)
+        else:
+            event.connect(handler)
