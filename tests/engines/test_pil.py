@@ -9,19 +9,21 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from __future__ import unicode_literals, absolute_import
-from os.path import abspath, join, dirname
 
+from io import BytesIO
+from os.path import abspath, join, dirname
 from unittest import TestCase, skipUnless
-from preggy import expect
 
 from PIL import Image
+from preggy import expect
 
-from thumbor.context import Context
 from thumbor.config import Config
+from thumbor.context import Context
 from thumbor.engines.pil import Engine
 
 try:
     from pyexiv2 import ImageMetadata  # noqa
+
     METADATA_AVAILABLE = True
 except ImportError:
     METADATA_AVAILABLE = False
@@ -33,7 +35,6 @@ STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
 
 
 class PilEngineTestCase(TestCase):
-
     def get_context(self):
         cfg = Config(
             SECURITY_KEY='ACME-SEC',
@@ -173,3 +174,25 @@ class PilEngineTestCase(TestCase):
         expect(engine.metadata[b'Iptc.Application2.DateCreated'].value).to_equal(
             [datetime.date(2016, 6, 23)]
         )
+
+    def test_should_preserve_png_transparency(self):
+        engine = Engine(self.context)
+
+        with open(join(STORAGE_PATH, 'paletted-transparent.png'), 'r') as im:
+            buffer = im.read()
+
+        engine.load(buffer, 'png')
+        engine.resize(200, 150)
+
+        img = Image.open(BytesIO(engine.read('png')))
+
+        expect(img.mode).to_equal('P')
+        expect(img.format.lower()).to_equal('png')
+
+        transparent_pixels_count = sum(img.convert('RGBA')
+                                       .split()[3]  # Get alpha channel
+                                       .point(lambda x: 0 if x else 1)  # return 1 if pixel is transparent, 0 otherwise
+                                       .getdata())
+
+        # Image has total of 200x150=30000 pixels. Most of them should be transparent
+        expect(transparent_pixels_count).to_be_greater_than(19000)

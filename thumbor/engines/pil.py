@@ -69,7 +69,6 @@ class Engine(BaseEngine):
             logger.warning("[PILEngine] create_image failed: {0}".format(e))
             return None
         self.icc_profile = img.info.get('icc_profile')
-        self.transparency = img.info.get('transparency')
         self.exif = img.info.get('exif')
 
         self.subsampling = JpegImagePlugin.get_sampling(img)
@@ -121,6 +120,8 @@ class Engine(BaseEngine):
         if self.image.mode in ['1', 'P']:
             logger.debug('converting image from 8-bit/1-bit palette to 32-bit RGBA for resize')
             self.image = self.image.convert('RGBA')
+            # Workaround for pillow < 4.3.0. See https://github.com/python-pillow/Pillow/issues/2702
+            self.image.palette = None
 
         resample = self.get_resize_filter()
         self.image = self.image.resize((int(width), int(height)), resample)
@@ -212,9 +213,6 @@ class Engine(BaseEngine):
         if self.context.config.PRESERVE_EXIF_INFO:
             if self.exif is not None:
                 options['exif'] = self.exif
-
-        if self.image.mode == 'P' and self.transparency:
-            options['transparency'] = self.transparency
 
         try:
             if ext == '.webp':
