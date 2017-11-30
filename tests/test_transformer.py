@@ -66,33 +66,26 @@ class TransformerTestCase(TestCase):
         engine = ctx.modules.engine
 
         trans = Transformer(ctx)
-        trans.transform(self.handle_invalid_crop(engine))
-        expect(self.has_handled).to_be_true()
-
-    def handle_invalid_crop(self, engine):
-        def handle(*args, **kw):
-            self.has_handled = True
-            expect(engine.calls['crop']).to_be_empty()
-        return handle
+        trans.transform(lambda: None)
+        expect(engine.calls['crop']).to_be_empty()
 
     def validate_resize(self, test_data):
-        def handle(*args, **kw):
-            expect(test_data).to_be_resized()
-            expect(test_data).to_be_cropped()
-
-        return handle
+        expect(test_data).to_be_resized()
+        expect(test_data).to_be_cropped()
 
     def test_can_resize_images(self):
         for item in TESTITEMS:
             context = item.to_context()
             trans = Transformer(context)
-            trans.transform(self.validate_resize(item))
+            trans.transform(lambda: None)
+            self.validate_resize(item)
 
     def test_can_resize_images_with_detectors(self):
         for item in TESTITEMS:
             context = item.to_context(detectors=[MockSyncDetector])
             trans = Transformer(context)
-            trans.transform(self.validate_resize(item))
+            trans.transform(lambda: None)
+            self.validate_resize(item)
 
     def test_can_resize_images_with_detection_error(self):
         test_data = TestData(
@@ -104,7 +97,8 @@ class TransformerTestCase(TestCase):
         )
         context = test_data.to_context(detectors=[MockErrorSyncDetector], ignore_detector_error=True)
         trans = Transformer(context)
-        trans.transform(self.validate_resize(test_data))
+        trans.transform(lambda: None)
+        self.validate_resize(test_data)
 
     def test_can_resize_images_with_detection_error_not_ignoring_it(self):
         test_data = TestData(
@@ -117,37 +111,26 @@ class TransformerTestCase(TestCase):
         context = test_data.to_context(detectors=[MockErrorSyncDetector], ignore_detector_error=False)
         trans = Transformer(context)
 
-        trans.transform(None)
+        trans.transform(lambda: None)
 
         expect(test_data.engine.calls['resize']).to_length(0)
 
     def test_can_fit_in(self):
-        for item in FIT_IN_CROP_DATA:
-            context = item[0].to_context()
+        for (test_data, (width, height, should_resize)) in FIT_IN_CROP_DATA:
+            context = test_data.to_context()
             engine = context.modules.engine
 
             trans = Transformer(context)
-            trans.transform(self.validate_fit_in(item, context, engine, trans))
+            trans.transform(lambda: None)
 
-    def validate_fit_in(self, item, context, engine, trans):
-        def handle(*args, **kw):
             expect(engine.calls['crop']).to_be_empty()
 
-            if not item[1][2]:
-                expect(engine.calls['resize']).to_be_empty()
+            if should_resize:
+                expect(engine.calls['resize']).to_length(1)
+                expect(engine.calls['resize'][0]['width']).to_equal(width)
+                expect(engine.calls['resize'][0]['height']).to_equal(height)
             else:
-                expect(engine.calls['resize']).not_to_be_empty()
-
-            length = item[1][2]
-            expect(engine.calls['resize']).to_length(length)
-
-            if item[1][2]:
-                expect(engine.calls['resize'][0]['width']).to_equal(item[1][0])
-
-            if item[1][2]:
-                expect(engine.calls['resize'][0]['height']).to_equal(item[1][1])
-
-        return handle
+                expect(engine.calls['resize']).to_be_empty()
 
     def test_can_transform_meta_with_orientation(self):
         data = TestData(
@@ -164,15 +147,8 @@ class TransformerTestCase(TestCase):
         engine = ctx.modules.engine
 
         trans = Transformer(ctx)
-        trans.transform(self.handle_transform_with_meta(engine))
-        expect(self.has_handled).to_be_true()
-
-    def handle_transform_with_meta(self, engine):
-        def handle(*args, **kw):
-            self.has_handled = True
-            expect(engine.calls['reorientate']).to_equal(1)
-
-        return handle
+        trans.transform(lambda: None)
+        expect(engine.calls['reorientate']).to_equal(1)
 
     def test_can_transform_with_flip(self):
         data = TestData(
@@ -187,16 +163,9 @@ class TransformerTestCase(TestCase):
         engine = ctx.modules.engine
 
         trans = Transformer(ctx)
-        trans.transform(self.handle_flip(engine))
-        expect(self.has_handled).to_be_true()
-
-    def handle_flip(self, engine):
-        def handle(*args, **kw):
-            self.has_handled = True
-            expect(engine.calls['horizontal_flip']).to_equal(1)
-            expect(engine.calls['vertical_flip']).to_equal(1)
-
-        return handle
+        trans.transform(lambda: None)
+        expect(engine.calls['horizontal_flip']).to_equal(1)
+        expect(engine.calls['vertical_flip']).to_equal(1)
 
     def test_can_extract_cover(self):
         data = TestData(
@@ -217,14 +186,8 @@ class TransformerTestCase(TestCase):
         engine = ctx.modules.engine
 
         trans = Transformer(ctx)
-        trans.transform(self.handle_extract_cover(engine))
-        expect(self.has_handled).to_be_true()
-
-    def handle_extract_cover(self, engine):
-        def handle(*args, **kw):
-            self.has_handled = True
-            expect(engine.calls['cover']).to_equal(1)
-        return handle
+        trans.transform(lambda: None)
+        expect(engine.calls['cover']).to_equal(1)
 
     def test_get_target_dimensions(self):
         data = TestData(

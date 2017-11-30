@@ -69,3 +69,22 @@ class FillFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)
+
+    def test_fill_filter_with_full_fit_in_orig_width(self):
+        def config_context(context):
+            context.request.fit_in = True
+            context.request.full = True
+            context.request.width = 'orig'
+            context.request.height = 800
+
+        image = self.get_filtered(
+            'source.jpg',
+            'thumbor.filters.fill',
+            'fill(auto)',
+            config_context=config_context
+        )
+
+        expected = self.get_fixture('fill3.jpg')
+
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.97)
