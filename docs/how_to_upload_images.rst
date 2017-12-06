@@ -68,7 +68,7 @@ Posting
 
 --------------
 
-Posting is the only allowed by default method when you activate the
+POSTing is the only method allowed by default when you activate the
 upload module. It allows new images to be sent to Thumbor.
 
 In order to upload a new image, you have two choices : \* send an HTTP
