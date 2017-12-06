@@ -68,13 +68,12 @@ Posting
 
 --------------
 
-**POST**ing is the only method allowed by default when you activate the
+Posting is the only method allowed by default when you activate the
 upload module. It allows new images to be sent to Thumbor.
 
-In order to upload a new image, you have two choices : \* send an HTTP
-**POST** to the ``/image`` end-point with the image as payload (REST
-style) \* send an HTTP **POST** to the ``/image`` end-point with a
-multi-part form with a file field called media (Form style).
+In order to upload a new image, you have two choices:
+ * send an HTTP **POST** to the ``/image`` end-point with the image as payload (REST style)
+ * send an HTTP **POST** to the ``/image`` end-point with a multi-part form with a file field called media (Form style).
 
 In the REST style mode you may add an optional ``Slug`` header to define
 the image filename, which is useful for SEO reasons. Not specifying a
