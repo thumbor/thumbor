@@ -95,6 +95,7 @@ def on_load_source_image(sender, request, details):
     if response.code > 399:
         details.status_code = response.code
         details.finish_early = True
+        details.headers['THUMBOR-HTTP-LOADER-RESULT'] = 'Image Not Found'
         details.body = "Could not load source image: %d (%s)" % (response.code, response.body)
         return
 

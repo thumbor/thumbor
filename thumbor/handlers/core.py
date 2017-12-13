@@ -138,6 +138,8 @@ class CoreHandler(tornado.web.RequestHandler):
         self.determine_mimetype(details, details.body)
 
         yield self.finish_request(details)
+
+        # Cleaning up to explicitly signal the GC
         del(req)
         del(details)
         del(finish)
