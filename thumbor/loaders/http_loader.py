@@ -49,7 +49,6 @@ def validate(context, url, normalize_url_func=_normalize_url):
         forwarded_proto = context.request_handler.request.headers['X-Forwarded-Proto']
     else:
         forwarded_proto = None
-    
     url = normalize_url_func(url, forwarded_proto)
     res = urlparse(url)
 
