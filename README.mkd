@@ -31,6 +31,56 @@ There are several other options to the image URL configuration. You can check th
 For more information check [thumbor's
 documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
 
+### Thumbor 7.0 Features
+
+- [x] Resize images
+- [x] Crop images
+- [ ] Fit-in
+- [ ] Full Fit-in
+- [ ] Filters
+   - [ ] background_color
+   - [ ] blur
+   - [ ] brightness
+   - [ ] colorize
+   - [ ] contrast
+   - [ ] convolution
+   - [ ] curve
+   - [ ] distributed_collage
+   - [ ] equalize
+   - [ ] extract_focal
+   - [ ] fill
+   - [ ] focal
+   - [ ] format
+   - [ ] frame
+   - [ ] grayscale
+   - [ ] haarcascade_eye.xml
+   - [ ] max_age
+   - [ ] max_bytes
+   - [ ] no_upscale
+   - [ ] noise
+   - [x] quality
+   - [ ] redeye
+   - [ ] rgb
+   - [ ] rotate
+   - [ ] round_corner
+   - [ ] saturation
+   - [ ] sharpen
+   - [ ] strip_exif
+   - [ ] strip_icc
+   - [ ] upscale
+   - [ ] watermark
+- [ ] WebP support
+- [ ] Smart Cropping and Focal Points
+   - [ ] Feature Detection
+   - [ ] Face Detection
+   - [ ] Queued Detection
+- [ ] Metadata Engine
+- [ ] Logging
+- [ ] Metrics Reporting
+- [ ] Loaders / Storage / Result Storage
+   - [x] HTTP
+   - [ ] File
+
 ### Demo
 
 You can see thumbor in action at http://thumborize.me/

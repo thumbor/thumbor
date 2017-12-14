@@ -67,15 +67,18 @@ class RequestDetails(object):
 
     def build_filters_map(self):
         filters_map = {}
-        for filter, values in self.filters_map.items():
-            regex = values['regex']
-            parsers = values['parsers']
-            params = regex.match(self.request_parameters.filters) if regex else None
-            if params:
-                params = [parser(param) if parser else param for parser, param in zip(parsers, params.groups()) if param]
-                if len(params) == 1:
-                    params = params[0]
-            filters_map[filter] = params
+
+        if self.request_parameters.filters:
+            for filter, values in self.filters_map.items():
+                regex = values['regex']
+                parsers = values['parsers']
+                params = regex.match(self.request_parameters.filters) if regex else None
+                if params:
+                    params = [parser(param) if parser else param for parser, param in zip(parsers, params.groups()) if param]
+                    if len(params) == 1:
+                        params = params[0]
+                filters_map[filter] = params
+
         self.filters = filters_map
 
     def has_filter(self, name):
