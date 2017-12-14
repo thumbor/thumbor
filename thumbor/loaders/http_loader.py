@@ -45,8 +45,9 @@ def _normalize_url(url, forwarded_proto=None):
 
 
 def validate(context, url, normalize_url_func=_normalize_url):
-    if "X-Forwarded-Proto" in context.request_handler.request.headers:
-        forwarded_proto = context.request_handler.request.headers['X-Forwarded-Proto']
+    if context.request_handler.request.headers is not None:
+        if "X-Forwarded-Proto" in context.request_handler.request.headers:
+            forwarded_proto = context.request_handler.request.headers['X-Forwarded-Proto']
     else:
         forwarded_proto = None
     url = normalize_url_func(url, forwarded_proto)
