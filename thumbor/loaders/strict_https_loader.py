@@ -12,7 +12,7 @@ from thumbor.loaders import http_loader
 from tornado.concurrent import return_future
 
 
-def _normalize_url(url):
+def _normalize_url(url,forwarded_proto=None):
     url = http_loader.quote_url(url)
     if url.startswith('http:'):
         url = url.replace('http:', 'https:', 1)
