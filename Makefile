@@ -8,18 +8,19 @@ profile: compile_ext
 	@mprof plot
 
 setup:
-    ifeq ($(OS), xx)
+    ifeq ("$(OS)", "Darwin")
 	@$(MAKE) setup_mac
+	@env "CFLAGS=-I/usr/local/include -L/usr/local/lib" pip install -e .[tests]
     else
 	@sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx4 libvpx-dev libimage-exiftool-perl libcairo2-dev ffmpeg libcurl4-openssl-dev libffi-dev python-dev python3-dev
-    endif
 	@pip install -e .[tests]
+    endif
 
 setup_mac:
 	@brew tap homebrew/science
 	@brew update
 	@brew install ffmpeg --with-libvpx
-	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo libmagic
+	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo libmagic gmp
 	@opencv_path=`realpath $$(dirname $$(brew --prefix opencv))/$$(readlink $$(brew --prefix opencv))`; \
 		echo 'Enter in your site-packages directory and run the following lines:';\
 		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv.py ./";\
