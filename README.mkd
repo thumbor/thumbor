@@ -81,6 +81,43 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [x] HTTP
    - [ ] File
 
+### Performance Comparison
+
+URL: http://localhost:8888/unsafe/100x100:400x300/300x200/s.glbimg.com/en/ho/f/original/2017/12/14/cancer.jpg
+
+#### Python 2.7 - Master
+
+Running 30s test @ http://localhost:8888/unsafe/100x100:400x300/300x200/s.glbimg.com/en/ho/f/original/2017/12/14/cancer.jpg
+  10 threads and 30 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   864.34ms  129.74ms   1.15s    81.54%
+    Req/Sec     7.03      6.53    20.00     81.71%
+  Latency Distribution
+     50%  824.62ms
+     75%  949.65ms
+     90%    1.03s
+     99%    1.14s
+  1029 requests in 30.10s, 9.52MB read
+Requests/sec:     34.19
+Transfer/sec:    323.97KB
+
+#### Python 3.6 - Refactor
+
+Running 30s test @ http://localhost:8888/v2/unsafe/100x100:400x300/300x200/s.glbimg.com/en/ho/f/original/2017/12/14/cancer.jpg
+  10 threads and 30 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   748.03ms  159.63ms   1.83s    85.37%
+    Req/Sec     6.48      5.33    20.00     69.97%
+  Latency Distribution
+     50%  769.30ms
+     75%  777.66ms
+     90%  789.04ms
+     99%    1.39s
+  1157 requests in 30.10s, 10.63MB read
+  Socket errors: connect 0, read 0, write 0, timeout 11
+Requests/sec:     38.44
+Transfer/sec:    361.50KB
+
 ### Demo
 
 You can see thumbor in action at http://thumborize.me/
