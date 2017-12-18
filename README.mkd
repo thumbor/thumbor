@@ -87,6 +87,7 @@ URL: http://localhost:8888/unsafe/100x100:400x300/300x200/s.glbimg.com/en/ho/f/o
 
 #### Python 2.7 - Master
 
+```
 Running 30s test @ http://localhost:8888/unsafe/100x100:400x300/300x200/s.glbimg.com/en/ho/f/original/2017/12/14/cancer.jpg
   10 threads and 30 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -100,9 +101,11 @@ Running 30s test @ http://localhost:8888/unsafe/100x100:400x300/300x200/s.glbimg
   1029 requests in 30.10s, 9.52MB read
 Requests/sec:     34.19
 Transfer/sec:    323.97KB
+```
 
 #### Python 3.6 - Refactor
 
+```
 Running 30s test @ http://localhost:8888/v2/unsafe/100x100:400x300/300x200/s.glbimg.com/en/ho/f/original/2017/12/14/cancer.jpg
   10 threads and 30 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -117,6 +120,7 @@ Running 30s test @ http://localhost:8888/v2/unsafe/100x100:400x300/300x200/s.glb
   Socket errors: connect 0, read 0, write 0, timeout 11
 Requests/sec:     38.44
 Transfer/sec:    361.50KB
+```
 
 ### Demo
 
