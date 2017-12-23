@@ -7,7 +7,6 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
-
 '''
 Raw Pillow operations.
 '''
@@ -33,19 +32,19 @@ class PillowExtensions:
 
     @staticmethod
     def crop(details, left, top, right, bottom):
-        img = details.metadata['image']
-        img = img.crop((
-            int(left),
-            int(top),
-            int(right),
-            int(bottom)
-        ))
+        'Crops the image according to the specified dimensions'
+        img = details['image']
+        img = img.crop((int(left), int(top), int(right), int(bottom)))
         details.metadata['image'] = img
 
     @staticmethod
     def get_resize_filter(details):
+        'Gets the best resize filter according to image'
         config = details.config
-        resample = config.PILLOW_RESAMPLING_FILTER if config.PILLOW_RESAMPLING_FILTER is not None else 'LANCZOS'
+
+        resample = 'LANCZOS'
+        if config.PILLOW_RESAMPLING_FILTER is not None:
+            resample = config.PILLOW_RESAMPLING_FILTER
 
         available = {
             'LANCZOS': Image.LANCZOS,
@@ -61,6 +60,7 @@ class PillowExtensions:
 
     @staticmethod
     def resize(details, width, height):
+        'Resizes the image according to the specified dimensions'
         img = details.metadata['image']
 
         # Indexed color modes (such as 1 and P) will be forced to use a
