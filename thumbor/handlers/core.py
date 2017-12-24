@@ -27,7 +27,6 @@ from thumbor import Engine
 from thumbor.blueprints.loaders.http import plug_into_lifecycle as http_loader_init
 from thumbor.blueprints.storages.file import plug_into_lifecycle as file_storage_init
 from thumbor.blueprints.engines.pillow import plug_into_lifecycle as pillow_engine_init
-# from thumbor.blueprints.filters import plug_into_lifecycle as filters_init
 from thumbor.blueprints.filters.quality import plug_into_lifecycle as quality_filter_init
 
 # TODO: proper loading of blueprints
@@ -42,7 +41,8 @@ def determine_mimetype(details, buffer):
     details.mimetype = magic.from_buffer(buffer[:1024], True)
 
 
-class ConfigWrapper(object):
+class ConfigWrapper(object):  # pylint: disable=too-few-public-methods
+    'Configuration wrapper to ensure no leaking'
 
     def __init__(self, config):
         self._config = config
@@ -50,10 +50,11 @@ class ConfigWrapper(object):
     def __getattr__(self, name):
         if name != '_config' and name not in self.__dict__:
             return getattr(self._config, name)
-        return super(ConfigWrapper, self).__getattr__(name)
+        return super(ConfigWrapper, self).__getattr__(name)  # pylint: disable=no-member
 
 
-class RequestDetails(object):
+class RequestDetails(object):  # pylint: disable=too-many-instance-attributes
+    'Details for a given image request'
 
     def __init__(self, config, request_parameters=None):
         self.mimetype = None
@@ -108,7 +109,8 @@ class RequestDetails(object):
         return self.filters.get(name, [])
 
 
-class CoreHandler(tornado.web.RequestHandler):
+class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-method
+    'Handler responsible for transforming images'
 
     @tornado.gen.coroutine
     def finish_request(self, details):
@@ -139,7 +141,7 @@ class CoreHandler(tornado.web.RequestHandler):
             details=details)
 
     @tornado.gen.coroutine
-    def get(self, *args, **kw):
+    def get(self, *args, **kw):  # pylint: disable=too-many-return-statements
         details = RequestDetails(self.application.context.config)
 
         finish = yield self._before_request(details=details, kw_args=kw)
@@ -164,7 +166,15 @@ class CoreHandler(tornado.web.RequestHandler):
 
         details.build_filters_map()
 
+        finish = yield self._read_image(details)
+        if finish:
+            return
+
         finish = yield self._transform_image(details)
+        if finish:
+            return
+
+        finish = yield self._serialize_image(details)
         if finish:
             return
 
@@ -277,6 +287,14 @@ class CoreHandler(tornado.web.RequestHandler):
         return False
 
     @tornado.gen.coroutine
+    def _read_image(self, details):
+        yield Engine.read_image(self, details, details.source_image)
+        if details.finish_early:
+            yield self.finish_request(details)
+            return True
+        return False
+
+    @tornado.gen.coroutine
     def _transform_image(self, details):
         # Before transforming the image
         yield Events.trigger(
@@ -288,19 +306,6 @@ class CoreHandler(tornado.web.RequestHandler):
         if details.finish_early:
             yield self.finish_request(details)
             return True
-
-        # Image transformation phases
-        # for i in range(1, 9):
-        # event = Events.get('imaging.image_transforming_phase_%d' % i)
-        # yield Events.trigger(
-        # event,
-        # self,
-        # request=self.request,
-        # details=details,
-        # )
-        # if details.finish_early:
-        # yield self.finish_request(details)
-        # return True
 
         req = details.request_parameters
         if req.should_crop:
@@ -322,4 +327,12 @@ class CoreHandler(tornado.web.RequestHandler):
             yield self.finish_request(details)
             return True
 
+        return False
+
+    @tornado.gen.coroutine
+    def _serialize_image(self, details):
+        yield Engine.serialize(self, details)
+        if details.finish_early:
+            yield self.finish_request(details)
+            return True
         return False

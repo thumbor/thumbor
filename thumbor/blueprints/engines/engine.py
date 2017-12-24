@@ -23,6 +23,33 @@ class Engine(object):
 
     @classmethod
     @gen.coroutine
+    def read_image(cls, sender, details, buffer):
+        '''
+        Triggers the read image event.
+        '''
+        yield Events.trigger(
+            Events.Engine.before_read_image,
+            sender,
+            details=details,
+            buffer=buffer,
+        )
+
+        yield Events.trigger(
+            Events.Engine.read_image,
+            sender,
+            details=details,
+            buffer=buffer,
+        )
+
+        yield Events.trigger(
+            Events.Engine.after_read_image,
+            sender,
+            details=details,
+            buffer=buffer,
+        )
+
+    @classmethod
+    @gen.coroutine
     def resize(cls, sender, details, width=0, height=0):
         '''
         Triggers the resize event.
@@ -85,4 +112,28 @@ class Engine(object):
             top=top,
             right=right,
             bottom=bottom,
+        )
+
+    @classmethod
+    @gen.coroutine
+    def serialize(cls, sender, details):  # pylint: disable=too-many-arguments
+        '''
+        Triggers the serialize image event.
+        '''
+        yield Events.trigger(
+            Events.Engine.before_serialize,
+            sender,
+            details=details,
+        )
+
+        yield Events.trigger(
+            Events.Engine.serialize,
+            sender,
+            details=details,
+        )
+
+        yield Events.trigger(
+            Events.Engine.after_serialize,
+            sender,
+            details=details,
         )

@@ -95,26 +95,14 @@ class Events(object):
 
         # Image transformation events
         before_transforming_image = signal('imaging.before_transforming_image')
-        image_transforming_phase_1 = signal(
-            'imaging.image_transforming_phase_1')
-        image_transforming_phase_2 = signal(
-            'imaging.image_transforming_phase_2')
-        image_transforming_phase_3 = signal(
-            'imaging.image_transforming_phase_3')
-        image_transforming_phase_4 = signal(
-            'imaging.image_transforming_phase_4')
-        image_transforming_phase_5 = signal(
-            'imaging.image_transforming_phase_5')
-        image_transforming_phase_6 = signal(
-            'imaging.image_transforming_phase_6')
-        image_transforming_phase_7 = signal(
-            'imaging.image_transforming_phase_7')
-        image_transforming_phase_8 = signal(
-            'imaging.image_transforming_phase_8')
         after_transforming_image = signal('imaging.after_transforming_image')
 
     class Engine(object):  # pylint: disable=too-few-public-methods
         'Engine methods events'
+        before_read_image = signal('engine.before_read_image')
+        read_image = signal('engine.read_image')
+        after_read_image = signal('engine.after_read_image')
+
         before_resize = signal('engine.before_resize')
         resize = signal('engine.resize')
         after_resize = signal('engine.after_resize')
@@ -122,6 +110,10 @@ class Events(object):
         before_crop = signal('engine.before_crop')
         crop = signal('engine.crop')
         after_crop = signal('engine.after_crop')
+
+        before_serialize = signal('engine.before_serialize')
+        serialize = signal('engine.serialize')
+        after_serialize = signal('engine.after_serialize')
 
     class Healthcheck(object):  # pylint: disable=too-few-public-methods
         'Healthcheck events'
