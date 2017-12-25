@@ -23,18 +23,6 @@ from thumbor.handlers.request_details import RequestDetails
 
 from thumbor import Engine
 
-# Blueprints
-# from thumbor.blueprints.loaders.http import plug_into_lifecycle as http_loader_init
-# from thumbor.blueprints.storages.file import plug_into_lifecycle as file_storage_init
-# from thumbor.blueprints.engines.pillow import plug_into_lifecycle as pillow_engine_init
-# from thumbor.blueprints.filters.quality import plug_into_lifecycle as quality_filter_init
-
-# TODO: proper loading of blueprints
-# http_loader_init()
-# file_storage_init()
-# pillow_engine_init()
-# quality_filter_init()
-
 
 def determine_mimetype(details, buffer):
     'Determines the mimetype of the specified buffer and sets it in the details.'
