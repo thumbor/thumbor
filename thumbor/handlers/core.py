@@ -19,94 +19,26 @@ import magic
 
 import thumbor.context
 from thumbor.lifecycle import Events
-from thumbor.filters.quality import Filter as QualityFilter
+from thumbor.handlers.request_details import RequestDetails
 
 from thumbor import Engine
 
 # Blueprints
-from thumbor.blueprints.loaders.http import plug_into_lifecycle as http_loader_init
-from thumbor.blueprints.storages.file import plug_into_lifecycle as file_storage_init
-from thumbor.blueprints.engines.pillow import plug_into_lifecycle as pillow_engine_init
-from thumbor.blueprints.filters.quality import plug_into_lifecycle as quality_filter_init
+# from thumbor.blueprints.loaders.http import plug_into_lifecycle as http_loader_init
+# from thumbor.blueprints.storages.file import plug_into_lifecycle as file_storage_init
+# from thumbor.blueprints.engines.pillow import plug_into_lifecycle as pillow_engine_init
+# from thumbor.blueprints.filters.quality import plug_into_lifecycle as quality_filter_init
 
 # TODO: proper loading of blueprints
-http_loader_init()
-file_storage_init()
-pillow_engine_init()
-quality_filter_init()
+# http_loader_init()
+# file_storage_init()
+# pillow_engine_init()
+# quality_filter_init()
 
 
 def determine_mimetype(details, buffer):
     'Determines the mimetype of the specified buffer and sets it in the details.'
     details.mimetype = magic.from_buffer(buffer[:1024], True)
-
-
-class ConfigWrapper(object):  # pylint: disable=too-few-public-methods
-    'Configuration wrapper to ensure no leaking'
-
-    def __init__(self, config):
-        self._config = config
-
-    def __getattr__(self, name):
-        if name != '_config' and name not in self.__dict__:
-            return getattr(self._config, name)
-        return super(ConfigWrapper, self).__getattr__(name)  # pylint: disable=no-member
-
-
-class RequestDetails(object):  # pylint: disable=too-many-instance-attributes
-    'Details for a given image request'
-
-    def __init__(self, config, request_parameters=None):
-        self.mimetype = None
-        self.finish_early = False
-        self.status_code = 200
-        self.body = None
-        self.headers = {}
-        self.source_image = None
-        self.transformed_image = None
-        self.request_parameters = request_parameters
-        self._config = config
-        self.config = ConfigWrapper(config)
-        self.metadata = {}
-        self.filters_map = {
-            'quality': {
-                'regex': QualityFilter.regex,
-                'parsers': QualityFilter.parsers
-            },
-        }
-        self.filters = {}
-
-    def build_filters_map(self):
-        '''
-        Determine which filters should be executed for the current request.
-        '''
-        filters_map = {}
-
-        if self.request_parameters.filters:
-            for filter_instance, values in self.filters_map.items():
-                regex = values['regex']
-                parsers = values['parsers']
-                params = regex.match(
-                    self.request_parameters.filters) if regex else None
-                if params:
-                    params = [
-                        parser(param) if parser else param
-                        for parser, param in zip(parsers, params.groups())
-                        if param
-                    ]
-                    if len(params) == 1:
-                        params = params[0]
-                filters_map[filter_instance] = params
-
-        self.filters = filters_map
-
-    def has_filter(self, name):
-        'Determine if the current request has the specified filter'
-        return name in self.filters
-
-    def get_filter_arguments(self, name):
-        'Get filter arguments by name'
-        return self.filters.get(name, [])
 
 
 class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-method

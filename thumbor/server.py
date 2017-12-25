@@ -45,12 +45,10 @@ def get_as_integer(value):
 
 
 def get_config(config_path):
-    lookup_paths = [os.curdir,
-                    expanduser('~'),
-                    '/etc/',
-                    dirname(__file__)]
+    lookup_paths = [os.curdir, expanduser('~'), '/etc/', dirname(__file__)]
 
-    return Config.load(config_path, conf_name='thumbor.conf', lookup_paths=lookup_paths)
+    return Config.load(
+        config_path, conf_name='thumbor.conf', lookup_paths=lookup_paths)
 
 
 def configure_log(config, log_level):
@@ -60,8 +58,7 @@ def configure_log(config, log_level):
         logging.basicConfig(
             level=getattr(logging, log_level),
             format=config.THUMBOR_LOG_FORMAT,
-            datefmt=config.THUMBOR_LOG_DATE_FORMAT
-        )
+            datefmt=config.THUMBOR_LOG_DATE_FORMAT)
 
 
 def get_importer(config):
@@ -92,16 +89,11 @@ def validate_config(config, server_parameters):
         if server_parameters.gifsicle_path is None:
             raise RuntimeError(
                 'If using USE_GIFSICLE_ENGINE configuration to True, the `gifsicle` binary must be in the PATH '
-                'and must be an executable.'
-            )
+                'and must be an executable.')
 
 
 def get_context(server_parameters, config, importer):
-    return Context(
-        server=server_parameters,
-        config=config,
-        importer=importer
-    )
+    return Context(server=server_parameters, config=config, importer=importer)
 
 
 def get_application(context):
@@ -117,8 +109,7 @@ def run_server(application, context):
             with open(context.server.fd, 'r') as sock:
                 fd_number = sock.fileno()
 
-        sock = socket.fromfd(fd_number,
-                             socket.AF_INET | socket.AF_INET6,
+        sock = socket.fromfd(fd_number, socket.AF_INET | socket.AF_INET6,
                              socket.SOCK_STREAM)
         server.add_socket(sock)
     else:
@@ -131,6 +122,13 @@ def gc_collect():
     collected = gc.collect()
     if collected > 0:
         logging.warn('Garbage collector: collected %d objects.' % collected)
+
+
+def bind_blueprints(importer):
+    for blueprint in importer.blueprints:
+        plug = getattr(blueprint, 'plug_into_lifecycle', None)
+        if plug is not None:
+            plug()
 
 
 def main(arguments=None):
@@ -163,6 +161,8 @@ def main(arguments=None):
     kw['importer'] = importer
     Events.trigger_sync(Events.Server.after_importer, None, **kw)
 
+    bind_blueprints(importer)
+
     with get_context(server_parameters, config, importer) as context:
         Events.trigger_sync(Events.Server.before_application_start, None, **kw)
         application = get_application(context)
@@ -177,7 +177,8 @@ def main(arguments=None):
             schedule.every(config.GC_INTERVAL).seconds.do(gc_collect)
 
         try:
-            logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
+            logging.debug('thumbor running at %s:%d' % (context.server.ip,
+                                                        context.server.port))
             Events.trigger_sync(Events.Server.before_server_block, None, **kw)
             del kw
             tornado.ioloop.IOLoop.instance().start()

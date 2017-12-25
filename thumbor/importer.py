@@ -24,6 +24,7 @@ def import_class(name, get_module=False):
 
 
 class Importer:
+
     def __init__(self, config):
         self.config = config
         self.engine = None
@@ -38,15 +39,17 @@ class Importer:
         self.filters = []
         self.optimizers = []
         self.error_handler_class = None
+        self.error_handler_module = None
+        self.blueprints = []
 
     def import_class(self, name, get_module=False):
         return import_class(name, get_module)
 
     def import_modules(self):
-        self.config.validates_presence_of(
-            'ENGINE', 'GIF_ENGINE', 'LOADER', 'STORAGE', 'DETECTORS',
-            'FILTERS', 'URL_SIGNER', 'METRICS'
-        )
+        'Imports all modules in config'
+        self.config.validates_presence_of('ENGINE', 'GIF_ENGINE', 'LOADER',
+                                          'STORAGE', 'DETECTORS', 'FILTERS',
+                                          'URL_SIGNER', 'METRICS', 'BLUEPRINTS')
 
         self.import_item('ENGINE', 'Engine')
         self.import_item('GIF_ENGINE', 'Engine')
@@ -54,7 +57,10 @@ class Importer:
         self.import_item('STORAGE', 'Storage')
         self.import_item('METRICS', 'Metrics')
         self.import_item('DETECTORS', 'Detector', is_multiple=True)
-        self.import_item('FILTERS', 'Filter', is_multiple=True, ignore_errors=True)
+        self.import_item('BLUEPRINTS', is_multiple=True)
+
+        self.import_item(
+            'FILTERS', 'Filter', is_multiple=True, ignore_errors=True)
         self.import_item('OPTIMIZERS', 'Optimizer', is_multiple=True)
         self.import_item('URL_SIGNER', 'UrlSigner')
 
@@ -68,7 +74,12 @@ class Importer:
             self.import_item('ERROR_HANDLER_MODULE', 'ErrorHandler')
             self.error_handler_class = self.error_handler_module
 
-    def import_item(self, config_key=None, class_name=None, is_multiple=False, item_value=None, ignore_errors=False):
+    def import_item(self,
+                    config_key=None,
+                    class_name=None,
+                    is_multiple=False,
+                    item_value=None,
+                    ignore_errors=False):
         if item_value is None:
             conf_value = getattr(self.config, config_key)
         else:
@@ -80,13 +91,16 @@ class Importer:
                 for module_name in conf_value:
                     try:
                         if class_name is not None:
-                            module = self.import_class('%s.%s' % (module_name, class_name))
+                            module = self.import_class('%s.%s' % (module_name,
+                                                                  class_name))
                         else:
-                            module = self.import_class(module_name, get_module=True)
+                            module = self.import_class(
+                                module_name, get_module=True)
                         modules.append(module)
                     except ImportError as e:
                         if ignore_errors:
-                            logger.warn('Module %s could not be imported: %s', module_name, e)
+                            logger.warn('Module %s could not be imported: %s',
+                                        module_name, e)
                         else:
                             raise
             setattr(self, config_key.lower(), tuple(modules))
