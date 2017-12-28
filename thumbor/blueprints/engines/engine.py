@@ -116,7 +116,52 @@ class Engine(object):
 
     @classmethod
     @gen.coroutine
-    def serialize(cls, sender, details):  # pylint: disable=too-many-arguments
+    def reorientate(cls, sender, details):
+        'Reorientates the image according to metadata'
+        yield Events.trigger(
+            Events.Engine.before_reorientate,
+            sender,
+            details=details,
+        )
+
+        yield Events.trigger(
+            Events.Engine.reorientate,
+            sender,
+            details=details,
+        )
+
+        yield Events.trigger(
+            Events.Engine.after_reorientate,
+            sender,
+            details=details,
+        )
+
+    @classmethod
+    @gen.coroutine
+    def get_image_data_as_rgb(cls, sender, details):
+        'Get Image data as RGB Buffer'
+        image_data = yield Events.trigger(
+            Events.Engine.get_image_data_as_rgb,
+            sender,
+            details=details,
+        )
+
+        return image_data
+
+    @classmethod
+    @gen.coroutine
+    def get_image_size(cls, sender, details):
+        'Get Image size'
+        image_size = yield Events.trigger(
+            Events.Engine.get_image_size,
+            sender,
+            details=details,
+        )
+        return image_size
+
+    @classmethod
+    @gen.coroutine
+    def serialize(cls, sender, details):
         '''
         Triggers the serialize image event.
         '''

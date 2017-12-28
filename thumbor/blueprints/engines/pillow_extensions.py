@@ -13,7 +13,10 @@ Raw Pillow operations.
 
 from io import BytesIO
 
+import piexif
 from PIL import Image, JpegImagePlugin, ImageSequence
+
+from thumbor.utils import logger
 
 
 class PillowExtensions:
@@ -114,6 +117,121 @@ class PillowExtensions:
             img = img.convert(original_mode)
 
         details.metadata['image'] = img
+
+    @staticmethod
+    def _get_exif_segment(details):
+        exif_data = details.metadata.get('exif', None)
+        if exif_data is None:
+            return None
+
+        try:
+            exif_dict = piexif.load(exif_data)
+        except Exception:
+            logger.exception('Ignored error handling exif for reorientation')
+        else:
+            return exif_dict
+        return None
+
+    @staticmethod
+    def get_orientation(details):
+        """
+        Returns the image orientation of the buffer image or None
+        if it is undefined. Gets the original value from the Exif tag.
+        If the buffer has been rotated, then the value is adjusted to 1.
+        :return: Orientation value (1 - 8)
+        :rtype: int or None
+        """
+        exif_dict = PillowExtensions._get_exif_segment(details)
+        if exif_dict and piexif.ImageIFD.Orientation in exif_dict["0th"]:
+            return exif_dict["0th"][piexif.ImageIFD.Orientation]
+        return None
+
+    @staticmethod
+    def flip_vertically(details):
+        'Flips the image vertically in place'
+        img = details['image']
+        details['image'] = img.transpose(Image.FLIP_TOP_BOTTOM)
+
+    @staticmethod
+    def flip_horizontally(details):
+        'Flips the image horizontally in place'
+        img = details['image']
+        details['image'] = img.transpose(Image.FLIP_LEFT_RIGHT)
+
+    @staticmethod
+    def rotate(details, degrees):
+        # PIL rotates counter clockwise
+
+        img = details['image']
+        if degrees == 90:
+            img = img.transpose(Image.ROTATE_90)
+        elif degrees == 180:
+            img = img.transpose(Image.ROTATE_180)
+        elif degrees == 270:
+            img = img.transpose(Image.ROTATE_270)
+        else:
+            img = img.rotate(degrees, expand=1)
+
+        details['image'] = img
+
+    @staticmethod
+    def reorientate(details, override_exif=True):
+        """
+        Rotates the image in the buffer so that it is oriented correctly.
+        If override_exif is True (default) then the metadata
+        orientation is adjusted as well.
+        :param override_exif: If the metadata should be adjusted as well.
+        :type override_exif: Boolean
+        """
+        orientation = PillowExtensions.get_orientation(details)
+
+        if orientation is None:
+            return
+
+        if orientation == 2:
+            PillowExtensions.flip_horizontally(details)
+        elif orientation == 3:
+            PillowExtensions.rotate(details, 180)
+        elif orientation == 4:
+            PillowExtensions.flip_vertically(details)
+        elif orientation == 5:
+            # Horizontal Mirror + Rotation 270 CCW
+            PillowExtensions.flip_vertically(details)
+            PillowExtensions.rotate(details, 270)
+        elif orientation == 6:
+            PillowExtensions.rotate(details, 270)
+        elif orientation == 7:
+            # Vertical Mirror + Rotation 270 CCW
+            PillowExtensions.flip_horizontally(details)
+            PillowExtensions.rotate(details, 270)
+        elif orientation == 8:
+            PillowExtensions.rotate(details, 90)
+
+        if orientation != 1 and override_exif:
+            exif_dict = PillowExtensions._get_exif_segment(details)
+            if exif_dict and piexif.ImageIFD.Orientation in exif_dict["0th"]:
+                exif_dict["0th"][piexif.ImageIFD.Orientation] = 1
+                details.metadata['exif'] = piexif.dump(exif_dict)
+
+    @staticmethod
+    def get_image_data_as_rgb(details, update_image=True):
+        'Get image Buffer as RGB array'
+        img = details.metadata['image']
+        converted_image = img
+        if converted_image.mode not in ['RGB', 'RGBA', 'P']:
+            if 'A' in converted_image.mode:
+                converted_image = converted_image.convert('RGBA')
+            else:
+                converted_image = converted_image.convert('RGB')
+        if update_image:
+            details.metadata['image'] = converted_image
+        return converted_image.mode, converted_image.tobytes()
+
+    @staticmethod
+    def get_image_size(details):
+        'Get image dimensions'
+        img = details.metadata['image']
+        return img.size
 
     @staticmethod
     def serialize_image(details):

@@ -20,8 +20,15 @@ import magic
 import thumbor.context
 from thumbor.lifecycle import Events
 from thumbor.handlers.request_details import RequestDetails
-
 from thumbor import Engine
+from thumbor.utils import logger
+
+TRIM_ENABLED = True
+try:
+    from thumbor.ext.filters import _bounding_box
+except ImportError:
+    logger.info("Error importing bounding_box filter, trimming won't work")
+    TRIM_ENABLED = False
 
 
 def determine_mimetype(details, buffer):
@@ -227,14 +234,24 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
             yield self.finish_request(details)
             return True
 
-        req = details.request_parameters
-        if req.should_crop:
-            yield Engine.crop(self, details, req.crop['left'], req.crop['top'],
-                              req.crop['right'], req.crop['bottom'])
-        yield Engine.resize(self, details, req.width, req.height)
+        yield self._crop_and_resize(details)
+        yield self._reorientate(details)
+        yield self._trim(details)
+        yield self._smart_detect(details)
 
-        if details.transformed_image is None:
-            details.transformed_image = details.source_image
+        yield self._extract_cover(details)
+        yield self._manual_crop(details)
+        yield self._adjust_dimensions(details)
+
+        if self.context.request.debug:
+            yield self._debug()
+        else:
+            if self.context.request.fit_in:
+                yield self._fit_in_resize()
+            else:
+                yield self._auto_crop()
+                yield self._resize()
+            yield self._flip()
 
         # After transforming the image
         yield Events.trigger(
@@ -248,6 +265,52 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
             return True
 
         return False
+
+    @tornado.gen.coroutine
+    def _crop_and_resize(self, details):
+        req = details.request_parameters
+        if req.should_crop:
+            yield Engine.crop(self, details, req.crop['left'], req.crop['top'],
+                              req.crop['right'], req.crop['bottom'])
+        yield Engine.resize(self, details, req.width, req.height)
+
+        if details.transformed_image is None:
+            details.transformed_image = details.source_image
+
+    @tornado.gen.coroutine
+    def _reorientate(self, details):
+        if details.config.RESPECT_ORIENTATION:
+            yield Engine.reorientate(self, details)
+
+    @tornado.gen.coroutine
+    def _trim(self, details):
+        is_gifsicle = (details == 'image/gif' and
+                       details.config.USE_GIFSICLE_ENGINE)
+        if details.request_parameters.trim is None or not TRIM_ENABLED or is_gifsicle:
+            return
+
+        mode, data = yield Engine.get_image_data_as_rgb(self, details)
+        size = yield Engine.get_image_size(self, details)
+        box = _bounding_box.apply(
+            mode, size[0], size[1], details.request_parameters.trim_pos,
+            details.request_parameters.trim_tolerance, data)
+
+        if box[2] < box[0] or box[3] < box[1]:
+            logger.info(
+                "Ignoring trim, there wouldn't be any image left, check the tolerance."
+            )
+            return
+
+        yield Engine.crop(self, details, box[0], box[1], box[2] + 1, box[3] + 1)
+        if details.request_parameters.should_crop:
+            details.request_parameters.crop['left'] -= box[0]
+            details.request_parameters.crop['top'] -= box[1]
+            details.request_parameters.crop['right'] -= box[0]
+            details.request_parameters.crop['bottom'] -= box[1]
+
+    @tornado.gen.coroutine
+    def _smart_detect(self, details):
+        pass
 
     @tornado.gen.coroutine
     def _serialize_image(self, details):

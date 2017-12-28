@@ -111,9 +111,16 @@ class Events(object):
         crop = signal('engine.crop')
         after_crop = signal('engine.after_crop')
 
+        before_reorientate = signal('engine.before_reorientate')
+        reorientate = signal('engine.reorientate')
+        after_reorientate = signal('engine.after_reorientate')
+
         before_serialize = signal('engine.before_serialize')
         serialize = signal('engine.serialize')
         after_serialize = signal('engine.after_serialize')
+
+        get_image_data_as_rgb = signal('engine.get_image_data_as_rgb')
+        get_image_size = signal('engine.get_image_size')
 
     class Healthcheck(object):  # pylint: disable=too-few-public-methods
         'Healthcheck events'
