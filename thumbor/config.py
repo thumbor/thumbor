@@ -172,6 +172,12 @@ Config.define(
     'HTTP_LOADER_FORWARD_HEADERS_WHITELIST', [],
     'Indicates which headers should be forwarded among all the headers of the request', 'HTTP Loader')
 Config.define(
+    'HTTP_LOADER_FORWARD_QUERYSTRING', False,
+    'Indicates whether thumbor should forward the querystring of the request', 'HTTP Loader')
+Config.define(
+    'HTTP_LOADER_FORWARD_QUERYSTRING_WHITELIST', [],
+    'Indicates which of the request querystring parameters should be forwarded', 'HTTP Loader')
+Config.define(
     'HTTP_LOADER_DEFAULT_USER_AGENT', "Thumbor/%s" % __version__,
     'Default user agent for thumbor http loader requests', 'HTTP Loader')
 Config.define(
