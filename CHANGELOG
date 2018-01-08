@@ -1,4 +1,55 @@
-6.3.2 (6.3.2)
+Release 6.4.0 (6.4.0)
+## Features
+- #905 Add manual garbage collection to free memory (okor)
+- #878 Add new filter `upscale()` [fixes #726 #856] (Savar)
+- #908 Add new timeout setting if using curl HTTP client (Savar)
+- #907 Add `background_color` option to gifv (okor)
+- #940 Add new `strip_exif` filter in order to remove exif on demand (franek)
+- #928 Add the ability to return custom HTTP error code (gi11es)
+- #963 Add options to allow header forwarding for the HTTP_Loader (asvinours)
+- #890 Add options for watermark resizing relative to image [fixes #874] (Savar)
+
+### Improvements
+- #892 Improve the way to determine extention using the content detection (Savar)
+- #902 Jpegtran now preserves ICC profile if not forced to strip (kkopachev)
+- #934 Pillow 4.X is now allowed [fixes #931] (kkopachev)
+- #886 Resync BaseEngine API with existing implementations (Savar)
+- 98d90b0 Improve the red eye filter based on cv2/cv3 (kkopachev)
+
+## Bug fixes
+- #877 Fix issue with full-fit-in and requested width/height (Savar)
+- #883 Fix exception with smart detection + gif + meta endpoint (Savar)
+- #890 Fix watermark resizing relative to image [fixes #874] (Savar)
+- #901 Fix race condition for preserving exif data (mb-m)
+- 4bb3da967448a25f2c7ef0f0c3c5fa1f39565aa5 Fix memory usage explosion [fixes #753] (SergioJorge)
+- #887 Fix `_composite.apply` with bigger source images (Savar)
+- 58d4bb9 Fix resize causing transparency loss on paletted images [fixes #987 #945 #943] (kkopachev)
+- #995 Fix exception thrown when `fit-in` and requested size has "orig" (kkopachev)
+- #995 Fix transformer tests and fix exception thrown when fit-in + requested size has "orig" (kkopachev)
+- #997 Fix the error when combining watermark with an S3 loader [fixes #996] (gingerlime)
+
+## Maintenance & Python 3 support
+- #948 print(), xrange(), unicode(), basestring, exception changes for Python 3 (raphamorim)
+- #961 Define unicode() for Python 3 (cclauss)
+- #973 Remove useless IGNORE_DECODING_ERRORS constant (homm)
+- #975 Improve Travis build time (marcelometal)
+- #977 Remove debian folder (marcelometal)
+- #970 Add a Travis build to test linting (marcelometal)
+- #982 Replaced 'pexif' dependency with 'piexif' (marcelometal)
+- #983 Fixed urllib Python 2 and 3 compatibility (marcelometal)
+- 1d5ecf1 Update noise filter test image to be png, so SSIM will work (kkopachev)
+- #974 Fix some tests, improve Travis builds & Python 3 support (kkopachev)
+
+## Documentation
+- #947 Fix typos in the documentation (crowchirp)
+- #953 Add convenience links to docs in README.mkd (combs)
+- #958 Add 5.0.5 to 6.3.2 from GitHub releases to the CHANGELOG (pda)
+- #960 Remove Python 2.6 from documentation (cclauss)
+- #981 Fix links on the getting started guide (marcelometal)
+- #1014 Add precisions on "How to upload images" documentation (tomsaleeba)
+- #1026 Add Bumbo to Libraries (guilhermearaujo)
+
+Release 6.3.2 (6.3.2)
 Fixes a gif to video conversion (gifv) bug for mp4s. See https://github.com/thumbor/thumbor/pull/904 and https://github.com/thumbor/thumbor/issues/903 for more details.
 
 Release 6.3.1 (6.3.1)
