@@ -24,6 +24,8 @@ except NameError:
     unicode = str  # Python 3
 
 MODE_ECB = 1
+
+
 class Cryptor(object):
     def __init__(self, security_key):
         self.security_key = (security_key * 16)[:16]
