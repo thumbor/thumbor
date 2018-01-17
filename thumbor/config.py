@@ -394,6 +394,10 @@ Config.define(
     'Custom app class to override ThumborServiceApp. This config value is overridden by the -a command-line parameter.'
 )
 
+# HTTP Basic Auth
+Config.define('HTTP_BASIC_AUTH_USER', None, 'HTTP Basic Auth Username')
+Config.define('HTTP_BASIC_AUTH_PASSWORD', None, 'HTTP Basic Auth Password')
+Config.define('HTTP_BASIC_AUTH_MODE', 'basic', 'HTTP Basic Auth Mode, standard: basic')
 
 def generate_config():
     config.generate_config()

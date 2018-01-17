@@ -146,7 +146,10 @@ def load_sync(context, url, callback, normalize_url_func):
         client_key=encode(context.config.HTTP_LOADER_CLIENT_KEY),
         client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT),
         validate_cert=context.config.HTTP_LOADER_VALIDATE_CERTS,
-        prepare_curl_callback=prepare_curl_callback
+        prepare_curl_callback=prepare_curl_callback,
+        auth_username=context.config.HTTP_BASIC_AUTH_USER,
+        auth_password=context.config.HTTP_BASIC_AUTH_PASSWORD,
+        auth_mode=context.config.HTTP_BASIC_AUTH_MODE
     )
 
     start = datetime.datetime.now()
