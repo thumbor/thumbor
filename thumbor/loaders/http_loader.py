@@ -15,7 +15,7 @@ from functools import partial
 import tornado.httpclient
 from six.moves.urllib.parse import quote, unquote, urlparse
 
-from . import LoaderResult
+from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
 from tornado.concurrent import return_future
 
@@ -63,10 +63,9 @@ def return_contents(response, url, callback, context, req_start=None):
     if req_start:
         finish = datetime.datetime.now()
         res = urlparse(url)
-        context.metrics.timing(
-            'original_image.fetch.{0}.{1}'.format(response.code, res.netloc),
-            (finish - req_start).total_seconds() * 1000
-        )
+        context.metrics.timing('original_image.fetch.{0}.{1}'.format(
+            response.code, res.netloc),
+                               (finish - req_start).total_seconds() * 1000)
 
     result = LoaderResult()
     context.metrics.incr('original_image.status.' + str(response.code))
@@ -78,7 +77,8 @@ def return_contents(response, url, callback, context, req_start=None):
         else:
             result.error = LoaderResult.ERROR_NOT_FOUND
 
-        logger.warn(u"ERROR retrieving image {0}: {1}".format(url, str(response.error)))
+        logger.warn(u"ERROR retrieving image {0}: {1}".format(
+            url, str(response.error)))
 
     elif response.body is None or len(response.body) == 0:
         result.successful = False
@@ -88,10 +88,15 @@ def return_contents(response, url, callback, context, req_start=None):
     else:
         if response.time_info:
             for x in response.time_info:
-                context.metrics.timing('original_image.time_info.' + x, response.time_info[x] * 1000)
-            context.metrics.timing('original_image.time_info.bytes_per_second', len(response.body) / response.time_info['total'])
+                context.metrics.timing('original_image.time_info.' + x,
+                                       response.time_info[x] * 1000)
+            context.metrics.timing(
+                'original_image.time_info.bytes_per_second',
+                len(response.body) / response.time_info['total'])
         result.buffer = response.body
-        context.metrics.incr('original_image.response_bytes', len(response.body))
+        result.metadata.update(response.headers)
+        context.metrics.incr('original_image.response_bytes', len(
+            response.body))
 
     callback(result)
 
@@ -110,7 +115,9 @@ def load_sync(context, url, callback, normalize_url_func):
         http_client_implementation = None  # default
         prepare_curl_callback = None
 
-    tornado.httpclient.AsyncHTTPClient.configure(http_client_implementation, max_clients=context.config.HTTP_LOADER_MAX_CLIENTS)
+    tornado.httpclient.AsyncHTTPClient.configure(
+        http_client_implementation,
+        max_clients=context.config.HTTP_LOADER_MAX_CLIENTS)
     client = tornado.httpclient.AsyncHTTPClient()
 
     user_agent = None
@@ -120,11 +127,14 @@ def load_sync(context, url, callback, normalize_url_func):
     else:
         if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
             if 'User-Agent' in context.request_handler.request.headers:
-                user_agent = context.request_handler.request.headers['User-Agent']
+                user_agent = context.request_handler.request.headers[
+                    'User-Agent']
         if context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
             for header_key in context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
                 if header_key in context.request_handler.request.headers:
-                    headers[header_key] = context.request_handler.request.headers[header_key]
+                    headers[
+                        header_key] = context.request_handler.request.headers[
+                            header_key]
 
     if user_agent is None and 'User-Agent' not in headers:
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
@@ -146,11 +156,17 @@ def load_sync(context, url, callback, normalize_url_func):
         client_key=encode(context.config.HTTP_LOADER_CLIENT_KEY),
         client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT),
         validate_cert=context.config.HTTP_LOADER_VALIDATE_CERTS,
-        prepare_curl_callback=prepare_curl_callback
-    )
+        prepare_curl_callback=prepare_curl_callback)
 
     start = datetime.datetime.now()
-    client.fetch(req, callback=partial(return_contents, url=url, callback=callback, context=context, req_start=start))
+    client.fetch(
+        req,
+        callback=partial(
+            return_contents,
+            url=url,
+            callback=callback,
+            context=context,
+            req_start=start))
 
 
 def encode(string):
@@ -166,7 +182,9 @@ def _get_prepare_curl_callback(config):
             self.config = config
 
         def prepare_curl_callback(self, curl):
-            curl.setopt(curl.LOW_SPEED_TIME, self.config.HTTP_LOADER_CURL_LOW_SPEED_TIME)
-            curl.setopt(curl.LOW_SPEED_LIMIT, self.config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT)
+            curl.setopt(curl.LOW_SPEED_TIME,
+                        self.config.HTTP_LOADER_CURL_LOW_SPEED_TIME)
+            curl.setopt(curl.LOW_SPEED_LIMIT,
+                        self.config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT)
 
     return CurlOpts(config).prepare_curl_callback
