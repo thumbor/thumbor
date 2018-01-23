@@ -63,9 +63,10 @@ def return_contents(response, url, callback, context, req_start=None):
     if req_start:
         finish = datetime.datetime.now()
         res = urlparse(url)
-        context.metrics.timing('original_image.fetch.{0}.{1}'.format(
-            response.code, res.netloc),
-                               (finish - req_start).total_seconds() * 1000)
+        context.metrics.timing(
+            'original_image.fetch.{0}.{1}'.format(response.code, res.netloc),
+            (finish - req_start).total_seconds() * 1000,
+        )
 
     result = LoaderResult()
     context.metrics.incr('original_image.status.' + str(response.code))

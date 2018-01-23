@@ -36,7 +36,7 @@ addons:
     - libboost-python-dev
     - libexiv2-dev
 before_install:
-  - echo "deb http://archive.ubuntu.com/ubuntu zesty main universe" | sudo tee --append /etc/apt/sources.list
+  - echo "deb http://old-releases.ubuntu.com/ubuntu zesty main universe" | sudo tee --append /etc/apt/sources.list
   - sudo apt-get update
   - sudo apt-get install ffmpeg -y -f
 install:
