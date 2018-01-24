@@ -70,7 +70,7 @@ class PillowExtensions:
     @staticmethod
     def crop(details, left, top, right, bottom):
         'Crops the image according to the specified dimensions'
-        img = details['image']
+        img = details.metadata['image']
         img = img.crop((int(left), int(top), int(right), int(bottom)))
         details.metadata['image'] = img
 

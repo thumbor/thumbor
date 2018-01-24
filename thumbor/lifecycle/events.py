@@ -27,6 +27,8 @@ Example:
     Events.subscribe(Events.Imaging.request_received, on_request_received_handler)
 '''
 
+import inspect
+
 import tornado.gen
 from tornado import ioloop
 from blinker import signal as sync_signal
@@ -119,6 +121,10 @@ class Events(object):
         serialize = signal('engine.serialize')
         after_serialize = signal('engine.after_serialize')
 
+        before_focal_points_changed = signal('engine.before_focal_points_changed')
+        focal_points_changed = signal('engine.focal_points_changed')
+        after_focal_points_changed = signal('engine.after_focal_points_changed')
+
         get_image_data_as_rgb = signal('engine.get_image_data_as_rgb')
         get_image_size = signal('engine.get_image_size')
 
@@ -172,6 +178,15 @@ class Events(object):
     def subscribe(cls, event, handler):
         'Subscribes to an event'
         if isinstance(event, NamedAsyncSignal):
-            event.connect(handler, scheduler=Events.scheduler)
+            event.connect(handler)
         else:
             event.connect(handler)
+
+
+def configure_schedulers():
+    for cls in [Events.Engine, Events.Healthcheck, Events.Imaging]:
+        for (name, val) in [ev for ev in inspect.getmembers(cls) if isinstance(ev[1], NamedAsyncSignal)]:
+            val.scheduler = Events.scheduler
+
+
+configure_schedulers()

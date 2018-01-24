@@ -182,3 +182,39 @@ class Engine(object):
             sender,
             details=details,
         )
+
+    @classmethod
+    @gen.coroutine
+    def get_proportional_width(cls, sender, details, new_height):
+        width, height = yield cls.get_image_size(sender, details)
+        return round(float(new_height) * width / height, 0)
+
+    @classmethod
+    @gen.coroutine
+    def get_proportional_height(cls, sender, details, new_width):
+        width, height = yield cls.get_image_size(sender, details)
+        return round(float(new_width) * height / width, 0)
+
+    @classmethod
+    @gen.coroutine
+    def focus(cls, sender, details):
+        yield Events.trigger(
+            Events.Engine.before_focal_points_changed,
+            sender,
+            details=details,
+            focal_points=details.focal_points,
+        )
+
+        yield Events.trigger(
+            Events.Engine.focal_points_changed,
+            sender,
+            details=details,
+            focal_points=details.focal_points,
+        )
+
+        yield Events.trigger(
+            Events.Engine.after_focal_points_changed,
+            sender,
+            details=details,
+            focal_points=details.focal_points,
+        )

@@ -37,6 +37,9 @@ class RequestDetails(object):  # pylint: disable=too-many-instance-attributes
             },
         }
         self.filters = {}
+        self.target_width = 0
+        self.target_height = 0
+        self.focal_points = []
 
     def build_filters_map(self):
         '''
