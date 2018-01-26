@@ -137,6 +137,18 @@ slogan into an original tee and order it immediately.
     Cheers!
     Erico Andrei - CTO
 
+.. figure:: http://www.gravatar.com/avatar/0a4f4e23260b57fdba6380fe0ad5b84b.jpg 
+    :alt: Ridelink
+`HeyCar <https://hey.car/>`__
+
+    HeyCar is using Thumbor to optmize images for each customers device, taking network and screen sizes into account.
+
+    Our Thumbor instances run on our Kubernetes Cluster, served behind a CloudFront instance for caching purposes.
+
+    Huge Thanks to all Thumbor Contributors!
+    
+    Marcelo Boeira - Software Engineer
+
 How to add my site or product here
 ----------------------------------
 
