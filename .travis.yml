@@ -35,14 +35,14 @@ addons:
     - scons
     - libboost-python-dev
     - libexiv2-dev
+    - python-pyexiv2
 before_install:
-  - echo "deb http://archive.ubuntu.com/ubuntu zesty main universe" | sudo tee --append /etc/apt/sources.list
+  - echo "deb http://ppa.launchpad.net/jonathonf/ffmpeg-3/ubuntu trusty main" | sudo tee --append /etc/apt/sources.list
   - sudo apt-get update
-  - sudo apt-get install ffmpeg -y -f
+  - sudo apt-get install ffmpeg -y -f --allow-unauthenticated
 install:
   - pip install --upgrade pip
-  - pip install -I https://github.com/escaped/pyexiv2/archive/69dd6448f9831bd826137b7519f9d797b23ab4ec.zip
-  - cd $TRAVIS_BUILD_DIR && make setup
+  - cd $TRAVIS_BUILD_DIR && make setup_python
   - pip install coveralls
 before_script:
   - cd $TRAVIS_BUILD_DIR && make redis

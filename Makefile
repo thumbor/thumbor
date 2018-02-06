@@ -5,17 +5,19 @@ run: compile_ext
 
 setup:
     ifeq ($(OS), xx)
-	    @$(MAKE) setup_mac
+	@$(MAKE) setup_mac
     else
-	    @echo
-	    @echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	    @echo ">>> MAKE SURE SYSTEM DEPENDENCIES IS INSTALLED IF RUNNING TESTS <<<<<<<<<<<<<<<"
-	    @echo ">>> imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo ffmpeg <<<"
-	    @echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	    @echo
+	@$(MAKE) setup_ubuntu
     endif
-	@pip install -e .[tests]
+	@$(MAKE) setup_python
 
+setup_ubuntu:
+	@sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx4 \
+                             libvpx-dev libimage-exiftool-perl libcairo2-dev \
+                             ffmpeg libcurl4-openssl-dev libffi-dev \
+                             python-dev python3-dev
+setup_python:
+	@pip install -e .[tests]
 
 setup_mac:
 	@brew tap homebrew/science

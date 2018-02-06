@@ -24,7 +24,7 @@ You'll need Python 2.7 and we seriously advise you to use virtualenv (http://pyp
 The following packages are required:
 
 * Tornado >= 2.3.0
-* pyCrypto >= 2.4.1
+* pycryptodome >= 3.4.5
 * pycurl >= 7.19.0
 * Pillow >= 2.3.0
 * redis >= 2.4.11

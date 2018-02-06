@@ -544,7 +544,6 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
         expect(response.headers).to_include('Vary')
         expect(response.headers['Vary']).to_include('Accept')
         expect(response.body).to_be_webp()
-        expect(self.context.request.engine.extension).to_equal('.webp')
 
 
 class ImageOperationsWithoutEtagsTestCase(BaseImagingTestCase):

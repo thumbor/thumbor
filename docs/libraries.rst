@@ -73,6 +73,12 @@ PHP
 -  `Phumbor for Symfony2 <https://github.com/jbouzekri/PhumborBundle>`__
    - A Symfony2 Bundle providing a facade for Phumbor.
 
+Swift
+~~~~~
+
+-  `Bumbo <https://github.com/guilhermearaujo/Bumbo>`__ - A swifty client
+   for Thumbor
+
 Objective-C
 ~~~~~~~~~~~
 

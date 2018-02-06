@@ -23,6 +23,8 @@ try:
 except NameError:
     unicode = str  # Python 3
 
+MODE_ECB = 1
+
 
 class Cryptor(object):
     def __init__(self, security_key):
@@ -72,7 +74,7 @@ class Cryptor(object):
         def pad(s):
             return s + (16 - len(s) % 16) * "{"
 
-        cipher = AES.new(self.security_key)
+        cipher = AES.new(self.security_key, MODE_ECB)
         encrypted = base64.urlsafe_b64encode(cipher.encrypt(pad(url.encode('utf-8'))))
 
         return encrypted
@@ -121,7 +123,7 @@ class Cryptor(object):
         return opt
 
     def decrypt(self, encrypted):
-        cipher = AES.new(self.security_key)
+        cipher = AES.new(self.security_key, MODE_ECB)
 
         try:
             debased = base64.urlsafe_b64decode(encrypted.encode("utf-8"))
