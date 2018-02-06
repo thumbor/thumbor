@@ -394,6 +394,9 @@ Config.define(
     'Custom app class to override ThumborServiceApp. This config value is overridden by the -a command-line parameter.'
 )
 
+# MAGNOLIA AUTHOR USER/PASS
+Config.define('MGNLOGIN_USER', None, 'Magnolia Author user (readonly)')
+Config.define('MGNLOGIN_PASS', None, 'Magnolia Author user (readonly)')
 
 def generate_config():
     config.generate_config()

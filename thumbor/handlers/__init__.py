@@ -147,9 +147,17 @@ class BaseHandler(tornado.web.RequestHandler):
         This function is called after the PRE_LOAD filters have been applied.
         It applies the AFTER_LOAD filters on the result, then crops the image.
         """
+        if self.context.request.mgnlogin:
+            mgnl_auth = ""
+            if self.context.config.MGNLOGIN_USER and self.context.config.MGNLOGIN_PASS:
+                mgnl_auth = "?mgnlUserId=%s&mgnlUserPSWD=%s" % (self.context.config.MGNLOGIN_USER, self.context.config.MGNLOGIN_PASS)
+            req_image_url = self.context.request.image_url + mgnl_auth
+        else:
+            req_image_url = self.context.request.image_url
+            
         try:
             result = yield self._fetch(
-                self.context.request.image_url
+                req_image_url
             )
 
             if not result.successful:
