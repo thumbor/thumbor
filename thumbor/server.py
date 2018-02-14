@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import gc
 import sys
 import logging
 import logging.config
@@ -123,12 +122,6 @@ def run_server(application, context):
         server.bind(context.server.port, context.server.ip)
 
     server.start(1)
-
-
-def gc_collect():
-    collected = gc.collect()
-    if collected > 0:
-        logging.warn('Garbage collector: collected %d objects.' % collected)
 
 
 def main(arguments=None):
