@@ -38,6 +38,8 @@ class ContextTestCase(TestCase):
         expect(ctx.filters_factory.filter_classes_map).to_be_empty()
         expect(ctx.request_handler).to_be_null()
         expect(ctx.thread_pool).to_be_instance_of(ThreadPool)
+        expect(ctx.headers).to_be_instance_of(dict)
+        expect(ctx.headers).to_be_empty()
 
     def test_can_create_context_with_importer(self):
         cfg = Config()
