@@ -20,7 +20,7 @@ try:
     import cv2
     import numpy
 except ImportError:
-    cv = None
+    cv2 = None
     numpy = None
 
 from thumbor.engines import BaseEngine
