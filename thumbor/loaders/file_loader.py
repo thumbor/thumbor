@@ -14,9 +14,11 @@ from os import fstat
 from os.path import join, exists, abspath
 from tornado.concurrent import return_future
 
+from urllib import unquote
 
 @return_future
 def load(context, path, callback):
+    path = unquote(path)
     file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(context.config.FILE_LOADER_ROOT_PATH)
