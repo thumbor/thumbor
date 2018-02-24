@@ -181,11 +181,19 @@ class Engine(BaseEngine):
             if self.original_mode == '1':
                 self.image = self.image.convert('1')
             else:
-                # method=3 is using libimagequant, which might not be enabled on compile time
+                # libimagequant might not be enabled on compile time
                 # but it's better than default octree for RGBA images, so worth a try
+                quantize_default = True
                 try:
-                    self.image = self.image.quantize(method=3)
-                except ValueError:
+                    # Option available since Pillow 3.3.0
+                    if hasattr(Image, 'LIBIMAGEQUANT'):
+                        self.image = self.image.quantize(method=Image.LIBIMAGEQUANT)
+                        quantize_default = False
+                except ValueError as ex:
+                    if 'dependency' not in str(ex).lower():
+                        raise
+
+                if quantize_default:
                     self.image = self.image.quantize()
 
         ext = requested_extension or self.get_default_extension()
