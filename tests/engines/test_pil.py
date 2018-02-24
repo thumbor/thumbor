@@ -88,17 +88,29 @@ class PilEngineTestCase(TestCase):
         with open(join(STORAGE_PATH, '1bit.png'), 'r') as im:
             buffer = im.read()
         engine.load(buffer, '.png')
+        expect(engine.original_mode).to_equal('P')  # Note that this is not a true 1bit image, it's 8bit in black/white.
+
         engine.resize(10, 10)
         mode, _ = engine.image_data_as_rgb()
-        expect(mode).to_equal('P')  # Note that this is not a true 1bit image, it's 8bit in black/white.
+        expect(mode).to_equal('RGB')
+
+        final_bytes = BytesIO(engine.read())
+        mode = Image.open(final_bytes).mode
+        expect(mode).to_equal('P')
 
     def test_convert_should_preserve_palette_mode(self):
         engine = Engine(self.context)
         with open(join(STORAGE_PATH, '256_color_palette.png'), 'r') as im:
             buffer = im.read()
         engine.load(buffer, '.png')
+        expect(engine.original_mode).to_equal('P')
+
         engine.resize(10, 10)
         mode, _ = engine.image_data_as_rgb()
+        expect(mode).to_equal('RGB')
+
+        final_bytes = BytesIO(engine.read())
+        mode = Image.open(final_bytes).mode
         expect(mode).to_equal('P')
 
     def test_can_set_resampling_filter(self):
@@ -182,9 +194,10 @@ class PilEngineTestCase(TestCase):
             buffer = im.read()
 
         engine.load(buffer, 'png')
+        expect(engine.original_mode).to_equal('P')
         engine.resize(200, 150)
 
-        img = Image.open(BytesIO(engine.read('png')))
+        img = Image.open(BytesIO(engine.read('.png')))
 
         expect(img.mode).to_equal('P')
         expect(img.format.lower()).to_equal('png')

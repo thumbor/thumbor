@@ -60,6 +60,9 @@ Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP image
               'JPEG quality will be used.', 'Imaging')
 
 Config.define('PNG_COMPRESSION_LEVEL', 6, 'Compression level for generated PNG images.', 'Imaging')
+Config.define('PILLOW_PRESERVE_INDEXED_MODE',
+              True,
+              'Indicates if final image should preserve indexed mode (P or 1) of original image', 'Imaging')
 Config.define('AUTO_WEBP', False, 'Specifies whether WebP format should be used automatically if the request accepts it '
               '(via Accept header)', 'Imaging')
 Config.define('SVG_DPI', 150,
