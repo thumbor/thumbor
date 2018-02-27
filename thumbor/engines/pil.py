@@ -29,10 +29,10 @@ from thumbor.utils import logger, deprecated, EXTENSION
 
 try:
     from thumbor.ext.filters import _composite
+
     FILTERS_AVAILABLE = True
 except ImportError:
     FILTERS_AVAILABLE = False
-
 
 FORMATS = {
     '.tif': 'PNG',  # serve tif as png
@@ -46,6 +46,10 @@ FORMATS = {
 ImageFile.MAXBLOCK = 2 ** 25
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+DecompressionBombExceptions = (Image.DecompressionBombWarning,)
+if hasattr(Image, 'DecompressionBombError'):
+    DecompressionBombExceptions += (Image.DecompressionBombError,)
+
 
 class Engine(BaseEngine):
     def __init__(self, context):
@@ -54,8 +58,11 @@ class Engine(BaseEngine):
         self.qtables = None
         self.original_mode = None
 
-        if self.context and self.context.config.MAX_PIXELS:
-            Image.MAX_IMAGE_PIXELS = self.context.config.MAX_PIXELS
+        try:
+            if self.context.config.MAX_PIXELS is None or int(self.context.config.MAX_PIXELS):
+                Image.MAX_IMAGE_PIXELS = self.context.config.MAX_PIXELS
+        except (AttributeError, TypeError, ValueError):  # invalid type
+            logger.info('MAX_PIXELS config variable set to invalid type. Has to be int on None')
 
     def gen_image(self, size, color):
         if color == 'transparent':
@@ -66,7 +73,7 @@ class Engine(BaseEngine):
     def create_image(self, buffer):
         try:
             img = Image.open(BytesIO(buffer))
-        except Image.DecompressionBombWarning as e:
+        except DecompressionBombExceptions as e:
             logger.warning("[PILEngine] create_image failed: {0}".format(e))
             return None
         self.icc_profile = img.info.get('icc_profile')
