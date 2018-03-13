@@ -20,6 +20,14 @@ class BlurFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.99)
+    
+    def test_blur_filter_with_zero_radius(self):
+        image = self.get_filtered('source.jpg', 'thumbor.filters.blur', 'blur(0)')
+        expected = self.get_fixture('blur.jpg')
+
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.99)
+    
 
     def test_blur_filter_without_sigma(self):
         image = self.get_filtered('source.jpg', 'thumbor.filters.blur', 'blur(8)')
