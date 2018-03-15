@@ -85,7 +85,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.context.metrics.incr('response.bytes{0}'.format(ext), self._response_length)
 
         self.context.request_handler = None
-        self.context.request.engine = None
+        if hasattr(self.context, 'request'):
+            self.context.request.engine = None
         self.context.modules = None
         self.context.filters_factory = None
         self.context.metrics = None
@@ -405,7 +406,7 @@ class BaseHandler(tornado.web.RequestHandler):
         result_storage = context.modules.result_storage
         metrics = context.metrics
 
-        should_store = result_from_storage is None and result_storage and not context.request.prevent_result_storage \
+        should_store = result_storage and not context.request.prevent_result_storage \
             and (context.config.RESULT_STORAGE_STORES_UNSAFE or not context.request.unsafe)
 
         def inner(future):
@@ -463,6 +464,7 @@ class BaseHandler(tornado.web.RequestHandler):
         if should_vary:
             self.set_header('Vary', 'Accept')
 
+        self.context.headers = self._headers.copy()
         self._response_ext = EXTENSION.get(content_type)
         self._response_length = len(buffer)
 

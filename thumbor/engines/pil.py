@@ -52,6 +52,7 @@ class Engine(BaseEngine):
         super(Engine, self).__init__(context)
         self.subsampling = None
         self.qtables = None
+        self.original_mode = None
 
         if self.context and self.context.config.MAX_PIXELS:
             Image.MAX_IMAGE_PIXELS = self.context.config.MAX_PIXELS
@@ -70,6 +71,7 @@ class Engine(BaseEngine):
             return None
         self.icc_profile = img.info.get('icc_profile')
         self.exif = img.info.get('exif')
+        self.original_mode = img.mode
 
         self.subsampling = JpegImagePlugin.get_sampling(img)
         if (self.subsampling == -1):  # n/a for this file
@@ -115,11 +117,15 @@ class Engine(BaseEngine):
     def resize(self, width, height):
         # Indexed color modes (such as 1 and P) will be forced to use a
         # nearest neighbor resampling algorithm. So we convert them to
-        # RGBA mode before resizing to avoid nasty scaling artifacts.
-        original_mode = self.image.mode
+        # RGB(A) mode before resizing to avoid nasty scaling artifacts.
         if self.image.mode in ['1', 'P']:
-            logger.debug('converting image from 8-bit/1-bit palette to 32-bit RGBA for resize')
-            self.image = self.image.convert('RGBA')
+            logger.debug('converting image from 8-bit/1-bit palette to 32-bit RGB(A) for resize')
+            if self.image.mode == '1':
+                target_mode = 'RGB'
+            else:
+                # convert() figures out RGB or RGBA based on palette used
+                target_mode = None
+            self.image = self.image.convert(mode=target_mode)
             # Workaround for pillow < 4.3.0. See https://github.com/python-pillow/Pillow/issues/2702
             self.image.palette = None
 
@@ -129,11 +135,6 @@ class Engine(BaseEngine):
 
         resample = self.get_resize_filter()
         self.image = self.image.resize(size, resample)
-
-        # 1 and P mode images will be much smaller if converted back to
-        # their original mode. So let's do that after resizing. Get $$.
-        if original_mode != self.image.mode:
-            self.image = self.image.convert(original_mode)
 
     def crop(self, left, top, right, bottom):
         self.image = self.image.crop((
@@ -169,8 +170,33 @@ class Engine(BaseEngine):
 
     def read(self, extension=None, quality=None):  # NOQA
         # returns image buffer in byte format.
+
         img_buffer = BytesIO()
-        ext = extension or self.extension or self.get_default_extension()
+        requested_extension = extension or self.extension
+
+        # 1 and P mode images will be much smaller if converted back to
+        # their original mode. So let's do that after resizing. Get $$.
+        if self.context.config.PILLOW_PRESERVE_INDEXED_MODE and requested_extension in [None, '.png', '.gif'] \
+                and self.original_mode in ['P', '1'] and self.original_mode != self.image.mode:
+            if self.original_mode == '1':
+                self.image = self.image.convert('1')
+            else:
+                # libimagequant might not be enabled on compile time
+                # but it's better than default octree for RGBA images, so worth a try
+                quantize_default = True
+                try:
+                    # Option available since Pillow 3.3.0
+                    if hasattr(Image, 'LIBIMAGEQUANT'):
+                        self.image = self.image.quantize(method=Image.LIBIMAGEQUANT)
+                        quantize_default = False
+                except ValueError as ex:
+                    if 'dependency' not in str(ex).lower():
+                        raise
+
+                if quantize_default:
+                    self.image = self.image.quantize()
+
+        ext = requested_extension or self.get_default_extension()
 
         options = {
             'quality': quality

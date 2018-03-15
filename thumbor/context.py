@@ -58,6 +58,7 @@ class Context:
         self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
         self.request_handler = request_handler
         self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
+        self.headers = {}
 
     def __enter__(self):
         return self
