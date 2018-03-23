@@ -147,8 +147,7 @@ class Filter(BaseFilter):
         else:
             buffer = result
 
-        self.watermark_engine.load(buffer, None)
-        self.storage.put(self.url, self.watermark_engine.read())
+        self.storage.put(self.url, buffer)
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
 
