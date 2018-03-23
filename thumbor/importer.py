@@ -32,6 +32,7 @@ class Importer:
         self.url_signer = None
         self.upload_photo_storage = None
         self.storage = None
+        self.watermark_storage = None
         self.metrics = None
         self.result_storage = None
         self.detectors = []
@@ -57,6 +58,9 @@ class Importer:
         self.import_item('FILTERS', 'Filter', is_multiple=True, ignore_errors=True)
         self.import_item('OPTIMIZERS', 'Optimizer', is_multiple=True)
         self.import_item('URL_SIGNER', 'UrlSigner')
+
+        if self.config.WATERMARK_STORAGE is not None:
+            self.import_item('WATERMARK_STORAGE', 'Storage')
 
         if self.config.RESULT_STORAGE:
             self.import_item('RESULT_STORAGE', 'Storage')
