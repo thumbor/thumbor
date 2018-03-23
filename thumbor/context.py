@@ -225,6 +225,10 @@ class ContextImporter:
         if importer.storage:
             self.storage = importer.storage(context)
 
+        self.watermark_storage = self.storage
+        if importer.watermark_storage:
+            self.watermark_storage = importer.watermark_storage(context)
+
         self.result_storage = None
         if importer.result_storage:
             self.result_storage = importer.result_storage(context)
