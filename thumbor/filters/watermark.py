@@ -10,6 +10,7 @@
 
 from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
+from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
 import tornado.gen
@@ -171,7 +172,7 @@ class Filter(BaseFilter):
         self.h_ratio = float(h_ratio) / 100.0 if h_ratio and h_ratio != 'none' else False
         self.callback = callback
         self.watermark_engine = self.context.modules.engine.__class__(self.context)
-        self.storage = self.context.modules.storage
+        self.storage = self.context.modules.watermark_storage
 
         try:
             buffer = yield tornado.gen.maybe_future(self.storage.get(self.url))

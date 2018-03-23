@@ -120,6 +120,10 @@ Config.define(
     'The file storage thumbor should use to store original images. This must be the full name of a python module ' +
     '(python must be able to import it)', 'Extensibility')
 Config.define(
+    'WATERMARK_STORAGE', None,
+    'The file storage thumbor should use to store watermark images (defaults to the same as for original images). ' +
+    'This must be the full name of a python module (python must be able to import it)', 'Extensibility')
+Config.define(
     'RESULT_STORAGE', None,
     'The result storage thumbor should use to store generated images. This must be the full name of a python ' +
     'module (python must be able to import it)', 'Extensibility')
