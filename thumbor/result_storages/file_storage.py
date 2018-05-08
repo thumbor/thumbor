@@ -13,7 +13,7 @@ from uuid import uuid4
 from shutil import move
 import pytz
 
-from os.path import exists, dirname, join, getmtime, abspath
+from os.path import exists, dirname, join, getmtime, abspath, isdir
 
 from thumbor.engines import BaseEngine
 from thumbor.result_storages import BaseStorage
@@ -55,7 +55,7 @@ class Storage(BaseStorage):
             return None
         logger.debug("[RESULT_STORAGE] getting from %s" % file_abspath)
 
-        if not exists(file_abspath) or self.is_expired(file_abspath):
+        if not exists(file_abspath) or isdir(file_abspath) or self.is_expired(file_abspath):
             logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
             callback(None)
         else:
