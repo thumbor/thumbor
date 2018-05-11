@@ -12,12 +12,19 @@ from subprocess import Popen, PIPE
 
 from thumbor.optimizers import BaseOptimizer
 from thumbor.utils import logger
+from os.path import exists
 
 
 class Optimizer(BaseOptimizer):
 
     def should_run(self, image_extension, buffer):
-        return image_extension in ['.jpg', '.jpeg']
+        if image_extension in ['.jpg', '.jpeg']:
+            if not exists(self.context.config.JPEGTRAN_PATH):
+                logger.warn(
+                    'jpegtran optimizer enabled but binary JPEGTRAN_PATH does not exist')
+                return False
+            return True
+        return False
 
     def run_optimizer(self, image_extension, buffer):
         if not self.should_run(image_extension, buffer):
@@ -45,7 +52,8 @@ class Optimizer(BaseOptimizer):
         # per default but setting it to True + setting any of stdin, stdout, stderr will
         # make this crash on Windows
         # TODO remove close_fds=True if code was upgraded to Python 3
-        jpg_process = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
+        jpg_process = Popen(command, stdin=PIPE, stdout=PIPE,
+                            stderr=PIPE, close_fds=True)
         output_stdout, output_stderr = jpg_process.communicate(buffer)
 
         if jpg_process.returncode != 0:

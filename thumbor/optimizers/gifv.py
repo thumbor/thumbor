@@ -15,12 +15,19 @@ import webcolors
 
 from thumbor.optimizers import BaseOptimizer
 from thumbor.utils import logger
+from os.path import exists
 
 
 class Optimizer(BaseOptimizer):
 
     def should_run(self, image_extension, buffer):
-        return 'gif' in image_extension and 'gifv' in self.context.request.filters
+        if 'gif' in image_extension and 'gifv' in self.context.request.filters:
+            if not exists(self.context.config.FFMPEG_PATH):
+                logger.warn(
+                    'gifv optimizer enabled but binary FFMPEG_PATH does not exist')
+                return False
+            return True
+        return False
 
     def optimize(self, buffer, input_file, output_file):
         format, command_params = self.set_format()
@@ -28,7 +35,8 @@ class Optimizer(BaseOptimizer):
         bg_color_hex = None
         if 'background_color' in self.context.request.filters:
             filters = self.context.request.filters.split(':')
-            bg_filter = [filter for filter in filters if filter.startswith('background_color')][0]
+            bg_filter = [filter for filter in filters if filter.startswith(
+                'background_color')][0]
             bg_color = re.search(r'\((.*?)\)', bg_filter).group(1)
             bg_color_hex = self.normalize_color_to_hex(bg_color)
 
