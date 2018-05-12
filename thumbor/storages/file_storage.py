@@ -136,4 +136,4 @@ class Storage(storages.BaseStorage):
         if self.context.config.STORAGE_EXPIRATION_SECONDS is None:
             return False
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
-        return timediff.seconds > self.context.config.STORAGE_EXPIRATION_SECONDS
+        return timediff.total_seconds() > self.context.config.STORAGE_EXPIRATION_SECONDS

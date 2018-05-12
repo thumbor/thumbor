@@ -8,7 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from datetime import datetime
 from os.path import exists, dirname, join
+import mock
 import random
 import shutil
 import tornado
@@ -122,16 +124,22 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
         return Config(
             FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/",
-            STORAGE_EXPIRATION_SECONDS=-1
+            STORAGE_EXPIRATION_SECONDS=10
         )
 
     @tornado.testing.gen_test
-    def test_CannotGetExpiredImage(self):
+    def test_cannot_get_expired_1_day_old_image(self):
         iurl = self.get_image_url('image_2.jpg')
         ibytes = self.get_image_bytes('image.jpg')
         storage = FileStorage(self.context)
         storage.put(iurl, ibytes)
-        got = yield storage.get(iurl)
+        current_timestamp = (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()
+        new_mtime = current_timestamp - 60 * 60 * 24
+        with mock.patch(
+                'thumbor.storages.file_storage.getmtime',
+                return_value=new_mtime
+        ):
+            got = yield storage.get(iurl)
         expect(got).to_be_null()
         expect(got).not_to_be_an_error()
 
