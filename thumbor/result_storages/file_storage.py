@@ -98,7 +98,7 @@ class Storage(BaseStorage):
             return False
 
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
-        return timediff.seconds > expire_in_seconds
+        return timediff.total_seconds() > expire_in_seconds
 
     @deprecated("Use result's last_modified instead")
     def last_updated(self):
