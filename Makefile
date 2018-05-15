@@ -15,7 +15,9 @@ setup_ubuntu:
 	@sudo apt-get install -y imagemagick webp coreutils gifsicle libjpeg8-dev \
                              libvpx-dev libimage-exiftool-perl libcairo2-dev \
                              ffmpeg libcurl4-openssl-dev libffi-dev \
-                             python-dev python3-dev libssl-dev
+                             python-dev python3-dev libssl-dev  python-webcolors zlib1g-dev libjpeg-dev libpng-dev \
+
+
 setup_python:
 	@pip install -e .[tests]
 
