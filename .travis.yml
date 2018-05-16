@@ -7,6 +7,7 @@ python:
 cache:
   pip: true
   apt: true
+sudo: required
 matrix:
   fast_finish: true
   allow_failures:
@@ -34,12 +35,11 @@ addons:
     - scons
     - libboost-python-dev
     - libexiv2-dev
+before_install:
+  - sudo add-apt-repository -y ppa:jonathonf/ffmpeg-3
+  - sudo apt-get update
+  - sudo apt-get install ffmpeg -y -f
 install:
-  - wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
-      -O /tmp/ffmpeg-release.tar.xz
-  - mkdir /tmp/ffmpeg-release
-  - tar -C /tmp/ffmpeg-release --strip 1 -xvf /tmp/ffmpeg-release.tar.xz
-  - export PATH=/tmp/ffmpeg-release:$PATH
   - ffmpeg -version
   - pip install --upgrade pip
   - pip install -I https://github.com/escaped/pyexiv2/archive/69dd6448f9831bd826137b7519f9d797b23ab4ec.zip
