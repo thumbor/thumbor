@@ -14,6 +14,7 @@ import re
 class Url(object):
 
     unsafe_or_hash = r'(?:(?:(?P<unsafe>unsafe)|(?P<hash>.+?))/)?'
+    mgnlogin = '(?:(?P<mgnlogin>mgnlogin)/)?'
     debug = '(?:(?P<debug>debug)/)?'
     meta = '(?:(?P<meta>meta)/)?'
     trim = '(?:(?P<trim>trim(?::(?:top-left|bottom-right))?(?::\d+)?)/)?'
@@ -34,6 +35,7 @@ class Url(object):
 
         if has_unsafe_or_hash:
             reg.append(cls.unsafe_or_hash)
+        reg.append(cls.mgnlogin)
         reg.append(cls.debug)
         reg.append(cls.meta)
         reg.append(cls.trim)

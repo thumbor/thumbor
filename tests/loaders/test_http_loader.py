@@ -178,6 +178,25 @@ class NormalizeUrlTestCase(PythonTestCase):
         expect(result).to_equal(expected)
 
 
+class NormalizeFollowProxyScheme(PythonTestCase):
+
+    def test_should_follow_http_scheme(self):
+        url = "some.url"
+        expect(loader._normalize_url(url, "http")).to_equal('http://some.url')
+
+    def test_should_follow_https_scheme(self):
+        url = "some.url"
+        expect(loader._normalize_url(url, "https")).to_equal('https://some.url')
+
+    def test_should_mantain_http_without_scheme(self):
+        url = "http://some.url"
+        expect(loader._normalize_url(url)).to_equal('http://some.url')
+
+    def test_should_mantain_https_without_scheme(self):
+        url = "https://some.url"
+        expect(loader._normalize_url(url)).to_equal('https://some.url')
+
+
 class HttpLoaderTestCase(TestCase):
 
     def get_app(self):

@@ -31,13 +31,25 @@ def quote_url(url):
     return encode_url(unquote(url).decode('utf-8'))
 
 
-def _normalize_url(url):
+def _normalize_url(url, forwarded_proto=None):
     url = quote_url(url)
-    return url if url.startswith('http') else 'http://%s' % url
+    if url.startswith('http') or url.startswith('https'):
+        pass
+    else:
+        if forwarded_proto:
+            scheme = forwarded_proto
+        else:
+            scheme = 'http'
+        url = '%s://%s' % (scheme, url)
+    return url
 
 
 def validate(context, url, normalize_url_func=_normalize_url):
-    url = normalize_url_func(url)
+    forwarded_proto = None
+    if context.request_handler is not None:
+        if "X-Forwarded-Proto" in context.request_handler.request.headers:
+            forwarded_proto = context.request_handler.request.headers['X-Forwarded-Proto']
+    url = normalize_url_func(url, forwarded_proto)
     res = urlparse(url)
 
     if not res.hostname:
