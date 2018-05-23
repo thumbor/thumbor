@@ -133,6 +133,7 @@ class RequestParameters:
                  quality=80,
                  image=None,
                  url=None,
+                 query=None,
                  extension=None,
                  buffer=None,
                  focal_points=None,
@@ -184,6 +185,7 @@ class RequestParameters:
         self.filters = filters
         self.image_url = image
         self.url = url
+        self.query = query
         self.detection_error = None
         self.quality = quality
         self.buffer = None
@@ -202,6 +204,7 @@ class RequestParameters:
 
         if request:
             self.url = request.path
+            self.query = request.query
             self.accepts_webp = 'image/webp' in request.headers.get('Accept', '')
 
     def int_or_0(self, value):

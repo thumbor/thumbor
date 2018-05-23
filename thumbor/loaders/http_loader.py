@@ -13,7 +13,7 @@ import re
 from functools import partial
 
 import tornado.httpclient
-from six.moves.urllib.parse import quote, unquote, urlparse
+from six.moves.urllib.parse import quote, unquote, urlparse, urlunparse, parse_qs, urlencode
 
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
@@ -141,6 +141,26 @@ def load_sync(context, url, callback, normalize_url_func):
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
 
     url = normalize_url_func(url)
+
+    # Pass through querystring parameters from Thumbor URL when fetching
+    # original image URL.
+    query = parse_qs(context.request.query)
+    if not context.config.HTTP_LOADER_FORWARD_QUERYSTRING:
+        # Ignore case when comparing parameter names against the whitelist.
+        allowed = [key.lower() for key in context.config.HTTP_LOADER_FORWARD_QUERYSTRING_WHITELIST]
+        for key in query.keys():
+            if key.lower() not in allowed:
+                # Remove any non-whitelisted parameters.
+                query.pop(key, None)
+    if query:
+        # The original image URL might also contain querystring parameters, so
+        # we need to merge them with any being passed through. Do not allow
+        # passthrough parameters to override original URL parameters.
+        url = urlparse(url)
+        query.update(parse_qs(url.query))
+        url = url._replace(query=urlencode(query, doseq=True))
+        url = urlunparse(url)
+
     req = tornado.httpclient.HTTPRequest(
         url=url,
         headers=headers,
