@@ -24,6 +24,7 @@ from thumbor.console import get_server_parameters
 from thumbor.config import Config
 from thumbor.importer import Importer
 from thumbor.context import Context
+from thumbor.signal_handler import setup_signal_handler
 from thumbor.utils import which
 
 from PIL import Image
@@ -122,6 +123,7 @@ def run_server(application, context):
         server.bind(context.server.port, context.server.ip)
 
     server.start(1)
+    return server
 
 
 def main(arguments=None):
@@ -139,14 +141,10 @@ def main(arguments=None):
 
     with get_context(server_parameters, config, importer) as context:
         application = get_application(context)
-        run_server(application, context)
-
-        try:
-            logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
-            tornado.ioloop.IOLoop.instance().start()
-        except KeyboardInterrupt:
-            sys.stdout.write('\n')
-            sys.stdout.write("-- thumbor closed by user interruption --\n")
+        server = run_server(application, context)
+        setup_signal_handler(server, config)
+        logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
+        tornado.ioloop.IOLoop.instance().start()
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ build
 *.so
 nohup.out
 *.idea
+.vscode
 *.iml
 opencv
 

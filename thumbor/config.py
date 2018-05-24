@@ -392,6 +392,16 @@ Config.define(
     '(python must be able to import it)', 'Extensibility'
 )
 
+# SERVER
+Config.define(
+    'MAX_WAIT_SECONDS_BEFORE_SERVER_SHUTDOWN', 0,
+    'The amount of time to wait before shutting down the server, i.e. stop accepting requests.', 'Server'
+)
+Config.define(
+    'MAX_WAIT_SECONDS_BEFORE_IO_SHUTDOWN', 0,
+    'The amount of time to waut before shutting down all io, after the server has been stopped', 'Server'
+)
+
 Config.define(
     'APP_CLASS', 'thumbor.app.ThumborServiceApp',
     'Custom app class to override ThumborServiceApp. This config value is overridden by the -a command-line parameter.'

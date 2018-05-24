@@ -28,7 +28,6 @@ from thumbor.server import (
     run_server,
     main,
 )
-from thumbor.engines import BaseEngine
 
 from tests.fixtures.custom_error_handler import ErrorHandler as CustomErrorHandler
 
@@ -202,9 +201,23 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, 'HTTPServer')
+    def test_run_server_returns_server(self, server_mock):
+        application = mock.Mock()
+        context = mock.Mock()
+        context.server = mock.Mock(fd=None, port=1234, ip='0.0.0.0')
+
+        server_instance_mock = mock.Mock()
+        server_mock.return_value = server_instance_mock
+
+        server = run_server(application, context)
+
+        self.assertEqual(server, server_instance_mock)
+
+    @mock.patch.object(thumbor.server, 'setup_signal_handler')
+    @mock.patch.object(thumbor.server, 'HTTPServer')
     @mock.patch.object(thumbor.server, 'get_server_parameters')
     @mock.patch('tornado.ioloop.IOLoop.instance', create=True)
-    def test_can_run_main(self, ioloop_mock, get_server_parameters_mock, server_mock):
+    def test_can_run_main(self, ioloop_mock, get_server_parameters_mock, server_mock, setup_signal_handler_mock):
         server_parameters = mock.Mock(
             config_path='./tests/fixtures/thumbor_config_server_test.conf',
             log_level='DEBUG',
@@ -221,38 +234,7 @@ class ServerTestCase(TestCase):
         ioloop_mock.return_value = ioloop_instance_mock
         main()
         ioloop_instance_mock.start.assert_any_call()
+        self.assertTrue(setup_signal_handler_mock.called)
 
     def cleanup(self):
         ServerTestCase.cleanup_called = True
-
-    @mock.patch.object(thumbor.server, 'HTTPServer')
-    @mock.patch.object(thumbor.server, 'get_server_parameters')
-    @mock.patch('tornado.ioloop.IOLoop.instance', create=True)
-    @mock.patch('sys.stdout')
-    def test_main_exits_on_keyboard_interrupt(self, stdout_mock, ioloop_mock, get_server_parameters_mock, server_mock):
-        server_parameters = mock.Mock(
-            config_path='./tests/fixtures/thumbor_config_server_test.conf',
-            log_level='DEBUG',
-            security_key='sec',
-            debug=False,
-            app_class='thumbor.app.ThumborServiceApp',
-            fd=None,
-            ip='0.0.0.0',
-            port=1234,
-        )
-        get_server_parameters_mock.return_value = server_parameters
-
-        old_cleanup = BaseEngine.cleanup
-        BaseEngine.cleanup = self.cleanup
-        ServerTestCase.cleanup_called = False
-
-        ioloop_instance_mock = mock.Mock()
-        ioloop_mock.return_value = ioloop_instance_mock
-        ioloop_instance_mock.start.side_effect = KeyboardInterrupt()
-
-        main()
-
-        stdout_mock.write.assert_called_with('-- thumbor closed by user interruption --\n')
-        self.assertTrue(ServerTestCase.cleanup_called)
-
-        BaseEngine.cleanup = old_cleanup
