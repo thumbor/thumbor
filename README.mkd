@@ -33,10 +33,14 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
 
 ### Thumbor 7.0 Features
 
+- [x] Eventing System
 - [x] Resize images
 - [x] Crop images
-- [ ] Fit-in
-- [ ] Full Fit-in
+- [x] Horizontal Flip
+- [x] Vertical Flip
+- [x] Fit-in
+- [x] Adaptive Fit-in
+- [x] Full Fit-in
 - [ ] Filters
    - [ ] background_color
    - [ ] blur

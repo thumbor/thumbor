@@ -149,20 +149,21 @@ class PillowExtensions:
     @staticmethod
     def flip_vertically(details):
         'Flips the image vertically in place'
-        img = details['image']
-        details['image'] = img.transpose(Image.FLIP_TOP_BOTTOM)
+        img = details.metadata['image']
+        details.metadata['image'] = img.transpose(Image.FLIP_TOP_BOTTOM)
 
     @staticmethod
     def flip_horizontally(details):
         'Flips the image horizontally in place'
-        img = details['image']
-        details['image'] = img.transpose(Image.FLIP_LEFT_RIGHT)
+        img = details.metadata['image']
+        details.metadata['image'] = img.transpose(Image.FLIP_LEFT_RIGHT)
 
     @staticmethod
     def rotate(details, degrees):
+        'Rotates the image by said degrees'
         # PIL rotates counter clockwise
 
-        img = details['image']
+        img = details.metadata['image']
         if degrees == 90:
             img = img.transpose(Image.ROTATE_90)
         elif degrees == 180:
@@ -172,7 +173,7 @@ class PillowExtensions:
         else:
             img = img.rotate(degrees, expand=1)
 
-        details['image'] = img
+        details.metadata['image'] = img
 
     @staticmethod
     def reorientate(details, override_exif=True):
@@ -257,10 +258,10 @@ class PillowExtensions:
                 details.mimetype, PillowExtensions.FORMATS['image/jpeg'])
             img.save(img_buffer, img.format, **options)
         except IOError:
-            img.save(img_buffer,
-                     PillowExtensions.FORMATS.get(
-                         details.mimetype,
-                         PillowExtensions.FORMATS['image/jpeg']))
+            img.save(
+                img_buffer,
+                PillowExtensions.FORMATS.get(
+                    details.mimetype, PillowExtensions.FORMATS['image/jpeg']))
 
         results = img_buffer.getvalue()
         img_buffer.close()

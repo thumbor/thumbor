@@ -113,6 +113,14 @@ class Events(object):
         crop = signal('engine.crop')
         after_crop = signal('engine.after_crop')
 
+        before_flip_horizontally = signal('engine.before_flip_horizontally')
+        flip_horizontally = signal('engine.flip_horizontally')
+        after_flip_horizontally = signal('engine.after_flip_horizontally')
+
+        before_flip_vertically = signal('engine.before_flip_vertically')
+        flip_vertically = signal('engine.flip_vertically')
+        after_flip_vertically = signal('engine.after_flip_vertically')
+
         before_reorientate = signal('engine.before_reorientate')
         reorientate = signal('engine.reorientate')
         after_reorientate = signal('engine.after_reorientate')
@@ -121,7 +129,8 @@ class Events(object):
         serialize = signal('engine.serialize')
         after_serialize = signal('engine.after_serialize')
 
-        before_focal_points_changed = signal('engine.before_focal_points_changed')
+        before_focal_points_changed = signal(
+            'engine.before_focal_points_changed')
         focal_points_changed = signal('engine.focal_points_changed')
         after_focal_points_changed = signal('engine.after_focal_points_changed')
 
@@ -185,7 +194,10 @@ class Events(object):
 
 def configure_schedulers():
     for cls in [Events.Engine, Events.Healthcheck, Events.Imaging]:
-        for (name, val) in [ev for ev in inspect.getmembers(cls) if isinstance(ev[1], NamedAsyncSignal)]:
+        for (name, val) in [
+                ev for ev in inspect.getmembers(cls)
+                if isinstance(ev[1], NamedAsyncSignal)
+        ]:
             val.scheduler = Events.scheduler
 
 

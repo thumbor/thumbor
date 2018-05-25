@@ -23,6 +23,7 @@ import tornado.gen
 from thumbor.lifecycle import Events
 
 
+# TODO: Change this to only do storage, not result storage
 def plug_into_lifecycle():
     '''Plugs into thumbor's lifecycle of events'''
     Events.subscribe(Events.Imaging.after_parsing_arguments,

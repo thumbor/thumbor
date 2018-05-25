@@ -22,6 +22,8 @@ def plug_into_lifecycle():
     Events.subscribe(Events.Engine.read_image, on_read_image)
     Events.subscribe(Events.Engine.resize, on_resize)
     Events.subscribe(Events.Engine.crop, on_crop)
+    Events.subscribe(Events.Engine.flip_horizontally, on_flip_horizontally)
+    Events.subscribe(Events.Engine.flip_vertically, on_flip_vertically)
     Events.subscribe(Events.Engine.reorientate, on_reorientate)
     Events.subscribe(Events.Engine.serialize, on_serialize)
 
@@ -45,6 +47,18 @@ def on_resize(sender, details, width, height):  # pylint: disable=unused-argumen
 def on_crop(sender, details, left, top, right, bottom):  # pylint: disable=unused-argument,too-many-arguments
     'Handles the crop event'
     PillowExtensions.crop(details, left, top, right, bottom)
+
+
+@tornado.gen.coroutine
+def on_flip_horizontally(sender, details):  # pylint: disable=unused-argument,too-many-arguments
+    'Handles the flip horizontally event'
+    PillowExtensions.flip_horizontally(details)
+
+
+@tornado.gen.coroutine
+def on_flip_vertically(sender, details):  # pylint: disable=unused-argument,too-many-arguments
+    'Handles the flip vertically event'
+    PillowExtensions.flip_vertically(details)
 
 
 @tornado.gen.coroutine

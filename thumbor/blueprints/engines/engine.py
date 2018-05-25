@@ -52,7 +52,7 @@ class Engine(object):
     @gen.coroutine
     def resize(cls, sender, details, width=0, height=0):
         '''
-        Triggers the resize event.
+        Triggers the resize engine event.
         '''
         yield Events.trigger(
             Events.Engine.before_resize,
@@ -82,7 +82,7 @@ class Engine(object):
     @gen.coroutine
     def crop(cls, sender, details, left, top, right, bottom):  # pylint: disable=too-many-arguments
         '''
-        Triggers the crop image event.
+        Triggers the crop engine event.
         '''
         yield Events.trigger(
             Events.Engine.before_crop,
@@ -112,6 +112,50 @@ class Engine(object):
             top=top,
             right=right,
             bottom=bottom,
+        )
+
+    @classmethod
+    @gen.coroutine
+    def flip_horizontally(cls, sender, details):
+        '''Triggers the flip horizontally engine event.'''
+        yield Events.trigger(
+            Events.Engine.before_flip_horizontally,
+            sender,
+            details=details,
+        )
+
+        yield Events.trigger(
+            Events.Engine.flip_horizontally,
+            sender,
+            details=details,
+        )
+
+        yield Events.trigger(
+            Events.Engine.after_flip_horizontally,
+            sender,
+            details=details,
+        )
+
+    @classmethod
+    @gen.coroutine
+    def flip_vertically(cls, sender, details):
+        '''Triggers the flip vertically engine event.'''
+        yield Events.trigger(
+            Events.Engine.before_flip_vertically,
+            sender,
+            details=details,
+        )
+
+        yield Events.trigger(
+            Events.Engine.flip_vertically,
+            sender,
+            details=details,
+        )
+
+        yield Events.trigger(
+            Events.Engine.after_flip_vertically,
+            sender,
+            details=details,
         )
 
     @classmethod

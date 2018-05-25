@@ -250,7 +250,7 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
             yield self._debug()
         else:
             if details.request_parameters.fit_in:
-                yield self._fit_in_resize()
+                yield self._fit_in_resize(details)
             else:
                 yield self._auto_crop(details)
                 yield self._resize(details)
@@ -315,10 +315,12 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
     @tornado.gen.coroutine
     def _manual_crop(self, details):
         if details.request_parameters.should_crop:
+
             def limit(dimension, maximum):
                 return min(max(dimension, 0), maximum)
 
-            source_width, source_height = yield Engine.get_image_size(self, details)
+            source_width, source_height = yield Engine.get_image_size(
+                self, details)
             crop = details.request_parameters.crop
 
             crop['left'] = limit(crop['left'], source_width)
@@ -332,9 +334,12 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
                 return
 
             yield Engine.crop(
-                self, details,
-                crop['left'], crop['top'],
-                crop['right'], crop['bottom'],
+                self,
+                details,
+                crop['left'],
+                crop['top'],
+                crop['right'],
+                crop['bottom'],
             )
 
     @tornado.gen.coroutine
@@ -351,17 +356,21 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
                 if details.request_parameters.width == "orig":
                     details.target_width = source_width
                 else:
-                    details.target_width = float(details.request_parameters.width)
+                    details.target_width = float(
+                        details.request_parameters.width)
             else:
-                details.target_width = yield Engine.get_proportional_width(self, details, details.request_parameters.height)
+                details.target_width = yield Engine.get_proportional_width(
+                    self, details, details.request_parameters.height)
 
             if details.request_parameters.height:
                 if details.request_parameters.height == "orig":
                     details.target_height = source_height
                 else:
-                    details.target_height = float(details.request_parameters.height)
+                    details.target_height = float(
+                        details.request_parameters.height)
             else:
-                details.target_height = yield Engine.get_proportional_height(self, details, details.request_parameters.width)
+                details.target_height = yield Engine.get_proportional_height(
+                    self, details, details.request_parameters.width)
 
     @tornado.gen.coroutine
     def _adjust_focal_points(self, details):
@@ -386,8 +395,7 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
             details.focal_points = [
                 FocalPoint.from_alignment(details.request_parameters.halign,
                                           details.request_parameters.valign,
-                                          source_width,
-                                          source_height)
+                                          source_width, source_height)
             ]
 
         yield Engine.focus(self, details)
@@ -409,18 +417,32 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
 
         if details.target_width / source_width > details.target_height / source_height:
             crop_width = source_width
-            crop_height = int(round(source_width * details.target_height / target_width, 0))
+            crop_height = int(
+                round(source_width * details.target_height / target_width, 0))
         else:
-            crop_width = int(round(math.ceil(details.target_width * source_height / target_height), 0))
+            crop_width = int(
+                round(
+                    math.ceil(
+                        details.target_width * source_height / target_height),
+                    0))
             crop_height = source_height
 
-        crop_left = int(round(min(max(focal_x - (crop_width / 2), 0.0), source_width - crop_width)))
+        crop_left = int(
+            round(
+                min(
+                    max(focal_x - (crop_width / 2), 0.0),
+                    source_width - crop_width)))
         crop_right = min(crop_left + crop_width, source_width)
 
-        crop_top = int(round(min(max(focal_y - (crop_height / 2), 0.0), source_height - crop_height)))
+        crop_top = int(
+            round(
+                min(
+                    max(focal_y - (crop_height / 2), 0.0),
+                    source_height - crop_height)))
         crop_bottom = min(crop_top + crop_height, source_height)
 
-        yield Engine.crop(self, details, crop_left, crop_top, crop_right, crop_bottom)
+        yield Engine.crop(self, details, crop_left, crop_top, crop_right,
+                          crop_bottom)
 
     def _get_center_of_mass(self, details):
         total_weight = 0.0
@@ -443,7 +465,8 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
         source_width, source_height = yield Engine.get_image_size(self, details)
         if details.target_width == source_width and details.target_height == source_height:
             return
-        yield Engine.resize(self, details, details.target_width or 1, details.target_height or 1)  # avoiding 0px images
+        yield Engine.resize(self, details, details.target_width or 1,
+                            details.target_height or 1)  # avoiding 0px images
 
     @tornado.gen.coroutine
     def _flip(self, details):
@@ -456,11 +479,13 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
     def _fit_in_resize(self, details):
         source_width, source_height = yield Engine.get_image_size(self, details)
 
-        # invert width and height if image orientation is not the same as request orientation and need adaptive
+        # invert width and height if image orientation is
+        # not the same as request orientation and need adaptive
         if details.request_parameters.adaptive and (
-            (source_width - source_height < 0 and details.target_width - details.target_height > 0) or
-            (source_width - source_height > 0 and details.target_width - details.target_height < 0)
-        ):
+            (source_width - source_height < 0 and
+             details.target_width - details.target_height > 0) or
+            (source_width - source_height > 0 and
+             details.target_width - details.target_height < 0)):
             tmp = details.request_parameters.width
             details.request_parameters.width = details.request_parameters.height
             details.request_parameters.height = tmp
@@ -472,23 +497,29 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
         if details.request_parameters.full:
             sign = -1
 
-        if sign == 1 and details.target_width >= source_width and details.target_height >= source_height:
+        if sign == 1 and \
+                details.target_width >= source_width and \
+                details.target_height >= source_height:
             return
 
         if source_width / details.target_width * sign >= source_height / details.target_height * sign:
-            resize_height = round(source_height * details.target_width / source_width)
+            resize_height = round(
+                source_height * details.target_width / source_width)
             resize_width = details.target_width
         else:
             resize_height = details.target_height
-            resize_width = round(source_width * details.target_height / source_height)
+            resize_width = round(
+                source_width * details.target_height / source_height)
 
         # ensure that filter should work on the real image size and not on the request
         # size which might be smaller than the resized image in case `full-fit-in` is
         # being used
         requested_width = source_width if details.request_parameters.width == 'orig' else details.request_parameters.width
         requested_height = source_height if details.request_parameters.height == 'orig' else details.request_parameters.height
-        details.request_parameters.width = int(max(requested_width, resize_width))
-        details.request_parameters.height = int(max(requested_height, resize_height))
+        details.request_parameters.width = int(
+            max(requested_width, resize_width))
+        details.request_parameters.height = int(
+            max(requested_height, resize_height))
 
         yield Engine.resize(self, details, resize_width, resize_height)
 
