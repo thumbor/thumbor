@@ -72,7 +72,8 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
 
     @tornado.gen.coroutine
     def get(self, *args, **kw):  # pylint: disable=too-many-return-statements
-        details = RequestDetails(self.application.context.config)
+        details = RequestDetails(self.application.context.config,
+                                 self.application.filters_map)
 
         finish = yield self._before_request(details=details, kw_args=kw)
         if finish:
@@ -93,8 +94,6 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
             return
 
         determine_mimetype(details, details.source_image)
-
-        details.build_filters_map()
 
         finish = yield self._read_image(details)
         if finish:
@@ -255,6 +254,8 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
                 yield self._auto_crop(details)
                 yield self._resize(details)
             yield self._flip(details)
+
+        yield self._run_filters(details)
 
         if details.transformed_image is None:
             details.transformed_image = details.source_image
@@ -524,7 +525,7 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
         yield Engine.resize(self, details, resize_width, resize_height)
 
     @tornado.gen.coroutine
-    def debug(self, details):
+    def _debug(self, details):
         if not details.request_parameters.focal_points:
             return
 
@@ -541,6 +542,22 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
                 point.width,
                 point.height,
             )
+
+    @tornado.gen.coroutine
+    def _run_filters(self, details):
+        yield Events.trigger(
+            Events.Imaging.before_applying_filters,
+            self,
+            request=self.request,
+            details=details)
+
+        yield details.run_filters()
+
+        yield Events.trigger(
+            Events.Imaging.after_applying_filters,
+            self,
+            request=self.request,
+            details=details)
 
     @tornado.gen.coroutine
     def _serialize_image(self, details):

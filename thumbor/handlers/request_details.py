@@ -11,6 +11,7 @@
 RequestDetails is a data container for request data.
 '''
 
+from tornado import gen
 from thumbor.filters.quality import Filter as QualityFilter
 from thumbor.config_wrapper import ConfigWrapper
 
@@ -18,7 +19,7 @@ from thumbor.config_wrapper import ConfigWrapper
 class RequestDetails(object):  # pylint: disable=too-many-instance-attributes
     'Details for a given image request'
 
-    def __init__(self, config, request_parameters=None):
+    def __init__(self, config, filters_map, request_parameters=None):
         self.mimetype = None
         self.finish_early = False
         self.status_code = 200
@@ -30,27 +31,21 @@ class RequestDetails(object):  # pylint: disable=too-many-instance-attributes
         self._config = config
         self.config = ConfigWrapper(config)
         self.metadata = {}
-        self.filters_map = {
-            'quality': {
-                'regex': QualityFilter.regex,
-                'parsers': QualityFilter.parsers
-            },
-        }
-        self.filters = {}
+        self.filters = filters_map
         self.target_width = 0
         self.target_height = 0
         self.focal_points = []
 
-    def build_filters_map(self):
+    @gen.coroutine
+    def run_filters(self):
         '''
         Determine which filters should be executed for the current request.
         '''
-        filters_map = {}
-
         if self.request_parameters.filters:
-            for filter_instance, values in self.filters_map.items():
+            for values in self.filters:
                 regex = values['regex']
                 parsers = values['parsers']
+                method = values['method']
                 params = regex.match(
                     self.request_parameters.filters) if regex else None
                 if params:
@@ -59,11 +54,7 @@ class RequestDetails(object):  # pylint: disable=too-many-instance-attributes
                         for parser, param in zip(parsers, params.groups())
                         if param
                     ]
-                    if len(params) == 1:
-                        params = params[0]
-                filters_map[filter_instance] = params
-
-        self.filters = filters_map
+                    yield method(self, self, *params)
 
     def has_filter(self, name):
         'Determine if the current request has the specified filter'

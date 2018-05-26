@@ -26,40 +26,49 @@ class ThumborServiceApp(tornado.web.Application):
         self.context = context
         self.debug = getattr(self.context.server, 'debug', False)
         self.data = {}
-        super(ThumborServiceApp, self).__init__(self.get_handlers(), debug=self.debug)
+        super(ThumborServiceApp, self).__init__(
+            self.get_handlers(), debug=self.debug)
+
+        self.filters_map = []
+        for filter_cls in self.context.modules.filters:
+            self.filters_map.append({
+                'regex': filter_cls.regex,
+                'parsers': filter_cls.parsers,
+                'method': filter_cls.runnable_method,
+            })
 
     def get_handlers(self):
         handlers = [
             (r'/healthcheck', HealthcheckHandler),
         ]
 
-        Events.trigger_sync(Events.Server.before_app_handlers, self, handlers=handlers)
+        Events.trigger_sync(
+            Events.Server.before_app_handlers, self, handlers=handlers)
 
         if self.context.config.UPLOAD_ENABLED:
             # Handler to upload images (POST).
-            handlers.append(
-                (r'/image', ImageUploadHandler, {'context': self.context})
-            )
+            handlers.append((r'/image', ImageUploadHandler, {
+                'context': self.context
+            }))
 
             # Handler to retrieve or modify existing images  (GET, PUT, DELETE)
-            handlers.append(
-                (r'/image/(.*)', ImageResourceHandler, {'context': self.context})
-            )
+            handlers.append((r'/image/(.*)', ImageResourceHandler, {
+                'context': self.context
+            }))
 
         if self.context.config.USE_BLACKLIST:
-            handlers.append(
-                (r'/blacklist', BlacklistHandler, {'context': self.context})
-            )
+            handlers.append((r'/blacklist', BlacklistHandler, {
+                'context': self.context
+            }))
 
-        handlers.append(
-            ("/v2/%s" % Url.regex(), CoreHandler),
-        )
+        handlers.append(("/v2/%s" % Url.regex(), CoreHandler),)
 
         # Imaging handler (GET)
-        handlers.append(
-            (Url.regex(), ImagingHandler, {'context': self.context})
-        )
+        handlers.append((Url.regex(), ImagingHandler, {
+            'context': self.context
+        }))
 
-        Events.trigger_sync(Events.Server.after_app_handlers, self, handlers=handlers)
+        Events.trigger_sync(
+            Events.Server.after_app_handlers, self, handlers=handlers)
 
         return handlers

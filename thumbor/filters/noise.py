@@ -8,14 +8,20 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from tornado import gen
+
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _noise
+from thumbor import Engine
 
 
 class Filter(BaseFilter):
 
+    @gen.coroutine
     @filter_method(BaseFilter.PositiveNumber, BaseFilter.PositiveNumber)
-    def noise(self, amount, seed=0):
-        mode, data = self.engine.image_data_as_rgb()
+    def noise(self, details, amount, seed=0):
+        mode, data = yield Engine.get_image_data_as_rgb(self, details)
+        import ipdb
+        ipdb.set_trace()
         imgdata = _noise.apply(mode, amount, data, seed)
-        self.engine.set_image_data(imgdata)
+        yield Engine.read_image(self, details, imgdata)

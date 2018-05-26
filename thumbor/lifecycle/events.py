@@ -99,6 +99,10 @@ class Events(object):
         before_transforming_image = signal('imaging.before_transforming_image')
         after_transforming_image = signal('imaging.after_transforming_image')
 
+        # Filter events
+        before_applying_filters = signal('imaging.before_applying_filters')
+        after_applying_filters = signal('imaging.after_applying_filters')
+
     class Engine(object):  # pylint: disable=too-few-public-methods
         'Engine methods events'
         before_read_image = signal('engine.before_read_image')
