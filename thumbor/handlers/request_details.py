@@ -12,7 +12,6 @@ RequestDetails is a data container for request data.
 '''
 
 from tornado import gen
-from thumbor.filters.quality import Filter as QualityFilter
 from thumbor.config_wrapper import ConfigWrapper
 
 

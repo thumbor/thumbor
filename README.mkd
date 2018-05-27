@@ -44,7 +44,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
 - [ ] Filters
    - [ ] background_color
    - [ ] blur
-   - [ ] brightness
+   - [x] brightness
    - [ ] colorize
    - [ ] contrast
    - [ ] convolution
@@ -58,11 +58,11 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [ ] frame
    - [ ] grayscale
    - [ ] haarcascade_eye.xml
-   - [ ] max_age
+   - [x] max_age
    - [ ] max_bytes
    - [ ] no_upscale
    - [ ] noise
-   - [x] quality
+   - [ ] quality
    - [ ] redeye
    - [ ] rgb
    - [ ] rotate
