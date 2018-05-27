@@ -25,4 +25,4 @@ class Filter(BaseFilter):
         '''Changes the overall brightness of the image'''
         mode, data = yield Engine.get_image_data_as_rgb(self, details)
         imgdata = _brightness.apply(mode, value, data)
-        yield Engine.read_image(self, details, imgdata)
+        yield Engine.set_image_data(self, details, imgdata)

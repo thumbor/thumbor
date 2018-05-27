@@ -184,13 +184,24 @@ class Engine(object):
     @gen.coroutine
     def get_image_data_as_rgb(cls, sender, details):
         'Get Image data as RGB Buffer'
-        image_data = yield Events.trigger(
+        image_mode, image_data = yield Events.trigger(
             Events.Engine.get_image_data_as_rgb,
             sender,
             details=details,
         )
 
-        return image_data
+        return image_mode.encode('utf-8'), image_data
+
+    @classmethod
+    @gen.coroutine
+    def set_image_data(cls, sender, details, data):
+        'Sets image data into the engine using buffer'
+        yield Events.trigger(
+            Events.Engine.set_image_data,
+            sender,
+            details=details,
+            data=data,
+        )
 
     @classmethod
     @gen.coroutine

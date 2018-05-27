@@ -229,6 +229,11 @@ class PillowExtensions:
         return converted_image.mode, converted_image.tobytes()
 
     @staticmethod
+    def set_image_data(details, data):
+        img = details.metadata['image']
+        img.frombytes(data)
+
+    @staticmethod
     def get_image_size(details):
         'Get image dimensions'
         img = details.metadata['image']

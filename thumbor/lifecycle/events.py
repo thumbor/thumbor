@@ -139,6 +139,7 @@ class Events(object):
         after_focal_points_changed = signal('engine.after_focal_points_changed')
 
         get_image_data_as_rgb = signal('engine.get_image_data_as_rgb')
+        set_image_data = signal('engine.set_image_data')
         get_image_size = signal('engine.get_image_size')
 
     class Healthcheck(object):  # pylint: disable=too-few-public-methods

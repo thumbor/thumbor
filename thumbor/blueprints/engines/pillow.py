@@ -28,6 +28,7 @@ def plug_into_lifecycle():
     Events.subscribe(Events.Engine.serialize, on_serialize)
 
     Events.subscribe(Events.Engine.get_image_data_as_rgb, get_image_data_as_rgb)
+    Events.subscribe(Events.Engine.set_image_data, set_image_data)
     Events.subscribe(Events.Engine.get_image_size, get_image_size)
 
 
@@ -75,11 +76,17 @@ def on_serialize(sender, details):  # pylint: disable=unused-argument
 
 @tornado.gen.coroutine
 def get_image_data_as_rgb(sender, details):  # pylint: disable=unused-argument
-    'Loads the image into PIL'
+    'Gets the image mode and data as RGB buffer'
     return PillowExtensions.get_image_data_as_rgb(details)
 
 
 @tornado.gen.coroutine
-def get_image_size(sender, details):  # pylint: disable=unused-argument
+def set_image_data(sender, details, data):  # pylint: disable=unused-argument
     'Loads the image into PIL'
+    return PillowExtensions.set_image_data(details, data)
+
+
+@tornado.gen.coroutine
+def get_image_size(sender, details):  # pylint: disable=unused-argument
+    'Gets the image dimensions'
     return PillowExtensions.get_image_size(details)

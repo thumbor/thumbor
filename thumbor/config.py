@@ -435,7 +435,7 @@ Config.define(
 Config.define(
     'FILTERS',
     [
-        # 'thumbor.filters.brightness',
+        'thumbor.filters.brightness',
         # 'thumbor.filters.colorize',
         # 'thumbor.filters.contrast',
         # 'thumbor.filters.rgb',
