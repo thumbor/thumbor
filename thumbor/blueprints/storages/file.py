@@ -37,14 +37,11 @@ def plug_into_lifecycle():
                      on_after_loading_source_image)
 
 
-def path_on_filesystem(path):
+def path_on_filesystem(details, path):
     '''Resolves the file in the filesystem'''
     digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
-    return "%s/%s/%s" % (
-        '/tmp/thumbor/storage',
-        # self.context.config.FILE_STORAGE_ROOT_PATH.rstrip('/'),
-        digest[:2],
-        digest[2:])
+    return "%s/%s/%s" % (details.config.FILE_STORAGE_ROOT_PATH.rstrip('/'),
+                         digest[:2], digest[2:])
 
 
 def ensure_dir(path):
@@ -86,7 +83,7 @@ def on_after_parsing_argument(sender, request, details):  # pylint: disable=unus
     if not should_store:
         return
 
-    file_abspath = path_on_filesystem(request_parameters.url)
+    file_abspath = path_on_filesystem(details, request_parameters.url)
     if not validate_path(details, file_abspath):
         return
 
@@ -104,7 +101,7 @@ def on_after_parsing_argument(sender, request, details):  # pylint: disable=unus
 def on_before_loading_source_image(sender, request, details):  # pylint: disable=unused-argument
     'Loads source image from filesystem if it exists'
     request_parameters = details.request_parameters
-    file_abspath = path_on_filesystem(request_parameters.image_url)
+    file_abspath = path_on_filesystem(details, request_parameters.image_url)
     if not exists(file_abspath):
         return
 
@@ -119,7 +116,7 @@ def on_after_loading_source_image(sender, request, details):  # pylint: disable=
     if details.source_image is None:
         return
 
-    file_abspath = path_on_filesystem(request_parameters.image_url)
+    file_abspath = path_on_filesystem(details, request_parameters.image_url)
     temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace('-', ''))
     file_dir_abspath = dirname(file_abspath)
 
@@ -145,7 +142,7 @@ def on_after_finish_request(sender, request, details):  # pylint: disable=unused
     if not should_store:
         return
 
-    file_abspath = path_on_filesystem(request_parameters.url)
+    file_abspath = path_on_filesystem(details, request_parameters.url)
     temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace('-', ''))
     file_dir_abspath = dirname(file_abspath)
 

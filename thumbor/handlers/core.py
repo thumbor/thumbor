@@ -62,6 +62,8 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
             details.headers['Content-Length'] = len(details.body)
 
         for header, value in details.headers.items():
+            if value is None:
+                continue
             self.set_header(header, value)
 
         yield Events.trigger(

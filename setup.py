@@ -106,7 +106,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             '': ['*.xml'],
         },
         install_requires=[
-            "tornado>=4.1.0,<5.0.0",
+            "tornado>=5.0.0,<6.0.0",
             "pycryptodome >= 3.4.7",
             "asyncblink>=0.2,<1.0",
             "blinker>=1.4,<1.5",

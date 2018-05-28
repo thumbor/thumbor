@@ -21,7 +21,5 @@ class Filter(BaseFilter):
     @filter_method(BaseFilter.PositiveNumber, BaseFilter.PositiveNumber)
     def noise(self, details, amount, seed=0):
         mode, data = yield Engine.get_image_data_as_rgb(self, details)
-        import ipdb
-        ipdb.set_trace()
         imgdata = _noise.apply(mode, amount, data, seed)
         yield Engine.read_image(self, details, imgdata)

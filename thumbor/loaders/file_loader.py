@@ -17,9 +17,11 @@ from tornado.concurrent import return_future
 
 @return_future
 def load(context, path, callback):
-    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+    file_path = join(
+        context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
     file_path = abspath(file_path)
-    inside_root_path = file_path.startswith(context.config.FILE_LOADER_ROOT_PATH)
+    inside_root_path = file_path.startswith(
+        context.config.FILE_LOADER_ROOT_PATH)
 
     result = LoaderResult()
 
@@ -33,8 +35,7 @@ def load(context, path, callback):
 
             result.metadata.update(
                 size=stats.st_size,
-                updated_at=datetime.utcfromtimestamp(stats.st_mtime)
-            )
+                updated_at=datetime.utcfromtimestamp(stats.st_mtime))
     else:
         result.error = LoaderResult.ERROR_NOT_FOUND
         result.successful = False

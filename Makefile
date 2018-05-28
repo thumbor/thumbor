@@ -29,11 +29,10 @@ setup_mac:
 compile_ext:
 	@python setup.py build_ext -i
 
-test: compile_ext redis
-	@$(MAKE) unit coverage
-	@$(MAKE) integration_run
+test: compile_ext
+	#@$(MAKE) unit coverage
+	@$(MAKE) integration
 	@$(MAKE) flake
-	@$(MAKE) kill_redis
 
 ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -41,8 +40,8 @@ ci_test: compile_ext
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
-integration_run:
-	@nosetests -sv integration_tests/
+int integration:
+	@nosetests -sv tests/integration
 
 coverage:
 	@coverage report -m --fail-under=10
