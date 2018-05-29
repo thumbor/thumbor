@@ -34,11 +34,7 @@ def on_smart_detect(sender, request, details):
     if cascade_path is None:
         cascade_path = join(
             dirname(__file__), 'haarcascade_frontalface_alt.xml')
-    # try:
     features = yield get_features(details, 'local-face-detect', cascade_path)
-    # except Exception as error:  # pylint: disable=broad-except
-    # logger.exception(error)
-    # return
 
     if features:
         for (left, top, width, height), _ in features:
