@@ -103,6 +103,11 @@ class Events(object):
         before_applying_filters = signal('imaging.before_applying_filters')
         after_applying_filters = signal('imaging.after_applying_filters')
 
+        # Smart Detection events
+        before_smart_detection = signal('imaging.before_smart_detection')
+        smart_detect = signal('imaging.smart_detect')
+        after_smart_detection = signal('imaging.after_smart_detection')
+
     class Engine(object):  # pylint: disable=too-few-public-methods
         'Engine methods events'
         before_read_image = signal('engine.before_read_image')
@@ -139,8 +144,11 @@ class Events(object):
         after_focal_points_changed = signal('engine.after_focal_points_changed')
 
         get_image_data_as_rgb = signal('engine.get_image_data_as_rgb')
+        convert_to_grayscale = signal('engine.convert_to_grayscale')
         set_image_data = signal('engine.set_image_data')
         get_image_size = signal('engine.get_image_size')
+
+        draw_rectangle = signal('engine.draw_rectangle')
 
     class Healthcheck(object):  # pylint: disable=too-few-public-methods
         'Healthcheck events'

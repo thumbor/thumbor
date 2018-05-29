@@ -60,7 +60,7 @@ load-plugins=
 #   C0111 = Missing docstring
 
 # Disable the message(s) with the given id(s).
-disable=W0142,R0201,W0212,W0613,W0232,R0903,W0614,C0111,R0913,R0914,I0011
+disable=W0142,R0201,W0212,W0613,W0232,R0903,W0614,C0111,R0913,R0914,I0011,no-member
 
 [REPORTS]
 

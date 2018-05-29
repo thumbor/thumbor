@@ -35,7 +35,9 @@ except ImportError:
 
 
 def determine_mimetype(details, buffer):
-    'Determines the mimetype of the specified buffer and sets it in the details.'
+    '''
+    Determines the mimetype of the specified buffer and sets it in the details.
+    '''
     details.mimetype = magic.from_buffer(buffer[:1024], True)
 
 
@@ -45,7 +47,8 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
     @tornado.gen.coroutine
     def finish_request(self, details):
         '''
-        Finishes the request with the parameters specified in the details instance.
+        Finishes the request with the parameters specified
+        in the details instance.
         '''
         yield Events.trigger(
             Events.Imaging.before_finish_request,
@@ -199,7 +202,8 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
                 )
                 if details.status_code == 200:
                     details.status_code = 404
-                    msg = "Source Image was not found at %s" % details.request_parameters.image_url
+                    image_url = details.request_parameters.image_url
+                    msg = f"Source Image was not found at {image_url}"
                     details.body = msg
                 yield self.finish_request(details)
                 return True
@@ -240,7 +244,10 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
 
         yield self._reorientate(details)
         yield self._trim(details)
-        yield self._smart_detect(details)
+
+        should_return = yield self._smart_detect(details)
+        if should_return:
+            return True
 
         yield self._extract_cover(details)
         yield self._manual_crop(details)
@@ -248,7 +255,7 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
         yield self._adjust_focal_points(details)
 
         if details.request_parameters.debug:
-            yield self._debug()
+            yield self._debug(details)
         else:
             if details.request_parameters.fit_in:
                 yield self._fit_in_resize(details)
@@ -284,19 +291,19 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
     def _trim(self, details):
         is_gifsicle = (details == 'image/gif' and
                        details.config.USE_GIFSICLE_ENGINE)
-        if details.request_parameters.trim is None or not TRIM_ENABLED or is_gifsicle:
+        if (details.request_parameters.trim is None or not TRIM_ENABLED or
+                is_gifsicle):
             return
 
         mode, data = yield Engine.get_image_data_as_rgb(self, details)
         size = yield Engine.get_image_size(self, details)
-        box = _bounding_box.apply(
+        box = _bounding_box.apply(  # pylint: disable=c-extension-no-member
             mode, size[0], size[1], details.request_parameters.trim_pos,
             details.request_parameters.trim_tolerance, data)
 
         if box[2] < box[0] or box[3] < box[1]:
-            logger.info(
-                "Ignoring trim, there wouldn't be any image left, check the tolerance."
-            )
+            logger.info('''Ignoring trim, there wouldn't be any '''
+                        '''image left, check the tolerance.''')
             return
 
         yield Engine.crop(self, details, box[0], box[1], box[2] + 1, box[3] + 1)
@@ -308,11 +315,41 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
 
     @tornado.gen.coroutine
     def _smart_detect(self, details):
-        pass
+        if not details.request_parameters.smart:
+            return False
+
+        yield Events.trigger(
+            Events.Imaging.before_smart_detection,
+            self,
+            request=self.request,
+            details=details)
+
+        if details.finish_early:
+            yield self.finish_request(details)
+            return True
+
+        yield Events.trigger(
+            Events.Imaging.smart_detect,
+            self,
+            request=self.request,
+            details=details)
+
+        yield Events.trigger(
+            Events.Imaging.after_smart_detection,
+            self,
+            request=self.request,
+            details=details)
+
+        if details.finish_early:
+            yield self.finish_request(details)
+            return True
+
+        return False
 
     @tornado.gen.coroutine
     def _extract_cover(self, details):
-        if details.mimetype == 'image/gif' and 'cover()' in details.request_parameters.filters:
+        if (details.mimetype == 'image/gif' and
+                'cover()' in details.request_parameters.filters):
             pass  # TODO: implement this
 
     @tornado.gen.coroutine
@@ -351,7 +388,8 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
         source_width = float(source_width)
         source_height = float(source_height)
 
-        if not details.request_parameters.width and not details.request_parameters.height:
+        if (not details.request_parameters.width and
+                not details.request_parameters.height):
             details.target_width = source_width
             details.target_height = source_height
         else:
@@ -379,14 +417,13 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
     def _adjust_focal_points(self, details):
         source_width, source_height = yield Engine.get_image_size(self, details)
 
-        details.focal_points = None
-
         if details.request_parameters.focal_points:
             if details.request_parameters.should_crop:
                 details.focal_points = []
                 crop = details.request_parameters.crop
                 for point in details.request_parameters.focal_points:
-                    if point.x < crop['left'] or point.x > crop['right'] or point.y < crop['top'] or point.y > crop['bottom']:
+                    if (point.x < crop['left'] or point.x > crop['right'] or
+                            point.y < crop['top'] or point.y > crop['bottom']):
                         continue
                     point.x -= crop['left'] or 0
                     point.y -= crop['top'] or 0
@@ -418,7 +455,10 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
 
         focal_x, focal_y = self._get_center_of_mass(details)
 
-        if details.target_width / source_width > details.target_height / source_height:
+        target_width_ratio = details.target_width / source_width
+        target_height_ratio = details.target_height / source_height
+
+        if target_width_ratio > target_height_ratio:
             crop_width = source_width
             crop_height = int(
                 round(source_width * details.target_height / target_width, 0))
@@ -458,15 +498,16 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
             total_x += focal_point.x * focal_point.weight
             total_y += focal_point.y * focal_point.weight
 
-        x = total_x / total_weight
-        y = total_y / total_weight
+        center_x = total_x / total_weight
+        center_y = total_y / total_weight
 
-        return x, y
+        return center_x, center_y
 
     @tornado.gen.coroutine
     def _resize(self, details):
         source_width, source_height = yield Engine.get_image_size(self, details)
-        if details.target_width == source_width and details.target_height == source_height:
+        if details.target_width == source_width and \
+                details.target_height == source_height:
             return
         yield Engine.resize(self, details, details.target_width or 1,
                             details.target_height or 1)  # avoiding 0px images
@@ -481,14 +522,19 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
     @tornado.gen.coroutine
     def _fit_in_resize(self, details):
         source_width, source_height = yield Engine.get_image_size(self, details)
+        target_width, target_height = (details.target_width,
+                                       details.target_height)
 
         # invert width and height if image orientation is
         # not the same as request orientation and need adaptive
-        if details.request_parameters.adaptive and (
-            (source_width - source_height < 0 and
-             details.target_width - details.target_height > 0) or
-            (source_width - source_height > 0 and
-             details.target_width - details.target_height < 0)):
+        is_adaptive = details.request_parameters.adaptive
+        source_portrait = source_width < source_height
+        target_portrait = target_width < target_height
+        source_landscape = source_width > source_height
+        target_landscape = target_width > target_height
+
+        if (is_adaptive and ((source_portrait and target_landscape) or
+                             (source_landscape and target_portrait))):
             tmp = details.request_parameters.width
             details.request_parameters.width = details.request_parameters.height
             details.request_parameters.height = tmp
@@ -505,7 +551,8 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
                 details.target_height >= source_height:
             return
 
-        if source_width / details.target_width * sign >= source_height / details.target_height * sign:
+        if (source_width / details.target_width * sign >=
+                source_height / details.target_height * sign):
             resize_height = round(
                 source_height * details.target_width / source_width)
             resize_width = details.target_width
@@ -514,11 +561,16 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
             resize_width = round(
                 source_width * details.target_height / source_height)
 
-        # ensure that filter should work on the real image size and not on the request
-        # size which might be smaller than the resized image in case `full-fit-in` is
-        # being used
-        requested_width = source_width if details.request_parameters.width == 'orig' else details.request_parameters.width
-        requested_height = source_height if details.request_parameters.height == 'orig' else details.request_parameters.height
+        # ensure that filter should work on the real
+        # image size and not on the request
+        # size which might be smaller than the resized
+        # image in case `full-fit-in` is being used
+        requested_width = source_width \
+            if details.request_parameters.width == 'orig' \
+            else details.request_parameters.width
+        requested_height = source_height \
+            if details.request_parameters.height == 'orig' \
+            else details.request_parameters.height
         details.request_parameters.width = int(
             max(requested_width, resize_width))
         details.request_parameters.height = int(
@@ -528,10 +580,10 @@ class CoreHandler(tornado.web.RequestHandler):  # pylint: disable=abstract-metho
 
     @tornado.gen.coroutine
     def _debug(self, details):
-        if not details.request_parameters.focal_points:
+        if not details.focal_points:
             return
 
-        for point in details.request_parameters.focal_points:
+        for point in details.focal_points:
             if point.width <= 1:
                 point.width = 10
             if point.height <= 1:

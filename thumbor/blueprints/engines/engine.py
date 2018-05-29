@@ -273,3 +273,33 @@ class Engine(object):
             details=details,
             focal_points=details.focal_points,
         )
+
+    @classmethod
+    @gen.coroutine
+    def draw_rectangle(cls, sender, details, left, top, width, height):
+        yield Events.trigger(
+            Events.Engine.draw_rectangle,
+            sender,
+            details=details,
+            left=left,
+            top=top,
+            width=width,
+            height=height,
+        )
+
+    @classmethod
+    @gen.coroutine
+    def convert_to_grayscale(cls,
+                             sender,
+                             details,
+                             update_image=False,
+                             with_alpha=False):
+        img = yield Events.trigger(
+            Events.Engine.convert_to_grayscale,
+            sender,
+            details=details,
+            update_image=update_image,
+            with_alpha=with_alpha,
+        )
+
+        return img

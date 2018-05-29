@@ -388,9 +388,10 @@ Config.define('DETECTORS', [], (
 ), 'Detection')
 
 # FACE DETECTOR CASCADE FILE
-Config.define('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml',
-              'The cascade file that opencv will use to detect faces.',
-              'Detection')
+Config.define(
+    'FACE_DETECTOR_CASCADE_FILE', None,
+    'The absolute path to the cascade file that opencv will use to detect faces.',
+    'Detection')
 
 Config.define(
     'GLASSES_DETECTOR_CASCADE_FILE', 'haarcascade_eye_tree_eyeglasses.xml',
@@ -424,7 +425,7 @@ Config.define(
         'thumbor.blueprints.loaders.http',
         'thumbor.blueprints.storages.file',
         'thumbor.blueprints.engines.pillow',
-        # 'thumbor.blueprints.filters.quality',
+        'thumbor.blueprints.detectors.face',
     ],
     'Blueprints used in thumbor'
     'Blueprints',

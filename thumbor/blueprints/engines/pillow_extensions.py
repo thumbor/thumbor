@@ -14,7 +14,7 @@ Raw Pillow operations.
 from io import BytesIO
 
 import piexif
-from PIL import Image, JpegImagePlugin, ImageSequence
+from PIL import Image, JpegImagePlugin, ImageSequence, ImageDraw
 
 from thumbor.utils import logger
 
@@ -51,7 +51,8 @@ class PillowExtensions:
             details.metadata['subsampling'] = None
         details.metadata['qtables'] = getattr(img, 'quantization', None)
 
-        if details.config.ALLOW_ANIMATED_GIFS and details.mimetype == 'image/gif':
+        if (details.config.ALLOW_ANIMATED_GIFS and
+                details.mimetype == 'image/gif'):
             frames = []
             for frame in ImageSequence.Iterator(img):
                 frames.append(frame.convert('P'))
@@ -105,7 +106,6 @@ class PillowExtensions:
         # RGBA mode before resizing to avoid nasty scaling artifacts.
         original_mode = img.mode
         if img.mode in ['1', 'P']:
-            # logger.debug('converting image from 8-bit/1-bit palette to 32-bit RGBA for resize')
             img = img.convert('RGBA')
 
         resample = PillowExtensions.get_resize_filter(details)
@@ -117,6 +117,33 @@ class PillowExtensions:
             img = img.convert(original_mode)
 
         details.metadata['image'] = img
+
+    @staticmethod
+    def draw_rectangle(details, left, top, width, height):
+        img = details.metadata['image']
+
+        # Nasty retry if the image is loaded
+        # for the first time and it's truncated
+        try:
+            debug_rectangle = ImageDraw.Draw(img)
+        except IOError:
+            debug_rectangle = ImageDraw.Draw(img)
+        debug_rectangle.rectangle([left, top, left + width, top + height])
+
+        del debug_rectangle
+        details.metadata['image'] = img
+
+    @staticmethod
+    def convert_to_grayscale(details, update_image, with_alpha):
+        image = details.metadata['image']
+        mode = image.mode
+        if 'A' in mode and with_alpha:
+            image = image.convert('LA')
+        else:
+            image = image.convert('L')
+        if update_image:
+            details.metadata['image'] = image
+        return image
 
     @staticmethod
     def _get_exif_segment(details):
@@ -315,7 +342,8 @@ class PillowExtensions:
 
     @staticmethod
     def _configure_png(_img, details, options):
-        if details.mimetype != 'image/png' or details.config.PNG_COMPRESSION_LEVEL is None:
+        if (details.mimetype != 'image/png' or
+                details.config.PNG_COMPRESSION_LEVEL is None):
             return
 
         options['compress_level'] = details.config.PNG_COMPRESSION_LEVEL
