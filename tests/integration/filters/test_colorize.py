@@ -11,16 +11,17 @@
 from preggy import expect
 from tornado.testing import gen_test
 
-from thumbor.filters.brightness import Filter as BrightnessFilter
+from thumbor.filters.colorize import Filter as ColorizeFilter
 from tests.integration.filters import FilterTestCase
 
 
-class BrightnessFilterTestCase(FilterTestCase):
+class ColorizeFilterTestCase(FilterTestCase):
 
     def get_filter(self):
-        return BrightnessFilter
+        return ColorizeFilter
 
     @gen_test
     def test_brightness_filter(self):
-        filtered_image = yield self.get_filtered('brightness(20)', 'source.jpg')
-        expect(filtered_image).to_be_similar_to('brightness.jpg')
+        filtered_image = yield self.get_filtered('colorize(40,80,20,ffffff)',
+                                                 'source.jpg')
+        expect(filtered_image).to_be_similar_to('colorize.jpg')

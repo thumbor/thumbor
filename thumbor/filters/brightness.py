@@ -11,9 +11,9 @@
 
 from tornado import gen
 
+from thumbor import Engine
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _brightness
-from thumbor import Engine
 
 
 class Filter(BaseFilter):

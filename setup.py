@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'Thumbor set-up'
+
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
 
@@ -8,14 +10,14 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from setuptools import setup, Extension
-from thumbor import __version__
-
 import glob
 import os
 import logging
 
-tests_require = [
+from setuptools import setup, Extension
+from thumbor import __version__
+
+TESTS_REQUIRE = [
     "redis>=2.4.9,<3.0.0",
     "coverage>=4.4.1",
     "mock>=1.0.1,<3.0.0",
@@ -44,6 +46,7 @@ tests_require = [
 
 
 def filter_extension_module(name, lib_objs, lib_headers):
+    'Returns an extension module for a filter'
     return Extension(
         'thumbor.ext.filters.%s' % name,
         ['thumbor/ext/filters/%s.c' % name] + lib_objs,
@@ -56,6 +59,7 @@ def filter_extension_module(name, lib_objs, lib_headers):
 
 
 def gather_filter_extensions():
+    'Gathers all filter extension modules'
     files = glob.glob('thumbor/ext/filters/_*.c')
     lib_objs = glob.glob('thumbor/ext/filters/lib/*.c')
     lib_headers = glob.glob('thumbor/ext/filters/lib/*.h')
@@ -66,14 +70,18 @@ def gather_filter_extensions():
     ]
 
 
-def run_setup(extension_modules=[]):
+def run_setup(extension_modules=None):
+    'Runs setup with all extension modules'
+    if extension_modules is None:
+        extension_modules = []
+
     if 'CFLAGS' not in os.environ:
         os.environ['CFLAGS'] = ''
     setup(
         name='thumbor',
         version=__version__,
-        description=
-        "thumbor is an open-source photo thumbnail service by globo.com",
+        description=(
+            'thumbor is an open-source photo thumbnail service by globo.com'),
         long_description="""
 Thumbor is a smart imaging service. It enables on-demand crop, resizing and flipping of images.
 
@@ -84,8 +92,8 @@ Using thumbor is very easy (after it is running). All you have to do is access i
 
 http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/VN0JiwzmOw0b0lg.jpg
 """,
-        keywords=
-        'imaging face detection feature thumbnail imagemagick pil opencv',
+        keywords=(
+            'imaging face detection feature thumbnail imagemagick pil opencv'),
         author='globo.com',
         author_email='thumbor@googlegroups.com',
         url='https://github.com/thumbor/thumbor/wiki',
@@ -125,7 +133,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "webcolors",
         ],
         extras_require={
-            'tests': tests_require,
+            'tests': TESTS_REQUIRE,
         },
         entry_points={
             'console_scripts': [
@@ -139,11 +147,11 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
 
 try:
     run_setup(gather_filter_extensions())
-except SystemExit as exit:
+except SystemExit as exit_error:
     print(
         "\n\n*******************************************************************"
     )
-    logging.exception(exit)
+    logging.exception(exit_error)
     print(
         "\n\n*******************************************************************"
     )

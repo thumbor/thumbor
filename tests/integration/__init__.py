@@ -23,7 +23,6 @@ from thumbor.server import load_importer, bind_blueprints
 from thumbor.app import ThumborServiceApp
 from thumbor.context import Context
 from thumbor.config import Config
-from thumbor.importer import Importer
 
 
 def get_ssim(actual, expected):

@@ -21,18 +21,19 @@ from tests.integration import TestCase
 class FilterTestCase(TestCase):
     '''TestCase base class for all filter tests'''
 
-    def get_filter_name(self):
+    def get_filter(self):  # pylint: disable=no-self-use
         '''Gets the filter full name for this test case'''
         assert False, 'Must be overriden in the test case'
 
     @property
     def fixture_path(self):
+        '''Returns the fixtures path'''
         return join(
             dirname(realpath(__file__)), '..', '..', 'fixtures', 'filters')
 
     def get_config(self):
         return Config(
-            FILTERS=[self.get_filter_name()],
+            FILTERS=[self.get_filter().__module__],
             BLUEPRINTS=[
                 'thumbor.blueprints.loaders.file',
                 'thumbor.blueprints.storages.file',
@@ -53,7 +54,7 @@ class FilterTestCase(TestCase):
         image = Image.open(self.get_fixture_path(name))
         return image.convert('RGB')
 
-    def debug(self, image):
+    def debug_image(self, image):
         'Stores the image buffer in a temp file'
         image = Image.fromarray(image)
         path = '/tmp/debug_image_%s.jpg' % random.randint(1, 10000)
@@ -68,6 +69,7 @@ class FilterTestCase(TestCase):
 
     @gen.coroutine
     def get_filtered(self, filter_str, source_image):
+        'Get filtered image bytes'
         image = yield self.get(
             f'/v2/unsafe/filters:{filter_str}/{source_image}')
         return image.body

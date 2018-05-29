@@ -35,6 +35,7 @@ class ThumborServiceApp(tornado.web.Application):
                 'regex': filter_cls.regex,
                 'parsers': filter_cls.parsers,
                 'method': filter_cls.runnable_method,
+                'instance': filter_cls(""),
             })
 
     def get_handlers(self):

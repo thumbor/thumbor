@@ -18,7 +18,9 @@ PHASE_AFTER_LOAD = 'after-load'
 
 
 def filter_method(*args, **kwargs):
+
     def _filter_deco(fn):
+
         def wrapper(self, *args2):
             return fn(self, *args2)
 
@@ -34,6 +36,7 @@ def filter_method(*args, **kwargs):
             'async': kwargs.get('async', False)
         }
         return wrapper
+
     return _filter_deco
 
 
@@ -66,12 +69,14 @@ class FiltersFactory:
             instance = cls.init_if_valid(param, context)
 
             if instance:
-                filter_instances[getattr(cls, 'phase', PHASE_POST_TRANSFORM)].append(instance)
+                filter_instances[getattr(cls, 'phase',
+                                         PHASE_POST_TRANSFORM)].append(instance)
 
         return FiltersRunner(filter_instances)
 
 
 class FiltersRunner:
+
     def __init__(self, filter_instances):
         self.filter_instances = filter_instances
 
@@ -88,23 +93,15 @@ class FiltersRunner:
 
             f = filters.pop(0)
             f.run(exec_one_filter)
+
         exec_one_filter()
 
 
 class BaseFilter(object):
 
-    PositiveNumber = {
-        'regex': r'[\d]+',
-        'parse': int
-    }
-    NegativeNumber = {
-        'regex': r'[-]%s' % PositiveNumber['regex'],
-        'parse': int
-    }
-    Number = {
-        'regex': r'[-]?%s' % PositiveNumber['regex'],
-        'parse': int
-    }
+    PositiveNumber = {'regex': r'[\d]+', 'parse': int}
+    NegativeNumber = {'regex': r'[-]%s' % PositiveNumber['regex'], 'parse': int}
+    Number = {'regex': r'[-]?%s' % PositiveNumber['regex'], 'parse': int}
     DecimalNumber = {
         'regex': r'[-]?(?:(?:[\d]+\.?[\d]*)|(?:[\d]*\.?[\d]+))',
         'parse': float
@@ -120,7 +117,9 @@ class BaseFilter(object):
 
     @classmethod
     def pre_compile(cls):
-        meths = [f for f in list(cls.__dict__.values()) if hasattr(f, 'filter_data')]
+        meths = [
+            f for f in list(cls.__dict__.values()) if hasattr(f, 'filter_data')
+        ]
         if len(meths) == 0:
             return
         cls.runnable_method = meths[0]
@@ -137,7 +136,8 @@ class BaseFilter(object):
         regexes = []
         parsers = []
         for i, param in enumerate(params):
-            val = (type(param) == dict) and (param['regex'], param['parse']) or (param, None)
+            val = (type(param) == dict) and (param['regex'],
+                                             param['parse']) or (param, None)
             comma = optional = ''
             if defaults and defaults[i] is not None:
                 optional = '?'
@@ -161,7 +161,11 @@ class BaseFilter(object):
     def __init__(self, params, context=None):
         params = self.regex.match(params) if self.regex else None
         if params:
-            params = [parser(param) if parser else param for parser, param in zip(self.parsers, params.groups()) if param]
+            params = [
+                parser(param) if parser else param
+                for parser, param in zip(self.parsers, params.groups())
+                if param
+            ]
         self.params = params
         self.context = context
         self.engine = context.modules.engine if context and context.modules else None
@@ -173,7 +177,14 @@ class BaseFilter(object):
             self.engines_count -= 1
             if self.engines_count == 0:
                 callback(*args)
+
         return single_callback
+
+    def get_rgb(self, value):
+        value = value.lstrip('#')
+        lv = len(value)
+        return tuple(
+            int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
     def run(self, callback=None):
         if self.params is None:
@@ -189,7 +200,8 @@ class BaseFilter(object):
 
         results = []
         if self.async_filter:
-            callback = self.create_multi_engine_callback(callback, len(engines_to_run))
+            callback = self.create_multi_engine_callback(
+                callback, len(engines_to_run))
         for engine in engines_to_run:
             self.engine = engine
             if self.async_filter:

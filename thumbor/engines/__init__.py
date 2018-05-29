@@ -35,7 +35,11 @@ class EngineResult(object):
 
     COULD_NOT_LOAD_IMAGE = 'could not load image'
 
-    def __init__(self, buffer_=None, successful=True, error=None, metadata=dict()):
+    def __init__(self,
+                 buffer_=None,
+                 successful=True,
+                 error=None,
+                 metadata=dict()):
         '''
         :param buffer: The media buffer
 
@@ -79,11 +83,13 @@ class MultipleEngine:
         return self.frame_engines[0].size
 
     def do_many(self, name):
+
         def exec_func(*args, **kwargs):
             result = []
             for frame_engine in self.frame_engines:
                 result.append(getattr(frame_engine, name)(*args, **kwargs))
             return result
+
         return exec_func
 
 
@@ -115,19 +121,22 @@ class BaseEngine(object):
             return 'video/mp4'
         elif buffer.startswith('\x1aE\xdf\xa3'):
             return 'video/webm'
-        elif buffer.startswith('\x49\x49\x2A\x00') or buffer.startswith('\x4D\x4D\x00\x2A'):
+        elif buffer.startswith('\x49\x49\x2A\x00') or buffer.startswith(
+                '\x4D\x4D\x00\x2A'):
             return 'image/tiff'
         elif SVG_RE.search(buffer[:2048].replace(b'\0', '')):
             return 'image/svg+xml'
 
     def wrap(self, multiple_engine):
-        for method_name in ['resize', 'crop', 'flip_vertically',
-                            'flip_horizontally']:
+        for method_name in [
+                'resize', 'crop', 'flip_vertically', 'flip_horizontally'
+        ]:
             setattr(self, method_name, multiple_engine.do_many(method_name))
         setattr(self, 'read', multiple_engine.read)
 
     def is_multiple(self):
-        return hasattr(self, 'multiple_engine') and self.multiple_engine is not None
+        return hasattr(self,
+                       'multiple_engine') and self.multiple_engine is not None
 
     def frame_engines(self):
         return self.multiple_engine.frame_engines
@@ -141,7 +150,8 @@ class BaseEngine(object):
             return buffer
 
         try:
-            buffer = cairosvg.svg2png(bytestring=buffer, dpi=self.context.config.SVG_DPI)
+            buffer = cairosvg.svg2png(
+                bytestring=buffer, dpi=self.context.config.SVG_DPI)
             mime = self.get_mimetype(buffer)
             self.extension = EXTENSION.get(mime, '.jpg')
         except ParseError:
@@ -210,14 +220,12 @@ class BaseEngine(object):
             height_diff = height - self.context.config.MAX_HEIGHT
             if self.context.config.MAX_WIDTH and width_diff > height_diff:
                 height = self.get_proportional_height(
-                    self.context.config.MAX_WIDTH
-                )
+                    self.context.config.MAX_WIDTH)
                 self.resize(self.context.config.MAX_WIDTH, height)
                 return True
             elif self.context.config.MAX_HEIGHT and height_diff > width_diff:
                 width = self.get_proportional_width(
-                    self.context.config.MAX_HEIGHT
-                )
+                    self.context.config.MAX_HEIGHT)
                 self.resize(width, self.context.config.MAX_HEIGHT)
                 return True
 

@@ -126,7 +126,7 @@ class PillowExtensions:
 
         try:
             exif_dict = piexif.load(exif_data)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             logger.exception('Ignored error handling exif for reorientation')
         else:
             return exif_dict
@@ -175,7 +175,7 @@ class PillowExtensions:
 
         details.metadata['image'] = img
 
-    @staticmethod
+    @staticmethod  # NOQA
     def reorientate(details, override_exif=True):
         """
         Rotates the image in the buffer so that it is oriented correctly.
@@ -230,6 +230,7 @@ class PillowExtensions:
 
     @staticmethod
     def set_image_data(details, data):
+        'Sets image data from bytes'
         img = details.metadata['image']
         img.frombytes(data)
 

@@ -382,11 +382,10 @@ Config.define(
     'Meta')
 
 # DETECTORS OPTIONS
-Config.define(
-    'DETECTORS', [],
-    'List of detectors that thumbor should use to find faces and/or features. All of them must be '
-    + 'full names of python modules (python must be able to import it)',
-    'Detection')
+Config.define('DETECTORS', [], (
+    'List of detectors that thumbor should use to find faces and/or features. '
+    'All of them must be full names of python modules (python must be able to import it)'
+), 'Detection')
 
 # FACE DETECTOR CASCADE FILE
 Config.define('FACE_DETECTOR_CASCADE_FILE', 'haarcascade_frontalface_alt.xml',
@@ -436,7 +435,7 @@ Config.define(
     'FILTERS',
     [
         'thumbor.filters.brightness',
-        # 'thumbor.filters.colorize',
+        'thumbor.filters.colorize',
         # 'thumbor.filters.contrast',
         # 'thumbor.filters.rgb',
         # 'thumbor.filters.round_corner',
@@ -465,8 +464,8 @@ Config.define(
         # 'thumbor.filters.background_color',
         # 'thumbor.filters.upscale',
     ],
-    'List of filters that thumbor will allow to be used in generated images. All of them must be '
-    + 'full names of python modules (python must be able to import it)',
+    ('List of filters that thumbor will allow to be used in generated images. All of them must be '
+     'full names of python modules (python must be able to import it)'),
     'Filters')
 
 # RESULT STORAGE
@@ -508,16 +507,15 @@ Config.define(
     'USE_CUSTOM_ERROR_HANDLING', False,
     'This configuration indicates whether thumbor should use a custom error handler.',
     'Errors')
-Config.define(
-    'ERROR_HANDLER_MODULE', 'thumbor.error_handlers.sentry',
+Config.define('ERROR_HANDLER_MODULE', 'thumbor.error_handlers.sentry', (
     'Error reporting module. Needs to contain a class called ErrorHandler with a '
-    + 'handle_error(context, handler, exception) method.', 'Errors')
+    'handle_error(context, handler, exception) method.'), 'Errors')
 
 # SENTRY REPORTING MODULE
-Config.define(
-    'SENTRY_DSN_URL', '', 'Sentry thumbor project dsn. i.e.: ' +
-    'http://5a63d58ae7b94f1dab3dee740b301d6a:73eea45d3e8649239a973087e8f21f98@localhost:9000/2',
-    'Errors - Sentry')
+Config.define('SENTRY_DSN_URL', '', (
+    'Sentry thumbor project dsn. i.e.: '
+    'http://5a63d58ae7b94f1dab3dee740b301d6a:73eea45d3e8649239a973087e8f21f98@localhost:9000/2'
+), 'Errors - Sentry')
 
 # FILE REPORTING MODULE
 Config.define('ERROR_FILE_LOGGER', None, 'File of error log as json', 'Errors')

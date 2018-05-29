@@ -45,6 +45,7 @@ class RequestDetails(object):  # pylint: disable=too-many-instance-attributes
                 regex = values['regex']
                 parsers = values['parsers']
                 method = values['method']
+                instance = values['instance']
                 params = regex.match(
                     self.request_parameters.filters) if regex else None
                 if params:
@@ -53,7 +54,7 @@ class RequestDetails(object):  # pylint: disable=too-many-instance-attributes
                         for parser, param in zip(parsers, params.groups())
                         if param
                     ]
-                    yield method(self, self, *params)
+                    yield method(instance, self, *params)
 
     def has_filter(self, name):
         'Determine if the current request has the specified filter'
