@@ -41,15 +41,15 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
 - [x] Fit-in
 - [x] Adaptive Fit-in
 - [x] Full Fit-in
-- [ ] Filters
+- [x] Filters
    - [ ] background_color
    - [ ] blur
    - [x] brightness
-   - [ ] colorize
+   - [x] colorize
    - [ ] contrast
    - [ ] convolution
    - [ ] curve
-   - [ ] distributed_collage
+   - [x] distributed_collage (Removed from codebase into new repo)
    - [ ] equalize
    - [ ] extract_focal
    - [ ] fill
@@ -57,13 +57,13 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [ ] format
    - [ ] frame
    - [ ] grayscale
-   - [ ] haarcascade_eye.xml
+   - [ ] haarcascade_eye.xml (Remove from codebase into new repo)
    - [x] max_age
-   - [ ] max_bytes
+   - [ ] max_bytes (Remove from codebase into new repo)
    - [ ] no_upscale
    - [ ] noise
    - [ ] quality
-   - [ ] redeye
+   - [ ] redeye (Remove from codebase into new repo)
    - [ ] rgb
    - [ ] rotate
    - [ ] round_corner
@@ -73,17 +73,26 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [ ] strip_icc
    - [ ] upscale
    - [ ] watermark
-- [ ] WebP support
-- [ ] Smart Cropping and Focal Points
+- [ ] Automatic Smart Formats support (Webp, Webm, Gifv, etc)
+- [x] Smart Cropping and Focal Points
    - [ ] Feature Detection
-   - [ ] Face Detection
+   - [x] Face Detection
    - [ ] Queued Detection
+- [ ] Optimizers
 - [ ] Metadata Engine
 - [ ] Logging
 - [ ] Metrics Reporting
-- [ ] Loaders / Storage / Result Storage
+- [ ] Image Upload (Remove from codebase into new repo)
+- [ ] Loaders
    - [x] HTTP
+   - [x] File
+- [ ] Storage
    - [ ] File
+   - [ ] NoStorage
+- [ ] ResultStorage
+   - [ ] File
+   - [ ] MixedStorage
+
 
 ### Performance Comparison
 
