@@ -34,6 +34,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
 ### Thumbor 7.0 Features
 
 - [x] Eventing System
+    - [ ] Events that MUST be subscribed at least once
 - [x] Resize images
 - [x] Crop images
 - [x] Horizontal Flip
@@ -92,6 +93,8 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
 - [ ] ResultStorage
    - [ ] File
    - [ ] MixedStorage
+- [ ] Updated docs
+- [ ] Tests
 
 
 ### Performance Comparison
