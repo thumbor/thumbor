@@ -59,8 +59,6 @@ def to_be_similar_to(topic, expected):
     if sim_analysis < 0.95:
         store_dir = tempfile.gettempdir()
         test_id = uuid4()
-        import ipdb
-        ipdb.set_trace()
         topic_path = join(store_dir,
                           f'{test_id}-topic.{topic_image.format.lower()}')
         expected_path = join(store_dir,
