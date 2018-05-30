@@ -16,32 +16,33 @@ from thumbor.config import Config
 from tests.integration import TestCase
 
 
-class FilterTestCase(TestCase):
-    '''TestCase base class for all filter tests'''
+class DetectorTestCase(TestCase):
+    '''TestCase base class for all detector tests'''
 
-    def get_filter(self):  # pylint: disable=no-self-use
-        '''Gets the filter full name for this test case'''
+    def get_detector_blueprint(self):  # pylint: disable=no-self-use
+        '''Gets the detector blueprint full name for this test case'''
         assert False, 'Must be overriden in the test case'
 
     @property
     def fixture_path(self):
         '''Returns the fixtures path'''
         return join(
-            dirname(realpath(__file__)), '..', '..', 'fixtures', 'filters')
+            dirname(realpath(__file__)), '..', '..', 'fixtures', 'detectors')
 
     def get_config(self):
+        detect_bp = self.get_detector_blueprint()
+        fullname = f'{detect_bp.__name__}'
         return Config(
-            FILTERS=[self.get_filter().__module__],
             BLUEPRINTS=[
                 'thumbor.blueprints.loaders.file',
-                'thumbor.blueprints.storages.file',
                 'thumbor.blueprints.engines.pillow',
+                fullname,
             ],
             FILE_LOADER_ROOT_PATH=self.fixture_path)
 
     @gen.coroutine
-    def get_filtered(self, filter_str, source_image):
-        'Get filtered image bytes'
+    def smart_detect(self, source_image, width=300, height=200):
+        'Get smart detect image bytes'
         image = yield self.get(
-            f'/v2/unsafe/filters:{filter_str}/{source_image}')
+            f'/v2/unsafe/{width}x{height}/smart/{source_image}')
         return image.body

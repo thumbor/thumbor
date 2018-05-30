@@ -24,4 +24,5 @@ class ColorizeFilterTestCase(FilterTestCase):
     def test_brightness_filter(self):
         filtered_image = yield self.get_filtered('colorize(40,80,20,ffffff)',
                                                  'source.jpg')
-        expect(filtered_image).to_be_similar_to('colorize.jpg')
+        expected = self.get_fixture('colorize.jpg')
+        expect(filtered_image).to_be_similar_to(expected)

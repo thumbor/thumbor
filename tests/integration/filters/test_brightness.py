@@ -23,4 +23,5 @@ class BrightnessFilterTestCase(FilterTestCase):
     @gen_test
     def test_brightness_filter(self):
         filtered_image = yield self.get_filtered('brightness(20)', 'source.jpg')
-        expect(filtered_image).to_be_similar_to('brightness.jpg')
+        expect(filtered_image).to_be_similar_to(
+            self.get_fixture('brightness.jpg'))
