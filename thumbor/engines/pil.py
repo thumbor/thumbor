@@ -16,16 +16,9 @@ from io import BytesIO
 
 from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 
-try:
-    import cv2
-    import numpy
-except ImportError:
-    cv2 = None
-    numpy = None
-
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
-from thumbor.utils import logger, deprecated, EXTENSION
+from thumbor.utils import logger, deprecated
 
 try:
     from thumbor.ext.filters import _composite
@@ -133,8 +126,6 @@ class Engine(BaseEngine):
                 # convert() figures out RGB or RGBA based on palette used
                 target_mode = None
             self.image = self.image.convert(mode=target_mode)
-            # Workaround for pillow < 4.3.0. See https://github.com/python-pillow/Pillow/issues/2702
-            self.image.palette = None
 
         size = (int(width), int(height))
         # Tell image loader what target size we want (only JPG for a moment)
@@ -319,35 +310,6 @@ class Engine(BaseEngine):
         os.remove(tmp_file_path)
 
         return results
-
-    def convert_tif_to_png(self, buffer):
-        if not cv2:
-            msg = """[PILEngine] convert_tif_to_png failed: opencv not imported"""
-            logger.error(msg)
-            return buffer
-        if not numpy:
-            msg = """[PILEngine] convert_tif_to_png failed: opencv not imported"""
-            logger.error(msg)
-            return buffer
-
-        img = cv2.imdecode(numpy.fromstring(buffer, dtype='uint16'), -1)
-        buffer = cv2.imencode('.png', img)[1].tostring()
-
-        mime = self.get_mimetype(buffer)
-        self.extension = EXTENSION.get(mime, '.jpg')
-        return buffer
-
-    def load(self, buffer, extension):
-        self.extension = extension
-
-        if extension is None:
-            mime = self.get_mimetype(buffer)
-            self.extension = EXTENSION.get(mime, '.jpg')
-
-        if self.extension == '.tif':  # Pillow does not support 16bit per channel TIFF images
-            buffer = self.convert_tif_to_png(buffer)
-
-        super(Engine, self).load(buffer, self.extension)
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_data(self):
