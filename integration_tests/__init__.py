@@ -1,7 +1,6 @@
 import os.path
 
 from tornado.testing import AsyncHTTPTestCase
-from tornado.ioloop import IOLoop
 
 from thumbor.app import ThumborServiceApp
 from thumbor.importer import Importer
@@ -43,9 +42,6 @@ class EngineCase(AsyncHTTPTestCase):
         application = ThumborServiceApp(ctx)
 
         return application
-
-    def get_new_ioloop(self):
-        return IOLoop.instance()
 
     def retrieve(self, url):
         self.http_client.fetch(self.get_url(url), self.stop)
