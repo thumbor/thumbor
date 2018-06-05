@@ -39,7 +39,7 @@ class Filter(BaseFilter):
             matrix.append(exp / math.sqrt(two_sigma_squared * math.pi))
         return tuple(matrix), matrix_size
 
-    @filter_method(BaseFilter.PositiveNumber, BaseFilter.DecimalNumber)
+    @filter_method(BaseFilter.PositiveNonZeroNumber, BaseFilter.DecimalNumber)
     def blur(self, radius, sigma=0):
         if sigma == 0:
             sigma = radius
