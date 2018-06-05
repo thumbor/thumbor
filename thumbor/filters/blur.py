@@ -13,6 +13,7 @@ from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _convolution
 
 MAX_RADIUS = 150
+MIN_RADIUS = 1
 
 try:
     xrange          # Python 2
@@ -45,6 +46,8 @@ class Filter(BaseFilter):
             sigma = radius
         if radius > MAX_RADIUS:
             radius = MAX_RADIUS
+        if radius <= 0:
+            radius = MIN_RADIUS
         matrix, matrix_size = self.generate_1d_matrix(sigma, radius)
         mode, data = self.engine.image_data_as_rgb()
         imgdata = _convolution.apply(mode, data, self.engine.size[0], self.engine.size[1], matrix, matrix_size, True)
