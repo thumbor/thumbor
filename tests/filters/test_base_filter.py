@@ -34,6 +34,13 @@ FILTER_PARAMS_DATA = [
         'invalid_values': ['-1', 'x', 'x10', '10x', '']
     },
     {
+        'type': BaseFilter.PositiveNonZeroNumber,
+        'values': [
+            ('1', 1), ('10', 10), ('99', 99), (' 1 ', 1), ('010', 10)
+        ],
+        'invalid_values': ['-1', 'x', 'x10', '10x', '0', '']
+    },
+    {
         'type': BaseFilter.NegativeNumber,
         'values': [
             ('-1', -1), ('-10', -10), (' -9 ', -9), ('-0', 0)

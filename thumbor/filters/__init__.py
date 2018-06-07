@@ -97,6 +97,10 @@ class BaseFilter(object):
         'regex': r'[\d]+',
         'parse': int
     }
+    PositiveNonZeroNumber = {
+        'regex': r'[\d]*[1-9][\d]*',
+        'parse': int
+    }
     NegativeNumber = {
         'regex': r'[-]%s' % PositiveNumber['regex'],
         'parse': int
