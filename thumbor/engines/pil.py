@@ -16,14 +16,14 @@ from io import BytesIO
 
 from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
 
+from thumbor.engines import BaseEngine
+from thumbor.engines.extensions.pil import GifWriter
+from thumbor.utils import logger, deprecated
+
 try:
     import numpy
 except ImportError:
     numpy = None
-
-from thumbor.engines import BaseEngine
-from thumbor.engines.extensions.pil import GifWriter
-from thumbor.utils import logger, deprecated
 
 try:
     from thumbor.ext.filters import _composite
@@ -358,14 +358,6 @@ class Engine(BaseEngine):
             alpha = im[:, :, -1]  # just alpha layer
             has_transparency = alpha.min() < 255
         return has_transparency
-
-    def can_auto_convert_png_to_jpg(self, *args, **kwargs):
-        can_convert = super(Engine, self).can_auto_convert_png_to_jpg(*args, **kwargs)
-
-        if can_convert and not self.has_transparency():
-            return True
-
-        return False
 
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:
