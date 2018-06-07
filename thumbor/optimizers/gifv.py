@@ -44,18 +44,12 @@ class Optimizer(BaseOptimizer):
             self.context.config.FFMPEG_PATH,
             '-y',
             '-f',
-            'lavfi',
-            '-i',
-            'color=%s' % (bg_color_hex or 'ffffff'),
-            '-f',
             'gif',
+            '-trans_color', '0xff%s' % (bg_color_hex[1:] if bg_color_hex else 'ffffff'),
             '-i',
             input_file,
             '-filter_complex',
-            ('[1]reverse,trim=end_frame=1[t];'
-                '[1][t]concat[g];[0][g]scale2ref[bg][gif];'
-                '[bg]setsar=1[bg];[bg][gif]overlay=shortest=1,'
-                'scale=trunc(iw/2)*2:trunc(ih/2)*2'),
+            'scale=trunc(iw/2)*2:trunc(ih/2)*2',
             '-an',
             '-movflags',
             'faststart',
