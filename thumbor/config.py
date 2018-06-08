@@ -68,7 +68,12 @@ Config.define('PILLOW_PRESERVE_INDEXED_MODE',
 Config.define('AUTO_WEBP', False, 'Specifies whether WebP format should be used automatically if the request accepts it '
               '(via Accept header)', 'Imaging')
 Config.define('AUTO_PNG_TO_JPG', False, 'Specifies whether a PNG image should be used automatically if the png image has '
-              'no transparency (via alpha layer)', 'Imaging')
+              'no transparency (via alpha layer). '
+              'WARNING: Depending on case, this is not a good deal. '
+              'This transformation maybe causes distortions or the size of image can increase. '
+              'Images with texts, for example, the result image maybe will be distorced. '
+              'Dark images, for example, the size of result image maybe will be bigger. '
+              'You have to evaluate the majority of your use cases to take a decision about the usage of this conf.', 'Imaging')
 Config.define('SVG_DPI', 150,
               'Specify the ratio between 1in and 1px for SVG images. This is only used when'
               'rasterizing SVG images having their size units in cm or inches.', 'Imaging')
