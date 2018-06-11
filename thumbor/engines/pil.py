@@ -21,11 +21,6 @@ from thumbor.engines.extensions.pil import GifWriter
 from thumbor.utils import logger, deprecated
 
 try:
-    import numpy
-except ImportError:
-    numpy = None
-
-try:
     from thumbor.ext.filters import _composite
 
     FILTERS_AVAILABLE = True
@@ -350,13 +345,10 @@ class Engine(BaseEngine):
 
     def has_transparency(self):
         has_transparency = 'A' in self.image.mode or 'transparency' in self.image.info
-        if has_transparency and numpy:
-            # If the image has alpha channel and numpy is installed
+        if has_transparency:
+            # If the image has alpha channel,
             # we check for any pixels that are not opaque (255)
-            img = self.image.convert('RGBA')
-            im = numpy.array(img)
-            alpha = im[:, :, -1]  # just alpha layer
-            has_transparency = alpha.min() < 255
+            has_transparency = min(self.image.convert('RGBA').getchannel('A').getextrema()) < 255
         return has_transparency
 
     def paste(self, other_engine, pos, merge=True):
