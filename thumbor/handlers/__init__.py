@@ -303,6 +303,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 i += j
         return frames > 1
 
+    def can_auto_convert_png_to_jpg(self):
+        return self.context.request.engine.can_auto_convert_png_to_jpg()
+
     def define_image_type(self, context, result):
         if result is not None:
             if isinstance(result, ResultStorageResult):
@@ -318,6 +321,9 @@ class BaseHandler(tornado.web.RequestHandler):
             elif self.is_webp(context):
                 image_extension = '.webp'
                 logger.debug('Image format set by AUTO_WEBP as %s.' % image_extension)
+            elif self.can_auto_convert_png_to_jpg():
+                image_extension = '.jpg'
+                logger.debug('Image format set by AUTO_PNG_TO_JPG as %s.' % image_extension)
             else:
                 image_extension = context.request.engine.extension
                 logger.debug('No image format specified. Retrieving from the image extension: %s.' % image_extension)
@@ -342,7 +348,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 quality = self.context.config.get('WEBP_QUALITY')
             else:
                 quality = self.context.config.QUALITY
+
         results = context.request.engine.read(image_extension, quality)
+
         if context.request.max_bytes is not None:
             results = self.reload_to_fit_in_kb(
                 context.request.engine,

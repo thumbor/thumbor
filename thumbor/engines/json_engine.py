@@ -122,6 +122,14 @@ class JSONEngine(BaseEngine):
     def get_frame_count(self):
         return self.engine.frame_count
 
+    def has_transparency(self):
+        return self.engine.has_transparency()
+
+    def can_auto_convert_png_to_jpg(self, *args, **kwargs):
+        can_convert = super(JSONEngine, self).can_auto_convert_png_to_jpg(args, kwargs)
+        if can_convert:
+            self.operations.append({'type': 'auto_png_to_jpg_conversion'})
+
     def read(self, extension, quality):
         target_width, target_height = self.get_target_dimensions()
         thumbor_json = {

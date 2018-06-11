@@ -394,6 +394,136 @@ class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
         expect(response.body).to_be_similar_to(default_image())
 
 
+class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
+    def get_config(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.no_storage"
+        cfg.AUTO_PNG_TO_JPG = True
+        cfg.RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+        cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+        return cfg
+
+    def get_importer(self):
+        importer = Importer(self.config)
+        importer.import_modules()
+        return importer
+
+    def get_server(self):
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return server
+
+    def get_request(self, *args, **kwargs):
+        return RequestParameters(*args, **kwargs)
+
+    def get_context(self, *args, **kwargs):
+        ctx = super(ImageOperationsWithAutoPngToJpgTestCase, self).get_context(*args, **kwargs)
+        ctx.request = self.get_request()
+        return ctx
+
+    def get_as_webp(self, url):
+        return self.fetch(url, headers={
+            "Accept": 'image/webp,*/*;q=0.8'
+        })
+
+    @patch('thumbor.handlers.Context')
+    def test_should_auto_convert_png_to_jpg(self, context_mock):
+        context_mock.return_value = self.context
+        response = self.fetch('/unsafe/Giunchedi%2C_Filippo_January_2015_01.png')
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_jpeg()
+
+    @patch('thumbor.handlers.Context')
+    def test_should_auto_convert_png_to_jpg_with_signed_images(self, context_mock):
+        context_mock.return_value = self.context
+        crypto = CryptoURL('ACME-SEC')
+        url = crypto.generate(image_url="Giunchedi%2C_Filippo_January_2015_01.png")
+        self.context.request = self.get_request(url=url)
+
+        context_mock.return_value = self.context
+        response = self.fetch(url)
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_jpeg()
+
+    @patch('thumbor.handlers.Context')
+    def test_shouldnt_auto_convert_png_to_jpg_if_png_has_transparency(self, context_mock):
+        context_mock.return_value = self.context
+        self.context.request = self.get_request()
+
+        response = self.fetch('/unsafe/watermark.png')
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_png()
+
+    @patch('thumbor.handlers.Context')
+    def test_shouldnt_auto_convert_png_to_jpg_if_png_has_transparency_with_signed_images(self, context_mock):
+        context_mock.return_value = self.context
+        crypto = CryptoURL('ACME-SEC')
+        url = crypto.generate(image_url="watermark.png")
+        self.context.request = self.get_request(url=url)
+
+        # save on result storage
+        response = self.fetch(url)
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_png()
+
+    @patch('thumbor.handlers.Context')
+    def test_should_auto_convert_png_to_webp_if_auto_webp_is_true(self, context_mock):
+        self.config.AUTO_WEBP = True
+        context_mock.return_value = self.context
+        self.context.request = self.get_request()
+
+        response = self.get_as_webp('/unsafe/Giunchedi%2C_Filippo_January_2015_01.png')
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.body).to_be_webp()
+
+    @patch('thumbor.handlers.Context')
+    def test_should_auto_convert_png_to_webp_if_auto_webp_is_true_with_signed_images(self, context_mock):
+        self.config.AUTO_WEBP = True
+        context_mock.return_value = self.context
+        crypto = CryptoURL('ACME-SEC')
+        url = crypto.generate(image_url="Giunchedi%2C_Filippo_January_2015_01.png")
+        self.context.request = self.get_request(url=url, accepts_webp=True)
+
+        # save on result storage
+        response = self.get_as_webp(url)
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.body).to_be_webp()
+
+    @patch('thumbor.handlers.Context')
+    def test_should_auto_convert_png_to_webp_if_auto_webp_is_true_and_png_has_transparency(self, context_mock):
+        self.config.AUTO_WEBP = True
+        context_mock.return_value = self.context
+        self.context.request = self.get_request()
+
+        response = self.get_as_webp('/unsafe/watermark.png')
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.body).to_be_webp()
+
+    @patch('thumbor.handlers.Context')
+    def test_should_auto_convert_png_to_webp_if_auto_webp_is_true_and_png_has_transparency_with_signed_images(self, context_mock):
+        self.config.AUTO_WEBP = True
+        context_mock.return_value = self.context
+        crypto = CryptoURL('ACME-SEC')
+        url = crypto.generate(image_url="watermark.png")
+        self.context.request = self.get_request(url=url)
+
+        # save on result storage
+        response = self.get_as_webp(url)
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include('Vary')
+        expect(response.body).to_be_webp()
+
+
 class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')

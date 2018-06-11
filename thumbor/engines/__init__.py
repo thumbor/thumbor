@@ -368,5 +368,17 @@ class BaseEngine(object):
     def extract_cover(self):
         raise NotImplementedError()
 
+    def has_transparency(self):
+        raise NotImplementedError()
+
     def cleanup(self):
         pass
+
+    def can_auto_convert_png_to_jpg(self, *args, **kwargs):
+        can_convert = (self.context.config.AUTO_PNG_TO_JPG and
+                       self.context.request.engine.extension == '.png')
+
+        if can_convert and not self.has_transparency():
+            return True
+
+        return False
