@@ -7,11 +7,12 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
-
-from unittest import TestCase, skip
+from time import sleep
+from unittest import TestCase
 
 import mock
 from preggy import expect
+from tornado.testing import AsyncTestCase
 
 from thumbor.config import Config
 from thumbor.importer import Importer
@@ -299,7 +300,7 @@ class ContextImporterTestCase(TestCase):
         expect(ctx_importer.url_signer).to_equal(importer.url_signer)
 
 
-class ThreadPoolTestCase(TestCase):
+class ThreadPoolTestCase(AsyncTestCase):
     def setUp(self):
         super(ThreadPoolTestCase, self).setUp()
         self.handled = False
@@ -378,9 +379,21 @@ class ThreadPoolTestCase(TestCase):
         instance.queue(add, handle_operation)
         expect(self.handled).to_be_true()
 
-    @skip('Gotta think of a way to implement async here')
     def test_can_run_async(self):
-        expect.not_to_be_here()
+        instance = ThreadPool.instance(10)
+        expect(instance).not_to_be_null()
+
+        def add():
+            sleep(1)
+            self.handled = True
+            return 10
+
+        instance._execute_in_pool(add, self.stop)
+        expect(self.handled).to_be_false()
+        result = self.wait()
+
+        expect(self.handled).to_be_true()
+        expect(result.result()).to_equal(10)
 
     def test_can_cleanup_pool(self):
         instance = ThreadPool.instance(0)
