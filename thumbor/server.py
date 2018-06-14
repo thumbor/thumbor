@@ -41,7 +41,10 @@ def get_as_integer(value):
         return None
 
 
-def get_config(config_path):
+def get_config(config_path, use_environment=False):
+    if use_environment:
+        Config.allow_environment_variables()
+
     lookup_paths = [os.curdir,
                     expanduser('~'),
                     '/etc/',
@@ -130,7 +133,7 @@ def main(arguments=None):
         arguments = sys.argv[1:]
 
     server_parameters = get_server_parameters(arguments)
-    config = get_config(server_parameters.config_path)
+    config = get_config(server_parameters.config_path, server_parameters.use_environment)
     configure_log(config, server_parameters.log_level.upper())
 
     validate_config(config, server_parameters)

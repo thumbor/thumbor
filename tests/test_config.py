@@ -124,14 +124,3 @@ class ConfigValuesTestCase(TestCase):
         expect(cfg.STORAGE_ALIAS).to_equal(self.get_default_storage())
         expect(cfg.STORAGE_ALIAS_ALIAS).to_equal(self.get_default_storage())
         expect(cfg.__class__.__module__).to_equal('derpconf.config')
-
-    @classmethod
-    def test_with_some_environment_variable_defined(cls):
-        cfg = Config()
-        cfg.define(
-            'SOME_CONFIG',
-            'old_value',
-            'test config', 'test Config')
-
-        with mock.patch.dict('os.environ', {'SOME_CONFIG': 'test'}):
-            expect(cfg.SOME_CONFIG).to_equal('test')
