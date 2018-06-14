@@ -71,7 +71,7 @@ class Context:
 
 
 class ServerParameters(object):
-    def __init__(self, port, ip, config_path, keyfile, log_level, app_class, debug=False, fd=None, gifsicle_path=None):
+    def __init__(self, port, ip, config_path, keyfile, log_level, app_class, debug=False, fd=None, gifsicle_path=None, use_environment=False):
         self.port = port
         self.ip = ip
         self.config_path = config_path
@@ -80,9 +80,10 @@ class ServerParameters(object):
         self.app_class = app_class
         self.debug = debug
         self._security_key = None
-        self.fd = fd
         self.load_security_key()
+        self.fd = fd
         self.gifsicle_path = gifsicle_path
+        self.use_environment = use_environment
 
     @property
     def security_key(self):

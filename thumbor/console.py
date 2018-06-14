@@ -64,6 +64,11 @@ def get_server_parameters(arguments=None):
         help="Debug mode [default: %(default)s]."
     )
 
+    parser.add_argument(
+        "--use-environment", default=False,
+        help="Use environment variables for config"
+    )
+
     options = parser.parse_args(arguments)
 
     return ServerParameters(port=options.port,
@@ -73,4 +78,5 @@ def get_server_parameters(arguments=None):
                             log_level=options.log_level,
                             app_class=options.app,
                             debug=options.debug,
-                            fd=options.fd)
+                            fd=options.fd,
+                            use_environment=options.use_environment)

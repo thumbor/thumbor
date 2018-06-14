@@ -14,7 +14,6 @@ import mock
 from preggy import expect
 
 from thumbor.app import ThumborServiceApp
-import thumbor.utils
 from thumbor.config import Config
 import thumbor.server
 from thumbor.server import (
@@ -43,8 +42,18 @@ class ServerTestCase(TestCase):
     def test_can_get_config_from_path(self):
         config = get_config('./tests/fixtures/thumbor_config_server_test.conf')
 
-        expect(config).not_to_be_null()
-        expect(config.ALLOWED_SOURCES).to_be_like(['mydomain.com'])
+        with mock.patch.dict('os.environ', {'ENGINE': 'test'}):
+            expect(config).not_to_be_null()
+            expect(config.ALLOWED_SOURCES).to_be_like(['mydomain.com'])
+            expect(config.ENGINE).to_be_like('thumbor.engines.pil')
+
+    def test_can_get_config_with_env_enabled(self):
+        config = get_config('./tests/fixtures/thumbor_config_server_test.conf', True)
+
+        with mock.patch.dict('os.environ', {'ENGINE': 'test'}):
+            expect(config).not_to_be_null()
+            expect(config.ALLOWED_SOURCES).to_be_like(['mydomain.com'])
+            expect(config.ENGINE).to_be_like('test')
 
     @mock.patch('logging.basicConfig')
     def test_can_configure_log_from_config(self, basic_config_mock):
