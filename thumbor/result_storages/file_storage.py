@@ -52,7 +52,7 @@ class Storage(BaseStorage):
         file_abspath = self.normalize_path(path)
         if not self.validate_path(file_abspath):
             logger.warn("[RESULT_STORAGE] unable to read from outside root path: %s" % file_abspath)
-            callback(None)
+            return callback(None)
         logger.debug("[RESULT_STORAGE] getting from %s" % file_abspath)
 
         if not exists(file_abspath) or isdir(file_abspath) or self.is_expired(file_abspath):
