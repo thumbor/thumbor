@@ -4,7 +4,7 @@ run: compile_ext
 	@thumbor -l debug -d
 
 setup:
-    ifeq ($(OS), xx)
+    ifeq ($(OS), Darwin)
 	@$(MAKE) setup_mac
     else
 	@$(MAKE) setup_ubuntu
@@ -20,7 +20,7 @@ setup_python:
 	@pip install -e .[tests]
 
 setup_mac:
-	@brew tap homebrew/science
+	@brew tap brewsci/science
 	@brew update
 	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo
 	@brew install ffmpeg --with-libvpx
