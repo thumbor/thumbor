@@ -14,6 +14,7 @@ import mock
 import random
 import shutil
 import tornado
+from tempfile import mkdtemp
 
 from preggy import expect
 
@@ -26,12 +27,12 @@ from tests.base import TestCase
 
 class BaseFileStorageTestCase(TestCase):
     def get_config(self):
-        return Config(
-            FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/%s" % random.randint(1, 10000000)
-        )
+        tmp = mkdtemp(suffix='thumbor-file-storage')
+        return Config(FILE_STORAGE_ROOT_PATH=tmp)
 
     def get_server(self):
-        server = ServerParameters(8888, 'localhost', 'thumbor.conf', None, 'info', None)
+        server = ServerParameters(8888, 'localhost', 'thumbor.conf', None,
+                                  'info', None)
         server.security_key = 'ACME-SEC'
         return server
 
@@ -63,10 +64,33 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         expect(got).not_to_be_an_error()
 
     @tornado.testing.gen_test
+    def test_can_store_image_with_spaces(self):
+        url = self.get_image_url('image .jpg')
+        image_bytes = self.get_image_bytes('image .jpg')
+        storage = FileStorage(self.context)
+        storage.put(url, image_bytes)
+        got = yield storage.get(url)
+        expect(got).not_to_be_null()
+        expect(got).not_to_be_an_error()
+        expect(got).to_equal(image_bytes)
+
+    @tornado.testing.gen_test
+    def test_can_store_image_with_spaces_encoded(self):
+        url = self.get_image_url('image%20.jpg')
+        image_bytes = self.get_image_bytes('image .jpg')
+        storage = FileStorage(self.context)
+        storage.put(url, image_bytes)
+        got = yield storage.get(url)
+        expect(got).not_to_be_null()
+        expect(got).not_to_be_an_error()
+        expect(got).to_equal(image_bytes)
+
+    @tornado.testing.gen_test
     def test_can_store_images_in_same_folder(self):
         iurl = self.get_image_url('image_999.jpg')
         other_iurl = iurl.replace('/some/', '/some_other/')
-        root_path = join(self.config.FILE_STORAGE_ROOT_PATH, dirname(other_iurl))
+        root_path = join(self.config.FILE_STORAGE_ROOT_PATH,
+                         dirname(other_iurl))
         if exists(root_path):
             shutil.rmtree(root_path)
 
@@ -124,8 +148,7 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
         return Config(
             FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/",
-            STORAGE_EXPIRATION_SECONDS=10
-        )
+            STORAGE_EXPIRATION_SECONDS=10)
 
     @tornado.testing.gen_test
     def test_cannot_get_expired_1_day_old_image(self):
@@ -133,12 +156,12 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
         ibytes = self.get_image_bytes('image.jpg')
         storage = FileStorage(self.context)
         storage.put(iurl, ibytes)
-        current_timestamp = (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()
+        current_timestamp = (
+            datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()
         new_mtime = current_timestamp - 60 * 60 * 24
         with mock.patch(
                 'thumbor.storages.file_storage.getmtime',
-                return_value=new_mtime
-        ):
+                return_value=new_mtime):
             got = yield storage.get(iurl)
         expect(got).to_be_null()
         expect(got).not_to_be_an_error()
@@ -148,8 +171,7 @@ class ExpirationNoneFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
         return Config(
             FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/",
-            STORAGE_EXPIRATION_SECONDS=None
-        )
+            STORAGE_EXPIRATION_SECONDS=None)
 
     @tornado.testing.gen_test
     def test_can_get_if_expire_set_to_none(self):
@@ -166,8 +188,7 @@ class CryptoBadConfFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
         return Config(
             FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/",
-            STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
-        )
+            STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
 
     def get_server(self):
         server = super(CryptoBadConfFileStorageTestCase, self).get_server()
@@ -180,9 +201,10 @@ class CryptoBadConfFileStorageTestCase(BaseFileStorageTestCase):
         storage = FileStorage(self.context)
         storage.put(iurl, ibytes)
 
+        msg = "STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
         with expect.error_to_happen(
-            RuntimeError,
-            message="STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
+                RuntimeError,
+                message=msg,
         ):
             storage.put_crypto(iurl)
 
@@ -191,8 +213,7 @@ class CryptoFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
         return Config(
             FILE_STORAGE_ROOT_PATH="/tmp/thumbor/file_storage/",
-            STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True
-        )
+            STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
 
     @tornado.testing.gen_test
     def test_getting_crypto_for_a_new_image_returns_none(self):

@@ -23,9 +23,7 @@ STORAGE_PATH = abspath(join(dirname(__file__), '../fixtures/images/'))
 
 class FileLoaderTestCase(TestCase):
     def setUp(self):
-        config = Config(
-            FILE_LOADER_ROOT_PATH=STORAGE_PATH
-        )
+        config = Config(FILE_LOADER_ROOT_PATH=STORAGE_PATH)
         self.ctx = Context(config=config)
 
     def load_file(self, file_name):
@@ -34,7 +32,8 @@ class FileLoaderTestCase(TestCase):
     def test_should_load_file(self):
         result = self.load_file('image.jpg')
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(open(join(STORAGE_PATH, 'image.jpg')).read())
+        expect(result.buffer).to_equal(
+            open(join(STORAGE_PATH, 'image.jpg')).read())
         expect(result.successful).to_be_true()
 
     def test_should_fail_when_inexistent_file(self):
@@ -48,3 +47,17 @@ class FileLoaderTestCase(TestCase):
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_equal(None)
         expect(result.successful).to_be_false()
+
+    def test_should_load_file_with_spaces_in_name(self):
+        result = self.load_file('image .jpg')
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal(
+            open(join(STORAGE_PATH, 'image.jpg')).read())
+        expect(result.successful).to_be_true()
+
+    def test_should_load_file_with_spaces_encoded_in_name(self):
+        result = self.load_file('image2%20.jpg')
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_equal(
+            open(join(STORAGE_PATH, 'image2%20.jpg')).read())
+        expect(result.successful).to_be_true()
