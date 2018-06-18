@@ -12,7 +12,7 @@ setup:
 	@$(MAKE) setup_python
 
 setup_ubuntu:
-	@sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx4 \
+	@sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx? \
                              libvpx-dev libimage-exiftool-perl libcairo2-dev \
                              ffmpeg libcurl4-openssl-dev libffi-dev \
                              python-dev python3-dev
