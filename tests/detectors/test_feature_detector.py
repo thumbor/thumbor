@@ -24,7 +24,16 @@ class FeatureDetectorTestCase(DetectorTestCase):
 
         FeatureDetector(self.context, 0, None).detect(lambda: None)
         detection_result = self.context.request.focal_points
-        expect(detection_result).to_be_greater_than(1)
+        expect(len(detection_result)).to_be_greater_than(1)
+        expect(detection_result[0].origin).to_equal('alignment')
+
+    def test_should_detect_a_single_point(self):
+        with open(abspath('./tests/fixtures/images/single_point.jpg')) as f:
+            self.engine.load(f.read(), None)
+
+        FeatureDetector(self.context, 0, None).detect(lambda: None)
+        detection_result = self.context.request.focal_points
+        expect(len(detection_result)).to_equal(1)
         expect(detection_result[0].origin).to_equal('alignment')
 
     def test_should_not_detect_points(self):

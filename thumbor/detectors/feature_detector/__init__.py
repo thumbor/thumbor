@@ -41,7 +41,8 @@ class Detector(BaseDetector):
             useHarrisDetector=False,
         )
         if points is not None:
-            for x, y in points.squeeze():
+            for point in points:
+                x, y = point.ravel()
                 self.context.request.focal_points.append(FocalPoint(x.item(), y.item(), 1))
             callback()
         else:
