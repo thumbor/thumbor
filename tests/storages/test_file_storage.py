@@ -11,7 +11,6 @@
 from datetime import datetime
 from os.path import exists, dirname, join
 import mock
-import random
 import shutil
 import tornado
 from tempfile import mkdtemp
