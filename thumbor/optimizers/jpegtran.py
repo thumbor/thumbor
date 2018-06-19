@@ -48,6 +48,15 @@ class Optimizer(BaseOptimizer):
                 '-progressive'
             ]
 
+        if self.context.config.JPEGTRAN_SCANS_FILE:
+            if exists(self.context.config.JPEGTRAN_SCANS_FILE):
+                command += [
+                    '-scans',
+                    self.context.config.JPEGTRAN_SCANS_FILE
+                ]
+            else:
+                logger.warn('jpegtran optimizer scans file does not exist')
+
         # close_fds would have a sane default on Python 3 but with Python 2.7 it is False
         # per default but setting it to True + setting any of stdin, stdout, stderr will
         # make this crash on Windows
