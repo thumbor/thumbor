@@ -309,6 +309,13 @@ Config.define(
 )
 
 Config.define(
+    'JPEGTRAN_SCANS_FILE',
+    '',
+    'Path for the progressive scans file to use with jpegtran optimizer. Implies progressive jpeg output',
+    'Optimizers'
+)
+
+Config.define(
     'FFMPEG_PATH',
     '/usr/local/bin/ffmpeg',
     'Path for the ffmpeg binary used to generate gifv(h.264)',

@@ -29,11 +29,12 @@ class JpegtranOptimizerTest(TestCase):
         self.patcher.stop()
         self.os_path_exists_patcher.stop()
 
-    def get_optimizer(self, filters=None, progressive=False):
+    def get_optimizer(self, filters=None, progressive=False, scans_file=''):
         conf = Config()
         conf.STATSD_HOST = ''
         conf.JPEGTRAN_PATH = '/somewhere/jpegtran'
         conf.PROGRESSIVE_JPEG = progressive
+        conf.JPEGTRAN_SCANS_FILE = scans_file
         req = RequestParameters(filters=filters)
         ctx = Context(config=conf)
         ctx.request = req
@@ -135,6 +136,52 @@ class JpegtranOptimizerTest(TestCase):
         command = args[0]
 
         self.assertIn('-progressive', command)
+
+    def test_should_not_use_scans_file_when_not_configured(self):
+        self.mock_popen.return_value.returncode = 0
+        self.mock_popen.return_value.communicate.return_value = (
+            'Output', 'Error')
+
+        optimizer = self.get_optimizer(scans_file='')
+        optimizer.run_optimizer('.jpg', '')
+
+        args, _ = self.mock_popen.call_args
+        command = args[0]
+
+        self.assertNotIn('-scans', command)
+
+    def test_should_use_scans_file_when_configured_and_exists(self):
+        self.mock_popen.return_value.returncode = 0
+        self.mock_popen.return_value.communicate.return_value = (
+            'Output', 'Error')
+
+        self.mock_os_path_exists.return_value = True
+
+        optimizer = self.get_optimizer(scans_file='scans_test.txt')
+        optimizer.run_optimizer('.jpg', '')
+
+        args, _ = self.mock_popen.call_args
+        command = args[0]
+
+        self.assertIn('-scans', command)
+        self.assertIn('scans_test.txt', command)
+
+    @mock.patch('thumbor.optimizers.jpegtran.logger.warn')
+    def test_should_log_warning_when_scans_file_missing(self, warn_logger):
+        self.mock_popen.return_value.returncode = 0
+        self.mock_popen.return_value.communicate.return_value = (
+            'Output', 'Error')
+
+        self.mock_os_path_exists.side_effect = lambda filename: filename != 'scans_test.txt'
+
+        optimizer = self.get_optimizer(scans_file='scans_test.txt')
+        optimizer.run_optimizer('.jpg', '')
+
+        args, _ = self.mock_popen.call_args
+        command = args[0]
+
+        self.assertNotIn('-scans', command)
+        warn_logger.assert_called_once()
 
     @mock.patch('thumbor.optimizers.jpegtran.logger.warn')
     def test_should_log_warning_when_failed(self, warn_logger):
