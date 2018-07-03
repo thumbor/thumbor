@@ -122,7 +122,9 @@ def load_sync(context, url, callback, normalize_url_func):
     client = tornado.httpclient.AsyncHTTPClient()
 
     user_agent = None
-    headers = {}
+    headers = {
+        'Accept': 'image/*;q=0.9,*/*;q=0.1'
+    }
     if context.config.HTTP_LOADER_FORWARD_ALL_HEADERS:
         headers = context.request_handler.request.headers
     else:
