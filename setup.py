@@ -98,7 +98,7 @@ http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/V
             "tornado>=4.1.0,<6.0.0",
             "pycryptodome >= 3.4.7",
             "pycurl>=7.19.0,<7.44.0",
-            "Pillow>=4.3.0,<5.2.0",
+            "Pillow>=4.3.0,<5.3.0",
             "derpconf>=0.2.0",
             "piexif>=1.0.13,<1.1.0",
             "statsd>=3.0.1",
