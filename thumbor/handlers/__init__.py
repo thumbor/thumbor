@@ -12,6 +12,8 @@ import sys
 import functools
 import datetime
 import re
+import math
+
 import pytz
 import traceback
 
@@ -493,27 +495,32 @@ class BaseHandler(tornado.web.RequestHandler):
         if extension not in ['.webp', '.jpg', '.jpeg'] or len(initial_results) <= max_bytes:
             return initial_results
 
-        results = initial_results
-        quality = initial_quality
+        low_quality = 10
+        high_quality = initial_quality
+        satisfactory_results = initial_results
 
-        while len(results) > max_bytes:
-            quality = int(quality * 0.75)
+        def _iteration_count(lo, hi):
+            """Return the depth of the binary search tree for this range"""
+            if lo >= hi:
+                return 0
+            else:
+                return int(math.log(hi - lo, 2)) + 1
 
-            if quality < 10:
-                logger.debug('Could not find any reduction that matches required size of %d bytes.' % max_bytes)
-                return initial_results
+        for i in range(_iteration_count(low_quality, high_quality)):
+            curr_quality = (low_quality + high_quality) // 2
+            logger.debug('Trying image with quality of %d...' % curr_quality)
+            results = engine.read(extension, curr_quality)
 
-            logger.debug('Trying to downsize image with quality of %d...' % quality)
-            results = engine.read(extension, quality)
+            if len(results) <= max_bytes:
+                # continue to check whether a higher quality level also satisfies the goal
+                logger.debug('Found satisfactory image size at quality of %d...' % curr_quality)
+                low_quality = curr_quality
+                satisfactory_results = results
+            else:
+                high_quality = curr_quality
+                logger.debug('Lowering high quality bound to %d...' % curr_quality)
 
-        prev_result = results
-        while len(results) <= max_bytes:
-            quality = int(quality * 1.1)
-            logger.debug('Trying to upsize image with quality of %d...' % quality)
-            prev_result = results
-            results = engine.read(extension, quality)
-
-        return prev_result
+        return satisfactory_results
 
     @classmethod
     def translate_crop_coordinates(
