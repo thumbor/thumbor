@@ -507,8 +507,8 @@ class BaseHandler(tornado.web.RequestHandler):
             results = engine.read(extension, quality)
 
         prev_result = results
-        while len(results) <= max_bytes:
-            quality = int(quality * 1.1)
+        while len(results) <= max_bytes and quality < initial_quality:
+            quality = max(initial_quality, int(quality * 1.1))
             logger.debug('Trying to upsize image with quality of %d...' % quality)
             prev_result = results
             results = engine.read(extension, quality)
