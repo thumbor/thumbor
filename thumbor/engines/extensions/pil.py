@@ -65,6 +65,8 @@ Usefull links
 """
 # todo: This module should be part of imageio (or at least based on)
 
+from __future__ import absolute_import
+
 import os
 
 try:
