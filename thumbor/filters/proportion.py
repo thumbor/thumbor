@@ -24,4 +24,3 @@ class Filter(BaseFilter):
             return
 
         self.engine.resize(new_width, new_height)
-        
