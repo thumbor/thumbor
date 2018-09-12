@@ -353,6 +353,7 @@ Config.define(
         'thumbor.filters.curve',
         'thumbor.filters.background_color',
         'thumbor.filters.upscale',
+        'thumbor.filters.proportion',
     ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')
