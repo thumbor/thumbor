@@ -86,6 +86,7 @@ class ConfigValuesTestCase(TestCase):
                 'thumbor.filters.curve',
                 'thumbor.filters.background_color',
                 'thumbor.filters.upscale',
+                'thumbor.filters.proportion',
             ])
         )
 
