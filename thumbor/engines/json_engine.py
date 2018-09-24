@@ -125,8 +125,8 @@ class JSONEngine(BaseEngine):
     def has_transparency(self):
         return self.engine.has_transparency()
 
-    def can_auto_convert_png_to_jpg(self, *args, **kwargs):
-        can_convert = super(JSONEngine, self).can_auto_convert_png_to_jpg(args, kwargs)
+    def can_auto_convert_png_to_jpg(self):
+        can_convert = super(JSONEngine, self).can_auto_convert_png_to_jpg()
         if can_convert:
             self.operations.append({'type': 'auto_png_to_jpg_conversion'})
 

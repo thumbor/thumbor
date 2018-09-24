@@ -429,9 +429,7 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
             "Accept": 'image/webp,*/*;q=0.8'
         })
 
-    @patch('thumbor.handlers.Context')
-    def test_should_auto_convert_png_to_jpg(self, context_mock):
-        context_mock.return_value = self.context
+    def test_should_auto_convert_png_to_jpg(self):
         response = self.fetch('/unsafe/Giunchedi%2C_Filippo_January_2015_01.png')
         expect(response.code).to_equal(200)
         expect(response.headers).not_to_include('Vary')
@@ -450,11 +448,7 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         expect(response.headers).not_to_include('Vary')
         expect(response.body).to_be_jpeg()
 
-    @patch('thumbor.handlers.Context')
-    def test_shouldnt_auto_convert_png_to_jpg_if_png_has_transparency(self, context_mock):
-        context_mock.return_value = self.context
-        self.context.request = self.get_request()
-
+    def test_shouldnt_auto_convert_png_to_jpg_if_png_has_transparency(self):
         response = self.fetch('/unsafe/watermark.png')
         expect(response.code).to_equal(200)
         expect(response.headers).not_to_include('Vary')
@@ -473,11 +467,8 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         expect(response.headers).not_to_include('Vary')
         expect(response.body).to_be_png()
 
-    @patch('thumbor.handlers.Context')
-    def test_should_auto_convert_png_to_webp_if_auto_webp_is_true(self, context_mock):
+    def test_should_auto_convert_png_to_webp_if_auto_webp_is_true(self):
         self.config.AUTO_WEBP = True
-        context_mock.return_value = self.context
-        self.context.request = self.get_request()
 
         response = self.get_as_webp('/unsafe/Giunchedi%2C_Filippo_January_2015_01.png')
         expect(response.code).to_equal(200)
@@ -498,11 +489,8 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         expect(response.headers).to_include('Vary')
         expect(response.body).to_be_webp()
 
-    @patch('thumbor.handlers.Context')
-    def test_should_auto_convert_png_to_webp_if_auto_webp_is_true_and_png_has_transparency(self, context_mock):
+    def test_should_auto_convert_png_to_webp_if_auto_webp_is_true_and_png_has_transparency(self):
         self.config.AUTO_WEBP = True
-        context_mock.return_value = self.context
-        self.context.request = self.get_request()
 
         response = self.get_as_webp('/unsafe/watermark.png')
         expect(response.code).to_equal(200)
@@ -522,6 +510,38 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers).to_include('Vary')
         expect(response.body).to_be_webp()
+
+    @patch('thumbor.handlers.imaging.RequestParameters')
+    def test_shouldnt_auto_convert_png_to_jpg_if_requested_by_request_param(self, request_mock):
+        def side_effect(*args, **kwargs):
+            req = RequestParameters(**kwargs)
+            req.auto_png_to_jpg = False
+
+            return req
+
+        request_mock.side_effect = side_effect
+
+        response = self.fetch('/unsafe/Giunchedi%2C_Filippo_January_2015_01.png')
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_png()
+
+    @patch('thumbor.handlers.imaging.RequestParameters')
+    def test_should_auto_convert_png_to_jpg_if_requested_by_request_param(self, request_mock):
+        self.config.AUTO_PNG_TO_JPG = False
+
+        def side_effect(*args, **kwargs):
+            req = RequestParameters(**kwargs)
+            req.auto_png_to_jpg = True
+
+            return req
+
+        request_mock.side_effect = side_effect
+
+        response = self.fetch('/unsafe/Giunchedi%2C_Filippo_January_2015_01.png')
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include('Vary')
+        expect(response.body).to_be_jpeg()
 
 
 class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
