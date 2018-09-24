@@ -141,7 +141,8 @@ class RequestParameters:
                  hash=None,
                  accepts_webp=False,
                  request=None,
-                 max_age=None):
+                 max_age=None,
+                 auto_png_to_jpg=None):
 
         self.debug = bool(debug)
         self.meta = bool(meta)
@@ -200,6 +201,7 @@ class RequestParameters:
         self.accepts_webp = accepts_webp
         self.max_bytes = None
         self.max_age = max_age
+        self.auto_png_to_jpg = auto_png_to_jpg
 
         if request:
             self.url = request.path
