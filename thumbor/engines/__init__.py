@@ -375,7 +375,6 @@ class BaseEngine(object):
         pass
 
     def can_auto_convert_png_to_jpg(self):
-        can_convert = self.extension == '.png' \
-                      and not self.has_transparency()
+        can_convert = (self.extension == '.png' and not self.has_transparency())
 
         return can_convert

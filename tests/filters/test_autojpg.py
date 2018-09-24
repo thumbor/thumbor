@@ -28,4 +28,3 @@ class AutoJPGFilterTestCase(FilterTestCase):
         fltr.run()
 
         expect(self.context.request.auto_png_to_jpg).to_equal(False)
-
