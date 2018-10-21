@@ -53,7 +53,8 @@ class TransformerTestCase(TestCase):
         server.security_key = 'ACME-SEC'
         return Context(server, cfg, importer)
 
-    def test_invalid_crop(self):
+    @staticmethod
+    def test_invalid_crop():
         data = TestData(
             source_width=800, source_height=600,
             target_width=800, target_height=600,
@@ -69,7 +70,8 @@ class TransformerTestCase(TestCase):
         trans.transform(lambda: None)
         expect(engine.calls['crop']).to_be_empty()
 
-    def validate_resize(self, test_data):
+    @staticmethod
+    def validate_resize(test_data):
         expect(test_data).to_be_resized()
         expect(test_data).to_be_cropped()
 
@@ -100,7 +102,8 @@ class TransformerTestCase(TestCase):
         trans.transform(lambda: None)
         self.validate_resize(test_data)
 
-    def test_can_resize_images_with_detection_error_not_ignoring_it(self):
+    @staticmethod
+    def test_can_resize_images_with_detection_error_not_ignoring_it():
         test_data = TestData(
             source_width=800, source_height=600,
             target_width=400, target_height=150,
@@ -115,7 +118,8 @@ class TransformerTestCase(TestCase):
 
         expect(test_data.engine.calls['resize']).to_length(0)
 
-    def test_can_fit_in(self):
+    @staticmethod
+    def test_can_fit_in():
         for (test_data, (width, height, should_resize)) in FIT_IN_CROP_DATA:
             context = test_data.to_context()
             engine = context.modules.engine
@@ -132,7 +136,8 @@ class TransformerTestCase(TestCase):
             else:
                 expect(engine.calls['resize']).to_be_empty()
 
-    def test_can_transform_meta_with_orientation(self):
+    @staticmethod
+    def test_can_transform_meta_with_orientation():
         data = TestData(
             source_width=800, source_height=600,
             target_width=100, target_height=100,
@@ -150,7 +155,8 @@ class TransformerTestCase(TestCase):
         trans.transform(lambda: None)
         expect(engine.calls['reorientate']).to_equal(1)
 
-    def test_can_transform_with_flip(self):
+    @staticmethod
+    def test_can_transform_with_flip():
         data = TestData(
             source_width=800, source_height=600,
             target_width=-800, target_height=-600,
@@ -167,7 +173,8 @@ class TransformerTestCase(TestCase):
         expect(engine.calls['horizontal_flip']).to_equal(1)
         expect(engine.calls['vertical_flip']).to_equal(1)
 
-    def test_can_resize_with_stretch(self):
+    @staticmethod
+    def test_can_resize_with_stretch():
         data = TestData(
             source_width=800, source_height=600,
             target_width=800, target_height=200,
@@ -185,7 +192,8 @@ class TransformerTestCase(TestCase):
         expect(engine.calls['resize']).to_equal([{'width': 800, 'height': 200}])
         expect(engine.calls['crop']).to_be_empty()
 
-    def test_can_extract_cover(self):
+    @staticmethod
+    def test_can_extract_cover():
         data = TestData(
             source_width=800, source_height=600,
             target_width=-800, target_height=-600,
@@ -207,7 +215,8 @@ class TransformerTestCase(TestCase):
         trans.transform(lambda: None)
         expect(engine.calls['cover']).to_equal(1)
 
-    def test_get_target_dimensions(self):
+    @staticmethod
+    def test_get_target_dimensions():
         data = TestData(
             source_width=800, source_height=600,
             target_width=600, target_height=400,
