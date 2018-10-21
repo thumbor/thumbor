@@ -123,6 +123,7 @@ class RequestParameters:
                  adaptive=False,
                  full=False,
                  fit_in=False,
+                 stretch=False,
                  width=0,
                  height=0,
                  horizontal_flip=False,
@@ -172,6 +173,7 @@ class RequestParameters:
         self.full = bool(full)
         self.fit_in = bool(fit_in)
 
+        self.stretch = bool(stretch)
         self.width = width == "orig" and "orig" or self.int_or_0(width)
         self.height = height == "orig" and "orig" or self.int_or_0(height)
         self.horizontal_flip = bool(horizontal_flip)

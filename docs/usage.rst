@@ -7,7 +7,7 @@ retrieving the image and a very similar endpoint to retrieve metadata.
 Image Endpoint
 --------------
 
-    **http://\ *thumbor-server*/hmac/trim/AxB:CxD/(adaptative-)(full-)fit-in/-Ex-F/HALIGN/VALIGN/smart/filters:FILTERNAME(ARGUMENT):FILTERNAME(ARGUMENT)/*image-uri***
+    **http://\ *thumbor-server*/hmac/trim/AxB:CxD/(adaptative-)(full-)fit-in/stretch/-Ex-F/HALIGN/VALIGN/smart/filters:FILTERNAME(ARGUMENT):FILTERNAME(ARGUMENT)/*image-uri***
 
 -  *thumbor-server* is the address of the service currently running;
 -  hmac is the signature that ensures :doc:`security` ;
@@ -16,11 +16,12 @@ Image Endpoint
 -  AxB:CxD means manually crop the image at left-top point AxB and
    right-bottom point CxD;
 -  fit-in means that the generated image should not be auto-cropped and
-   otherwise just fit in an imaginary box specified by ExF. If a full 
+   otherwise just fit in an imaginary box specified by ExF. If a full
    fit-in is specified, then the largest size is used for cropping (width
-   instead of height, or the other way around). If adaptive fit-in is 
+   instead of height, or the other way around). If adaptive fit-in is
    specified, it inverts requested width and height if it would get a better
    image definition;
+-  stretch resizes the image without cropping
 -  -Ex-F means resize the image to be ExF of width per height size. The
    minus signs mean flip horizontally and vertically;
 -  HALIGN is horizontal alignment of crop;
@@ -89,10 +90,10 @@ have no idea about the original image dimensions.
 If a full fit-in is used, instead of using the largest size for cropping
 it uses the smallest one, so in the above scenarios:
 
-For the image of 800px x 600px, with a full fit-in of 300px x 200px, we 
+For the image of 800px x 600px, with a full fit-in of 300px x 200px, we
 would get an image of 300px x 225px.
 
-For the image of 400px x 600px, with a full fit-in of 300px x 200px, we 
+For the image of 400px x 600px, with a full fit-in of 300px x 200px, we
 would get an image of 300px x 450px.
 
 Image Size

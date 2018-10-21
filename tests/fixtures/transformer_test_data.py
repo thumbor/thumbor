@@ -84,7 +84,8 @@ class TestData(object):
             target_width, target_height,
             halign, valign, focal_points,
             crop_left, crop_top, crop_right, crop_bottom,
-            fit_in=False, adaptive=False, full=False, meta=False):
+            fit_in=False, adaptive=False, full=False, meta=False,
+            stretch=False):
 
         self.source_width = source_width
         self.source_height = source_height
@@ -101,6 +102,7 @@ class TestData(object):
         self.adaptive = adaptive
         self.full = full
         self.meta = meta
+        self.stretch = stretch
 
     def __repr__(self):
         return self.__str__()
@@ -151,6 +153,7 @@ class TestData(object):
             adaptive=self.adaptive,
             full=self.full,
             fit_in=self.fit_in,
+            stretch=self.stretch,
             horizontal_flip=flip_horizontally,
             vertical_flip=flip_vertically,
             width=self.target_width,

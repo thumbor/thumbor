@@ -53,6 +53,9 @@ def get_parser():
         '', '--full', action='store_true', dest='full', default=False, help='Indicates that fit-full cropping should be used.'
     )
     parser.add_option(
+        '-r', '--stretch', action='store_true', dest='stretch', default=False, help='Indicates that stretch should be used.'
+    )
+    parser.add_option(
         '-s', '--smart', action='store_true', dest='smart', default=False, help='Indicates that smart cropping should be used.'
     )
     parser.add_option(
@@ -125,6 +128,7 @@ def get_thumbor_params(image_url, params, config):
         'old': params.old,
         'width': params.width,
         'height': params.height,
+        'stretch': params.stretch,
         'smart': params.smart,
         'meta': params.meta,
         'horizontal_flip': params.horizontal_flip,

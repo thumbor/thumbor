@@ -36,6 +36,10 @@ fitins = [
     'adaptive-full-fit-in'
 ]
 
+stretchs = [
+    'stretch',
+]
+
 sizes = [
     '200x200',
     '-300x100',
@@ -162,7 +166,7 @@ def single_dataset(fetcher, with_gif=True):
     images = original_images_base[:]
     if with_gif:
         images += original_images_gif_webp
-    all_options = metas + trims + crops + fitins + sizes + haligns + valigns + smarts + filters
+    all_options = metas + trims + crops + fitins + stretchs + sizes + haligns + valigns + smarts + filters
     UrlsTester(fetcher, product(all_options, images))
 
 
@@ -171,6 +175,6 @@ def combined_dataset(fetcher, with_gif=True):
     if with_gif:
         images += original_images_gif_webp
     combined_options = product(
-        trims[:2], crops[:2], fitins[:2], sizes[:2], haligns[:2], valigns[:2], smarts[:2], filters[:2], images
+        trims[:2], crops[:2], fitins[:2], stretchs[:2], sizes[:2], haligns[:2], valigns[:2], smarts[:2], filters[:2], images
     )
     UrlsTester(fetcher, combined_options)

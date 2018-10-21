@@ -45,6 +45,7 @@ class CryptoTestCase(TestCase):
             adaptive=False,
             full=False,
             fit_in=False,
+            stretch=False,
             flip_horizontal=True,
             flip_vertical=True,
             halign="center",
@@ -105,7 +106,7 @@ class CryptoTestCase(TestCase):
 
         expected_options = {
             'trim': 'trim', 'full': False, 'halign': 'center', 'fit_in': False,
-            'vertical_flip': True, 'image': '/some/image.jpg',
+            'stretch': False, 'vertical_flip': True, 'image': '/some/image.jpg',
             'crop': {'top': 11, 'right': 12, 'bottom': 13, 'left': 10},
             'height': 300, 'width': 300, 'meta': False, 'horizontal_flip': True,
             'filters': 'some_filter()', 'valign': 'middle', 'debug': False,
@@ -142,6 +143,7 @@ class CryptoTestCase(TestCase):
             adaptive=False,
             full=False,
             fit_in=False,
+            stretch=False,
             flip_horizontal=True,
             flip_vertical=True,
             halign="center",
@@ -174,7 +176,7 @@ class CryptoTestCase(TestCase):
 
         expected_options = {
             'trim': 'trim', 'full': False, 'halign': 'center', 'fit_in': False,
-            'vertical_flip': True, 'image': '/some/image.jpg',
+            'stretch': False, 'vertical_flip': True, 'image': '/some/image.jpg',
             'crop': {'top': 11, 'right': 12, 'bottom': 13, 'left': 10},
             'height': 300, 'width': 300, 'meta': False, 'horizontal_flip': True,
             'filters': 'some_filter()', 'valign': 'middle', 'debug': False,
@@ -196,6 +198,7 @@ class CryptoTestCase(TestCase):
             adaptive=False,
             full=False,
             fit_in=False,
+            stretch=False,
             flip_horizontal=True,
             flip_vertical=True,
             halign="center",

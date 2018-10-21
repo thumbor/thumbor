@@ -19,6 +19,7 @@ BASE_PARAMS = {
     'adaptive': False,
     'full': False,
     'fit_in': False,
+    'stretch': False,
     'flip_horizontal': False,
     'flip_vertical': False,
     'halign': 'center',
@@ -43,6 +44,7 @@ DECRYPT_TESTS = [
             "smart": False,
             "meta": False,
             "fit_in": False,
+            'stretch': False,
             "crop": {
                 "left": 0,
                 "top": 0,
@@ -72,6 +74,7 @@ DECRYPT_TESTS = [
             "smart": False,
             "meta": False,
             "fit_in": False,
+            'stretch': False,
             "crop": {
                 "left": 0,
                 "top": 0,
