@@ -13,3 +13,7 @@ Scaling Thumbor
 -  `99 Designs <http://99designs.com/>`__ also has some info on their
    architecture using thumbor and amazon at their `engineering
    blog <http://99designs.com/tech-blog/blog/2013/07/01/thumbnailing-with-thumbor/>`__.
+-  `heycar <https://hey.car/>`__ also has some info on their
+   architecture using thumbor on with CloudFront and Kubernetes at their `engineering
+   blog <https://medium.com/heycar/the-fast-and-the-payloadless-566b3aef890e/>`__.
+   
