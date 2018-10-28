@@ -16,4 +16,3 @@ Scaling Thumbor
 -  `heycar <https://hey.car/>`__ also has some info on their
    architecture using thumbor on with CloudFront and Kubernetes at their `engineering
    blog <https://medium.com/heycar/the-fast-and-the-payloadless-566b3aef890e/>`__.
-   
