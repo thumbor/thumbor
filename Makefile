@@ -71,7 +71,7 @@ redis: kill_redis
 	@redis-cli -p 6668 -a hey_you info
 
 flake:
-	@flake8 . --ignore=W801,E501
+	@flake8 . --ignore=W801,E501,W605,W504,W606
 
 setup_docs:
 	pip install -r docs/requirements.txt
