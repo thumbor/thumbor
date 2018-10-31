@@ -38,6 +38,7 @@ Filters
    rotate
    round_corners
    sharpen
+   stretch
    strip_exif
    strip_icc
    upscale
