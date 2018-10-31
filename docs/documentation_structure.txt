@@ -55,6 +55,7 @@ Index (* About)
         * Rotate
         * Round corners
         * Sharpen
+        * Stretch
         * Strip exif
         * Strip icc
         * Watermark

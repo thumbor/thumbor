@@ -184,7 +184,8 @@ class RequestParametersTestCase(TestCase):
 
         expect(params.adaptive).to_be_false()
         expect(params.full).to_be_false()
-        expect(params.adaptive).to_be_false()
+        expect(params.fit_in).to_be_false()
+        expect(params.stretch).to_be_false()
 
         expect(params.width).to_equal(0)
         expect(params.height).to_equal(0)
