@@ -1214,6 +1214,7 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
         cfg.STORAGE = "thumbor.storages.no_storage"
         cfg.AUTO_WEBP = True
         cfg.USE_GIFSICLE_ENGINE = True
+        cfg.RESPECT_ORIENTATION = True
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -1255,6 +1256,13 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
         response = self.fetch('/unsafe/filters:max_bytes(1000)/Giunchedi%2C_Filippo_January_2015_01.jpg')
         expect(response.code).to_equal(200)
         expect(len(response.body)).to_be_greater_than(1000)
+
+    def test_meta_with_exif_orientation(self):
+        response = self.fetch('/unsafe/meta/0x0/Giunchedi%2C_Filippo_January_2015_01-cmyk-orientation-exif.jpg')
+        expect(response.code).to_equal(200)
+        obj = loads(response.body)
+        expect(obj['thumbor']['target']['width']).to_equal(533)
+        expect(obj['thumbor']['target']['height']).to_equal(800)
 
 
 class TranslateCoordinatesTestCase(TestCase):
