@@ -19,12 +19,12 @@ class JSONEngine(BaseEngine):
         super(JSONEngine, self).__init__(engine.context)
         self.engine = engine
         self.extension = engine.extension
-        self.width, self.height = self.engine.size
         self.path = path
         self.callback_name = callback_name
         self.operations = []
         self.focal_points = []
         self.refresh_image()
+        self.exif = getattr(engine, 'exif', None)
 
     def refresh_image(self):
         self.image = self.engine.image
@@ -64,8 +64,7 @@ class JSONEngine(BaseEngine):
         self.operations.append({"type": "flip_horizontally"})
 
     def get_target_dimensions(self):
-        width = self.width
-        height = self.height
+        width, height = self.engine.size
         for operation in self.operations:
             if operation['type'] == 'crop':
                 width = operation['right'] - operation['left']
@@ -132,12 +131,13 @@ class JSONEngine(BaseEngine):
 
     def read(self, extension, quality):
         target_width, target_height = self.get_target_dimensions()
+        width, height = self.engine.size
         thumbor_json = {
             "thumbor": {
                 "source": {
                     "url": self.path,
-                    "width": self.width,
-                    "height": self.height,
+                    "width": width,
+                    "height": height,
                     "frameCount": self.get_frame_count()
                 },
                 "operations": self.operations,
