@@ -11,10 +11,11 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import glob
-import os
 import logging
+import os
 
-from setuptools import setup, Extension
+from setuptools import Extension, setup
+
 from thumbor import __version__
 
 TESTS_REQUIRE = [
@@ -38,7 +39,7 @@ TESTS_REQUIRE = [
     "memory_profiler",
     "psutil",
     "ipdb",
-    "yapf",
+    "black",
     "isort",
     "mypy",
     "pylint",
@@ -47,6 +48,7 @@ TESTS_REQUIRE = [
 
 def filter_extension_module(name, lib_objs, lib_headers):
     'Returns an extension module for a filter'
+
     return Extension(
         'thumbor.ext.filters.%s' % name,
         ['thumbor/ext/filters/%s.c' % name] + lib_objs,
@@ -66,12 +68,14 @@ def gather_filter_extensions():
 
     return [
         filter_extension_module(f[0:-2].split('/')[-1], lib_objs, lib_headers)
+
         for f in files
     ]
 
 
 def run_setup(extension_modules=None):
     'Runs setup with all extension modules'
+
     if extension_modules is None:
         extension_modules = []
 

@@ -34,3 +34,4 @@ opencv
 docs/_build
 mprofile*
 .python-version
+.mypy_cache

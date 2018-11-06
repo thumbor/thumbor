@@ -13,8 +13,11 @@ setup:
 	@env "CFLAGS=-I/usr/local/include -L/usr/local/lib" pip install -e .[tests]
     else
 	@sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx4 libvpx-dev libimage-exiftool-perl libcairo2-dev ffmpeg libcurl4-openssl-dev libffi-dev python-dev python3-dev
-	@pip install -e .[tests]
+	@$(MAKE) setup-python
     endif
+
+setup-python:
+	@pip install -e .[tests]
 
 setup_mac:
 	@brew tap homebrew/science
