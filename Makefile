@@ -50,7 +50,7 @@ coverage:
 	@coverage report -m --fail-under=10
 
 unit:
-	@coverage run --branch `which nosetests` -v --with-yanc -s tests/
+	@coverage run --branch `which nosetests` -v --with-yanc -s tests/unit/
 
 unit-parallel:
 	@`which nosetests` -v --with-yanc --processes=4 -s tests/

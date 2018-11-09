@@ -14,7 +14,7 @@ from six.moves.urllib.parse import quote, unquote
 from thumbor.blueprints.loaders import Loader as BaseLoader
 
 
-class Loader(BaseLoader):
+class HttpLoader(BaseLoader):
     @tornado.gen.coroutine
     def on_load_source_image(self, request, details):
         request_parameters = details.request_parameters
@@ -22,7 +22,7 @@ class Loader(BaseLoader):
 
         user_agent, headers = self.get_request_headers(request, details)
 
-        url = self.__normalize_url(request_parameters.image_url)
+        url = self._normalize_url(request_parameters.image_url)
         response = yield self.fetch(
             client, url, user_agent, headers, details.config, prepare_curl_callback
         )
@@ -90,7 +90,7 @@ class Loader(BaseLoader):
         headers = {}
 
         if details.config.HTTP_LOADER_FORWARD_ALL_HEADERS:
-            headers = request.headers
+            headers.update(request.headers)
         else:
             if details.config.HTTP_LOADER_FORWARD_USER_AGENT:
                 if "User-Agent" in request.headers:
@@ -127,7 +127,7 @@ class Loader(BaseLoader):
 
         return CurlOpts(config).prepare_curl_callback
 
-    def __normalize_url(self, url):
+    def _normalize_url(self, url):
         url = self.__quote_url(url)
 
         return url if url.startswith("http") else "http://%s" % url
@@ -145,4 +145,4 @@ class Loader(BaseLoader):
         return None if string is None else string.encode("ascii")
 
 
-HTTP_LOADER = Loader()
+HTTP_LOADER = HttpLoader()
