@@ -7,6 +7,7 @@ cache:
   pip: true
   apt: true
 sudo: required
+dist: xenial
 matrix:
   fast_finish: true
   allow_failures:
