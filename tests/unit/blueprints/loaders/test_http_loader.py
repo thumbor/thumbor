@@ -105,24 +105,3 @@ class RequestHeadersTestCase(BaseTestCase):
 
         expect(user_agent).to_equal("default user agent")
         expect(headers).to_be_like({"Some-Header": "some value"})
-
-    # def get_request_headers(self, request, details):
-    # user_agent = None
-    # headers = {}
-
-    # if details.config.HTTP_LOADER_FORWARD_ALL_HEADERS:
-    # headers = request.headers
-    # else:
-    # if details.config.HTTP_LOADER_FORWARD_USER_AGENT:
-    # if "User-Agent" in request.headers:
-    # user_agent = request.headers["User-Agent"]
-
-    # if details.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
-    # for header_key in details.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
-    # if header_key in request.headers:
-    # headers[header_key] = request.headers[header_key]
-
-    # if user_agent is None and "User-Agent" not in headers:
-    # user_agent = details.config.HTTP_LOADER_DEFAULT_USER_AGENT
-
-    # return user_agent, headers
