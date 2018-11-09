@@ -1,8 +1,7 @@
 language: python
 python:
-  - 2.7
-  - 3.5
   - 3.6
+  - 3.7
   - pypy
 cache:
   pip: true
@@ -11,14 +10,8 @@ sudo: required
 matrix:
   fast_finish: true
   allow_failures:
-    - python: 3.5
-    - python: 3.6
     - python: pypy
   exclude:
-    - python: 3.5
-      env: LINT_TEST=1
-    - python: 3.6
-      env: LINT_TEST=1
     - python: pypy
       env: LINT_TEST=1
 env:
