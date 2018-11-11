@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import tornado.gen
+import tornado.httpclient
 from six.moves.urllib.parse import quote, unquote
 
 from thumbor.blueprints.loaders import Loader as BaseLoader
@@ -66,7 +67,12 @@ class HttpLoader(BaseLoader):
 
         return response
 
-    def get_http_client(self, config):
+    def _configure_client(self, impl, max_clients):
+        tornado.httpclient.AsyncHTTPClient.configure(impl, max_clients=max_clients)
+
+    def get_http_client(
+        self, config, tornado_client=tornado.httpclient.AsyncHTTPClient
+    ):
         http_client_implementation = None  # default
         prepare_curl_callback = None
 
@@ -76,14 +82,14 @@ class HttpLoader(BaseLoader):
 
         if using_proxy or config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
             http_client_implementation = "tornado.curl_httpclient.CurlAsyncHTTPClient"
-            prepare_curl_callback = self.__get_prepare_curl_callback(config)
+            prepare_curl_callback = self._get_prepare_curl_callback(config)
 
         # then we configure tornado to use it
-        tornado.httpclient.AsyncHTTPClient.configure(
-            http_client_implementation, max_clients=config.HTTP_LOADER_MAX_CLIENTS
+        self._configure_client(
+            http_client_implementation, config.HTTP_LOADER_MAX_CLIENTS
         )
 
-        return prepare_curl_callback, tornado.httpclient.AsyncHTTPClient()
+        return prepare_curl_callback, tornado_client()
 
     def get_request_headers(self, request, details):
         user_agent = None
@@ -106,7 +112,7 @@ class HttpLoader(BaseLoader):
 
         return user_agent, headers
 
-    def __get_prepare_curl_callback(self, config):
+    def _get_prepare_curl_callback(self, config):
         low_speed_time = config.HTTP_LOADER_CURL_LOW_SPEED_TIME
         low_speed_limit = config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT
 
