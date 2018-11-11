@@ -44,7 +44,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
 - [x] Full Fit-in
 - [x] Filters
    - [ ] background_color
-   - [ ] blur
+   - [x] blur
    - [x] brightness
    - [x] colorize
    - [ ] contrast

@@ -435,6 +435,7 @@ Config.define(
 Config.define(
     'FILTERS',
     [
+        'thumbor.filters.blur',
         'thumbor.filters.brightness',
         'thumbor.filters.colorize',
         # 'thumbor.filters.contrast',
@@ -455,7 +456,6 @@ Config.define(
         # 'thumbor.filters.format',
         # 'thumbor.filters.max_bytes',
         # 'thumbor.filters.convolution',
-        # 'thumbor.filters.blur',
         # 'thumbor.filters.extract_focal',
         # 'thumbor.filters.focal',
         # 'thumbor.filters.no_upscale',
