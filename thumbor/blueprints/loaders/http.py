@@ -15,14 +15,15 @@ from thumbor.blueprints.loaders import Loader as BaseLoader
 
 
 class HttpLoader(BaseLoader):
-    async def on_load_source_image(self, request, details):
+    @tornado.gen.coroutine
+    def on_load_source_image(self, request, details):
         request_parameters = details.request_parameters
         prepare_curl_callback, client = self.get_http_client(details.config)
 
         user_agent, headers = self.get_request_headers(request, details)
 
         url = self._normalize_url(request_parameters.image_url)
-        response = await self.fetch(
+        response = yield self.fetch(
             client, url, user_agent, headers, details.config, prepare_curl_callback
         )
 
@@ -40,9 +41,8 @@ class HttpLoader(BaseLoader):
 
         details.source_image = response.buffer.read()
 
-    async def fetch(
-        self, client, url, user_agent, headers, config, prepare_curl_callback
-    ):
+    @tornado.gen.coroutine
+    def fetch(self, client, url, user_agent, headers, config, prepare_curl_callback):
         image_request = tornado.httpclient.HTTPRequest(
             url=url,
             headers=headers,
@@ -62,7 +62,7 @@ class HttpLoader(BaseLoader):
             prepare_curl_callback=prepare_curl_callback,
         )
 
-        response = await client.fetch(image_request, raise_error=False)
+        response = yield client.fetch(image_request, raise_error=False)
 
         return response
 

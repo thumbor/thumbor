@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import tornado.gen
+
 from thumbor.lifecycle import Events
 
 
@@ -15,10 +17,12 @@ class Loader:
     def __init__(self):
         Events.subscribe(Events.Imaging.load_source_image, self.load_source_image)
 
-    async def load_source_image(self, sender, request, details):
-        res = await self.on_load_source_image(request, details)
+    @tornado.gen.coroutine
+    def load_source_image(self, sender, request, details):
+        res = yield self.on_load_source_image(request, details)
 
         return res
 
-    async def on_load_source_image(self, request, details):
+    @tornado.gen.coroutine
+    def on_load_source_image(self, request, details):
         raise NotImplementedError()
