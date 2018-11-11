@@ -1,4 +1,6 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
+'''Filter Module'''
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -9,6 +11,9 @@
 
 import math
 
+from tornado import gen
+
+from thumbor import Engine
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _convolution
 
@@ -39,14 +44,19 @@ class Filter(BaseFilter):
             matrix.append(exp / math.sqrt(two_sigma_squared * math.pi))
         return tuple(matrix), matrix_size
 
+    @gen.coroutine
     @filter_method(BaseFilter.PositiveNumber, BaseFilter.DecimalNumber)
-    def blur(self, radius, sigma=0):
+    def blur(self, details, radius=0, sigma=0):
         if sigma == 0:
             sigma = radius
         if radius > MAX_RADIUS:
             radius = MAX_RADIUS
         matrix, matrix_size = self.generate_1d_matrix(sigma, radius)
-        mode, data = self.engine.image_data_as_rgb()
-        imgdata = _convolution.apply(mode, data, self.engine.size[0], self.engine.size[1], matrix, matrix_size, True)
-        imgdata = _convolution.apply(mode, imgdata, self.engine.size[0], self.engine.size[1], matrix, 1, True)
-        self.engine.set_image_data(imgdata)
+        mode, data = yield Engine.get_image_data_as_rgb(self, details)
+        width, height = yield Engine.get_image_size(self, details)
+
+        imgdata = _convolution.apply(
+            mode, data, width, height, matrix, matrix_size, True)
+        imgdata = _convolution.apply(
+            mode, imgdata, width, height, matrix, 1, True)
+        yield Engine.set_image_data(self, details, imgdata)

@@ -43,7 +43,7 @@ _convolution_apply(PyObject *self, PyObject *args)
     Py_ssize_t kernel_size = 0, width = 0, height = 0;
     PyObject *kernel_tuple, *buffer, *should_normalize;
 
-    if (!PyArg_ParseTuple(args, "sOiiOiO:apply", &image_mode, &buffer, &width, &height, &kernel_tuple, &columns_count, &should_normalize)) {
+    if (!PyArg_ParseTuple(args, "s*OiiOiO:apply", &image_mode, &buffer, &width, &height, &kernel_tuple, &columns_count, &should_normalize)) {
         return NULL;
     }
 
