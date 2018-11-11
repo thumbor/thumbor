@@ -44,5 +44,5 @@ class DetectorTestCase(TestCase):
     def smart_detect(self, source_image, width=300, height=200):
         'Get smart detect image bytes'
         image = yield self.get(
-            f'/v2/unsafe/{width}x{height}/smart/{source_image}')
+            f'/unsafe/{width}x{height}/smart/{source_image}')
         return image.body

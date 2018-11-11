@@ -43,5 +43,5 @@ class FilterTestCase(TestCase):
     def get_filtered(self, filter_str, source_image):
         'Get filtered image bytes'
         image = yield self.get(
-            f'/v2/unsafe/filters:{filter_str}/{source_image}')
+            f'/unsafe/filters:{filter_str}/{source_image}')
         return image.body
