@@ -15,6 +15,10 @@ from six.moves.urllib.parse import quote, unquote
 from thumbor.blueprints.loaders import Loader as BaseLoader
 
 
+def plug_into_lifecycle():
+    HttpLoader()
+
+
 class HttpLoader(BaseLoader):
     @tornado.gen.coroutine
     def on_load_source_image(self, request, details):
@@ -52,13 +56,13 @@ class HttpLoader(BaseLoader):
             follow_redirects=config.HTTP_LOADER_FOLLOW_REDIRECTS,
             max_redirects=config.HTTP_LOADER_MAX_REDIRECTS,
             user_agent=user_agent,
-            proxy_host=self.__encode(config.HTTP_LOADER_PROXY_HOST),
+            proxy_host=self._encode(config.HTTP_LOADER_PROXY_HOST),
             proxy_port=config.HTTP_LOADER_PROXY_PORT,
-            proxy_username=self.__encode(config.HTTP_LOADER_PROXY_USERNAME),
-            proxy_password=self.__encode(config.HTTP_LOADER_PROXY_PASSWORD),
-            ca_certs=self.__encode(config.HTTP_LOADER_CA_CERTS),
-            client_key=self.__encode(config.HTTP_LOADER_CLIENT_KEY),
-            client_cert=self.__encode(config.HTTP_LOADER_CLIENT_CERT),
+            proxy_username=self._encode(config.HTTP_LOADER_PROXY_USERNAME),
+            proxy_password=self._encode(config.HTTP_LOADER_PROXY_PASSWORD),
+            ca_certs=self._encode(config.HTTP_LOADER_CA_CERTS),
+            client_key=self._encode(config.HTTP_LOADER_CLIENT_KEY),
+            client_cert=self._encode(config.HTTP_LOADER_CLIENT_CERT),
             validate_cert=config.HTTP_LOADER_VALIDATE_CERTS,
             prepare_curl_callback=prepare_curl_callback,
         )
@@ -134,21 +138,18 @@ class HttpLoader(BaseLoader):
         return CurlOpts(config).prepare_curl_callback
 
     def _normalize_url(self, url):
-        url = self.__quote_url(url)
+        url = self._quote_url(url)
 
         return url if url.startswith("http") else "http://%s" % url
 
-    def __quote_url(self, url):
-        return self.__encode_url(unquote(url))
+    def _quote_url(self, url):
+        return self._encode_url(unquote(url))
 
-    def __encode_url(self, url):
+    def _encode_url(self, url):
         if url == unquote(url):
             return quote(url.encode("utf-8"), safe="~@#$&()*!+=:;,.?/'")
 
         return url
 
-    def __encode(self, string):
+    def _encode(self, string):
         return None if string is None else string.encode("ascii")
-
-
-HTTP_LOADER = HttpLoader()

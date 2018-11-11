@@ -8,14 +8,15 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from thumbor.blueprints.loaders.http import Loader as HttpLoader
+from thumbor.blueprints.loaders.http import HttpLoader
 
 
-class Loader(HttpLoader):
-    def __normalize_url(self, url):
-        url = self.__quote_url(url)
+def plug_into_lifecycle():
+    HttpsLoader()
+
+
+class HttpsLoader(HttpLoader):
+    def _normalize_url(self, url):
+        url = self._quote_url(url)
 
         return url if url.startswith("http") else "https://%s" % url
-
-
-HTTPS_LOADER = Loader()
