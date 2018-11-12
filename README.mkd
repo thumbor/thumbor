@@ -88,11 +88,12 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [x] HTTP
    - [x] File
 - [ ] Storage
-   - [ ] File
+   - [x] File
    - [ ] NoStorage
 - [ ] ResultStorage
-   - [ ] File
+   - [x] File
    - [ ] MixedStorage
+   - [ ] NoStorage
 - [ ] Updated docs
 - [ ] Tests
 
