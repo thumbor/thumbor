@@ -20,15 +20,16 @@ def plug_into_lifecycle():
 
 
 class HttpLoader(BaseLoader):
+    @classmethod
     @tornado.gen.coroutine
-    def on_load_source_image(self, request, details):
+    def load_source_image(cls, request, details):
         request_parameters = details.request_parameters
-        prepare_curl_callback, client = self.get_http_client(details.config)
+        prepare_curl_callback, client = cls.get_http_client(details.config)
 
-        user_agent, headers = self.get_request_headers(request, details)
+        user_agent, headers = cls.get_request_headers(request, details)
 
-        url = self._normalize_url(request_parameters.image_url)
-        response = yield self.fetch(
+        url = cls._normalize_url(request_parameters.image_url)
+        response = yield cls.fetch(
             client, url, user_agent, headers, details.config, prepare_curl_callback
         )
 
@@ -46,8 +47,9 @@ class HttpLoader(BaseLoader):
 
         details.source_image = response.buffer.read()
 
+    @classmethod
     @tornado.gen.coroutine
-    def fetch(self, client, url, user_agent, headers, config, prepare_curl_callback):
+    def fetch(cls, client, url, user_agent, headers, config, prepare_curl_callback):
         image_request = tornado.httpclient.HTTPRequest(
             url=url,
             headers=headers,
@@ -56,13 +58,13 @@ class HttpLoader(BaseLoader):
             follow_redirects=config.HTTP_LOADER_FOLLOW_REDIRECTS,
             max_redirects=config.HTTP_LOADER_MAX_REDIRECTS,
             user_agent=user_agent,
-            proxy_host=self._encode(config.HTTP_LOADER_PROXY_HOST),
+            proxy_host=cls._encode(config.HTTP_LOADER_PROXY_HOST),
             proxy_port=config.HTTP_LOADER_PROXY_PORT,
-            proxy_username=self._encode(config.HTTP_LOADER_PROXY_USERNAME),
-            proxy_password=self._encode(config.HTTP_LOADER_PROXY_PASSWORD),
-            ca_certs=self._encode(config.HTTP_LOADER_CA_CERTS),
-            client_key=self._encode(config.HTTP_LOADER_CLIENT_KEY),
-            client_cert=self._encode(config.HTTP_LOADER_CLIENT_CERT),
+            proxy_username=cls._encode(config.HTTP_LOADER_PROXY_USERNAME),
+            proxy_password=cls._encode(config.HTTP_LOADER_PROXY_PASSWORD),
+            ca_certs=cls._encode(config.HTTP_LOADER_CA_CERTS),
+            client_key=cls._encode(config.HTTP_LOADER_CLIENT_KEY),
+            client_cert=cls._encode(config.HTTP_LOADER_CLIENT_CERT),
             validate_cert=config.HTTP_LOADER_VALIDATE_CERTS,
             prepare_curl_callback=prepare_curl_callback,
         )
@@ -71,12 +73,12 @@ class HttpLoader(BaseLoader):
 
         return response
 
-    def _configure_client(self, impl, max_clients):
+    @classmethod
+    def _configure_client(cls, impl, max_clients):
         tornado.httpclient.AsyncHTTPClient.configure(impl, max_clients=max_clients)
 
-    def get_http_client(
-        self, config, tornado_client=tornado.httpclient.AsyncHTTPClient
-    ):
+    @classmethod
+    def get_http_client(cls, config, tornado_client=tornado.httpclient.AsyncHTTPClient):
         http_client_implementation = None  # default
         prepare_curl_callback = None
 
@@ -86,16 +88,17 @@ class HttpLoader(BaseLoader):
 
         if using_proxy or config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
             http_client_implementation = "tornado.curl_httpclient.CurlAsyncHTTPClient"
-            prepare_curl_callback = self._get_prepare_curl_callback(config)
+            prepare_curl_callback = cls._get_prepare_curl_callback(config)
 
         # then we configure tornado to use it
-        self._configure_client(
+        cls._configure_client(
             http_client_implementation, config.HTTP_LOADER_MAX_CLIENTS
         )
 
         return prepare_curl_callback, tornado_client()
 
-    def get_request_headers(self, request, details):
+    @classmethod
+    def get_request_headers(cls, request, details):
         user_agent = None
         headers = {}
 
@@ -116,7 +119,8 @@ class HttpLoader(BaseLoader):
 
         return user_agent, headers
 
-    def _get_prepare_curl_callback(self, config):
+    @classmethod
+    def _get_prepare_curl_callback(cls, config):
         low_speed_time = config.HTTP_LOADER_CURL_LOW_SPEED_TIME
         low_speed_limit = config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT
 
@@ -137,19 +141,23 @@ class HttpLoader(BaseLoader):
 
         return CurlOpts(config).prepare_curl_callback
 
-    def _normalize_url(self, url):
-        url = self._quote_url(url)
+    @classmethod
+    def _normalize_url(cls, url):
+        url = cls._quote_url(url)
 
         return url if url.startswith("http") else "http://%s" % url
 
-    def _quote_url(self, url):
-        return self._encode_url(unquote(url))
+    @classmethod
+    def _quote_url(cls, url):
+        return cls._encode_url(unquote(url))
 
-    def _encode_url(self, url):
+    @classmethod
+    def _encode_url(cls, url):
         if url == unquote(url):
             return quote(url.encode("utf-8"), safe="~@#$&()*!+=:;,.?/'")
 
         return url
 
-    def _encode(self, string):
+    @classmethod
+    def _encode(cls, string):
         return None if string is None else string.encode("ascii")

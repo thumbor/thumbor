@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from mock import MagicMock
+from mock import MagicMock, patch
 from preggy import expect
 from tornado.concurrent import Future
 
@@ -76,15 +76,14 @@ class HttpLoaderTestCase(BaseTestCase):
         expect(prepare_curl_callback).to_be_null()
         expect(client).to_equal(client_mock)
 
-    def test_get_http_client_2(self):
+    @patch("thumbor.blueprints.loaders.http.HttpLoader._configure_client")
+    @patch("thumbor.blueprints.loaders.http.HttpLoader._get_prepare_curl_callback")
+    def test_get_http_client_2(self, prepare_curl_mock, configure_client_mock):
         """[HttpLoader.get_http_client] Tests that we get curl http client when called with proxy"""
         loader = HttpLoader()
         prepare_curl_callback_mock = MagicMock()
 
-        loader._get_prepare_curl_callback = MagicMock()
-        loader._get_prepare_curl_callback.return_value = prepare_curl_callback_mock
-
-        loader._configure_client = MagicMock()
+        prepare_curl_mock.return_value = prepare_curl_callback_mock
 
         config_mock = MagicMock(
             HTTP_LOADER_PROXY_HOST="something",
@@ -99,9 +98,10 @@ class HttpLoaderTestCase(BaseTestCase):
         prepare_curl_callback, client = loader.get_http_client(
             config_mock, client_factory_mock
         )
-        expect(prepare_curl_callback).to_equal(prepare_curl_callback)
+
+        expect(prepare_curl_callback).to_equal(prepare_curl_callback_mock)
         expect(client).to_equal(client_mock)
-        loader._configure_client.assert_called_with(
+        configure_client_mock.assert_called_with(
             "tornado.curl_httpclient.CurlAsyncHTTPClient", 10
         )
 

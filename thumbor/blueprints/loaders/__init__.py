@@ -15,14 +15,16 @@ from thumbor.lifecycle import Events
 
 class Loader:
     def __init__(self):
-        Events.subscribe(Events.Imaging.load_source_image, self.load_source_image)
+        Events.subscribe(Events.Imaging.load_source_image, self.on_load_source_image)
 
+    @classmethod
     @tornado.gen.coroutine
-    def load_source_image(self, sender, request, details):
-        res = yield self.on_load_source_image(request, details)
+    def on_load_source_image(cls, sender, request, details):
+        res = yield cls.load_source_image(request, details)
 
         return res
 
+    @classmethod
     @tornado.gen.coroutine
-    def on_load_source_image(self, request, details):
+    def load_source_image(cls, request, details):
         raise NotImplementedError()

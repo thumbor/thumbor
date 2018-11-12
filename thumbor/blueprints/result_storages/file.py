@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-"Blueprint for managing storage in the file system."
+"Blueprint for managing result storage in the file system."
 
 import hashlib
 import os
@@ -17,48 +17,58 @@ from os.path import abspath, dirname, exists, getmtime
 from shutil import move
 from uuid import uuid4
 
+import pytz
 import tornado.gen
 
-from thumbor.blueprints.storages import Storage
+from thumbor.blueprints.result_storages import ResultStorage
 
 
 def plug_into_lifecycle():
-    FileStorage()
+    FileResultStorage()
 
 
-class FileStorage(Storage):
+class FileResultStorage(ResultStorage):
     @classmethod
     @tornado.gen.coroutine
-    def load_source_image(cls, request, details, image_url):
-        "Loads source image from filesystem if it exists"
-        file_abspath = cls._path_on_filesystem(details, image_url)
+    def load_transformed_image(cls, request, details, url):
+        "Loads result storage from filesystem if it exists"
+        should_store = (
+            details.config.RESULT_STORAGE_STORES_UNSAFE
+            or not details.request_parameters.unsafe
+        )
 
-        if not exists(file_abspath):
+        if not should_store:
             return
 
-        with open(file_abspath, "rb") as source_file:
-            details.source_image = source_file.read()
+        file_abspath = cls._path_on_filesystem(details, url)
+
+        if not cls._validate_path(details, file_abspath):
+            return
+
+        if not exists(file_abspath) or cls._is_expired(details, file_abspath):
+            return
+
+        with open(file_abspath, "rb") as result_file:
+            details.transformed_image = result_file.read()
+
+        details.headers["Last-Modified"] = datetime.fromtimestamp(
+            getmtime(file_abspath)
+        ).replace(tzinfo=pytz.utc)
 
     @classmethod
     @tornado.gen.coroutine
-    def save_source_image(cls, request, details, image_url, source_image):
-        "Stores the source image in the filesystem"
-
-        if source_image is None:
-            return
-
-        file_abspath = cls._path_on_filesystem(details, image_url)
+    def save_transformed_image(cls, request, details, url, transformed_image):
+        "Stores the result image in the filesystem"
+        file_abspath = cls._path_on_filesystem(details, url)
         temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace("-", ""))
         file_dir_abspath = dirname(file_abspath)
 
         cls._ensure_dir(file_dir_abspath)
 
         with open(temp_abspath, "wb") as _file:
-            _file.write(source_image)
+            _file.write(transformed_image)
 
         move(temp_abspath, file_abspath)
-
-        return
 
     @classmethod
     def _path_on_filesystem(cls, details, path):
