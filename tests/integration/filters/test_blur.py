@@ -11,20 +11,20 @@
 from preggy import expect
 from tornado.testing import gen_test
 
-from thumbor.filters.blur import Filter as BlueFilter
+from thumbor.filters.blur import Filter as BlurFilter
 from tests.integration.filters import FilterTestCase
 
 
 class BlurFilterTestCase(FilterTestCase):
 
     def get_filter(self):
-        return BlueFilter
+        return BlurFilter
 
     @gen_test
     def test_blur_filter_with_sigma(self):
         filtered_image = yield self.get_filtered('blur(4,2)', 'source.jpg')
         expected = self.get_fixture('blur.jpg')
-        
+
         expect(filtered_image).to_be_similar_to(expected)
 
     @gen_test
