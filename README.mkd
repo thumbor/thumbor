@@ -48,7 +48,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [x] brightness
    - [x] colorize
    - [x] contrast
-   - [ ] convolution
+   - [x] convolution
    - [ ] curve
    - [x] distributed_collage (Removed from codebase into new repo)
    - [ ] equalize
