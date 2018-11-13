@@ -51,7 +51,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [x] convolution
    - [x] curve
    - [x] distributed_collage (Removed from codebase into new repo)
-   - [ ] equalize
+   - [x] equalize
    - [ ] extract_focal
    - [ ] fill
    - [ ] focal
