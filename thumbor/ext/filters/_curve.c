@@ -96,7 +96,7 @@ _curve_apply(PyObject *self, PyObject *args)
     char *image_mode;
     PyObject *buffer = NULL, *curve_a = NULL, *curve_r = NULL, *curve_g = NULL, *curve_b = NULL;
 
-    if (!PyArg_ParseTuple(args, "sOOOOO:apply", &image_mode, &buffer, &curve_a, &curve_r, &curve_g, &curve_b)) {
+    if (!PyArg_ParseTuple(args, "s*OOOOO:apply", &image_mode, &buffer, &curve_a, &curve_r, &curve_g, &curve_b)) {
         return NULL;
     }
 
