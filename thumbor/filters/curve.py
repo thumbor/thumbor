@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+'''Filter Module'''
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -8,6 +9,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from tornado import gen
+
+from thumbor import Engine
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _curve
 import ast
@@ -24,9 +28,11 @@ class Filter(BaseFilter):
 
     regex = r'\[(?:\(\d+,\d+\),?)*\]'
 
+    @gen.coroutine
     @filter_method(regex, regex, regex, regex)
-    def curve(self, a, r, g, b):
-        mode, data = self.engine.image_data_as_rgb()
+    def curve(self, details, a, r, g, b):
+        mode, data = yield Engine.get_image_data_as_rgb(self, details)
         imgdata = _curve.apply(mode, data, tuple(ast.literal_eval(a)), tuple(ast.literal_eval(r)), tuple(ast.literal_eval(g)),
                                tuple(ast.literal_eval(b)))
-        self.engine.set_image_data(imgdata)
+
+        yield Engine.set_image_data(self, details, imgdata)
