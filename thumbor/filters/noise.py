@@ -22,4 +22,4 @@ class Filter(BaseFilter):
     def noise(self, details, amount, seed=0):
         mode, data = yield Engine.get_image_data_as_rgb(self, details)
         imgdata = _noise.apply(mode, amount, data, seed)
-        yield Engine.read_image(self, details, imgdata)
+        yield Engine.set_image_data(self, details, imgdata)
