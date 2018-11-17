@@ -11,18 +11,18 @@
 from preggy import expect
 from tornado.testing import gen_test
 
-from thumbor.filters.equalize import Filter as EqualizeFilter
+from thumbor.filters.noise import Filter as NoiseFilter
 from tests.integration.filters import FilterTestCase
 
 
-class EqualizeFilterTestCase(FilterTestCase):
+class NoiseFilterTestCase(FilterTestCase):
 
     def get_filter(self):
-        return EqualizeFilter
+        return NoiseFilter
 
     @gen_test
-    def test_equalize_filter(self):
-        filtered_image = yield self.get_filtered('equalize()', 'source.jpg')
-        expected = self.get_fixture('equalize.jpg')
+    def test_noise_filter(self):
+        filtered_image = yield self.get_filtered('noise(200,123)', 'source.jpg')
+        expected = self.get_fixture('noise.jpg')
 
         expect(filtered_image).to_be_similar_to(expected)
