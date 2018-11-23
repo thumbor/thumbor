@@ -33,14 +33,15 @@ env:
 addons:
   apt:
     packages:
-    - libjpeg-progs
-    - libimage-exiftool-perl
+    - ffmpeg
     - gifsicle
-    - python-all-dev
-    - scons
     - libboost-python-dev
     - libexiv2-dev
-    - ffmpeg
+    - libgnutls-dev
+    - libimage-exiftool-perl
+    - libjpeg-progs
+    - python-all-dev
+    - scons
 install:
   - pip install --upgrade pip
   - pip install -I https://github.com/escaped/pyexiv2/archive/69dd6448f9831bd826137b7519f9d797b23ab4ec.zip
