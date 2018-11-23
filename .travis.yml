@@ -1,4 +1,6 @@
 language: python
+sudo: required
+dist: xenial
 python:
   - 2.7
   - 3.5
@@ -30,8 +32,6 @@ env:
   - UNIT_TEST=1
 addons:
   apt:
-    sources:
-    - trusty-media
     packages:
     - libjpeg-progs
     - libimage-exiftool-perl
