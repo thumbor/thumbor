@@ -444,6 +444,7 @@ Config.define(
         'thumbor.filters.max_age',
         'thumbor.filters.equalize',
         'thumbor.filters.noise',
+        'thumbor.filters.upscale',
         # 'thumbor.filters.rgb',
         # 'thumbor.filters.round_corner',
         # 'thumbor.filters.quality',
@@ -463,7 +464,6 @@ Config.define(
         # 'thumbor.filters.no_upscale',
         # 'thumbor.filters.saturation',
         # 'thumbor.filters.background_color',
-        # 'thumbor.filters.upscale',
     ],
     ('List of filters that thumbor will allow to be used in generated images. All of them must be '
      'full names of python modules (python must be able to import it)'),
