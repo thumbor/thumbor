@@ -72,7 +72,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [ ] sharpen
    - [ ] strip_exif
    - [ ] strip_icc
-   - [ ] upscale
+   - [x] upscale
    - [ ] watermark
 - [ ] Automatic Smart Formats support (Webp, Webm, Gifv, etc)
 - [x] Smart Cropping and Focal Points

@@ -40,8 +40,8 @@ class FilterTestCase(TestCase):
             FILE_LOADER_ROOT_PATH=self.fixture_path)
 
     @gen.coroutine
-    def get_filtered(self, filter_str, source_image):
+    def get_filtered(self, filter_str, source_image, pre_path='/unsafe/'):
         'Get filtered image bytes'
         image = yield self.get(
-            f'/unsafe/filters:{filter_str}/{source_image}')
+            f'{pre_path}filters:{filter_str}/{source_image}')
         return image.body
