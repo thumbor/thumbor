@@ -445,12 +445,12 @@ Config.define(
         'thumbor.filters.equalize',
         'thumbor.filters.noise',
         'thumbor.filters.upscale',
+        'thumbor.filters.sharpen',
         # 'thumbor.filters.rgb',
         # 'thumbor.filters.round_corner',
         # 'thumbor.filters.quality',
         # 'thumbor.filters.watermark',
         # 'thumbor.filters.fill',
-        # 'thumbor.filters.sharpen',
         # 'thumbor.filters.strip_exif',
         # 'thumbor.filters.strip_icc',
         # # TODO: Fix frame filter. Maybe @rfloriano has fixed it in his branch?

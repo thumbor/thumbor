@@ -69,7 +69,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [ ] rotate
    - [ ] round_corner
    - [ ] saturation
-   - [ ] sharpen
+   - [x] sharpen
    - [ ] strip_exif
    - [ ] strip_icc
    - [x] upscale
