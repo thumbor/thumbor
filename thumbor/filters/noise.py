@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+'''Filter Module'''
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
