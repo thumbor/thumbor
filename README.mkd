@@ -63,7 +63,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [ ] max_bytes (Remove from codebase into new repo)
    - [ ] no_upscale
    - [x] noise
-   - [ ] quality
+   - [x] quality
    - [ ] redeye (Remove from codebase into new repo)
    - [x] rgb
    - [ ] rotate
