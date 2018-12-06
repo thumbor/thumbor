@@ -62,10 +62,10 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [x] max_age
    - [ ] max_bytes (Remove from codebase into new repo)
    - [ ] no_upscale
-   - [ ] noise
+   - [x] noise
    - [ ] quality
    - [ ] redeye (Remove from codebase into new repo)
-   - [ ] rgb
+   - [x] rgb
    - [ ] rotate
    - [ ] round_corner
    - [ ] saturation

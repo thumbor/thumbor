@@ -446,7 +446,7 @@ Config.define(
         'thumbor.filters.noise',
         'thumbor.filters.upscale',
         'thumbor.filters.sharpen',
-        # 'thumbor.filters.rgb',
+        'thumbor.filters.rgb',
         # 'thumbor.filters.round_corner',
         # 'thumbor.filters.quality',
         # 'thumbor.filters.watermark',
