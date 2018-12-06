@@ -57,7 +57,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [ ] focal
    - [ ] format
    - [ ] frame
-   - [ ] grayscale
+   - [x] grayscale
    - [ ] haarcascade_eye.xml (Remove from codebase into new repo)
    - [x] max_age
    - [ ] max_bytes (Remove from codebase into new repo)
