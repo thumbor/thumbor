@@ -447,6 +447,7 @@ Config.define(
         'thumbor.filters.upscale',
         'thumbor.filters.sharpen',
         'thumbor.filters.rgb',
+        'thumbor.filters.saturation',
         # 'thumbor.filters.round_corner',
         # 'thumbor.filters.quality',
         # 'thumbor.filters.watermark',
@@ -462,7 +463,6 @@ Config.define(
         # 'thumbor.filters.extract_focal',
         # 'thumbor.filters.focal',
         # 'thumbor.filters.no_upscale',
-        # 'thumbor.filters.saturation',
         # 'thumbor.filters.background_color',
     ],
     ('List of filters that thumbor will allow to be used in generated images. All of them must be '

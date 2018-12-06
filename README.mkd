@@ -68,7 +68,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [x] rgb
    - [ ] rotate
    - [ ] round_corner
-   - [ ] saturation
+   - [x] saturation
    - [x] sharpen
    - [ ] strip_exif
    - [ ] strip_icc
