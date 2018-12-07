@@ -182,6 +182,31 @@ class Engine(object):
 
     @classmethod
     @gen.coroutine
+    def rotate(cls, sender, details, degrees):
+        'Rotate the image according to metadata'
+        yield Events.trigger(
+            Events.Engine.before_rotate,
+            sender,
+            details=details,
+            degrees=degrees
+        )
+
+        yield Events.trigger(
+            Events.Engine.rotate,
+            sender,
+            details=details,
+            degrees=degrees
+        )
+
+        yield Events.trigger(
+            Events.Engine.after_rotate,
+            sender,
+            details=details,
+            degrees=degrees
+        )
+
+    @classmethod
+    @gen.coroutine
     def get_image_data_as_rgb(cls, sender, details):
         'Get Image data as RGB Buffer'
         image_mode, image_data = yield Events.trigger(

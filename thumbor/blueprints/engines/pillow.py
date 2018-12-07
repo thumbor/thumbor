@@ -26,6 +26,7 @@ def plug_into_lifecycle():
     Events.subscribe(Events.Engine.flip_horizontally, on_flip_horizontally)
     Events.subscribe(Events.Engine.flip_vertically, on_flip_vertically)
     Events.subscribe(Events.Engine.reorientate, on_reorientate)
+    Events.subscribe(Events.Engine.rotate, on_rotate)
     Events.subscribe(Events.Engine.serialize, on_serialize)
 
     Events.subscribe(Events.Engine.get_image_data_as_rgb, get_image_data_as_rgb)
@@ -74,6 +75,11 @@ def on_flip_vertically(sender, details):  # pylint: disable=unused-argument,too-
 def on_reorientate(sender, details):  # pylint: disable=unused-argument
     'Handles the reorientate event'
     PillowExtensions.reorientate(details)
+
+@tornado.gen.coroutine
+def on_rotate(sender, details, degrees):  # pylint: disable=unused-argument
+    'Handles the rotate event'
+    PillowExtensions.rotate(details, degrees)
 
 
 @tornado.gen.coroutine
