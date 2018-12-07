@@ -450,6 +450,7 @@ Config.define(
         'thumbor.filters.saturation',
         'thumbor.filters.grayscale',
         'thumbor.filters.quality',
+        'thumbor.filters.rotate',
         # 'thumbor.filters.round_corner',
         # 'thumbor.filters.watermark',
         # 'thumbor.filters.fill',
@@ -457,7 +458,6 @@ Config.define(
         # 'thumbor.filters.strip_icc',
         # # TODO: Fix frame filter. Maybe @rfloriano has fixed it in his branch?
         # # 'thumbor.filters.frame',
-        # 'thumbor.filters.rotate',
         # 'thumbor.filters.format',
         # 'thumbor.filters.max_bytes',
         # 'thumbor.filters.extract_focal',

@@ -128,6 +128,10 @@ class Events(object):
         reorientate = signal("engine.reorientate")
         after_reorientate = signal("engine.after_reorientate")
 
+        before_rotate = signal("engine.before_rotate")
+        rotate = signal("engine.rotate")
+        after_rotate = signal("engine.after_rotate")
+
         before_serialize = signal("engine.before_serialize")
         serialize = signal("engine.serialize")
         after_serialize = signal("engine.after_serialize")
