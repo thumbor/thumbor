@@ -383,7 +383,7 @@ class HttpCurlTimeoutLoaderTestCase(DummyAsyncHttpClientTestCase):
         config = Config()
         config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT = True
         config.HTTP_LOADER_CURL_LOW_SPEED_TIME = 1
-        config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT = 1000000000000
+        config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT = 1000000000
         ctx = Context(None, config, None)
 
         loader.load(ctx, url, self.stop)
@@ -406,7 +406,7 @@ class HttpTimeoutLoaderTestCase(DummyAsyncHttpClientTestCase):
         url = self.get_url('/')
         config = Config()
         config.HTTP_LOADER_CURL_LOW_SPEED_TIME = 1
-        config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT = 1000000000000
+        config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT = 1000000000
         ctx = Context(None, config, None)
 
         loader.load(ctx, url, self.stop)
