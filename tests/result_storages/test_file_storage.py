@@ -51,7 +51,7 @@ class FileStorageTestCase(BaseFileStorageTestCase):
     def test_normalized_path(self):
         expect(self.file_storage).not_to_be_null()
         expect(self.file_storage.normalize_path(self.get_http_path())).to_equal(
-            '/tmp/thumbor/result_storages/v2/ht/tp/example.com/path/to/a.jpg'
+            '/tmp/thumbor/result_storages/default/b6/be/a3e916129541a9e7146f69a15eb4d7c77c98'
         )
 
 
@@ -68,7 +68,7 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
     def test_normalized_path_with_auto_webp_path(self):
         expect(self.file_storage).not_to_be_null()
         expect(self.file_storage.normalize_path(self.get_http_path())).to_equal(
-            '/tmp/thumbor/result_storages/v2/webp/ht/tp/example.com/path/to/a.jpg'
+            '/tmp/thumbor/result_storages/auto_webp/b6/be/a3e916129541a9e7146f69a15eb4d7c77c98'
         )
 
 
