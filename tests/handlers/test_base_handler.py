@@ -741,7 +741,7 @@ class ImageOperationsWithLastModifiedTestCase(BaseImagingTestCase):
         return self.context.modules.result_storage
 
     def write_image(self):
-        expected_path = self.result_storage.normalize_path('_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
+        expected_path = self.result_storage.normalize_path('/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg')
 
         if not os.path.exists(dirname(expected_path)):
             os.makedirs(dirname(expected_path))
@@ -877,7 +877,7 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         self.context.request = Mock(
             accepts_webp=False,
         )
-        expected_path = self.result_storage.normalize_path('gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif')
+        expected_path = self.result_storage.normalize_path('/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif')
         expect(expected_path).to_exist()
         expect(response.body).to_be_similar_to(animated_image())
 
