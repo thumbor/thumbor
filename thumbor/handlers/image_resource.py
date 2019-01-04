@@ -68,7 +68,7 @@ class ImageResourceHandler(ImageApiHandler):
         # Check if image exists
         exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
         if exists:
-            self.context.modules.storage.remove(id)
+            yield gen.maybe_future(self.context.modules.storage.remove(id))
             self.set_status(204)
         else:
             self._error(404, 'Image not found at the given URL')
