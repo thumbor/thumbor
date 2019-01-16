@@ -27,6 +27,7 @@ class ThumborServiceApp(tornado.web.Application):
 
     def get_handlers(self):
         handlers = [
+            (r'/', HealthcheckHandler),
             (r'/healthcheck', HealthcheckHandler),
         ]
 
