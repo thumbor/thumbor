@@ -10,6 +10,9 @@
 
 from preggy import expect
 
+from thumbor.config import Config
+from thumbor.context import Context
+from thumbor.importer import Importer
 from tests.base import TestCase
 
 
