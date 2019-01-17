@@ -148,6 +148,8 @@ Config.define('ENABLE_ETAGS', True, 'Enables automatically generated etags', 'HT
 Config.define('MAX_ID_LENGTH', 32, 'Set maximum id length for images when stored', 'Storage')
 Config.define('GC_INTERVAL', None, 'Set garbage collection interval in seconds', 'Performance')
 
+Config.define('HEALTHCHECK_ROUTE', r'/healthcheck', 'Healthcheck route.', 'Healthcheck')
+
 # METRICS OPTIONS
 Config.define('STATSD_HOST', None, 'Host to send statsd instrumentation to', 'Metrics')
 Config.define('STATSD_PORT', 8125, 'Port to send statsd instrumentation to', 'Metrics')

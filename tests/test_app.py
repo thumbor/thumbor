@@ -31,6 +31,7 @@ class AppTestCase(TestCase):
             config=mock.Mock(
                 UPLOAD_ENABLED=False,
                 USE_BLACKLIST=False,
+                HEALTHCHECK_ROUTE=r'/healthcheck',
             )
         )
         app = ThumborServiceApp(ctx)
