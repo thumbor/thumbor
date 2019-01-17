@@ -26,6 +26,7 @@ class HealthcheckHandlerTestCase(TestCase):
         response = self.fetch('/healthcheck', method='HEAD')
         expect(response.code).to_equal(200)
 
+
 # Same test, but configured for the root URL
 class HealthcheckOnRootTestCase(TestCase):
     def get_context(self):
