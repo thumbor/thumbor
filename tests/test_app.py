@@ -41,17 +41,6 @@ class AppTestCase(TestCase):
         expect(handlers[0][0]).to_equal(r'/healthcheck')
         expect(handlers[1][0]).to_equal(Url.regex())
 
-    def test_change_healthcheck_route(self):
-        ctx = mock.Mock(
-            config=mock.Mock(
-                HEALTHCHECK_ROUTE=r'/status',
-            )
-        )
-        app = ThumborServiceApp(ctx)
-
-        handlers = app.get_handlers()
-        expect(handlers[0][0]).to_equal(r'/status')
-
     def test_can_get_handlers_with_upload(self):
         ctx = mock.Mock(
             config=mock.Mock(
