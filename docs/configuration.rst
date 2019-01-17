@@ -546,7 +546,6 @@ Storage.
 
 i.e.: ``RESULT_STORAGE_STORES_UNSAFE = False``
 
-
 Healthcheck
 -------
 
@@ -554,10 +553,12 @@ HEALTHCHECK\_ROUTE
 ~~~~~~~~~~~~~~~~~~~~
 
 The URL path to a healthcheck.  This will return a 200 and the text 'WORKING'.
-The default value is '/healthcheck'
 
 i.e.: ``HEALTHCHECK_ROUTE = '/status'``
 
+Will put the healthcheck response on ``http://host/status``
+
+The default route is '/healthcheck'
 
 Logging
 -------
