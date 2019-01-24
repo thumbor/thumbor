@@ -15,7 +15,7 @@ from tempfile import mkstemp
 from subprocess import Popen, PIPE
 from io import BytesIO
 
-from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin
+from PIL import Image, ImageFile, ImageDraw, ImageSequence, JpegImagePlugin, ImageFilter
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
@@ -388,3 +388,6 @@ class Engine(BaseEngine):
 
     def strip_exif(self):
         self.exif = None
+
+    def blur(self, radius):
+        self.image = self.image.filter(ImageFilter.GaussianBlur(radius))
