@@ -184,7 +184,7 @@ Using it is simple, just change your configuration in thumbor.conf:
 
 ::
 
-    # Use rackspace for result storage.
+    # Use DigitalOcean Spaces for result storage.
     # For more info on result storage: https://github.com/thumbor/thumbor/wiki/Result-storage
     RESULT_STORAGE = 'thumbor_spaces.result_storages.spaces_storage'
     
