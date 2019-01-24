@@ -31,10 +31,15 @@ class Filter(BaseFilter):
         if color == 'auto':
             color = self.get_median_color()
 
-        try:
-            self.fill_engine.image = self.fill_engine.gen_image((bx, by), color)
-        except (ValueError, RuntimeError):
-            self.fill_engine.image = self.fill_engine.gen_image((bx, by), '#%s' % color)
+        if color == 'blur':
+            self.fill_engine.image = self.engine.image
+            self.fill_engine.resize(bx, by)
+            self.fill_engine.blur(50)
+        else:
+            try:
+                self.fill_engine.image = self.fill_engine.gen_image((bx, by), color)
+            except (ValueError, RuntimeError):
+                self.fill_engine.image = self.fill_engine.gen_image((bx, by), '#%s' % color)
 
         ix, iy = self.engine.size
 
