@@ -28,6 +28,8 @@ setup_mac:
 		echo 'Enter in your site-packages directory and run the following lines:';\
 		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv.py ./";\
 		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv2.so ./"
+		echo 'Your site-packages directory seems to be:'\
+			$$(python -c "import sys; print(next(_ for _ in sys.path if 'site-packages' in _))")
 
 compile_ext:
 	@python setup.py build_ext -i
