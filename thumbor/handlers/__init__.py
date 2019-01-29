@@ -747,6 +747,7 @@ class ImageApiHandler(ContextHandler):
             return False
         return True
 
+    @gen.coroutine
     def write_file(self, id, body):
         storage = self.context.modules.upload_photo_storage
-        storage.put(id, body)
+        yield gen.maybe_future(storage.put(id, body))
