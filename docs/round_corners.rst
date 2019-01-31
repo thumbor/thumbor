@@ -1,7 +1,7 @@
 Round corners
 =============
 
-Usage: round\_corner(a\|b,r,g,b)
+Usage: round\_corner(a\|b,r,g,b,[transparent])
 
 Description
 -----------
@@ -16,6 +16,9 @@ a\|b - amount of pixels to use as radius. The argument b is not
 required, but it specifies the second value for the ellipse used for the
 radius.
 
+transparent - Optional. If set to true/1, the background will be
+transparent.
+
 Examples
 --------
 
@@ -24,6 +27,7 @@ Examples
 
 `<http://thumbor-server/filters:round_corner(20,255,255,255)/some/image.jpg>`_
 `<http://thumbor-server/filters:round_corner(20|40,0,0,0)/some/image.jpg>`_
+`<http://thumbor-server/filters:round_corner(30,0,0,0,1)/some/image.jpg>`_
 
 .. image:: images/tom_after_round.jpg
     :alt: Picture after rounded corners
