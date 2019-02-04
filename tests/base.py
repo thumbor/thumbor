@@ -252,11 +252,11 @@ class FilterTestCase(PythonTestCase):
     def get_fixture_path(self, name):
         return './tests/fixtures/filters/%s' % name
 
-    def get_fixture(self, name):
+    def get_fixture(self, name, mode='RGB'):
         im = Image.open(self.get_fixture_path(name))
-        return im.convert('RGB')
+        return im.convert(mode)
 
-    def get_filtered(self, source_image, filter_name, params_string, config_context=None):
+    def get_filtered(self, source_image, filter_name, params_string, config_context=None, mode='RGB'):
         fltr = self.get_filter(filter_name, params_string, config_context)
         im = Image.open(self.get_fixture_path(source_image))
         img_buffer = BytesIO()
@@ -278,7 +278,7 @@ class FilterTestCase(PythonTestCase):
 
         fltr.run(dummy_callback)
 
-        fltr.engine.image = fltr.engine.image.convert('RGB')
+        fltr.engine.image = fltr.engine.image.convert(mode)
 
         return fltr.engine.image
 

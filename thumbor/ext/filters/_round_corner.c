@@ -5,10 +5,10 @@ _round_corner_apply(PyObject *self, PyObject *args)
 {
     PyObject *buffer = NULL, *image_mode = NULL, *a_radius_py = NULL, *b_radius_py = NULL,
              *width_py = NULL, *height_py = NULL, *r_py = NULL, *b_py = NULL, *g_py = NULL,
-             *aa_py = NULL;
+             *aa_py = NULL, *transparent_py = NULL;
 
-    if (!PyArg_UnpackTuple(args, "apply", 10, 10, &aa_py, &image_mode, &a_radius_py, &b_radius_py,
-            &r_py, &g_py, &b_py, &width_py, &height_py, &buffer)) {
+    if (!PyArg_UnpackTuple(args, "apply", 10, 11, &aa_py, &image_mode, &a_radius_py, &b_radius_py,
+            &r_py, &g_py, &b_py, &width_py, &height_py, &buffer, &transparent_py)) {
         return NULL;
     }
 
@@ -25,11 +25,17 @@ _round_corner_apply(PyObject *self, PyObject *args)
                   g = (unsigned char) PyInt_AsLong(g_py),
                   b = (unsigned char) PyInt_AsLong(b_py);
 
+    char transparent = 0;
+    if (transparent_py != NULL) {
+        transparent = (char) PyObject_IsTrue(transparent_py);
+    }
+
     int num_bytes = bytes_per_pixel(image_mode_str);
 
     int r_idx = rgb_order(image_mode_str, 'R'),
         g_idx = rgb_order(image_mode_str, 'G'),
-        b_idx = rgb_order(image_mode_str, 'B');
+        b_idx = rgb_order(image_mode_str, 'B'),
+        a_idx = rgb_order(image_mode_str, 'A');
 
     float aa_amount = .75f;
 
@@ -65,23 +71,41 @@ _round_corner_apply(PyObject *self, PyObject *args)
             assert(top_left + r_idx < image_size);
             assert(top_left + g_idx < image_size);
             assert(top_left + b_idx < image_size);
+            if (transparent == 1) {
+                assert(top_left + a_idx < image_size);
+            }
             assert(bottom_left + r_idx < image_size);
             assert(bottom_left + g_idx < image_size);
             assert(bottom_left + b_idx < image_size);
+            if (transparent == 1) {
+                assert(bottom_left + a_idx < image_size);
+            }
             ptr[top_left + r_idx] = ptr[bottom_left + r_idx] = r;
             ptr[top_left + g_idx] = ptr[bottom_left + g_idx] = g;
             ptr[top_left + b_idx] = ptr[bottom_left + b_idx] = b;
+            if (transparent == 1) {
+                ptr[top_left + a_idx] = ptr[bottom_left + a_idx] = 0;
+            }
 
             if (curr_x > 0) {
                 assert(top_right + r_idx < image_size);
                 assert(top_right + g_idx < image_size);
                 assert(top_right + b_idx < image_size);
+                if (transparent == 1) {
+                    assert(top_right + a_idx < image_size);
+                }
                 assert(bottom_right + r_idx < image_size);
                 assert(bottom_right + g_idx < image_size);
                 assert(bottom_right + b_idx < image_size);
+                if (transparent == 1) {
+                    assert(bottom_right + a_idx < image_size);
+                }
                 ptr[top_right + r_idx] = ptr[bottom_right + r_idx] = r;
                 ptr[top_right + g_idx] = ptr[bottom_right + g_idx] = g;
                 ptr[top_right + b_idx] = ptr[bottom_right + b_idx] = b;
+                if (transparent == 1) {
+                    ptr[top_right + a_idx] = ptr[bottom_right + a_idx] = 0;
+                }
             }
         }
 
@@ -129,21 +153,39 @@ _round_corner_apply(PyObject *self, PyObject *args)
 
             float aa = 1.f - ((idx / (float)pixel_count_x) * aa_amount);
 
-            ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa)) + (r * (aa));
-            ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa)) + (g * (aa));
-            ptr[top_left + b_idx] = (color_top_left[b_idx] * (1.f - aa)) + (b * (aa));
+            if (transparent == 1) {
+                ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa));
+                ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa));
+                ptr[top_left + b_idx] = (color_top_left[b_idx] * (1.f - aa));
 
-            ptr[bottom_left + r_idx] = (color_bottom_left[r_idx] * (1.f - aa)) + (r * (aa));
-            ptr[bottom_left + g_idx] = (color_bottom_left[g_idx] * (1.f - aa)) + (g * (aa));
-            ptr[bottom_left + b_idx] = (color_bottom_left[b_idx] * (1.f - aa)) + (b * (aa));
+                ptr[bottom_left + r_idx] = (color_bottom_left[r_idx] * (1.f - aa));
+                ptr[bottom_left + g_idx] = (color_bottom_left[g_idx] * (1.f - aa));
+                ptr[bottom_left + b_idx] = (color_bottom_left[b_idx] * (1.f - aa));
 
-            ptr[top_right + r_idx] = (color_top_right[r_idx] * (1.f - aa)) + (r * (aa));
-            ptr[top_right + g_idx] = (color_top_right[g_idx] * (1.f - aa)) + (g * (aa));
-            ptr[top_right + b_idx] = (color_top_right[b_idx] * (1.f - aa)) + (b * (aa));
+                ptr[top_right + r_idx] = (color_top_right[r_idx] * (1.f - aa));
+                ptr[top_right + g_idx] = (color_top_right[g_idx] * (1.f - aa));
+                ptr[top_right + b_idx] = (color_top_right[b_idx] * (1.f - aa));
 
-            ptr[bottom_right + r_idx] = (color_bottom_right[r_idx] * (1.f - aa)) + (r * (aa));
-            ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa)) + (g * (aa));
-            ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa)) + (b * (aa));
+                ptr[bottom_right + r_idx] = (color_bottom_right[r_idx] * (1.f - aa));
+                ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa));
+                ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa));
+            } else {
+                ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa)) + (r * (aa));
+                ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa)) + (g * (aa));
+                ptr[top_left + b_idx] = (color_top_left[b_idx] * (1.f - aa)) + (b * (aa));
+
+                ptr[bottom_left + r_idx] = (color_bottom_left[r_idx] * (1.f - aa)) + (r * (aa));
+                ptr[bottom_left + g_idx] = (color_bottom_left[g_idx] * (1.f - aa)) + (g * (aa));
+                ptr[bottom_left + b_idx] = (color_bottom_left[b_idx] * (1.f - aa)) + (b * (aa));
+
+                ptr[top_right + r_idx] = (color_top_right[r_idx] * (1.f - aa)) + (r * (aa));
+                ptr[top_right + g_idx] = (color_top_right[g_idx] * (1.f - aa)) + (g * (aa));
+                ptr[top_right + b_idx] = (color_top_right[b_idx] * (1.f - aa)) + (b * (aa));
+
+                ptr[bottom_right + r_idx] = (color_bottom_right[r_idx] * (1.f - aa)) + (r * (aa));
+                ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa)) + (g * (aa));
+                ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa)) + (b * (aa));
+            }
         }
 
     }
@@ -196,21 +238,39 @@ _round_corner_apply(PyObject *self, PyObject *args)
 
             float aa = 1.f - ((idx / (float)pixel_count_y) * aa_amount);
 
-            ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa)) + (r * (aa));
-            ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa)) + (g * (aa));
-            ptr[top_left + b_idx] = (color_top_left[b_idx] * (1.f - aa)) + (b * (aa));
+            if (transparent == 1) {
+                ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa));
+                ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa));
+                ptr[top_left + b_idx] = (color_top_left[b_idx] * (1.f - aa));
 
-            ptr[bottom_left + r_idx] = (color_bottom_left[r_idx] * (1.f - aa)) + (r * (aa));
-            ptr[bottom_left + g_idx] = (color_bottom_left[g_idx] * (1.f - aa)) + (g * (aa));
-            ptr[bottom_left + b_idx] = (color_bottom_left[b_idx] * (1.f - aa)) + (b * (aa));
+                ptr[bottom_left + r_idx] = (color_bottom_left[r_idx] * (1.f - aa));
+                ptr[bottom_left + g_idx] = (color_bottom_left[g_idx] * (1.f - aa));
+                ptr[bottom_left + b_idx] = (color_bottom_left[b_idx] * (1.f - aa));
 
-            ptr[top_right + r_idx] = (color_top_right[r_idx] * (1.f - aa)) + (r * (aa));
-            ptr[top_right + g_idx] = (color_top_right[g_idx] * (1.f - aa)) + (g * (aa));
-            ptr[top_right + b_idx] = (color_top_right[b_idx] * (1.f - aa)) + (b * (aa));
+                ptr[top_right + r_idx] = (color_top_right[r_idx] * (1.f - aa));
+                ptr[top_right + g_idx] = (color_top_right[g_idx] * (1.f - aa));
+                ptr[top_right + b_idx] = (color_top_right[b_idx] * (1.f - aa));
 
-            ptr[bottom_right + r_idx] = (color_bottom_right[r_idx] * (1.f - aa)) + (r * (aa));
-            ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa)) + (g * (aa));
-            ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa)) + (b * (aa));
+                ptr[bottom_right + r_idx] = (color_bottom_right[r_idx] * (1.f - aa));
+                ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa));
+                ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa));
+            } else {
+                ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa)) + (r * (aa));
+                ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa)) + (g * (aa));
+                ptr[top_left + b_idx] = (color_top_left[b_idx] * (1.f - aa)) + (b * (aa));
+
+                ptr[bottom_left + r_idx] = (color_bottom_left[r_idx] * (1.f - aa)) + (r * (aa));
+                ptr[bottom_left + g_idx] = (color_bottom_left[g_idx] * (1.f - aa)) + (g * (aa));
+                ptr[bottom_left + b_idx] = (color_bottom_left[b_idx] * (1.f - aa)) + (b * (aa));
+
+                ptr[top_right + r_idx] = (color_top_right[r_idx] * (1.f - aa)) + (r * (aa));
+                ptr[top_right + g_idx] = (color_top_right[g_idx] * (1.f - aa)) + (g * (aa));
+                ptr[top_right + b_idx] = (color_top_right[b_idx] * (1.f - aa)) + (b * (aa));
+
+                ptr[bottom_right + r_idx] = (color_bottom_right[r_idx] * (1.f - aa)) + (r * (aa));
+                ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa)) + (g * (aa));
+                ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa)) + (b * (aa));
+            }
         }
     }
 
