@@ -96,6 +96,7 @@ class SentryTestCase(TestCase):
             SENTRY_DSN_URL='https://key@sentry.io/12345',
             USE_CUSTOM_ERROR_HANDLING=True,
             ERROR_HANDLER_MODULE='thumbor.error_handlers.sentry',
+            SENTRY_ENVIRONMENT='env',
         )
 
     def get_importer(self):
@@ -110,6 +111,8 @@ class SentryTestCase(TestCase):
         event = self.transport_mock.captured_events[0]
 
         expect(event['exception']['values'][0]['type']).to_equal("RuntimeError")
+
+        expect(event['environment']).to_equal('env')
 
         expect(event).to_include('extra')
         expect(event).to_include('request')
