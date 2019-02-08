@@ -57,22 +57,27 @@ class FakeHandler(object):
 
 
 class InvalidSentryTestCase(TestCase):
+    def get_importer(self):
+        return get_importer(self.config)
+
     def test_when_missing_dsn(self):
+        self.config = Config(
+            SECURITY_KEY='ACME-SEC',
+            USE_CUSTOM_ERROR_HANDLING=True,
+            ERROR_HANDLER_MODULE='thumbor.error_handlers.sentry',
+        )
         with expect.error_to_happen(RuntimeError):
-            get_importer(Config(
-                SECURITY_KEY='ACME-SEC',
-                USE_CUSTOM_ERROR_HANDLING=True,
-                ERROR_HANDLER_MODULE='thumbor.error_handlers.sentry',
-            ))
+            self.get_importer()
 
     def test_when_invalid_path(self):
+        self.config = Config(
+            SECURITY_KEY='ACME-SEC',
+            USE_CUSTOM_ERROR_HANDLING=True,
+            SENTRY_DSN_URL='https://key@sentry.io/12345',
+            ERROR_HANDLER_MODULE='thumbor.error_handlers.invalid',
+        )
         with expect.error_to_happen(ImportError):
-            get_importer(Config(
-                SECURITY_KEY='ACME-SEC',
-                USE_CUSTOM_ERROR_HANDLING=True,
-                SENTRY_DSN_URL='https://key@sentry.io/12345',
-                ERROR_HANDLER_MODULE='thumbor.error_handlers.invalid',
-            ))
+            self.get_importer()
 
 
 class SentryTestCase(TestCase):
