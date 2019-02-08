@@ -45,5 +45,5 @@ class ErrorHandler(object):
                 "headers": req.headers,
                 "body": req.body,
             }
-            scope.set_extra('thumbor-version',  __version__)
+            scope.set_extra('thumbor-version', __version__)
             sentry_sdk.capture_event(event, hint=hint)
