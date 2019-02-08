@@ -21,6 +21,7 @@ tests_require = [
     "coverage>=4.4.1",
     "mock>=1.0.1,<3.0.0",
     "raven",
+    "sentry-sdk",
     "nose",
     "nose-focus",
     "colorama",
