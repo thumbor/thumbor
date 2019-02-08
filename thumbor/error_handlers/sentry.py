@@ -7,6 +7,8 @@ from thumbor import __version__
 
 class ErrorHandler(object):
     def __init__(self, config):
+        self.config = config
+
         dsn = config.SENTRY_DSN_URL
 
         if not dsn:
@@ -46,4 +48,6 @@ class ErrorHandler(object):
                 "body": req.body,
             }
             scope.set_extra('thumbor-version', __version__)
+            scope.set_extra('thumbor-loader', self.config.LOADER)
+            scope.set_extra('thumbor-storage', self.config.STORAGE)
             sentry_sdk.capture_event(event, hint=hint)
