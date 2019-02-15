@@ -11,7 +11,7 @@
 import base64
 import hashlib
 
-from Crypto.Cipher import AES
+from Cryptodome.Cipher import AES
 
 # Import the Signer class to support backward-compatibility
 # and existing documentation
