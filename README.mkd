@@ -67,7 +67,7 @@ documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs
    - [ ] redeye (Remove from codebase into new repo)
    - [x] rgb
    - [x] rotate
-   - [ ] round_corner
+   - [x] round_corner
    - [x] saturation
    - [x] sharpen
    - [ ] strip_exif
