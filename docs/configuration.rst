@@ -193,7 +193,9 @@ MAX\_WIDTH and MAX\_HEIGHT
 
 These define the box that the resulting image for thumbor must fit-in.
 This means that no image that thumbor generates will have a width larger
-than MAX\_WIDTH or height larger than MAX\_HEIGHT.
+than MAX\_WIDTH or height larger than MAX\_HEIGHT. It defaults to 0, which
+means there is not limit. If the original image is larger than
+MAX\_WIDTH x MAX\_HEIGHT, it is proportionally resized to MAX\_WIDTH x MAX\_HEIGHT.
 
 i.e.:
 
@@ -207,7 +209,9 @@ MIN\_WIDTH and MIN\_HEIGHT
 
 These define the box that the resulting image for thumbor must fit-in.
 This means that no image that thumbor generates will have a width
-smaller than MIN\_WIDTH or height smaller than MIN\_HEIGHT.
+smaller than MIN\_WIDTH or height smaller than MIN\_HEIGHT. It defaults to 1.
+If the original image is smaller than  MIN\_WIDTH x MIN\_HEIGHT, it is
+proportionally resized to MIN\_WIDTH x MIN\_HEIGHT.
 
 i.e.:
 
