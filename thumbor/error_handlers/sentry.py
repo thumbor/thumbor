@@ -30,7 +30,7 @@ class ErrorHandler(object):
                 "then you must specify the Sentry DSN using the SENTRY_DSN_URL configuration."
             )
 
-        self.sentry = client or raven.Client(dsn)
+        self.sentry = client or raven.Client(dsn=dsn, environment=config.SENTRY_ENVIRONMENT)
         self.modules = self.get_modules()
 
     def get_modules(self):

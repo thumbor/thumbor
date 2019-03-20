@@ -613,6 +613,13 @@ http://5a63d58ae7b94f1dab3dee740b301d6a:73eea45d3e8649239a973087e8f21f98@localho
 
 i.e.: ``SENTRY_DSN_URL = ''``
 
+SENTRY\_ENVIRONMENT
+~~~~~~~~~~~~~~~~
+
+Sentry thumbor environment.
+
+i.e.: ``SENTRY_ENVIRONMENT = 'staging'``
+
 Upload
 ------
 
@@ -1030,6 +1037,9 @@ Example of Configuration File
     ## a45d3e8649239a973087e8f21f98@localhost:9000/2
     ## Defaults to:
     #SENTRY_DSN_URL = ''
+    ## Sentry thumbor environment
+    ## Defaults to: None
+    #SENTRY_ENVIRONMENT = ''
 
     ################################################################################
 

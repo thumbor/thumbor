@@ -398,6 +398,11 @@ Config.define(
     'Sentry thumbor project dsn. i.e.: ' +
     'http://5a63d58ae7b94f1dab3dee740b301d6a:73eea45d3e8649239a973087e8f21f98@localhost:9000/2', 'Errors - Sentry')
 
+# SENTRY REPORTING MODULE
+Config.define(
+    'SENTRY_ENVIRONMENT', None,
+    'Sentry environment i.e.: staging ', 'Errors - Sentry')
+
 # FILE REPORTING MODULE
 Config.define('ERROR_FILE_LOGGER', None, 'File of error log as json', 'Errors')
 Config.define('ERROR_FILE_NAME_USE_CONTEXT', False, 'File of error log name is parametrized with context attribute', 'Errors')
