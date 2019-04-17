@@ -232,6 +232,12 @@ class BaseEngine(object):
         return round(float(new_width) * height / width, 0)
 
     def _get_exif_segment(self):
+        if (self.context.config.RESPECT_ORIENTATION is False):
+            return None
+
+        if (hasattr(self, 'exif')):
+            logger.info('Processing exif data: %s', self.exif)
+
         if (not hasattr(self, 'exif')) or self.exif is None:
             return None
 

@@ -134,6 +134,9 @@ class BaseHandler(tornado.web.RequestHandler):
         This function is called after the PRE_LOAD filters have been applied.
         It applies the AFTER_LOAD filters on the result, then crops the image.
         """
+
+        logger.info('Loading image for request: %s', self.context.request.url)
+
         try:
             result = yield self._fetch(
                 self.context.request.image_url
