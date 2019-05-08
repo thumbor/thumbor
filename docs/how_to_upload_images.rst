@@ -30,7 +30,7 @@ The table below show all configuration parameters to manage image upload
 +-----------------------------+----------------------------------+--------------------------------------------------------+
 | MIN\_WIDTH                  | 1                                | Min width in pixels for images uploaded                |
 +-----------------------------+----------------------------------+--------------------------------------------------------+
-| MIN\_HEIGHT                 | 1                                | Min width in pixels for images uploaded                |
+| MIN\_HEIGHT                 | 1                                | Min height in pixels for images uploaded               |
 +-----------------------------+----------------------------------+--------------------------------------------------------+
 
 Thumbor comes with the ``/image`` REST end-point to upload disabled by
