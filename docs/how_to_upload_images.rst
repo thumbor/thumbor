@@ -56,9 +56,10 @@ API Usage
 
 The Thumbor ``/image`` REST end-point supports the commons `HTTP
 methods <http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol>`__ :
-\* POST : to upload a new image \* GET : to display an image uploaded \*
-PUT : to replace an image uploaded by another preserving the URI \*
-DELETE : to remove an image uploaded from storage
+ * POST : to upload a new image
+ * GET : to display an image uploaded
+ * PUT : to replace an image uploaded by another preserving the URI
+ * DELETE : to remove an image uploaded from storage
 
 By default, ``PUT`` and ``DELETE`` methods are disabled as explained
 above. This is done to tighten thumbor's security.
