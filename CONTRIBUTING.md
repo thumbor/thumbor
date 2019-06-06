@@ -24,11 +24,9 @@ You'll need Python 2.7 and we seriously advise you to use virtualenv (http://pyp
 The following packages are required:
 
 * Tornado >= 2.3.0
-* pycryptodomex >= 3.4.7
 * pycurl >= 7.19.0
 * Pillow >= 2.3.0
 * redis >= 2.4.11
-* pymongo >= 2.1.1
 * argparse
 
 You'll also need a recent version of OpenCV (http://opencv.willowgarage.com/wiki/) installed. When installing OpenCV, it will create a python binding. Make sure this binding is visible to your current virtualenv (if you are using it).
