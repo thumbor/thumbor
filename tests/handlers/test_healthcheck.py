@@ -21,10 +21,12 @@ class HealthcheckHandlerTestCase(TestCase):
         response = self.fetch('/healthcheck')
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("WORKING")
+        expect(response.headers.get('Cache-Control')).to_equal('no-cache')
 
     def test_can_head_healthcheck(self):
         response = self.fetch('/healthcheck', method='HEAD')
         expect(response.code).to_equal(200)
+        expect(response.headers.get('Cache-Control')).to_equal('no-cache')
 
 
 # Same test, but configured for the root URL
