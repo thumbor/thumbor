@@ -4,6 +4,7 @@ python:
   - 3.5
   - 3.6
   - pypy
+dist: xenial
 cache:
   pip: true
   apt: true
@@ -26,9 +27,8 @@ env:
   - UNIT_TEST=1
 addons:
   apt:
-    sources:
-    - trusty-media
     packages:
+    - libgnutls28-dev
     - libjpeg-progs
     - libimage-exiftool-perl
     - gifsicle
