@@ -41,3 +41,6 @@ include/
 lib/
 man/
 share/
+
+# Ignore unofficial Docker dev image for now
+Dockerfile
