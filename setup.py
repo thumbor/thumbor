@@ -27,7 +27,7 @@ tests_require = [
     "numpy",
     "flake8",
     "yanc",
-    "remotecv==2.2.3",
+    # "remotecv==2.2.3",
     "pyssim>=0.4.0",
     "cairosvg>=1.0.0,<2.0.0,!=1.0.21",
     "preggy>=1.3.0",
