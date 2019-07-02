@@ -33,3 +33,11 @@ opencv
 .ropeproject/
 .venv
 docs/_build
+
+# Test run
+.Python
+bin/
+include/
+lib/
+man/
+share/
