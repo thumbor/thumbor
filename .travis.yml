@@ -40,7 +40,7 @@ addons:
     - ffmpeg
 install:
   - pip install --upgrade pip
-  - pip install git+git://github.com/okor/remotecv.git@b4838ae03d8514fd8ad974f9492653c84f7b1fd9
+  - pip install git+git://github.com/okor/remotecv.git@a8cbb6997fec30d584e7e47874c70d91c932d511
   - pip install -I https://github.com/escaped/pyexiv2/archive/69dd6448f9831bd826137b7519f9d797b23ab4ec.zip
   - cd $TRAVIS_BUILD_DIR && make setup_python
   - pip install coveralls
