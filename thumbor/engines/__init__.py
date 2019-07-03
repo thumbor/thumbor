@@ -237,8 +237,7 @@ class BaseEngine(object):
         if exif_object is None:
             return
 
-        exif_dict = exif_object._data
-        return exif_dict
+        return exif_object._data
 
     def _get_exif_object(self):
         if (not hasattr(self, 'exif')) or self.exif is None:
@@ -247,9 +246,7 @@ class BaseEngine(object):
         im = Image.new('RGB', (1, 1))
         save_buffer = BytesIO()
         im.save(save_buffer, format="JPEG", exif=self.exif)
-        im2 = Image.open(save_buffer)
-        exif_object = im2.getexif()
-        return exif_object
+        return Image.open(save_buffer).getexif()
 
     def get_orientation(self):
         """
