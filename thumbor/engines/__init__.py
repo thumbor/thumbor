@@ -276,8 +276,7 @@ class BaseEngine(object):
 
         if orientation != 1 and override_exif:
             exif = self.image.getexif()
-            del exif[0x0112]
-            self.image.info["exif"] = exif.tobytes()
+            exif[0x0112] = 1
             self.exif = exif.tobytes()
 
     def gen_image(self, size, color):
