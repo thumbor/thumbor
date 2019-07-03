@@ -9,6 +9,8 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from xml.etree.ElementTree import ParseError
+from io import BytesIO
+from PIL import Image
 
 try:
     import cairosvg
@@ -230,6 +232,25 @@ class BaseEngine(object):
         width, height = self.size
         return round(float(new_width) * height / width, 0)
 
+    def _get_exif_dict(self):
+        exif_object = self._get_exif_object()
+        if exif_object is None:
+            return
+
+        exif_dict = exif_object._data
+        return exif_dict
+
+    def _get_exif_object(self):
+        if (not hasattr(self, 'exif')) or self.exif is None:
+            return None
+
+        im = Image.new('RGB', (1, 1))
+        save_buffer = BytesIO()
+        im.save(save_buffer, format="JPEG", exif=self.exif)
+        im2 = Image.open(save_buffer)
+        exif_object = im2.getexif()
+        return exif_object
+
     def get_orientation(self):
         """
         Returns the image orientation of the buffer image or None
@@ -237,8 +258,8 @@ class BaseEngine(object):
         :return: Orientation value (1 - 8)
         :rtype: int or None
         """
-        exif_dict = self.image._getexif()
-        if exif_dict and exif_dict[274]:
+        exif_dict = self._get_exif_dict()
+        if exif_dict and exif_dict.get(274):
             return exif_dict[274]
         return None
 
@@ -275,9 +296,9 @@ class BaseEngine(object):
             self.rotate(90)
 
         if orientation != 1 and override_exif:
-            exif = self.image.getexif()
+            exif = self._get_exif_object()
             exif[0x0112] = 1
-            self.exif = exif.tobytes()
+            self.exif = exif
 
     def gen_image(self, size, color):
         raise NotImplementedError()
