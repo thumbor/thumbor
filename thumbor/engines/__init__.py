@@ -231,29 +231,16 @@ class BaseEngine(object):
         width, height = self.size
         return round(float(new_width) * height / width, 0)
 
-    def _get_exif_segment(self):
-        if (not hasattr(self, 'exif')) or self.exif is None:
-            return None
-
-        try:
-            exif_dict = piexif.load(self.exif)
-        except Exception:
-            logger.exception('Ignored error handling exif for reorientation')
-        else:
-            return exif_dict
-        return None
-
     def get_orientation(self):
         """
         Returns the image orientation of the buffer image or None
-        if it is undefined. Gets the original value from the Exif tag.
-        If the buffer has been rotated, then the value is adjusted to 1.
+        if it is undefined.
         :return: Orientation value (1 - 8)
         :rtype: int or None
         """
-        exif_dict = self._get_exif_segment()
-        if exif_dict and piexif.ImageIFD.Orientation in exif_dict["0th"]:
-            return exif_dict["0th"][piexif.ImageIFD.Orientation]
+        exif_dict = self._getexif()
+        if exif_dict and exif_dict[274]:
+            return exif_dict[274]
         return None
 
     def reorientate(self, override_exif=True):
