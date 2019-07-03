@@ -276,14 +276,7 @@ class BaseEngine(object):
             self.rotate(90)
 
         if orientation != 1 and override_exif:
-            exif_dict = self._get_exif_segment()
-            if exif_dict and piexif.ImageIFD.Orientation in exif_dict["0th"]:
-                exif_dict["0th"][piexif.ImageIFD.Orientation] = 1
-                try:
-                    self.exif = piexif.dump(exif_dict)
-                except Exception as e:
-                    msg = """[piexif] %s""" % e
-                    logger.error(msg)
+            self.exif = self.image.info["exif"]
 
     def gen_image(self, size, color):
         raise NotImplementedError()
