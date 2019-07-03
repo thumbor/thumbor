@@ -238,7 +238,7 @@ class BaseEngine(object):
         :return: Orientation value (1 - 8)
         :rtype: int or None
         """
-        exif_dict = self._getexif()
+        exif_dict = self.image._getexif()
         if exif_dict and exif_dict[274]:
             return exif_dict[274]
         return None
