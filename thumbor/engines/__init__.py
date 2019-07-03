@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import piexif
 from xml.etree.ElementTree import ParseError
 
 try:
@@ -276,7 +275,10 @@ class BaseEngine(object):
             self.rotate(90)
 
         if orientation != 1 and override_exif:
-            self.exif = self.image.info["exif"]
+            exif = self.image.getexif()
+            del exif[0x0112]
+            self.image.info["exif"] = exif.tobytes()
+            self.exif = exif.tobytes()
 
     def gen_image(self, size, color):
         raise NotImplementedError()
