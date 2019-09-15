@@ -8,21 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com timehome@corp.globo.com
 
-try:
-    unicode        # Python 2
-except NameError:
-    unicode = str  # Python 3
+import sys
+import importlib
 
-
-class BaseUrlSigner(object):
-    def __init__(self, security_key):
-        if isinstance(security_key, unicode):
-            security_key = security_key.encode('utf-8')
-        self.security_key = security_key
-
-    def validate(self, actual_signature, url):
-        url_signature = self.signature(url)
-        return url_signature == actual_signature
-
-    def signature(self, url):
-        raise NotImplementedError()
+# For backward compatibility
+from libthumbor.url_signers import BaseUrlSigner  # NOQA
+sys.modules[__name__] = importlib.import_module('libthumbor.url_signers')  # NOQA
