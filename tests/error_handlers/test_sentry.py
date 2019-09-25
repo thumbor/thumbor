@@ -124,13 +124,13 @@ class SentryTestCase(TestCase):
         request, extra = event['request'], event['extra']
 
         expect(extra).to_include('thumbor-version')
-        expect(extra['thumbor-version']).to_equal("'%s'" % __version__)
+        expect(extra['thumbor-version']).to_equal(__version__)
 
         expect(extra).to_include('thumbor-loader')
-        expect(extra['thumbor-loader']).to_equal("'%s'" % self.config.LOADER)
+        expect(extra['thumbor-loader']).to_equal(self.config.LOADER)
 
         expect(extra).to_include('thumbor-storage')
-        expect(extra['thumbor-storage']).to_equal("'%s'" % self.config.STORAGE)
+        expect(extra['thumbor-storage']).to_equal(self.config.STORAGE)
 
         expect(request).to_include('headers')
         expect(request['headers']).to_length(2)
