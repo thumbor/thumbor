@@ -173,7 +173,7 @@ def load_sync(context, url, callback, normalize_url_func):
 
 
 def encode(string):
-    return None if string is None else string.encode('ascii')
+    return string.encode('ascii') if isinstance(string, str) else None
 
 
 def _get_prepare_curl_callback(config):

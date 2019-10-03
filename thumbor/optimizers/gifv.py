@@ -22,11 +22,11 @@ class Optimizer(BaseOptimizer):
 
     def should_run(self, image_extension, buffer):
         if 'gif' in image_extension and 'gifv' in self.context.request.filters:
-            if not exists(self.context.config.FFMPEG_PATH):
+            exist = exists(self.context.config.FFMPEG_PATH)
+            if not exist:
                 logger.warn(
                     'gifv optimizer enabled but binary FFMPEG_PATH does not exist')
-                return False
-            return True
+            return exist
         return False
 
     def optimize(self, buffer, input_file, output_file):

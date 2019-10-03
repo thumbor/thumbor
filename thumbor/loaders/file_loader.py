@@ -39,11 +39,11 @@ def load(context, path, callback):
     if not exists(file_path):
         file_path = unquote(file_path)
 
-    if exists(file_path):
+    result.successful = exists(file_path)
+    if result.successful:
         with open(file_path, 'r') as f:
             stats = fstat(f.fileno())
 
-            result.successful = True
             result.buffer = f.read()
 
             result.metadata.update(
@@ -51,6 +51,5 @@ def load(context, path, callback):
                 updated_at=datetime.utcfromtimestamp(stats.st_mtime))
     else:
         result.error = LoaderResult.ERROR_NOT_FOUND
-        result.successful = False
 
     callback(result)

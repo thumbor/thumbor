@@ -19,11 +19,11 @@ class Optimizer(BaseOptimizer):
 
     def should_run(self, image_extension, buffer):
         if image_extension in ['.jpg', '.jpeg']:
-            if not exists(self.context.config.JPEGTRAN_PATH):
+            exist = exists(self.context.config.JPEGTRAN_PATH)
+            if not exist:
                 logger.warn(
                     'jpegtran optimizer enabled but binary JPEGTRAN_PATH does not exist')
-                return False
-            return True
+            return exist
         return False
 
     def run_optimizer(self, image_extension, buffer):
