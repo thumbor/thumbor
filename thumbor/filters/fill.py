@@ -35,7 +35,7 @@ class Filter(BaseFilter):
             self.fill_engine.image = self.engine.image
             self.fill_engine.resize(bx, by)
             self.fill_engine.blur(50)
-        else:
+        elif color != 'blur':
             try:
                 self.fill_engine.image = self.fill_engine.gen_image((bx, by), color)
             except (ValueError, RuntimeError):
