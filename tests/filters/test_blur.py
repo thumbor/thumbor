@@ -41,3 +41,10 @@ class BlurFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.99)
+
+    def test_blur_filter_for_png_palette_mode(self):
+        image = self.get_filtered('256_color_palette.png', 'thumbor.filters.blur', 'blur(10)')
+        expected = self.get_fixture('256_color_palette_blur_result.png')
+
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.99)

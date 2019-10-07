@@ -170,6 +170,34 @@ Configuration in thumbor.conf:
 For monitors and keys, the values ​​used are those defined in the
 configuration file ceph.conf.
 
+
+`thumbor\_spaces <https://github.com/siddhartham/thumbor_spaces>`__ (by `Siddhartha Mukherjee <https://github.com/siddhartham>`__)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This plugin allows users to store objects in the DigitalOcean Spaces for
+result storage.
+
+-  *URL:* https://github.com/siddhartham/thumbor_spaces
+-  *Installing:* ``pip install thumbor_spaces``
+
+Using it is simple, just change your configuration in thumbor.conf:
+
+::
+
+    # Use DigitalOcean Spaces for result storage.
+    # For more info on result storage: https://github.com/thumbor/thumbor/wiki/Result-storage
+    RESULT_STORAGE = 'thumbor_spaces.result_storages.spaces_storage'
+    
+    SPACES_REGION='xxx'
+    
+    SPACES_ENDPOINT='xxx'
+
+    SPACES_KEY='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+    SPACES_SECRET='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+    SPACES_BUCKET='your-bucket-name'
+
 Metrics
 --------
 

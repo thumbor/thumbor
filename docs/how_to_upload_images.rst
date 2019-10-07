@@ -30,7 +30,7 @@ The table below show all configuration parameters to manage image upload
 +-----------------------------+----------------------------------+--------------------------------------------------------+
 | MIN\_WIDTH                  | 1                                | Min width in pixels for images uploaded                |
 +-----------------------------+----------------------------------+--------------------------------------------------------+
-| MIN\_HEIGHT                 | 1                                | Min width in pixels for images uploaded                |
+| MIN\_HEIGHT                 | 1                                | Min height in pixels for images uploaded               |
 +-----------------------------+----------------------------------+--------------------------------------------------------+
 
 Thumbor comes with the ``/image`` REST end-point to upload disabled by
@@ -56,9 +56,10 @@ API Usage
 
 The Thumbor ``/image`` REST end-point supports the commons `HTTP
 methods <http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol>`__ :
-\* POST : to upload a new image \* GET : to display an image uploaded \*
-PUT : to replace an image uploaded by another preserving the URI \*
-DELETE : to remove an image uploaded from storage
+ * POST : to upload a new image
+ * GET : to display an image uploaded
+ * PUT : to replace an image uploaded by another preserving the URI
+ * DELETE : to remove an image uploaded from storage
 
 By default, ``PUT`` and ``DELETE`` methods are disabled as explained
 above. This is done to tighten thumbor's security.

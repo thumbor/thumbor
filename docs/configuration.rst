@@ -193,7 +193,9 @@ MAX\_WIDTH and MAX\_HEIGHT
 
 These define the box that the resulting image for thumbor must fit-in.
 This means that no image that thumbor generates will have a width larger
-than MAX\_WIDTH or height larger than MAX\_HEIGHT.
+than MAX\_WIDTH or height larger than MAX\_HEIGHT. It defaults to 0, which
+means there is not limit. If the original image is larger than
+MAX\_WIDTH x MAX\_HEIGHT, it is proportionally resized to MAX\_WIDTH x MAX\_HEIGHT.
 
 i.e.:
 
@@ -207,7 +209,9 @@ MIN\_WIDTH and MIN\_HEIGHT
 
 These define the box that the resulting image for thumbor must fit-in.
 This means that no image that thumbor generates will have a width
-smaller than MIN\_WIDTH or height smaller than MIN\_HEIGHT.
+smaller than MIN\_WIDTH or height smaller than MIN\_HEIGHT. It defaults to 1.
+If the original image is smaller than  MIN\_WIDTH x MIN\_HEIGHT, it is
+proportionally resized to MIN\_WIDTH x MIN\_HEIGHT.
 
 i.e.:
 
@@ -546,6 +550,20 @@ Storage.
 
 i.e.: ``RESULT_STORAGE_STORES_UNSAFE = False``
 
+Healthcheck
+-------
+
+HEALTHCHECK\_ROUTE
+~~~~~~~~~~~~~~~~~~~~
+
+The URL path to a healthcheck.  This will return a 200 and the text 'WORKING'.
+
+i.e.: ``HEALTHCHECK_ROUTE = '/status'``
+
+Will put the healthcheck response on ``http://host/status``
+
+The default route is '/healthcheck'
+
 Logging
 -------
 
@@ -594,6 +612,13 @@ Sentry thumbor project dsn. i.e.:
 http://5a63d58ae7b94f1dab3dee740b301d6a:73eea45d3e8649239a973087e8f21f98@localhost:9000/2
 
 i.e.: ``SENTRY_DSN_URL = ''``
+
+SENTRY\_ENVIRONMENT
+~~~~~~~~~~~~~~~~
+
+Sentry thumbor environment.
+
+i.e.: ``SENTRY_ENVIRONMENT = 'staging'``
 
 Upload
 ------
@@ -1012,6 +1037,9 @@ Example of Configuration File
     ## a45d3e8649239a973087e8f21f98@localhost:9000/2
     ## Defaults to:
     #SENTRY_DSN_URL = ''
+    ## Sentry thumbor environment
+    ## Defaults to: None
+    #SENTRY_ENVIRONMENT = ''
 
     ################################################################################
 

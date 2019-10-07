@@ -44,6 +44,8 @@ class ImageResourceHandler(ImageApiHandler):
         else:
             self._error(404, 'Image not found at the given URL')
 
+    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def put(self, id):
         id = id[:self.context.config.MAX_ID_LENGTH]
         # Check if image overwriting is allowed
@@ -53,7 +55,7 @@ class ImageResourceHandler(ImageApiHandler):
 
         # Check if the image uploaded is valid
         if self.validate(self.request.body):
-            self.write_file(id, self.request.body)
+            yield gen.maybe_future(self.write_file(id, self.request.body))
             self.set_status(204)
 
     @tornado.web.asynchronous
@@ -68,7 +70,7 @@ class ImageResourceHandler(ImageApiHandler):
         # Check if image exists
         exists = yield gen.maybe_future(self.context.modules.storage.exists(id))
         if exists:
-            self.context.modules.storage.remove(id)
+            yield gen.maybe_future(self.context.modules.storage.remove(id))
             self.set_status(204)
         else:
             self._error(404, 'Image not found at the given URL')

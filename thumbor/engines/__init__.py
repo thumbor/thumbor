@@ -374,11 +374,7 @@ class BaseEngine(object):
     def cleanup(self):
         pass
 
-    def can_auto_convert_png_to_jpg(self, *args, **kwargs):
-        can_convert = (self.context.config.AUTO_PNG_TO_JPG and
-                       self.context.request.engine.extension == '.png')
+    def can_auto_convert_png_to_jpg(self):
+        can_convert = (self.extension == '.png' and not self.has_transparency())
 
-        if can_convert and not self.has_transparency():
-            return True
-
-        return False
+        return can_convert

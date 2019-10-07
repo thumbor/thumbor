@@ -13,7 +13,6 @@ Scaling Thumbor
 -  `99 Designs <http://99designs.com/>`__ also has some info on their
    architecture using thumbor and amazon at their `engineering
    blog <http://99designs.com/tech-blog/blog/2013/07/01/thumbnailing-with-thumbor/>`__.
--  `Threadless <http://www.threadless.com>`__ wrote about how thumbor is
-   enabling their mobile app to show proper thumbnails even when facing
-   original images meant for printing in `their engineering
-   blog <http://prolificinteractive.com/blog/2014/05/29/threadless-typetees-neat-and-easy-thumbnails-using-thumbor-and-php>`__.
+-  `heycar <https://hey.car/>`__ also has some info on their
+   architecture using thumbor on with CloudFront and Kubernetes at their `engineering
+   blog <https://medium.com/heycar/the-fast-and-the-payloadless-566b3aef890e/>`__.

@@ -9,7 +9,10 @@ setup:
     else
 	@$(MAKE) setup_ubuntu
     endif
-	@$(MAKE) setup_python
+	@PYCURL_SSL_LIBRARY=openssl \
+		LDFLAGS=-L/usr/local/opt/openssl/lib \
+		CPPFLAGS=-I/usr/local/opt/openssl/include \
+		$(MAKE) setup_python
 
 setup_ubuntu:
 	@sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx? \
@@ -71,7 +74,7 @@ redis: kill_redis
 	@redis-cli -p 6668 -a hey_you info
 
 flake:
-	@flake8 . --ignore=W801,E501
+	@flake8 . --ignore=W801,E501,W605,W504,W606
 
 setup_docs:
 	pip install -r docs/requirements.txt

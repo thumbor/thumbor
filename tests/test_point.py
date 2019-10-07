@@ -33,17 +33,20 @@ class FocalPointTestCase(TestCase):
     def test_new_point_weighted(self):
         point = FocalPoint(x=10, y=20, height=1.0, width=3.0, weight=3.0)
         expect(point.weight).to_equal(3.0)
-        expect(str(point)).to_equal('FocalPoint(x: 10, y: 20, width: 3, height: 1, weight: 3, origin: alignment)')
+        expect(str(point)).to_equal(
+            'FocalPoint(x: 10, y: 20, width: 3, height: 1, weight: 3, origin: alignment)')
 
     def test_new_point_from_dict(self):
-        point = FocalPoint.from_dict({'x': 10.1, 'y': 20.1, 'z': 5.1})
-        expect(point.x).to_equal(10.1)
-        expect(point.y).to_equal(20.1)
-        expect(point.weight).to_equal(5.1)
+        point = FocalPoint.from_dict({'x': 10, 'y': 20, 'z': 5})
+        expect(point.x).to_equal(10)
+        expect(point.y).to_equal(20)
+        expect(point.weight).to_equal(5)
 
     def test_new_point_to_dict(self):
-        point = FocalPoint.from_dict({'x': 10.1, 'y': 20.1, 'z': 5.1})
-        expect(point.to_dict()).to_be_like({'x': 10.1, 'y': 20.1, 'z': 5.1, 'origin': 'alignment', 'width': 1.0, 'height': 1.0})
+        point = FocalPoint.from_dict(
+            {'x': 10.1, 'y': 20.1, 'z': 5.1, 'width': 1.1, 'height': 1.6})
+        expect(point.to_dict()).to_be_like(
+            {'x': 10, 'y': 20, 'z': 5, 'origin': 'alignment', 'width': 1, 'height': 1})
 
     def test_new_point_square_point(self):
         point = FocalPoint.from_square(x=350, y=50, width=110, height=110)

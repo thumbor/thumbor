@@ -34,8 +34,7 @@ class Filter(BaseFilter):
         mode = mode.lower()
         size = self.engine.size
 
-        image = np.ndarray(shape=(size[1], size[0], 4 if mode == 'rgba' else 3), dtype='|u1', buffer=data)
-        image.setflags(write=1)
+        image = np.ndarray(shape=(size[1], size[0], 4 if mode == 'rgba' else 3), dtype='|u1', buffer=data).copy()
 
         for face in faces:
             face_x = int(face.x - face.width / 2)

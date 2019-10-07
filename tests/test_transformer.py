@@ -167,6 +167,23 @@ class TransformerTestCase(TestCase):
         expect(engine.calls['horizontal_flip']).to_equal(1)
         expect(engine.calls['vertical_flip']).to_equal(1)
 
+    @staticmethod
+    def test_can_resize_with_stretch():
+        data = TestData(
+            source_width=800, source_height=600,
+            target_width=800, target_height=200,
+            halign="right", valign="top",
+            focal_points=[],
+            crop_left=None, crop_top=None, crop_right=None, crop_bottom=None,
+            stretch=True
+        )
+        ctx = data.to_context()
+        engine = ctx.modules.engine
+        trans = Transformer(ctx)
+        trans.transform(lambda: None)
+        expect(engine.calls['resize']).to_equal([{'width': 800, 'height': 200}])
+        expect(engine.calls['crop']).to_be_empty()
+
     def test_can_extract_cover(self):
         data = TestData(
             source_width=800, source_height=600,

@@ -35,6 +35,7 @@ Index (* About)
         * Available detectors
         * Custom detection
     Filters
+        * AutoJPG
         * Blur
         * Brightness
         * Contrast
@@ -47,12 +48,14 @@ Index (* About)
         * Max bytes
         * No Upscale
         * Noise
+        * Proportion
         * Quality
         * Red eye
         * Rgb
         * Rotate
         * Round corners
         * Sharpen
+        * Stretch
         * Strip exif
         * Strip icc
         * Watermark

@@ -211,7 +211,8 @@ class Transformer(object):
             if self.context.request.fit_in:
                 self.fit_in_resize()
             else:
-                self.auto_crop()
+                if not self.context.request.stretch:
+                    self.auto_crop()
                 self.resize()
             self.flip()
 

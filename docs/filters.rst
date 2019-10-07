@@ -16,6 +16,7 @@ Filters
 .. toctree::
    :maxdepth: 1
 
+   autojpg
    background_color
    blur
    brightness
@@ -30,12 +31,14 @@ Filters
    max_bytes
    no_upscale
    noise
+   proportion
    quality
    red_eye
    rgb
    rotate
    round_corners
    sharpen
+   stretch
    strip_exif
    strip_icc
    upscale

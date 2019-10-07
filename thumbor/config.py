@@ -148,6 +148,8 @@ Config.define('ENABLE_ETAGS', True, 'Enables automatically generated etags', 'HT
 Config.define('MAX_ID_LENGTH', 32, 'Set maximum id length for images when stored', 'Storage')
 Config.define('GC_INTERVAL', None, 'Set garbage collection interval in seconds', 'Performance')
 
+Config.define('HEALTHCHECK_ROUTE', r'/healthcheck', 'Healthcheck route.', 'Healthcheck')
+
 # METRICS OPTIONS
 Config.define('STATSD_HOST', None, 'Host to send statsd instrumentation to', 'Metrics')
 Config.define('STATSD_PORT', 8125, 'Port to send statsd instrumentation to', 'Metrics')
@@ -353,6 +355,8 @@ Config.define(
         'thumbor.filters.curve',
         'thumbor.filters.background_color',
         'thumbor.filters.upscale',
+        'thumbor.filters.proportion',
+        'thumbor.filters.stretch',
     ],
     'List of filters that thumbor will allow to be used in generated images. All of them must be ' +
     'full names of python modules (python must be able to import it)', 'Filters')
@@ -393,6 +397,11 @@ Config.define(
     'SENTRY_DSN_URL', '',
     'Sentry thumbor project dsn. i.e.: ' +
     'http://5a63d58ae7b94f1dab3dee740b301d6a:73eea45d3e8649239a973087e8f21f98@localhost:9000/2', 'Errors - Sentry')
+
+# SENTRY REPORTING MODULE
+Config.define(
+    'SENTRY_ENVIRONMENT', None,
+    'Sentry environment i.e.: staging ', 'Errors - Sentry')
 
 # FILE REPORTING MODULE
 Config.define('ERROR_FILE_LOGGER', None, 'File of error log as json', 'Errors')

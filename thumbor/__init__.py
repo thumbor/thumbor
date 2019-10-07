@@ -9,5 +9,5 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 '''This is the main module in thumbor'''
 
-__version__ = "6.5.2"
-__release_date__ = "07-Ago-2018"
+__version__ = "6.7.0"
+__release_date__ = "17-Jan-2019"

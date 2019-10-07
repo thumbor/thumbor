@@ -304,7 +304,15 @@ class BaseHandler(tornado.web.RequestHandler):
         return frames > 1
 
     def can_auto_convert_png_to_jpg(self):
-        return self.context.request.engine.can_auto_convert_png_to_jpg()
+        request_override = self.context.request.auto_png_to_jpg
+        config = self.context.config
+
+        enabled = (config.AUTO_PNG_TO_JPG and request_override is None) or request_override
+
+        if enabled:
+            return self.context.request.engine.can_auto_convert_png_to_jpg()
+
+        return False
 
     def define_image_type(self, context, result):
         if result is not None:
@@ -739,6 +747,7 @@ class ImageApiHandler(ContextHandler):
             return False
         return True
 
+    @gen.coroutine
     def write_file(self, id, body):
         storage = self.context.modules.upload_photo_storage
-        storage.put(id, body)
+        yield gen.maybe_future(storage.put(id, body))

@@ -16,7 +16,7 @@ from preggy import expect
 from thumbor.app import (
     ThumborServiceApp
 )
-from thumbor.url import Url
+from libthumbor.url import Url
 
 
 class AppTestCase(TestCase):
@@ -31,6 +31,7 @@ class AppTestCase(TestCase):
             config=mock.Mock(
                 UPLOAD_ENABLED=False,
                 USE_BLACKLIST=False,
+                HEALTHCHECK_ROUTE=r'/healthcheck',
             )
         )
         app = ThumborServiceApp(ctx)
