@@ -69,7 +69,7 @@ resizing, using state-of-the-art face and feature detection algorithms (more on 
 
 Using thumbor is very easy (after it is running). All you have to do is access it using an url for an image, like this:
 
-http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/VN0JiwzmOw0b0lg.jpg
+http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
 """,
         keywords='imaging face detection feature thumbnail imagemagick pil opencv',
         author='globo.com',
