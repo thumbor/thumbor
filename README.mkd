@@ -28,7 +28,7 @@ That URL would show an image of the big brother brasil participants in 300x200 u
 
 There are several other options to the image URL configuration. You can check them in the [Usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
 
-For more information check [thumbor's
+For more informations check [thumbor's
 documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
 
 ### Demo
