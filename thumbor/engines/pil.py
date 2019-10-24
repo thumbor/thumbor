@@ -245,6 +245,10 @@ class Engine(BaseEngine):
 
         try:
             if ext == '.webp':
+                if options['quality'] == 100:
+                    logger.debug("webp quality is 100, using lossless instead")
+                    options['lossless'] = True
+                    options.pop('quality')
                 if self.image.mode not in ['RGB', 'RGBA']:
                     if self.image.mode == 'P':
                         mode = 'RGBA'
