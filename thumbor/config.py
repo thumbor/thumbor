@@ -115,6 +115,10 @@ Config.define(
     'requests timing out)', 'Imaging')
 
 Config.define(
+    'SERVE_ORIGINAL_IF_SMALLER', False,
+    'If the original image is smaller than the processed one and there are no filters set, serve the original instead.', 'Imaging')
+
+Config.define(
     'METRICS', 'thumbor.metrics.logger_metrics',
     'The metrics backend thumbor should use to measure internal actions. This must be the full name of a python module ' +
     '(python must be able to import it)', 'Extensibility')

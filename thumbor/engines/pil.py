@@ -66,6 +66,8 @@ class Engine(BaseEngine):
 
     def create_image(self, buffer):
         try:
+            if self.context.config.SERVE_ORIGINAL_IF_SMALLER and hasattr(self.context.request.filters, '__len__') and len(self.context.request.filters) == 0:
+                self.original = BytesIO(buffer).getvalue()
             img = Image.open(BytesIO(buffer))
         except DecompressionBombExceptions as e:
             logger.warning("[PILEngine] create_image failed: {0}".format(e))
@@ -263,6 +265,14 @@ class Engine(BaseEngine):
 
         results = img_buffer.getvalue()
         img_buffer.close()
+
+        if self.context.config.SERVE_ORIGINAL_IF_SMALLER and hasattr(self.context.request.filters, '__len__') and len(self.context.request.filters) == 0:
+            logger.debug('Original length: %s', len(self.original))
+            logger.debug('Compressed length: %s', len(results))
+
+            if len(results) >= len(self.original):
+                return self.original
+
         self.extension = ext
         return results
 
