@@ -31,6 +31,7 @@ from thumbor.transformer import Transformer
 from thumbor.utils import logger, CONTENT_TYPE, EXTENSION
 import thumbor.filters
 
+from io import BytesIO
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
@@ -367,6 +368,14 @@ class BaseHandler(tornado.web.RequestHandler):
                 quality,
                 context.request.max_bytes
             )
+
+        if self.context.config.SERVE_ORIGINAL_IF_SMALLER and hasattr(self.context.request.filters, '__len__') and len(self.context.request.filters) == 0:
+            logger.debug('Original length: %s', len(self.original_bytes))
+            logger.debug('Compressed length: %s', len(results))
+
+            if len(self.original_bytes) > 0 and len(results) >= len(self.original_bytes):
+                results = self.original_bytes
+
         if not context.request.meta:
             results = self.optimize(context, image_extension, results)
             # An optimizer might have modified the image format.
@@ -614,6 +623,9 @@ class BaseHandler(tornado.web.RequestHandler):
             raise gen.Return(fetch_result)
 
         fetch_result.successful = True
+
+        if self.context.config.SERVE_ORIGINAL_IF_SMALLER and hasattr(self.context.request.filters, '__len__') and len(self.context.request.filters) == 0:
+            self.original_bytes = BytesIO(fetch_result.buffer).getvalue()
 
         if mime is None:
             mime = BaseEngine.get_mimetype(fetch_result.buffer)
