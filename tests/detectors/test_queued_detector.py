@@ -66,7 +66,7 @@ class QueuedDetectorTestCase(TestCase):
         }
 
         result = self.redis.lpop('resque:queue:Detect')
-        expect(loads(result)).to_be_like(expected_payload)
+        expect(loads(result.decode('utf-8'))).to_be_like(expected_payload)
 
     def test_detector_fails_properly(self):
         ctx = mock.Mock(

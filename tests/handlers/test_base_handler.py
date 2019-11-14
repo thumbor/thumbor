@@ -1232,20 +1232,20 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
     def test_meta_with_unicode(self):
         response = self.fetch('/unsafe/meta/200x300/alabama1_ap620%C3%A9.jpg')
         expect(response.code).to_equal(200)
-        obj = loads(response.body)
+        obj = loads(response.body.decode('utf-8'))
         expect(obj['thumbor']['target']['width']).to_equal(200)
         expect(obj['thumbor']['target']['height']).to_equal(300)
 
     def test_meta_frame_count(self):
         response = self.fetch('/unsafe/meta/800x400/image.jpg')
         expect(response.code).to_equal(200)
-        obj = loads(response.body)
+        obj = loads(response.body.decode('utf-8'))
         expect(obj['thumbor']['source']['frameCount']).to_equal(1)
 
     def test_meta_frame_count_with_gif(self):
         response = self.fetch('/unsafe/meta/animated.gif')
         expect(response.code).to_equal(200)
-        obj = loads(response.body)
+        obj = loads(response.body.decode('utf-8'))
         expect(obj['thumbor']['source']['frameCount']).to_equal(2)
 
     def test_max_bytes(self):
@@ -1261,7 +1261,7 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
     def test_meta_with_exif_orientation(self):
         response = self.fetch('/unsafe/meta/0x0/Giunchedi%2C_Filippo_January_2015_01-cmyk-orientation-exif.jpg')
         expect(response.code).to_equal(200)
-        obj = loads(response.body)
+        obj = loads(response.body.decode('utf-8'))
         expect(obj['thumbor']['target']['width']).to_equal(533)
         expect(obj['thumbor']['target']['height']).to_equal(800)
 
