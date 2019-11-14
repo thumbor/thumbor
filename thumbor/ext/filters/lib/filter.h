@@ -11,6 +11,8 @@
         #define PyString_Check PyBytes_Check
         #define PyString_AsString PyBytes_AsString
         #define PyString_Size PyBytes_Size
+    #else
+        #define PyUnicode_AsUTF8 PyString_AsString
     #endif
 
     #if PY_MAJOR_VERSION >= 3

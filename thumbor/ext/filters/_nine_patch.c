@@ -151,7 +151,7 @@ void paste_rectangle(bitmap *source, int sx, int sy, int sw, int sh,
 void unpack_bitmap(bitmap *bitmap, PyObject *image_mode,
         PyObject *buffer, PyObject *width, PyObject *height)
 {
-    char *image_mode_str = PyString_AsString(image_mode);
+    char *image_mode_str = (char *)PyUnicode_AsUTF8(image_mode);
     bitmap->buffer = (unsigned char *) PyString_AsString(buffer);
     bitmap->width = (int) PyInt_AsLong(width);
     bitmap->height = (int) PyInt_AsLong(height);
@@ -312,7 +312,7 @@ static struct PyModuleDef _nine_patch_moduledef = {
     NULL,
     NULL,
 };
-PyMODINIT_FUNC PyInit_nine_patch(void) {
+PyMODINIT_FUNC PyInit__nine_patch(void) {
    return PyModule_Create(&_nine_patch_moduledef);
 };
 

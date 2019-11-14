@@ -3,13 +3,13 @@
 static PyObject*
 _equalize_apply(PyObject *self, PyObject *args)
 {
-    PyObject *buffer = NULL, *image_mode = NULL;
+    PyObject *buffer = NULL;
+    char *image_mode_str;
 
-    if (!PyArg_UnpackTuple(args, "apply", 2, 2, &image_mode, &buffer)) {
+    if (!PyArg_ParseTuple(args, "s*O:apply", &image_mode_str, &buffer)) {
         return NULL;
     }
 
-    char *image_mode_str = PyString_AsString(image_mode);
     Py_ssize_t original_size = PyString_Size(buffer);
     Py_ssize_t size = PyString_Size(buffer);
     unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);

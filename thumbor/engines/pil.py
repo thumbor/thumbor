@@ -378,7 +378,7 @@ class Engine(BaseEngine):
             other_mode, other_data = other_engine.image_data_as_rgb()
             imgdata = _composite.apply(
                 mode, data, sz[0], sz[1],
-                other_data, other_size[0], other_size[1], pos[0], pos[1])
+                other_data, other_size[0], other_size[1], int(pos[0]), int(pos[1]))
             self.set_image_data(imgdata)
         else:
             image.paste(other_image, pos)
