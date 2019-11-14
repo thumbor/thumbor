@@ -49,7 +49,7 @@ class BlacklistHandlerTestCase(TestCase):
         self.fetch('/blacklist?blocked.jpg', method='PUT', body='')
         response = self.fetch('/blacklist')
         expect(response.code).to_equal(200)
-        expect("blocked.jpg\n" in response.body).to_equal(True)
+        expect(b"blocked.jpg\n" in response.body).to_equal(True)
 
     def test_cant_get_blacklisted_image(self):
         response = self.fetch('/unsafe/image.jpg')

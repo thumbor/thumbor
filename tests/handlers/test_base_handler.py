@@ -112,7 +112,7 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
         return Context(server, cfg, importer)
 
     def test_image_already_generated_by_thumbor(self):
-        with open('./tests/fixtures/images/image.jpg', 'r') as f:
+        with open('./tests/fixtures/images/image.jpg', 'rb') as f:
             self.context.modules.storage.put(
                 quote("http://test.com/smart/image.jpg"),
                 f.read()
@@ -132,7 +132,7 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
 
     def test_image_already_generated_by_thumbor_2_times(self):
         with open(
-            normalize_unicode_path(u'./tests/fixtures/images/alabama1_ap620é.jpg'), 'r'
+            normalize_unicode_path(u'./tests/fixtures/images/alabama1_ap620é.jpg'), 'rb'
         ) as f:
             self.context.modules.storage.put(
                 quote("http://test.com/smart/alabama1_ap620é"),
@@ -157,7 +157,7 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
 
     def test_image_with_utf8_url(self):
-        with open('./tests/fixtures/images/maracujá.jpg', 'r') as f:
+        with open('./tests/fixtures/images/maracujá.jpg', 'rb') as f:
             self.context.modules.storage.put(
                 quote(u"http://test.com/maracujá.jpg".encode('utf-8')),
                 f.read()
@@ -173,7 +173,7 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
 
     def test_image_with_http_utf8_url(self):
-        with open('./tests/fixtures/images/maracujá.jpg', 'r') as f:
+        with open('./tests/fixtures/images/maracujá.jpg', 'rb') as f:
             self.context.modules.storage.put(
                 quote(u"http://test.com/maracujá.jpg".encode('utf-8')),
                 f.read()
@@ -675,7 +675,7 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
         crypto = CryptoURL('ACME-SEC')
         url = crypto.generate(image_url=quote("http://test.com/smart/image.jpg"))
         self.context.request = self.get_request(url=url, accepts_webp=True)
-        with open('./tests/fixtures/images/image.webp', 'r') as f:
+        with open('./tests/fixtures/images/image.webp', 'rb') as f:
             self.context.modules.result_storage.put(f.read())
 
         response = self.get_as_webp(url)
@@ -747,7 +747,7 @@ class ImageOperationsWithLastModifiedTestCase(BaseImagingTestCase):
             os.makedirs(dirname(expected_path))
 
         if not os.path.exists(expected_path):
-            with open(expected_path, 'w') as img:
+            with open(expected_path, 'wb') as img:
                 img.write(default_image())
 
     def test_can_get_304_with_last_modified(self):
@@ -918,7 +918,7 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
         )
         expected_path = self.result_storage.normalize_path('gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif')
         os.makedirs(dirname(expected_path))
-        with open(expected_path, 'w') as img:
+        with open(expected_path, 'wb') as img:
             img.write(animated_image())
 
         response = self.fetch('/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif')
@@ -989,7 +989,7 @@ class ImageOperationsWithGifWithoutGifsicleOnResultStorage(BaseImagingTestCase):
         )
         expected_path = self.result_storage.normalize_path('5Xr8gyuWE7jL_VB72K0wvzTMm2U=/animated-one-frame.gif')
         os.makedirs(dirname(expected_path))
-        with open(expected_path, 'w') as img:
+        with open(expected_path, 'wb') as img:
             img.write(not_so_animated_image())
 
         response = self.fetch('/5Xr8gyuWE7jL_VB72K0wvzTMm2U=/animated-one-frame.gif')
@@ -1055,6 +1055,7 @@ class ImageOperationsWithRespectOrientation(BaseImagingTestCase):
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.STORAGE = "thumbor.storages.no_storage"
         cfg.RESPECT_ORIENTATION = True
+        cfg.PRESERVE_EXIF_INFO = True
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -1171,7 +1172,7 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
         response = self.fetch('/unsafe/200x200/image.jpg')
 
         tmp_fd, tmp_file_path = tempfile.mkstemp(suffix='.jpg')
-        f = os.fdopen(tmp_fd, 'w')
+        f = os.fdopen(tmp_fd, 'wb')
         f.write(response.body)
         f.close()
 

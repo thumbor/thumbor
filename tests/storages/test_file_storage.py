@@ -39,7 +39,7 @@ class BaseFileStorageTestCase(TestCase):
         return './tests/fixtures/images/{0}'.format(name)
 
     def get_image_bytes(self, name):
-        with open(self.get_image_path(name), 'r') as img:
+        with open(self.get_image_path(name), 'rb') as img:
             return img.read()
 
     def get_image_url(self, name):

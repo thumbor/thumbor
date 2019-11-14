@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import os
 from tempfile import mkstemp
@@ -280,7 +280,7 @@ class Engine(BaseEngine):
         dispose = []
 
         for im in images:
-            duration.append(float(im.info.get('duration', 80)) / 1000)
+            duration.append(im.info.get('duration', 80) / 1000)
             converted_images.append(im.convert("RGB"))
             xy.append((0, 0))
             dispose.append(1)
@@ -294,7 +294,7 @@ class Engine(BaseEngine):
         img_buffer.close()
 
         tmp_fd, tmp_file_path = mkstemp()
-        f = os.fdopen(tmp_fd, "w")
+        f = os.fdopen(tmp_fd, "wb")
         f.write(results)
         f.close()
 

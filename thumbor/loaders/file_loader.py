@@ -40,7 +40,7 @@ def load(context, path, callback):
         file_path = unquote(file_path)
 
     if exists(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, 'rb') as f:
             stats = fstat(f.fileno())
 
             result.successful = True

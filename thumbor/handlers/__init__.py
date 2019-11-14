@@ -39,6 +39,13 @@ try:
 except NameError:
     basestring = str  # Python 3
 
+if sys.version_info.major >= 3:
+    def i8(c):
+        return c if c.__class__ is int else c[0]
+else:
+    def i8(c):
+        return ord(c)
+
 
 class FetchResult(object):
 
@@ -97,7 +104,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
-            logger.warn(msg)
+            logger.warning(msg)
         self.finish()
 
     @gen.coroutine
@@ -183,7 +190,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
             self.log_exception(*sys.exc_info())
 
-            if 'cannot identify image file' in e.message:
+            if 'cannot identify image file' in str(e):
                 logger.warning(msg)
                 self._error(400)
             else:
@@ -279,10 +286,10 @@ class BaseHandler(tornado.web.RequestHandler):
                 i += 3 << ((flags & 7) + 1)
             return i
 
-        flags = ord(data[i])
+        flags = i8(data[i])
         i = skip_color_table(i + 3, flags)
         while frames < 2:
-            block = data[i]
+            block = data[i:i+1]
             i += 1
             if block == b'\x3B':
                 break
@@ -291,12 +298,12 @@ class BaseHandler(tornado.web.RequestHandler):
             elif block == b'\x2C':
                 frames += 1
                 i += 8
-                i = skip_color_table(i + 1, ord(data[i]))
+                i = skip_color_table(i + 1, i8(data[i]))
                 i += 1
             else:
                 return False
             while True:
-                j = ord(data[i])
+                j = i8(data[i])
                 i += 1
                 if not j:
                     break
@@ -649,11 +656,12 @@ class BaseHandler(tornado.web.RequestHandler):
                 storage.put(url, fetch_result.buffer)
 
             storage.put_crypto(url)
-        except Exception:
+        except Exception as e:
             fetch_result.successful = False
+            fetch_result.exception = e
         finally:
             if not fetch_result.successful:
-                raise
+                raise fetch_result.exception
             fetch_result.buffer = None
             fetch_result.engine = self.context.request.engine
             raise gen.Return(fetch_result)
@@ -665,7 +673,7 @@ class BaseHandler(tornado.web.RequestHandler):
         exists = yield gen.maybe_future(self.context.modules.storage.exists(filename))
         if exists:
             blacklist = yield gen.maybe_future(self.context.modules.storage.get(filename))
-            raise tornado.gen.Return(blacklist)
+            raise tornado.gen.Return(blacklist.decode())
         else:
             raise tornado.gen.Return("")
 

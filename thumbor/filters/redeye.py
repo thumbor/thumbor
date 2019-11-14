@@ -57,7 +57,7 @@ class Filter(BaseFilter):
 
                 # Add blue and green channels
                 bg = cv2.add(b, g)
-                mean = bg / 2
+                mean = bg // 2
                 # threshold the mask based on red color and combination of blue and green color
                 mask = ((r > RED_THRESHOLD * mean) & (r > 60)).astype(np.uint8) * 255
                 # Some extra region may also get detected , we find the largest region

@@ -68,6 +68,9 @@ Usefull links
 from __future__ import absolute_import
 
 import os
+from struct import pack
+
+import six
 
 try:
     import PIL
@@ -81,12 +84,30 @@ try:
 except ImportError:
     np = None
 
+if six.PY3:
+
+    def int2byte(i):
+        return bytes((i & 255,))
+
+
+else:
+
+    def int2byte(i):
+        return chr(i & 255)
+
+
+def int2long(i):
+    # Integer to two bytes
+    # Little Endian
+    return pack("<H", i)
+
 
 # getheader gives a 87a header and a color palette (two elements in a list).
 # getdata()[0] gives the Image Descriptor up to (including) "LZW min code size".
 # getdatas()[1:] is the image data itself in chuncks of 256 bytes (well
 # technically the first byte says how many bytes follow, after which that
 # amount (max 255) follows).
+
 
 def checkImages(images):
     """ checkImages(images)
@@ -119,23 +140,14 @@ def checkImages(images):
                 pass  # ok
             elif im.ndim == 3:
                 if im.shape[2] not in [3, 4]:
-                    raise ValueError('This array can not represent an image.')
+                    raise ValueError("This array can not represent an image.")
             else:
-                raise ValueError('This array can not represent an image.')
+                raise ValueError("This array can not represent an image.")
         else:
-            raise ValueError('Invalid image type: ' + str(type(im)))
+            raise ValueError("Invalid image type: " + str(type(im)))
 
     # Done
     return images2
-
-
-def intToBin(i):
-    """ Integer to two bytes """
-    # devide in two parts (bytes)
-    i1 = i % 256
-    i2 = int(i / 256)
-    # make string (little endian)
-    return chr(i1) + chr(i2)
 
 
 class GifWriter:
@@ -151,10 +163,10 @@ class GifWriter:
         Get animation header. To replace PILs getheader()[0]
 
         """
-        bb = "GIF89a"
-        bb += intToBin(im.size[0])
-        bb += intToBin(im.size[1])
-        bb += "\x87\x00\x00"
+        bb = b"GIF89a"
+        bb += int2long(im.size[0])
+        bb += int2long(im.size[1])
+        bb += b"\x87\x00\x00"
         return bb
 
     def getImageDescriptor(self, im, xy=None):
@@ -175,23 +187,23 @@ class GifWriter:
             xy = (0, 0)
 
         # Image separator,
-        bb = '\x2C'
+        bb = b"\x2C"
 
         # Image position and size
-        bb += intToBin(xy[0])  # Left position
-        bb += intToBin(xy[1])  # Top position
-        bb += intToBin(im.size[0])  # image width
-        bb += intToBin(im.size[1])  # image height
+        bb += int2long(xy[0])  # Left position
+        bb += int2long(xy[1])  # Top position
+        bb += int2long(im.size[0])  # image width
+        bb += int2long(im.size[1])  # image height
 
         # packed field: local color table flag1, interlace0, sorted table0,
         # reserved00, lct size111=7=2^(7+1)=256.
 
-        bb += '\x87'
+        bb += b"\x87"
 
         # LZW minimum size code now comes later, begining of [image data] blocks
         return bb
 
-    def getAppExt(self, loops=float('inf')):
+    def getAppExt(self, loops=float("inf")):
         """ getAppExt(loops=float('inf'))
 
         Application extention. This part specifies the amount of loops.
@@ -199,18 +211,18 @@ class GifWriter:
 
         """
 
-        if loops == 0 or loops == float('inf'):
+        if loops == 0 or loops == float("inf"):
             loops = 2 ** 16 - 1
             # bb = "" application extension should not be used
             #         (the extension interprets zero loops
             #          to mean an infinite number of loops)
             #         Mmm, does not seem to work
         if True:
-            bb = "\x21\xFF\x0B"  # application extension
-            bb += "NETSCAPE2.0"
-            bb += "\x03\x01"
-            bb += intToBin(loops)
-            bb += '\x00'  # end
+            bb = b"\x21\xFF\x0B"  # application extension
+            bb += b"NETSCAPE2.0"
+            bb += b"\x03\x01"
+            bb += int2long(loops)
+            bb += b"\x00"  # end
         return bb
 
     def getGraphicsControlExt(self, duration=0.1, dispose=2):
@@ -232,13 +244,13 @@ class GifWriter:
 
         """
 
-        bb = '\x21\xF9\x04'
-        bb += chr((dispose & 3) << 2)  # low bit 1 == transparency,
+        bb = b"\x21\xF9\x04"
+        bb += int2byte((dispose & 3) << 2)  # low bit 1 == transparency,
         # 2nd bit 1 == user input , next 3 bits, the low two of which are used,
         # are dispose.
-        bb += intToBin(int(duration * 100))  # in 100th of seconds
-        bb += '\x00'  # no transparent color
-        bb += '\x00'  # end
+        bb += int2long(int(duration * 100))  # in 100th of seconds
+        bb += b"\x00"  # no transparant color
+        bb += b"\x00"  # end
         return bb
 
     def handleSubRectangles(self, images, subRectangles):
@@ -257,7 +269,7 @@ class GifWriter:
             xy = subRectangles
             if xy is None:
                 xy = (0, 0)
-            if hasattr(xy, '__len__'):
+            if hasattr(xy, "__len__"):
                 if len(xy) == len(images):
                     xy = [xxyy for xxyy in xy]
                 else:
@@ -280,7 +292,9 @@ class GifWriter:
                     tmp = im.convert()  # Make without palette
                     a = np.asarray(tmp)
                     if len(a.shape) == 0:
-                        raise MemoryError("Too little memory to convert PIL image to array")
+                        raise MemoryError(
+                            "Too little memory to convert PIL image to array"
+                        )
                     images[i] = a
 
             # Determine the sub rectangles
@@ -360,11 +374,11 @@ class GifWriter:
                 images2.append(im)
             elif np and isinstance(im, np.ndarray):
                 if im.ndim == 3 and im.shape[2] == 3:
-                    im = Image.fromarray(im, 'RGB')
+                    im = Image.fromarray(im, "RGB")
                 elif im.ndim == 3 and im.shape[2] == 4:
-                    im = Image.fromarray(im[:, :, :3], 'RGB')
+                    im = Image.fromarray(im[:, :, :3], "RGB")
                 elif im.ndim == 2:
-                    im = Image.fromarray(im, 'L')
+                    im = Image.fromarray(im, "L")
                 images2.append(im)
 
         # Convert to paletted PIL images
@@ -373,7 +387,7 @@ class GifWriter:
         # Adaptive PIL algorithm
         AD = Image.ADAPTIVE
         for im in images:
-            im = im.convert('P', palette=AD, dither=dither)
+            im = im.convert("P", palette=AD, dither=dither)
             images2.append(im)
 
         # Done
@@ -389,7 +403,9 @@ class GifWriter:
         palettes, occur = [], []
         for im in images:
             header, usedPaletteColors = getheader(im)
-            palettes.append(header[-1])  # Last part of the header is the frame palette
+            palettes.append(
+                header[-1]
+            )  # Last part of the header is the frame palette
         for palette in palettes:
             occur.append(palettes.count(palette))
 
@@ -423,8 +439,10 @@ class GifWriter:
                 # Gather info
                 data = getdata(im)
 
-                imdes, data = b''.join(data[:-2]), data[-2:]
-                graphext = self.getGraphicsControlExt(durations[frames], disposes[frames])
+                imdes, data = b"".join(data[:-2]), data[-2:]
+                graphext = self.getGraphicsControlExt(
+                    durations[frames], disposes[frames]
+                )
                 # Make image descriptor suitable for using 256 local color palette
                 lid = self.getImageDescriptor(im, xys[frames])
 
@@ -434,7 +452,7 @@ class GifWriter:
                     fp.write(graphext)
                     fp.write(lid)  # write suitable image descriptor
                     fp.write(palette)  # write local color table
-                    fp.write('\x08')  # LZW minimum size code
+                    fp.write(b"\x08")  # LZW minimum size code
                 else:
                     # Use global color palette
                     fp.write(graphext)
@@ -446,14 +464,21 @@ class GifWriter:
             # Prepare for next round
             frames = frames + 1
 
-        fp.write(";")  # end gif
+        fp.write(b";")  # end gif
         return frames
 
 
 # Exposed functions
 def writeGif(
-        filename, images, duration=0.1, repeat=True, dither=False,
-        nq=0, subRectangles=True, dispose=None):
+    filename,
+    images,
+    duration=0.1,
+    repeat=True,
+    dither=False,
+    nq=0,
+    subRectangles=True,
+    dispose=None,
+):
     """ writeGif(filename, images, duration=0.1, repeat=True, dither=False,
                     nq=0, subRectangles=True, dispose=None)
 
@@ -514,7 +539,7 @@ def writeGif(
         loops = int(repeat)
 
     # Check duration
-    if hasattr(duration, '__len__'):
+    if hasattr(duration, "__len__"):
         if len(duration) == len(images):
             duration = [d for d in duration]
         else:
@@ -534,7 +559,7 @@ def writeGif(
     # Check dispose
     if dispose is None:
         dispose = defaultDispose
-    if hasattr(dispose, '__len__'):
+    if hasattr(dispose, "__len__"):
         if len(dispose) != len(images):
             raise ValueError("len(xy) doesn't match amount of images.")
     else:
@@ -544,7 +569,7 @@ def writeGif(
     images = gifWriter.convertImagesToPIL(images, dither, nq)
 
     # Write
-    fp = open(filename, 'wb')
+    fp = open(filename, "wb")
     try:
         gifWriter.writeGifToFile(fp, images, duration, loops, xy, dispose)
     finally:
@@ -569,7 +594,7 @@ def readGif(filename, asNumpy=True):
 
     # Check whether it exists
     if not os.path.isfile(filename):
-        raise IOError('File not found: ' + str(filename))
+        raise IOError("File not found: " + str(filename))
 
     # Load file using PIL
     pilIm = PIL.Image.open(filename)
@@ -583,7 +608,9 @@ def readGif(filename, asNumpy=True):
             tmp = pilIm.convert()  # Make without palette
             a = np.asarray(tmp)
             if len(a.shape) == 0:
-                raise MemoryError("Too little memory to convert PIL image to array")
+                raise MemoryError(
+                    "Too little memory to convert PIL image to array"
+                )
             # Store, and next
             images.append(a)
             pilIm.seek(pilIm.tell() + 1)

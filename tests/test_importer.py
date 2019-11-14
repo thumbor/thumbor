@@ -51,7 +51,7 @@ class ImporterTestCase(TestCase):
             'FILTERS': (rgb_filter,),
         }
 
-        for key, value in data.iteritems():
+        for key, value in data.items():
             prop, default_value = (None, None)
             if hasattr(importer, key.lower()):
                 prop, default_value = (getattr(importer, key.lower()), value)
