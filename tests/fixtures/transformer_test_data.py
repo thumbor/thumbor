@@ -127,10 +127,15 @@ class TestData(object):
     def to_context(self, detectors=[], ignore_detector_error=False):
         self.engine = MockEngine((self.source_width, self.source_height))
 
-        flip_horizontally = self.target_width < 0
-        flip_vertically = self.target_height < 0
-        self.target_width = self.target_width == "orig" and "orig" or abs(self.target_width)
-        self.target_height = self.target_height == "orig" and "orig" or abs(self.target_height)
+        flip_horizontally = flip_vertically = False
+
+        if (self.target_width != "orig"):
+            flip_horizontally = self.target_width < 0
+            self.target_width = abs(self.target_width)
+
+        if (self.target_height != "orig"):
+            flip_vertically = self.target_height < 0
+            self.target_height = abs(self.target_height)
 
         importer = Importer(None)
         importer.detectors = detectors

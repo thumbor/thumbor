@@ -20,7 +20,7 @@ import mock
 from PIL import Image
 from ssim import compute_ssim
 from preggy import create_assertions
-from six import StringIO
+from six import ensure_binary
 from six.moves.urllib.parse import urlencode
 
 from thumbor.app import ThumborServiceApp
@@ -70,33 +70,33 @@ def to_be_the_same_as(topic, expected):
 
 @create_assertions
 def to_be_similar_to(topic, expected):
-    topic_image = Image.open(StringIO(topic))
-    expected_image = Image.open(StringIO(expected))
+    topic_image = Image.open(BytesIO(topic))
+    expected_image = Image.open(BytesIO(expected))
 
     return get_ssim(topic_image, expected_image) > 0.95
 
 
 @create_assertions
 def to_be_webp(topic):
-    im = Image.open(StringIO(topic))
+    im = Image.open(BytesIO(topic))
     return im.format.lower() == 'webp'
 
 
 @create_assertions
 def to_be_png(topic):
-    im = Image.open(StringIO(topic))
+    im = Image.open(BytesIO(topic))
     return im.format.lower() == 'png'
 
 
 @create_assertions
 def to_be_gif(topic):
-    im = Image.open(StringIO(topic))
+    im = Image.open(BytesIO(topic))
     return im.format.lower() == 'gif'
 
 
 @create_assertions
 def to_be_jpeg(topic):
-    im = Image.open(StringIO(topic))
+    im = Image.open(BytesIO(topic))
     return im.format.lower() == 'jpeg'
 
 
@@ -123,25 +123,25 @@ def to_be_cropped(image):
 
 
 def encode_multipart_formdata(fields, files):
-    BOUNDARY = 'thumborUploadFormBoundary'
-    CRLF = '\r\n'
+    BOUNDARY = b'thumborUploadFormBoundary'
+    CRLF = b'\r\n'
     L = []
     for key, value in fields.items():
-        L.append('--' + BOUNDARY)
-        L.append('Content-Disposition: form-data; name="%s"' % key)
-        L.append('')
-        L.append(value)
+        L.append(b'--' + BOUNDARY)
+        L.append(b'Content-Disposition: form-data; name="%s"' % key.encode())
+        L.append(b'')
+        L.append(ensure_binary(value, 'utf-8'))
     for (key, filename, value) in files:
-        L.append('--' + BOUNDARY)
-        L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
-        L.append('Content-Type: %s' % mimetypes.guess_type(filename)[0] or 'application/octet-stream')
-        L.append('')
-        L.append(value)
-    L.append('')
-    L.append('')
-    L.append('--' + BOUNDARY + '--')
-    body = CRLF.join([str(item) for item in L])
-    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
+        L.append(b'--' + BOUNDARY)
+        L.append(b'Content-Disposition: form-data; name="%s"; filename="%s"' % (key.encode(), filename.encode()))
+        L.append(b'Content-Type: %s' % mimetypes.guess_type(filename)[0].encode() or b'application/octet-stream')
+        L.append(b'')
+        L.append(ensure_binary(value, 'utf-8'))
+    L.append(b'')
+    L.append(b'')
+    L.append(b'--' + BOUNDARY + b'--')
+    body = CRLF.join(L)
+    content_type = b'multipart/form-data; boundary=%s' % BOUNDARY
     return content_type, body
 
 

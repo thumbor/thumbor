@@ -42,7 +42,7 @@ class Storage(BaseStorage):
 
         self.ensure_dir(file_dir_abspath)
 
-        with open(temp_abspath, 'w') as _file:
+        with open(temp_abspath, 'wb') as _file:
             _file.write(bytes)
 
         move(temp_abspath, file_abspath)
@@ -76,7 +76,7 @@ class Storage(BaseStorage):
             logger.debug("[RESULT_STORAGE] cached image has expired")
             return callback(None)
 
-        with open(file_abspath, 'r') as f:
+        with open(file_abspath, 'rb') as f:
             buffer = f.read()
 
         result = ResultStorageResult(
@@ -94,7 +94,7 @@ class Storage(BaseStorage):
         return abspath(path).startswith(self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH)
 
     def normalize_path(self, path):
-        digest = hashlib.sha1(unquote(path)).hexdigest()
+        digest = hashlib.sha1(unquote(path).encode('utf-8')).hexdigest()
 
         return "%s/%s/%s/%s/%s" % (
             self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'),
@@ -105,7 +105,7 @@ class Storage(BaseStorage):
         )
 
     def normalize_path_legacy(self, path):
-        path = unquote(path).decode('utf-8')
+        path = unquote(path)
         path_segments = [self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip('/'), Storage.PATH_FORMAT_VERSION, ]
         if self.is_auto_webp:
             path_segments.append("webp")

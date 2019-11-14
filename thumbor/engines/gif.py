@@ -56,7 +56,7 @@ class Engine(PILEngine):
     def update_image_info(self):
         self._is_multiple = False
 
-        result = self.run_gifsicle('--info')
+        result = self.run_gifsicle('--info').decode('utf-8')
         size = GIFSICLE_SIZE_REGEX.search(result)
         self.image_size = size.groups()[0].split('x')
         self.image_size[0], self.image_size[1] = int(self.image_size[0]), int(self.image_size[1])

@@ -66,8 +66,10 @@ Usefull links
 # todo: This module should be part of imageio (or at least based on)
 
 from __future__ import absolute_import
+from struct import pack
 
 import os
+import six
 
 try:
     import PIL
@@ -80,6 +82,19 @@ try:
     import numpy as np
 except ImportError:
     np = None
+
+if six.PY3:
+    def int2byte(i):
+        return bytes((i & 255,))
+else:
+    def int2byte(i):
+        return chr(i & 255)
+
+
+def int2long(i):
+    # Integer to two bytes
+    # Little Endian
+    return pack("<H", i)
 
 
 # getheader gives a 87a header and a color palette (two elements in a list).
@@ -129,15 +144,6 @@ def checkImages(images):
     return images2
 
 
-def intToBin(i):
-    """ Integer to two bytes """
-    # devide in two parts (bytes)
-    i1 = i % 256
-    i2 = int(i / 256)
-    # make string (little endian)
-    return chr(i1) + chr(i2)
-
-
 class GifWriter:
     """ GifWriter()
 
@@ -151,10 +157,10 @@ class GifWriter:
         Get animation header. To replace PILs getheader()[0]
 
         """
-        bb = "GIF89a"
-        bb += intToBin(im.size[0])
-        bb += intToBin(im.size[1])
-        bb += "\x87\x00\x00"
+        bb = b"GIF89a"
+        bb += int2long(im.size[0])
+        bb += int2long(im.size[1])
+        bb += b"\x87\x00\x00"
         return bb
 
     def getImageDescriptor(self, im, xy=None):
@@ -175,18 +181,18 @@ class GifWriter:
             xy = (0, 0)
 
         # Image separator,
-        bb = '\x2C'
+        bb = b'\x2C'
 
         # Image position and size
-        bb += intToBin(xy[0])  # Left position
-        bb += intToBin(xy[1])  # Top position
-        bb += intToBin(im.size[0])  # image width
-        bb += intToBin(im.size[1])  # image height
+        bb += int2long(xy[0])  # Left position
+        bb += int2long(xy[1])  # Top position
+        bb += int2long(im.size[0])  # image width
+        bb += int2long(im.size[1])  # image height
 
         # packed field: local color table flag1, interlace0, sorted table0,
         # reserved00, lct size111=7=2^(7+1)=256.
 
-        bb += '\x87'
+        bb += b'\x87'
 
         # LZW minimum size code now comes later, begining of [image data] blocks
         return bb
@@ -206,11 +212,11 @@ class GifWriter:
             #          to mean an infinite number of loops)
             #         Mmm, does not seem to work
         if True:
-            bb = "\x21\xFF\x0B"  # application extension
-            bb += "NETSCAPE2.0"
-            bb += "\x03\x01"
-            bb += intToBin(loops)
-            bb += '\x00'  # end
+            bb = b"\x21\xFF\x0B"  # application extension
+            bb += b"NETSCAPE2.0"
+            bb += b"\x03\x01"
+            bb += int2long(loops)
+            bb += b'\x00'  # end
         return bb
 
     def getGraphicsControlExt(self, duration=0.1, dispose=2):
@@ -232,13 +238,13 @@ class GifWriter:
 
         """
 
-        bb = '\x21\xF9\x04'
-        bb += chr((dispose & 3) << 2)  # low bit 1 == transparency,
+        bb = b'\x21\xF9\x04'
+        bb += int2byte((dispose & 3) << 2)  # low bit 1 == transparency,
         # 2nd bit 1 == user input , next 3 bits, the low two of which are used,
         # are dispose.
-        bb += intToBin(int(duration * 100))  # in 100th of seconds
-        bb += '\x00'  # no transparant color
-        bb += '\x00'  # end
+        bb += int2long(int(duration * 100))  # in 100th of seconds
+        bb += b'\x00'  # no transparant color
+        bb += b'\x00'  # end
         return bb
 
     def handleSubRectangles(self, images, subRectangles):
@@ -434,7 +440,7 @@ class GifWriter:
                     fp.write(graphext)
                     fp.write(lid)  # write suitable image descriptor
                     fp.write(palette)  # write local color table
-                    fp.write('\x08')  # LZW minimum size code
+                    fp.write(b'\x08')  # LZW minimum size code
                 else:
                     # Use global color palette
                     fp.write(graphext)
@@ -446,7 +452,7 @@ class GifWriter:
             # Prepare for next round
             frames = frames + 1
 
-        fp.write(";")  # end gif
+        fp.write(b";")  # end gif
         return frames
 
 

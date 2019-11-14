@@ -91,8 +91,6 @@ class ServerParameters(object):
 
     @security_key.setter
     def security_key(self, key):
-        if isinstance(key, unicode):
-            key = key.encode('utf-8')
         self._security_key = key
 
     def load_security_key(self):
@@ -154,7 +152,7 @@ class RequestParameters:
             self.trim_tolerance = int(trim_parts[2]) if len(trim_parts) > 2 else 0
 
         if crop is not None:
-            self.crop = crop
+            self.crop = {k: self.int_or_0(v) for k, v in crop.items()}
         else:
             self.crop = {
                 'left': self.int_or_0(crop_left),

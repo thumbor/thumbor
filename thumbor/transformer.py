@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from __future__ import division
 import math
 import sys
 
@@ -261,8 +262,8 @@ class Transformer(object):
         target_height = self.target_height or 1
         target_width = self.target_width or 1
 
-        source_ratio = round(float(source_width) / source_height, 2)
-        target_ratio = round(float(target_width) / target_height, 2)
+        source_ratio = round(source_width / source_height, 2)
+        target_ratio = round(target_width / target_height, 2)
 
         if source_ratio == target_ratio:
             return
@@ -301,8 +302,8 @@ class Transformer(object):
             total_x += focal_point.x * focal_point.weight
             total_y += focal_point.y * focal_point.weight
 
-        x = total_x / total_weight
-        y = total_y / total_weight
+        x = total_x // total_weight
+        y = total_y // total_weight
 
         return x, y
 
@@ -334,12 +335,13 @@ class Transformer(object):
         if sign == 1 and self.target_width >= source_width and self.target_height >= source_height:
             return
 
+        # add 1e-5 to get .5 rounding up in Python3 as it was in Python2
         if source_width / self.target_width * sign >= source_height / self.target_height * sign:
-            resize_height = round(source_height * self.target_width / source_width)
+            resize_height = round(source_height * self.target_width / source_width + 1e-5)
             resize_width = self.target_width
         else:
             resize_height = self.target_height
-            resize_width = round(source_width * self.target_height / source_height)
+            resize_width = round(source_width * self.target_height / source_height  + 1e-5)
 
         # ensure that filter should work on the real image size and not on the request
         # size which might be smaller than the resized image in case `full-fit-in` is
@@ -360,7 +362,7 @@ class Transformer(object):
                 point.width = 10
             if point.height <= 1:
                 point.height = 10
-            self.engine.draw_rectangle(int(point.x - (point.width / 2)),
-                                       int(point.y - (point.height / 2)),
+            self.engine.draw_rectangle(point.x - (point.width // 2),
+                                       point.y - (point.height // 2),
                                        point.width,
                                        point.height)

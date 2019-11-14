@@ -32,7 +32,7 @@ class Storage(storages.BaseStorage):
 
         self.ensure_dir(file_dir_abspath)
 
-        with open(temp_abspath, 'w') as _file:
+        with open(temp_abspath, 'wb') as _file:
             _file.write(bytes)
 
         logger.debug('moving tempfile %s to %s...' % (temp_abspath, file_abspath))
@@ -54,8 +54,8 @@ class Storage(storages.BaseStorage):
 
         crypto_path = '%s.txt' % splitext(file_abspath)[0]
         temp_abspath = "%s.%s" % (crypto_path, str(uuid4()).replace('-', ''))
-        with open(temp_abspath, 'w') as _file:
-            _file.write(self.context.server.security_key)
+        with open(temp_abspath, 'wb') as _file:
+            _file.write(self.context.server.security_key.encode())
 
         move(temp_abspath, crypto_path)
         logger.debug('Stored crypto at %s (security key: %s)' % (crypto_path, self.context.server.security_key))
@@ -86,7 +86,7 @@ class Storage(storages.BaseStorage):
             if not resource_available:
                 callback(None)
             else:
-                with open(self.path_on_filesystem(path), 'r') as f:
+                with open(self.path_on_filesystem(path), 'rb') as f:
                     callback(f.read())
 
         self.exists(None, file_exists, path_on_filesystem=abs_path)

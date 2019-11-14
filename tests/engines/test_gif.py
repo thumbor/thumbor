@@ -59,14 +59,14 @@ class GitEngineTestCase(TestCase):
 
     def test_load_image(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'animated.gif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'animated.gif'), 'rb') as im:
             buffer = im.read()
         image = engine.create_image(buffer)
         expect(image.format).to_equal('GIF')
 
     def test_errors_on_gifsicle_should_not_raises_errors_when_output(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'SmallFullColourGIF.gif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'SmallFullColourGIF.gif'), 'rb') as im:
             buffer = im.read()
 
         engine.load(buffer, '.gif')
@@ -75,7 +75,7 @@ class GitEngineTestCase(TestCase):
 
     def test_is_multiple_should_returns_true_if_gif_has_many_frames(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'animated.gif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'animated.gif'), 'rb') as im:
             buffer = im.read()
 
         engine.load(buffer, '.gif')
@@ -83,7 +83,7 @@ class GitEngineTestCase(TestCase):
 
     def test_is_multiple_should_returns_false_if_gif_has_one_frame(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'animated-one-frame.gif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'animated-one-frame.gif'), 'rb') as im:
             buffer = im.read()
 
         engine.load(buffer, '.gif')
@@ -91,7 +91,7 @@ class GitEngineTestCase(TestCase):
 
     def test_convert_to_grayscale_should_update_image(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'animated.gif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'animated.gif'), 'rb') as im:
             buffer = im.read()
 
         engine.load(buffer, '.gif')
@@ -102,7 +102,7 @@ class GitEngineTestCase(TestCase):
 
     def test_convert_to_grayscale_should_not_update_image(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'animated.gif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'animated.gif'), 'rb') as im:
             buffer = im.read()
 
         engine.load(buffer, '.gif')

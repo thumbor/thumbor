@@ -103,9 +103,8 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "statsd>=3.0.1",
             "libthumbor>=1.3.2",
             "futures",
-            "argparse",
             "pytz",
-            "six",
+            "six>=1.12.0",
             "webcolors",
         ],
 

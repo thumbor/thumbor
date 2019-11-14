@@ -10,6 +10,7 @@
 
 import datetime
 import re
+from typing import Pattern
 from functools import partial
 
 import tornado.httpclient
@@ -22,13 +23,13 @@ from tornado.concurrent import return_future
 
 def encode_url(url):
     if url == unquote(url):
-        return quote(url.encode('utf-8'), safe='~@#$&()*!+=:;,.?/\'')
+        return quote(url, safe='~@#$&()*!+=:;,.?/\'')
     else:
         return url
 
 
 def quote_url(url):
-    return encode_url(unquote(url).decode('utf-8'))
+    return encode_url(unquote(url))
 
 
 def _normalize_url(url):
@@ -47,7 +48,7 @@ def validate(context, url, normalize_url_func=_normalize_url):
         return True
 
     for pattern in context.config.ALLOWED_SOURCES:
-        if isinstance(pattern, re._pattern_type):
+        if isinstance(pattern, Pattern):
             match = url
         else:
             pattern = '^%s$' % pattern
@@ -78,7 +79,7 @@ def return_contents(response, url, callback, context, req_start=None):
         else:
             result.error = LoaderResult.ERROR_NOT_FOUND
 
-        logger.warn(u"ERROR retrieving image {0}: {1}".format(
+        logger.warning(u"ERROR retrieving image {0}: {1}".format(
             url, str(response.error)))
 
     elif response.body is None or len(response.body) == 0:
@@ -93,7 +94,7 @@ def return_contents(response, url, callback, context, req_start=None):
                                        response.time_info[x] * 1000)
             context.metrics.timing(
                 'original_image.time_info.bytes_per_second',
-                len(response.body) / response.time_info['total'])
+                len(response.body) // response.time_info['total'])
         result.buffer = response.body
         result.metadata.update(response.headers)
         context.metrics.incr('original_image.response_bytes', len(

@@ -41,17 +41,17 @@ class FocalPoint(object):
         )
 
     def __init__(self, x, y, height=1, width=1, weight=1.0, origin="alignment"):
-        self.x = x
-        self.y = y
-        self.height = height
-        self.width = width
+        self.x = int(x)
+        self.y = int(y)
+        self.height = int(height)
+        self.width = int(width)
         self.weight = weight
         self.origin = origin
 
     @classmethod
     def from_square(cls, x, y, width, height, origin='detection'):
-        center_x = x + (width / 2)
-        center_y = y + (height / 2)
+        center_x = x + width // 2
+        center_y = y + height // 2
         return cls(center_x, center_y, height=height, width=width, weight=width * height, origin=origin)
 
     @classmethod
