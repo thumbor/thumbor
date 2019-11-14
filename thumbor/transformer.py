@@ -341,7 +341,7 @@ class Transformer(object):
             resize_width = self.target_width
         else:
             resize_height = self.target_height
-            resize_width = round(source_width * self.target_height / source_height  + 1e-5)
+            resize_width = round(source_width * self.target_height / source_height + 1e-5)
 
         # ensure that filter should work on the real image size and not on the request
         # size which might be smaller than the resized image in case `full-fit-in` is

@@ -289,7 +289,7 @@ class BaseHandler(tornado.web.RequestHandler):
         flags = i8(data[i])
         i = skip_color_table(i + 3, flags)
         while frames < 2:
-            block = data[i:i+1]
+            block = data[i:i + 1]
             i += 1
             if block == b'\x3B':
                 break
