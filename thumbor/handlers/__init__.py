@@ -545,11 +545,11 @@ class BaseHandler(tornado.web.RequestHandler):
         if original_width == width and original_height == height:
             return
 
-        crop_left = crop_left * width / original_width
-        crop_top = crop_top * height / original_height
+        crop_left = crop_left * width // original_width
+        crop_top = crop_top * height // original_height
 
-        crop_right = crop_right * width / original_width
-        crop_bottom = crop_bottom * height / original_height
+        crop_right = crop_right * width // original_width
+        crop_bottom = crop_bottom * height // original_height
 
         return (crop_left, crop_top, crop_right, crop_bottom)
 
