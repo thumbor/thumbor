@@ -293,5 +293,5 @@ class ThreadPool(object):
 
     def cleanup(self):
         if self.pool:
-            print("Joining threads....")
+            logger.info("Shutting down threads")
             self.pool.shutdown()
