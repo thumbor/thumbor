@@ -27,7 +27,7 @@ class Filter(BaseFilter):
             return pos
 
         sign, ratio = match.groups()
-        pos = "{sign}{pos}".format(sign=sign, pos=int(round(length * float(ratio) / 100 + 1e-5, 0)))
+        pos = "{sign}{pos}".format(sign=sign, pos=round(length * float(ratio) / 100 + 1e-5))
 
         return pos
 
