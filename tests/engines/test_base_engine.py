@@ -12,7 +12,6 @@ from __future__ import unicode_literals, absolute_import
 from struct import pack
 from os.path import abspath, join, dirname
 
-import piexif
 from unittest import TestCase
 from xml.etree.ElementTree import ParseError
 
@@ -198,8 +197,7 @@ class BaseEngineTestCase(TestCase):
         expect(self.engine.get_orientation()).to_be_null()
 
     def test_get_orientation_without_orientation_in_exif(self):
-        self.engine.exif = piexif.load(exif_str(1))
-        self.engine.exif['0th'].pop(piexif.ImageIFD.Orientation, None)
+        self.engine.exif = b'Exif\x00\x00II*\x00\x08\x00\x00\x00\x01\x00\x1a\x01\x05\x00\x01\x00\x00\x006\x00\x00\x00'
         expect(self.engine.get_orientation()).to_be_null()
 
     def test_get_orientation(self):
