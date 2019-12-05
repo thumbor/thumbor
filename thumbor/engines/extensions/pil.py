@@ -65,12 +65,8 @@ Usefull links
 """
 # todo: This module should be part of imageio (or at least based on)
 
-from __future__ import absolute_import
-
 import os
 from struct import pack
-
-import six
 
 try:
     import PIL
@@ -83,17 +79,6 @@ try:
     import numpy as np
 except ImportError:
     np = None
-
-if six.PY3:
-
-    def int2byte(i):
-        return bytes((i & 255,))
-
-
-else:
-
-    def int2byte(i):
-        return chr(i & 255)
 
 
 def int2long(i):
@@ -245,7 +230,7 @@ class GifWriter:
         """
 
         bb = b"\x21\xF9\x04"
-        bb += int2byte((dispose & 3) << 2)  # low bit 1 == transparency,
+        bb += bytes((((dispose & 3) << 2),))  # low bit 1 == transparency,
         # 2nd bit 1 == user input , next 3 bits, the low two of which are used,
         # are dispose.
         bb += int2long(int(duration * 100))  # in 100th of seconds

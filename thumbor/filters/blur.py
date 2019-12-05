@@ -14,11 +14,6 @@ from thumbor.ext.filters import _convolution
 
 MAX_RADIUS = 150
 
-try:
-    xrange          # Python 2
-except NameError:
-    xrange = range  # Python 3
-
 
 class Filter(BaseFilter):
     """
@@ -33,7 +28,7 @@ class Filter(BaseFilter):
         matrix_size = (radius * 2) + 1
         matrix = []
         two_sigma_squared = float(2 * sigma * sigma)
-        for x in xrange(matrix_size):
+        for x in range(matrix_size):
             adj_x = x - radius
             exp = math.e ** -(((adj_x * adj_x)) / two_sigma_squared)
             matrix.append(exp / math.sqrt(two_sigma_squared * math.pi))

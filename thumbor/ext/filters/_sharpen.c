@@ -17,7 +17,7 @@ _sharpen_apply(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    unsigned char *buffer = (unsigned char *) PyString_AsString(buffer_py);
+    unsigned char *buffer = (unsigned char *) PyBytes_AsString(buffer_py);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
     int r_idx = rgb_order(image_mode_str, 'R'),

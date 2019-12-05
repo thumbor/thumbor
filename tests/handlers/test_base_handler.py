@@ -21,7 +21,7 @@ import tornado.web
 from tornado.concurrent import return_future
 from preggy import expect
 from mock import Mock, patch
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 
 from thumbor.config import Config
 from thumbor.importer import Importer

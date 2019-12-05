@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from __future__ import print_function
 import random
 import unicodedata
 from io import BytesIO
@@ -20,8 +19,7 @@ import mock
 from PIL import Image
 from ssim import compute_ssim
 from preggy import create_assertions
-from six import ensure_binary
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 
 from thumbor.app import ThumborServiceApp
 from thumbor.context import Context, RequestParameters
@@ -32,11 +30,6 @@ from thumbor.engines.pil import Engine as PilEngine
 
 from tornado.testing import AsyncHTTPTestCase
 
-try:
-    unicode        # Python 2
-except NameError:
-    unicode = str  # Python 3
-
 
 @create_assertions
 def to_exist(topic):
@@ -46,7 +39,7 @@ def to_exist(topic):
 def normalize_unicode_path(path):
     normalized_path = path
     for format in ['NFD', 'NFC', 'NFKD', 'NFKC']:
-        normalized_path = unicodedata.normalize(format, unicode(path))
+        normalized_path = unicodedata.normalize(format, str(path))
         if exists(normalized_path):
             break
     return normalized_path
@@ -130,13 +123,13 @@ def encode_multipart_formdata(fields, files):
         L.append(b'--' + BOUNDARY)
         L.append(b'Content-Disposition: form-data; name="%s"' % key.encode())
         L.append(b'')
-        L.append(ensure_binary(value, 'utf-8'))
+        L.append(value)
     for (key, filename, value) in files:
         L.append(b'--' + BOUNDARY)
         L.append(b'Content-Disposition: form-data; name="%s"; filename="%s"' % (key.encode(), filename.encode()))
         L.append(b'Content-Type: %s' % mimetypes.guess_type(filename)[0].encode() or b'application/octet-stream')
         L.append(b'')
-        L.append(ensure_binary(value, 'utf-8'))
+        L.append(value)
     L.append(b'')
     L.append(b'')
     L.append(b'--' + BOUNDARY + b'--')

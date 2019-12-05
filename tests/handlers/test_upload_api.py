@@ -121,7 +121,7 @@ class UploadAPINewFileTestCase(UploadTestCase):
     def test_can_post_from_html_form(self):
         filename = 'crocodile2.jpg'
         image = ('media', filename, valid_image())
-        response = self.post_files(self.base_uri, {'Slug': 'another_filename.jpg'}, (image, ))
+        response = self.post_files(self.base_uri, {'Slug': b'another_filename.jpg'}, (image, ))
 
         expect(response.code).to_equal(201)
 
@@ -309,7 +309,7 @@ class UploadAPIValidationTestCase(UploadTestCase):
         expect(response.code).to_equal(415)
 
     def test_posting_invalid_image_through_html_form_fails(self):
-        image = ('media', u'crocodile9999.jpg', 'invalid image')
+        image = ('media', u'crocodile9999.jpg', b'invalid image')
         response = self.post_files(self.base_uri, {}, (image, ))
         expect(response.code).to_equal(415)
 

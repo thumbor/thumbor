@@ -14,7 +14,7 @@ from typing import Pattern
 from functools import partial
 
 import tornado.httpclient
-from six.moves.urllib.parse import quote, unquote, urlparse
+from urllib.parse import quote, unquote, urlparse
 
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger

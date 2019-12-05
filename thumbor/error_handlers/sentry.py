@@ -13,22 +13,26 @@ class ErrorHandler(object):
 
         if not dsn:
             raise RuntimeError(
-                "If you set USE_CUSTOM_ERROR_HANDLING to True, and you are using thumbor.error_handlers.sentry, " +
-                "then you must specify the Sentry DSN using the SENTRY_DSN_URL configuration."
+                """
+If you set USE_CUSTOM_ERROR_HANDLING to True, and you
+are using thumbor.error_handlers.sentry,
+then you must specify the Sentry DSN using the
+SENTRY_DSN_URL configuration."
+                """
             )
 
         kwargs = {
-            'dsn': dsn,
-            'integrations': [],
+            "dsn": dsn,
+            "integrations": [],
         }
 
-        env = config.get('SENTRY_ENVIRONMENT')
+        env = config.get("SENTRY_ENVIRONMENT")
         if env is not None:
-            kwargs['environment'] = env
+            kwargs["environment"] = env
 
         # Logging integration will create duplicates if below not ignored
-        ignore_logger('thumbor')
-        ignore_logger('tornado.access')
+        ignore_logger("thumbor")
+        ignore_logger("tornado.access")
 
         sentry_sdk.init(**kwargs)
 
@@ -47,7 +51,7 @@ class ErrorHandler(object):
                 "headers": req.headers,
                 "body": req.body,
             }
-            scope.set_extra('thumbor-version', __version__)
-            scope.set_extra('thumbor-loader', self.config.LOADER)
-            scope.set_extra('thumbor-storage', self.config.STORAGE)
+            scope.set_extra("thumbor-version", __version__)
+            scope.set_extra("thumbor-loader", self.config.LOADER)
+            scope.set_extra("thumbor-storage", self.config.STORAGE)
             sentry_sdk.capture_event(event, hint=hint)

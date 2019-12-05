@@ -8,13 +8,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from setuptools import setup, Extension
-from thumbor import __version__
-
 import glob
-import os
 import logging
+import os
 
+from setuptools import Extension, setup
+
+from thumbor import __version__
 
 tests_require = [
     "redis>=2.4.9,<3.0.0",
@@ -33,6 +33,7 @@ tests_require = [
     "preggy>=1.3.0",
     "opencv-python-headless",
     "yanc>=0.3.3",
+    "py3exiv2",
 ]
 
 
@@ -69,18 +70,25 @@ def run_setup(extension_modules=[]):
     setup(
         name="thumbor",
         version=__version__,
-        description="thumbor is an open-source photo thumbnail service by globo.com",
+        description=(
+            "thumbor is an open-source photo thumbnail service by globo.com"
+        ),
         long_description="""
-Thumbor is a smart imaging service. It enables on-demand crop, resizing and flipping of images.
+Thumbor is a smart imaging service. It enables on-demand crop,
+resizing and flipping of images.
 
-It also features a VERY smart detection of important points in the image for better cropping and
-resizing, using state-of-the-art face and feature detection algorithms (more on that in Detection Algorithms).
+It also features a VERY smart detection of important points in
+the image for better cropping and resizing, using state-of-the-art
+face and feature detection algorithms (more on that in Detection Algorithms).
 
-Using thumbor is very easy (after it is running). All you have to do is access it using an url for an image, like this:
+Using thumbor is very easy (after it is running). All you have to do is
+access it using an url for an image, like this:
 
 http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
 """,
-        keywords="imaging face detection feature thumbnail imagemagick pil opencv",
+        keywords=(
+            "imaging face detection feature thumbnail imagemagick pil opencv"
+        ),
         author="globo.com",
         author_email="thumbor@googlegroups.com",
         url="https://github.com/thumbor/thumbor/wiki",
@@ -92,7 +100,12 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "Natural Language :: English",
             "Operating System :: MacOS",
             "Operating System :: POSIX :: Linux",
-            "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3 :: Only",
+            "Programming Language :: Python :: Implementation :: CPython",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
         ],
@@ -107,9 +120,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "derpconf>=0.2.0",
             "statsd>=3.0.1",
             "libthumbor>=1.3.2",
-            "futures",
             "pytz",
-            "six>=1.12.0",
             "webcolors",
         ],
         extras_require={"tests": tests_require},

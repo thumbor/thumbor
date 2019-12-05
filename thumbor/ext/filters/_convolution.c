@@ -10,14 +10,14 @@ double* normalize_kernel(PyObject *kernel, Py_ssize_t size, PyObject *should_nor
         if (PyFloat_Check(obj)) {
             sum += (items[i] = PyFloat_AS_DOUBLE(obj));
         }
-        if (PyInt_Check(obj)) {
-            sum += (items[i] = (double)PyInt_AS_LONG(obj));
+        if (PyLong_Check(obj)) {
+            sum += (items[i] = (double)PyLong_AS_LONG(obj));
         }
-        if (PyString_Check(obj)) {
-            sum += (items[i] = atof(PyString_AsString(obj)));
+        if (PyBytes_Check(obj)) {
+            sum += (items[i] = atof(PyBytes_AsString(obj)));
         }
         if (PyUnicode_Check(obj)) {
-            sum += (items[i] = atof(PyString_AsString(PyUnicode_AsUTF8String(obj))));
+            sum += (items[i] = atof(PyBytes_AsString(PyUnicode_AsUTF8String(obj))));
         }
     }
 
@@ -55,8 +55,8 @@ _convolution_apply(PyObject *self, PyObject *args)
 
     double *kernel = normalize_kernel(kernel_tuple, kernel_size, should_normalize);
 
-    Py_ssize_t size = PyString_Size(buffer);
-    img_buffer = (unsigned char *)PyString_AsString(buffer);
+    Py_ssize_t size = PyBytes_Size(buffer);
+    img_buffer = (unsigned char *)PyBytes_AsString(buffer);
     copy_buffer = (unsigned char *)malloc(size * sizeof(unsigned char));
     memcpy(copy_buffer, img_buffer, size * sizeof(unsigned char));
 
