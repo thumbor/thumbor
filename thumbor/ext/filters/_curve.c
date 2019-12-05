@@ -6,8 +6,8 @@ unsigned char* get_curve(PyObject *points) {
 
     for (i = 0; i < size; ++i) {
         PyObject *p = PyTuple_GET_ITEM(points, i);
-        items[i * 2] = (unsigned char)PyInt_AS_LONG(PyTuple_GET_ITEM(p, 0));
-        items[i * 2 + 1] = (unsigned char)PyInt_AS_LONG(PyTuple_GET_ITEM(p, 1));
+        items[i * 2] = (unsigned char)PyLong_AS_LONG(PyTuple_GET_ITEM(p, 0));
+        items[i * 2 + 1] = (unsigned char)PyLong_AS_LONG(PyTuple_GET_ITEM(p, 1));
     }
 
     return items;
@@ -105,8 +105,8 @@ _curve_apply(PyObject *self, PyObject *args)
                   *points_g = cubic_spline_interpolation(get_curve(curve_g), PyTuple_Size(curve_g), 256),
                   *points_b = cubic_spline_interpolation(get_curve(curve_b), PyTuple_Size(curve_b), 256);
 
-    Py_ssize_t size = PyString_Size(buffer);
-    unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
+    Py_ssize_t size = PyBytes_Size(buffer);
+    unsigned char *ptr = (unsigned char *) PyBytes_AsString(buffer);
     int num_bytes = bytes_per_pixel(image_mode);
 
     int r_idx = rgb_order(image_mode, 'R'),

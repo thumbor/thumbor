@@ -15,8 +15,8 @@ _composite_apply(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    unsigned char *ptr1 = (unsigned char *) PyString_AsString(py_image1), *aux1 = NULL;
-    unsigned char *ptr2 = (unsigned char *) PyString_AsString(py_image2), *aux2 = NULL;
+    unsigned char *ptr1 = (unsigned char *) PyBytes_AsString(py_image1), *aux1 = NULL;
+    unsigned char *ptr2 = (unsigned char *) PyBytes_AsString(py_image2), *aux2 = NULL;
 
     int num_bytes = bytes_per_pixel(image_mode_str);
     int r_idx = rgb_order(image_mode_str, 'R'),

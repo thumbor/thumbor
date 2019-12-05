@@ -8,8 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from __future__ import unicode_literals, absolute_import
-
 from io import BytesIO
 from os.path import abspath, join, dirname
 from unittest import TestCase, skipUnless
@@ -173,20 +171,20 @@ class PilEngineTestCase(TestCase):
         expect(len(xmp_keys)).to_equal(44)
         expect('Xmp.aux.LensSerialNumber' in xmp_keys).to_be_true()
 
-        width = engine.metadata[b'Xmp.aux.LensSerialNumber'].value
+        width = engine.metadata['Xmp.aux.LensSerialNumber'].value
         expect(width).to_equal('0000c139be')
 
         # read EXIF tags
         exif_keys = engine.metadata.exif_keys
         expect(len(exif_keys)).to_equal(37)
         expect('Exif.Image.Software' in exif_keys).to_be_true()
-        expect(engine.metadata[b'Exif.Image.Software'].value).to_equal('Adobe Photoshop Lightroom 4.4 (Macintosh)')
+        expect(engine.metadata['Exif.Image.Software'].value).to_equal('Adobe Photoshop Lightroom 4.4 (Macintosh)')
 
         # read IPTC tags
         iptc_keys = engine.metadata.iptc_keys
         expect(len(iptc_keys)).to_equal(6)
         expect('Iptc.Application2.DateCreated' in iptc_keys).to_be_true()
-        expect(engine.metadata[b'Iptc.Application2.DateCreated'].value).to_equal(
+        expect(engine.metadata['Iptc.Application2.DateCreated'].value).to_equal(
             [datetime.date(2016, 6, 23)]
         )
 

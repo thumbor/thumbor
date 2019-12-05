@@ -33,6 +33,7 @@ tests_require = [
     "preggy>=1.3.0",
     "opencv-python-headless",
     "yanc>=0.3.3",
+    "py3exiv2",
 ]
 
 
@@ -83,7 +84,12 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             'Natural Language :: English',
             'Operating System :: MacOS',
             'Operating System :: POSIX :: Linux',
-            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3 :: Only',
+            'Programming Language :: Python :: Implementation :: CPython',
             'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
             'Topic :: Multimedia :: Graphics :: Presentation'
         ],
@@ -102,9 +108,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "piexif>=1.0.13,<2.0.0",
             "statsd>=3.0.1",
             "libthumbor>=1.3.2",
-            "futures",
             "pytz",
-            "six>=1.12.0",
             "webcolors",
         ],
 

@@ -15,7 +15,7 @@ from os.path import abspath, join, dirname
 import mock
 import tornado.web
 from preggy import expect
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 from tornado.concurrent import Future
 from tornado.httpclient import AsyncHTTPClient
 from tornado.testing import AsyncHTTPTestCase

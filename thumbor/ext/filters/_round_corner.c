@@ -16,7 +16,7 @@ _round_corner_apply(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
+    unsigned char *ptr = (unsigned char *) PyBytes_AsString(buffer);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
 

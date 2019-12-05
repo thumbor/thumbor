@@ -16,10 +16,6 @@ from derpconf.config import Config
 
 from thumbor import __version__
 
-try:
-    basestring        # Python 2
-except NameError:
-    basestring = str  # Python 3
 
 home = expanduser("~")
 
@@ -436,7 +432,7 @@ def generate_config():
 
 
 def format_value(value):
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         return "'%s'" % value
     if isinstance(value, (tuple, list, set)):
         representation = '[\n'

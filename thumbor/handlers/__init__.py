@@ -34,18 +34,6 @@ import thumbor.filters
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
-try:
-    basestring        # Python 2
-except NameError:
-    basestring = str  # Python 3
-
-if sys.version_info.major >= 3:
-    def i8(c):
-        return c if c.__class__ is int else c[0]
-else:
-    def i8(c):
-        return ord(c)
-
 
 class FetchResult(object):
 
@@ -138,9 +126,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.finish_request(result)
                 return
 
-        if conf.MAX_WIDTH and (not isinstance(req.width, basestring)) and req.width > conf.MAX_WIDTH:
+        if conf.MAX_WIDTH and (not isinstance(req.width, str)) and req.width > conf.MAX_WIDTH:
             req.width = conf.MAX_WIDTH
-        if conf.MAX_HEIGHT and (not isinstance(req.height, basestring)) and req.height > conf.MAX_HEIGHT:
+        if conf.MAX_HEIGHT and (not isinstance(req.height, str)) and req.height > conf.MAX_HEIGHT:
             req.height = conf.MAX_HEIGHT
 
         req.meta_callback = conf.META_CALLBACK_NAME or self.request.arguments.get('callback', [None])[0]
@@ -286,7 +274,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 i += 3 << ((flags & 7) + 1)
             return i
 
-        flags = i8(data[i])
+        flags = data[i]
         i = skip_color_table(i + 3, flags)
         while frames < 2:
             block = data[i:i + 1]
@@ -298,12 +286,12 @@ class BaseHandler(tornado.web.RequestHandler):
             elif block == b'\x2C':
                 frames += 1
                 i += 8
-                i = skip_color_table(i + 1, i8(data[i]))
+                i = skip_color_table(i + 1, data[i])
                 i += 1
             else:
                 return False
             while True:
-                j = i8(data[i])
+                j = data[i]
                 i += 1
                 if not j:
                     break

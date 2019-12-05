@@ -10,9 +10,9 @@ _equalize_apply(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    Py_ssize_t original_size = PyString_Size(buffer);
-    Py_ssize_t size = PyString_Size(buffer);
-    unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
+    Py_ssize_t original_size = PyBytes_Size(buffer);
+    Py_ssize_t size = PyBytes_Size(buffer);
+    unsigned char *ptr = (unsigned char *) PyBytes_AsString(buffer);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
     int area = (int)(size / num_bytes);

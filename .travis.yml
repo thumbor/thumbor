@@ -1,6 +1,5 @@
 language: python
 python:
-  - 2.7
   - 3.6
   - 3.7
   - 3.8
@@ -10,8 +9,6 @@ cache:
   apt: true
 matrix:
   fast_finish: true
-  allow_failures:
-    - python: 3.8
   include:
     - python: 3.7
       env: LINT_TEST=1
@@ -25,14 +22,13 @@ addons:
     - libjpeg-progs
     - libimage-exiftool-perl
     - gifsicle
-    - python-all-dev
     - scons
+    - python-all-dev
     - libboost-python-dev
     - libexiv2-dev
     - ffmpeg
 install:
   - pip install --upgrade pip
-  - pip install -I https://github.com/escaped/pyexiv2/archive/69dd6448f9831bd826137b7519f9d797b23ab4ec.zip
   - cd $TRAVIS_BUILD_DIR && make setup_python
   - pip install coveralls
 before_script:

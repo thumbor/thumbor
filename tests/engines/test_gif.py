@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from __future__ import unicode_literals, absolute_import
 from os.path import abspath, join, dirname
 
 from preggy import expect

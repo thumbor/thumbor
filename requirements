@@ -15,5 +15,4 @@ memcached
 libmemcache-dev
 libmemcached-dev
 python-scipy
-python-pyexiv2
 cython
