@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import os
 import subprocess
 import re
 import webcolors
@@ -75,8 +74,8 @@ class Optimizer(BaseOptimizer):
             'error'
         ]
 
-        with open(os.devnull) as null:
-            subprocess.call(command, stdin=null)
+        subprocess.call(command, stdin=subprocess.DEVNULL)
+
         self.context.request.format = format
 
     def set_format(self):

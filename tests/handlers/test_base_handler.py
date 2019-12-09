@@ -1188,8 +1188,7 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
         ]
 
         try:
-            with open(os.devnull) as null:
-                output = subprocess.check_output(command, stdin=null)
+            output = subprocess.check_output(command, stdin=subprocess.DEVNULL)
 
             expect(response.code).to_equal(200)
             expect(output).to_equal('Encoding Process                : Progressive DCT, Huffman coding\n')
