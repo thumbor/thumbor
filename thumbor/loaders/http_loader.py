@@ -64,7 +64,7 @@ def return_contents(response, url, callback, context, req_start=None):
         finish = datetime.datetime.now()
         res = urlparse(url)
         context.metrics.timing(
-            'original_image.fetch.{0}.{1}'.format(response.code, res.netloc),
+            'original_image.fetch.{0}.{1}'.format(response.code, res.netloc.replace('.', '_')),
             (finish - req_start).total_seconds() * 1000,
         )
 
