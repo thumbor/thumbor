@@ -69,6 +69,19 @@ you'll get an error.
 To use it you should set the **LOADER** configuration to
 **'thumbor.loaders.file\_loader\_http\_fallback'**.
 
+File loader with 404.png default image fallback
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In some environments, like an e-commerce site, it is desirable to load a default
+image rather than throwing a 404 error. Yo can use this loader for this situation.
+
+This loader will try to to load the image from local storage. In case of an error, it
+will retry lo load a image called "404.png" that must be in the root of your file storage.
+If both attempts failed you will get an error. 
+
+To use it you should set the **LOADER** configuration to 
+**'thumbor.loaders.file\_loader\_404\_fallback'**.
+
 
 Custom loaders
 --------------
