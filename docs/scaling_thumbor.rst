@@ -9,7 +9,7 @@ Scaling Thumbor
    blog <http://tech.yipit.com/2013/01/03/how-yipit-scales-thumbnailing-with-thumbor-and-cloudfront/>`__;
 -  `Square <http://squareup.com>`__ also posted at their engineering
    blog about how they `generate dynamic images with
-   thumbor <http://corner.squareup.com/2014/01/dynamic-images-with-thumbor.html>`__;
+   thumbor <https://developer.squareup.com/blog/dynamic-images-with-thumbor>`__;
 -  `99 Designs <http://99designs.com/>`__ also has some info on their
    architecture using thumbor and amazon at their `engineering
    blog <http://99designs.com/tech-blog/blog/2013/07/01/thumbnailing-with-thumbor/>`__.
