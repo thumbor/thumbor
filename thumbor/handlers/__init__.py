@@ -83,6 +83,14 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.metrics.timing("response.time.{0}".format(status), total_time)
         self.context.metrics.incr("response.status.{0}".format(status))
 
+        if status is 200 and self.context is not None:
+            if self.context.request.smart:
+                self.context.metrics.incr('response.smart')
+                self.context.metrics.timing('response.smart', total_time)
+            else:
+                self.context.metrics.incr('response.none_smart')
+                self.context.metrics.timing('response.none_smart', total_time)
+
         if self._response_ext is not None:
             ext = self._response_ext
             self.context.metrics.incr("response.format{0}".format(ext))
@@ -113,6 +121,14 @@ class BaseHandler(tornado.web.RequestHandler):
 
         req = self.context.request
         conf = self.context.config
+
+        total_time = (datetime.datetime.now() - self._response_start).total_seconds() * 1000
+        if self.context.request.smart:
+            self.context.metrics.incr('response.smart')
+            self.context.metrics.timing('response.smart', total_time)
+        else:
+            self.context.metrics.incr('response.none_smart')
+            self.context.metrics.timing('response.none_smart', total_time)
 
         should_store = (
             self.context.config.RESULT_STORAGE_STORES_UNSAFE

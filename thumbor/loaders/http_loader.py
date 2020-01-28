@@ -64,18 +64,20 @@ def validate(context, url, normalize_url_func=_normalize_url):
 
 
 def return_contents(response, url, context, req_start=None):
+    res = urlparse(url)
     if req_start:
         finish = datetime.datetime.now()
-        res = urlparse(url)
         context.metrics.timing(
             "original_image.fetch.{0}.{1}".format(
                 response.code, res.netloc.replace(".", "_")
             ),
             (finish - req_start).total_seconds() * 1000,
         )
+        context.metrics.incr("original_image.fetch.{0}.{1}".format(response.code, res.netloc.replace(".", "_")))
 
     result = LoaderResult()
     context.metrics.incr("original_image.status." + str(response.code))
+    context.metrics.incr("original_image.status.{0}.{1}".format(response.code, res.netloc.replace(".", "_")))
     if response.error:
         result.successful = False
         if response.code == 599:
