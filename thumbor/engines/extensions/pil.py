@@ -88,7 +88,8 @@ def int2long(i):
 
 
 # getheader gives a 87a header and a color palette (two elements in a list).
-# getdata()[0] gives the Image Descriptor up to (including) "LZW min code size".
+# getdata()[0] gives the Image Descriptor up to (including)
+# "LZW min code size".
 # getdatas()[1:] is the image data itself in chuncks of 256 bytes (well
 # technically the first byte says how many bytes follow, after which that
 # amount (max 255) follows).
@@ -185,7 +186,8 @@ class GifWriter:
 
         bb += b"\x87"
 
-        # LZW minimum size code now comes later, begining of [image data] blocks
+        # LZW minimum size code now comes later,
+        # begining of [image data] blocks
         return bb
 
     def getAppExt(self, loops=float("inf")):
@@ -234,7 +236,7 @@ class GifWriter:
         # 2nd bit 1 == user input , next 3 bits, the low two of which are used,
         # are dispose.
         bb += int2long(int(duration * 100))  # in 100th of seconds
-        bb += b"\x00"  # no transparant color
+        bb += b"\x00"  # no transparent color
         bb += b"\x00"  # end
         return bb
 
@@ -428,7 +430,12 @@ class GifWriter:
                 graphext = self.getGraphicsControlExt(
                     durations[frames], disposes[frames]
                 )
+<<<<<<< HEAD
                 # Make image descriptor suitable for using 256 local color palette
+=======
+                # Make image descriptor suitable for using
+                # 256 local color palette
+>>>>>>> Fix simple typo: transparant -> transparent (#1244)
                 lid = self.getImageDescriptor(im, xys[frames])
 
                 # Write local header
