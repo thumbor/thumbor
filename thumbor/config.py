@@ -57,7 +57,7 @@ Config.define('PILLOW_RESAMPLING_FILTER', 'LANCZOS',
               'One of LANCZOS, NEAREST, BILINEAR, BICUBIC, HAMMING (Pillow>=3.4.0).', 'Imaging')
 
 Config.define('WEBP_QUALITY', None, 'Quality index used for generated WebP images. If not set (None) the same level of '
-              'JPEG quality will be used.', 'Imaging')
+              'JPEG quality will be used. If 100 the `lossless` flag will be used.', 'Imaging')
 
 Config.define('PNG_COMPRESSION_LEVEL', 6, 'Compression level for generated PNG images.', 'Imaging')
 Config.define('PILLOW_PRESERVE_INDEXED_MODE',
