@@ -12,7 +12,6 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method()
-    def strip_exif(self):
+    async def strip_exif(self):
         self.engine.strip_exif()

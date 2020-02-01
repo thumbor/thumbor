@@ -13,11 +13,13 @@ import os
 from tempfile import NamedTemporaryFile
 
 
-class BaseOptimizer(object):
+class BaseOptimizer:
     def __init__(self, context):
         self.context = context
 
-    def should_run(self, image_extension, buffer):
+    def should_run(
+        self, image_extension, image_buffer
+    ):  # pylint: disable=unused-argument
         return True
 
     def run_optimizer(self, image_extension, buffer):
@@ -33,9 +35,14 @@ class BaseOptimizer(object):
 
             self.optimize(buffer, ifile.name, ofile.name)
 
-            with open(ofile.name, 'rb') as f:  # reopen with file thats been changed with the optimizer
-                return f.read()
+            with open(
+                ofile.name, "rb"
+            ) as output_file:  # reopen with file thats been changed with the optimizer
+                return output_file.read()
 
         finally:
             os.unlink(ifile.name)
             os.unlink(ofile.name)
+
+    def optimize(self, image_buffer, input_file, output_file):
+        raise NotImplementedError()

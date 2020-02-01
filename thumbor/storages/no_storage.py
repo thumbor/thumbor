@@ -9,35 +9,29 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from thumbor.storages import BaseStorage
-from tornado.concurrent import return_future
 
 
 class Storage(BaseStorage):
-
-    def put(self, path, bytes):
+    async def put(self, path, file_bytes):
         return path
 
-    def put_crypto(self, path):
+    async def put_crypto(self, path):
         return path
 
-    def put_detector_data(self, path, data):
+    async def put_detector_data(self, path, data):
         return path
 
-    @return_future
-    def get_crypto(self, path, callback):
-        callback(None)
+    async def get_crypto(self, path):
+        return None
 
-    @return_future
-    def get_detector_data(self, path, callback):
-        callback(None)
+    async def get_detector_data(self, path):
+        return None
 
-    @return_future
-    def get(self, path, callback):
-        callback(None)
+    async def get(self, path):
+        return None
 
-    @return_future
-    def exists(self, path, callback):
-        callback(False)
+    async def exists(self, path):
+        return False
 
-    def remove(self, path):
+    async def remove(self, path):
         pass

@@ -42,7 +42,7 @@ called ``ErrorHandler``, like the one below:
 
 .. code-block:: python
 
-    class ErrorHandler(object):
+    class ErrorHandler:
         def __init__(self, config):
             # perform any initialization needed
             pass

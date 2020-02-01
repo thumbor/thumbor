@@ -8,16 +8,17 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from io import BytesIO
-from PIL import Image
 import re
-from subprocess import Popen, PIPE
+from io import BytesIO
+from subprocess import PIPE, Popen
+
+from PIL import Image
+
 from thumbor.engines.pil import Engine as PILEngine
 from thumbor.utils import logger
 
-
-GIFSICLE_SIZE_REGEX = re.compile(r'(?:logical\sscreen\s(\d+x\d+))')
-GIFSICLE_IMAGE_COUNT_REGEX = re.compile(r'(?:(\d+)\simage)')
+GIFSICLE_SIZE_REGEX = re.compile(r"(?:logical\sscreen\s(\d+x\d+))")
+GIFSICLE_IMAGE_COUNT_REGEX = re.compile(r"(?:(\d+)\simage)")
 
 
 class GifSicleError(RuntimeError):
@@ -30,19 +31,28 @@ class Engine(PILEngine):
         return self.image_size
 
     def run_gifsicle(self, command):
-        p = Popen([self.context.server.gifsicle_path] + command.split(' '), stdout=PIPE, stdin=PIPE, stderr=PIPE)
-        stdout_data, stderr_data = p.communicate(input=self.buffer)
-        if p.returncode != 0:
+        process = Popen(
+            [self.context.server.gifsicle_path] + command.split(" "),
+            stdout=PIPE,
+            stdin=PIPE,
+            stderr=PIPE,
+        )
+        stdout_data, stderr_data = process.communicate(input=self.buffer)
+        if process.returncode != 0:
             logger.error(stderr_data)
 
         if stdout_data is None:
             raise GifSicleError(
-                'gifsicle command returned errorlevel {0} for command "{1}" (image maybe corrupted?)'.format(
-                    p.returncode, ' '.join(
-                        [self.context.server.gifsicle_path] +
-                        command.split(' ') +
-                        [self.context.request.url]
-                    )
+                (
+                    "gifsicle command returned errorlevel {0} for "
+                    'command "{1}" (image maybe corrupted?)'
+                ).format(
+                    process.returncode,
+                    " ".join(
+                        [self.context.server.gifsicle_path]
+                        + command.split(" ")
+                        + [self.context.request.url]
+                    ),
                 )
             )
 
@@ -54,10 +64,13 @@ class Engine(PILEngine):
     def update_image_info(self):
         self._is_multiple = False
 
-        result = self.run_gifsicle('--info').decode('utf-8')
+        result = self.run_gifsicle("--info").decode("utf-8")
         size = GIFSICLE_SIZE_REGEX.search(result)
-        self.image_size = size.groups()[0].split('x')
-        self.image_size[0], self.image_size[1] = int(self.image_size[0]), int(self.image_size[1])
+        self.image_size = size.groups()[0].split("x")
+        self.image_size[0], self.image_size[1] = (
+            int(self.image_size[0]),
+            int(self.image_size[1]),
+        )
 
         count = GIFSICLE_IMAGE_COUNT_REGEX.search(result)
         self.frame_count = int(count.groups()[0])
@@ -65,7 +78,7 @@ class Engine(PILEngine):
     def load(self, buffer, extension):
         self.extension = extension
         self.buffer = buffer
-        self.image = ''
+        self.image = ""
         self.operations = []
         self.update_image_info()
 
@@ -94,17 +107,17 @@ class Engine(PILEngine):
     def rotate(self, degrees):
         if degrees not in [90, 180, 270]:
             return
-        arguments = '--rotate-%d' % degrees
+        arguments = "--rotate-%d" % degrees
         self.operations.append(arguments)
 
     def flip_vertically(self):
-        self.operations.append('--flip-vertical')
+        self.operations.append("--flip-vertical")
 
     def flip_horizontally(self):
-        self.operations.append('--flip-horizontal')
+        self.operations.append("--flip-horizontal")
 
     def extract_cover(self):
-        arguments = '#0'
+        arguments = "#0"
         self.operations.append(arguments)
         self.flush_operations()
         self.update_image_info()
@@ -133,16 +146,17 @@ class Engine(PILEngine):
             with BytesIO(buffer) as buff:
                 Image.open(buff).verify()
         except Exception:
-            self.context.metrics.incr('gif_engine.no_output')
-            logger.error("[GIF_ENGINE] invalid gif engine result for url `{url}`.".format(
-                url=self.context.request.url
-            ))
+            self.context.metrics.incr("gif_engine.no_output")
+            logger.error(
+                "[GIF_ENGINE] invalid gif engine result for url `%s`.",
+                self.context.request.url,
+            )
             raise
 
         return buffer
 
-    def convert_to_grayscale(self, update_image=True, with_alpha=True):
-        self.operations.append('--use-colormap gray')
+    def convert_to_grayscale(self, update_image=True, alpha=True):
+        self.operations.append("--use-colormap gray")
         return self._read(update_image)
 
     # gif have no exif data and thus can't be auto oriented

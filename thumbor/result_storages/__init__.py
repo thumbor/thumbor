@@ -10,42 +10,48 @@
 
 import os
 from os.path import exists
-from tornado.concurrent import return_future
 
-from thumbor.loaders import LoaderResult
 from thumbor.engines import BaseEngine
+from thumbor.loaders import LoaderResult
 
 
 class ResultStorageResult(LoaderResult):
     @property
     def last_modified(self):
-        '''
+        """
         Retrieves last_updated metadata if available
         :return:
-        '''
-        return self.metadata.get('LastModified', None)
+        """
+        return self.metadata.get("LastModified", None)
 
     @property
     def mime(self):
-        '''
+        """
         Retrieves mime metadata if available
         :return:
-        '''
-        return self.metadata['ContentType'] if 'ContentType' in self.metadata else BaseEngine.get_mimetype(self.buffer)
+        """
+        return (
+            self.metadata["ContentType"]
+            if "ContentType" in self.metadata
+            else BaseEngine.get_mimetype(self.buffer)
+        )
 
     def __len__(self):
-        return self.metadata['ContentLength'] if 'ContentLength' in self.metadata else len(self.buffer)
+        return (
+            self.metadata["ContentLength"]
+            if "ContentLength" in self.metadata
+            else len(self.buffer)
+        )
 
 
-class BaseStorage(object):
+class BaseStorage:
     def __init__(self, context):
         self.context = context
 
-    def put(self, bytes):
+    async def put(self, image_bytes):
         raise NotImplementedError()
 
-    @return_future
-    def get(self, callback):
+    async def get(self):
         raise NotImplementedError()
 
     def last_updated(self):

@@ -10,51 +10,46 @@
 
 import os
 from os.path import exists
-from tornado.concurrent import return_future
 
 
-class BaseStorage(object):
+class BaseStorage:
     def __init__(self, context):
         self.context = context
 
-    def put(self, path, bytes):
-        '''
+    async def put(self, path, file_bytes):
+        """
         :returns: Nothing. This method is expected to be asynchronous.
         :rtype: None
-        '''
+        """
         raise NotImplementedError()
 
-    def put_crypto(self, path):
-        '''
+    async def put_crypto(self, path):
+        """
         :returns: Nothing. This method is expected to be asynchronous.
         :rtype: None
-        '''
+        """
         raise NotImplementedError()
 
-    def put_detector_data(self, path, data):
-        '''
+    async def put_detector_data(self, path, data):
+        """
         :returns: Nothing. This method is expected to be asynchronous.
         :rtype: None
-        '''
+        """
         raise NotImplementedError()
 
-    @return_future
-    def get_crypto(self, path, callback):
+    async def get_crypto(self, path):
         raise NotImplementedError()
 
-    @return_future
-    def get_detector_data(self, path, callback):
+    async def get_detector_data(self, path):
         raise NotImplementedError()
 
-    @return_future
-    def get(self, path, callback):
+    async def get(self, path):
         raise NotImplementedError()
 
-    @return_future
-    def exists(self, path, callback):
+    async def exists(self, path):
         raise NotImplementedError()
 
-    def remove(self, path):
+    async def remove(self, path):
         raise NotImplementedError()
 
     def ensure_dir(self, path):

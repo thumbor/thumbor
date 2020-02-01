@@ -13,7 +13,6 @@ from thumbor.metrics import BaseMetrics
 
 
 class Metrics(BaseMetrics):
-
     @classmethod
     def client(cls, config):
         """
@@ -21,7 +20,9 @@ class Metrics(BaseMetrics):
         over and over
         """
         if not hasattr(cls, "_client"):
-            cls._client = statsd.StatsClient(config.STATSD_HOST, config.STATSD_PORT, config.STATSD_PREFIX)
+            cls._client = statsd.StatsClient(
+                config.STATSD_HOST, config.STATSD_PORT, config.STATSD_PREFIX
+            )
         return cls._client
 
     def incr(self, metricname, value=1):

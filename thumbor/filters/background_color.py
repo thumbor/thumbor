@@ -12,14 +12,15 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
-    @filter_method(r'[\w]+')
-    def background_color(self, color):
+    @filter_method(r"[\w]+")
+    async def background_color(self, color):
         self.fill_engine = self.engine.__class__(self.context)
-        x, y = self.engine.size
+        width, height = self.engine.size
         try:
-            self.fill_engine.image = self.fill_engine.gen_image((x, y), color)
+            self.fill_engine.image = self.fill_engine.gen_image((width, height), color)
         except (ValueError, RuntimeError):
-            self.fill_engine.image = self.fill_engine.gen_image((x, y), '#%s' % color)
+            self.fill_engine.image = self.fill_engine.gen_image(
+                (width, height), "#%s" % color
+            )
         self.fill_engine.paste(self.engine, (0, 0), merge=True)
         self.engine.image = self.fill_engine.image

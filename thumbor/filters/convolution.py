@@ -7,8 +7,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _convolution
+from thumbor.filters import BaseFilter, filter_method
+
+# pylint: disable=line-too-long
 
 
 class Filter(BaseFilter):
@@ -17,9 +19,21 @@ class Filter(BaseFilter):
         Example of blur filter: /filters:convolution(1;2;1;2;4;2;1;2;1,3,true)/
     """
 
-    @filter_method(r'(?:[-]?[\d]+\.?[\d]*[;])*(?:[-]?[\d]+\.?[\d]*)', BaseFilter.PositiveNumber, BaseFilter.Boolean)
+    @filter_method(
+        r"(?:[-]?[\d]+\.?[\d]*[;])*(?:[-]?[\d]+\.?[\d]*)",
+        BaseFilter.PositiveNumber,
+        BaseFilter.Boolean,
+    )
     def convolution(self, matrix, columns, should_normalize=True):
-        matrix = tuple(matrix.split(';'))
+        matrix = tuple(matrix.split(";"))
         mode, data = self.engine.image_data_as_rgb()
-        imgdata = _convolution.apply(mode, data, self.engine.size[0], self.engine.size[1], matrix, columns, should_normalize)
+        imgdata = _convolution.apply(
+            mode,
+            data,
+            self.engine.size[0],
+            self.engine.size[1],
+            matrix,
+            columns,
+            should_normalize,
+        )
         self.engine.set_image_data(imgdata)

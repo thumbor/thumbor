@@ -8,23 +8,26 @@
 # http://www.opensource.org/licenses/mit-license
 
 from preggy import expect
+from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
 
 
 class AutoJPGFilterTestCase(FilterTestCase):
-    def test_autojpg_filter_sets_param_to_true(self):
-        fltr = self.get_filter('thumbor.filters.autojpg', 'autojpg()')
+    @gen_test
+    async def test_autojpg_filter_sets_param_to_true(self):
+        fltr = self.get_filter("thumbor.filters.autojpg", "autojpg()")
         expect(self.context.request.auto_png_to_jpg).to_equal(None)
 
-        fltr.run()
+        await fltr.run()
 
         expect(self.context.request.auto_png_to_jpg).to_equal(True)
 
-    def test_autojpg_filter_sets_param_to_false(self):
-        fltr = self.get_filter('thumbor.filters.autojpg', 'autojpg(False)')
+    @gen_test
+    async def test_autojpg_filter_sets_param_to_false(self):
+        fltr = self.get_filter("thumbor.filters.autojpg", "autojpg(False)")
         expect(self.context.request.auto_png_to_jpg).to_equal(None)
 
-        fltr.run()
+        await fltr.run()
 
         expect(self.context.request.auto_png_to_jpg).to_equal(False)

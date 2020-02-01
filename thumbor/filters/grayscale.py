@@ -12,8 +12,7 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method()
-    def grayscale(self):
+    async def grayscale(self):
         engine = self.context.modules.engine
         engine.convert_to_grayscale()

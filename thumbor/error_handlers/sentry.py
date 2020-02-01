@@ -5,7 +5,7 @@ from sentry_sdk.utils import event_from_exception, exc_info_from_error
 from thumbor import __version__
 
 
-class ErrorHandler(object):
+class ErrorHandler:
     def __init__(self, config):
         self.config = config
 
@@ -36,7 +36,7 @@ SENTRY_DSN_URL configuration."
 
         sentry_sdk.init(**kwargs)
 
-    def handle_error(self, context, handler, exception):
+    def handle_error(self, _, handler, exception):
         req = handler.request
 
         exc_info = exc_info_from_error(exception)

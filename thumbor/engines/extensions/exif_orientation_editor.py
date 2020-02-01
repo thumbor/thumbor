@@ -11,7 +11,7 @@ PREFIXES = [
 EXIF_HEADER = b"Exif\x00\x00"
 
 
-class ExifOrientationEditor():
+class ExifOrientationEditor:
     _endian = "<"
     _offset = None
 
@@ -41,16 +41,18 @@ class ExifOrientationEditor():
         return header
 
     def _find_orientation_offset(self, header):
-        ifd_offset, = self._unpack("L", header[4:])
+        (ifd_offset,) = self._unpack("L", header[4:])
         self.exif_buffer.seek(ifd_offset)
 
         # Read tag directory
         for _ in range(self._unpack("H", self.exif_buffer.read(2))[0]):
             # Each tag is 12 bytes. HHL4s = tag, type, count, data
             # Read tag and ignore the rest
-            tag, = self._unpack("H10x", self.exif_buffer.read(12))
+            (tag,) = self._unpack("H10x", self.exif_buffer.read(12))
             if tag == 0x0112:  # Orientation tag
-                self._offset = self.exif_buffer.tell() - 4  # Back 4 bytes to the start of data
+                self._offset = (
+                    self.exif_buffer.tell() - 4
+                )  # Back 4 bytes to the start of data
                 break
 
     def _unpack(self, fmt, data):
@@ -61,14 +63,14 @@ class ExifOrientationEditor():
             return None
 
         self.exif_buffer.seek(self._offset)
-        return self._unpack('H', self.exif_buffer.read(2))[0]
+        return self._unpack("H", self.exif_buffer.read(2))[0]
 
     def set_orientation(self, value):
         if self._offset is None:
             return
 
         self.exif_buffer.seek(self._offset)
-        self.exif_buffer.write(struct.pack(self._endian + 'H', value))
+        self.exif_buffer.write(struct.pack(self._endian + "H", value))
 
     def tobytes(self):
         self.exif_buffer.seek(0)

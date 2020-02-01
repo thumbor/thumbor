@@ -9,15 +9,20 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from preggy import expect
+from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
 
 
 class FormatFilterTestCase(FilterTestCase):
-    def test_invalid_format_should_be_null(self):
-        self.get_filtered('source.jpg', 'thumbor.filters.format', 'format(invalid)')
+    @gen_test
+    async def test_invalid_format_should_be_null(self):
+        await self.get_filtered(
+            "source.jpg", "thumbor.filters.format", "format(invalid)"
+        )
         expect(self.context.request.format).to_be_null()
 
-    def test_can_set_proper_format(self):
-        self.get_filtered('source.jpg', 'thumbor.filters.format', 'format(webp)')
-        expect(self.context.request.format).to_equal('webp')
+    @gen_test
+    async def test_can_set_proper_format(self):
+        await self.get_filtered("source.jpg", "thumbor.filters.format", "format(webp)")
+        expect(self.context.request.format).to_equal("webp")

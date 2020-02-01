@@ -9,14 +9,12 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from unittest import TestCase
-import mock
 
+import mock
+from libthumbor.url import Url
 from preggy import expect
 
-from thumbor.app import (
-    ThumborServiceApp
-)
-from libthumbor.url import Url
+from thumbor.app import ThumborServiceApp
 
 
 class AppTestCase(TestCase):
@@ -31,35 +29,25 @@ class AppTestCase(TestCase):
             config=mock.Mock(
                 UPLOAD_ENABLED=False,
                 USE_BLACKLIST=False,
-                HEALTHCHECK_ROUTE=r'/healthcheck',
+                HEALTHCHECK_ROUTE=r"/healthcheck",
             )
         )
         app = ThumborServiceApp(ctx)
 
         handlers = app.get_handlers()
         expect(handlers).to_length(2)
-        expect(handlers[0][0]).to_equal(r'/healthcheck')
+        expect(handlers[0][0]).to_equal(r"/healthcheck")
         expect(handlers[1][0]).to_equal(Url.regex())
 
     def test_can_get_handlers_with_upload(self):
-        ctx = mock.Mock(
-            config=mock.Mock(
-                UPLOAD_ENABLED=True,
-                USE_BLACKLIST=False,
-            )
-        )
+        ctx = mock.Mock(config=mock.Mock(UPLOAD_ENABLED=True, USE_BLACKLIST=False,))
         app = ThumborServiceApp(ctx)
 
         handlers = app.get_handlers()
         expect(handlers).to_length(4)
 
     def test_can_get_handlers_with_blacklist(self):
-        ctx = mock.Mock(
-            config=mock.Mock(
-                UPLOAD_ENABLED=False,
-                USE_BLACKLIST=True,
-            )
-        )
+        ctx = mock.Mock(config=mock.Mock(UPLOAD_ENABLED=False, USE_BLACKLIST=True,))
         app = ThumborServiceApp(ctx)
 
         handlers = app.get_handlers()

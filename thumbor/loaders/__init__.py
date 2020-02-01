@@ -9,14 +9,14 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 
-class LoaderResult(object):
+class LoaderResult:
 
-    ERROR_NOT_FOUND = 'not_found'
-    ERROR_UPSTREAM = 'upstream'
-    ERROR_TIMEOUT = 'timeout'
+    ERROR_NOT_FOUND = "not_found"
+    ERROR_UPSTREAM = "upstream"
+    ERROR_TIMEOUT = "timeout"
 
-    def __init__(self, buffer=None, successful=True, error=None, metadata=dict()):
-        '''
+    def __init__(self, buffer=None, successful=True, error=None, metadata=None):
+        """
         :param buffer: The media buffer
 
         :param successful: True when the media has been loaded.
@@ -27,7 +27,10 @@ class LoaderResult(object):
 
         :param metadata: Dictionary of metadata about the buffer
         :type metadata: dict
-        '''
+        """
+
+        if metadata is None:
+            metadata = {}
 
         self.buffer = buffer
         self.successful = successful
