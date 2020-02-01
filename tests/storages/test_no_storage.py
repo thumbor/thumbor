@@ -8,13 +8,15 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from os.path import join, abspath, dirname
-from preggy import expect
+from os.path import abspath, dirname, join
 
-from thumbor.context import Context
-from thumbor.config import Config
-from thumbor.storages.no_storage import Storage as NoStorage
+from preggy import expect
+from tornado.testing import gen_test
+
 from tests.base import TestCase
+from thumbor.config import Config
+from thumbor.context import Context
+from thumbor.storages.no_storage import Storage as NoStorage
 
 
 class NoStorageTestCase(TestCase):
@@ -23,44 +25,49 @@ class NoStorageTestCase(TestCase):
         return Context(None, cfg, None)
 
     def get_image_url(self, image):
-        return 's.glbimg.com/some/{0}'.format(image)
+        return "s.glbimg.com/some/{0}".format(image)
 
     def get_image_path(self, image):
         return join(abspath(dirname(__file__)), image)
 
     def get_image_bytes(self, image):
         ipath = self.get_image_path(image)
-        with open(ipath, 'r') as img:
+        with open(ipath, "r") as img:
             return img.read()
 
-    def test_store_image_should_be_null(self):
-        iurl = self.get_image_url('source.jpg')
+    @gen_test
+    async def test_store_image_should_be_null(self):
+        iurl = self.get_image_url("source.jpg")
         storage = NoStorage(None)
-        stored = storage.get(iurl)
-        expect(stored.result()).to_be_null()
+        stored = await storage.get(iurl)
+        expect(stored).to_be_null()
 
-    def test_store_knows_no_image(self):
-        iurl = self.get_image_url('source.jpg')
+    @gen_test
+    async def test_store_knows_no_image(self):
+        iurl = self.get_image_url("source.jpg")
         storage = NoStorage(None)
-        exists = storage.exists(iurl)
-        expect(exists.result()).to_be_false()
+        exists = await storage.exists(iurl)
+        expect(exists).to_be_false()
 
-    def test_removes_image_should_be_null(self):
-        iurl = self.get_image_url('source.jpg')
+    @gen_test
+    async def test_removes_image_should_be_null(self):
+        iurl = self.get_image_url("source.jpg")
         storage = NoStorage(None)
-        removed = storage.remove(iurl)
+        removed = await storage.remove(iurl)
         expect(removed).to_be_null()
 
-    def test_stores_crypto_should_be_null(self):
-        iurl = self.get_image_url('source.jpg')
+    @gen_test
+    async def test_stores_crypto_should_be_null(self):
+        iurl = self.get_image_url("source.jpg")
         storage = NoStorage(None)
-        storage.put_crypto(iurl)
-        got_crypto = storage.get_crypto(iurl)
-        expect(got_crypto.result()).to_be_null()
+        await storage.put_crypto(iurl)
+        got_crypto = await storage.get_crypto(iurl)
+        expect(got_crypto).to_be_null()
 
-    def test_detector_data_should_be_null(self):
-        iurl = self.get_image_url('source.jpg')
+    @gen_test
+    async def test_detector_data_should_be_null(self):
+        iurl = self.get_image_url("source.jpg")
         storage = NoStorage(None)
-        storage.put_detector_data(iurl, "some data")
-        data = storage.get_detector_data(iurl)
-        expect(data.result()).to_be_null()
+        await storage.put_detector_data(iurl, "some data")
+        data = await storage.get_detector_data(iurl)
+        expect(data).to_be_null()

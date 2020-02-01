@@ -8,26 +8,29 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import math
+import re
+
+import tornado.gen
+
 from thumbor.ext.filters import _alpha
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
-import tornado.gen
-import math
-import re
 
 
 class Filter(BaseFilter):
-
     @staticmethod
     def detect_and_get_ratio_position(pos, length):
-        match = re.match('^(-?)([0-9]+)p$', pos)
+        match = re.match("^(-?)([0-9]+)p$", pos)
 
         if not match:
             return pos
 
         sign, ratio = match.groups()
-        pos = "{sign}{pos}".format(sign=sign, pos=round(length * float(ratio) / 100 + 1e-5))
+        pos = "{sign}{pos}".format(
+            sign=sign, pos=round(length * float(ratio) / 100 + 1e-5)
+        )
 
         return pos
 
@@ -56,9 +59,7 @@ class Filter(BaseFilter):
         self.watermark_engine.enable_alpha()
 
         mode, data = self.watermark_engine.image_data_as_rgb()
-        imgdata = _alpha.apply(mode,
-                               self.alpha,
-                               data)
+        imgdata = _alpha.apply(mode, self.alpha, data)
 
         self.watermark_engine.set_image_data(imgdata)
 
@@ -66,21 +67,23 @@ class Filter(BaseFilter):
         watermark_sz = self.watermark_engine.size
 
         if self.w_ratio or self.h_ratio:
-            watermark_sz = self.calc_watermark_size(sz, watermark_sz, self.w_ratio, self.h_ratio)
+            watermark_sz = self.calc_watermark_size(
+                sz, watermark_sz, self.w_ratio, self.h_ratio
+            )
             self.watermark_engine.resize(watermark_sz[0], watermark_sz[1])
 
         self.x = self.detect_and_get_ratio_position(self.x, sz[0])
         self.y = self.detect_and_get_ratio_position(self.y, sz[1])
 
-        mos_x = self.x == 'repeat'
-        mos_y = self.y == 'repeat'
-        center_x = self.x == 'center'
-        center_y = self.y == 'center'
+        mos_x = self.x == "repeat"
+        mos_y = self.y == "repeat"
+        center_x = self.x == "center"
+        center_y = self.y == "center"
         if not center_x and not mos_x:
-            inv_x = self.x[0] == '-'
+            inv_x = self.x[0] == "-"
             x = int(self.x)
         if not center_y and not mos_y:
-            inv_y = self.y[0] == '-'
+            inv_y = self.y[0] == "-"
             y = int(self.y)
 
         if not mos_x:
@@ -120,7 +123,9 @@ class Filter(BaseFilter):
                 x = i * space_x + i * watermark_sz[0]
                 for j in range(int(repeat_y[0])):
                     y = j * space_y + j * watermark_sz[1]
-                    self.engine.paste(self.watermark_engine, (x, y), merge=True)
+                    self.engine.paste(
+                        self.watermark_engine, (x, y), merge=True
+                    )
         elif mos_x:
             space_x = repeat_x[1] // (max(repeat_x[0], 2) - 1)
             for i in range(int(repeat_x[0])):
@@ -132,53 +137,58 @@ class Filter(BaseFilter):
                 y = j * space_y + j * watermark_sz[1]
                 self.engine.paste(self.watermark_engine, (x, y), merge=True)
 
-        self.callback()
-
-    def on_fetch_done(self, result):
-        if isinstance(result, LoaderResult) and not result.successful:
-            logger.warn(
-                'bad watermark result error=%s metadata=%s' %
-                (result.error, result.metadata)
-            )
-            raise tornado.web.HTTPError(400)
-
-        if isinstance(result, LoaderResult):
-            buffer = result.buffer
-        else:
-            buffer = result
-
-        self.storage.put(self.url, buffer)
-        self.storage.put_crypto(self.url)
-        self.on_image_ready(buffer)
-
-    @tornado.gen.coroutine
     @filter_method(
         BaseFilter.String,
-        r'(?:-?\d+p?)|center|repeat',
-        r'(?:-?\d+p?)|center|repeat',
+        r"(?:-?\d+p?)|center|repeat",
+        r"(?:-?\d+p?)|center|repeat",
         BaseFilter.PositiveNumber,
-        r'(?:-?\d+)|none',
-        r'(?:-?\d+)|none',
-        asynchronous=True
+        r"(?:-?\d+)|none",
+        r"(?:-?\d+)|none",
+        asynchronous=True,
     )
-    def watermark(self, callback, url, x, y, alpha, w_ratio=False, h_ratio=False):
+    async def watermark(self, url, x, y, alpha, w_ratio=False, h_ratio=False):
         self.url = url
         self.x = x
         self.y = y
         self.alpha = alpha
-        self.w_ratio = float(w_ratio) / 100.0 if w_ratio and w_ratio != 'none' else False
-        self.h_ratio = float(h_ratio) / 100.0 if h_ratio and h_ratio != 'none' else False
-        self.callback = callback
-        self.watermark_engine = self.context.modules.engine.__class__(self.context)
+        self.w_ratio = (
+            float(w_ratio) / 100.0 if w_ratio and w_ratio != "none" else False
+        )
+        self.h_ratio = (
+            float(h_ratio) / 100.0 if h_ratio and h_ratio != "none" else False
+        )
+        self.watermark_engine = self.context.modules.engine.__class__(
+            self.context
+        )
         self.storage = self.context.modules.storage
 
         try:
-            buffer = yield tornado.gen.maybe_future(self.storage.get(self.url))
+            buffer = await self.storage.get(self.url)
             if buffer is not None:
-                self.on_image_ready(buffer)
+                return self.on_image_ready(buffer)
+
+            result = await self.context.modules.loader.load(
+                self.context, self.url
+            )
+
+            if isinstance(result, LoaderResult) and not result.successful:
+                logger.warning(
+                    "bad watermark result error=%s metadata=%s"
+                    % (result.error, result.metadata)
+                )
+                raise tornado.web.HTTPError(400)
+
+            if isinstance(result, LoaderResult):
+                buffer = result.buffer
             else:
-                self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
+                buffer = result
+
+            await self.storage.put(self.url, buffer)
+            await self.storage.put_crypto(self.url)
+            self.on_image_ready(buffer)
+
         except Exception as e:
-            logger.exception(e)
-            logger.warn("bad watermark")
+            if isinstance(e, tornado.web.HTTPError):
+                raise e
+            logger.warning("bad watermark")
             raise tornado.web.HTTPError(500)

@@ -12,7 +12,6 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method(BaseFilter.PositiveNumber)
-    def max_bytes(self, value):
+    async def max_bytes(self, value):
         self.context.request.max_bytes = int(value)

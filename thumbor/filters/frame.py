@@ -11,44 +11,49 @@
 from thumbor.ext.filters import _nine_patch
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.loaders import LoaderResult
-import tornado.gen
 
 
 class Filter(BaseFilter):
-    regex = r'(?:frame\((?P<url>.*?))'
+    regex = r"(?:frame\((?P<url>.*?))"
 
-    def on_image_ready(self, buffer):
+    async def on_image_ready(self, buffer):
         self.nine_patch_engine.load(buffer, None)
         self.nine_patch_engine.enable_alpha()
         self.engine.enable_alpha()
 
-        nine_patch_mode, nine_patch_data = self.nine_patch_engine.image_data_as_rgb()
-        padding = _nine_patch.get_padding(nine_patch_mode,
-                                          nine_patch_data,
-                                          self.nine_patch_engine.size[0],
-                                          self.nine_patch_engine.size[1])
+        (
+            nine_patch_mode,
+            nine_patch_data,
+        ) = self.nine_patch_engine.image_data_as_rgb()
+        padding = _nine_patch.get_padding(
+            nine_patch_mode,
+            nine_patch_data,
+            self.nine_patch_engine.size[0],
+            self.nine_patch_engine.size[1],
+        )
 
         self.handle_padding(padding)
 
         mode, data = self.engine.image_data_as_rgb()
 
         if mode != nine_patch_mode:
-            raise RuntimeError('Image mode mismatch: %s != %s' % (
-                mode, nine_patch_mode)
+            raise RuntimeError(
+                "Image mode mismatch: %s != %s" % (mode, nine_patch_mode)
             )
 
-        imgdata = _nine_patch.apply(mode,
-                                    data,
-                                    self.engine.size[0],
-                                    self.engine.size[1],
-                                    nine_patch_data,
-                                    self.nine_patch_engine.size[0],
-                                    self.nine_patch_engine.size[1])
+        imgdata = _nine_patch.apply(
+            mode,
+            data,
+            self.engine.size[0],
+            self.engine.size[1],
+            nine_patch_data,
+            self.nine_patch_engine.size[0],
+            self.nine_patch_engine.size[1],
+        )
         self.engine.set_image_data(imgdata)
-        self.callback()
 
     def handle_padding(self, padding):
-        '''Pads the image with transparent pixels if necessary.'''
+        """Pads the image with transparent pixels if necessary."""
         left = padding[0]
         top = padding[1]
         right = padding[2]
@@ -70,12 +75,14 @@ class Filter(BaseFilter):
         if bottom > 0:
             new_height += bottom
         new_engine = self.context.modules.engine.__class__(self.context)
-        new_engine.image = new_engine.gen_image((new_width, new_height), '#fff')
+        new_engine.image = new_engine.gen_image(
+            (new_width, new_height), "#fff"
+        )
         new_engine.enable_alpha()
         new_engine.paste(self.engine, (offset_x, offset_y))
         self.engine.image = new_engine.image
 
-    def on_fetch_done(self, result):
+    async def on_fetch_done(self, result):
         # TODO if result.successful is False how can the error be handled?
         if isinstance(result, LoaderResult):
             buffer = result.buffer
@@ -83,20 +90,21 @@ class Filter(BaseFilter):
             buffer = result
 
         self.nine_patch_engine.load(buffer, None)
-        self.storage.put(self.url, self.nine_patch_engine.read())
-        self.storage.put_crypto(self.url)
-        self.on_image_ready(buffer)
+        await self.storage.put(self.url, self.nine_patch_engine.read())
+        await self.storage.put_crypto(self.url)
+        await self.on_image_ready(buffer)
 
     @filter_method(BaseFilter.String, asynchronous=True)
-    @tornado.gen.coroutine
-    def frame(self, callback, url):
+    async def frame(self, url):
         self.url = url
-        self.callback = callback
-        self.nine_patch_engine = self.context.modules.engine.__class__(self.context)
+        self.nine_patch_engine = self.context.modules.engine.__class__(
+            self.context
+        )
         self.storage = self.context.modules.storage
 
-        buffer = yield tornado.gen.maybe_future(self.storage.get(self.url))
+        buffer = await self.storage.get(self.url)
         if buffer is not None:
-            self.on_image_ready(buffer)
-        else:
-            self.context.modules.loader.load(self.context, self.url, self.on_fetch_done)
+            return await self.on_image_ready(buffer)
+
+        result = await self.context.modules.loader.load(self.context, self.url)
+        await self.on_fetch_done(result)

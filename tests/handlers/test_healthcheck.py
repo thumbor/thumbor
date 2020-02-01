@@ -8,43 +8,52 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import pytest
 from preggy import expect
+from tornado.testing import gen_test
 
+from tests.base import TestCase
 from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.importer import Importer
-from tests.base import TestCase
+
+# All test coroutines will be treated as marked.
+pytestmark = pytest.mark.asyncio
 
 
 class HealthcheckHandlerTestCase(TestCase):
-    def test_can_get_healthcheck(self):
-        response = self.fetch('/healthcheck')
+    @gen_test
+    async def test_can_get_healthcheck(self):
+        response = await self.async_get("/healthcheck")
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("WORKING")
-        expect(response.headers.get('Cache-Control')).to_equal('no-cache')
+        expect(response.headers.get("Cache-Control")).to_equal("no-cache")
 
-    def test_can_head_healthcheck(self):
-        response = self.fetch('/healthcheck', method='HEAD')
+    @gen_test
+    async def test_can_head_healthcheck(self):
+        response = await self.async_fetch("/healthcheck", method="HEAD")
         expect(response.code).to_equal(200)
-        expect(response.headers.get('Cache-Control')).to_equal('no-cache')
+        expect(response.headers.get("Cache-Control")).to_equal("no-cache")
 
 
 # Same test, but configured for the root URL
 class HealthcheckOnRootTestCase(TestCase):
     def get_context(self):
         cfg = Config()
-        cfg.HEALTHCHECK_ROUTE = '/'
+        cfg.HEALTHCHECK_ROUTE = "/"
 
         importer = Importer(cfg)
         importer.import_modules()
 
         return Context(None, cfg, importer)
 
-    def test_can_get_healthcheck(self):
-        response = self.fetch('/')
+    @gen_test
+    async def test_can_get_healthcheck(self):
+        response = await self.async_get("/")
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("WORKING")
 
-    def test_can_head_healthcheck(self):
-        response = self.fetch('/', method='HEAD')
+    @gen_test
+    async def test_can_head_healthcheck(self):
+        response = await self.async_fetch("/", method="HEAD")
         expect(response.code).to_equal(200)

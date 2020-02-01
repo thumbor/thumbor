@@ -10,25 +10,21 @@
 
 from thumbor.handlers import ContextHandler
 from thumbor.utils import logger
-import tornado
 
 
 class BlacklistHandler(ContextHandler):
-
-    @tornado.web.asynchronous
-    @tornado.gen.coroutine
-    def get(self):
-        blacklist = yield self.get_blacklist_contents()
+    async def get(self):
+        blacklist = await self.get_blacklist_contents()
 
         self.write(blacklist)
-        self.set_header('Content-Type', 'text/plain')
+        self.set_header("Content-Type", "text/plain")
         self.set_status(200)
 
-    @tornado.web.asynchronous
-    @tornado.gen.coroutine
-    def put(self):
-        blacklist = yield self.get_blacklist_contents()
+    async def put(self):
+        blacklist = await self.get_blacklist_contents()
         blacklist += self.request.query + "\n"
-        logger.debug('Adding to blacklist: %s' % self.request.query)
-        self.context.modules.storage.put('blacklist.txt', blacklist.encode())
+        logger.debug("Adding to blacklist: %s" % self.request.query)
+        await self.context.modules.storage.put(
+            "blacklist.txt", blacklist.encode()
+        )
         self.set_status(200)

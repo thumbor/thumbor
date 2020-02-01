@@ -4,44 +4,34 @@ run: compile_ext
 	@thumbor -l debug -d
 
 setup:
-    ifeq ($(OS), Darwin)
-	@$(MAKE) setup_mac
-    else
-	@$(MAKE) setup_ubuntu
-    endif
-	@PYCURL_SSL_LIBRARY=openssl \
-		LDFLAGS=-L/usr/local/opt/openssl/lib \
-		CPPFLAGS=-I/usr/local/opt/openssl/include \
-		$(MAKE) setup_python
+	@poetry install
 
-setup_ubuntu:
-	@sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx? \
-                             libvpx-dev libimage-exiftool-perl libcairo2-dev \
-                             ffmpeg libcurl4-openssl-dev libffi-dev \
-                             python-dev python3-dev
-setup_python:
-	@pip install -e .[tests]
+# Leaving this for future reference of committers.
+# setup_ubuntu:
+	# @sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx? \
+                             # libvpx-dev libimage-exiftool-perl libcairo2-dev \
+                             # ffmpeg libcurl4-openssl-dev libffi-dev \
+                             # python-dev python3-dev
+# setup_mac:
+	# @brew tap brewsci/science
+	# @brew update
+	# @brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo
+	# @brew install ffmpeg --with-libvpx
+	# @opencv_path=`realpath $$(dirname $$(brew --prefix opencv))/$$(readlink $$(brew --prefix opencv))`; \
+		# echo 'Enter in your site-packages directory and run the following lines:';\
+		# echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv.py ./";\
+		# echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv2.so ./"
 
-setup_mac:
-	@brew tap brewsci/science
-	@brew update
-	@brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo
-	@brew install ffmpeg --with-libvpx
-	@opencv_path=`realpath $$(dirname $$(brew --prefix opencv))/$$(readlink $$(brew --prefix opencv))`; \
-		echo 'Enter in your site-packages directory and run the following lines:';\
-		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv.py ./";\
-		echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv2.so ./"
+compile_ext build:
+	@poetry build
 
-compile_ext:
-	@python setup.py build_ext -i
-
-test: compile_ext redis
+test: build redis
 	@$(MAKE) unit coverage
 	@$(MAKE) integration_run
 	@$(MAKE) flake
 	@$(MAKE) kill_redis
 
-ci_test: compile_ext
+ci_test: build 
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -54,14 +44,7 @@ coverage:
 	@coverage report -m --fail-under=10
 
 unit:
-	@coverage run --branch -m nose -v --with-yanc -s tests/
-
-unit-parallel:
-	@`which nosetests` -v --with-yanc --processes=4 -s tests/
-
-focus:
-	@coverage run --branch -m nose -vv --with-yanc --logging-level=WARNING --with-focus -i -s tests/
-
+	@pytest --cov=thumbor tests/
 
 mysql_test: pretest
 	PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py
@@ -74,7 +57,7 @@ redis: kill_redis
 	@redis-cli -p 6668 -a hey_you info
 
 flake:
-	@flake8 . --ignore=W801,E501,W605,W504,W606
+	@flake8 --config .flake8
 
 setup_docs:
 	pip install -r docs/requirements.txt

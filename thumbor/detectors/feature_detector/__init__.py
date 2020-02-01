@@ -17,21 +17,20 @@ from thumbor.utils import logger
 
 
 class Detector(BaseDetector):
-
-    def detect(self, callback):
+    async def detect(self):
         engine = self.context.modules.engine
         try:
             img = np.array(
                 engine.convert_to_grayscale(
-                    update_image=False,
-                    with_alpha=False
+                    update_image=False, with_alpha=False
                 )
             )
         except Exception as e:
             logger.exception(e)
-            logger.warn('Error during feature detection; skipping to next detector')
-            self.next(callback)
-            return
+            logger.warn(
+                "Error during feature detection; skipping to next detector"
+            )
+            return await self.next()
 
         points = cv2.goodFeaturesToTrack(
             img,
@@ -43,7 +42,9 @@ class Detector(BaseDetector):
         if points is not None:
             for point in points:
                 x, y = point.ravel()
-                self.context.request.focal_points.append(FocalPoint(x.item(), y.item(), 1))
-            callback()
-        else:
-            self.next(callback)
+                self.context.request.focal_points.append(
+                    FocalPoint(x.item(), y.item(), 1)
+                )
+            return
+
+        await self.next()

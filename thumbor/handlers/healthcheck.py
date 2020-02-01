@@ -12,10 +12,10 @@ from thumbor.handlers import BaseHandler
 
 
 class HealthcheckHandler(BaseHandler):
-    def get(self):
-        self.set_header('Cache-Control', 'no-cache')
-        self.write('WORKING')
+    async def get(self):
+        self.set_header("Cache-Control", "no-cache")
+        self.write("WORKING")
 
-    def head(self, *args, **kwargs):
-        self.set_header('Cache-Control', 'no-cache')
+    async def head(self, *args, **kwargs):
+        self.set_header("Cache-Control", "no-cache")
         self.set_status(200)

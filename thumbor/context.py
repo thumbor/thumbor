@@ -10,12 +10,9 @@
 
 from os.path import abspath, exists
 
-from concurrent.futures import ThreadPoolExecutor, Future
-from tornado.ioloop import IOLoop
-
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
-from thumbor.utils import logger
+from thumbor.threadpool import ThreadPool
 
 try:
     unicode
@@ -24,17 +21,20 @@ except NameError:
 
 
 class Context:
-    '''
+    """
     Class responsible for containing:
     * Server Configuration Parameters (port, ip, key, etc);
     * Configurations read from config file (or defaults);
     * Importer with imported modules (engine, filters, detectors, etc);
     * Request Parameters (width, height, smart, meta, etc).
 
-    Each instance of this class MUST be unique per request. This class should not be cached in the server.
-    '''
+    Each instance of this class MUST be unique per request.
+    This class should not be cached in the server.
+    """
 
-    def __init__(self, server=None, config=None, importer=None, request_handler=None):
+    def __init__(
+        self, server=None, config=None, importer=None, request_handler=None
+    ):
         self.server = server
         self.config = config
         if importer:
@@ -47,17 +47,24 @@ class Context:
             self.modules = None
             self.metrics = Metrics(config)
 
-        self.app_class = 'thumbor.app.ThumborServiceApp'
+        self.app_class = "thumbor.app.ThumborServiceApp"
 
-        if hasattr(self.config, 'APP_CLASS'):
+        if hasattr(self.config, "APP_CLASS"):
             self.app_class = self.config.APP_CLASS
 
-        if hasattr(self.server, 'app_class') and self.server.app_class != 'thumbor.app.ThumborServiceApp':
+        if (
+            hasattr(self.server, "app_class")
+            and self.server.app_class != "thumbor.app.ThumborServiceApp"
+        ):
             self.app_class = self.server.app_class
 
-        self.filters_factory = FiltersFactory(self.modules.filters if self.modules else [])
+        self.filters_factory = FiltersFactory(
+            self.modules.filters if self.modules else []
+        )
         self.request_handler = request_handler
-        self.thread_pool = ThreadPool.instance(getattr(config, 'ENGINE_THREADPOOL_SIZE', 0))
+        self.thread_pool = ThreadPool.instance(
+            getattr(config, "ENGINE_THREADPOOL_SIZE", 0)
+        )
         self.headers = {}
 
     def __enter__(self):
@@ -71,7 +78,19 @@ class Context:
 
 
 class ServerParameters(object):
-    def __init__(self, port, ip, config_path, keyfile, log_level, app_class, debug=False, fd=None, gifsicle_path=None, use_environment=False):
+    def __init__(
+        self,
+        port,
+        ip,
+        config_path,
+        keyfile,
+        log_level,
+        app_class,
+        debug=False,
+        fd=None,
+        gifsicle_path=None,
+        use_environment=False,
+    ):
         self.port = port
         self.ip = ip
         self.config_path = config_path
@@ -99,73 +118,85 @@ class ServerParameters(object):
 
         path = abspath(self.keyfile)
         if not exists(path):
-            raise ValueError('Could not find security key file at %s. Please verify the keypath argument.' % path)
+            raise ValueError(
+                (
+                    "Could not find security key file at %s. "
+                    "Please verify the keypath argument."
+                )
+                % path
+            )
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             security_key = f.read().strip()
 
         self.security_key = security_key
 
 
 class RequestParameters:
-
-    def __init__(self,
-                 debug=False,
-                 meta=False,
-                 trim=None,
-                 crop_left=None,
-                 crop_top=None,
-                 crop_right=None,
-                 crop_bottom=None,
-                 crop=None,
-                 adaptive=False,
-                 full=False,
-                 fit_in=False,
-                 stretch=False,
-                 width=0,
-                 height=0,
-                 horizontal_flip=False,
-                 vertical_flip=False,
-                 halign='center',
-                 valign='middle',
-                 filters=None,
-                 smart=False,
-                 quality=80,
-                 image=None,
-                 url=None,
-                 extension=None,
-                 buffer=None,
-                 focal_points=None,
-                 unsafe=False,
-                 hash=None,
-                 accepts_webp=False,
-                 request=None,
-                 max_age=None,
-                 auto_png_to_jpg=None):
+    def __init__(
+        self,
+        debug=False,
+        meta=False,
+        trim=None,
+        crop_left=None,
+        crop_top=None,
+        crop_right=None,
+        crop_bottom=None,
+        crop=None,
+        adaptive=False,
+        full=False,
+        fit_in=False,
+        stretch=False,
+        width=0,
+        height=0,
+        horizontal_flip=False,
+        vertical_flip=False,
+        halign="center",
+        valign="middle",
+        filters=None,
+        smart=False,
+        quality=80,
+        image=None,
+        url=None,
+        extension=None,
+        buffer=None,
+        focal_points=None,
+        unsafe=False,
+        hash=None,
+        accepts_webp=False,
+        request=None,
+        max_age=None,
+        auto_png_to_jpg=None,
+    ):
 
         self.debug = bool(debug)
         self.meta = bool(meta)
         self.trim = trim
         if trim is not None:
-            trim_parts = trim.split(':')
-            self.trim_pos = trim_parts[1] if len(trim_parts) > 1 else "top-left"
-            self.trim_tolerance = int(trim_parts[2]) if len(trim_parts) > 2 else 0
+            trim_parts = trim.split(":")
+            self.trim_pos = (
+                trim_parts[1] if len(trim_parts) > 1 else "top-left"
+            )
+            self.trim_tolerance = (
+                int(trim_parts[2]) if len(trim_parts) > 2 else 0
+            )
 
         if crop is not None:
             self.crop = {k: self.int_or_0(v) for k, v in crop.items()}
         else:
             self.crop = {
-                'left': self.int_or_0(crop_left),
-                'right': self.int_or_0(crop_right),
-                'top': self.int_or_0(crop_top),
-                'bottom': self.int_or_0(crop_bottom)
+                "left": self.int_or_0(crop_left),
+                "right": self.int_or_0(crop_right),
+                "top": self.int_or_0(crop_top),
+                "bottom": self.int_or_0(crop_bottom),
             }
 
-        self.should_crop = \
-            self.crop['left'] > 0 or \
-            self.crop['top'] > 0 or \
-            self.crop['right'] > 0 or \
-            self.crop['bottom'] > 0
+        self.should_crop = (
+            self.crop["left"] > 0
+            or self.crop["top"] > 0
+            or self.crop["right"] > 0
+            or self.crop["bottom"] > 0
+        )
 
         self.adaptive = bool(adaptive)
         self.full = bool(full)
@@ -176,8 +207,8 @@ class RequestParameters:
         self.height = height == "orig" and "orig" or self.int_or_0(height)
         self.horizontal_flip = bool(horizontal_flip)
         self.vertical_flip = bool(vertical_flip)
-        self.halign = halign or 'center'
-        self.valign = valign or 'middle'
+        self.halign = halign or "center"
+        self.valign = valign or "middle"
         self.smart = bool(smart)
 
         if filters is None:
@@ -196,7 +227,7 @@ class RequestParameters:
         self.focal_points = focal_points
         self.hash = hash
         self.prevent_result_storage = False
-        self.unsafe = unsafe == 'unsafe' or unsafe is True
+        self.unsafe = unsafe == "unsafe" or unsafe is True
         self.format = None
         self.accepts_webp = accepts_webp
         self.max_bytes = None
@@ -205,7 +236,9 @@ class RequestParameters:
 
         if request:
             self.url = request.path
-            self.accepts_webp = 'image/webp' in request.headers.get('Accept', '')
+            self.accepts_webp = "image/webp" in request.headers.get(
+                "Accept", ""
+            )
 
     def int_or_0(self, value):
         return 0 if value is None else int(value)
@@ -245,53 +278,3 @@ class ContextImporter:
     def cleanup(self):
         if self.engine:
             self.engine.cleanup()
-
-
-class ThreadPool(object):
-
-    @classmethod
-    def instance(cls, size):
-        """
-        Cache threadpool since context is
-        recreated for each request
-        """
-        if not getattr(cls, "_instance", None):
-            cls._instance = {}
-        if size not in cls._instance:
-            cls._instance[size] = ThreadPool(size)
-        return cls._instance[size]
-
-    def __init__(self, thread_pool_size):
-        if thread_pool_size:
-            self.pool = ThreadPoolExecutor(thread_pool_size)
-        else:
-            self.pool = None
-
-    def _execute_in_foreground(self, operation, callback):
-        result = Future()
-
-        try:
-            returned = operation()
-        except Exception as e:
-            logger.exception('[ThreadPool] %s', e)
-            result.set_exception(e)
-        else:
-            result.set_result(returned)
-
-        callback(result)
-
-    def _execute_in_pool(self, operation, callback):
-        future = self.pool.submit(operation)
-
-        IOLoop.current().add_future(future, callback)
-
-    def queue(self, operation, callback):
-        if not self.pool:
-            self._execute_in_foreground(operation, callback)
-        else:
-            self._execute_in_pool(operation, callback)
-
-    def cleanup(self):
-        if self.pool:
-            logger.info("Shutting down threads")
-            self.pool.shutdown()

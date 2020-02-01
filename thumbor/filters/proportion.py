@@ -12,9 +12,8 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method(BaseFilter.DecimalNumber)
-    def proportion(self, value):
+    async def proportion(self, value):
         source_width, source_height = self.context.request.engine.size
 
         new_width = source_width * value

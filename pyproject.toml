@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "thumbor"
+version = "6.7.0"
+description = "thumbor is an open-source photo thumbnail service by globo.com"
+authors = ["globo.com"]
+license = "MIT"
+build = "build.py"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+tornado = "^6.0.3"
+Pillow = "^7.0.0"
+derpconf = "^0.8.3"
+statsd = "^3.3.0"
+libthumbor = "^1.3.2"
+pytz = "^2019.3"
+webcolors = "^1.10"
+pyssim = "^0.4"
+
+[tool.poetry.dev-dependencies]
+redis = "^3.4.0"
+coverage = "^5.0.3"
+mock = "^3.0.5"
+sentry-sdk = "^0.14.1"
+nose = "^1.3.7"
+nose-focus = "^0.2.0"
+colorama = "^0.4.3"
+numpy = "^1.18.1"
+flake8 = "^3.7.9"
+yanc = "^0.3.3"
+remotecv = "^2.3.0"
+cairosvg = ">=1.0.0,<2.0.0,!=1.0.21"
+preggy = "^1.4.4"
+opencv-python-headless = "^4.1.2"
+py3exiv2 = "^0.7.1"
+isort = "^4.3.21"
+pytest-cov = "^2.8.1"
+pytest = "^5.3.5"
+pytest-asyncio = "^0.10.0"
+pytest-tldr = "^0.2.1"
+pycurl = "^7.43.0"
+
+[tool.poetry.scripts]
+thumbor = 'thumbor.server:main'
+thumbor-url = 'thumbor.url_composer:main'
+thumbor-config = 'thumbor.config:generate_config'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

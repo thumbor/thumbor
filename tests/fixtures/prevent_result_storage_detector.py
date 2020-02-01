@@ -13,6 +13,5 @@ from thumbor.detectors import BaseDetector
 
 
 class Detector(BaseDetector):
-    def detect(self, callback):
+    async def detect(self):
         self.context.request.prevent_result_storage = True
-        callback()

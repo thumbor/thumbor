@@ -12,7 +12,6 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method(BaseFilter.PositiveNumber)
-    def quality(self, value):
+    async def quality(self, value):
         self.context.request.quality = value

@@ -4,6 +4,11 @@ recursive-include thumbor *.py
 recursive-include thumbor *.conf
 recursive-include thumbor *.xml
 recursive-include thumbor *.h
+recursive-include thumbor *.jpg
+recursive-include thumbor *.png
+recursive-include thumbor *.gif
+recursive-include thumbor *.svg
+recursive-include thumbor 513px-Coffee_beans_-_ziarna_kawy
 
 include LICENSE README.mkd CHANGELOG
 recursive-include docs *
