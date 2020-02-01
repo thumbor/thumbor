@@ -10,99 +10,105 @@
 
 
 from preggy import expect
+from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
 
 
 class FillFilterTestCase(FilterTestCase):
-    def test_fill_filter_with_fixed_color(self):
+    @gen_test
+    async def test_fill_filter_with_fixed_color(self):
         def config_context(context):
             context.request.fit_in = True
             context.request.width = 800
             context.request.height = 800
 
-        image = self.get_filtered(
-            'source.jpg',
-            'thumbor.filters.fill',
-            'fill(0000ff)',
-            config_context=config_context
+        image = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.fill",
+            "fill(0000ff)",
+            config_context=config_context,
         )
 
-        expected = self.get_fixture('fill.jpg')
+        expected = self.get_fixture("fill.jpg")
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)
 
-    def test_fill_filter_with_average(self):
+    @gen_test
+    async def test_fill_filter_with_average(self):
         def config_context(context):
             context.request.fit_in = True
             context.request.width = 800
             context.request.height = 800
 
-        image = self.get_filtered(
-            'source.jpg',
-            'thumbor.filters.fill',
-            'fill(auto)',
-            config_context=config_context
+        image = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.fill",
+            "fill(auto)",
+            config_context=config_context,
         )
 
-        expected = self.get_fixture('fill2.jpg')
+        expected = self.get_fixture("fill2.jpg")
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)
 
-    def test_fill_filter_with_full_fit_in(self):
+    @gen_test
+    async def test_fill_filter_with_full_fit_in(self):
         def config_context(context):
             context.request.fit_in = True
             context.request.full = True
             context.request.width = 800
             context.request.height = 800
 
-        image = self.get_filtered(
-            'source.jpg',
-            'thumbor.filters.fill',
-            'fill(auto)',
-            config_context=config_context
+        image = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.fill",
+            "fill(auto)",
+            config_context=config_context,
         )
 
-        expected = self.get_fixture('fill3.jpg')
+        expected = self.get_fixture("fill3.jpg")
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)
 
-    def test_fill_filter_with_full_fit_in_orig_width(self):
+    @gen_test
+    async def test_fill_filter_with_full_fit_in_orig_width(self):
         def config_context(context):
             context.request.fit_in = True
             context.request.full = True
-            context.request.width = 'orig'
+            context.request.width = "orig"
             context.request.height = 800
 
-        image = self.get_filtered(
-            'source.jpg',
-            'thumbor.filters.fill',
-            'fill(auto)',
-            config_context=config_context
+        image = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.fill",
+            "fill(auto)",
+            config_context=config_context,
         )
 
-        expected = self.get_fixture('fill3.jpg')
+        expected = self.get_fixture("fill3.jpg")
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)
 
-    def test_fill_filter_with_blur(self):
+    @gen_test
+    async def test_fill_filter_with_blur(self):
         def config_context(context):
             context.request.fit_in = True
             context.request.width = 800
             context.request.height = 800
 
-        image = self.get_filtered(
-            'source.jpg',
-            'thumbor.filters.fill',
-            'fill(blur)',
-            config_context=config_context
+        image = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.fill",
+            "fill(blur)",
+            config_context=config_context,
         )
 
-        expected = self.get_fixture('fill4.jpg')
+        expected = self.get_fixture("fill4.jpg")
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)

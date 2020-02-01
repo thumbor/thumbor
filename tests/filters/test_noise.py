@@ -10,14 +10,18 @@
 
 
 from preggy import expect
+from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
 
 
 class NoiseFilterTestCase(FilterTestCase):
-    def test_noise_filter(self):
-        image = self.get_filtered('source.jpg', 'thumbor.filters.noise', 'noise(200,123)')
-        expected = self.get_fixture('noise.png')
+    @gen_test
+    async def test_noise_filter(self):
+        image = await self.get_filtered(
+            "source.jpg", "thumbor.filters.noise", "noise(200,123)"
+        )
+        expected = self.get_fixture("noise.png")
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.98)

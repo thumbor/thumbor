@@ -12,7 +12,6 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method(BaseFilter.PositiveNumber)
-    def max_age(self, value):
+    async def max_age(self, value):
         self.context.request.max_age = int(value)

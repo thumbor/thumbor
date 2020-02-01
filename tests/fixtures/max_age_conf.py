@@ -9,9 +9,9 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 from os.path import abspath
 
-LOADER = 'thumbor.loaders.file_loader'
-FILE_LOADER_ROOT_PATH = abspath('./tests/fixtures/images/')
-STORAGE = 'thumbor.storages.no_storage'
+LOADER = "thumbor.loaders.file_loader"
+FILE_LOADER_ROOT_PATH = abspath("./tests/fixtures/images/")
+STORAGE = "thumbor.storages.no_storage"
 
 MAX_AGE = 2
 MAX_AGE_TEMP_IMAGE = 1

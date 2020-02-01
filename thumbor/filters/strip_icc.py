@@ -12,7 +12,6 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method()
-    def strip_icc(self):
+    async def strip_icc(self):
         self.engine.strip_icc()

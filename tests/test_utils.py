@@ -8,28 +8,22 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from mock import Mock, patch
-from unittest import TestCase
 import logging
+from unittest import TestCase
 
+from mock import patch
 from preggy import expect
 
-from thumbor.utils import (
-    CONTENT_TYPE,
-    EXTENSION,
-    logger,
-    on_exception,
-    deprecated,
-    which,
-)
+from thumbor.utils import CONTENT_TYPE, EXTENSION, deprecated, logger, which
 
 
 class UtilsTestCase(TestCase):
-    def setUp(self, *args, **kw):
+    def setUp(self):
         self.handled = False
-        super(UtilsTestCase, self).setUp(*args, **kw)
+        super(UtilsTestCase, self).setUp()
 
-    def test_can_get_content_type(self):
+    @staticmethod
+    def test_can_get_content_type():
         expect(CONTENT_TYPE.get(".jpg")).to_equal("image/jpeg")
         expect(CONTENT_TYPE.get(".jpeg")).to_equal("image/jpeg")
         expect(CONTENT_TYPE.get(".gif")).to_equal("image/gif")
@@ -41,7 +35,8 @@ class UtilsTestCase(TestCase):
         expect(CONTENT_TYPE.get(".tif")).to_equal("image/tiff")
         expect(CONTENT_TYPE.get(".tiff")).to_equal("image/tiff")
 
-    def test_can_get_extension(self):
+    @staticmethod
+    def test_can_get_extension():
         expect(EXTENSION.get("image/jpeg")).to_equal(".jpg")
         expect(EXTENSION.get("image/gif")).to_equal(".gif")
         expect(EXTENSION.get("image/png")).to_equal(".png")
@@ -51,34 +46,9 @@ class UtilsTestCase(TestCase):
         expect(EXTENSION.get("image/svg+xml")).to_equal(".svg")
         expect(EXTENSION.get("image/tiff")).to_equal(".tif")
 
-    def test_can_get_logger(self):
+    @staticmethod
+    def test_can_get_logger():
         expect(logger.name).to_equal("thumbor")
-
-    def test_can_create_on_exception(self):
-        callback_mock = Mock()
-        inst = on_exception(callback_mock)
-
-        expect(inst.callback).to_equal(callback_mock)
-        expect(inst.exception_class).to_equal(Exception)
-
-        inst = on_exception(callback_mock, RuntimeError)
-        expect(inst.exception_class).to_equal(RuntimeError)
-
-    def test_can_handle_exceptions(self):
-        self.handled = False
-
-        def handle_callback(func, exc, exc_value):
-            expect(func).to_equal("test_func")
-            expect(exc).to_equal(Exception)
-            expect(str(exc_value)).to_equal("Test")
-            self.handled = True
-
-        @on_exception(handle_callback)
-        def test_func():
-            raise RuntimeError("Test")
-
-        test_func()
-        expect(self.handled).to_be_true()
 
     def __can_handle_callback(self, func, exc, exc_value):
         expect(func).to_equal("test_func")
@@ -86,54 +56,42 @@ class UtilsTestCase(TestCase):
         expect(str(exc_value)).to_equal("Test")
         self.handled = True
 
-    def test_can_handle_exceptions_with_instance(self):
-        self.handled = False
-
-        @on_exception(UtilsTestCase.__can_handle_callback)
-        def test_func(self):
-            raise RuntimeError("Test")
-
-        test_func(self)
-        expect(self.handled).to_be_true()
-
-    def test_cant_handle_exceptions_without_callback(self):
-        @on_exception(None)
-        def test_func(self):
-            raise RuntimeError("Test")
-
-        with expect.error_to_happen(RuntimeError):
-            test_func(self)
-
-    def test_deprecated_logs_msg(self):
+    @staticmethod
+    def test_deprecated_logs_msg():
         @deprecated("func2")
         def test_func():
             pass
 
-        with patch.object(logger, "warn") as mock_warn:
+        with patch.object(logger, "warning") as mock_warn:
             test_func()
             mock_warn.assert_called_once_with(
-                "Deprecated function test_func: func2"
+                "Deprecated function %s%s", "test_func", "func2"
             )
 
-    def test_can_which_by_path(self):
+    @staticmethod
+    def test_can_which_by_path():
         result = which("/bin/ls")
         expect(result).to_include("/bin/ls")
 
         result = which("/tmp")
         expect(result).to_be_null()
 
-    def test_can_which_by_env(self):
+    @staticmethod
+    def test_can_which_by_env():
         result = which("ls")
         expect(result).to_include("/bin/ls")
 
         result = which("invalid-command")
         expect(result).to_be_null()
 
-    def test_logger_should_be_instance_of_python_logger(self):
+    @staticmethod
+    def test_logger_should_be_instance_of_python_logger():
         expect(logger).to_be_instance_of(logging.Logger)
 
-    def test_logger_should_not_be_null(self):
+    @staticmethod
+    def test_logger_should_not_be_null():
         expect(logger).not_to_be_null()
 
-    def test_logger_should_not_be_an_error(self):
+    @staticmethod
+    def test_logger_should_not_be_an_error():
         expect(logger).not_to_be_an_error()

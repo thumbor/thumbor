@@ -16,7 +16,6 @@ HAIR_OFFSET = 0.12
 
 
 class Detector(CascadeLoaderDetector):
-
     def __init__(self, context, index, detectors):
         super(Detector, self).__init__(context, index, detectors)
         self.load_cascade_file(__file__, self.context.config.FACE_DETECTOR_CASCADE_FILE)
@@ -25,21 +24,22 @@ class Detector(CascadeLoaderDetector):
         top = max(0, top - height * HAIR_OFFSET)
         return top
 
-    def detect(self, callback):
+    async def detect(self):
         try:
             features = self.get_features()
-        except Exception as e:
-            logger.exception(e)
-            logger.warn('Error during face detection; skipping to next detector')
-            self.next(callback)
-            return
+        except Exception as error:
+            logger.exception(error)
+            logger.warning("Error during face detection; skipping to next detector")
+            return await self.next()
 
         if features:
-            for (left, top, width, height), neighbors in features:
+            for (left, top, width, height), _ in features:
                 top = self.__add_hair_offset(top, height)
                 self.context.request.focal_points.append(
-                    FocalPoint.from_square(left, top, width, height, origin="Face Detection")
+                    FocalPoint.from_square(
+                        left, top, width, height, origin="Face Detection"
+                    )
                 )
-            callback()
-        else:
-            self.next(callback)
+            return
+
+        await self.next()

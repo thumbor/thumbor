@@ -1,4 +1,6 @@
 [flake8]
-exclude = ./.tox/*,./build/*,./docs/conf.py
-max-line-length = 130
+ignore = W801,E501,W605,W504,W606,W503,E203,E266
+max-line-length = 88
 max-complexity = 20
+select = B,C,E,F,W,T4
+exclude = ./.tox/*,./build/*,./docs/conf.py

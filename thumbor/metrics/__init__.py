@@ -9,8 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 
-class BaseMetrics(object):
-
+class BaseMetrics:
     def __init__(self, config):
         self.config = config
 

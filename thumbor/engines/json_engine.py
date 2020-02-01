@@ -14,7 +14,6 @@ from thumbor.engines import BaseEngine
 
 
 class JSONEngine(BaseEngine):
-
     def __init__(self, engine, path, callback_name=None):
         super(JSONEngine, self).__init__(engine.context)
         self.engine = engine
@@ -24,7 +23,7 @@ class JSONEngine(BaseEngine):
         self.operations = []
         self.focal_points = []
         self.refresh_image()
-        self.exif = getattr(engine, 'exif', None)
+        self.exif = getattr(engine, "exif", None)
 
     def refresh_image(self):
         self.image = self.engine.image
@@ -34,22 +33,20 @@ class JSONEngine(BaseEngine):
         return self.engine.size
 
     def resize(self, width, height):
-        self.operations.append({
-            "type": "resize",
-            "width": width,
-            "height": height
-        })
+        self.operations.append({"type": "resize", "width": width, "height": height})
         self.engine.resize(width, height)
         self.refresh_image()
 
     def crop(self, left, top, right, bottom):
-        self.operations.append({
-            "type": "crop",
-            "left": left,
-            "top": top,
-            "right": right,
-            "bottom": bottom
-        })
+        self.operations.append(
+            {
+                "type": "crop",
+                "left": left,
+                "top": top,
+                "right": right,
+                "bottom": bottom,
+            }
+        )
         self.engine.crop(left, top, right, bottom)
         self.refresh_image()
 
@@ -66,13 +63,13 @@ class JSONEngine(BaseEngine):
     def get_target_dimensions(self):
         width, height = self.engine.size
         for operation in self.operations:
-            if operation['type'] == 'crop':
-                width = operation['right'] - operation['left']
-                height = operation['bottom'] - operation['top']
+            if operation["type"] == "crop":
+                width = operation["right"] - operation["left"]
+                height = operation["bottom"] - operation["top"]
 
-            if operation['type'] == 'resize':
-                width = operation['width']
-                height = operation['height']
+            if operation["type"] == "resize":
+                width = operation["width"]
+                height = operation["height"]
 
         return (width, height)
 
@@ -127,7 +124,7 @@ class JSONEngine(BaseEngine):
     def can_auto_convert_png_to_jpg(self):
         can_convert = super(JSONEngine, self).can_auto_convert_png_to_jpg()
         if can_convert:
-            self.operations.append({'type': 'auto_png_to_jpg_conversion'})
+            self.operations.append({"type": "auto_png_to_jpg_conversion"})
 
     def read(self, extension, quality):
         target_width, target_height = self.get_target_dimensions()
@@ -138,13 +135,10 @@ class JSONEngine(BaseEngine):
                     "url": self.path,
                     "width": width,
                     "height": height,
-                    "frameCount": self.get_frame_count()
+                    "frameCount": self.get_frame_count(),
                 },
                 "operations": self.operations,
-                "target": {
-                    "width": target_width,
-                    "height": target_height
-                }
+                "target": {"width": target_width, "height": target_height},
             }
         }
 

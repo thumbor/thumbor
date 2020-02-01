@@ -9,11 +9,12 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from thumbor.storages import BaseStorage
-from tornado import gen
 
 
 class Storage(BaseStorage):
-    def __init__(self, context, file_storage=None, crypto_storage=None, detector_storage=None):
+    def __init__(
+        self, context, file_storage=None, crypto_storage=None, detector_storage=None,
+    ):
         BaseStorage.__init__(self, context)
 
         self.file_storage = file_storage
@@ -25,66 +26,67 @@ class Storage(BaseStorage):
     def _init_file_storage(self):
         if self.file_storage is None:
             self.context.modules.importer.import_item(
-                config_key='file_storage',
+                config_key="file_storage",
                 item_value=self.context.config.MIXED_STORAGE_FILE_STORAGE,
-                class_name='Storage'
+                class_name="Storage",
             )
-            self.file_storage = self.context.modules.file_storage = self.context.modules.importer.file_storage(self.context)
+            self.file_storage = (
+                self.context.modules.file_storage
+            ) = self.context.modules.importer.file_storage(self.context)
 
     def _init_crypto_storage(self):
         if self.crypto_storage is None:
             self.context.modules.importer.import_item(
-                config_key='crypto_storage',
+                config_key="crypto_storage",
                 item_value=self.context.config.MIXED_STORAGE_CRYPTO_STORAGE,
-                class_name='Storage'
+                class_name="Storage",
             )
-            self.crypto_storage = self.context.modules.crypto_storage = self.context.modules.importer.crypto_storage(self.context)
+            self.crypto_storage = (
+                self.context.modules.crypto_storage
+            ) = self.context.modules.importer.crypto_storage(self.context)
 
     def _init_detector_storage(self):
         if self.detector_storage is None:
             self.context.modules.importer.import_item(
-                config_key='detector_storage',
+                config_key="detector_storage",
                 item_value=self.context.config.MIXED_STORAGE_DETECTOR_STORAGE,
-                class_name='Storage'
+                class_name="Storage",
             )
-            self.detector_storage = self.context.modules.detector_storage = \
-                self.context.modules.importer.detector_storage(self.context)
+            self.detector_storage = (
+                self.context.modules.detector_storage
+            ) = self.context.modules.importer.detector_storage(self.context)
 
-    def put(self, path, bytes):
+    async def put(self, path, file_bytes):
         self._init_file_storage()
-        self.file_storage.put(path, bytes)
+        return await self.file_storage.put(path, file_bytes)
 
-    def put_detector_data(self, path, data):
+    async def put_detector_data(self, path, data):
         self._init_detector_storage()
-        self.detector_storage.put_detector_data(path, data)
+        return await self.detector_storage.put_detector_data(path, data)
 
-    def put_crypto(self, path):
+    async def put_crypto(self, path):
         self._init_crypto_storage()
-        self.crypto_storage.put_crypto(path)
+        return await self.crypto_storage.put_crypto(path)
 
-    @gen.coroutine
-    def get_crypto(self, path):
+    async def get_crypto(self, path):
         self._init_crypto_storage()
-        result = yield gen.maybe_future(self.crypto_storage.get_crypto(path))
-        raise gen.Return(result)
+        result = await self.crypto_storage.get_crypto(path)
+        return result
 
-    @gen.coroutine
-    def get_detector_data(self, path):
+    async def get_detector_data(self, path):
         self._init_detector_storage()
-        result = yield gen.maybe_future(self.detector_storage.get_detector_data(path))
-        raise gen.Return(result)
+        result = await self.detector_storage.get_detector_data(path)
+        return result
 
-    @gen.coroutine
-    def get(self, path):
+    async def get(self, path):
         self._init_file_storage()
-        result = yield gen.maybe_future(self.file_storage.get(path))
-        raise gen.Return(result)
+        result = await self.file_storage.get(path)
+        return result
 
-    @gen.coroutine
-    def exists(self, path):
+    async def exists(self, path):
         self._init_file_storage()
-        result = yield gen.maybe_future(self.file_storage.exists(path))
-        raise gen.Return(result)
+        result = await (self.file_storage.exists(path))
+        return result
 
     def resolve_original_photo_path(self, request, filename):
         return self.file_storage.resolve_original_photo_path(request, filename)

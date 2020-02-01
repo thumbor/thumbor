@@ -8,4 +8,4 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from libthumbor.url import Url # NOQA
+from libthumbor.url import Url  # NOQA pylint: disable=unused-import

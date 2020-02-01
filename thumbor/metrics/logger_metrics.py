@@ -13,7 +13,6 @@ from thumbor.metrics import BaseMetrics
 
 
 class Metrics(BaseMetrics):
-
     def incr(self, metricname, value=1):
         logger.debug("METRICS: inc: %s:%d", metricname, value)
 

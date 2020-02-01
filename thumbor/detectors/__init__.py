@@ -9,20 +9,20 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 
-class BaseDetector(object):
-
+class BaseDetector:
     def __init__(self, context, index, detectors):
         self.context = context
         self.index = index
         self.detectors = detectors
 
-    def detect(self, callback):
+    async def detect(self):
         raise NotImplementedError()
 
-    def next(self, callback):
+    async def next(self):
         if self.index > len(self.detectors) - 2:
-            callback()
             return
 
-        next_detector = self.detectors[self.index + 1](self.context, self.index + 1, self.detectors)
-        next_detector.detect(callback)
+        next_detector = self.detectors[self.index + 1](
+            self.context, self.index + 1, self.detectors
+        )
+        await next_detector.detect()

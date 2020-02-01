@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import unicodedata
-from os.path import abspath, join, dirname
+from os.path import abspath, dirname, join
 
 
 ##
@@ -22,67 +22,67 @@ def get_abs_path(img):
     return abspath(join(dirname(__file__), img))
 
 
-valid_image_path = get_abs_path(u'alabama1_ap620é.jpg')
-svg_image_path = get_abs_path(u'Commons-logo.svg')
-too_small_image_path = get_abs_path(u'20x20.jpg')
-too_heavy_image_path = get_abs_path(u'Giunchedi%2C_Filippo_January_2015_01.jpg')
-default_image_path = get_abs_path(u'image.jpg')
-alabama1_image_path = get_abs_path(u'alabama1_ap620%C3%A9.jpg')
-space_image_path = get_abs_path(u'image%20space.jpg')
-invalid_quantization_image_path = get_abs_path(u'invalid_quantization.jpg')
-animated_image_path = get_abs_path(u'animated.gif')
-not_so_animated_image_path = get_abs_path(u'animated-one-frame.gif')
+VALID_IMAGE_PATH = get_abs_path(u"alabama1_ap620é.jpg")
+SVG_IMAGE_PATH = get_abs_path(u"Commons-logo.svg")
+TOO_SMALL_IMAGE_PATH = get_abs_path(u"20x20.jpg")
+TOO_HEAVY_IMAGE_PATH = get_abs_path(u"Giunchedi%2C_Filippo_January_2015_01.jpg")
+DEFAULT_IMAGE_PATH = get_abs_path(u"image.jpg")
+ALABAMA1_IMAGE_PATH = get_abs_path(u"alabama1_ap620%C3%A9.jpg")
+SPACE_IMAGE_PATH = get_abs_path(u"image%20space.jpg")
+INVALID_QUANTIZATION_IMAGE_PATH = get_abs_path(u"invalid_quantization.jpg")
+ANIMATED_IMAGE_PATH = get_abs_path(u"animated.gif")
+NOT_SO_ANIMATED_IMAGE_PATH = get_abs_path(u"animated-one-frame.gif")
 
 
 def get_image(img):
-    encode_formats = ['NFD', 'NFC', 'NFKD', 'NFKC']
-    for format in encode_formats:
+    encode_formats = ["NFD", "NFC", "NFKD", "NFKC"]
+    for encode_format in encode_formats:
         try:
-            with open(unicodedata.normalize(format, img), 'rb') as stream:
+            with open(unicodedata.normalize(encode_format, img), "rb") as stream:
                 body = stream.read()
                 break
         except IOError:
             pass
     else:
-        raise IOError('%s not found' % img)
+        raise IOError("%s not found" % img)
     return body
 
 
 def valid_image():
-    return get_image(valid_image_path)
+    return get_image(VALID_IMAGE_PATH)
 
 
 def svg_image():
-    return get_image(svg_image_path)
+    return get_image(SVG_IMAGE_PATH)
 
 
 def too_small_image():
-    return get_image(too_small_image_path)
+    return get_image(TOO_SMALL_IMAGE_PATH)
 
 
 def too_heavy_image():
-    return get_image(too_heavy_image_path)
+    return get_image(TOO_HEAVY_IMAGE_PATH)
 
 
 def default_image():
-    return get_image(default_image_path)
+    return get_image(DEFAULT_IMAGE_PATH)
 
 
 def alabama1():
-    return get_image(alabama1_image_path)
+    return get_image(ALABAMA1_IMAGE_PATH)
 
 
 def space_image():
-    return get_image(space_image_path)
+    return get_image(SPACE_IMAGE_PATH)
 
 
 def invalid_quantization():
-    return get_image(invalid_quantization_image_path)
+    return get_image(INVALID_QUANTIZATION_IMAGE_PATH)
 
 
 def animated_image():
-    return get_image(animated_image_path)
+    return get_image(ANIMATED_IMAGE_PATH)
 
 
 def not_so_animated_image():
-    return get_image(not_so_animated_image_path)
+    return get_image(NOT_SO_ANIMATED_IMAGE_PATH)

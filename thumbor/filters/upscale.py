@@ -12,9 +12,8 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method()
-    def upscale(self):
+    async def upscale(self):
         target_width = self.context.request.width
         target_height = self.context.request.height
 

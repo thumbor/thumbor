@@ -9,14 +9,18 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from preggy import expect
+from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
 
 
 class ColorizeFilterTestCase(FilterTestCase):
-    def test_colorize_filter(self):
-        image = self.get_filtered('source.jpg', 'thumbor.filters.colorize', 'colorize(40,80,20,ffffff)')
-        expected = self.get_fixture('colorize.jpg')
+    @gen_test
+    async def test_colorize_filter(self):
+        image = await self.get_filtered(
+            "source.jpg", "thumbor.filters.colorize", "colorize(40,80,20,ffffff)",
+        )
+        expected = self.get_fixture("colorize.jpg")
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)

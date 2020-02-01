@@ -63,7 +63,8 @@ Usefull links
   * http://www.w3.org/Graphics/GIF/spec-gif89a.txt
 
 """
-# todo: This module should be part of imageio (or at least based on)
+# TODO: This module should be part of imageio (or at least based on)
+# pylint: disable=all
 
 import os
 from struct import pack
@@ -390,9 +391,7 @@ class GifWriter:
         palettes, occur = [], []
         for im in images:
             header, usedPaletteColors = getheader(im)
-            palettes.append(
-                header[-1]
-            )  # Last part of the header is the frame palette
+            palettes.append(header[-1])  # Last part of the header is the frame palette
         for palette in palettes:
             occur.append(palettes.count(palette))
 
@@ -596,9 +595,7 @@ def readGif(filename, asNumpy=True):
             tmp = pilIm.convert()  # Make without palette
             a = np.asarray(tmp)
             if len(a.shape) == 0:
-                raise MemoryError(
-                    "Too little memory to convert PIL image to array"
-                )
+                raise MemoryError("Too little memory to convert PIL image to array")
             # Store, and next
             images.append(a)
             pilIm.seek(pilIm.tell() + 1)

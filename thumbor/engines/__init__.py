@@ -8,9 +8,14 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+# This is a base class, it makes sense to have many public methods and instance attributes
+# pylint: disable=attribute-defined-outside-init,too-many-public-methods,unused-argument,too-many-instance-attributes,broad-except
+
+import re
 from xml.etree.ElementTree import ParseError
 
 from thumbor.engines.extensions.exif_orientation_editor import ExifOrientationEditor
+from thumbor.utils import EXTENSION, logger
 
 try:
     import cairosvg
@@ -19,25 +24,23 @@ except ImportError:
 
 try:
     from pyexiv2 import ImageMetadata
+
     METADATA_AVAILABLE = True
 except ImportError:
     METADATA_AVAILABLE = False
 
-import re
-
-from thumbor.utils import logger, EXTENSION
 
 WEBP_SIDE_LIMIT = 16383
 
-SVG_RE = re.compile(b'<svg\s[^>]*([\"\'])http[^\"\']*svg[^\"\']*', re.I)
+SVG_RE = re.compile(b"<svg\s[^>]*([\"'])http[^\"']*svg[^\"']*", re.I)
 
 
-class EngineResult(object):
+class EngineResult:
 
-    COULD_NOT_LOAD_IMAGE = 'could not load image'
+    COULD_NOT_LOAD_IMAGE = "could not load image"
 
-    def __init__(self, buffer_=None, successful=True, error=None, metadata=dict()):
-        '''
+    def __init__(self, buffer_=None, successful=True, error=None, metadata=None):
+        """
         :param buffer: The media buffer
 
         :param successful: True when the media has been read by the engine.
@@ -48,7 +51,10 @@ class EngineResult(object):
 
         :param metadata: Dictionary of metadata about the buffer
         :type metadata: dict
-        '''
+        """
+
+        if metadata is None:
+            metadata = {}
 
         self.buffer = buffer_
         self.successful = successful
@@ -57,7 +63,6 @@ class EngineResult(object):
 
 
 class MultipleEngine:
-
     def __init__(self, source_engine):
         self.frame_engines = []
         self.source_engine = source_engine
@@ -73,8 +78,8 @@ class MultipleEngine:
 
     def read(self, extension=None, quality=None):
         return self.source_engine.read_multiple(
-            [frame_engine.image for frame_engine in self.frame_engines],
-            extension)
+            [frame_engine.image for frame_engine in self.frame_engines], extension,
+        )
 
     def size(self):
         return self.frame_engines[0].size
@@ -85,11 +90,11 @@ class MultipleEngine:
             for frame_engine in self.frame_engines:
                 result.append(getattr(frame_engine, name)(*args, **kwargs))
             return result
+
         return exec_func
 
 
-class BaseEngine(object):
-
+class BaseEngine:
     def __init__(self, context):
         self.context = context
         self.image = None
@@ -102,33 +107,43 @@ class BaseEngine(object):
 
     @classmethod
     def get_mimetype(cls, buffer):
-        if buffer.startswith(b'GIF8'):
-            return 'image/gif'
-        elif buffer.startswith(b'\x89PNG\r\n\x1a\n'):
-            return 'image/png'
-        elif buffer.startswith(b'\xff\xd8'):
-            return 'image/jpeg'
-        elif buffer.startswith(b'WEBP', 8):
-            return 'image/webp'
-        elif buffer.startswith(b'\x00\x00\x00\x0c'):
-            return 'image/jp2'
-        elif buffer.startswith(b'\x00\x00\x00 ftyp'):
-            return 'video/mp4'
-        elif buffer.startswith(b'\x1aE\xdf\xa3'):
-            return 'video/webm'
-        elif buffer.startswith(b'\x49\x49\x2A\x00') or buffer.startswith(b'\x4D\x4D\x00\x2A'):
-            return 'image/tiff'
-        elif SVG_RE.search(buffer[:2048].replace(b'\0', b'')):
-            return 'image/svg+xml'
+        img_mime = None
+
+        if buffer.startswith(b"GIF8"):
+            img_mime = "image/gif"
+        elif buffer.startswith(b"\x89PNG\r\n\x1a\n"):
+            img_mime = "image/png"
+        elif buffer.startswith(b"\xff\xd8"):
+            img_mime = "image/jpeg"
+        elif buffer.startswith(b"WEBP", 8):
+            img_mime = "image/webp"
+        elif buffer.startswith(b"\x00\x00\x00\x0c"):
+            img_mime = "image/jp2"
+        elif buffer.startswith(b"\x00\x00\x00 ftyp"):
+            img_mime = "video/mp4"
+        elif buffer.startswith(b"\x1aE\xdf\xa3"):
+            img_mime = "video/webm"
+        elif buffer.startswith(b"\x49\x49\x2A\x00") or buffer.startswith(
+            b"\x4D\x4D\x00\x2A"
+        ):
+            img_mime = "image/tiff"
+        elif SVG_RE.search(buffer[:2048].replace(b"\0", b"")):
+            img_mime = "image/svg+xml"
+
+        return img_mime
 
     def wrap(self, multiple_engine):
-        for method_name in ['resize', 'crop', 'flip_vertically',
-                            'flip_horizontally']:
+        for method_name in [
+            "resize",
+            "crop",
+            "flip_vertically",
+            "flip_horizontally",
+        ]:
             setattr(self, method_name, multiple_engine.do_many(method_name))
-        setattr(self, 'read', multiple_engine.read)
+        setattr(self, "read", multiple_engine.read)
 
     def is_multiple(self):
-        return hasattr(self, 'multiple_engine') and self.multiple_engine is not None
+        return hasattr(self, "multiple_engine") and self.multiple_engine is not None
 
     def frame_engines(self):
         return self.multiple_engine.frame_engines
@@ -142,13 +157,17 @@ class BaseEngine(object):
             return buffer
 
         try:
-            buffer = cairosvg.svg2png(bytestring=buffer, dpi=self.context.config.SVG_DPI)
+            # TODO: is it true that cairosvg does not have
+            # svg2png method? Look it up later
+            buffer = cairosvg.svg2png(
+                bytestring=buffer, dpi=self.context.config.SVG_DPI
+            )
             mime = self.get_mimetype(buffer)
-            self.extension = EXTENSION.get(mime, '.jpg')
+            self.extension = EXTENSION.get(mime, ".jpg")
         except ParseError:
             mime = self.get_mimetype(buffer)
             extension = EXTENSION.get(mime)
-            if extension is None or extension == '.svg':
+            if extension is None or extension == ".svg":
                 raise
             self.extension = extension
 
@@ -159,9 +178,9 @@ class BaseEngine(object):
 
         if extension is None:
             mime = self.get_mimetype(buffer)
-            self.extension = EXTENSION.get(mime, '.jpg')
+            self.extension = EXTENSION.get(mime, ".jpg")
 
-        if self.extension == '.svg':
+        if self.extension == ".svg":
             buffer = self.convert_svg_to_png(buffer)
 
         image_or_frames = self.create_image(buffer)
@@ -172,11 +191,12 @@ class BaseEngine(object):
             try:
                 self.metadata = ImageMetadata.from_buffer(buffer)
                 self.metadata.read()
-            except Exception as e:
-                logger.error('Error reading image metadata: %s' % e)
+            except Exception as error:  # pylint: disable=broad-except
+                logger.error("Error reading image metadata: %s", error)
 
         if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(
-                image_or_frames, (list, tuple)):
+            image_or_frames, (list, tuple)
+        ):
             self.image = image_or_frames[0]
             if len(image_or_frames) > 1:
                 self.multiple_engine = MultipleEngine(self)
@@ -205,20 +225,19 @@ class BaseEngine(object):
         self.source_width = width
         self.source_height = height
 
-        if width > self.context.config.MAX_WIDTH \
-                or height > self.context.config.MAX_HEIGHT:
+        if (
+            width <= self.context.config.MAX_WIDTH
+            and height <= self.context.config.MAX_HEIGHT
+        ):
             width_diff = width - self.context.config.MAX_WIDTH
             height_diff = height - self.context.config.MAX_HEIGHT
             if self.context.config.MAX_WIDTH and width_diff > height_diff:
-                height = self.get_proportional_height(
-                    self.context.config.MAX_WIDTH
-                )
+                height = self.get_proportional_height(self.context.config.MAX_WIDTH)
                 self.resize(self.context.config.MAX_WIDTH, height)
                 return True
-            elif self.context.config.MAX_HEIGHT and height_diff > width_diff:
-                width = self.get_proportional_width(
-                    self.context.config.MAX_HEIGHT
-                )
+
+            if self.context.config.MAX_HEIGHT and height_diff > width_diff:
+                width = self.get_proportional_width(self.context.config.MAX_HEIGHT)
                 self.resize(width, self.context.config.MAX_HEIGHT)
                 return True
 
@@ -233,14 +252,13 @@ class BaseEngine(object):
         return round(float(new_width) * height / width, 0)
 
     def _get_exif_object(self):
-        if (not hasattr(self, 'exif')) or self.exif is None:
+        if (not hasattr(self, "exif")) or self.exif is None:
             return None
 
         try:
             return ExifOrientationEditor(self.exif)
-        except Exception as e:
-            msg = """[exif] %s""" % e
-            logger.exception(msg)
+        except Exception as error:
+            logger.exception("[exif] %s", error)
 
         return None
 
@@ -266,7 +284,7 @@ class BaseEngine(object):
         """
         exif = self._get_exif_object()
         if exif is None:
-            return None
+            return
 
         orientation = exif.get_orientation()
 
@@ -296,9 +314,8 @@ class BaseEngine(object):
             try:
                 exif.set_orientation(1)
                 self.exif = exif.tobytes()
-            except Exception as e:
-                msg = """[exif] %s""" % e
-                logger.error(msg)
+            except Exception as error:
+                logger.error("[exif] %s", error)
 
     def gen_image(self, size, color):
         raise NotImplementedError()
@@ -327,7 +344,6 @@ class BaseEngine(object):
         :param degrees: Amount to rotate in degrees.
         :type amount: int
         """
-        pass
 
     def read_multiple(self, images, extension=None):
         raise NotImplementedError()
@@ -361,7 +377,7 @@ class BaseEngine(object):
     def convert_to_grayscale(self, update_image=True, alpha=True):
         raise NotImplementedError()
 
-    def draw_rectangle(self, x, y, width, height):
+    def draw_rectangle(self, x, y, width, height):  # pylint: disable=invalid-name
         raise NotImplementedError()
 
     def strip_icc(self):
@@ -377,6 +393,6 @@ class BaseEngine(object):
         pass
 
     def can_auto_convert_png_to_jpg(self):
-        can_convert = (self.extension == '.png' and not self.has_transparency())
+        can_convert = self.extension == ".png" and not self.has_transparency()
 
         return can_convert
