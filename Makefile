@@ -54,13 +54,13 @@ coverage:
 	@coverage report -m --fail-under=10
 
 unit:
-	@coverage run --branch `which nosetests` -v --with-yanc -s tests/
+	@coverage run --branch -m nose -v --with-yanc -s tests/
 
 unit-parallel:
 	@`which nosetests` -v --with-yanc --processes=4 -s tests/
 
 focus:
-	@coverage run --branch `which nosetests` -vv --with-yanc --logging-level=WARNING --with-focus -i -s tests/
+	@coverage run --branch -m nose -vv --with-yanc --logging-level=WARNING --with-focus -i -s tests/
 
 
 mysql_test: pretest
@@ -130,6 +130,7 @@ sample_images:
 	cp tests/fixtures/images/image.jpg tests/fixtures/images/maracujá.jpg
 	cp tests/fixtures/images/image.jpg tests/fixtures/images/alabama1_ap620%C3%A9.jpg
 	cp tests/fixtures/images/image.jpg tests/fixtures/images/alabama1_ap620é.jpg
+	mkdir -p tests/fixtures/result_storages/v2/im/ag/
 	cp tests/fixtures/images/image.jpg tests/fixtures/result_storages/v2/im/ag/image.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Katherine_Maher.jpg/800px-Katherine_Maher.jpg -o tests/fixtures/filters/source.jpg
 	convert tests/fixtures/filters/source.jpg -quality 10 tests/fixtures/filters/quality-10%.jpg
