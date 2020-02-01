@@ -1,4 +1,9 @@
-# Title: Summary, imperative, start upper case, don't end with a period
+# Title: [Commit Type] and Summary, imperative, start upper case, don't end with a period
+# Example: [FIX] Changed something or [FEAT] Adding X to PIL engine
+# Commit Types:
+# * FIX - Whenever you're fixing a bug or issue
+# * FEAT - When it's a new feature for thumbor users
+# * IMPR - When you're adding an improvement to existing feature or codebase
 # No more than 50 chars. #### 50 chars is here: #
 
 # Remember blank line between title and body.
