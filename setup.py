@@ -99,7 +99,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
         packages=["thumbor"],
         package_dir={"thumbor": "thumbor"},
         include_package_data=True,
-        package_data={"": ["*.xml"],},
+        package_data={"": ["*.xml"]},
         install_requires=[
             "tornado>=4.1.0,<6.0.0",
             "pycurl>=7.19.0,<7.44.0",
@@ -113,7 +113,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "six",
             "webcolors",
         ],
-        extras_require={"tests": tests_require,},
+        extras_require={"tests": tests_require},
         entry_points={
             "console_scripts": [
                 "thumbor=thumbor.server:main",
@@ -128,14 +128,11 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
 try:
     run_setup(gather_filter_extensions())
 except SystemExit as exit:
-    print(
-        "\n\n*******************************************************************"
-    )
+    print("\n\n%s" % ("*" * 66))
     logging.exception(exit)
+    print("\n\n%s" % ("*" * 66))
     print(
-        "\n\n*******************************************************************"
-    )
-    print(
-        "Couldn't build one or more native extensions, skipping compilation.\n\n"
+        "Couldn't build one or more native extensions"
+        ", skipping compilation.\n\n"
     )
     run_setup()
