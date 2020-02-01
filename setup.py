@@ -26,7 +26,6 @@ tests_require = [
     "colorama",
     "numpy",
     "flake8",
-    "black",
     "yanc",
     "remotecv",
     "pyssim>=0.4.0",
@@ -44,7 +43,12 @@ def filter_extension_module(name, lib_objs, lib_headers):
         libraries=["m"],
         include_dirs=["thumbor/ext/filters/lib"],
         depends=["setup.py"] + lib_objs + lib_headers,
-        extra_compile_args=["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter"],
+        extra_compile_args=[
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-Wno-unused-parameter",
+        ],
     )
 
 
@@ -124,8 +128,14 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
 try:
     run_setup(gather_filter_extensions())
 except SystemExit as exit:
-    print("\n\n*******************************************************************")
+    print(
+        "\n\n*******************************************************************"
+    )
     logging.exception(exit)
-    print("\n\n*******************************************************************")
-    print("Couldn't build one or more native extensions, skipping compilation.\n\n")
+    print(
+        "\n\n*******************************************************************"
+    )
+    print(
+        "Couldn't build one or more native extensions, skipping compilation.\n\n"
+    )
     run_setup()
