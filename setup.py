@@ -26,6 +26,7 @@ tests_require = [
     "colorama",
     "numpy",
     "flake8",
+    "black",
     "yanc",
     "remotecv",
     "pyssim>=0.4.0",
@@ -77,21 +78,12 @@ def run_setup(extension_modules=[]):
 Thumbor is a smart imaging service. It enables on-demand crop,
 resizing and flipping of images.
 
-<<<<<<< HEAD
-It also features a VERY smart detection of important points in
-the image for better cropping and resizing, using state-of-the-art
-face and feature detection algorithms (more on that in Detection Algorithms).
-
-Using thumbor is very easy (after it is running). All you have to do is
-access it using an url for an image, like this:
-=======
 It also features a VERY smart detection of important points in the
 image for better cropping and resizing, using state-of-the-art face
 and feature detection algorithms (more on that in Detection Algorithms).
 
 Using thumbor is very easy (after it is running). All you have to do
 is access it using an url for an image, like this:
->>>>>>> Updating test running and Linux support in tests
 
 http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
 """,
