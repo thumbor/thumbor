@@ -26,6 +26,7 @@ tests_require = [
     "colorama",
     "numpy",
     "flake8",
+    "black",
     "yanc",
     "remotecv",
     "pyssim>=0.4.0",
