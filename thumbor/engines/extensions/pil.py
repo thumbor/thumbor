@@ -430,12 +430,8 @@ class GifWriter:
                 graphext = self.getGraphicsControlExt(
                     durations[frames], disposes[frames]
                 )
-<<<<<<< HEAD
-                # Make image descriptor suitable for using 256 local color palette
-=======
                 # Make image descriptor suitable for using
                 # 256 local color palette
->>>>>>> Fix simple typo: transparant -> transparent (#1244)
                 lid = self.getImageDescriptor(im, xys[frames])
 
                 # Write local header
