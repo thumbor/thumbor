@@ -152,7 +152,7 @@ class HttpsLoaderTestCase(TestCase):
         return application
 
     @gen_test
-    async def test_load_with_callback(self):
+    async def test_load(self):
         url = self.get_url("/")
         config = Config()
         ctx = Context(None, config, None)
