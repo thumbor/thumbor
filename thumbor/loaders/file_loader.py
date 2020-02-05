@@ -39,17 +39,20 @@ def load(context, path, callback):
     if not exists(file_path):
         file_path = unquote(file_path)
 
-    result.successful = exists(file_path)
-    if result.successful:
-        with open(file_path, 'r') as f:
-            stats = fstat(f.fileno())
+    try:
+        result.successful = exists(file_path)
+        if result.successful:
+            with open(file_path, 'r') as f:
+                stats = fstat(f.fileno())
 
-            result.buffer = f.read()
+                result.buffer = f.read()
 
-            result.metadata.update(
-                size=stats.st_size,
-                updated_at=datetime.utcfromtimestamp(stats.st_mtime))
-    else:
-        result.error = LoaderResult.ERROR_NOT_FOUND
-
+                result.metadata.update(
+                    size=stats.st_size,
+                    updated_at=datetime.utcfromtimestamp(stats.st_mtime))
+        else:
+            result.error = LoaderResult.ERROR_NOT_FOUND
+    except:
+        result.successful = False
+        
     callback(result)
