@@ -17,6 +17,7 @@ from tornado.concurrent import return_future
 
 from thumbor.loaders import LoaderResult
 
+from thumbor.utils import logger
 
 @return_future
 def load(context, path, callback):
@@ -52,6 +53,7 @@ def load(context, path, callback):
                     updated_at=datetime.utcfromtimestamp(stats.st_mtime))
         else:
             result.error = LoaderResult.ERROR_NOT_FOUND
-    except Exception:
+    except Exception as e:
         result.successful = False
+        logger.exception(e)
     callback(result)
