@@ -42,7 +42,7 @@ def load(context, path, callback):
     try:
         result.successful = exists(file_path)
         if result.successful:
-            with open(file_path, 'r') as f:
+            with open(file_path, 'rb') as f:
                 stats = fstat(f.fileno())
 
                 result.buffer = f.read()
