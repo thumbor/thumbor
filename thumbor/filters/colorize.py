@@ -16,7 +16,7 @@ class Filter(BaseFilter):
 
     @filter_method(BaseFilter.PositiveNumber, BaseFilter.PositiveNumber, BaseFilter.PositiveNumber, BaseFilter.String)
     def colorize(self, red_pct, green_pct, blue_pct, fill):
-        fill_r, fill_g, fill_b = tuple(map(ord, fill.decode('hex')))
+        fill_r, fill_g, fill_b = bytearray.fromhex(fill)
         mode, data = self.engine.image_data_as_rgb()
         imgdata = _colorize.apply(mode, red_pct, green_pct, blue_pct, fill_r, fill_g, fill_b, data)
         self.engine.set_image_data(imgdata)

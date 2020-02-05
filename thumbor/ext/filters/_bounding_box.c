@@ -14,7 +14,7 @@ typedef struct {
     unsigned char *image;
 } bitmap;
 
-inline double color_distance(unsigned char *c1, unsigned char *c2, int stride) {
+static inline double color_distance(unsigned char *c1, unsigned char *c2, int stride) {
     double sum = 0;
     int i;
     for (i = 0; i < stride; ++i) {
@@ -69,19 +69,17 @@ find_bounding_box(bitmap *image_data, char *reference_mode, int tolerance) {
 static PyObject*
 _bounding_box_apply(PyObject *self, PyObject *args)
 {
-    PyObject *buffer_py = NULL, *image_mode = NULL, *width_py = NULL, *height_py = NULL, *reference_mode_py = NULL, *tolerance_py = NULL;
+    PyObject *buffer_py = NULL;
 
-    if (!PyArg_UnpackTuple(args, "apply", 6, 6, &image_mode, &width_py, &height_py, &reference_mode_py, &tolerance_py, &buffer_py)) {
+    char *image_mode_str, *reference_mode;
+    int width, height, tolerance;
+
+    if (!PyArg_ParseTuple(args, "siisiO:apply", &image_mode_str, &width, &height, &reference_mode, &tolerance, &buffer_py)) {
         return NULL;
     }
 
-    char *image_mode_str = PyString_AsString(image_mode);
-    char *reference_mode = PyString_AsString(reference_mode_py);
-    unsigned char *buffer = (unsigned char *) PyString_AsString(buffer_py);
-    int width = (int) PyInt_AsLong(width_py),
-        height = (int) PyInt_AsLong(height_py);
+    unsigned char *buffer = (unsigned char *) PyBytes_AsString(buffer_py);
     int num_bytes = bytes_per_pixel(image_mode_str);
-    int tolerance = (int) PyInt_AsLong(tolerance_py);
 
     bitmap bitmap = {
         width,

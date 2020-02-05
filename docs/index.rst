@@ -16,7 +16,7 @@ detection algorithms (more on that in :doc:`detection_algorithms`).
 Using thumbor is very easy (after it is running). All you have to do is
 access it using an URL for an image, like this::
 
-    http://thumbor-server/unsafe/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/VN0JiwzmOw0b0lg.jpg
+    http://thumbor-server/unsafe/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
 
 That URL would show an image of the big brother brasil participants in
 300x200 using smart crop. There are several other options to the image
@@ -27,7 +27,7 @@ page. For more details on the /unsafe part of the URL, check the
 The safe url for the above URL would look like (check :doc:`security` for
 more details)::
 
-    http://thumbor-server/K97LekICOXT9MbO3X1u8BBkrjbu5/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/VN0JiwzmOw0b0lg.jpg
+    http://thumbor-server/K97LekICOXT9MbO3X1u8BBkrjbu5/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
 
 WARNING
 -------

@@ -27,7 +27,7 @@ class Filter(BaseFilter):
             return pos
 
         sign, ratio = match.groups()
-        pos = "{sign}{pos}".format(sign=sign, pos=int(round(length * float(ratio) / 100, 0)))
+        pos = "{sign}{pos}".format(sign=sign, pos=round(length * float(ratio) / 100 + 1e-5))
 
         return pos
 
@@ -42,7 +42,7 @@ class Filter(BaseFilter):
         if not wm_max_height:
             wm_max_height = watermark_sz[1] * wm_max_width / watermark_sz[0]
 
-        if float(watermark_sz[0]) / wm_max_width >= float(watermark_sz[1]) / wm_max_height:
+        if watermark_sz[0] / wm_max_width >= watermark_sz[1] / wm_max_height:
             wm_height = round(watermark_sz[1] * wm_max_width / watermark_sz[0])
             wm_width = round(wm_max_width)
         else:
@@ -86,9 +86,9 @@ class Filter(BaseFilter):
         if not mos_x:
             repeat_x = (1, 0)
             if center_x:
-                x = (sz[0] - watermark_sz[0]) / 2
+                x = int((sz[0] - watermark_sz[0]) / 2)
             elif inv_x:
-                x = (sz[0] - watermark_sz[0]) + x
+                x = int((sz[0] - watermark_sz[0]) + x)
         else:
             repeat_x = divmod(sz[0], watermark_sz[0])
             if sz[0] * 1.0 / watermark_sz[0] < 2:
@@ -97,9 +97,9 @@ class Filter(BaseFilter):
         if not mos_y:
             repeat_y = (1, 0)
             if center_y:
-                y = (sz[1] - watermark_sz[1]) / 2
+                y = int((sz[1] - watermark_sz[1]) / 2)
             elif inv_y:
-                y = (sz[1] - watermark_sz[1]) + y
+                y = int((sz[1] - watermark_sz[1]) + y)
         else:
             repeat_y = divmod(sz[1], watermark_sz[1])
             if sz[1] * 1.0 / watermark_sz[1] < 2:
@@ -114,20 +114,20 @@ class Filter(BaseFilter):
                 tmpRepeatY = min(6, repeat_y[0])
                 repeat_x = (tmpRepeatX, sz[0] - tmpRepeatX * watermark_sz[0])
                 repeat_y = (tmpRepeatY, sz[1] - tmpRepeatY * watermark_sz[1])
-            space_x = repeat_x[1] / (max(repeat_x[0], 2) - 1)
-            space_y = repeat_y[1] / (max(repeat_y[0], 2) - 1)
+            space_x = repeat_x[1] // (max(repeat_x[0], 2) - 1)
+            space_y = repeat_y[1] // (max(repeat_y[0], 2) - 1)
             for i in range(int(repeat_x[0])):
                 x = i * space_x + i * watermark_sz[0]
                 for j in range(int(repeat_y[0])):
                     y = j * space_y + j * watermark_sz[1]
                     self.engine.paste(self.watermark_engine, (x, y), merge=True)
         elif mos_x:
-            space_x = repeat_x[1] / (max(repeat_x[0], 2) - 1)
+            space_x = repeat_x[1] // (max(repeat_x[0], 2) - 1)
             for i in range(int(repeat_x[0])):
                 x = i * space_x + i * watermark_sz[0]
                 self.engine.paste(self.watermark_engine, (x, y), merge=True)
         else:
-            space_y = repeat_y[1] / (max(repeat_y[0], 2) - 1)
+            space_y = repeat_y[1] // (max(repeat_y[0], 2) - 1)
             for j in range(int(repeat_y[0])):
                 y = j * space_y + j * watermark_sz[1]
                 self.engine.paste(self.watermark_engine, (x, y), merge=True)
@@ -159,7 +159,7 @@ class Filter(BaseFilter):
         BaseFilter.PositiveNumber,
         r'(?:-?\d+)|none',
         r'(?:-?\d+)|none',
-        async=True
+        asynchronous=True
     )
     def watermark(self, callback, url, x, y, alpha, w_ratio=False, h_ratio=False):
         self.url = url

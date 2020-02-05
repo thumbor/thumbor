@@ -240,3 +240,35 @@ The shortened URL / real URL mapping is stored within redis.
 -  *Installing:* ``pip install tc_shortener``
 
 To get exhaustive details about configuration options & setting it up, go to the `documentation of the plugin <http://thumbor-shortener.readthedocs.io/en/latest/>`__.
+
+Engines
+-------
+
+`thumbor-video-engine <https://github.com/theatlantic/thumbor-video-engine>`__ (by `The Atlantic <https://github.com/theatlantic>`__)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This engine extends thumbor so that it can read, crop, and transcode
+audio-less video files using FFmpeg. It supports input and output of animated
+GIF, animated WebP, WebM (VP9) video, and MP4 (H.264 and H.265).
+
+-  *URL:* https://github.com/theatlantic/thumbor-video-engine
+-  *Installing:* ``pip install thumbor-video-engine``
+
+Configuration in thumbor.conf:
+
+::
+
+    ENGINE = 'thumbor_video_engine.engines.video'
+    FILTERS = [
+        # Enables transcoding between video formats (in addition to the image
+        # formats already supported by thumbor.filters.format)
+        'thumbor_video_engine.filters.format',
+        # Allows outputting a still frame from a video as an image
+        'thumbor_video_engine.filters.still',
+    ]
+
+    # optional, if you are already using a custom image engine
+    IMAGING_ENGINE = 'opencv_engine'
+
+For a full list of configuration options and filters, read
+`the project's documentation <https://thumbor-video-engine.readthedocs.io/>`__.

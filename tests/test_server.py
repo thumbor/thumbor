@@ -190,7 +190,7 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, 'HTTPServer')
-    @mock.patch('__builtin__.open', create=True)
+    @mock.patch('builtins.open', create=True)
     @mock.patch.object(thumbor.server, 'socket')
     def test_can_run_server_with_null_fd(self, socket_mock, open_mock, server_mock):
         application = mock.Mock()

@@ -43,8 +43,8 @@ class Filter(BaseFilter):
 
         ix, iy = self.engine.size
 
-        px = (bx - ix) / 2  # top left
-        py = (by - iy) / 2
+        px = (bx - ix) // 2  # top left
+        py = (by - iy) // 2
 
         self.fill_engine.paste(self.engine, (px, py), merge=fill_transparent)
         self.engine.image = self.fill_engine.image

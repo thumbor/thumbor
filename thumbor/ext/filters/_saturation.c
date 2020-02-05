@@ -3,17 +3,16 @@
 static PyObject*
 _saturation_apply(PyObject *self, PyObject *args)
 {
-    PyObject *image_mode = NULL, *change = NULL, *buffer = NULL;
+    PyObject *buffer = NULL;
+    float changeVal;
+    char *image_mode_str;
 
-    if (!PyArg_UnpackTuple(args, "apply", 3, 3, &image_mode, &change, &buffer)) {
+    if (!PyArg_ParseTuple(args, "sfO:apply", &image_mode_str, &changeVal, &buffer)) {
         return NULL;
     }
 
-    char *image_mode_str = PyString_AsString(image_mode);
-
-    Py_ssize_t size = PyString_Size(buffer);
-    unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
-    float changeVal = PyFloat_AsDouble(change);
+    Py_ssize_t size = PyBytes_Size(buffer);
+    unsigned char *ptr = (unsigned char *) PyBytes_AsString(buffer);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
 

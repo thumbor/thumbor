@@ -3,29 +3,20 @@
 static PyObject*
 _composite_apply(PyObject *self, PyObject *args)
 {
-    PyObject *py_image1 = NULL, *py_image2 = NULL, *image_mode = NULL,
-             *w1, *h1, *w2, *h2, *py_x, *py_y, *py_merge = NULL;
+    PyObject *py_image1 = NULL, *py_image2 = NULL;
+    char *image_mode_str;
 
-    if (!PyArg_UnpackTuple(args, "apply", 9, 10, &image_mode, &py_image1, &w1, &h1, &py_image2, &w2, &h2, &py_x, &py_y, &py_merge)) {
+    int width1, width2,
+        height1, height2,
+        x_pos, y_pos,
+        merge = 1;
+
+    if (!PyArg_ParseTuple(args, "sOiiOiiii|i:apply", &image_mode_str, &py_image1, &width1, &height1, &py_image2, &width2, &height2, &x_pos, &y_pos, &merge)) {
         return NULL;
     }
 
-    char *image_mode_str = PyString_AsString(image_mode);
-
-    unsigned char *ptr1 = (unsigned char *) PyString_AsString(py_image1), *aux1 = NULL;
-    unsigned char *ptr2 = (unsigned char *) PyString_AsString(py_image2), *aux2 = NULL;
-
-    int width1 = (int) PyInt_AsLong(w1),
-        width2 = (int) PyInt_AsLong(w2),
-        height1 = (int) PyInt_AsLong(h1),
-        height2 = (int) PyInt_AsLong(h2),
-        x_pos = (int) PyInt_AsLong(py_x),
-        y_pos = (int) PyInt_AsLong(py_y),
-        merge = 1;
-
-    if (py_merge) {
-        merge = (int) PyInt_AsLong(py_merge);
-    }
+    unsigned char *ptr1 = (unsigned char *) PyBytes_AsString(py_image1), *aux1 = NULL;
+    unsigned char *ptr2 = (unsigned char *) PyBytes_AsString(py_image2), *aux2 = NULL;
 
     int num_bytes = bytes_per_pixel(image_mode_str);
     int r_idx = rgb_order(image_mode_str, 'R'),

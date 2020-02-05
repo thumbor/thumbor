@@ -57,12 +57,7 @@ class Optimizer(BaseOptimizer):
             else:
                 logger.warn('jpegtran optimizer scans file does not exist')
 
-        # close_fds would have a sane default on Python 3 but with Python 2.7 it is False
-        # per default but setting it to True + setting any of stdin, stdout, stderr will
-        # make this crash on Windows
-        # TODO remove close_fds=True if code was upgraded to Python 3
-        jpg_process = Popen(command, stdin=PIPE, stdout=PIPE,
-                            stderr=PIPE, close_fds=True)
+        jpg_process = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         output_stdout, output_stderr = jpg_process.communicate(buffer)
 
         if jpg_process.returncode != 0:

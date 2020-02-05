@@ -8,8 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from __future__ import unicode_literals, absolute_import
-
 from io import BytesIO
 from os.path import abspath, join, dirname
 from unittest import TestCase, skipUnless
@@ -55,14 +53,14 @@ class PilEngineTestCase(TestCase):
 
     def test_load_image(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'image.jpg'), 'r') as im:
+        with open(join(STORAGE_PATH, 'image.jpg'), 'rb') as im:
             buffer = im.read()
         image = engine.create_image(buffer)
         expect(image.format).to_equal('JPEG')
 
     def test_load_tif_16bit_per_channel_lsb(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'gradient_lsb_16bperchannel.tif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'gradient_lsb_16bperchannel.tif'), 'rb') as im:
             buffer = im.read()
         expect(buffer).not_to_equal(None)
         engine.load(buffer, None)
@@ -74,7 +72,7 @@ class PilEngineTestCase(TestCase):
 
     def test_load_tif_16bit_per_channel_msb(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'gradient_msb_16bperchannel.tif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'gradient_msb_16bperchannel.tif'), 'rb') as im:
             buffer = im.read()
         expect(buffer).not_to_equal(None)
         engine.load(buffer, None)
@@ -86,7 +84,7 @@ class PilEngineTestCase(TestCase):
 
     def test_load_tif_8bit_per_channel(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'gradient_8bit.tif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'gradient_8bit.tif'), 'rb') as im:
             buffer = im.read()
         expect(buffer).not_to_equal(None)
         engine.load(buffer, None)
@@ -98,7 +96,7 @@ class PilEngineTestCase(TestCase):
 
     def test_convert_png_1bit_to_png(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, '1bit.png'), 'r') as im:
+        with open(join(STORAGE_PATH, '1bit.png'), 'rb') as im:
             buffer = im.read()
         engine.load(buffer, '.png')
         expect(engine.original_mode).to_equal('P')  # Note that this is not a true 1bit image, it's 8bit in black/white.
@@ -113,7 +111,7 @@ class PilEngineTestCase(TestCase):
 
     def test_convert_should_preserve_palette_mode(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, '256_color_palette.png'), 'r') as im:
+        with open(join(STORAGE_PATH, '256_color_palette.png'), 'rb') as im:
             buffer = im.read()
         engine.load(buffer, '.png')
         expect(engine.original_mode).to_equal('P')
@@ -149,7 +147,7 @@ class PilEngineTestCase(TestCase):
 
     def test_resize_truncated_image(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'BlueSquare_truncated.jpg'), 'r') as im:
+        with open(join(STORAGE_PATH, 'BlueSquare_truncated.jpg'), 'rb') as im:
             buffer = im.read()
         engine.load(buffer, '.jpg')
         engine.resize(10, 10)
@@ -159,7 +157,7 @@ class PilEngineTestCase(TestCase):
     @skipUnless(METADATA_AVAILABLE, 'Pyexiv2 library not found. Skipping metadata tests.')
     def test_load_image_with_metadata(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, 'Christophe_Henner_-_June_2016.jpg'), 'r') as im:
+        with open(join(STORAGE_PATH, 'Christophe_Henner_-_June_2016.jpg'), 'rb') as im:
             buffer = im.read()
 
         engine.load(buffer, None)
@@ -173,27 +171,27 @@ class PilEngineTestCase(TestCase):
         expect(len(xmp_keys)).to_equal(44)
         expect('Xmp.aux.LensSerialNumber' in xmp_keys).to_be_true()
 
-        width = engine.metadata[b'Xmp.aux.LensSerialNumber'].value
+        width = engine.metadata['Xmp.aux.LensSerialNumber'].value
         expect(width).to_equal('0000c139be')
 
         # read EXIF tags
         exif_keys = engine.metadata.exif_keys
         expect(len(exif_keys)).to_equal(37)
         expect('Exif.Image.Software' in exif_keys).to_be_true()
-        expect(engine.metadata[b'Exif.Image.Software'].value).to_equal('Adobe Photoshop Lightroom 4.4 (Macintosh)')
+        expect(engine.metadata['Exif.Image.Software'].value).to_equal('Adobe Photoshop Lightroom 4.4 (Macintosh)')
 
         # read IPTC tags
         iptc_keys = engine.metadata.iptc_keys
         expect(len(iptc_keys)).to_equal(6)
         expect('Iptc.Application2.DateCreated' in iptc_keys).to_be_true()
-        expect(engine.metadata[b'Iptc.Application2.DateCreated'].value).to_equal(
+        expect(engine.metadata['Iptc.Application2.DateCreated'].value).to_equal(
             [datetime.date(2016, 6, 23)]
         )
 
     def test_should_preserve_png_transparency(self):
         engine = Engine(self.context)
 
-        with open(join(STORAGE_PATH, 'paletted-transparent.png'), 'r') as im:
+        with open(join(STORAGE_PATH, 'paletted-transparent.png'), 'rb') as im:
             buffer = im.read()
 
         engine.load(buffer, 'png')

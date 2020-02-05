@@ -70,7 +70,7 @@ class BasicFileErrorHandlerTestCase(TestCase):
         http_handler = FakeHandler()
         handler.handle_error(self.context, http_handler, RuntimeError("Test"))
         content = self.tmp.read()
-        log = json.loads(content)
+        log = json.loads(content.decode('utf-8'))
         del log['extra']['timestamp']
         expect(log).to_be_like({
             'Http': {
@@ -120,7 +120,7 @@ class FileErrorHandlerTestCase(TestCase):
         content = self.tmp.read()
 
         # check against json version
-        log = json.loads(content)
+        log = json.loads(content.decode('utf-8'))
         del log['extra']['timestamp']
         expect(log).to_be_like({
             'Http': {

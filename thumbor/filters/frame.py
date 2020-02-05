@@ -87,7 +87,7 @@ class Filter(BaseFilter):
         self.storage.put_crypto(self.url)
         self.on_image_ready(buffer)
 
-    @filter_method(BaseFilter.String, async=True)
+    @filter_method(BaseFilter.String, asynchronous=True)
     @tornado.gen.coroutine
     def frame(self, callback, url):
         self.url = url

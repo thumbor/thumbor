@@ -3,32 +3,20 @@
 static PyObject*
 _round_corner_apply(PyObject *self, PyObject *args)
 {
-    PyObject *buffer = NULL, *image_mode = NULL, *a_radius_py = NULL, *b_radius_py = NULL,
-             *width_py = NULL, *height_py = NULL, *r_py = NULL, *b_py = NULL, *g_py = NULL,
-             *aa_py = NULL, *transparent_py = NULL;
+    PyObject *buffer;
 
-    if (!PyArg_UnpackTuple(args, "apply", 10, 11, &aa_py, &image_mode, &a_radius_py, &b_radius_py,
-            &r_py, &g_py, &b_py, &width_py, &height_py, &buffer, &transparent_py)) {
+    int aa_enabled, a_radius, b_radius, width, height;
+
+    unsigned char r, g, b;
+    unsigned char transparent = 0;
+    char *image_mode_str;
+
+    if (!PyArg_ParseTuple(args, "isiibbbiiO|b:apply", &aa_enabled, &image_mode_str, &a_radius, &b_radius, &r, &g, &b,
+            &width, &height, &buffer, &transparent)) {
         return NULL;
     }
 
-    char *image_mode_str = PyString_AsString(image_mode);
-    int aa_enabled = (int)PyInt_AsLong(aa_py);
-
-    unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
-    int a_radius = (int) PyInt_AsLong(a_radius_py),
-        b_radius = (int) PyInt_AsLong(b_radius_py),
-        width = (int) PyInt_AsLong(width_py),
-        height = (int) PyInt_AsLong(height_py);
-
-    unsigned char r = (unsigned char) PyInt_AsLong(r_py),
-                  g = (unsigned char) PyInt_AsLong(g_py),
-                  b = (unsigned char) PyInt_AsLong(b_py);
-
-    char transparent = 0;
-    if (transparent_py != NULL) {
-        transparent = (char) PyObject_IsTrue(transparent_py);
-    }
+    unsigned char *ptr = (unsigned char *) PyBytes_AsString(buffer);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
 

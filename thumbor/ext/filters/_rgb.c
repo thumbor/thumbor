@@ -3,18 +3,16 @@
 static PyObject*
 _rgb_apply(PyObject *self, PyObject *args)
 {
-    PyObject *buffer = NULL, *image_mode = NULL, *delta_r = NULL, *delta_g = NULL, *delta_b = NULL;
+    PyObject *buffer = NULL;
+    char *image_mode_str;
+    int delta_r_int, delta_g_int, delta_b_int;
 
-    if (!PyArg_UnpackTuple(args, "apply", 5, 5, &image_mode, &delta_r, &delta_g, &delta_b, &buffer)) {
+    if (!PyArg_ParseTuple(args, "siiiO:apply", &image_mode_str, &delta_r_int, &delta_g_int, &delta_b_int, &buffer)) {
         return NULL;
     }
 
-    char *image_mode_str = PyString_AsString(image_mode);
-    Py_ssize_t size = PyString_Size(buffer);
-    unsigned char *ptr = (unsigned char *) PyString_AsString(buffer);
-    int delta_r_int = (int) PyInt_AsLong(delta_r),
-        delta_g_int = (int) PyInt_AsLong(delta_g),
-        delta_b_int = (int) PyInt_AsLong(delta_b);
+    Py_ssize_t size = PyBytes_Size(buffer);
+    unsigned char *ptr = (unsigned char *) PyBytes_AsString(buffer);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
 

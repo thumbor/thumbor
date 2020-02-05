@@ -4,22 +4,20 @@
 static PyObject*
 _sharpen_apply(PyObject *self, PyObject *args)
 {
-    PyObject *buffer_py = NULL, *image_mode = NULL, *amount = NULL, *radius = NULL,
-             *luminance_only = NULL, *width_py = NULL, *height_py = NULL;
+    PyObject *buffer_py;
 
-    if (!PyArg_UnpackTuple(args, "apply", 7, 7, &image_mode, &width_py, &height_py, &amount, &radius, &luminance_only, &buffer_py)) {
+    char *image_mode_str;
+    int width, height;
+
+    double amount_double, radius_double;
+
+    char luminance_only_bool;
+
+    if (!PyArg_ParseTuple(args, "siiddBO:apply", &image_mode_str, &width, &height, &amount_double, &radius_double, &luminance_only_bool, &buffer_py)) {
         return NULL;
     }
 
-    char *image_mode_str = PyString_AsString(image_mode);
-    unsigned char *buffer = (unsigned char *) PyString_AsString(buffer_py);
-    double amount_double = PyFloat_AsDouble(amount),
-           radius_double = PyFloat_AsDouble(radius);
-
-    char luminance_only_bool = (char) PyObject_IsTrue(luminance_only);
-
-    int width = (int) PyInt_AsLong(width_py),
-        height = (int) PyInt_AsLong(height_py);
+    unsigned char *buffer = (unsigned char *) PyBytes_AsString(buffer_py);
 
     int num_bytes = bytes_per_pixel(image_mode_str);
     int r_idx = rgb_order(image_mode_str, 'R'),

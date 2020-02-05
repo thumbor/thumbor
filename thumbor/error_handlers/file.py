@@ -10,11 +10,6 @@ import time
 
 from thumbor import __version__
 
-try:
-    basestring        # Python 2
-except NameError:
-    basestring = str  # Python 3
-
 
 class ErrorHandler(object):
     def __init__(self, config):
@@ -57,7 +52,7 @@ class ErrorHandler(object):
             'Headers': req.headers
         })
         cookies_header = extra.get('Headers', {}).get('Cookie', {})
-        if isinstance(cookies_header, basestring):
+        if isinstance(cookies_header, str):
             cookies = {}
             for cookie in cookies_header.split(';'):
                 if not cookie:

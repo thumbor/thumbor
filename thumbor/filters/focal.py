@@ -16,7 +16,7 @@ from thumbor.point import FocalPoint
 class Filter(BaseFilter):
     phase = PHASE_PRE_LOAD
 
-    focal_regex = re.compile("(\d+)x(\d+):(\d+)x(\d+)")
+    focal_regex = re.compile(r"(\d+)x(\d+):(\d+)x(\d+)")
 
     @filter_method(BaseFilter.String)
     def focal(self, focal_string):

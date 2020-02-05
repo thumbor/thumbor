@@ -8,11 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from __future__ import unicode_literals, absolute_import
 from struct import pack
 from os.path import abspath, join, dirname
 
-import piexif
 from unittest import TestCase
 from xml.etree.ElementTree import ParseError
 
@@ -128,27 +126,27 @@ class BaseEngineTestCase(TestCase):
         expect(buffer).to_equal(returned_buffer)
 
     def test_can_identify_msb_tiff(self):
-        with open(join(STORAGE_PATH, 'gradient_msb_16bperchannel.tif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'gradient_msb_16bperchannel.tif'), 'rb') as im:
             buffer = im.read()
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal('image/tiff')
 
     def test_can_identify_lsb_tiff(self):
-        with open(join(STORAGE_PATH, 'gradient_lsb_16bperchannel.tif'), 'r') as im:
+        with open(join(STORAGE_PATH, 'gradient_lsb_16bperchannel.tif'), 'rb') as im:
             buffer = im.read()
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal('image/tiff')
 
     def test_can_identify_svg_with_xml_namespace_other_than_w3(self):
-        buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
+        buffer = b"""<svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://ns.foo.com/FooSVGViewerExtensions/3.0/">
                         <rect width="100%" height="10" x="0" y="0"/>
-                    </svg>""".encode('utf-8')
+                    </svg>"""
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal('image/svg+xml')
 
     def test_can_identify_svg_with_xml_preamble_and_lots_of_gibberish(self):
-        buffer = """<?xml version="1.0" encoding="utf-8"?>
+        buffer = b"""<?xml version="1.0" encoding="utf-8"?>
                     <!-- Generator: Proprietary Drawing Software, SVG Export Plug-In. SVG Version: 3.0.0 Build 77) -->
                     <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" [
                         <!ENTITY ns_flows "http://ns.foo.com/Flows/1.0/">
@@ -166,7 +164,7 @@ class BaseEngineTestCase(TestCase):
                     <svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
-                    </svg>""".encode('utf-8')
+                    </svg>"""
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal('image/svg+xml')
 
@@ -181,10 +179,10 @@ class BaseEngineTestCase(TestCase):
         expect(png_buffer).to_equal(png_buffer_dupe)
 
     def test_convert_not_well_formed_svg_to_png(self):
-        buffer = """<<svg width="10px" height="20px" viewBox="0 0 10 20"
+        buffer = b"""<<svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
-                    </svg>""".encode('utf-8')
+                    </svg>"""
         with expect.error_to_happen(ParseError):
             self.engine.convert_svg_to_png(buffer)
         expect(self.engine.extension).to_be_null()
@@ -198,8 +196,7 @@ class BaseEngineTestCase(TestCase):
         expect(self.engine.get_orientation()).to_be_null()
 
     def test_get_orientation_without_orientation_in_exif(self):
-        self.engine.exif = piexif.load(exif_str(1))
-        self.engine.exif['0th'].pop(piexif.ImageIFD.Orientation, None)
+        self.engine.exif = b'Exif\x00\x00II*\x00\x08\x00\x00\x00\x01\x00\x1a\x01\x05\x00\x01\x00\x00\x006\x00\x00\x00'
         expect(self.engine.get_orientation()).to_be_null()
 
     def test_get_orientation(self):

@@ -1,16 +1,16 @@
 Image Metadata
 ==============
 
-Thumbor uses `Pyexiv2 <http://tilloy.net/dev/pyexiv2/>`_ to read and write image metadata.
+Thumbor uses `py3exiv2 <https://launchpad.net/py3exiv2>`_ to read and write image metadata.
 
-If the Pyexif2 or Py3exif2 Python library is available, the PIL engine also stores image metadata
+If the Py3exif2 Python library is available, the PIL engine also stores image metadata
 in ``engine.metadata``.
 
 
 
 Reading and writing Metadata
 ----------------------------
-This part is copied from the `Pyexiv2 Tutorial <http://tilloy.net/dev/pyexiv2/tutorial.html>`_
+This part is copied from the `py3exiv2 Tutorial <https://python3-exiv2.readthedocs.io/en/latest/tutorial.html>`_
 
 Let's retrieve a list of all the available EXIF tags available in the image::
 
@@ -112,7 +112,7 @@ On OSX you can use homebrew to install the dependencies::
     brew install boost-python
     brew install exiv2
 
-    pip install git+https://github.com/escaped/pyexiv2.git
+    pip install py3exiv2
 
 If you are updating thumbor and already have an existing virtualenv, then you have to recreate it.
 If you have both a System Python and a Homebrew Python with the same version, then make sure
@@ -120,7 +120,8 @@ the Virtualenv uses the Homebrew Python binary.
 
 On Linux Pyexiv2 can be installed with apt-get:
 
-    apt-get install python-pyexiv2
+    apt-get install python-all-dev libboost-python-dev libexiv2-dev
+    pip install py3exiv2
 
 
 pyexiv2.metadata API reference
@@ -132,7 +133,3 @@ pyexiv2.metadata API reference
              exif_keys, iptc_keys, iptc_charset, xmp_keys,
              __getitem__, __setitem__, __delitem__,
              comment, previews, copy, buffer
-
-
-Currently PyExiv is deprecated in favor of GExiv. However, it is really difficult
-to install GExiv with Python on a non-Ubuntu system. Therefore Pyexiv2 is used.

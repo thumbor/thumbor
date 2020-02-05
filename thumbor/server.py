@@ -29,11 +29,6 @@ from thumbor.utils import which
 
 from PIL import Image
 
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 def get_as_integer(value):
     try:
@@ -79,7 +74,7 @@ def validate_config(config, server_parameters):
     if server_parameters.security_key is None:
         server_parameters.security_key = config.SECURITY_KEY
 
-    if not isinstance(server_parameters.security_key, basestring):
+    if not isinstance(server_parameters.security_key, str):
         raise RuntimeError(
             'No security key was found for this instance of thumbor. ' +
             'Please provide one using the conf file or a security key file.')

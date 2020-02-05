@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from six.moves.urllib.parse import quote, unquote
+from urllib.parse import quote, unquote
 
 from thumbor.handlers import ContextHandler
 from thumbor.context import RequestParameters
@@ -72,14 +72,14 @@ class ImagingHandler(ContextHandler):
             url_to_validate = url.replace('/%s/' % self.context.request.hash, '') \
                 .replace('/%s/' % quoted_hash, '')
 
-            valid = signer.validate(unquote(url_signature), url_to_validate)
+            valid = signer.validate(unquote(url_signature).encode(), url_to_validate)
 
             if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
                 # Retrieves security key for this image if it has been seen before
                 security_key = yield gen.maybe_future(self.context.modules.storage.get_crypto(self.context.request.image_url))
                 if security_key is not None:
                     signer = self.context.modules.url_signer(security_key)
-                    valid = signer.validate(url_signature, url_to_validate)
+                    valid = signer.validate(url_signature.encode(), url_to_validate)
 
             if not valid:
                 self._error(400, 'Malformed URL: %s' % url)

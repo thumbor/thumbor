@@ -15,7 +15,7 @@ from os.path import abspath, join, dirname
 import mock
 import tornado.web
 from preggy import expect
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 from tornado.concurrent import Future
 from tornado.httpclient import AsyncHTTPClient
 from tornado.testing import AsyncHTTPTestCase
@@ -49,7 +49,7 @@ class EchoUserAgentHandler(tornado.web.RequestHandler):
 
 class EchoAllHeadersHandler(tornado.web.RequestHandler):
     def get(self):
-        for header, value in sorted(self.request.headers.iteritems()):
+        for header, value in sorted(self.request.headers.items()):
             self.write("%s:%s\n" % (header, value))
 
 
@@ -272,7 +272,7 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
         loader.load(ctx, url, self.stop)
         result = self.wait()
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_include("X-Server:thumbor")
+        expect(result.buffer.decode()).to_include("X-Server:thumbor")
 
     def test_load_with_some_excluded_headers(self):
         url = self.get_url('/')
@@ -289,7 +289,7 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
         loader.load(ctx, url, self.stop)
         result = self.wait()
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).Not.to_include("X-Server:thumbor")
+        expect(result.buffer.decode()).Not.to_include("X-Server:thumbor")
 
     def test_load_with_all_headers(self):
         url = self.get_url('/')
@@ -301,9 +301,9 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
         loader.load(ctx, url, self.stop)
         result = self.wait()
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_include("Dnt:1\n")
-        expect(result.buffer).to_include("X-Server:thumbor\n")
-        expect(result.buffer).to_include("X-Test:123\n")
+        expect(result.buffer.decode()).to_include("Dnt:1\n")
+        expect(result.buffer.decode()).to_include("X-Server:thumbor\n")
+        expect(result.buffer.decode()).to_include("X-Test:123\n")
 
     def test_load_with_empty_accept(self):
         url = self.get_url('/')
@@ -320,7 +320,7 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
         loader.load(ctx, url, self.stop)
         result = self.wait()
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_include("Accept:image/*;q=0.9,*/*;q=0.1\n")
+        expect(result.buffer.decode()).to_include("Accept:image/*;q=0.9,*/*;q=0.1\n")
 
 
 class HttpLoaderWithUserAgentForwardingTestCase(DummyAsyncHttpClientTestCase):

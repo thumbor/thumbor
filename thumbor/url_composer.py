@@ -11,7 +11,7 @@
 import sys
 import optparse
 
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 
 from thumbor import __version__
 from libthumbor import CryptoURL

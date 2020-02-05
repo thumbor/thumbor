@@ -12,7 +12,7 @@ from os import fstat
 from datetime import datetime
 from os.path import join, exists, abspath
 
-from six.moves.urllib.parse import unquote
+from urllib.parse import unquote
 from tornado.concurrent import return_future
 
 from thumbor.loaders import LoaderResult

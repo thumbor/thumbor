@@ -8,8 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from __future__ import absolute_import
-
 import os
 from tempfile import mkstemp
 from subprocess import Popen, PIPE
@@ -245,6 +243,10 @@ class Engine(BaseEngine):
 
         try:
             if ext == '.webp':
+                if options['quality'] == 100:
+                    logger.debug("webp quality is 100, using lossless instead")
+                    options['lossless'] = True
+                    options.pop('quality')
                 if self.image.mode not in ['RGB', 'RGBA']:
                     if self.image.mode == 'P':
                         mode = 'RGBA'
@@ -276,7 +278,7 @@ class Engine(BaseEngine):
         dispose = []
 
         for im in images:
-            duration.append(float(im.info.get('duration', 80)) / 1000)
+            duration.append(im.info.get('duration', 80) / 1000)
             converted_images.append(im.convert("RGB"))
             xy.append((0, 0))
             dispose.append(1)
@@ -290,7 +292,7 @@ class Engine(BaseEngine):
         img_buffer.close()
 
         tmp_fd, tmp_file_path = mkstemp()
-        f = os.fdopen(tmp_fd, "w")
+        f = os.fdopen(tmp_fd, "wb")
         f.write(results)
         f.close()
 
@@ -374,7 +376,7 @@ class Engine(BaseEngine):
             other_mode, other_data = other_engine.image_data_as_rgb()
             imgdata = _composite.apply(
                 mode, data, sz[0], sz[1],
-                other_data, other_size[0], other_size[1], pos[0], pos[1])
+                other_data, other_size[0], other_size[1], int(pos[0]), int(pos[1]))
             self.set_image_data(imgdata)
         else:
             image.paste(other_image, pos)

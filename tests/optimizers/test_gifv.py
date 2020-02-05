@@ -44,7 +44,7 @@ class GifvOptimizerTest(TestCase):
 
     def test_should_not_run_for_not_gif(self):
         optimizer = Optimizer(self.get_context())
-        for ext in EXTENSION.itervalues():
+        for ext in EXTENSION.items():
             if ext != '.gif':
                 self.assertFalse(optimizer.should_run(ext, ''))
 
