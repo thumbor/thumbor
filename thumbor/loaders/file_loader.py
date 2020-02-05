@@ -52,7 +52,6 @@ def load(context, path, callback):
                     updated_at=datetime.utcfromtimestamp(stats.st_mtime))
         else:
             result.error = LoaderResult.ERROR_NOT_FOUND
-    except:
+    except Exception:
         result.successful = False
-        
     callback(result)
