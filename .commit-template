@@ -8,6 +8,10 @@
 
 # Remember blank line between title and body.
 
+# Please explain whether this change is backwards compatible or not.
+# If not, please use the body below to explain why not.
+**Is backwards compatible**: yes/no
+
 # Body: Explain *what* and *why* (not *how*). Include github issue if any.
 # Wrap at 72 chars. ################################## which is here: #
 

@@ -92,15 +92,14 @@ class BaseHandlerTestApp(tornado.web.Application):
 
 
 class BaseImagingTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.root_path = tempfile.mkdtemp()
-        cls.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
-        cls.base_uri = "/image"
+    def setUp(self):
+        self.root_path = tempfile.mkdtemp()
+        self.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
+        self.base_uri = "/image"
+        super(BaseImagingTestCase, self). setUp()
 
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(cls.root_path)
+    def tearDown(self):
+        shutil.rmtree(self.root_path)
 
 
 class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
@@ -1477,15 +1476,14 @@ class TranslateCoordinatesTestCase(TestCase):
 
 
 class ImageBadRequestDecompressionBomb(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.root_path = tempfile.mkdtemp()
-        cls.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
-        cls.base_uri = "/image"
+    def setUp(self):
+        self.root_path = tempfile.mkdtemp()
+        self.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
+        self.base_uri = "/image"
+        super(ImageBadRequestDecompressionBomb, self).setUp()
 
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(cls.root_path)
+    def tearDown(self):
+        shutil.rmtree(self.root_path)
 
     async def get_as_webp(self, url):
         return await self.async_fetch(url, headers={"Accept": "image/webp,*/*;q=0.8"})

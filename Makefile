@@ -39,14 +39,17 @@ ci_test: build
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
-integration_run:
+integration_run integration int:
 	@poetry run pytest -sv integration_tests/ -p no:tldr
+
+pint pintegration:
+	@poetry run pytest -sv integration_tests/ -p no:tldr -n `nproc` 
 
 coverage:
 	@coverage report -m --fail-under=10
 
 unit:
-	@pytest -n `nproc` --cov=thumbor tests/
+	@poetry run pytest -n `nproc` --cov=thumbor tests/
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown

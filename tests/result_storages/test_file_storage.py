@@ -16,11 +16,11 @@ import mock
 from preggy import expect
 from tornado.testing import gen_test
 
-from tests.base import TestCase
 from thumbor.config import Config
-from thumbor.context import Context, RequestParameters
+from thumbor.context import RequestParameters
 from thumbor.result_storages import ResultStorageResult
 from thumbor.result_storages.file_storage import Storage as FileStorage
+from thumbor.testing import TestCase
 
 
 class BaseFileStorageTestCase(TestCase):
@@ -31,8 +31,10 @@ class BaseFileStorageTestCase(TestCase):
         super(BaseFileStorageTestCase, self).__init__(*args, **kw)
 
     def get_config(self):
+        config = super(BaseFileStorageTestCase, self).get_config()
         self.storage_path = tempfile.TemporaryDirectory()
-        return Config(RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=self.storage_path.name)
+        config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.storage_path.name
+        return config
 
     def tearDown(self):
         super(BaseFileStorageTestCase, self).tearDown()
@@ -48,8 +50,9 @@ class BaseFileStorageTestCase(TestCase):
         return abspath(join(dirname(__file__), "../fixtures/result_storages"))
 
     def get_context(self):
+        ctx = super(BaseFileStorageTestCase, self).get_context()
         cfg = self.get_config()
-        ctx = Context(None, cfg, None)
+        ctx.config = cfg
         ctx.request = self.get_request()
         self.context = ctx
         self.file_storage = FileStorage(self.context)

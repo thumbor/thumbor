@@ -15,6 +15,8 @@ import derpconf.config as config
 from derpconf.config import Config
 
 from thumbor import __version__
+from thumbor.filters import BUILTIN_FILTERS
+from thumbor.routers import BUILTIN_ROUTERS
 
 HOME = expanduser("~")
 
@@ -296,7 +298,9 @@ Config.define(
     "GC_INTERVAL", None, "Set garbage collection interval in seconds", "Performance",
 )
 
-Config.define("HEALTHCHECK_ROUTE", r"/healthcheck", "Healthcheck route.", "Healthcheck")
+Config.define(
+    "HEALTHCHECK_ROUTE", r"/healthcheck/?", "Healthcheck route.", "Healthcheck"
+)
 
 # METRICS OPTIONS
 Config.define("STATSD_HOST", None, "Host to send statsd instrumentation to", "Metrics")
@@ -586,38 +590,7 @@ Config.define(
 # AVAILABLE FILTERS
 Config.define(
     "FILTERS",
-    [
-        "thumbor.filters.brightness",
-        "thumbor.filters.colorize",
-        "thumbor.filters.contrast",
-        "thumbor.filters.rgb",
-        "thumbor.filters.round_corner",
-        "thumbor.filters.quality",
-        "thumbor.filters.noise",
-        "thumbor.filters.watermark",
-        "thumbor.filters.equalize",
-        "thumbor.filters.fill",
-        "thumbor.filters.sharpen",
-        "thumbor.filters.strip_exif",
-        "thumbor.filters.strip_icc",
-        "thumbor.filters.frame",
-        "thumbor.filters.grayscale",
-        "thumbor.filters.rotate",
-        "thumbor.filters.format",
-        "thumbor.filters.max_bytes",
-        "thumbor.filters.convolution",
-        "thumbor.filters.blur",
-        "thumbor.filters.extract_focal",
-        "thumbor.filters.focal",
-        "thumbor.filters.no_upscale",
-        "thumbor.filters.saturation",
-        "thumbor.filters.max_age",
-        "thumbor.filters.curve",
-        "thumbor.filters.background_color",
-        "thumbor.filters.upscale",
-        "thumbor.filters.proportion",
-        "thumbor.filters.stretch",
-    ],
+    BUILTIN_FILTERS,
     "List of filters that thumbor will allow to be used in generated images. All of them must be "
     + "full names of python modules (python must be able to import it)",
     "Filters",
@@ -735,6 +708,15 @@ Config.define(
     "The amount of time to waut before shutting down all io, after the server has been stopped",
     "Server",
 )
+
+# ROUTERS
+Config.define(
+    "ROUTERS",
+    BUILTIN_ROUTERS,
+    "Routers are responsible for adding routes to thumbor app.",
+    "Routers",
+)
+
 
 Config.define(
     "APP_CLASS",
