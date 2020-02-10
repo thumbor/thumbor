@@ -13,7 +13,7 @@ from io import BytesIO
 from subprocess import PIPE, Popen
 from tempfile import mkstemp
 
-from PIL import Image, ImageDraw, ImageFile, ImageFilter, ImageSequence, JpegImagePlugin
+from PIL import Image, ImageDraw, ImageFile, ImageFilter, ImageSequence, JpegImagePlugin, features as pillow_features
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
@@ -105,10 +105,8 @@ class Engine(BaseEngine):
             "NEAREST": Image.NEAREST,
             "BILINEAR": Image.BILINEAR,
             "BICUBIC": Image.BICUBIC,
+            "HAMMING": Image.HAMMING,
         }
-
-        if hasattr(Image, "HAMMING"):
-            available["HAMMING"] = Image.HAMMING
 
         return available.get(resample.upper(), Image.LANCZOS)
 
@@ -189,19 +187,9 @@ class Engine(BaseEngine):
                 self.image = self.image.convert("1")
             else:
                 # libimagequant might not be enabled on compile time
-                # but it's better than default octree for RGBA images, so worth a try
-                quantize_default = True
-                try:
-                    # Option available since Pillow 3.3.0
-                    if hasattr(Image, "LIBIMAGEQUANT"):
-                        self.image = self.image.quantize(method=Image.LIBIMAGEQUANT)
-                        quantize_default = False
-                except ValueError as ex:
-                    if "dependency" not in str(ex).lower():
-                        raise
-
-                if quantize_default:
-                    self.image = self.image.quantize()
+                # but it's better than default octree for RGBA images
+                quantize_method = Image.LIBIMAGEQUANT if pillow_features.check("libimagequant") else None
+                self.image = self.image.quantize(method=quantize_method)
 
         ext = requested_extension or self.get_default_extension()
 
