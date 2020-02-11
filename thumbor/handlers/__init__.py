@@ -214,7 +214,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         except Exception as error:
             msg = (
-                "[BaseHandler] get_image failed for url `{url}`." " error: `{error}`"
+                "[BaseHandler] get_image failed for url `{url}`. error: `{error}`"
             ).format(url=self.context.request.image_url, error=error)
 
             self.log_exception(*sys.exc_info())

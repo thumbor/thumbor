@@ -89,7 +89,7 @@ class Filter(BaseFilter):
         await self.storage.put_crypto(self.url)
         await self.on_image_ready(buffer)
 
-    @filter_method(BaseFilter.String, asynchronous=True)
+    @filter_method(BaseFilter.String)
     async def frame(self, url):
         self.url = url
         self.nine_patch_engine = self.context.modules.engine.__class__(self.context)

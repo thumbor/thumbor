@@ -134,7 +134,7 @@ class BaseEngineTestCase(TestCase):
     def test_can_identify_svg_with_xml_preamble_and_lots_of_gibberish(self):
         buffer = b"""<?xml version="1.0" encoding="utf-8"?>
                     <!-- Generator: Proprietary Drawing Software, SVG Export Plug-In. SVG Version: 3.0.0 Build 77) -->
-                    <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" [
+                    <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//ENhttp://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" [
                         <!ENTITY ns_flows "http://ns.foo.com/Flows/1.0/">
                         <!ENTITY ns_extend "http://ns.foo.com/Extensibility/1.0/">
                         <!ENTITY ns_ai "http://ns.foo.com/foobar/10.0/">

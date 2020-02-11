@@ -143,12 +143,6 @@ class EmptyFilter(BaseFilter):
         return "ok"
 
 
-class AsyncFilter(BaseFilter):
-    @filter_method(BaseFilter.String, asynchronous=True)
-    async def my_async_filter(self, value):
-        return value
-
-
 class InvalidFilter(BaseFilter):
     async def my_invalid_filter(self, value):
         return value
@@ -202,7 +196,7 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
     def get_runner(self):
         return self.factory.create_instances(
             self.context,
-            "my_string_filter(aaaa):my_string_filter(bbb):" "my_pre_load_filter(ccc)",
+            "my_string_filter(aaaa):my_string_filter(bbb):my_pre_load_filter(ccc)",
         )
 
     def test_runner_with_parameters_should_create_two_instances(self):
@@ -289,13 +283,6 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         filter_instance = EmptyFilter("my_empty_filter()")
         result = await filter_instance.run()
         expect(result).to_equal(["ok"])
-
-    @gen_test
-    async def test_with_async_filter_should_get_result(self):
-        AsyncFilter.pre_compile()
-        filter_instance = AsyncFilter("my_async_filter(yyy)")
-        result = await filter_instance.run()
-        expect(result).to_equal(["yyy"])
 
 
 class WithOneValidParamFilterTestCase(BaseFilterTestCase):
