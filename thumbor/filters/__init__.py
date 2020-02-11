@@ -17,7 +17,7 @@ PHASE_PRE_LOAD = "pre-load"
 PHASE_AFTER_LOAD = "after-load"
 
 
-def filter_method(*args, **kwargs):
+def filter_method(*args):
     def _filter_deco(filtered_function):
         async def wrapper(self, *args2):
             return await filtered_function(self, *args2)
@@ -33,7 +33,6 @@ def filter_method(*args, **kwargs):
             "name": filtered_function.__name__,
             "params": args,
             "defaults": defaults,
-            "async": kwargs.get("asynchronous", kwargs.get("async", False)),
         }
         return wrapper
 
@@ -118,7 +117,6 @@ class BaseFilter:
         cls.runnable_method = meths[0]
         filter_data = cls.runnable_method.filter_data
 
-        cls.async_filter = filter_data["async"]
         cls.compile_regex(filter_data)
         return filter_data["name"]
 
@@ -164,18 +162,6 @@ class BaseFilter:
         self.params = params
         self.context = context
         self.engine = context.modules.engine if context and context.modules else None
-
-    def create_multi_engine_callback(self, callback, engines_count):
-        self.engines_count = (  # pylint: disable=attribute-defined-outside-init
-            engines_count
-        )
-
-        def single_callback(*args):
-            self.engines_count -= 1
-            if self.engines_count == 0:
-                callback(*args)
-
-        return single_callback
 
     async def run(self):
         if self.params is None:

@@ -38,16 +38,13 @@ ci_test: build
 	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
 integration_run:
-	@nosetests -sv integration_tests/
+	@poetry run pytest -sv integration_tests/ -p no:tldr
 
 coverage:
 	@coverage report -m --fail-under=10
 
 unit:
-	@pytest --cov=thumbor tests/
-
-mysql_test: pretest
-	PYTHONPATH=.:$$PYTHONPATH nosetests -v -s --with-coverage --cover-erase --cover-package=thumbor tests/test_mysql_storage.py
+	@pytest -n `nproc` --cov=thumbor tests/
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown

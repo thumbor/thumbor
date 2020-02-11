@@ -134,7 +134,7 @@ class TestData:
                 self.crop_bottom,
             )
         return (
-            "For an image of %dx%d resizing to %sx%s," " %sit should resize to %sx%s"
+            "For an image of %dx%d resizing to %sx%s, %sit should resize to %sx%s"
         ) % (
             self.source_width,
             self.source_height,

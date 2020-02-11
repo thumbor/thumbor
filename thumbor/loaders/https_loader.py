@@ -20,19 +20,5 @@ def validate(context, url):
     return http_loader.validate(context, url, normalize_url_func=_normalize_url)
 
 
-def return_contents(response, url, context, req_start=None):
-    return http_loader.return_contents(response, url, context, req_start=req_start)
-
-
 async def load(context, url):
-    return await http_loader.load(
-        context,
-        url,
-        normalize_url_func=_normalize_url,
-        return_contents_fn=return_contents,
-        encode_fn=encode,
-    )
-
-
-def encode(string):
-    return http_loader.encode(string)
+    return await http_loader.load(context, url, normalize_url_func=_normalize_url,)

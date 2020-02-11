@@ -18,7 +18,9 @@ from thumbor.utils import logger
 class Optimizer(BaseOptimizer):
     def should_run(self, image_extension, image_buffer):
         if image_extension in [".jpg", ".jpeg"]:
-            if not exists(self.context.config.JPEGTRAN_PATH):
+            if self.context.config.JPEGTRAN_PATH is None or not exists(
+                self.context.config.JPEGTRAN_PATH
+            ):
                 logger.warning(
                     "jpegtran optimizer enabled but binary JPEGTRAN_PATH does not exist"
                 )

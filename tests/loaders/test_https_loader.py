@@ -62,45 +62,6 @@ class ResponseMock:
         self.body = body
 
 
-class ReturnContentTestCase(TestCase):
-    @gen_test
-    async def test_return_none_on_error(self):
-        response_mock = ResponseMock(error="Error", code=599)
-        ctx = Context(None, None, None)
-        result = loader.return_contents(response_mock, "some-url", ctx)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-
-    @gen_test
-    async def test_return_body_if_valid(self):
-        response_mock = ResponseMock(body="body", code=200)
-        ctx = Context(None, None, None)
-        result = loader.return_contents(response_mock, "some-url", ctx)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("body")
-
-    @gen_test
-    async def test_return_upstream_error_on_body_none(self):
-        response_mock = ResponseMock(body=None, code=200)
-        ctx = Context(None, None, None)
-        result = loader.return_contents(response_mock, "some-url", ctx)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
-
-    @gen_test
-    async def test_return_upstream_error_on_body_empty(self):
-        response_mock = ResponseMock(body="", code=200)
-        ctx = Context(None, None, None)
-        result = loader.return_contents(response_mock, "some-url", ctx)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
-
-
 class ValidateUrlTestCase(TestCase):
     @gen_test
     async def test_with_allowed_sources(self):

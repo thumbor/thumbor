@@ -157,9 +157,7 @@ class BaseEngine:
             return buffer
 
         try:
-            # TODO: is it true that cairosvg does not have
-            # svg2png method? Look it up later
-            buffer = cairosvg.svg2png(
+            buffer = cairosvg.svg2png(  # pylint: disable=no-member
                 bytestring=buffer, dpi=self.context.config.SVG_DPI
             )
             mime = self.get_mimetype(buffer)

@@ -50,12 +50,6 @@ class UtilsTestCase(TestCase):
     def test_can_get_logger():
         expect(logger.name).to_equal("thumbor")
 
-    def __can_handle_callback(self, func, exc, exc_value):
-        expect(func).to_equal("test_func")
-        expect(exc).to_equal(Exception)
-        expect(str(exc_value)).to_equal("Test")
-        self.handled = True
-
     @staticmethod
     def test_deprecated_logs_msg():
         @deprecated("func2")

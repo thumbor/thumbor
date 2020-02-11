@@ -21,9 +21,7 @@ class FaceDetectorTestCase(DetectorTestCase):
     @gen_test
     async def test_should_detect_one_face(self):
         with open(
-            abspath(
-                "./tests/fixtures/images/" "Giunchedi%2C_Filippo_January_2015_01.jpg"
-            ),
+            abspath("./tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg"),
             "rb",
         ) as fixture:
             self.engine.load(fixture.read(), None)
@@ -55,7 +53,7 @@ class FaceDetectorTestCase(DetectorTestCase):
             self.engine.load(fixture.read(), None)
 
         self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
-            "./thumbor/detectors/face_detector/" "haarcascade_frontalface_default.xml"
+            "./thumbor/detectors/face_detector/haarcascade_frontalface_default.xml"
         )
 
         await FaceDetector(self.context, 0, []).detect()
@@ -73,7 +71,7 @@ class FaceDetectorTestCase(DetectorTestCase):
             self.engine.load(fixture.read(), None)
 
         self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
-            "./thumbor/detectors/face_detector/" "haarcascade_frontalface_default.xml",
+            "./thumbor/detectors/face_detector/haarcascade_frontalface_default.xml",
         )
         if hasattr(FaceDetector, "cascade"):
             del FaceDetector.cascade
@@ -97,7 +95,7 @@ class FaceDetectorTestCase(DetectorTestCase):
             self.engine.load(fixture.read(), None)
 
         self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
-            "./thumbor/detectors/face_detector/" "haarcascade_frontalface_default.xml",
+            "./thumbor/detectors/face_detector/haarcascade_frontalface_default.xml",
         )
         if hasattr(FaceDetector, "cascade"):
             del FaceDetector.cascade
@@ -112,15 +110,13 @@ class FaceDetectorTestCase(DetectorTestCase):
     @gen_test
     async def test_should_run_on_images_with_alpha(self):
         with open(
-            abspath(
-                "./tests/fixtures/images/" "Giunchedi%2C_Filippo_January_2015_01.png"
-            ),
+            abspath("./tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.png"),
             "rb",
         ) as fixture:
             self.engine.load(fixture.read(), None)
 
         self.context.config.FACE_DETECTOR_CASCADE_FILE = abspath(
-            "./thumbor/detectors/face_detector/" "haarcascade_frontalface_default.xml",
+            "./thumbor/detectors/face_detector/haarcascade_frontalface_default.xml",
         )
         if hasattr(FaceDetector, "cascade"):
             del FaceDetector.cascade

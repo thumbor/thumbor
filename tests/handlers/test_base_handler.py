@@ -49,6 +49,9 @@ from thumbor.utils import which
 # pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
 # pylint: disable=too-many-lines
 
+JPEGTRAN_AVAILABLE = which("jpegtran") is not None
+EXIFTOOL_AVAILABLE = which("exiftool") is not None
+
 
 class FetchResultTestCase(TestCase):
     def test_can_create_default_fetch_result(self):
@@ -1295,6 +1298,10 @@ class StorageOverride(BaseImagingTestCase):
         expect(response.code).to_equal(200)
 
 
+@pytest.mark.skipif(
+    not JPEGTRAN_AVAILABLE or not EXIFTOOL_AVAILABLE,
+    reason="In order to run thumbor's tests please install both jpegtran and exiftool",
+)
 class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY="ACME-SEC")
@@ -1326,7 +1333,7 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
         exiftool = which("exiftool")
         if not exiftool:
             raise AssertionError(
-                "exiftool was not found. Please install it " "to run thumbor's tests."
+                "exiftool was not found. Please install it to run thumbor's tests."
             )
 
         command = [exiftool, tmp_file_path, "-DeviceModel", "-EncodingProcess"]
@@ -1336,7 +1343,7 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
 
             expect(response.code).to_equal(200)
             expect(output).to_equal(
-                "Encoding Process                : Progressive DCT, Huffman " "coding\n"
+                "Encoding Process                : Progressive DCT, Huffman coding\n"
             )
         finally:
             os.remove(tmp_file_path)
