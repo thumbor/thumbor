@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from shutil import which
 from unittest import TestCase
 
 import mock
@@ -15,7 +16,7 @@ import mock
 from thumbor.config import Config
 from thumbor.context import Context, RequestParameters
 from thumbor.optimizers.gifv import Optimizer
-from thumbor.utils import EXTENSION, which
+from thumbor.utils import EXTENSION
 
 
 class GifvOptimizerTest(TestCase):

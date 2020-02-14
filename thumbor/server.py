@@ -15,6 +15,7 @@ import socket
 import sys
 import warnings
 from os.path import dirname, expanduser
+from shutil import which
 
 import tornado.ioloop
 from PIL import Image
@@ -25,7 +26,6 @@ from thumbor.console import get_server_parameters
 from thumbor.context import Context
 from thumbor.importer import Importer
 from thumbor.signal_handler import setup_signal_handler
-from thumbor.utils import which
 
 
 def get_as_integer(value):
