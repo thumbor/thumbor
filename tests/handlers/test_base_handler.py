@@ -23,6 +23,7 @@ import tornado.web
 from libthumbor import CryptoURL
 from mock import Mock, patch
 from preggy import expect
+from shutil import which
 from tornado.testing import gen_test
 
 from tests.base import TestCase, normalize_unicode_path
@@ -44,7 +45,6 @@ from thumbor.result_storages.file_storage import Storage as FileResultStorage
 from thumbor.server import validate_config
 from thumbor.storages.file_storage import Storage as FileStorage
 from thumbor.storages.no_storage import Storage as NoStorage
-from thumbor.utils import which
 
 # pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
 # pylint: disable=too-many-lines

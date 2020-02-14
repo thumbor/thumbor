@@ -11,13 +11,13 @@
 from os.path import abspath, dirname, join
 
 from preggy import expect
+from shutil import which
 
 from tests.base import TestCase
 from thumbor.config import Config
 from thumbor.context import RequestParameters, ServerParameters
 from thumbor.engines.gif import Engine
 from thumbor.importer import Importer
-from thumbor.utils import which
 
 STORAGE_PATH = abspath(join(dirname(__file__), "../fixtures/images/"))
 

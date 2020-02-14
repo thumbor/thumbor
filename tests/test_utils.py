@@ -13,8 +13,9 @@ from unittest import TestCase
 
 from mock import patch
 from preggy import expect
+from shutil import which
 
-from thumbor.utils import CONTENT_TYPE, EXTENSION, deprecated, logger, which
+from thumbor.utils import CONTENT_TYPE, EXTENSION, deprecated, logger
 
 
 class UtilsTestCase(TestCase):
