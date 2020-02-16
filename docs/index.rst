@@ -16,7 +16,7 @@ detection algorithms (more on that in :doc:`detection_algorithms`).
 Using thumbor is very easy (after it is running). All you have to do is
 access it using an URL for an image, like this::
 
-    http://thumbor-server/unsafe/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
+    http://thumbor-server/unsafe/300x200/smart/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 That URL would show an image of the big brother brasil participants in
 300x200 using smart crop. There are several other options to the image
@@ -27,14 +27,13 @@ page. For more details on the /unsafe part of the URL, check the
 The safe url for the above URL would look like (check :doc:`security` for
 more details)::
 
-    http://thumbor-server/K97LekICOXT9MbO3X1u8BBkrjbu5/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
+    http://thumbor-server/K97LekICOXT9MbO3X1u8BBkrjbu5/300x200/smart/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
-WARNING
--------
-
-    Release 4.0.0 introduces a breaking change if you are using either
-    the GraphicsMagick or the OpenCV Imaging engines. Please read the
-    :doc:`release_notes` for more information.
+.. warning::
+    Release 7.0.0 introduces a major breaking change due to the migration to python 3
+    and the modernization of our codebase. Please read the
+    `release notes <https://github.com/thumbor/thumbor/releases>`_
+    for details on how to upgrade.
 
 Contents
 --------
@@ -46,8 +45,9 @@ Contents
    getting_started
    usage
    imaging
+   customizing
    administration
-   extending
+   upload
    more
 
 Indices and tables

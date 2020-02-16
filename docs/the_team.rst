@@ -9,9 +9,8 @@ Founders / Committers
 
 -  `@heynemann <https://github.com/heynemann/>`_ - Founder and active
    committer
--  `@cezarsa <https://github.com/cezarsa/>`_ - Active committer
--  `@fabiomcosta <https://github.com/fabiomcosta/>`_ - Founder and active
-   committer
+-  `@cezarsa <https://github.com/cezarsa/>`_ - Committer
+-  `@fabiomcosta <https://github.com/fabiomcosta/>`_ - Founder and committer
 
 Contributors
 ------------

@@ -1,7 +1,7 @@
 Sharpen
 =======
 
-Usage: sharpen(sharpen\_amount,sharpen\_radius,luminance\_only)
+Usage: `sharpen(sharpen\_amount,sharpen\_radius,luminance\_only)`
 
 Description
 -----------
@@ -13,12 +13,12 @@ on Marco Rossini's excellent Wavelet sharpen GIMP plugin. Check
 Arguments
 ---------
 
--  sharpen\_amount - Sharpen amount. Typical values are between 0.0 and
-   10.0.
--  sharpen\_radius - Sharpen radius. Typical values are between 0.0 and
-   2.0.
--  luminance\_only - Sharpen only luminance channel. Values can be
-   'true' or 'false'
+-  ``sharpen_amount`` - Sharpen amount. Typical values are between :math:`0.0` and
+   :math:`10.0`.
+-  ``sharpen_radius`` - Sharpen radius. Typical values are between :math:`0.0` and
+   :math:`2.0`.
+-  ``luminance_only`` - Sharpen only luminance channel. Values can be
+   ``true`` or ``false``.
 
 Example 1
 ---------

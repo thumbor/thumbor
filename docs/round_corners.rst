@@ -1,7 +1,7 @@
 Round corners
 =============
 
-Usage: round\_corner(a\|b,r,g,b,[transparent])
+Usage: `round\_corner(a\|b,r,g,b,[transparent])`
 
 Description
 -----------
@@ -12,12 +12,8 @@ as background.
 Arguments
 ---------
 
-a\|b - amount of pixels to use as radius. The argument b is not
-required, but it specifies the second value for the ellipse used for the
-radius.
-
-transparent - Optional. If set to true/1, the background will be
-transparent.
+- ``a|b`` - amount of pixels to use as radius. The argument ``b`` is not required, but it specifies the second value for the ellipsis used for the radius.
+- ``transparent`` - Optional. If set to true/1, the background will be transparent.
 
 Examples
 --------
@@ -25,9 +21,17 @@ Examples
 .. image:: images/tom_before_brightness.jpg
     :alt: Picture before the round corners filter filter
 
-`<http://thumbor-server/filters:round_corner(20,255,255,255)/some/image.jpg>`_
-`<http://thumbor-server/filters:round_corner(20|40,0,0,0)/some/image.jpg>`_
-`<http://thumbor-server/filters:round_corner(30,0,0,0,1)/some/image.jpg>`_
+`<http://localhost:8888/unsafe/filters:round_corner(20,255,255,255)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
 
-.. image:: images/tom_after_round.jpg
+.. image:: images/rounded1.jpg
     :alt: Picture after rounded corners
+
+`<http://localhost:8888/unsafe/filters:round_corner(20|40,0,0,0)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
+
+.. image:: images/rounded2.jpg
+    :alt: Picture after rounded corners
+
+`<http://localhost:8888/unsafe/filters:round_corner(30,0,0,0,1)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
+
+.. image:: images/rounded3.png
+    :alt: Picture after rounded corners (transparent)

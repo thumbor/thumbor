@@ -17,47 +17,49 @@ We seriously advise you to use
 keep your environment clean of thumbor's dependencies and you can choose
 when to "turn them on".
 
-You'll also need python >= 2.6 and < 3.0.
+You'll also need python >= 3.7 and `python poetry <https://python-poetry.org/>`_.
 
-The following packages are required:
+Installing poetry should be as easy as ``pip install poetry``, but you can find more about it in their website.
 
--  Tornado >= 2.1.1
--  pycurl >= 7.19.0
--  Pillow >= 1.7.5
--  redis >= 2.4.11
--  argparse
+Other than that, you'll also need `redis-server <https://redis.io>`` installed (for queued detector unit tests).
 
-You'll also need a recent version of
-`OpenCV <http://opencv.willowgarage.com/wiki/>`__ installed. When
-installing OpenCV, it will create a python binding. Make sure this
-binding is visible to your current virtualenv (if you are using it).
+Initializing the Environment
+----------------------------
 
-Other than that, you'll also need a mongo database running, as well as a
-redis database running. Both are trivial to setup at modern linux or mac
-os systems.
+Once you've created your virtualenv, and installed poetry, make sure you can use poetry::
+
+    $ poetry --version
+    Poetry version 1.0.3
+
+You should see something similar. After that we just need to download all python packages with::
+
+    $ make setup
 
 Running the Tests
 -----------------
 
-Running the tests is as easy as:
+Running the tests is as easy as::
 
-::
-
-    make test
+    $ make test
 
 You should see the results of running your tests after an instant.
 
 If you are experiencing "Too many open files" errors while running the
 tests, try increasing the number of open files per process, by running
-this command:
+this command::
 
-::
-
-    ulimit -S -n 2048
+    $ ulimit -S -n 2048
 
 Read
 http://superuser.com/questions/433746/is-there-a-fix-for-the-too-many-open-files-in-system-error-on-os-x-10-7-1
 for more info on this.
+
+Linting your code
+-----------------
+
+Please ensure that your editor is configured to use `black <https://github.com/psf/black>`_, `flake8 <https://flake8.pycqa.org/en/latest/>`_ and `pylint <https://www.pylint.org/>`_.
+
+Even if that's the case, don't forget to run ``make flake pylint`` before commiting and fixing any issues you find. That way you won't get a request for doing so in your PR.
 
 Pull Requests
 -------------
@@ -66,17 +68,13 @@ After hacking and testing your contribution, it is time to make a pull
 request. Make sure that your code is already integrated with the master
 branch of thumbor before asking for a pull request.
 
-To add thumbor as a valid remote for your repository:
+To add thumbor as a valid remote for your repository::
 
-::
+    $ git remote add thumbor git://github.com/thumbor/thumbor.git
 
-    git remote add thumbor git://github.com/thumbor/thumbor.git
+To merge thumbor's master with your fork::
 
-To merge thumbor's master with your fork:
-
-::
-
-    git pull thumbor master
+    $ git pull thumbor master
 
 If there was anything to merge, just run your tests again. If they pass,
 `send a pull request <http://help.github.com/send-pull-requests/>`__.

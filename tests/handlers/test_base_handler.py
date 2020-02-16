@@ -15,6 +15,7 @@ import tempfile
 from datetime import datetime, timedelta
 from json import loads
 from os.path import abspath, dirname, join
+from shutil import which
 from urllib.parse import quote
 
 import pytest
@@ -23,7 +24,6 @@ import tornado.web
 from libthumbor import CryptoURL
 from mock import Mock, patch
 from preggy import expect
-from shutil import which
 from tornado.testing import gen_test
 
 from tests.base import TestCase, normalize_unicode_path
@@ -384,7 +384,6 @@ class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.ALLOW_UNSAFE_URL = False
-        cfg.ALLOW_OLD_URLS = True
         cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
 
         cfg.STORAGE = "thumbor.storages.file_storage"

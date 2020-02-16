@@ -5,40 +5,66 @@ If you just want to give thumbor a try, it is pretty easy to get
 started. **It won't take more than a minute.**
 
 Just install it with ``pip install thumbor`` and start the process with
-``thumbor`` in a console.
+``thumbor`` in a console. That's all you need to start transforming images. 
 
-That's it! You are ready to start messing with images. Choose some image
-online and try the following.
+The image we'll be using in most of our examples is a Creative Commons licensed image by `Snapwire <https://www.pexels.com/@snapwire>`_::
 
-If you can't install thumbor locally, but can use virtualbox, take a
-look at this repository:
-https://github.com/torchbox/vagrant-thumbor-base.
+   https://github.com/thumbor/thumbor/raw/master/example.jpg
 
-This tutorial assumes the image you picked is
-``https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
-Replace it with whatever image you want accordingly.
+.. image:: https://github.com/thumbor/thumbor/raw/master/example.jpg
+
+If you want to use a different image, go ahead. Any image will work for the remainder of the docs.
+
+.. note::
+   Thumbor only understands properly encoded URIs. In order to use the URI above
+   (or any other for that matter), we first need to encode it. This can be easily
+   achieved by going to any modern browser's developer console and typing::
+
+      window.encodeURIComponent(
+        "https://github.com/thumbor/thumbor/raw/master/example.jpg"
+      )
+
+   And the output will be::
+
+      https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
+
+   That's the URL we'll be using in our examples!
+
+
+Problems installing thumbor locally
+-----------------------------------
+
+No worries! If you have a docker host accessible, just run::
+
+   $ docker run -p 8888:80 minimalcompact/thumbor
+
+After downloading the image and running it, thumbor will be accessible at ``http://localhost:8888/``.
+
+For more information on minimalcompact/thumbor, visit their `github page <https://github.com/MinimalCompact/thumbor>`_.
 
 Changing its size
 -----------------
 
-Go to your browser and enter in the url:
-``http://localhost:8888/unsafe/300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
+Go to your browser and enter in the url::
 
-You should see the waterfall image with 300px of width and 200px of
+   http://localhost:8888/unsafe/300x200/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
+
+You should see the image with :math:`300px` of width and :math:`200px` of
 height. Just play with it in the url to see the image change.
 
 If you just want it to be proportional to the width, enter a height of
-0, like:
+0, like::
 
-``http://localhost:8888/unsafe/300x0/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
+   http://localhost:8888/unsafe/300x0/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 Flipping the image
 ------------------
 
 How about seeing it backwards? Or upside down?
 
-Go to your browser and enter in the url:
-``http://localhost:8888/unsafe/-0x-0/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
+Go to your browser and enter in the url::
+
+   http://localhost:8888/unsafe/-0x-0/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 You should see the waterfall backwards and upside down.
 
@@ -47,11 +73,11 @@ Filters
 
 What if I want to change contrast or brightness?
 
-Go to your browser and enter in the url:
-``http://localhost:8888/unsafe/filters:brightness(10):contrast(30)/https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/1200px-Coffee_berries_1.jpg``.
+Go to your browser and enter in the url::
 
-There are many more filters to explore. Check the
-:doc:`filters` page for more details.
+   http://localhost:8888/unsafe/filters:brightness(10):contrast(30)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
+
+There are many more filters to explore. Check the :doc:`filters` page for more details.
 
 What now?
 ---------

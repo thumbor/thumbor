@@ -1,7 +1,7 @@
 Grayscale
 =========
 
-Usage: grayscale()
+Usage: `grayscale()`
 
 Description
 -----------
@@ -19,7 +19,7 @@ Example
 .. image:: images/tom_before_brightness.jpg
     :alt: Picture before the grayscale filter
 
-`<http://thumbor-server/filters:grayscale()/some/image.jpg>`_
+`<http://localhost:8888/unsafe/filters:grayscale()/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
 
 .. image:: images/tom_after_grayscale.jpg
     :alt: Picture after the grayscale filter

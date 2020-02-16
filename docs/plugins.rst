@@ -11,7 +11,7 @@ Storages
 --------
 
 `thumbor\_aws <https://github.com/thumbor-community/aws>`__ (by `Thumbor Community <https://github.com/thumbor-community>`__)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `Thumbor <https://github.com/thumbor/thumbor/wiki>`__ is a smart
 imaging service. It enables on-demand crop, resizing and flipping of
@@ -172,7 +172,7 @@ configuration file ceph.conf.
 
 
 `thumbor\_spaces <https://github.com/siddhartham/thumbor_spaces>`__ (by `Siddhartha Mukherjee <https://github.com/siddhartham>`__)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This plugin allows users to store objects in the DigitalOcean Spaces for
 result storage.
@@ -226,7 +226,7 @@ Extensions
 ----------
 
 `thumbor\shortener <https://github.com/thumbor-community/shortener>`__ (by `Thumbor Community <https://github.com/thumbor-community>`__)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `Thumbor <https://github.com/thumbor/thumbor/wiki>`__ is a smart
 imaging service. It enables on-demand crop, resizing and flipping of

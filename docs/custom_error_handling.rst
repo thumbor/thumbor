@@ -1,5 +1,5 @@
-Custom Error Handling
-=====================
+Automated Error Handling
+========================
 
 For many companies it make a lot of sense to have a centralized solution
 for handling errors in production, like
@@ -33,25 +33,3 @@ the image below:
 
 .. image:: images/thumbor-sentry-get-dsn.png
     :alt: In Sentry, go to your project admin page, click Python.
-
-Writing my own Error Handler
-----------------------------
-
-Writing your own error handler is very simple. Just create a class
-called ``ErrorHandler``, like the one below:
-
-.. code-block:: python
-
-    class ErrorHandler:
-        def __init__(self, config):
-            # perform any initialization needed
-            pass
-
-        def handle_error(self, context, handler, exception):
-            # do your thing here
-            # context is thumbor's context for the current request
-            # handler is tornado's request handler for the current request
-            # exception is the error that occurred
-
-When you have your handler done, just put it's full name in thumbor.conf
-and make sure thumbor can import it (it's somewhere in PYTHONPATH).

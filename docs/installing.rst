@@ -4,6 +4,15 @@ Installing
 Installing thumbor is really easy because it supports the distutils form
 of packaging (http://docs.python.org/distutils/setupscript.html).
 
+.. warning::
+    Thumbor v7.0.0 and later only supports python 3.7+.
+    This change was important to improve our codebase and ensure
+    it's easier to change in future releases.
+    More breaking changes will come, but we do not anticipate any
+    as big as this one. Please refer to
+    `release notes <https://github.com/thumbor/thumbor/releases>`_
+    for details on how to upgrade.
+
 Stable
 ------
 
@@ -100,14 +109,3 @@ or
     cd thumbor
 
     python setup.py install
-
-Alternative installation
-------------------------
-
-Works on Ubuntu 12.04 x32, except webp detection with opencv doesn't
-seem to work :(
-
-.. code:: bash
-
-    apt-get install ffmpeg libjpeg-dev libpng-dev libtiff-dev libjasper-dev libgtk2.0-dev python-numpy python-pycurl webp python-opencv python-dev python-pip
-    pip install thumbor

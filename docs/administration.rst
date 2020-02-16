@@ -9,7 +9,5 @@ Administration
    hosting
    logging
    running
-   scaling_thumbor
    metadata
    security
-   create_my_own_storage

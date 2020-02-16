@@ -7,7 +7,7 @@ Development Environment
 -----------------------
 
 For running it locally you just need to get a proper :doc:`configuration`
-file. You can put it at /etc/thumbor.conf, ~/thumbor.conf (home folder)
+file. You can put it at ``/etc/thumbor.conf``, ``~/thumbor.conf`` (home folder)
 or specify it when starting thumbor.
 
 To verify if you have thumbor, just type:
@@ -53,7 +53,7 @@ We recommend using an application such as Supervisor
 (http://supervisord.org/index.html) to monitor your services. An
 example of a ``supervisord.conf`` file would be:
 
-.. code:: supervisor
+.. code::
 
     [supervisord]
     logfile = /home/thumbor/logs/supervisord.log
@@ -91,99 +91,111 @@ it has extensive documentation online
 Thumbor in the Cloud
 --------------------
 
-UPDATE
-~~~~~~
+Running with Docker
+~~~~~~~~~~~~~~~~~~~
 
-Now there's a project to help with hosting in HEROKU called
-`thumbor-heroku <https://github.com/ActivKonnect/thumbor-heroku>`__.
+Running thumbor with docker is as easy as::
 
-Creating your thumbor install in heroku
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   $ docker run -p 8888:80 minimalcompact/thumbor
+   ...
+   $ curl http://localhost:8888/healthcheck
+   WORKING%  
 
-You can deploy and test Thumbor in the cloud. It's quite easy with
-`Heroku <http://www.heroku.com>`__ :
+For more details check the `MinimalCompact thumbor docker image <https://github.com/MinimalCompact/thumbor>`_.
 
--  Create an account like described at
-   http://devcenter.heroku.com/articles/quickstart
--  Install the heroku Toolbelt as described in the same page
--  Log to Heroku in your shell
--  Create a small git project for the configuration of your Thumbor
-   instance.
+.. TODO::
+   update this instructions as they are severely outdated
+   Creating your thumbor install in heroku
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The whole script to deploy and start an instance :
+   You can deploy and test Thumbor in the cloud. It's quite easy with
+   `Heroku <http://www.heroku.com>`__ :
 
-.. code:: bash
+   -  Create an account like described at
+      http://devcenter.heroku.com/articles/quickstart
+   -  Install the heroku Toolbelt as described in the same page
+   -  Log to Heroku in your shell
+   -  Create a small git project for the configuration of your Thumbor
+      instance.
 
-    mkdir heroku
-    cd heroku/
-    echo "thumbor>=2.7.0" >> requirements.txt # let heroku deploy and compile prerequisite package via PIP
-    echo "web: thumbor -p $PORT" >> Procfile # listening port is automatically affected at deployment (we use here the default config)
-    git init
-    git add .
-    git commit -m "init"
-    heroku create --stack cedar
-    git push heroku master
+   The whole script to deploy and start an instance :
 
-Basically, adding thumbor in requirements.txt will install everything
-you need on Heroku, and you just need to run thumbor -p $PORT to run
-thumbor on Heroku. In order to run process on Heroku, you need to write
-down the command in Procfile. Procfile looks like following (make sure
-there are no "" inside both files):
+   .. code:: bash
 
-::
+       mkdir heroku
+       cd heroku/
+       echo "thumbor>=2.7.0" >> requirements.txt # let heroku deploy and compile prerequisite package via PIP
+       echo "web: thumbor -p $PORT" >> Procfile # listening port is automatically affected at deployment (we use here the default config)
+       git init
+       git add .
+       git commit -m "init"
+       heroku create --stack cedar
+       git push heroku master
 
-    $ cat Procfile
-    web: thumbor -p $PORT
+   Basically, adding thumbor in requirements.txt will install everything
+   you need on Heroku, and you just need to run thumbor -p $PORT to run
+   thumbor on Heroku. In order to run process on Heroku, you need to write
+   down the command in Procfile. Procfile looks like following (make sure
+   there are no "" inside both files):
 
-Your heroku folder (or whatever you named, I named it thumbor) should
-look like following (only contains two files):
+   ::
 
-::
+       $ cat Procfile
+       web: thumbor -p $PORT
 
-    ~/thumbor(master)$ ls
-    Procfile        requirements.txt
+   Your heroku folder (or whatever you named, I named it thumbor) should
+   look like following (only contains two files):
 
--  Start the instance (Remember: 1 heroku web instance is free of
-   charges, so don't try with more yet):
+   ::
 
-   heroku scale web=1
+       ~/thumbor(master)$ ls
+       Procfile        requirements.txt
 
--  Verify your new instance is up (in the case of our sample project is
-   stormy-stone-5336.herokuapp.com):
+   -  Start the instance (Remember: 1 heroku web instance is free of
+      charges, so don't try with more yet):
 
-   heroku ps
+      heroku scale web=1
 
--  Now if you point your browser to the server name, you'll get a 404
-   HTTP Error. Just try with an URL that thumbor understands. To open
-   your web browser pointing to the new server:
+   -  Verify your new instance is up (in the case of our sample project is
+      stormy-stone-5336.herokuapp.com):
 
-   heroku open
+      heroku ps
 
--  Then try something like:
+   -  Now if you point your browser to the server name, you'll get a 404
+      HTTP Error. Just try with an URL that thumbor understands. To open
+      your web browser pointing to the new server:
 
-`<http://stormy-stone-5336.herokuapp.com/unsafe/300x200/http://s.glbimg.com/jo/g1/f/original/2012/03/16/supersonic-skydiver_fran.jpg>`_
+      heroku open
 
-(notice there is no listening port specified)
+   -  Then try something like:
 
-If you need to scale thumbor server, read more about it in Heroku's
-documentation.
+   `<http://stormy-stone-5336.herokuapp.com/unsafe/300x200/http://s.glbimg.com/jo/g1/f/original/2012/03/16/supersonic-skydiver_fran.jpg>`_
 
-The sample implementation for the above links can be found at
-https://github.com/heynemann/thumbor-heroku and is open-source and MIT
-Licensed.
+   (notice there is no listening port specified)
 
-Another Thumbor/Heroku configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   If you need to scale thumbor server, read more about it in Heroku's
+   documentation.
 
-`This blog post <http://hyperthese.net/post/thumbor-and-heroku/>`__ and
-the attached repositories
-(`Jetpack <https://github.com/ActivKonnect/jetpack>`__ and
-`thumbor-heroku <https://github.com/ActivKonnect/thumbor-heroku>`__)
-explain a more advanced Heroku deployment, that support the ``smart``
-URL feature.
+   The sample implementation for the above links can be found at
+   https://github.com/heynemann/thumbor-heroku and is open-source and MIT
+   Licensed.
+
+   Another Thumbor/Heroku configuration
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   `This blog post <http://hyperthese.net/post/thumbor-and-heroku/>`__ and
+   the attached repositories
+   (`Jetpack <https://github.com/ActivKonnect/jetpack>`__ and
+   `thumbor-heroku <https://github.com/ActivKonnect/thumbor-heroku>`__)
+   explain a more advanced Heroku deployment, that support the ``smart``
+   URL feature.
 
 Thumbor on OpenShift
 --------------------
+
+.. warning::
+
+   This may be outdated since thumbor moved to python 3.
 
 There's a project showing how to deploy a working version on
 `OpenShift <https://www.openshift.com/>`__
@@ -191,6 +203,10 @@ https://github.com/rafaelcaricio/thumbor-openshift-example
 
 Thumbor behind CloudFront
 -------------------------
+
+.. warning::
+
+   This may be outdated since thumbor moved to python 3.
 
 The awesome people at `yipit <http://yipit.com>`__ are using thumbor
 behind the CloudFront

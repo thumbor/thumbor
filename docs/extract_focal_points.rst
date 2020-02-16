@@ -1,7 +1,7 @@
 Extract focal points
 ====================
 
-Usage: extract\_focal()
+Usage: `extract_focal()`
 
 Description
 -----------

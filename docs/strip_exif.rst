@@ -1,13 +1,14 @@
 Strip EXIF
-=========
+==========
 
-Usage: strip\_exif()
+Usage: `strip\_exif()`
 
 Description
 -----------
 
 This filter removes any Exif information in the resulting image.
-This is useful if you have set the configuration PRESERVE_EXIF_INFO = True but still wish to overwrite this behavior in some cases 
+
+This is useful if you have set the configuration ``PRESERVE_EXIF_INFO = True`` but still wish to overwrite this behavior in some cases 
 (e.g. for image icons)
 
 
