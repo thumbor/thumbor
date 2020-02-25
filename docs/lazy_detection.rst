@@ -24,9 +24,9 @@ detector that supports queued detection.
 
 Thumbor ships with three such detectors, called:
 
--  thumbor.detectors.queued\_detector.queued\_complete\_detector
--  thumbor.detectors.queued\_detector.queued\_face\_detector
--  thumbor.detectors.queued\_detector.queued\_feature\_detector
+-  ``thumbor.detectors.queued_detector.queued_complete_detector``
+-  ``thumbor.detectors.queued_detector.queued_face_detector``
+-  ``thumbor.detectors.queued_detector.queued_feature_detector``
 
 These are responsible, respectively, for pipeline detection of face and
 feature, only face or only feature.

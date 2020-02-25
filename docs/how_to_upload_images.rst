@@ -10,8 +10,7 @@ post to its urls.
 Configuration
 -------------
 
-The table below show all configuration parameters to manage image upload
-:
+The table below show all configuration parameters to manage image upload:
 
 +-----------------------------+----------------------------------+--------------------------------------------------------+
 | Configuration parameter     | Default                          | Description                                            |
@@ -56,18 +55,17 @@ API Usage
 
 The Thumbor ``/image`` REST end-point supports the commons `HTTP
 methods <http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol>`__ :
- * POST : to upload a new image
- * GET : to display an image uploaded
- * PUT : to replace an image uploaded by another preserving the URI
- * DELETE : to remove an image uploaded from storage
+
+* POST : to upload a new image
+* GET : to display an image uploaded
+* PUT : to replace an image uploaded by another preserving the URI
+* DELETE : to remove an image uploaded from storage
 
 By default, ``PUT`` and ``DELETE`` methods are disabled as explained
 above. This is done to tighten thumbor's security.
 
 Posting
 ~~~~~~~
-
---------------
 
 Posting is the only method allowed by default when you activate the
 upload module. It allows new images to be sent to Thumbor.
@@ -99,8 +97,6 @@ The status code returned will be :
 
 Putting
 ~~~~~~~
-
---------------
 
 Putting is a little more dangerous if you don't have strict control of
 who can access the ``/image`` end-point. This is because whatever is
@@ -134,8 +130,6 @@ The status code returned will be :
 
 Deleting
 ~~~~~~~~
-
---------------
 
 Deleting can be very dangerous, thus is disabled by default.
 

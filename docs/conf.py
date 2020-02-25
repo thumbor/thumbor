@@ -16,16 +16,19 @@
 
 import os
 import sys
+from datetime import datetime
 
 import sphinx_rtd_theme
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-import thumbor
 
 # sys.path.insert(0, os.path.abspath('..'))
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+
+import thumbor  # isort:skip
 
 # -- General configuration ------------------------------------------------
 
@@ -56,7 +59,8 @@ master_doc = "index"
 
 # General information about the project.
 project = u"Thumbor"
-copyright = u"2015, Globo.com"
+year = datetime.now().year
+copyright = f"{year}, Globo.com"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

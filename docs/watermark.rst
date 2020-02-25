@@ -1,7 +1,7 @@
 Watermark
 =========
 
-Usage: watermark(imageUrl, x, y, alpha [, w_ratio [, h_ratio]])
+Usage: `watermark(imageUrl, x, y, alpha [, w_ratio [, h_ratio]])`
 
 Description
 -----------
@@ -13,37 +13,35 @@ specifying the ratio (see Resizing_).
 Arguments
 ---------
 
--  imageUrl - Watermark image URL. It is very important to understand
+-  ``imageUrl`` - Watermark image URL. It is very important to understand
    that the same image loader that Thumbor uses will be used here. If
    this URL contains parentheses they MUST be url encoded, since these
    are the characters Thumbor uses as delimiters for filter parameters.
--  x - Horizontal position that the watermark will be in. Positive
+-  ``x`` - Horizontal position that the watermark will be in. Positive
    numbers indicate position from the left and negative numbers indicate
    position from the right.
    If the value is 'center' (without the single quotes), the watermark will be centered horizontally.
    If the value is 'repeat' (without the single quotes), the watermark will be repeated horizontally.
    If the value is a positive or negative number followed by a 'p' (ex. 20p) it will calculate the value
    from the image width as percentage
--  y - Vertical position that the watermark will be in. Positive numbers
+-  ``y`` - Vertical position that the watermark will be in. Positive numbers
    indicate position from the top and negative numbers indicate position
    from the bottom.
    If the value is 'center' (without the single quotes), the watermark will be centered vertically.
    If the value is 'repeat' (without the single quotes), the watermark will be repeated vertically
    If the value is a positive or negative number followed by a 'p' (ex. 20p) it will calculate the value
    from the image height as percentage
--  alpha - Watermark image transparency. Should be a number between 0
+-  ``alpha`` - Watermark image transparency. Should be a number between 0
    (fully opaque) and 100 (fully transparent).
--  w_ratio - percentage of the width of the image the watermark should fit-in, defaults to 'none'
+-  ``w_ratio`` - percentage of the width of the image the watermark should fit-in, defaults to 'none'
    (without the single quotes) which means it won't be limited in the width on resizing but also won't
    be resized based on this value
--  h_ratio - percentage of the height of the image the watermark should fit-in, defaults to 'none'
+-  ``h_ratio`` - percentage of the height of the image the watermark should fit-in, defaults to 'none'
    (without the single quotes) which means it won't be limited in the height on resizing but also won't
    be resized based on this value
 
 Example
 -------
-
-|original|
 
 `<http://thumbor-server/filters:watermark(http://my.site.com/img.png,-10,-10,50)/some/image.jpg>`_
 
@@ -63,9 +61,7 @@ fits best into the borders.
 Some examples are shown below with an original image having width=300 and height=200 and an imaginary
 watermark having width=30 and height=40. Borders are shown in red and the watermark drafted in green.
 
-- **original image (300x200)**
-
-  |original|
+Considering original image to be 300x200:
 
 - **watermark(imageUrl, 30, 10, 50, 20)**
 

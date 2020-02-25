@@ -1,19 +1,26 @@
 Proportion
-====
+==========
 
-Usage: proportion(percentage)
+Usage: `proportion(percentage)`
 
 Description
 -----------
 
-This filter applies porportion to height and width passed for cropping.
+This filter applies the specified porportion to the image's height and width when cropping.
 
 Arguments
 ---------
 
--  percentage - The percentage of the proportion. For exemple in this url http://localhost:8888/unsafe/300x300/filters:proportion(0.5)/https://github.com/thumbor/thumbor/wiki/dice_transparent_background.png The Thumbor would crop this image with 150px of width and 150px of height, 50% of original cropping arguments.
+-  ``percentage`` - The float percentage of the proportion (0.0 to 1.0).
+
 
 Example
 -------
 
-``http://localhost:8888/unsafe/300x300/filters:proportion(0.5)/https://github.com/thumbor/thumbor/wiki/dice_transparent_background.png``
+.. image:: images/tom_before_brightness.jpg
+    :alt: Picture before the percentage crop
+
+`<http://localhost:8888/unsafe/filters:proportion(0.5)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
+
+.. image:: images/proportion.jpg
+    :alt: Picture with 50% crop

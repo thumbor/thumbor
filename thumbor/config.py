@@ -288,12 +288,6 @@ Config.define(
     "Indicates if the /unsafe URL should be available",
     "Security",
 )
-Config.define(
-    "ALLOW_OLD_URLS",
-    True,
-    "Indicates if encrypted (old style) URLs should be allowed",
-    "Security",
-)
 Config.define("ENABLE_ETAGS", True, "Enables automatically generated etags", "HTTP")
 Config.define(
     "MAX_ID_LENGTH", 32, "Set maximum id length for images when stored", "Storage",
@@ -496,14 +490,6 @@ Config.alias("ENABLE_ORIGINAL_PHOTO_UPLOAD", "UPLOAD_ENABLED")
 Config.alias("ORIGINAL_PHOTO_STORAGE", "UPLOAD_PHOTO_STORAGE")
 Config.alias("ALLOW_ORIGINAL_PHOTO_DELETION", "UPLOAD_DELETE_ALLOWED")
 Config.alias("ALLOW_ORIGINAL_PHOTO_PUTTING", "UPLOAD_PUT_ALLOWED")
-
-# MEMCACHE STORAGE OPTIONS
-Config.define(
-    "MEMCACHE_STORAGE_SERVERS",
-    ["localhost:11211"],
-    "List of Memcache storage server hosts",
-    "Memcache Storage",
-)
 
 # MIXED STORAGE OPTIONS
 Config.define(

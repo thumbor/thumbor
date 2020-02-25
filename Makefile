@@ -1,7 +1,9 @@
+.PHONY: docs
+
 OS := $(shell uname)
 
 run: compile_ext
-	@thumbor -l debug -d
+	@thumbor -l debug -d -c thumbor/thumbor.conf
 
 setup:
 	@poetry install
@@ -60,13 +62,13 @@ pylint:
 	@poetry run pylint thumbor tests
 
 setup_docs:
-	pip install -r docs/requirements.txt
+	@pip install -r docs/requirements.txt
 
 build_docs:
-	cd docs && make html
+	@cd docs && make html
 
-docs: setup_docs build_docs
-	python -mwebbrowser file:///`pwd`/docs/_build/html/index.html
+docs:
+	@poetry run sphinx-reload --host 0.0.0.0 --port 5555 docs/
 
 sample_images:
 	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 integration_tests/imgs/animated.gif

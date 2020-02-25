@@ -5,5 +5,6 @@ Detectors
    :maxdepth: 2
 
    enabling_detectors
+   detection_algorithms
    available_detectors
-   custom_detection
+   lazy_detection

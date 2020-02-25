@@ -1,7 +1,7 @@
 Format
 ======
 
-Usage: format(image-format)
+Usage: `format(image-format)`
 
 Description
 -----------
@@ -12,9 +12,9 @@ one of: "webp", "jpeg", "gif" or "png".
 Arguments
 ---------
 
-image-format - The output format of the resulting image.
+- ``image-format`` - The output format of the resulting image.
 
 Example
 -------
 
-`<http://thumbor-server/filters:format(webp)/some/image.jpg>`_
+`<http://localhost:8888/unsafe/filters:format(webp)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_

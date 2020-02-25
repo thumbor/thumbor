@@ -1,8 +1,7 @@
 Convolution
 ===========
 
-Usage: convolution(matrix\_items, number\_of\_columns,
-should\_normalize)
+Usage: `convolution(matrix\_items, number\_of\_columns, should\_normalize)`
 
 Description
 -----------
@@ -16,10 +15,9 @@ image area.
 Arguments
 ---------
 
--  matrix\_items - Semicolon separated matrix items.
--  number\_of\_columns - Number of columns in the matrix.
--  should\_normalize - Whether or not we should divide each matrix item
-   by the sum of all items.
+-  ``matrix_items`` - Semicolon separated matrix items.
+-  ``number_of_columns`` - Number of columns in the matrix.
+-  ``should_normalize`` - Whether or not we should divide each matrix item by the sum of all items.
 
 Example
 -------

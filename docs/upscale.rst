@@ -1,7 +1,7 @@
 Upscale
 =======
 
-Usage: upscale()
+Usage: `upscale()`
 
 Description
 -----------
@@ -9,8 +9,8 @@ Description
 This filter tells thumbor to upscale your images. This only makes sense with
 "fit-in" or "adaptive-fit-in".
 
-This means that if an original image is 300px width by 200px height and you
-ask for a 600x500 image, the filter will resize it to 600x400.
+This means that if an original image is :math:`300px` width by :math:`200px` height and you
+ask for a :math:`600x500` image, the filter will resize it to :math:`600x400`.
 
 Arguments
 ---------

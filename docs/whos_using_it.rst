@@ -139,6 +139,7 @@ slogan into an original tee and order it immediately.
 
 .. figure:: http://www.gravatar.com/avatar/0a4f4e23260b57fdba6380fe0ad5b84b.jpg 
     :alt: Ridelink
+
 `HeyCar <https://hey.car/>`__
 
     HeyCar is using Thumbor to optmize images for each customers device, taking network and screen sizes into account.
@@ -155,3 +156,4 @@ How to add my site or product here
 If you are using thumbor and your site or product is not listed here,
 please create an issue and we'll include your logo and a short
 description on how you are using it here.
+

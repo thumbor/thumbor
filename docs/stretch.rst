@@ -1,22 +1,20 @@
 Stretch
-====
+=======
 
-Usage: stretch()
+Usage: `stretch()`
 
 Description
 -----------
 
-This filter applies resize without autocrop if fit-in option will be not passed in the arguments.
+This filter stretches the image until it fits the required width and height, instead of cropping the image.
 
 Example
 -------
 
-.. image:: images/stretch_before.jpg
+.. image:: images/tom_before_brightness.jpg
     :alt: Picture before the stretch filter
 
-`<http://localhost:8888/unsafe/200x100/filters:stretch()/https://thumbor.readthedocs.io/en/latest/_images/tom_before_brightness.jpg>`_
+`<http://localhost:8888/unsafe/200x100/filters:stretch()/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
 
 .. image:: images/stretch_after.jpg
     :alt: Picture after the stretch filter
-
-````

@@ -1,5 +1,5 @@
-More
-====
+Contributors & Users
+====================
 
 .. toctree::
    :maxdepth: 1
@@ -8,4 +8,3 @@ More
    whos_using_it
    hacking_on_thumbor
    licensing
-   release_notes

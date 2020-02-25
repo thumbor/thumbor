@@ -4,17 +4,19 @@ Enabling detectors
 Out of the box, thumbor does not enable any feature or facial detection.
 Enabling it is pretty easy, though.
 
-This documentation assumes you have OpenCV installed. It is a
-requirement if you want to use thumbor's :doc:`available_detectors`.
+.. note::
+    Starting with release 7.0.0 thumbor depends on opencv-python-headless.
+    This means that it should be extremely easy to use the face and feature
+    detectors.
+
+For information on all built-in detectors check the :doc:`available_detectors` page.
 
 Configuration
 -------------
 
 In order to tell thumbor what detectors it should run in the original
 image, you must add them to your ``thumbor.conf`` file in the following
-key:
-
-::
+key::
 
     DETECTORS = [
         'thumbor.detectors.face_detector',
@@ -29,11 +31,16 @@ Using it
 --------
 
 After restarting thumbor, it should be as easy as adding a ``/smart``
-option to your URLs, like:
+option to your URLs, like::
 
-::
+    http://localhost:8888/unsafe/200x400/smart/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
-    http://<thumbor>:<port>/unsafe/300x200/smart/my.domain.com/picture.png
+.. note::
+    Whenever you are not sure what thumbor is "seeing", use the debug mode::
+
+        http://localhost:8888/unsafe/debug/200x400/smart/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
+
+    Thumbor will draw a square on all focal points it found. That way you can be sure of why an image was cropped the way it was.
 
 Lazy Detection
 --------------

@@ -1,3 +1,5 @@
+Moving this here until a better place for this to live in.
+
 Scaling Thumbor
 ===============
 

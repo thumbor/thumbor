@@ -7,9 +7,10 @@ retrieving the image and a very similar endpoint to retrieve metadata.
 Image Endpoint
 --------------
 
-    **http://\ *thumbor-server*/hmac/trim/AxB:CxD/(adaptative-)(full-)fit-in/-Ex-F/HALIGN/VALIGN/smart/filters:FILTERNAME(ARGUMENT):FILTERNAME(ARGUMENT)/*image-uri***
+.. code::
 
--  *thumbor-server* is the address of the service currently running;
+   /hmac/trim/AxB:CxD/(adaptative-)(full-)fit-in/-Ex-F/HALIGN/VALIGN/smart/filters:FILTERNAME(ARGUMENT):FILTERNAME(ARGUMENT)/*IMAGE-URI*
+
 -  hmac is the signature that ensures :doc:`security` ;
 -  trim removes surrounding space in images using top-left pixel color
    unless specified otherwise;
@@ -27,7 +28,7 @@ Image Endpoint
 -  VALIGN is vertical alignment of crop;
 -  smart means using smart detection of focal points;
 -  filters can be applied sequentially to the image before returning;
--  *image-uri* is the public URI for the image you want resized.
+-  *IMAGE-URI* is the encoded URI for the image you want resized.
 
 Trim
 ~~~~
@@ -71,13 +72,13 @@ The fit-in argument specifies that the image should not be auto-cropped
 and auto-resized to be **EXACTLY** the specified size, and should be fit in
 an imaginary box of "E" width and "F" height, instead.
 
-Consider an image of 800px x 600px, and a fit of 300px x 200px. This is
+Consider an image of :math:`800px` x :math:`600px`, and a fit of :math:`300px` x :math:`200px`. This is
 how thumbor would resize it:
 
 .. image:: images/vertical-fit-in.png
     :alt: An image in a vertical fit-in
 
-Consider an image of 400px x 600px, and a fit of 300px x 200px. This is
+Consider an image of :math:`400px` x :math:`600px`, and a fit of :math:`300px` x :math:`200px`. This is
 how thumbor would resize it:
 
 .. image:: images/horizontal-fit-in.png
@@ -89,11 +90,13 @@ have no idea about the original image dimensions.
 If a full fit-in is used, instead of using the largest size for cropping
 it uses the smallest one, so in the above scenarios:
 
-For the image of 800px x 600px, with a full fit-in of 300px x 200px, we 
-would get an image of 300px x 225px.
+For the image of :math:`800px` x :math:`600px`, with a full fit-in of :math:`300px` x :math:`200px`, we 
+would get an image of :math:`300px` x :math:`225px`.
 
-For the image of 400px x 600px, with a full fit-in of 300px x 200px, we 
-would get an image of 300px x 450px.
+For the image of :math:`400px` x :math:`600px`, with a full fit-in of :math:`300px` x :math:`200px`, we 
+would get an image of :math:`300px` x :math:`450px`.
+
+.. TODO: Add adaptive fit in information here
 
 Image Size
 ~~~~~~~~~~
@@ -101,23 +104,23 @@ Image Size
 The image size argument specifies the size of the image that will be
 returned by the service. Thumbor uses smart :doc:`crop_and_resize_algorithms`
 
-If you omit one of the dimensions or use zero as a value (as in 300x,
-300x0, x200, 0x200, and so on), Thumbor will determine that dimension as
-to be proportional to the original image. Say you have an 800x600 image
-and ask for a 400x0 image. Thumbor will infer that since 400 is half of
-800, then the height you are looking for is half of 600, which is 300px.
+If you omit one of the dimensions or use zero as a value (as in :math:`300x`,
+:math:`300x0`, :math:`x200`, :math:`0x200`, and so on), Thumbor will determine that dimension as
+to be proportional to the original image. Say you have an :math:`800x600` image
+and ask for a :math:`400x0` image. Thumbor will infer that since :math:`400` is half of
+:math:`800`, then the height you are looking for is half of :math:`600`, which is :math:`300px`.
 
-If you use 0x0, Thumbor will use the original size of the image and thus
+If you use :math:`0x0`, Thumbor will use the original size of the image and thus
 won't do any cropping or resizing.
 
 If you specify one of the dimensions as the string "orig" (as in
-origx100, 100xorig, origxorig), thumbor will interpret that you want
+:math:`origx100`, :math:`100xorig`, :math:`origxorig`), thumbor will interpret that you want
 that dimension to remain the same as in the original image. Consider an
-image of 800x600. If you ask for a 300xorig version of it, thumbor will
-interpret that you want a 300x600 image. If you instead ask for a
-origx300 version, thumbor will serve you an 800x300 image.
+image of :math:`800x600`. If you ask for a :math:`300xorig` version of it, thumbor will
+interpret that you want a :math:`300x600` image. If you instead ask for a
+:math:`origx300` version, thumbor will serve you an :math:`800x300` image.
 
-If you use origxorig, Thumbor will use the original size of the image
+If you use :math:`origxorig`, Thumbor will use the original size of the image
 and thus won't do any cropping or resizing.
 
 **The default value (in case it is omitted) for this option is to use
@@ -133,16 +136,16 @@ The horizontal align option controls where the cropping will occur if
 some width needs to be trimmed (unless some feature detection occurs -
 more on that later).
 
-So, if we need to trim 300px of the width and the current horizontal
-align is "left", then we'll trim 0px of the left of the image and 300px
+So, if we need to trim :math:`300px` of the width and the current horizontal
+align is "left", then we'll trim 0px of the left of the image and :math:`300px`
 of the right side of the image.
 
 The possible values for this option are:
 
--  left - only trims the right side;
--  center - trims half of the width from the left side and half from the
+-  ``left`` - only trims the right side;
+-  ``center`` - trims half of the width from the left side and half from the
    right side;
--  right - only trims the left side.
+-  ``right`` - only trims the left side.
 
 It is important to notice that this option is useless in case of the
 image being vertically trimmed, since Thumbor's cropping algorithm only
@@ -157,16 +160,16 @@ Vertical Align
 The vertical align option is analogous to the horizontal one, except
 that it controls height trimming.
 
-So, if we need to trim 300px of the height and the current vertical
-align is "top", then we'll trim 0px of the top of the image and 300px of
+So, if we need to trim :math:`300px` of the height and the current vertical
+align is "top", then we'll trim :math:`0px` of the top of the image and :math:`300px` of
 the bottom side of the image.
 
 The possible values for this option are:
 
--  top - only trims the bottom;
--  middle - trims half of the height from the top and half from the
+-  ``top`` - only trims the bottom;
+-  ``middle`` - trims half of the height from the top and half from the
    bottom;
--  bottom - only trims the top.
+-  ``bottom`` - only trims the top.
 
 It is important to notice that this option is useless in case of the
 image being horizontally trimmed, since Thumbor's cropping algorithm
@@ -201,9 +204,9 @@ Thumbor allows for usage of a filter pipeline that will be applied
 sequentially to the image. Filters are covered in the
 :doc:`filters` page if you want to know more.
 
-To use filters add a "filters:" part in your URL. Filters are like
-function calls "filter\_name(argument, argument2, etc)" and are
-separated using the ':' character.
+To use filters add a ``filters:`` part in your URL. Filters are like
+function calls ``filter_name(argument, argument2, etc)`` and are
+separated using the ``:`` character, like ``filters:filter_name():other_filter()``.
 
 Image URI
 ~~~~~~~~~
@@ -211,6 +214,8 @@ Image URI
 This is the image URI. The format of this option depends heavily on the
 image loader you are using. Thumbor comes pre-packaged with an HTTP
 loader and a Filesystem loader.
+
+.. TODO: Add all the built-in loaders here.
 
 If you use the HTTP loader, this option corresponds to the image
 complete URI.

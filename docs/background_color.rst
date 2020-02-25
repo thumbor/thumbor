@@ -1,7 +1,7 @@
 Background Color
 ================
 
-Usage: background_color(color)
+Usage: `background_color(color)`
 
 Description
 -----------
@@ -12,7 +12,7 @@ This is specifically useful when converting transparent images (PNG) to JPEG
 Arguments
 ---------
 
--  color - the color name (like in HTML) or hexadecimal rgb expression
+-  ``color`` - the color name (like in HTML) or hexadecimal rgb expression
    without the "#" character (see
    `<https://en.wikipedia.org/wiki/Web_colors>`_  for example). If color is
    "auto", a color will be smartly chosen (based on the image pixels) to
@@ -26,17 +26,17 @@ The original image is:
 .. image:: images/dice_transparent_background.png
     :alt: Original picture
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(blue)/https://github.com/thumbor/thumbor/wiki/dice_transparent_background.png>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(blue)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fdocs%2Fimages%2Fdice_transparent_background.png>`_
 
 .. image:: images/dice_blue_background.png
     :alt: Picture after the background_color(blue) filter
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(f00)/https://github.com/thumbor/thumbor/wiki/dice_transparent_background.png>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(f00)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fdocs%2Fimages%2Fdice_transparent_background.png>`_
 
 .. image:: images/dice_red_background.png
     :alt: Picture after the background_color(f00) filter
 
-`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(add8e6)/https://github.com/thumbor/thumbor/wiki/dice_transparent_background.png>`_
+`<http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(add8e6)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fdocs%2Fimages%2Fdice_transparent_background.png>`_
 
 .. image:: images/dice_lightblue_background.png
     :alt: Picture after the background_color(add8e6)

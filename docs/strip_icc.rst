@@ -1,7 +1,7 @@
 Strip ICC
 =========
 
-Usage: strip\_icc()
+Usage: `strip\_icc()`
 
 Description
 -----------

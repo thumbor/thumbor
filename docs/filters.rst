@@ -1,17 +1,26 @@
 Filters
 =======
 
-   .. ATTENTION::
-    Filters are affecting each other in the order they are specified!
-    If the original image has the size ``60x40`` and the thumbor url would look like:
+How Filters Work
+----------------
 
-    ``fit-in/100x100/filters:watermark(..):blur(..):fill(red,1):upscale()/http://some/image.jpeg``
+Thumbor handles filters in a pipeline. This means that they
+run sequentially in the order they are specified!
+Given an original image with size :math:`60x40` and the
+following transformations:
 
-    then the image will first checked if it fits into ``100x100`` (which it does), then
-    gets the watermark, then it will be blurred (including the watermark), then
-    filled with red so that it will use the ``100x100`` size and at the end upscaled will
-    be applied without having any effect because fill was changing the size of the image
-    already to the maximum available space.
+   http://localhost:8888/fit-in/100x100/filters:watermark(..):blur(..):fill(red,1):upscale()/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
+
+The resulting image will first check if it can fit into a :math:`100x100`. Since it does,
+the filter pipeline will kick in and:
+
+* add the watermark in the image;
+* blur the whole image (including the watermark);
+* Fill the outer parts of the image with red (so it will fit in :math:`100x100`);
+* Then it will try to upscale. This will have no effect, since at this point the image is already :math:`100x100`.
+
+Available Filters
+-----------------
 
 .. toctree::
    :maxdepth: 1
