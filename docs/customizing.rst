@@ -12,5 +12,6 @@ Customizing Thumbor
    custom_detection
    custom_optimizers
    custom_error_handlers
+   custom_routers
    plugins
    libraries

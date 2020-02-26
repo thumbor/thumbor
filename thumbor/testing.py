@@ -101,6 +101,7 @@ class TestCase(AsyncHTTPTestCase):
         self.request_handler = (  # This is a test case pylint: disable=attribute-defined-outside-init
             self.get_request_handler()
         )
+        self.importer.import_modules()
         return Context(self.server, self.config, self.importer, self.request_handler)
 
     async def async_fetch(self, path, method="GET", body=None, headers=None):

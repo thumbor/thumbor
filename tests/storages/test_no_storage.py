@@ -14,16 +14,10 @@ from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
-from thumbor.config import Config
-from thumbor.context import Context
 from thumbor.storages.no_storage import Storage as NoStorage
 
 
 class NoStorageTestCase(TestCase):
-    def get_context(self):
-        cfg = Config()
-        return Context(None, cfg, None)
-
     def get_image_url(self, image):
         return "s.glbimg.com/some/{0}".format(image)
 

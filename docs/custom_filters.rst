@@ -37,8 +37,10 @@ Let's analyse it:
 And that's it, we got our filter. In order to use it, we need to put it in our ``thumbor.conf``:
 
 .. code:: python
-   FILTERS = [
-      # thumbor built-in filters...
+
+   from thumbor.filters import BUILTIN_FILTERS
+
+   FILTERS = BUILTIN_FILTERS + [
       'mylib.filters.quality',
    ]
 

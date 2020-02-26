@@ -11,6 +11,39 @@
 import collections
 import re
 
+BUILTIN_FILTERS = [
+    "thumbor.filters.brightness",
+    "thumbor.filters.colorize",
+    "thumbor.filters.contrast",
+    "thumbor.filters.rgb",
+    "thumbor.filters.round_corner",
+    "thumbor.filters.quality",
+    "thumbor.filters.noise",
+    "thumbor.filters.watermark",
+    "thumbor.filters.equalize",
+    "thumbor.filters.fill",
+    "thumbor.filters.sharpen",
+    "thumbor.filters.strip_exif",
+    "thumbor.filters.strip_icc",
+    "thumbor.filters.frame",
+    "thumbor.filters.grayscale",
+    "thumbor.filters.rotate",
+    "thumbor.filters.format",
+    "thumbor.filters.max_bytes",
+    "thumbor.filters.convolution",
+    "thumbor.filters.blur",
+    "thumbor.filters.extract_focal",
+    "thumbor.filters.focal",
+    "thumbor.filters.no_upscale",
+    "thumbor.filters.saturation",
+    "thumbor.filters.max_age",
+    "thumbor.filters.curve",
+    "thumbor.filters.background_color",
+    "thumbor.filters.upscale",
+    "thumbor.filters.proportion",
+    "thumbor.filters.stretch",
+]
+
 STRIP_QUOTE = re.compile(r"^'(.+)'$")
 PHASE_POST_TRANSFORM = "post_transform"
 PHASE_PRE_LOAD = "pre-load"

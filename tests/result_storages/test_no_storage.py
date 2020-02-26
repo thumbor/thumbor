@@ -12,15 +12,13 @@ from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
-from thumbor.config import Config
-from thumbor.context import Context, RequestParameters
+from thumbor.context import RequestParameters
 from thumbor.result_storages.no_storage import Storage as NoStorage
 
 
 class NoResultStorageTestCase(TestCase):
     def get_context(self):
-        cfg = Config()
-        ctx = Context(None, cfg, None)
+        ctx = super(NoResultStorageTestCase, self).get_context()
         ctx.request = RequestParameters(url="image.jpg")
         self.context = ctx
         return ctx

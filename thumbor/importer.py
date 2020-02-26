@@ -8,8 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from functools import reduce
+from importlib import import_module
 
+from thumbor.routers.base import BaseRouter
 from thumbor.utils import logger
 
 
@@ -17,10 +18,7 @@ def import_class(name, get_module=False):
     module_name = name if get_module else ".".join(name.split(".")[:-1])
     klass = name.split(".")[-1]
 
-    module = __import__(name) if get_module else __import__(module_name)
-    if "." in module_name:
-        module = reduce(getattr, module_name.split(".")[1:], module)
-
+    module = import_module(module_name)
     return module if get_module else getattr(module, klass)
 
 
@@ -40,12 +38,22 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         self.detectors = []
         self.filters = []
         self.optimizers = []
+        self.routers = []
         self.error_handler_module = None
         self.error_handler_class = None
 
     @staticmethod
-    def import_class(name, get_module=False):
-        return import_class(name, get_module)
+    def import_class(name, get_module=False, validate_fn=None):
+        kls = import_class(name, get_module)
+        if validate_fn is not None:
+            validate_fn(kls)
+        return kls
+
+    def is_router(self, kls):
+        if not issubclass(kls, BaseRouter):
+            raise RuntimeError(
+                "Loaded router %s is not a subclass of thumbor.routers.BaseRouter."
+            )
 
     def import_modules(self):
         self.config.validates_presence_of(
@@ -55,6 +63,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
             "STORAGE",
             "DETECTORS",
             "FILTERS",
+            "ROUTERS",
             "URL_SIGNER",
             "METRICS",
         )
@@ -66,6 +75,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         self.import_item("METRICS", "Metrics")
         self.import_item("DETECTORS", "Detector", is_multiple=True)
         self.import_item("FILTERS", "Filter", is_multiple=True, ignore_errors=True)
+        self.import_item("ROUTERS", "*", is_multiple=True, validate_fn=self.is_router)
         self.import_item("OPTIMIZERS", "Optimizer", is_multiple=True)
         self.import_item("URL_SIGNER", "UrlSigner")
 
@@ -86,6 +96,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         is_multiple=False,
         item_value=None,
         ignore_errors=False,
+        validate_fn=None,
     ):
         if item_value is None:
             conf_value = getattr(self.config, config_key)
@@ -94,7 +105,12 @@ class Importer:  # pylint: disable=too-many-instance-attributes
 
         if is_multiple:
             self.load_multiple_item(
-                config_key, conf_value, class_name, item_value, ignore_errors
+                config_key,
+                conf_value,
+                class_name,
+                item_value,
+                ignore_errors,
+                validate_fn,
             )
         else:
             if class_name is not None:
@@ -104,16 +120,32 @@ class Importer:  # pylint: disable=too-many-instance-attributes
             setattr(self, config_key.lower(), module)
 
     def load_multiple_item(
-        self, config_key, conf_value, class_name, item_value, ignore_errors
+        self,
+        config_key,
+        conf_value,
+        class_name,
+        item_value,
+        ignore_errors,
+        validate_fn,
     ):
         modules = []
         if conf_value:
             for module_name in conf_value:
                 try:
                     if class_name is not None:
-                        module = self.import_class("%s.%s" % (module_name, class_name))
+                        if class_name == "*":
+                            module = self.import_class(
+                                module_name, validate_fn=validate_fn
+                            )
+                        else:
+                            module = self.import_class(
+                                "%s.%s" % (module_name, class_name),
+                                validate_fn=validate_fn,
+                            )
                     else:
-                        module = self.import_class(module_name, get_module=True)
+                        module = self.import_class(
+                            module_name, get_module=True, validate_fn=validate_fn
+                        )
                     modules.append(module)
                 except ImportError as error:
                     if ignore_errors:

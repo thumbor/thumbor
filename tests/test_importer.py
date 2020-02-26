@@ -20,6 +20,7 @@ from thumbor.filters.rgb import Filter as rgb_filter
 from thumbor.importer import Importer
 from thumbor.loaders import http_loader
 from thumbor.result_storages.file_storage import Storage as result_file_storage
+from thumbor.routers.healthcheck import HealthcheckRouter
 from thumbor.storages.file_storage import Storage as file_storage
 
 
@@ -34,6 +35,7 @@ class ImporterTestCase(TestCase):
             RESULT_STORAGE="thumbor.result_storages.file_storage",
             DETECTORS=["thumbor.detectors.face_detector"],
             FILTERS=["thumbor.filters.rgb"],
+            ROUTERS=["thumbor.routers.healthcheck.HealthcheckRouter"],
         )
 
     def test_import_item_should_be_proper_item(self):
@@ -48,6 +50,7 @@ class ImporterTestCase(TestCase):
             "RESULT_STORAGE": result_file_storage,
             "DETECTORS": (face_detector,),
             "FILTERS": (rgb_filter,),
+            "ROUTERS": (HealthcheckRouter,),
         }
 
         for key, value in data.items():
@@ -57,11 +60,9 @@ class ImporterTestCase(TestCase):
 
             if prop is tuple:
                 for index, item in enumerate(prop):
-                    expect(item).not_to_be_null()
-                    expect(item).to_equal(default_value[index])
+                    expect(item).not_to_be_null().to_equal(default_value[index])
             else:
-                expect(prop).not_to_be_null()
-                expect(prop).to_equal(default_value)
+                expect(prop).not_to_be_null().to_equal(default_value)
 
     @staticmethod
     def test_single_item_should_equal_file_storage():
