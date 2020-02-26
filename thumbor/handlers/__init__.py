@@ -83,7 +83,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.metrics.timing("response.time.{0}".format(status), total_time)
         self.context.metrics.incr("response.status.{0}".format(status))
 
-        if status is 200 and self.context is not None:
+        if status == 200 and self.context is not None:
             if self.context.request.smart:
                 self.context.metrics.incr('response.smart')
                 self.context.metrics.timing('response.smart', total_time)
