@@ -1,4 +1,4 @@
-.PHONY: docs
+.PHONY: docs build
 
 OS := $(shell uname)
 

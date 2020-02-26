@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "thumbor"
-version = "6.7.0"
+version = "7.0.0a1"
 description = "thumbor is an open-source photo thumbnail service by globo.com"
 authors = ["globo.com"]
 license = "MIT"
