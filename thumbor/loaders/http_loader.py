@@ -10,14 +10,19 @@
 
 import datetime
 import re
+import socket
 from typing import Pattern
 from urllib.parse import quote, unquote, urlparse
 
-import tornado.curl_httpclient
 import tornado.httpclient
 
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
+
+try:
+    import tornado.curl_httpclient  # pylint: disable=ungrouped-imports
+except (ImportError, ValueError):
+    logger.warning('pycurl usage is advised. It could not be loaded properly. Verify install...')
 
 
 def encode_url(url):
@@ -122,9 +127,11 @@ async def load(
     if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
         http_client_implementation = "tornado.curl_httpclient.CurlAsyncHTTPClient"
         prepare_curl_callback = _get_prepare_curl_callback(context.config)
+        exc_type = tornado.curl_httpclient.CurlError
     else:
         http_client_implementation = None  # default
         prepare_curl_callback = None
+        exc_type = tornado.httpclient.HTTPClientError
 
     tornado.httpclient.AsyncHTTPClient.configure(
         http_client_implementation, max_clients=context.config.HTTP_LOADER_MAX_CLIENTS,
@@ -171,12 +178,14 @@ async def load(
 
     start = datetime.datetime.now()
     try:
-        response = await client.fetch(req, raise_error=False)
-    except tornado.curl_httpclient.CurlError as err:
-        code = err.code
-        reason = err.message
+        response = await client.fetch(req, raise_error=True)
+    except exc_type as err:
         response = tornado.httpclient.HTTPResponse(
-            req, code, reason=reason, start_time=start
+            req, err.code, reason=err.message, start_time=start
+        )
+    except socket.gaierror as err:
+        response = tornado.httpclient.HTTPResponse(
+            req, 599, reason=str(err), start_time=start
         )
 
     return return_contents_fn(
