@@ -10,6 +10,7 @@
 
 from preggy import expect
 
+import thumbor.handler_lists.healthcheck as healthcheck_handler_list
 from tests.base import TestCase
 from thumbor.config import Config
 from thumbor.detectors import feature_detector
@@ -20,7 +21,6 @@ from thumbor.filters.rgb import Filter as rgb_filter
 from thumbor.importer import Importer
 from thumbor.loaders import http_loader
 from thumbor.result_storages.file_storage import Storage as result_file_storage
-from thumbor.routers.healthcheck import HealthcheckRouter
 from thumbor.storages.file_storage import Storage as file_storage
 
 
@@ -35,7 +35,7 @@ class ImporterTestCase(TestCase):
             RESULT_STORAGE="thumbor.result_storages.file_storage",
             DETECTORS=["thumbor.detectors.face_detector"],
             FILTERS=["thumbor.filters.rgb"],
-            ROUTERS=["thumbor.routers.healthcheck.HealthcheckRouter"],
+            HANDLER_LISTS=["thumbor.handler_lists.healthcheck"],
         )
 
     def test_import_item_should_be_proper_item(self):
@@ -50,7 +50,7 @@ class ImporterTestCase(TestCase):
             "RESULT_STORAGE": result_file_storage,
             "DETECTORS": (face_detector,),
             "FILTERS": (rgb_filter,),
-            "ROUTERS": (HealthcheckRouter,),
+            "HANDLER_LISTS": (healthcheck_handler_list,),
         }
 
         for key, value in data.items():

@@ -10,7 +10,6 @@
 
 from importlib import import_module
 
-from thumbor.routers.base import BaseRouter
 from thumbor.utils import logger
 
 
@@ -38,7 +37,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         self.detectors = []
         self.filters = []
         self.optimizers = []
-        self.routers = []
+        self.handler_lists = []
         self.error_handler_module = None
         self.error_handler_class = None
 
@@ -49,12 +48,6 @@ class Importer:  # pylint: disable=too-many-instance-attributes
             validate_fn(kls)
         return kls
 
-    def is_router(self, kls):
-        if not issubclass(kls, BaseRouter):
-            raise RuntimeError(
-                "Loaded router %s is not a subclass of thumbor.routers.BaseRouter."
-            )
-
     def import_modules(self):
         self.config.validates_presence_of(
             "ENGINE",
@@ -63,9 +56,9 @@ class Importer:  # pylint: disable=too-many-instance-attributes
             "STORAGE",
             "DETECTORS",
             "FILTERS",
-            "ROUTERS",
             "URL_SIGNER",
             "METRICS",
+            "HANDLER_LISTS",
         )
 
         self.import_item("ENGINE", "Engine")
@@ -75,7 +68,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         self.import_item("METRICS", "Metrics")
         self.import_item("DETECTORS", "Detector", is_multiple=True)
         self.import_item("FILTERS", "Filter", is_multiple=True, ignore_errors=True)
-        self.import_item("ROUTERS", "*", is_multiple=True, validate_fn=self.is_router)
+        self.import_item("HANDLER_LISTS", is_multiple=True)
         self.import_item("OPTIMIZERS", "Optimizer", is_multiple=True)
         self.import_item("URL_SIGNER", "UrlSigner")
 

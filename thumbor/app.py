@@ -23,13 +23,11 @@ class ThumborServiceApp(tornado.web.Application):
 
     def get_handlers(self):
         handlers = []
-        for router in self.context.modules.importer.routers:
-            handlers.extend(
-                [
-                    (route.url, route.handler, route.initialize)
-                    for route in router(self.context).get_routes()
-                ]
-            )
+        for handler_list in self.context.modules.importer.handler_lists:
+            get_handlers = getattr(handler_list, 'get_handlers', None)
+            if get_handlers is None:
+                continue
+            handlers.extend(get_handlers(self.context))
 
         # Imaging handler (GET)
         handlers.append((Url.regex(), ImagingHandler, {"context": self.context}))

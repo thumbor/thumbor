@@ -16,7 +16,7 @@ from derpconf.config import Config
 
 from thumbor import __version__
 from thumbor.filters import BUILTIN_FILTERS
-from thumbor.routers import BUILTIN_ROUTERS
+from thumbor.handler_lists import BUILTIN_HANDLERS
 
 HOME = expanduser("~")
 
@@ -709,12 +709,12 @@ Config.define(
     "Server",
 )
 
-# ROUTERS
+# HANDLER LISTS
 Config.define(
-    "ROUTERS",
-    BUILTIN_ROUTERS,
-    "Routers are responsible for adding routes to thumbor app.",
-    "Routers",
+    "HANDLER_LISTS",
+    BUILTIN_HANDLERS,
+    "Handler Lists are responsible for adding new handlers to thumbor app.",
+    "HandlerLists",
 )
 
 

@@ -8,13 +8,14 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from typing import List, Optional, cast
+from typing import Any, cast
 
+from thumbor.handler_lists import HandlerList
 from thumbor.handlers.healthcheck import HealthcheckHandler
-from thumbor.routers.base import BaseRouter, Route
 
 
-class HealthcheckRouter(BaseRouter):
-    def get_routes(self) -> Optional[List[Route]]:
-        url = cast(str, self.context.config.HEALTHCHECK_ROUTE)
-        return [Route(url, HealthcheckHandler)]
+def get_handlers(context: Any) -> HandlerList:
+    url = cast(str, context.config.HEALTHCHECK_ROUTE)
+    return [
+        (url, HealthcheckHandler),
+    ]

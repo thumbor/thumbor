@@ -9,11 +9,11 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import logging
+from shutil import which
 from unittest import TestCase
 
 from mock import patch
 from preggy import expect
-from shutil import which
 
 from thumbor.utils import CONTENT_TYPE, EXTENSION, deprecated, logger
 

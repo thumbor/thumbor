@@ -8,8 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-BUILTIN_ROUTERS = [
-    "thumbor.routers.healthcheck.HealthcheckRouter",
-    "thumbor.routers.upload.UploadRouter",
-    "thumbor.routers.blacklist.BlacklistRouter",
+from tornado.routing import _RuleList
+
+BUILTIN_HANDLERS = [
+    "thumbor.handler_lists.healthcheck",
+    "thumbor.handler_lists.upload",
+    "thumbor.handler_lists.blacklist",
 ]
+
+HandlerList = _RuleList
