@@ -8,26 +8,25 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import sys
 import logging
 import logging.config
-import warnings
-
 import os
 import socket
-from os.path import expanduser, dirname
+import sys
+import warnings
+from os.path import dirname, expanduser
 
 import tornado.ioloop
+from PIL import Image
 from tornado.httpserver import HTTPServer
+from tornado.netutil import bind_unix_socket
 
-from thumbor.console import get_server_parameters
 from thumbor.config import Config
-from thumbor.importer import Importer
+from thumbor.console import get_server_parameters
 from thumbor.context import Context
+from thumbor.importer import Importer
 from thumbor.signal_handler import setup_signal_handler
 from thumbor.utils import which
-
-from PIL import Image
 
 try:
     basestring
@@ -114,16 +113,24 @@ def run_server(application, context):
 
     if context.server.fd is not None:
         fd_number = get_as_integer(context.server.fd)
-        if fd_number is None:
-            with open(context.server.fd, 'r') as sock:
-                fd_number = sock.fileno()
+        if fd_number is not None:
+            sock = socket.fromfd(
+                fd_number, socket.AF_INET | socket.AF_INET6, socket.SOCK_STREAM
+            )
+        else:
+            sock = bind_unix_socket(context.server.fd)
 
-        sock = socket.fromfd(fd_number,
-                             socket.AF_INET | socket.AF_INET6,
-                             socket.SOCK_STREAM)
         server.add_socket(sock)
+
+        logging.debug(
+            "thumbor starting at fd %s", context.server.fd
+        )
     else:
         server.bind(context.server.port, context.server.ip)
+
+        logging.debug(
+            "thumbor starting at %s:%d", context.server.ip, context.server.port
+        )
 
     server.start(1)
     return server
@@ -146,7 +153,6 @@ def main(arguments=None):
         application = get_application(context)
         server = run_server(application, context)
         setup_signal_handler(server, config)
-        logging.debug('thumbor running at %s:%d' % (context.server.ip, context.server.port))
         tornado.ioloop.IOLoop.instance().start()
 
 

@@ -10,8 +10,8 @@
 
 import argparse
 
+from thumbor import __release_date__, __version__
 from thumbor.context import ServerParameters
-from thumbor import __version__, __release_date__
 
 
 def get_server_parameters(arguments=None):
@@ -33,9 +33,11 @@ def get_server_parameters(arguments=None):
     )
 
     parser.add_argument(
-        '-f', '--fd',
-        help="The file descriptor number or path to listen for connections on (--port and --ip will be ignored if this is set)"
-        "[default: %(default)s]."
+        "-f",
+        "--fd",
+        help="The file descriptor number or path to unix socket to listen for connections "
+        "on (--port and --ip will be ignored if this is set)"
+        "[default: %(default)s].",
     )
 
     parser.add_argument(
