@@ -188,9 +188,8 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
-    @mock.patch("builtins.open", create=True)
-    @mock.patch.object(thumbor.server, "socket")
-    def test_can_run_server_with_null_fd(self, socket_mock, open_mock, server_mock):
+    @mock.patch.object(thumbor.server, "bind_unix_socket")
+    def test_can_run_server_with_unix_socket(self, bind_unix_socket, server_mock):
         application = mock.Mock()
         context = mock.Mock()
         context.server = mock.Mock(fd="/path/bin", port=1234, ip="0.0.0.0")
@@ -198,12 +197,11 @@ class ServerTestCase(TestCase):
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
 
-        socket_mock.fromfd.return_value = "socket mock"
-        socket_mock.fileno.return_value = 12
-
-        open_mock.return_value = socket_mock
+        bind_unix_socket.return_value = "socket mock"
 
         run_server(application, context)
+
+        bind_unix_socket.assert_called_with("/path/bin")
         server_instance_mock.add_socket.assert_called_with("socket mock")
         server_instance_mock.start.assert_called_with(1)
 

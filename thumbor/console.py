@@ -44,7 +44,7 @@ def get_server_parameters(arguments=None):
     parser.add_argument(
         "-f",
         "--fd",
-        help="The file descriptor number or path to listen for connections "
+        help="The file descriptor number or path to unix socket to listen for connections "
         "on (--port and --ip will be ignored if this is set)"
         "[default: %(default)s].",
     )
