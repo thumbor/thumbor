@@ -12,7 +12,7 @@ tornado = "^6.0.3"
 Pillow = "^7.0.0"
 derpconf = "^0.8.3"
 statsd = "^3.3.0"
-libthumbor = "^1.3.2"
+libthumbor = "^2.0.0"
 pytz = "^2019.3"
 webcolors = "^1.10"
 opencv-python-headless = "^4.2.0"
@@ -39,8 +39,6 @@ pycurl = "^7.43.0"
 pylint = "^2.4.4"
 pyssim = "^0.4"
 pytest-xdist = "^1.31.0"
-sphinx = "^2.4.1"
-sphinx-reload = "^0.2.0"
 
 [tool.poetry.scripts]
 thumbor = 'thumbor.server:main'
