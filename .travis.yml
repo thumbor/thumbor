@@ -16,6 +16,7 @@ matrix:
 env:
   - INTEGRATION_TEST=1
   - UNIT_TEST=1
+  - PERF_TEST=1
 addons:
   apt:
     packages:
@@ -28,17 +29,26 @@ addons:
     - libboost-python-dev
     - libexiv2-dev
     - ffmpeg
+
 install:
   - pip install --upgrade pip
   - pip install poetry
   - cd $TRAVIS_BUILD_DIR && make setup
   - pip install coveralls
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61
+  - echo "deb https://dl.bintray.com/loadimpact/deb stable main" | sudo tee -a /etc/apt/sources.list
+  - sudo apt-get -qq update
+  - sudo apt-get -y install k6
+
 before_script:
   - cd $TRAVIS_BUILD_DIR && make redis
+
 script:
   - make ci_test
+
 notifications:
   slack:
     secure: Sf6TJa/H3mq+RGqpLwKNRpNw0YQKX3+5bt5e37CSs8rOC+SoFHVNr29QhbXFPwmqQuy9qKb0t5rzChDIIvXErywU2lEw3/JlQtCt1xLsoUfpBF8g8ldoy6ESO2j9Jj6Y/M/4RN2zN3AAd5gfXPrdLHa++eiRaiAXXU+9ZvtUxuc=
+
 after_success:
   coveralls

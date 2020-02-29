@@ -1,28 +1,15 @@
-.PHONY: docs build
+.PHONY: docs build perf
 
 OS := $(shell uname)
 
 run: compile_ext
 	@thumbor -l debug -d -c thumbor/thumbor.conf
 
+run-prod: compile_ext
+	@thumbor -l error -c thumbor/thumbor.conf
+
 setup:
 	@poetry install
-
-# Leaving this for future reference of committers.
-# setup_ubuntu:
-	# @sudo apt-get install -y imagemagick webp coreutils gifsicle libvpx? \
-                             # libvpx-dev libimage-exiftool-perl libcairo2-dev \
-                             # ffmpeg libcurl4-openssl-dev libffi-dev \
-                             # python-dev python3-dev
-# setup_mac:
-	# @brew tap brewsci/science
-	# @brew update
-	# @brew install imagemagick webp opencv coreutils gifsicle libvpx exiftool cairo
-	# @brew install ffmpeg --with-libvpx
-	# @opencv_path=`realpath $$(dirname $$(brew --prefix opencv))/$$(readlink $$(brew --prefix opencv))`; \
-		# echo 'Enter in your site-packages directory and run the following lines:';\
-		# echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv.py ./";\
-		# echo "ln -s $$opencv_path/lib/python2.7/site-packages/cv2.so ./"
 
 compile_ext build:
 	@poetry build
@@ -37,7 +24,7 @@ ci_test: build
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
+	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ "$$PERF_TEST" ]; then $(MAKE) long-perf; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
 integration_run integration int:
 	@poetry run pytest -sv integration_tests/ -p no:tldr
@@ -72,6 +59,19 @@ build_docs:
 
 docs:
 	@poetry run sphinx-reload --host 0.0.0.0 --port 5555 docs/
+
+perf-start-daemon: perf-stop-daemon
+	@start-stop-daemon -d `pwd`/perf --make-pidfile --background --start --pidfile /tmp/thumbor-perf.pid --exec `which poetry` -- run thumbor -l error -c ./thumbor.conf
+
+# if you change this, also change in run.sh
+perf-stop-daemon:
+	@start-stop-daemon -q --stop --oknodo --remove-pidfile --pidfile /tmp/thumbor-perf.pid > /dev/null 2>&1
+
+perf: perf-start-daemon
+	@cd perf && DURATION=10 bash run.sh
+
+long-perf: perf-start-daemon
+	@cd perf && bash run.sh
 
 sample_images:
 	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 integration_tests/imgs/animated.gif
