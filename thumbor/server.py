@@ -122,7 +122,7 @@ def run_server(application, context):
             "thumbor starting at %s:%d", context.server.ip, context.server.port
         )
 
-    server.start(1)
+    server.start(context.server.processes)
     return server
 
 

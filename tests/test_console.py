@@ -25,6 +25,7 @@ class ConsoleTestCase(TestCase):
         expect(params.log_level).to_equal("warning")
         expect(params.app_class).to_equal("thumbor.app.ThumborServiceApp")
         expect(params.fd).to_be_null()
+        expect(params.processes).to_equal(1)
 
     def test_can_get_custom_server_parameters(self):
         params = get_server_parameters(
@@ -36,6 +37,7 @@ class ConsoleTestCase(TestCase):
                 "--log-level=debug",
                 "--app=custom.app",
                 "--fd=/tmp/fd",
+                "--processes=5",
             ]
         )
         expect(params.port).to_equal(9999)
@@ -45,3 +47,4 @@ class ConsoleTestCase(TestCase):
         expect(params.log_level).to_equal("debug")
         expect(params.app_class).to_equal("custom.app")
         expect(params.fd).to_equal("/tmp/fd")
+        expect(params.processes).to_equal(5)
