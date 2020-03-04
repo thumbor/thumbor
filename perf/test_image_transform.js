@@ -11,8 +11,14 @@ const threshold = __ENV.P95 || 3000;
 const failRate = new Rate('failed requests');
 
 export let options = {
+  ext: {
+    loadimpact: {
+      projectID: 3482538,
+      name: "thumbor image transform"
+    }
+  },
   stages: [
-    { duration: `${wait}s`, target: 0 },
+    { duration: `${wait}s`, target: 1 },
     { duration: `${warmup}s`, target: maxVU },
     { duration: `${duration}s`, target: maxVU },
   ],

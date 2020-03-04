@@ -1,7 +1,7 @@
 language: python
 python:
-  - 3.7
-  - 3.8
+- 3.7
+- 3.8
 dist: bionic
 cache:
   pip: true
@@ -9,14 +9,17 @@ cache:
 matrix:
   fast_finish: true
   include:
-    - python: 3.7
-      env: LINT_TEST=1
-    - python: 3.8
-      env: LINT_TEST=1
+  - python: 3.7
+    env: LINT_TEST=1
+  - python: 3.8
+    env: LINT_TEST=1
 env:
+  matrix:
   - INTEGRATION_TEST=1
   - UNIT_TEST=1
   - PERF_TEST=1
+  global:
+    secure: GhnNiPduBzcVuZiAzRzMWxsiV24XT0Awzr5GWtRHufTp8vYLxZoDxcwvIra1i53wGp6IFdF9Gfd5MeOblcPc8LMrTgx3N3ttNJxL6kpUngZwRecFO+/BNfDQjFyy6VElN5tUx8hOwcIIK7S8pl/q8TYnjirbKRTsDg38Pf9J//Y=
 addons:
   apt:
     packages:
@@ -29,26 +32,22 @@ addons:
     - libboost-python-dev
     - libexiv2-dev
     - ffmpeg
-
 install:
-  - pip install --upgrade pip
-  - pip install poetry
-  - cd $TRAVIS_BUILD_DIR && make setup
-  - pip install coveralls
-  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61
-  - echo "deb https://dl.bintray.com/loadimpact/deb stable main" | sudo tee -a /etc/apt/sources.list
-  - sudo apt-get -qq update
-  - sudo apt-get -y install k6
-
+- pip install --upgrade pip
+- pip install poetry
+- cd $TRAVIS_BUILD_DIR && make setup
+- pip install coveralls
+- sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61
+- echo "deb https://dl.bintray.com/loadimpact/deb stable main" | sudo tee -a /etc/apt/sources.list
+- sudo apt-get -qq update
+- sudo apt-get -y install k6
 before_script:
-  - cd $TRAVIS_BUILD_DIR && make redis
-
+- cd $TRAVIS_BUILD_DIR && make redis
 script:
-  - make ci_test
-
+- make ci_test
 notifications:
   slack:
     secure: Sf6TJa/H3mq+RGqpLwKNRpNw0YQKX3+5bt5e37CSs8rOC+SoFHVNr29QhbXFPwmqQuy9qKb0t5rzChDIIvXErywU2lEw3/JlQtCt1xLsoUfpBF8g8ldoy6ESO2j9Jj6Y/M/4RN2zN3AAd5gfXPrdLHa++eiRaiAXXU+9ZvtUxuc=
-
-after_success:
-  coveralls
+after_success: coveralls
+K6_API_KEY=c163597a17c7c18b8f1afc08c5478e7df8925703c5c1e9978547763d481548f0:
+  secure: camrfcKwxUCCrnNrgwoZ2+0DgcgMVwNrGF/yMKoIc3KvXulHnd0C67pOSGD1YsvtWNerBdgUj9nh5PNKZdZTyyDict3vzs2pHDmJ4/dXObNJ26bShf5zpvK/JK8YxfB73IkAb/tfGXvCYJpypMHob9HbYB2TiNskxCmesbyc8a0=
