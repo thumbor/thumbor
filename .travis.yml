@@ -32,7 +32,6 @@ addons:
 
 install:
   - pip install --upgrade pip
-  - pip install poetry
   - cd $TRAVIS_BUILD_DIR && make setup
   - pip install coveralls
   - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61
