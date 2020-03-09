@@ -9,13 +9,19 @@ recursive-include thumbor *.png
 recursive-include thumbor *.gif
 recursive-include thumbor *.svg
 recursive-include thumbor 513px-Coffee_beans_-_ziarna_kawy
+recursive-include thumbor *.c
+recursive-exclude thumbor *.pyc
+recursive-exclude thumbor *.so
 
 include LICENSE README.mkd CHANGELOG
 recursive-include docs *
+prune docs/_build
 
 include redis.conf Makefile requirements thumbor.key
 recursive-include tests *.py
 recursive-include tests/fixtures *
+recursive-exclude tests *.pyc
 
 recursive-include integration_tests *.py
 recursive-include integration_tests/imgs *
+recursive-exclude integration_tests *.pyc
