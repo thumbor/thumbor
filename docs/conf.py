@@ -24,7 +24,7 @@ import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
-import thumbor  # isort:skip
+import thumbor  # NOQA isort:skip pylint: disable=wrong-import-position
 
 # -- General configuration ------------------------------------------------
 
