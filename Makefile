@@ -9,10 +9,10 @@ run-prod: compile_ext
 	@thumbor -l error -c thumbor/thumbor.conf
 
 setup:
-	@poetry install
+	@pip install -e .[tests]
 
 compile_ext build:
-	@poetry build
+	@python setup.py build_ext -i
 
 test: build redis
 	@$(MAKE) unit coverage
@@ -27,16 +27,16 @@ ci_test: build
 	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ "$$PERF_TEST" ]; then $(MAKE) long-perf; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
 integration_run integration int:
-	@poetry run pytest -sv integration_tests/ -p no:tldr
+	@pytest -sv integration_tests/ -p no:tldr
 
 pint pintegration:
-	@poetry run pytest -sv integration_tests/ -p no:tldr -n `nproc` 
+	@pytest -sv integration_tests/ -p no:tldr -n `nproc`
 
 coverage:
 	@coverage report -m --fail-under=10
 
 unit:
-	@poetry run pytest -n `nproc` --cov=thumbor tests/
+	@pytest -n `nproc` --cov=thumbor tests/
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown
@@ -46,10 +46,10 @@ redis: kill_redis
 	@redis-cli -p 6668 -a hey_you info
 
 flake:
-	@poetry run flake8 --config flake8
+	@flake8 --config flake8
 
 pylint:
-	@poetry run pylint thumbor tests
+	@pylint thumbor tests
 
 setup_docs:
 	@pip install -r docs/requirements.txt
@@ -58,10 +58,10 @@ build_docs:
 	@cd docs && make html
 
 docs:
-	@poetry run sphinx-reload --host 0.0.0.0 --port 5555 docs/
+	@sphinx-reload --host 0.0.0.0 --port 5555 docs/
 
 perf-start-daemon: perf-stop-daemon
-	@start-stop-daemon -d `pwd`/perf --make-pidfile --background --start --pidfile /tmp/thumbor-perf.pid --exec `which poetry` -- run thumbor -l error -c ./thumbor.conf
+	@start-stop-daemon -d `pwd`/perf --make-pidfile --background --start --pidfile /tmp/thumbor-perf.pid --exec `which thumbor` -- -l error -c ./thumbor.conf
 
 # if you change this, also change in run.sh
 perf-stop-daemon:
