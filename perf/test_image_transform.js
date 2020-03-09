@@ -12,7 +12,7 @@ const failRate = new Rate('failed requests');
 
 export let options = {
   stages: [
-    { duration: `${wait}s`, target: 0 },
+    { duration: `${wait}s`, target: 1 },
     { duration: `${warmup}s`, target: maxVU },
     { duration: `${duration}s`, target: maxVU },
   ],
