@@ -12,11 +12,12 @@ matrix:
     - python: 3.7
       env: LINT_TEST=1
     - python: 3.8
+      env: PERF_TEST=1
+    - python: 3.8
       env: LINT_TEST=1
 env:
   - INTEGRATION_TEST=1
   - UNIT_TEST=1
-  - PERF_TEST=1
 addons:
   apt:
     packages:
