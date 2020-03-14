@@ -109,7 +109,7 @@ def get_application(context):
 
 def socket_families():
     families = { 1: socket.AF_UNIX, 2 : socket.AF_INET }
-    if socket.has_ipv6
+    if socket.has_ipv6:
       families[10] = socket.AF_INET6
     return families
 
