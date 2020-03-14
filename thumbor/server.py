@@ -107,11 +107,13 @@ def get_context(server_parameters, config, importer):
 def get_application(context):
     return context.modules.importer.import_class(context.app_class)(context)
 
+
 def socket_families():
-    families = { 1: socket.AF_UNIX, 2 : socket.AF_INET }
+    families = {1: socket.AF_UNIX, 2: socket.AF_INET}
     if socket.has_ipv6:
-      families[10] = socket.AF_INET6
+        families[10] = socket.AF_INET6
     return families
+
 
 def run_server(application, context):
     server = HTTPServer(application, xheaders=True)
