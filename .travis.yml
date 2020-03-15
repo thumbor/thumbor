@@ -1,5 +1,6 @@
 language: python
 python:
+  - 3.6
   - 3.7
   - 3.8
 dist: bionic
@@ -9,6 +10,8 @@ cache:
 matrix:
   fast_finish: true
   include:
+    - python: 3.6
+      env: LINT_TEST=1
     - python: 3.7
       env: LINT_TEST=1
     - python: 3.8
