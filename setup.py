@@ -107,6 +107,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "derpconf>=0.2.0",
             "statsd>=3.0.1",
             "libthumbor>=1.3.2",
+            "socketfromfd>=0.2.0",
             "futures",
             "argparse",
             "pytz",

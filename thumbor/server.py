@@ -11,10 +11,12 @@
 import logging
 import logging.config
 import os
-import socket
 import sys
 import warnings
 from os.path import dirname, expanduser
+
+import socket
+from socketfromfd import fromfd as socket_from_fd
 
 import tornado.ioloop
 from PIL import Image
@@ -108,22 +110,13 @@ def get_application(context):
     return context.modules.importer.import_class(context.app_class)(context)
 
 
-def socket_families():
-    families = {1: socket.AF_UNIX, 2: socket.AF_INET}
-    if socket.has_ipv6:
-        families[10] = socket.AF_INET6
-    return families
-
-
 def run_server(application, context):
     server = HTTPServer(application, xheaders=True)
 
     if context.server.fd is not None:
         fd_number = get_as_integer(context.server.fd)
         if fd_number is not None:
-            family_number = get_as_integer(context.server.port)
-            family = socket_families().get(family_number, socket.AF_INET)
-            sock = socket.fromfd(fd_number, family, socket.SOCK_STREAM)
+            sock = socket_from_fd(fd_number, keep_fd: True)
         else:
             sock = bind_unix_socket(context.server.fd)
 
