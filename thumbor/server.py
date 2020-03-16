@@ -15,7 +15,6 @@ import sys
 import warnings
 from os.path import dirname, expanduser
 
-import socket
 from socketfromfd import fromfd as socket_from_fd
 
 import tornado.ioloop
