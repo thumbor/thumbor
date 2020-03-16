@@ -116,7 +116,7 @@ def run_server(application, context):
     if context.server.fd is not None:
         fd_number = get_as_integer(context.server.fd)
         if fd_number is not None:
-            sock = socket_from_fd(fd_number, keep_fd: True)
+            sock = socket_from_fd(fd_number, True)
         else:
             sock = bind_unix_socket(context.server.fd)
 
