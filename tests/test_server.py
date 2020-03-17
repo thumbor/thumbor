@@ -183,7 +183,7 @@ class ServerTestCase(TestCase):
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
 
-        socket_from_fd_mock.fromfd.return_value = "socket mock"
+        socket_from_fd_mock.return_value = "socket mock"
 
         run_server(application, context)
         server_instance_mock.add_socket.assert_called_with("socket mock")
