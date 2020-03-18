@@ -11,11 +11,11 @@
 import logging
 import logging.config
 import os
-import socket
 import sys
 import warnings
 from os.path import dirname, expanduser
 from shutil import which
+from socketfromfd import fromfd as socket_from_fd
 
 import tornado.ioloop
 from PIL import Image
@@ -104,9 +104,8 @@ def run_server(application, context):
     if context.server.fd is not None:
         fd_number = get_as_integer(context.server.fd)
         if fd_number is not None:
-            sock = socket.fromfd(
-                fd_number, socket.AF_INET | socket.AF_INET6, socket.SOCK_STREAM
-            )
+            # TODO: replace with socket.socket(fileno=fd_number) when we require Python>=3.7
+            sock = socket_from_fd(fd_number, True)
         else:
             sock = bind_unix_socket(context.server.fd)
 
