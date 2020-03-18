@@ -8,10 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 from thumbor.utils import logger
+from tornado.ioloop import IOLoop
 
 
 class ThreadPool:
@@ -44,7 +44,7 @@ class ThreadPool:
         return operation(*args)
 
     async def _execute_in_pool(self, operation, *args):
-        loop = asyncio.get_running_loop()
+        loop = IOLoop.current()
         return await loop.run_in_executor(self.pool, operation, *args)
 
     async def queue(self, operation, *args):
