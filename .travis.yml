@@ -15,6 +15,10 @@ matrix:
       env: PERF_TEST=1
     - python: 3.8
       env: LINT_TEST=1
+jobs:
+  allow_failures:
+    - python: 3.8
+      env: PERF_TEST=1
 env:
   - INTEGRATION_TEST=1
   - UNIT_TEST=1
