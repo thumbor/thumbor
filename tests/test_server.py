@@ -174,8 +174,8 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, 'HTTPServer')
-    @mock.patch.object(thumbor.server, 'socket')
-    def test_can_run_server_with_fd(self, socket_mock, server_mock):
+    @mock.patch.object(thumbor.server, 'socket_from_fd')
+    def test_can_run_server_with_fd(self, socket_from_fd_mock, server_mock):
         application = mock.Mock()
         context = mock.Mock()
         context.server = mock.Mock(fd=11, port=1234, ip='0.0.0.0')
@@ -183,7 +183,7 @@ class ServerTestCase(TestCase):
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
 
-        socket_mock.fromfd.return_value = "socket mock"
+        socket_from_fd_mock.return_value = "socket mock"
 
         run_server(application, context)
         server_instance_mock.add_socket.assert_called_with("socket mock")
