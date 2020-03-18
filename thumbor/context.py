@@ -84,6 +84,7 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
         fd=None,
         gifsicle_path=None,
         use_environment=False,
+        processes=1,
     ):
         self.port = port
         self.ip = ip  # Other people may depend on this pylint: disable=invalid-name
@@ -97,6 +98,7 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
         self.fd = fd  # Other people may depend on this pylint: disable=invalid-name
         self.gifsicle_path = gifsicle_path
         self.use_environment = use_environment
+        self.processes = processes
 
     @property
     def security_key(self):

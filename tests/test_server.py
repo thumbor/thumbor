@@ -161,7 +161,7 @@ class ServerTestCase(TestCase):
     def test_can_run_server_with_default_params(self, server_mock):
         application = mock.Mock()
         context = mock.Mock()
-        context.server = mock.Mock(fd=None, port=1234, ip="0.0.0.0")
+        context.server = mock.Mock(fd=None, port=1234, ip="0.0.0.0", processes=1)
 
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
@@ -172,11 +172,24 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
+    def test_can_run_server_with_multiple_processes(self, server_mock):
+        application = mock.Mock()
+        context = mock.Mock()
+        context.server = mock.Mock(fd=None, port=1234, ip="0.0.0.0", processes=5)
+
+        server_instance_mock = mock.Mock()
+        server_mock.return_value = server_instance_mock
+
+        run_server(application, context)
+
+        server_instance_mock.start.assert_called_with(5)
+
+    @mock.patch.object(thumbor.server, "HTTPServer")
     @mock.patch.object(thumbor.server, "socket")
     def test_can_run_server_with_fd(self, socket_mock, server_mock):
         application = mock.Mock()
         context = mock.Mock()
-        context.server = mock.Mock(fd=11, port=1234, ip="0.0.0.0")
+        context.server = mock.Mock(fd=11, port=1234, ip="0.0.0.0", processes=1)
 
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
@@ -192,7 +205,7 @@ class ServerTestCase(TestCase):
     def test_can_run_server_with_unix_socket(self, bind_unix_socket, server_mock):
         application = mock.Mock()
         context = mock.Mock()
-        context.server = mock.Mock(fd="/path/bin", port=1234, ip="0.0.0.0")
+        context.server = mock.Mock(fd="/path/bin", port=1234, ip="0.0.0.0", processes=1)
 
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
