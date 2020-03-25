@@ -122,7 +122,8 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             'pytz==2019.*,>=2019.3.0',
             'statsd==3.*,>=3.3.0',
             'tornado==6.*,>=6.0.3',
-            'webcolors==1.*,>=1.10.0'
+            'webcolors==1.*,>=1.10.0',
+            'colorful==0.*,>=0.5.4',
         ],
         extras_require={"tests": TESTS_REQUIREMENTS},
         entry_points={
@@ -130,6 +131,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
                 "thumbor=thumbor.server:main",
                 "thumbor-url=thumbor.url_composer:main",
                 "thumbor-config=thumbor.config:generate_config",
+                "thumbor-doctor=thumbor.doctor:main",
             ],
         },
         ext_modules=extension_modules,
