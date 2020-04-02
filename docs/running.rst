@@ -43,6 +43,13 @@ The log level to be used. Possible values are: *debug*, *info*,
 http://docs.python.org/library/logging.html. It defaults to
 *warning*.
 
+--processes
+~~~~~~~~~~~
+
+Number of processes to run. By default equals 1 and means no forks created.
+Set to 0 to detect the number of cores available on this machine.
+Set > 1 to start that specified number of processes.
+
 -a or --app
 ~~~~~~~~~~~
 
