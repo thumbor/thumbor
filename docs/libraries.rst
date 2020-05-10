@@ -90,6 +90,10 @@ Objective-C
 ~~~~
 -  `DotNetThumbor <https://github.com/mi9/DotNetThumbor>`__ - DotNet client for the Thumbor image service.
    Provides an expressive fluent API.
+   
+Delphi
+~~~~~~
+-  `DelphiThumbor <https://github.com/marlonnardi/DelphiThumbor>`__ - Delphi class to thumbor. These are used to generate safe urls among others (by `Marlon Nardi <https://github.com/marlonnardi>`__).
 
 Implementing a library
 ----------------------
