@@ -33,3 +33,4 @@ opencv
 .ropeproject/
 .venv
 docs/_build
+.mypy_cache

@@ -38,6 +38,9 @@ coverage:
 unit:
 	@pytest -n `nproc` --cov=thumbor tests/
 
+focus:
+	@pytest -sv -m focus tests/
+
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown
 
@@ -48,8 +51,10 @@ redis: kill_redis
 format:
 	@black .
 
+lint: flake pylint
+
 flake:
-	@flake8 --config flake8
+	@flake8 --config .flake8
 
 pylint:
 	@pylint thumbor tests

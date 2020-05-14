@@ -8,10 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from unittest import TestCase
-
 import mock
 from preggy import expect
+from tornado.testing import gen_test
 
 import thumbor.server
 from tests.fixtures.custom_error_handler import ErrorHandler as CustomErrorHandler
@@ -28,6 +27,15 @@ from thumbor.server import (
     run_server,
     validate_config,
 )
+from thumbor.testing import TestCase
+
+
+def get_configured_app():
+    server_parameters = mock.Mock(fd=None, port=1234, ip="0.0.0.0", processes=1)
+    conf = Config(SECURITY_KEY="test")
+    importer = get_importer(conf)
+    context = get_context(server_parameters, conf, importer)
+    return ThumborServiceApp(context)
 
 
 class ServerTestCase(TestCase):
@@ -158,23 +166,25 @@ class ServerTestCase(TestCase):
         expect(app).to_be_instance_of(ThumborServiceApp)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
-    def test_can_run_server_with_default_params(self, server_mock):
-        application = mock.Mock()
-        context = mock.Mock()
-        context.server = mock.Mock(fd=None, port=1234, ip="0.0.0.0", processes=1)
+    @gen_test
+    async def test_can_run_server_with_default_params(self, server_mock):
+        server_parameters = mock.Mock(fd=None, port=1234, ip="0.0.0.0", processes=1)
+        application = get_configured_app()
+        application.context.server = server_parameters
 
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
 
-        run_server(application, context)
+        run_server(application, application.context)
 
         server_instance_mock.bind.assert_called_with(1234, "0.0.0.0")
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
-    def test_can_run_server_with_multiple_processes(self, server_mock):
-        application = mock.Mock()
-        context = mock.Mock()
+    @gen_test
+    async def test_can_run_server_with_multiple_processes(self, server_mock):
+        application = get_configured_app()
+        context = application.context
         context.server = mock.Mock(fd=None, port=1234, ip="0.0.0.0", processes=5)
 
         server_instance_mock = mock.Mock()
@@ -186,9 +196,10 @@ class ServerTestCase(TestCase):
 
     @mock.patch.object(thumbor.server, "HTTPServer")
     @mock.patch.object(thumbor.server, "socket_from_fd")
-    def test_can_run_server_with_fd(self, socket_from_fd_mock, server_mock):
-        application = mock.Mock()
-        context = mock.Mock()
+    @gen_test
+    async def test_can_run_server_with_fd(self, socket_from_fd_mock, server_mock):
+        application = get_configured_app()
+        context = application.context
         context.server = mock.Mock(fd=11, port=1234, ip="0.0.0.0", processes=1)
 
         server_instance_mock = mock.Mock()
@@ -202,9 +213,10 @@ class ServerTestCase(TestCase):
 
     @mock.patch.object(thumbor.server, "HTTPServer")
     @mock.patch.object(thumbor.server, "bind_unix_socket")
-    def test_can_run_server_with_unix_socket(self, bind_unix_socket, server_mock):
-        application = mock.Mock()
-        context = mock.Mock()
+    @gen_test
+    async def test_can_run_server_with_unix_socket(self, bind_unix_socket, server_mock):
+        application = get_configured_app()
+        context = application.context
         context.server = mock.Mock(fd="/path/bin", port=1234, ip="0.0.0.0", processes=1)
 
         server_instance_mock = mock.Mock()
@@ -219,9 +231,10 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
-    def test_run_server_returns_server(self, server_mock):
-        application = mock.Mock()
-        context = mock.Mock()
+    @gen_test
+    async def test_run_server_returns_server(self, server_mock):
+        application = get_configured_app()
+        context = application.context
         context.server = mock.Mock(fd=None, port=1234, ip="0.0.0.0")
 
         server_instance_mock = mock.Mock()
@@ -235,7 +248,8 @@ class ServerTestCase(TestCase):
     @mock.patch.object(thumbor.server, "HTTPServer")
     @mock.patch.object(thumbor.server, "get_server_parameters")
     @mock.patch("tornado.ioloop.IOLoop.instance", create=True)
-    def test_can_run_main(
+    @gen_test
+    async def test_can_run_main(
         self,
         ioloop_mock,
         get_server_parameters_mock,

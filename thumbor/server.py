@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import asyncio
 import logging
 import logging.config
 import os
@@ -15,10 +16,11 @@ import sys
 import warnings
 from os.path import dirname, expanduser
 from shutil import which
-from socketfromfd import fromfd as socket_from_fd
+from typing import Any
 
 import tornado.ioloop
 from PIL import Image
+from socketfromfd import fromfd as socket_from_fd
 from tornado.httpserver import HTTPServer
 from tornado.netutil import bind_unix_socket
 
@@ -27,6 +29,17 @@ from thumbor.console import get_server_parameters
 from thumbor.context import Context
 from thumbor.importer import Importer
 from thumbor.signal_handler import setup_signal_handler
+from thumbor.utils import logger
+
+
+async def initialize(app: Any) -> None:
+    await app.context.modules.storage.initialize(app.context)
+    logger.info("All modules initialized properly.")
+
+
+async def shutdown(app: Any) -> None:
+    await app.context.modules.storage.shutdown(app.context)
+    logger.info("All modules shutdown properly.")
 
 
 def get_as_integer(value):
@@ -120,6 +133,8 @@ def run_server(application, context):
         )
 
     server.start(context.server.processes)
+    asyncio.ensure_future(initialize(application))
+
     return server
 
 
@@ -138,11 +153,14 @@ def main(arguments=None):
 
     importer = get_importer(config)
 
-    with get_context(server_parameters, config, importer) as context:
-        application = get_application(context)
-        server = run_server(application, context)
-        setup_signal_handler(server, config)
-        tornado.ioloop.IOLoop.instance().start()
+    try:
+        with get_context(server_parameters, config, importer) as context:
+            application = get_application(context)
+            server = run_server(application, context)
+            setup_signal_handler(server, config)
+            tornado.ioloop.IOLoop.instance().start()
+    finally:
+        asyncio.ensure_future(shutdown(application))
 
 
 if __name__ == "__main__":

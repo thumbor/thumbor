@@ -22,6 +22,7 @@ TESTS_REQUIREMENTS = [
     "coverage==5.*,>=5.0.3",
     "flake8==3.*,>=3.7.9",
     "isort==4.*,>=4.3.21",
+    "mypy>=0.770",
     "mock==3.*,>=3.0.5",
     "numpy==1.*,>=1.18.1",
     "preggy==1.*,>=1.4.4",
@@ -30,7 +31,7 @@ TESTS_REQUIREMENTS = [
     "pylint==2.*,>=2.4.4",
     "pyssim==0.*,>=0.4.0",
     "pytest==5.*,>=5.3.5",
-    "pytest-asyncio==0.*,>=0.10.0",
+    "pytest-asyncio==0.*,>=0.12.0",
     "pytest-cov==2.*,>=2.8.1",
     "pytest-tldr==0.*,>=0.2.1",
     "pytest-xdist==1.*,>=1.31.0",
@@ -48,7 +49,7 @@ def filter_extension_module(name, lib_objs, lib_headers):
         libraries=["m"],
         include_dirs=["thumbor/ext/filters/lib"],
         depends=["setup.py"] + lib_objs + lib_headers,
-        extra_compile_args=["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter",],
+        extra_compile_args=["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter"],
     )
 
 

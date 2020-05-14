@@ -14,6 +14,7 @@ from datetime import datetime
 from json import dumps, loads
 from os.path import dirname, exists, getmtime, splitext
 from shutil import move
+from typing import Optional
 from uuid import uuid4
 
 import thumbor.storages as storages
@@ -21,7 +22,7 @@ from thumbor.utils import logger
 
 
 class Storage(storages.BaseStorage):
-    async def put(self, path, file_bytes):
+    async def put(self, path: str, file_bytes: bytes) -> Optional[str]:
         file_abspath = self.path_on_filesystem(path)
         temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace("-", ""))
         file_dir_abspath = dirname(file_abspath)
@@ -38,9 +39,9 @@ class Storage(storages.BaseStorage):
 
         return path
 
-    async def put_crypto(self, path):
+    async def put_crypto(self, path: str) -> Optional[str]:
         if not self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
-            return
+            return None
 
         file_abspath = self.path_on_filesystem(path)
         file_dir_abspath = dirname(file_abspath)
@@ -67,7 +68,7 @@ class Storage(storages.BaseStorage):
 
         return file_abspath
 
-    async def put_detector_data(self, path, data):
+    async def put_detector_data(self, path: str, data: str) -> Optional[str]:
         file_abspath = self.path_on_filesystem(path)
 
         path = "%s.detectors.txt" % splitext(file_abspath)[0]
@@ -83,7 +84,7 @@ class Storage(storages.BaseStorage):
 
         return file_abspath
 
-    async def get(self, path):
+    async def get(self, path: str) -> Optional[bytes]:
         abs_path = self.path_on_filesystem(path)
 
         resource_available = await self.exists(path, path_on_filesystem=abs_path)
@@ -93,7 +94,7 @@ class Storage(storages.BaseStorage):
         with open(self.path_on_filesystem(path), "rb") as source_file:
             return source_file.read()
 
-    async def get_crypto(self, path):
+    async def get_crypto(self, path: str) -> Optional[str]:
         file_abspath = self.path_on_filesystem(path)
         crypto_file = "%s.txt" % (splitext(file_abspath)[0])
 
@@ -103,7 +104,7 @@ class Storage(storages.BaseStorage):
         with open(crypto_file, "r") as crypto_f:
             return crypto_f.read()
 
-    async def get_detector_data(self, path):
+    async def get_detector_data(self, path: str) -> Optional[str]:
         file_abspath = self.path_on_filesystem(path)
         path = "%s.detectors.txt" % splitext(file_abspath)[0]
 
@@ -114,7 +115,7 @@ class Storage(storages.BaseStorage):
 
         return loads(open(path, "r").read())
 
-    def path_on_filesystem(self, path):
+    def path_on_filesystem(self, path: str) -> str:
         digest = hashlib.sha1(path.encode("utf-8")).hexdigest()
         return "%s/%s/%s" % (
             self.context.config.FILE_STORAGE_ROOT_PATH.rstrip("/"),
@@ -123,7 +124,7 @@ class Storage(storages.BaseStorage):
         )
 
     async def exists(
-        self, path, path_on_filesystem=None
+        self, path: str, path_on_filesystem: Optional[str] = None
     ):  # pylint: disable=arguments-differ
         if path_on_filesystem is None:
             path_on_filesystem = self.path_on_filesystem(path)
@@ -131,11 +132,11 @@ class Storage(storages.BaseStorage):
             path_on_filesystem
         )
 
-    async def remove(self, path):
+    async def remove(self, path: str) -> None:
         n_path = self.path_on_filesystem(path)
         return os.remove(n_path)
 
-    def __is_expired(self, path):
+    def __is_expired(self, path: str) -> bool:
         if self.context.config.STORAGE_EXPIRATION_SECONDS is None:
             return False
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
