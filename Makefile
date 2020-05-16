@@ -45,6 +45,9 @@ redis: kill_redis
 	@redis-server redis.conf ; sleep 1
 	@redis-cli -p 6668 -a hey_you info
 
+format:
+	@black .
+
 flake:
 	@flake8 --config flake8
 

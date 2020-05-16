@@ -13,7 +13,15 @@ from io import BytesIO
 from subprocess import PIPE, Popen
 from tempfile import mkstemp
 
-from PIL import Image, ImageDraw, ImageFile, ImageFilter, ImageSequence, JpegImagePlugin, features as pillow_features
+from PIL import (
+    Image,
+    ImageDraw,
+    ImageFile,
+    ImageFilter,
+    ImageSequence,
+    JpegImagePlugin,
+    features as pillow_features,
+)
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
@@ -188,7 +196,11 @@ class Engine(BaseEngine):
             else:
                 # libimagequant might not be enabled on compile time
                 # but it's better than default octree for RGBA images
-                quantize_method = Image.LIBIMAGEQUANT if pillow_features.check("libimagequant") else None
+                quantize_method = (
+                    Image.LIBIMAGEQUANT
+                    if pillow_features.check("libimagequant")
+                    else None
+                )
                 self.image = self.image.quantize(method=quantize_method)
 
         ext = requested_extension or self.get_default_extension()

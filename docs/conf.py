@@ -58,7 +58,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"Thumbor"
+project = "Thumbor"
 year = datetime.now().year
 copyright = f"{year}, Globo.com"
 
@@ -211,7 +211,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ("index", "Thumbor.tex", u"Thumbor Documentation", u"Bernardo Heynemann", "manual"),
+    ("index", "Thumbor.tex", "Thumbor Documentation", "Bernardo Heynemann", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -239,7 +239,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "thumbor", u"Thumbor Documentation", [u"Bernardo Heynemann"], 1)]
+man_pages = [("index", "thumbor", "Thumbor Documentation", ["Bernardo Heynemann"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -254,8 +254,8 @@ texinfo_documents = [
     (
         "index",
         "Thumbor",
-        u"Thumbor Documentation",
-        u"Bernardo Heynemann",
+        "Thumbor Documentation",
+        "Bernardo Heynemann",
         "Thumbor",
         "One line description of project.",
         "Miscellaneous",

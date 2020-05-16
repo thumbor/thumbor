@@ -22,7 +22,9 @@ from thumbor.utils import logger
 try:
     import tornado.curl_httpclient  # pylint: disable=ungrouped-imports
 except (ImportError, ValueError):
-    logger.warning('pycurl usage is advised. It could not be loaded properly. Verify install...')
+    logger.warning(
+        "pycurl usage is advised. It could not be loaded properly. Verify install..."
+    )
 
 
 def encode_url(url):

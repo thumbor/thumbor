@@ -111,9 +111,7 @@ def run_server(application, context):
 
         server.add_socket(sock)
 
-        logging.debug(
-            "thumbor starting at fd %s", context.server.fd
-        )
+        logging.debug("thumbor starting at fd %s", context.server.fd)
     else:
         server.bind(context.server.port, context.server.ip)
 

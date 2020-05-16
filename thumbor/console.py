@@ -99,9 +99,9 @@ def get_server_parameters(arguments=None):
         default=1,
         type=int,
         help="Number of processes to run. By default 1 and means no forks created"
-             "Set to 0 to detect the number of cores available on this machine"
-             "Set > 1 to start that specified number of processes"
-             "[default: %(default)s].",
+        "Set to 0 to detect the number of cores available on this machine"
+        "Set > 1 to start that specified number of processes"
+        "[default: %(default)s].",
     )
 
     options = parser.parse_args(arguments)

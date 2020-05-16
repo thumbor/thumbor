@@ -37,7 +37,7 @@ TESTS_REQUIREMENTS = [
     "redis==3.*,>=3.4.0",
     "remotecv==2.*,>=2.3.0",
     "sentry-sdk==0.*,>=0.14.1",
-    "yanc==0.*,>=0.3.3"
+    "yanc==0.*,>=0.3.3",
 ]
 
 
@@ -48,12 +48,7 @@ def filter_extension_module(name, lib_objs, lib_headers):
         libraries=["m"],
         include_dirs=["thumbor/ext/filters/lib"],
         depends=["setup.py"] + lib_objs + lib_headers,
-        extra_compile_args=[
-            "-Wall",
-            "-Wextra",
-            "-Werror",
-            "-Wno-unused-parameter",
-        ],
+        extra_compile_args=["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter",],
     )
 
 
@@ -115,16 +110,16 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
         include_package_data=True,
         package_data={"": ["*.xml"]},
         install_requires=[
-            'derpconf==0.*,>=0.8.3',
-            'libthumbor==2.*,>=2.0.0',
-            'opencv-python-headless==4.*,>=4.2.0',
-            'pillow==7.*,>=7.0.0',
-            'pytz==2019.*,>=2019.3.0',
-            'statsd==3.*,>=3.3.0',
-            'socketfromfd>=0.2.0',
-            'tornado==6.*,>=6.0.3',
-            'webcolors==1.*,>=1.10.0',
-            'colorful==0.*,>=0.5.4',
+            "derpconf==0.*,>=0.8.3",
+            "libthumbor==2.*,>=2.0.0",
+            "opencv-python-headless==4.*,>=4.2.0",
+            "pillow==7.*,>=7.0.0",
+            "pytz==2019.*,>=2019.3.0",
+            "statsd==3.*,>=3.3.0",
+            "socketfromfd>=0.2.0",
+            "tornado==6.*,>=6.0.3",
+            "webcolors==1.*,>=1.10.0",
+            "colorful==0.*,>=0.5.4",
         ],
         extras_require={"tests": TESTS_REQUIREMENTS},
         entry_points={
@@ -145,8 +140,5 @@ except SystemExit as exit:
     print("\n\n%s" % ("*" * 66))
     logging.exception(exit)
     print("\n\n%s" % ("*" * 66))
-    print(
-        "Couldn't build one or more native extensions"
-        ", skipping compilation.\n\n"
-    )
+    print("Couldn't build one or more native extensions" ", skipping compilation.\n\n")
     run_setup()

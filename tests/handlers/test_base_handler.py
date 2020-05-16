@@ -96,7 +96,7 @@ class BaseImagingTestCase(TestCase):
         self.root_path = tempfile.mkdtemp()
         self.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
         self.base_uri = "/image"
-        super(BaseImagingTestCase, self). setUp()
+        super(BaseImagingTestCase, self).setUp()
 
     def tearDown(self):
         shutil.rmtree(self.root_path)
