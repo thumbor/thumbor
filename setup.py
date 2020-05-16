@@ -48,7 +48,7 @@ def filter_extension_module(name, lib_objs, lib_headers):
         libraries=["m"],
         include_dirs=["thumbor/ext/filters/lib"],
         depends=["setup.py"] + lib_objs + lib_headers,
-        extra_compile_args=["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter",],
+        extra_compile_args=["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter"],
     )
 
 
