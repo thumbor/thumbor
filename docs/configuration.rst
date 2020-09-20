@@ -652,7 +652,7 @@ Upload
 UPLOAD\_MAX\_SIZE
 ~~~~~~~~~~~~~~~~~
 
-Max size in Kb for images uploaded to thumbor.
+Max size in bytes for images uploaded to thumbor.
 
 .. code:: python
 
@@ -1127,7 +1127,7 @@ Example of Configuration File
 
    #################################### Upload ####################################
 
-   ## Max size in Kb for images uploaded to thumbor
+   ## Max size in bytes for images uploaded to thumbor
    ## Aliases: MAX_SIZE
    ## Defaults to: 0
    #UPLOAD_MAX_SIZE = 0
