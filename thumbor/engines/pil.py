@@ -34,6 +34,15 @@ try:
 except ImportError:
     FILTERS_AVAILABLE = False
 
+try:
+    from PIL import ImageCms
+
+    # need to hit getattr to trigger the delayed import error
+    CMS_SRGB_PROFILE = ImageCms.createProfile("sRGB"),
+except ImportError:
+    CMS_SRGB_PROFILE = None
+
+
 FORMATS = {
     ".tif": "PNG",  # serve tif as png
     ".jpg": "JPEG",
@@ -343,7 +352,13 @@ class Engine(BaseEngine):
     def image_data_as_rgb(self, update_image=True):
         converted_image = self.image
         if converted_image.mode not in ["RGB", "RGBA"]:
-            if "A" in converted_image.mode:
+            if self.icc_profile is not None and CMS_SRGB_PROFILE is not None:
+                outmode = "RGBA" if "A" in converted_image.mode else "RGB"
+                converted_image = ImageCms.profileToProfile(converted_image,
+                                                            self.icc_profile,
+                                                            CMS_SRGB_PROFILE,
+                                                            outputMode=outmode)
+            elif "A" in converted_image.mode:
                 converted_image = converted_image.convert("RGBA")
             elif converted_image.mode == "P":
                 # convert() figures out RGB or RGBA based on palette used
@@ -352,6 +367,8 @@ class Engine(BaseEngine):
                 converted_image = converted_image.convert("RGB")
         if update_image:
             self.image = converted_image
+            if self.icc_profile is not None and CMS_SRGB_PROFILE is not None:
+                self.icc_profile = CMS_SRGB_PROFILE
         return converted_image.mode, converted_image.tobytes()
 
     def convert_to_grayscale(self, update_image=True, alpha=True):
