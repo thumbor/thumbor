@@ -358,6 +358,8 @@ class Engine(BaseEngine):
                                                             self.icc_profile,
                                                             CMS_SRGB_PROFILE,
                                                             outputMode=outmode)
+                if update_image:
+                    self.icc_profile = CMS_SRGB_PROFILE
             elif "A" in converted_image.mode:
                 converted_image = converted_image.convert("RGBA")
             elif converted_image.mode == "P":
@@ -367,8 +369,6 @@ class Engine(BaseEngine):
                 converted_image = converted_image.convert("RGB")
         if update_image:
             self.image = converted_image
-            if self.icc_profile is not None and CMS_SRGB_PROFILE is not None:
-                self.icc_profile = CMS_SRGB_PROFILE
         return converted_image.mode, converted_image.tobytes()
 
     def convert_to_grayscale(self, update_image=True, alpha=True):
