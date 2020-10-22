@@ -17,7 +17,6 @@ from PIL import (
     Image,
     ImageDraw,
     ImageFile,
-    ImageFilter,
     ImageSequence,
     JpegImagePlugin,
     features as pillow_features,
@@ -415,6 +414,3 @@ class Engine(BaseEngine):
 
     def strip_exif(self):
         self.exif = None
-
-    def blur(self, radius):
-        self.image = self.image.filter(ImageFilter.GaussianBlur(radius))

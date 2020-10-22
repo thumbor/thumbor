@@ -10,6 +10,7 @@
 
 from thumbor.ext.filters import _fill
 from thumbor.filters import BaseFilter, filter_method
+from thumbor.filters.blur import apply_blur
 
 
 class Filter(BaseFilter):
@@ -39,9 +40,14 @@ class Filter(BaseFilter):
             color = self.get_median_color()
 
         if color == "blur":
-            self.fill_engine.image = self.engine.image
+            self.fill_engine.image = self.fill_engine.gen_image(
+                self.engine.size, "transparent"
+            )
+            self.fill_engine.paste(self.engine, (0, 0))
+            mode, data = self.fill_engine.image_data_as_rgb()
+            data = apply_blur(mode, data, self.fill_engine.size, 50)
+            self.fill_engine.set_image_data(data)
             self.fill_engine.resize(target_width, target_height)
-            self.fill_engine.blur(50)
         else:
             try:
                 self.fill_engine.image = self.fill_engine.gen_image(
