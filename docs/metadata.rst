@@ -108,9 +108,7 @@ Pyexiv2 depends on the following libraries:
 
 On OSX you can use homebrew to install the dependencies::
 
-    brew install boost --with-python
-    brew install boost-python
-    brew install exiv2
+    brew install boost boost-python3 exiv2
 
     pip install py3exiv2
 
