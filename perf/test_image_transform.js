@@ -23,7 +23,7 @@ export let options = {
 };
 
 function get_url(img, width, height) {
-  return `http://localhost:8888/unsafe/${width}x${height}/${img}`;
+  return `http://0.0.0.0:8888/unsafe/${width}x${height}/${img}`;
 }
 
 let src = [
