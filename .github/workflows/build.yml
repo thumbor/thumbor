@@ -1,0 +1,36 @@
+name: build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image-tag:
+          - 36
+          - 37
+          - 38
+          - 39
+    container: thumbororg/thumbor-test:${{ matrix.image-tag }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Fire up Redis
+        run: make redis
+      - name: Setup
+        run: make setup
+      - name: Compile Extensions
+        run: make compile_ext
+      - name: Run Unit Tests
+        run: make sequential-unit
+      - name: Run Integration Tests
+        run: env ASYNC_TEST_TIMEOUT=30 make integration_run
+      - name: Lint
+        if: matrix.image-tag == '39'
+        run: make flake
+      - name: Coveralls
+        if: matrix.image-tag == '39'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install --upgrade coveralls
+          coveralls --service=github
