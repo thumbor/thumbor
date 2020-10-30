@@ -69,6 +69,7 @@ docs:
 
 perf-start-daemon: perf-stop-daemon
 	@start-stop-daemon -d `pwd`/perf --make-pidfile --background --start --pidfile /tmp/thumbor-perf.pid --exec `which thumbor` -- -l error -c ./thumbor.conf
+	@sleep 2
 
 # if you change this, also change in run.sh
 perf-stop-daemon:
