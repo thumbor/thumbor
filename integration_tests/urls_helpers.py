@@ -106,6 +106,14 @@ ORIGINAL_IMAGES_GIF_WEBP = [
     "animated.gif",
 ]
 
+ALL_OPTIONS = (
+    METAS + TRIMS + CROPS + FITINS + SIZES + H_ALIGNS + V_ALIGNS + SMARTS + FILTERS
+)
+
+MAX_DATASET_SIZE = len(ALL_OPTIONS) * (
+    len(ORIGINAL_IMAGES_BASE) + len(ORIGINAL_IMAGES_GIF_WEBP)
+)
+
 
 class UrlsTester:
     def __init__(self, http_client):
@@ -146,10 +154,7 @@ def single_dataset(with_gif=True):
     images = ORIGINAL_IMAGES_BASE[:]
     if with_gif:
         images += ORIGINAL_IMAGES_GIF_WEBP
-    all_options = (
-        METAS + TRIMS + CROPS + FITINS + SIZES + H_ALIGNS + V_ALIGNS + SMARTS + FILTERS
-    )
-    return product(all_options, images)
+    return product(ALL_OPTIONS, images)
 
 
 def combined_dataset(with_gif=True):

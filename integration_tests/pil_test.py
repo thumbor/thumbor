@@ -3,13 +3,13 @@ from os.path import join
 from tornado.testing import gen_test
 
 from . import EngineCase
-from .urls_helpers import UrlsTester, single_dataset
+from .urls_helpers import MAX_DATASET_SIZE, UrlsTester, single_dataset
 
 
 class PILTest(EngineCase):
     engine = "thumbor.engines.pil"
 
-    @gen_test
+    @gen_test(timeout=MAX_DATASET_SIZE * 5)
     async def test_single_params(self):
         if not self._app:
             return True
