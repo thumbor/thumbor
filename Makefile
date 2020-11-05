@@ -10,7 +10,7 @@ run-prod: compile_ext
 	@thumbor -l error -c thumbor/thumbor.conf
 
 setup:
-	@pip install -e .[tests]
+	@$(PYTHON) -m pip install -e .[tests]
 
 compile_ext build:
 	@$(PYTHON) setup.py build_ext -i
@@ -56,7 +56,7 @@ pylint:
 	@pylint thumbor tests
 
 setup_docs:
-	@pip install -r docs/requirements.txt
+	@$(PYTHON) -m pip install -r docs/requirements.txt
 
 build_docs:
 	@cd docs && make html
