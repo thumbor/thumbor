@@ -9,7 +9,7 @@ from .urls_helpers import UrlsTester, single_dataset
 class PILTest(EngineCase):
     engine = "thumbor.engines.pil"
 
-    @gen_test
+    @gen_test(timeout=30)
     async def test_single_params(self):
         if not self._app:
             return True
