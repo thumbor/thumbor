@@ -1,0 +1,18 @@
+name: perf
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: thumbororg/thumbor-test:38
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install k6
+        run: |
+          apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61
+          echo "deb https://dl.bintray.com/loadimpact/deb stable main" | tee -a /etc/apt/sources.list
+          apt update
+          apt install k6
+      - name: Setup
+        run: make setup
+      - name: Run load tests
+        run: PERF_TEST=1 make ci_test
