@@ -1,0 +1,81 @@
+name: build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+        test-kind:
+          - INTEGRATION_TEST
+          - LINT_TEST
+          - UNIT_TEST
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Cache pip dependencies
+        if: matrix.test-kind != 'LINT_TEST'
+        uses: actions/cache@v2
+        id: deps_cache
+        with:
+          path: |
+            ${{ env.pythonLocation }}/lib/*/site-packages/*
+            ${{ env.pythonLocation }}/bin/*
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+      - name: Set up Redis with options
+        if: matrix.test-kind == 'UNIT_TEST'
+        uses: getong/redis-action@v1
+        with:
+          host port: 6668
+          container port: 6668
+          redis password: "hey_you"
+      - name: Install dependencies
+        if: matrix.test-kind != 'LINT_TEST'
+        run: | # NOTE: please keep the list of packages ordered
+          sudo apt update
+          sudo apt install \
+            ffmpeg \
+            gifsicle \
+            libboost-python-dev \
+            libcurl4-openssl-dev \
+            libexiv2-dev \
+            libgnutls28-dev \
+            libimage-exiftool-perl \
+            libjpeg-progs \
+            libssl-dev \
+            libwebp-dev \
+            python-all-dev \
+            scons \
+            webp
+      - name: Upgrade pip, run make setup, and upgrade test tools
+        if: matrix.test-kind != 'LINT_TEST'
+        run: |
+          pip install --upgrade pip
+          make setup
+          pip install --upgrade coveralls pytest
+      - name: Install flake8
+        if: matrix.test-kind == 'LINT_TEST'
+        run: |
+          pip install --upgrade pip
+          pip install --upgrade flake8
+      - name: Set environment variables for next action
+        run: echo "${{ matrix.test-kind }}=1" >> $GITHUB_ENV
+      - name: Run ${{ matrix.test-kind }}
+        run: make ci_test
+        #- name: Coveralls
+        #- if: matrix.test-kind == 'UNIT_TEST'
+        #- env:
+        #-   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #- run: coveralls
