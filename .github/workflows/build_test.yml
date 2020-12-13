@@ -8,12 +8,7 @@ jobs:
       matrix:
         python-version:
           - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
         test-kind:
-          - INTEGRATION_TEST
-          - LINT_TEST
           - UNIT_TEST
     steps:
       - uses: actions/checkout@v2
