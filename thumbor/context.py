@@ -265,6 +265,20 @@ class ContextImporter:  # pylint: disable=too-few-public-methods,too-many-instan
         self.optimizers = importer.optimizers
         self.url_signer = importer.url_signer
 
+        self.compatibility_legacy_loader = importer.compatibility_legacy_loader
+
+        self.compatibility_legacy_storage = None
+        if importer.compatibility_legacy_storage is not None:
+            self.compatibility_legacy_storage = importer.compatibility_legacy_storage(
+                context
+            )
+
+        self.compatibility_legacy_result_storage = None
+        if importer.compatibility_legacy_result_storage is not None:
+            self.compatibility_legacy_result_storage = (
+                importer.compatibility_legacy_result_storage(context)
+            )
+
     def cleanup(self):
         if self.engine:
             self.engine.cleanup()
