@@ -78,3 +78,29 @@ To merge thumbor's master with your fork::
 
 If there was anything to merge, just run your tests again. If they pass,
 `send a pull request <http://help.github.com/send-pull-requests/>`__.
+
+Introducing a new Dependency
+----------------------------
+
+If we introduce a new dependency, the testing docker images need to be updated. 
+
+If the new dependency requires changes to the docker image, make sure to update the TestDockerfile36, TestDockerfile37, TestDockerfile38 and TestDockerfile39 files.
+
+Then build and publish with::
+
+    make test-docker-build test-docker-publish
+
+Remember that you must be logged in with your docker hub account and you must be part of the `thumbororg <https://hub.docker.com/repository/docker/thumbororg/thumbor-test>` team of administrators.
+
+Running tests in docker
+-----------------------
+
+If you do not wish to configure your environment with thumbor's dependencies, you can use our docker image to run tests with::
+
+    make test-docker-run
+
+Or if you want to run a specific python version with your tests::
+
+    make test-docker-39-run
+
+Just replace '39' with the python version you want: 36, 37, 38 or 39.

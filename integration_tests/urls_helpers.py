@@ -124,7 +124,7 @@ class UrlsTester:
         failed = False
 
         try:
-            result = await self.http_client.fetch(url, request_timeout=30)
+            result = await self.http_client.fetch(url, request_timeout=60)
         except Exception as err:  # pylint: disable=broad-except
             logging.exception("Error in %s: %s", url, err)
             error = err

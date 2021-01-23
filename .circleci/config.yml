@@ -1,0 +1,105 @@
+version: 2.1
+
+orbs:
+  # The python orb contains a set of prepackaged circleci configuration you can use repeatedly in your configurations files
+  # Orb commands and jobs help you with common scripting around a language/tool
+  # so you dont have to copy and paste it everywhere.
+  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
+  python: circleci/python@1.2
+
+workflows:
+  ci:
+    jobs:
+      - build-and-test-python36
+      - build-and-test-python37
+      - build-and-test-python38
+      - build-and-test-python39
+
+jobs:
+  build-and-test-python36:
+    working_directory: /app
+    docker:
+      - image: thumbororg/thumbor-test:36
+    steps:
+      - checkout
+      - run:
+          name: Compile Extensions
+          command: make compile_ext
+      - run:
+          name: Redis
+          command: make redis
+      - run:
+          name: Run Unit Tests
+          command: make sequential-unit
+      - run:
+          name: Run Integration Tests
+          command: env ASYNC_TEST_TIMEOUT=30 make integration_run
+      - run:
+          name: Lint
+          command: make flake
+
+  build-and-test-python37:
+    working_directory: /app
+    docker:
+      - image: thumbororg/thumbor-test:37
+    steps:
+      - checkout
+      - run:
+          name: Compile Extensions
+          command: make compile_ext
+      - run:
+          name: Redis
+          command: make redis
+      - run:
+          name: Run Unit Tests
+          command: make sequential-unit
+      - run:
+          name: Run Integration Tests
+          command: env ASYNC_TEST_TIMEOUT=30 make integration_run
+      - run:
+          name: Lint
+          command: make flake
+
+  build-and-test-python38:
+    working_directory: /app
+    docker:
+      - image: thumbororg/thumbor-test:38
+    steps:
+      - checkout
+      - run:
+          name: Compile Extensions
+          command: make compile_ext
+      - run:
+          name: Redis
+          command: make redis
+      - run:
+          name: Run Unit Tests
+          command: make sequential-unit
+      - run:
+          name: Run Integration Tests
+          command: env ASYNC_TEST_TIMEOUT=30 make integration_run
+      - run:
+          name: Lint
+          command: make flake
+
+  build-and-test-python39:
+    working_directory: /app
+    docker:
+      - image: thumbororg/thumbor-test:39
+    steps:
+      - checkout
+      - run:
+          name: Compile Extensions
+          command: make compile_ext
+      - run:
+          name: Redis
+          command: make redis
+      - run:
+          name: Run Unit Tests
+          command: make sequential-unit
+      - run:
+          name: Run Integration Tests
+          command: env ASYNC_TEST_TIMEOUT=30 make integration_run
+      - run:
+          name: Lint
+          command: make flake
