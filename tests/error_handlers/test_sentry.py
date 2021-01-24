@@ -25,7 +25,7 @@ class MockTransport(Transport):
     """
 
     def __init__(self, options=None):
-        super(MockTransport, self).__init__(options=options)
+        super().__init__(options=options)
         self.captured_events = []
 
     def capture_event(self, event):
@@ -78,7 +78,7 @@ class InvalidSentryTestCase(TestCase):
 
 class SentryTestCase(TestCase):
     def setUp(self):
-        super(SentryTestCase, self).setUp()
+        super().setUp()
         self.app = self.get_app()
 
         self.transport_mock = MockTransport()

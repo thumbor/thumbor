@@ -15,7 +15,7 @@ from thumbor.engines import BaseEngine
 
 class JSONEngine(BaseEngine):
     def __init__(self, engine, path, callback_name=None):
-        super(JSONEngine, self).__init__(engine.context)
+        super().__init__(engine.context)
         self.engine = engine
         self.extension = engine.extension
         self.path = path
@@ -122,7 +122,7 @@ class JSONEngine(BaseEngine):
         return self.engine.has_transparency()
 
     def can_auto_convert_png_to_jpg(self):
-        can_convert = super(JSONEngine, self).can_auto_convert_png_to_jpg()
+        can_convert = super().can_auto_convert_png_to_jpg()
         if can_convert:
             self.operations.append({"type": "auto_png_to_jpg_conversion"})
 

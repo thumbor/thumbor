@@ -58,7 +58,7 @@ def validate(context, url, normalize_url_func=_normalize_url):
         return True
 
     for pattern in context.config.ALLOWED_SOURCES:
-        if isinstance(pattern, Pattern):
+        if isinstance(pattern, Pattern):  # pylint: disable=isinstance-second-argument-not-valid-type
             match = url
         else:
             pattern = "^%s$" % pattern
@@ -80,11 +80,15 @@ def return_contents(response, url, context, req_start=None):
             ),
             (finish - req_start).total_seconds() * 1000,
         )
-        context.metrics.incr("original_image.fetch.{0}.{1}".format(response.code, res.netloc.replace(".", "_")))
+        context.metrics.incr(
+            "original_image.fetch.{0}.{1}".format(response.code, res.netloc.replace(".", "_"))
+        )
 
     result = LoaderResult()
     context.metrics.incr("original_image.status." + str(response.code))
-    context.metrics.incr("original_image.status.{0}.{1}".format(response.code, res.netloc.replace(".", "_")))
+    context.metrics.incr(
+        "original_image.status.{0}.{1}".format(response.code, res.netloc.replace(".", "_"))
+    )
     if response.error:
         result.successful = False
         if response.code == 599:

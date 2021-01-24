@@ -170,7 +170,7 @@ class PreLoadFilter(BaseFilter):
 
 class BaseFilterTestCase(TestCase):
     def setUp(self):
-        super(BaseFilterTestCase, self).setUp()
+        super().setUp()
         self.context = self.get_context()
         self.factory = FiltersFactory(
             [MyFilter, StringFilter, OptionalParamFilter, PreLoadFilter]

@@ -177,7 +177,7 @@ class DummyAsyncHttpClientTestCase(TestCase):
 
     def tearDown(self):
         AsyncHTTPClient().close()  # clean up singleton instance
-        super(DummyAsyncHttpClientTestCase, self).tearDown()
+        super().tearDown()
 
 
 class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):

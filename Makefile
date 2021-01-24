@@ -40,7 +40,7 @@ unit:
 	@pytest -n `nproc` --cov=thumbor tests/
 
 sequential-unit:
-	@pytest -sv --cov=thumbor tests/
+	@pytest -sv --junit-xml=test-results/unit/results.xml --cov=thumbor tests/
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown

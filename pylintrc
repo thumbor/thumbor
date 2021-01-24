@@ -25,4 +25,6 @@ disable=
       broad-except,
       too-many-locals,
       too-many-public-methods,
-      fixme
+      fixme,
+      R0801,
+      deprecated-module,

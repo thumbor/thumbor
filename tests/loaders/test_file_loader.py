@@ -24,7 +24,7 @@ STORAGE_PATH = abspath(join(dirname(__file__), "../fixtures/images/"))
 
 class FileLoaderTestCase(TestCase):
     def setUp(self):
-        super(FileLoaderTestCase, self).setUp()
+        super().setUp()
         config = Config(FILE_LOADER_ROOT_PATH=STORAGE_PATH)
         self.ctx = Context(config=config)
 

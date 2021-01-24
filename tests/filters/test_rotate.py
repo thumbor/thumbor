@@ -54,7 +54,7 @@ class FakeRotateEngine:
 
 class FakeRotateEngineRotateFilterTestCase(FilterTestCase):
     def setUp(self):
-        super(FakeRotateEngineRotateFilterTestCase, self).setUp()
+        super().setUp()
         conf = Config()
         imp = Importer(conf)
         imp.filters = [Filter]

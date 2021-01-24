@@ -32,7 +32,7 @@ class QueuedDetectorTestCase(DetectorTestCase):
         )
 
     def setUp(self):
-        super(QueuedDetectorTestCase, self).setUp()
+        super().setUp()
         self.redis = Redis(
             host=TEST_REDIS_HOST,
             port=TEST_REDIS_PORT,

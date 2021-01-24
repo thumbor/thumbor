@@ -149,7 +149,7 @@ class FilterTestCase(TestCase):
     _multiprocess_can_split_ = True
 
     def setUp(self):
-        super(FilterTestCase, self).setUp()
+        super().setUp()
         self.context = {}
 
     def get_filter(self, filter_name, params_string="", config_context=None):
@@ -239,7 +239,7 @@ class DetectorTestCase(TestCase):
     _multiprocess_can_split_ = True
 
     def setUp(self):
-        super(DetectorTestCase, self).setUp()
+        super().setUp()
         self.context.request = mock.Mock(focal_points=[])
         self.engine = PilEngine(self.context)
         self.context.modules.engine = self.engine

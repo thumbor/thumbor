@@ -19,7 +19,7 @@ class ThumborServiceApp(tornado.web.Application):
     def __init__(self, context):
         self.context = context
         self.debug = getattr(self.context.server, "debug", False)
-        super(ThumborServiceApp, self).__init__(self.get_handlers(), debug=self.debug)
+        super().__init__(self.get_handlers(), debug=self.debug)
 
     def get_handlers(self):
         handlers = []

@@ -1,19 +1,15 @@
 version: 2.1
 
 orbs:
-  # The python orb contains a set of prepackaged circleci configuration you can use repeatedly in your configurations files
-  # Orb commands and jobs help you with common scripting around a language/tool
-  # so you dont have to copy and paste it everywhere.
-  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
   python: circleci/python@1.2
 
 workflows:
   ci:
-    jobs:
-      - build-and-test-python36
-      - build-and-test-python37
-      - build-and-test-python38
-      - build-and-test-python39
+      jobs:
+        - build-and-test-python36
+        - build-and-test-python37
+        - build-and-test-python38
+        - build-and-test-python39
 
 jobs:
   build-and-test-python36:
@@ -31,12 +27,20 @@ jobs:
       - run:
           name: Run Unit Tests
           command: make sequential-unit
+      - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: test-results
+      - store_artifacts: # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: test-results
+          destination: tr1
       - run:
           name: Run Integration Tests
           command: env ASYNC_TEST_TIMEOUT=30 make integration_run
       - run:
           name: Lint
-          command: make flake
+          command: make flake pylint
+      - run:
+          name: Coverage
+          command: env COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls
 
   build-and-test-python37:
     working_directory: /app
@@ -53,12 +57,20 @@ jobs:
       - run:
           name: Run Unit Tests
           command: make sequential-unit
+      - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: test-results
+      - store_artifacts: # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: test-results
+          destination: tr1
       - run:
           name: Run Integration Tests
           command: env ASYNC_TEST_TIMEOUT=30 make integration_run
       - run:
           name: Lint
-          command: make flake
+          command: make flake pylint
+      - run:
+          name: Coverage
+          command: env COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls
 
   build-and-test-python38:
     working_directory: /app
@@ -75,12 +87,20 @@ jobs:
       - run:
           name: Run Unit Tests
           command: make sequential-unit
+      - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: test-results
+      - store_artifacts: # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: test-results
+          destination: tr1
       - run:
           name: Run Integration Tests
           command: env ASYNC_TEST_TIMEOUT=30 make integration_run
       - run:
           name: Lint
-          command: make flake
+          command: make flake pylint
+      - run:
+          name: Coverage
+          command: env COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls
 
   build-and-test-python39:
     working_directory: /app
@@ -97,9 +117,17 @@ jobs:
       - run:
           name: Run Unit Tests
           command: make sequential-unit
+      - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: test-results
+      - store_artifacts: # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: test-results
+          destination: tr1
       - run:
           name: Run Integration Tests
           command: env ASYNC_TEST_TIMEOUT=30 make integration_run
       - run:
           name: Lint
-          command: make flake
+          command: make flake pylint
+      - run:
+          name: Coverage
+          command: env COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls

@@ -42,7 +42,7 @@ class TransformerTestCase(TestCase):
             cls.root_folder.cleanup()
 
     def setUp(self):
-        super(TransformerTestCase, self).setUp()
+        super().setUp()
         self.has_handled = False
 
     def get_context(self):

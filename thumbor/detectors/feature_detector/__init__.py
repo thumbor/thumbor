@@ -24,7 +24,7 @@ class Detector(BaseDetector):
         except Exception as error:
             logger.exception(error)
             logger.warning("Error during feature detection; skipping to next detector")
-            return await self.next()
+            return await self.next()  # pylint: disable=not-callable
 
         points = cv2.goodFeaturesToTrack(  # pylint: disable=no-member
             img,
@@ -41,4 +41,4 @@ class Detector(BaseDetector):
                 )
             return
 
-        await self.next()
+        await self.next()  # pylint: disable=not-callable

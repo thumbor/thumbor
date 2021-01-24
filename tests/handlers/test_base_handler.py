@@ -88,7 +88,7 @@ class ErrorHandler(BaseHandler):
 class BaseHandlerTestApp(tornado.web.Application):
     def __init__(self, context):
         self.context = context
-        super(BaseHandlerTestApp, self).__init__([(r"/error", ErrorHandler)])
+        super().__init__([(r"/error", ErrorHandler)])
 
 
 class BaseImagingTestCase(TestCase):
@@ -96,7 +96,7 @@ class BaseImagingTestCase(TestCase):
         self.root_path = tempfile.mkdtemp()
         self.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
         self.base_uri = "/image"
-        super(BaseImagingTestCase, self).setUp()
+        super().setUp()
 
     def tearDown(self):
         shutil.rmtree(self.root_path)
@@ -471,7 +471,7 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         return RequestParameters(*args, **kwargs)
 
     def get_context(self):
-        ctx = super(ImageOperationsWithAutoPngToJpgTestCase, self).get_context()
+        ctx = super().get_context()
         ctx.request = self.get_request()
         return ctx
 
@@ -1437,7 +1437,7 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
 
 class TranslateCoordinatesTestCase(TestCase):
     def setUp(self):
-        super(TranslateCoordinatesTestCase, self).setUp()
+        super().setUp()
         coords = self.get_coords()
         crop_coords = BaseHandler.translate_crop_coordinates(
             original_width=coords["original_width"],
@@ -1480,7 +1480,7 @@ class ImageBadRequestDecompressionBomb(TestCase):
         self.root_path = tempfile.mkdtemp()
         self.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
         self.base_uri = "/image"
-        super(ImageBadRequestDecompressionBomb, self).setUp()
+        super().setUp()
 
     def tearDown(self):
         shutil.rmtree(self.root_path)
