@@ -4,7 +4,7 @@ If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qP
 
 [<img src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png">](https://github.com/thumbor/thumbor)
 
-[<img src="https://secure.travis-ci.org/thumbor/thumbor.png?branch=master">](http://travis-ci.org/thumbor/thumbor)
+![build](https://github.com/thumbor/thumbor/workflows/build/badge.svg)
 [![CircleCI Status](https://circleci.com/gh/thumbor/thumbor.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/thumbor/thumbor)
 [![Coverage Status](https://coveralls.io/repos/thumbor/thumbor/badge.svg?branch=master&service=github)](https://coveralls.io/github/thumbor/thumbor?branch=master)
 [![Code Climate](https://codeclimate.com/github/thumbor/thumbor/badges/gpa.svg)](https://codeclimate.com/github/thumbor/thumbor)
