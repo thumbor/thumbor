@@ -28,16 +28,16 @@ class BaseFileStorageTestCase(TestCase):
         self.storage_path = None
         self.context = None
         self.file_storage = None
-        super(BaseFileStorageTestCase, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
 
     def get_config(self):
-        config = super(BaseFileStorageTestCase, self).get_config()
+        config = super().get_config()
         self.storage_path = tempfile.TemporaryDirectory()
         config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.storage_path.name
         return config
 
     def tearDown(self):
-        super(BaseFileStorageTestCase, self).tearDown()
+        super().tearDown()
         if self.storage_path is not None:
             self.storage_path.cleanup()
 
@@ -50,7 +50,7 @@ class BaseFileStorageTestCase(TestCase):
         return abspath(join(dirname(__file__), "../fixtures/result_storages"))
 
     def get_context(self):
-        ctx = super(BaseFileStorageTestCase, self).get_context()
+        ctx = super().get_context()
         cfg = self.get_config()
         ctx.config = cfg
         ctx.request = self.get_request()
@@ -82,7 +82,7 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
         )
 
     def tearDown(self):
-        super(WebPFileStorageTestCase, self).tearDown()
+        super().tearDown()
         self.storage_path.cleanup()
 
     def get_request(self):

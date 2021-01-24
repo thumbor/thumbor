@@ -9,9 +9,9 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from os.path import abspath, dirname, join
+from shutil import which
 
 from preggy import expect
-from shutil import which
 
 from tests.base import TestCase
 from thumbor.config import Config
@@ -45,7 +45,7 @@ class GitEngineTestCase(TestCase):
         return server
 
     def get_context(self):
-        context = super(GitEngineTestCase, self).get_context()
+        context = super().get_context()
         req = RequestParameters(url="/foo/bar.gif")
         context.request = req
         return context

@@ -21,7 +21,7 @@ from thumbor.utils import CONTENT_TYPE, EXTENSION, deprecated, logger
 class UtilsTestCase(TestCase):
     def setUp(self):
         self.handled = False
-        super(UtilsTestCase, self).setUp()
+        super().setUp()
 
     @staticmethod
     def test_can_get_content_type():

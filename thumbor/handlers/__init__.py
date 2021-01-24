@@ -57,7 +57,7 @@ class BaseHandler(tornado.web.RequestHandler):
     url_locks = {}
 
     def prepare(self):
-        super(BaseHandler, self).prepare()
+        super().prepare()
 
         if not hasattr(self, "context"):
             return
@@ -69,7 +69,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.metrics.incr("response.count")
 
     def on_finish(self):
-        super(BaseHandler, self).on_finish()
+        super().on_finish()
         self.context = getattr(self, "context", None)
 
         if self.context is None:
@@ -812,7 +812,7 @@ class ContextHandler(BaseHandler):
         if isinstance(exc_info[1], tornado.web.HTTPError):
             # Delegate HTTPError's to the base class
             # We don't want these through normal exception handling
-            super(ContextHandler, self).log_exception(*exc_info)
+            super().log_exception(*exc_info)
             return
 
         msg = traceback.format_exception(  # pylint: disable=no-value-for-parameter

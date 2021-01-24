@@ -40,7 +40,7 @@ async def dummy_http_load(
 
 class FileLoaderHttpFallbackFileTestCase(TestCase):
     def setUp(self):
-        super(FileLoaderHttpFallbackFileTestCase, self).setUp()
+        super().setUp()
         config = Config(FILE_LOADER_ROOT_PATH=STORAGE_PATH)
         self.ctx = Context(config=config)
 

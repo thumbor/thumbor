@@ -13,14 +13,8 @@ from io import BytesIO
 from subprocess import PIPE, Popen
 from tempfile import mkstemp
 
-from PIL import (
-    Image,
-    ImageDraw,
-    ImageFile,
-    ImageSequence,
-    JpegImagePlugin,
-    features as pillow_features,
-)
+from PIL import Image, ImageDraw, ImageFile, ImageSequence, JpegImagePlugin
+from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
@@ -52,7 +46,7 @@ if hasattr(Image, "DecompressionBombError"):
 
 class Engine(BaseEngine):
     def __init__(self, context):
-        super(Engine, self).__init__(context)
+        super().__init__(context)
         self.subsampling = None
         self.qtables = None
         self.original_mode = None
@@ -389,7 +383,7 @@ class Engine(BaseEngine):
             image_size = self.size
             other_size = other_engine.size
             mode, data = self.image_data_as_rgb()
-            other_mode, other_data = other_engine.image_data_as_rgb()
+            _, other_data = other_engine.image_data_as_rgb()
             imgdata = _composite.apply(
                 mode,
                 data,

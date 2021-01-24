@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import optparse
+import optparse  # pylint: disable=deprecated-module
 import sys
 from urllib.parse import quote
 

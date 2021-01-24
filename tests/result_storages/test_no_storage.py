@@ -18,7 +18,7 @@ from thumbor.result_storages.no_storage import Storage as NoStorage
 
 class NoResultStorageTestCase(TestCase):
     def get_context(self):
-        ctx = super(NoResultStorageTestCase, self).get_context()
+        ctx = super().get_context()
         ctx.request = RequestParameters(url="image.jpg")
         self.context = ctx
         return ctx

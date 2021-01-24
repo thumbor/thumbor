@@ -101,7 +101,6 @@ class Importer:  # pylint: disable=too-many-instance-attributes
                 config_key,
                 conf_value,
                 class_name,
-                item_value,
                 ignore_errors,
                 validate_fn,
             )
@@ -117,7 +116,6 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         config_key,
         conf_value,
         class_name,
-        item_value,
         ignore_errors,
         validate_fn,
     ):

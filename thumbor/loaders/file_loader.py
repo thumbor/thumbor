@@ -10,7 +10,7 @@
 
 from datetime import datetime
 from os import fstat
-from os.path import abspath, exists, join, isfile
+from os.path import abspath, exists, isfile, join
 from urllib.parse import unquote
 
 from thumbor.loaders import LoaderResult

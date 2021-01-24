@@ -49,7 +49,7 @@ class MaxAgeFilterTestCase(BaseMaxAgeFilterTestCase):
 
 class MaxAgeDetectorFilterTestCase(BaseMaxAgeFilterTestCase):
     def get_config(self):
-        config = super(MaxAgeDetectorFilterTestCase, self).get_config()
+        config = super().get_config()
         config.DETECTORS = ["tests.fixtures.prevent_result_storage_detector"]
         return config
 
@@ -63,7 +63,7 @@ class MaxAgeDetectorFilterTestCase(BaseMaxAgeFilterTestCase):
 
 class MaxAgeErrorDectectorFilterTestCase(BaseMaxAgeFilterTestCase):
     def get_config(self):
-        config = super(MaxAgeErrorDectectorFilterTestCase, self).get_config()
+        config = super().get_config()
         config.DETECTORS = ["tests.fixtures.detection_error_detector"]
         return config
 

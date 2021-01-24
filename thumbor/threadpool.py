@@ -10,8 +10,9 @@
 
 from concurrent.futures import ThreadPoolExecutor
 
-from thumbor.utils import logger
 from tornado.ioloop import IOLoop
+
+from thumbor.utils import logger
 
 
 class ThreadPool:

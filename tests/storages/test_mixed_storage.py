@@ -58,7 +58,7 @@ class BasedMixedStorageTestCase(TestCase):
     def __init__(self, *args, **kw):
         self.context = None
         self.storage = None
-        super(BasedMixedStorageTestCase, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
 
     def get_storages(self):
         return (
@@ -68,7 +68,7 @@ class BasedMixedStorageTestCase(TestCase):
         )
 
     def get_context(self):
-        context = super(BasedMixedStorageTestCase, self).get_context()
+        context = super().get_context()
         self.storage = MixedStorage(None, *self.get_storages())
         return context
 
@@ -110,7 +110,7 @@ class MixedStorageTestCase(BasedMixedStorageTestCase):
 
 class MixedStorageFromConfTestCase(BasedMixedStorageTestCase):
     def get_context(self):
-        context = super(MixedStorageFromConfTestCase, self).get_context()
+        context = super().get_context()
         self.storage = MixedStorage(context)
         return context
 

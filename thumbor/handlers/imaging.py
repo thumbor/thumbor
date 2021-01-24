@@ -17,7 +17,7 @@ from thumbor.handlers import ContextHandler
 class ImagingHandler(ContextHandler):
     def compute_etag(self):
         if self.context.config.ENABLE_ETAGS:
-            return super(ImagingHandler, self).compute_etag()
+            return super().compute_etag()
         return None
 
     async def check_image(self, kwargs):  # pylint: disable=too-many-return-statements

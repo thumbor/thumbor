@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+# pylint: disable=no-member
+
 import argparse
 import sys
 from importlib import import_module
@@ -95,15 +97,18 @@ def check_modules():
         ),
         (
             "cv2",
-            "Thumbor requires OpenCV for smart cropping. For more information check https://opencv.org/.",
+            "Thumbor requires OpenCV for smart cropping. "
+            "For more information check https://opencv.org/.",
         ),
         (
             "pyexiv2",
-            "Thumbor uses exiv2 for reading image metadata. For more information check https://python3-exiv2.readthedocs.io/en/latest/.",
+            "Thumbor uses exiv2 for reading image metadata. "
+            "For more information check https://python3-exiv2.readthedocs.io/en/latest/.",
         ),
         (
             "cairosvg",
-            "Thumbor uses CairoSVG for reading SVG files. For more information check https://cairosvg.org/.",
+            "Thumbor uses CairoSVG for reading SVG files. "
+            "For more information check https://cairosvg.org/.",
         ),
     )
 
@@ -129,15 +134,18 @@ def check_extensions():
     programs = (
         (
             "jpegtran",
-            "Thumbor uses jpegtran for optimizing JPEG images. For more information visit https://linux.die.net/man/1/jpegtran.",
+            "Thumbor uses jpegtran for optimizing JPEG images. "
+            "For more information visit https://linux.die.net/man/1/jpegtran.",
         ),
         (
             "ffmpeg",
-            "Thumbor uses ffmpeg for rendering animated images as GIFV. For more information visit https://www.ffmpeg.org/.",
+            "Thumbor uses ffmpeg for rendering animated images as GIFV. "
+            "For more information visit https://www.ffmpeg.org/.",
         ),
         (
             "gifsicle",
-            "Thumbor uses gifsicle for better processing of GIF images. For more information visit https://www.lcdf.org/gifsicle/.",
+            "Thumbor uses gifsicle for better processing of GIF images. "
+            "For more information visit https://www.lcdf.org/gifsicle/.",
         ),
     )
 

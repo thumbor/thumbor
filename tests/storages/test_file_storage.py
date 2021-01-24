@@ -190,7 +190,7 @@ class CryptoBadConfFileStorageTestCase(BaseFileStorageTestCase):
         )
 
     def get_server(self):
-        server = super(CryptoBadConfFileStorageTestCase, self).get_server()
+        server = super().get_server()
         server.security_key = ""
         return server
 

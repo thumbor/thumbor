@@ -58,4 +58,4 @@ class CascadeLoaderDetector(BaseDetector):
                     FocalPoint.from_square(*square)
                 )
         else:
-            await self.next()
+            await self.next()  # pylint: disable=not-callable
