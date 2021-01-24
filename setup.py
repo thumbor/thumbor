@@ -38,7 +38,7 @@ TESTS_REQUIREMENTS = [
     "pytest-tldr==0.*,>=0.2.1",
     "pytest-xdist==1.*,>=1.31.0",
     "redis==3.*,>=3.4.0",
-    "remotecv==2.*,>=2.3.0",
+    "remotecv>=2.3.0",
     "sentry-sdk==0.*,>=0.14.1",
     "yanc==0.*,>=0.3.3",
 ]
