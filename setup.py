@@ -14,7 +14,10 @@ import os
 
 from setuptools import Extension, setup
 
-from thumbor import __version__
+try:
+    from thumbor import __version__
+except ImportError:
+    __version__ = "0.0.0"
 
 TESTS_REQUIREMENTS = [
     "cairosvg!=1.0.21,<2.0.0,>=1.0.0",

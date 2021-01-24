@@ -39,6 +39,9 @@ coverage:
 unit:
 	@pytest -n `nproc` --cov=thumbor tests/
 
+sequential-unit:
+	@pytest -sv --cov=thumbor tests/
+
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown
 
@@ -148,3 +151,49 @@ sample_images:
 	cp tests/fixtures/filters/watermark.png tests/fixtures/images/watermark.png
 	# the watermark filter's logic is too complicated to reproduce with IM, the watermark test images can't be generated here
 	# similarly, the noise, colorize, redeye and fill filters generate output too unique to be reproduce with IM and can't be generated here
+
+test-docker-build: test-docker-36-build test-docker-37-build test-docker-38-build test-docker-39-build
+
+test-docker-run: test-docker-36-run test-docker-37-run test-docker-38-run test-docker-39-run
+
+test-docker-publish: test-docker-36-publish test-docker-37-publish test-docker-38-publish test-docker-39-publish
+
+test-docker-36-build:
+	@docker build -f TestDockerfile36 -t thumbor-test-36 .
+
+test-docker-36-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:36 make compile_ext redis sequential-unit integration flake
+
+test-docker-36-publish:
+	@docker image tag thumbor-test-36:latest thumbororg/thumbor-test:36
+	@docker push thumbororg/thumbor-test:36
+
+test-docker-37-build:
+	@docker build -f TestDockerfile37 -t thumbor-test-37 .
+
+test-docker-37-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:37 make compile_ext redis sequential-unit integration flake
+
+test-docker-37-publish:
+	@docker image tag thumbor-test-37:latest thumbororg/thumbor-test:37
+	@docker push thumbororg/thumbor-test:37
+
+test-docker-38-build:
+	@docker build -f TestDockerfile38 -t thumbor-test-38 .
+
+test-docker-38-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:38 make compile_ext redis sequential-unit integration flake
+
+test-docker-38-publish:
+	@docker image tag thumbor-test-38:latest thumbororg/thumbor-test:38
+	@docker push thumbororg/thumbor-test:38
+
+test-docker-39-build:
+	@docker build -f TestDockerfile39 -t thumbor-test-39 .
+
+test-docker-39-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:39 make compile_ext redis sequential-unit integration flake
+
+test-docker-39-publish:
+	@docker image tag thumbor-test-39:latest thumbororg/thumbor-test:39
+	@docker push thumbororg/thumbor-test:39
