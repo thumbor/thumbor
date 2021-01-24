@@ -458,7 +458,7 @@ Config.define(
 
 # PHOTO UPLOAD OPTIONS
 Config.define(
-    "UPLOAD_MAX_SIZE", 0, "Max size in Kb for images uploaded to thumbor", "Upload",
+    "UPLOAD_MAX_SIZE", 0, "Max size in bytes for images uploaded to thumbor", "Upload",
 )
 Config.define(
     "UPLOAD_ENABLED",
