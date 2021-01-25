@@ -26,7 +26,7 @@ jobs:
         run: env ASYNC_TEST_TIMEOUT=30 make integration_run
       - name: Lint
         if: matrix.image-tag == '39'
-        run: make flake
+        run: make flake pylint
       - name: Coveralls
         if: matrix.image-tag == '39'
         env:
