@@ -13,8 +13,10 @@ from uuid import uuid4
 from shutil import move
 import pytz
 import hashlib
+import time
 
 from os.path import exists, dirname, join, getmtime, abspath, isdir, isfile
+from os import utime
 
 from thumbor.engines import BaseEngine
 from thumbor.result_storages import BaseStorage
@@ -79,10 +81,13 @@ class Storage(BaseStorage):
         with open(file_abspath, 'r') as f:
             buffer = f.read()
 
+        mtime = getmtime(file_abspath);
+        utime(file_abspath, (time.time(), mtime));
+        
         result = ResultStorageResult(
             buffer=buffer,
             metadata={
-                'LastModified': datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc),
+                'LastModified': datetime.fromtimestamp(mtime).replace(tzinfo=pytz.utc),
                 'ContentLength': len(buffer),
                 'ContentType': BaseEngine.get_mimetype(buffer)
             }
