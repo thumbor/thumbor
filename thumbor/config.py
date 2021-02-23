@@ -371,6 +371,9 @@ Config.define(
 Config.define(
     'RESULT_STORAGE_STORES_UNSAFE', False,
     'Indicates whether unsafe requests should also be stored in the Result Storage', 'Result Storage')
+Config.define(
+    'RESULT_STORAGE_TOUCH_FILES', False,
+    'When enabled, files retrieved from the result storage will have their "last accessed" file information updated', 'Result Storage')
 
 # QUEUED DETECTOR REDIS OPTIONS
 Config.define('REDIS_QUEUE_SERVER_HOST', 'localhost', 'Server host for the queued redis detector', 'Queued Redis Detector')

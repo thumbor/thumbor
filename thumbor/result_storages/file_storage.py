@@ -82,8 +82,10 @@ class Storage(BaseStorage):
             buffer = f.read()
 
         mtime = getmtime(file_abspath);
-        utime(file_abspath, (time.time(), mtime));
-        
+
+        if self.context.config.RESULT_STORAGE_TOUCH_FILES:
+            utime(file_abspath, (time.time(), mtime));
+
         result = ResultStorageResult(
             buffer=buffer,
             metadata={
