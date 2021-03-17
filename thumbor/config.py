@@ -193,6 +193,14 @@ Config.define(
 )
 
 Config.define(
+    "PRESERVE_IMAGE_METADATA",
+    False,
+    "Preserves image metadata (exif, iptc, xmp and comment) in generated images. "
+    "Increases image size in kbytes, use with caution.",
+    "Imaging",
+)
+
+Config.define(
     "ALLOW_ANIMATED_GIFS",
     True,
     "Indicates whether thumbor should enable the EXPERIMENTAL support for animated gifs.",

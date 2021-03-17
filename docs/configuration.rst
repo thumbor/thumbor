@@ -856,6 +856,11 @@ Example of Configuration File
    ## Defaults to: False
    #PRESERVE_EXIF_INFO = False
 
+   ## Preserves image metadata (exif, iptc, xmp and comment) in generated images. Increases image size in
+   ## kbytes, use with caution.
+   ## Defaults to: False
+   #PRESERVE_IMAGE_METADATA = False
+
    ## Indicates whether thumbor should enable the EXPERIMENTAL support for animated
    ## gifs.
    ## Defaults to: True

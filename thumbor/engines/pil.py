@@ -27,6 +27,13 @@ try:
 except ImportError:
     FILTERS_AVAILABLE = False
 
+try:
+    from pyexiv2 import ImageMetadata
+
+    METADATA_AVAILABLE = True
+except ImportError:
+    METADATA_AVAILABLE = False
+
 FORMATS = {
     ".tif": "PNG",  # serve tif as png
     ".jpg": "JPEG",
@@ -275,6 +282,14 @@ class Engine(BaseEngine):
 
         results = img_buffer.getvalue()
         img_buffer.close()
+
+        if METADATA_AVAILABLE and self.context.config.PRESERVE_IMAGE_METADATA:
+            results_metadata = ImageMetadata.from_buffer(results)
+            results_metadata.read()
+            self.metadata.copy(results_metadata)
+            results_metadata.write()
+            results = results_metadata.buffer
+
         self.extension = ext
         return results
 
