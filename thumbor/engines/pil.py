@@ -286,7 +286,7 @@ class Engine(BaseEngine):
         if METADATA_AVAILABLE and self.context.config.PRESERVE_IMAGE_METADATA:
             results_metadata = ImageMetadata.from_buffer(results)
             results_metadata.read()
-            self.metadata.copy(results_metadata)
+            self.metadata.copy(results_metadata, exif=False)
             results_metadata.write()
             results = results_metadata.buffer
 
