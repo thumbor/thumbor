@@ -284,11 +284,14 @@ class Engine(BaseEngine):
         img_buffer.close()
 
         if METADATA_AVAILABLE and self.context.config.PRESERVE_IMAGE_METADATA:
-            results_metadata = ImageMetadata.from_buffer(results)
-            results_metadata.read()
-            self.metadata.copy(results_metadata, exif=False)
-            results_metadata.write()
-            results = results_metadata.buffer
+            try:
+                results_metadata = ImageMetadata.from_buffer(results)
+                results_metadata.read()
+                self.metadata.copy(results_metadata, exif=False)
+                results_metadata.write()
+                results = results_metadata.buffer
+            except Exception as error:
+                logger.error("Error writing image metadata: %s", error)
 
         self.extension = ext
         return results
