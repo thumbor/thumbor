@@ -9,7 +9,7 @@ Image Endpoint
 
 .. code::
 
-   /hmac/trim/AxB:CxD/(adaptative-)(full-)fit-in/-Ex-F/HALIGN/VALIGN/smart/filters:FILTERNAME(ARGUMENT):FILTERNAME(ARGUMENT)/*IMAGE-URI*
+   /hmac/trim/AxB:CxD/(adaptive-)(full-)fit-in/-Ex-F/HALIGN/VALIGN/smart/filters:FILTERNAME(ARGUMENT):FILTERNAME(ARGUMENT)/*IMAGE-URI*
 
 -  hmac is the signature that ensures :doc:`security` ;
 -  trim removes surrounding space in images using top-left pixel color
