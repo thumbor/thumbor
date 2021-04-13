@@ -29,6 +29,7 @@ from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.transformer import Transformer
 from thumbor.utils import CONTENT_TYPE, EXTENSION, logger
+from tornado.web import HTTPError
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
@@ -55,6 +56,30 @@ class FetchResult:  # Data Object pylint: disable=too-few-public-methods
 
 class BaseHandler(tornado.web.RequestHandler):
     url_locks = {}
+
+    def options(self):
+        if self._is_cors_enabled():
+            self.set_status(204)  # if cors enabled, return 204.
+        else:
+            raise HTTPError(405)
+
+    def finish(self, **kwargs):
+        if self._is_cors_enabled():
+            self._handle_cors()  # add cors headers.
+        super().finish()
+
+    def _is_cors_enabled(self):
+        return self.context.config.CORS_ENABLED is not None and self.context.config.CORS_ENABLED
+
+    def _handle_cors(self):
+        if self.request.method == "GET" or self.request.method == "POST" or self.request.method == "DELETE":
+            self.set_header("Access-Control-Allow-Origin", "*")
+            self.set_header("Access-Control-Expose-Headers", "*")
+        if self.request.method == "OPTIONS":
+            self.set_header("Access-Control-Allow-Origin", "*")
+            self.set_header("Access-Control-Allow-Methods", "*")
+            self.set_header("Access-Control-Allow-Headers", "*")
+            self.set_header("Access-Control-Max-Age", "1728000")
 
     def prepare(self):
         super().prepare()
@@ -84,7 +109,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.context.metrics.incr("response.status.{0}".format(status))
 
         if status == 200 and self.context is not None:
-            if self.context.request.smart:
+            if hasattr(self.context, "request") and self.context.request.smart:
                 self.context.metrics.incr('response.smart')
                 self.context.metrics.timing('response.smart', total_time)
             else:

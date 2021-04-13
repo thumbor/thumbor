@@ -13,20 +13,24 @@ import logging.config
 import os
 import sys
 import warnings
+import socket
 from os.path import dirname, expanduser
 from shutil import which
 
 import tornado.ioloop
 from PIL import Image
-from socketfromfd import fromfd as socket_from_fd
 from tornado.httpserver import HTTPServer
-from tornado.netutil import bind_unix_socket
 
 from thumbor.config import Config
 from thumbor.console import get_server_parameters
 from thumbor.context import Context
 from thumbor.importer import Importer
 from thumbor.signal_handler import setup_signal_handler
+
+if hasattr(socket, "AF_UNIX"):
+    # for unix only, avoid errors on windows.
+    from socketfromfd import fromfd as socket_from_fd
+    from tornado.netutil import bind_unix_socket
 
 
 def get_as_integer(value):
@@ -101,7 +105,8 @@ def get_application(context):
 def run_server(application, context):
     server = HTTPServer(application, xheaders=True)
 
-    if context.server.fd is not None:
+    if hasattr(socket, "AF_UNIX") and context.server.fd is not None:
+        # for unix only, avoid error on windows.
         fd_number = get_as_integer(context.server.fd)
         if fd_number is not None:
             # TODO: replace with socket.socket(fileno=fd_number) when we require Python>=3.7
