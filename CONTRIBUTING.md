@@ -32,7 +32,7 @@ poetry](https://python-poetry.org/).
 Installing poetry should be as easy as `pip install poetry`, but you can
 find more about it in their website.
 
-Other than that, you'll also need <span class="title-ref">redis-server
+Other than that, you'll also need `<span class="title-ref">redis-server
 \<https://redis.io\></span>\` installed (for queued detector unit
 tests).
 
@@ -93,6 +93,6 @@ To merge thumbor's master with your fork:
     $ git pull thumbor master
 
 If there was anything to merge, just run your tests again. If they pass,
-[send a pull request](http://help.github.com/send-pull-requests/).
+[send a pull request](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
 
 The latest version of this document can be found at [Hacking on thumbor](https://thumbor.readthedocs.io/en/latest/hacking_on_thumbor.html).
