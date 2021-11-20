@@ -908,6 +908,10 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers["Content-Type"]).to_equal("video/mp4")
 
+    @pytest.mark.skip(
+        reason="This test is flaky due to some issue with webM and Ubuntu. Need to look"
+        " into it later"
+    )
     @gen_test
     async def test_should_convert_animated_gif_to_webm_when_filter_with_gifv_webm_param(  # NOQA
         self,
