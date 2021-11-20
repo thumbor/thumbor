@@ -29,6 +29,7 @@ from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.transformer import Transformer
 from thumbor.utils import CONTENT_TYPE, EXTENSION, logger
+from thumbor.context import RequestParameters
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
@@ -75,6 +76,9 @@ class BaseHandler(tornado.web.RequestHandler):
         if self.context is None:
             return
 
+        if not hasattr(self.context, "request"):
+            self.context.request = RequestParameters()
+
         total_time = (
             datetime.datetime.now() - self._response_start
         ).total_seconds() * 1000
@@ -85,11 +89,11 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if status == 200 and self.context is not None:
             if self.context.request.smart:
-                self.context.metrics.incr('response.smart')
-                self.context.metrics.timing('response.smart', total_time)
+                self.context.metrics.incr("response.smart")
+                self.context.metrics.timing("response.smart", total_time)
             else:
-                self.context.metrics.incr('response.none_smart')
-                self.context.metrics.timing('response.none_smart', total_time)
+                self.context.metrics.incr("response.none_smart")
+                self.context.metrics.timing("response.none_smart", total_time)
 
         if self._response_ext is not None:
             ext = self._response_ext
@@ -122,13 +126,15 @@ class BaseHandler(tornado.web.RequestHandler):
         req = self.context.request
         conf = self.context.config
 
-        total_time = (datetime.datetime.now() - self._response_start).total_seconds() * 1000
+        total_time = (
+            datetime.datetime.now() - self._response_start
+        ).total_seconds() * 1000
         if self.context.request.smart:
-            self.context.metrics.incr('response.smart')
-            self.context.metrics.timing('response.smart', total_time)
+            self.context.metrics.incr("response.smart")
+            self.context.metrics.timing("response.smart", total_time)
         else:
-            self.context.metrics.incr('response.none_smart')
-            self.context.metrics.timing('response.none_smart', total_time)
+            self.context.metrics.incr("response.none_smart")
+            self.context.metrics.timing("response.none_smart", total_time)
 
         should_store = (
             self.context.config.RESULT_STORAGE_STORES_UNSAFE
@@ -151,7 +157,8 @@ class BaseHandler(tornado.web.RequestHandler):
             finish = datetime.datetime.now()
 
             self.context.metrics.timing(
-                "result_storage.incoming_time", (finish - start).total_seconds() * 1000,
+                "result_storage.incoming_time",
+                (finish - start).total_seconds() * 1000,
             )
 
             if result is None:
@@ -185,7 +192,9 @@ class BaseHandler(tornado.web.RequestHandler):
         )
         # Apply all the filters from the PRE_LOAD phase
         # and call get_image() afterwards.
-        await self.filters_runner.apply_filters(thumbor.filters.PHASE_PRE_LOAD,)
+        await self.filters_runner.apply_filters(
+            thumbor.filters.PHASE_PRE_LOAD,
+        )
         await self.get_image()
 
     # TODO: refactor this
@@ -382,26 +391,29 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 buffer = result
             image_extension = EXTENSION.get(BaseEngine.get_mimetype(buffer), ".jpg")
+            content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE[".jpg"])
+            return image_extension, content_type
+
+        image_extension = context.request.format
+        if image_extension is not None:
+            image_extension = ".%s" % image_extension
+            logger.debug("Image format specified as %s.", image_extension)
+        elif self.is_webp(context):
+            image_extension = ".webp"
+            logger.debug("Image format set by AUTO_WEBP as %s.", image_extension)
+        elif self.can_auto_convert_png_to_jpg():
+            image_extension = ".jpg"
+            logger.debug(
+                "Image format set by AUTO_PNG_TO_JPG as %s.",
+                image_extension,
+            )
         else:
-            image_extension = context.request.format
-            if image_extension is not None:
-                image_extension = ".%s" % image_extension
-                logger.debug("Image format specified as %s.", image_extension)
-            elif self.is_webp(context):
-                image_extension = ".webp"
-                logger.debug("Image format set by AUTO_WEBP as %s.", image_extension)
-            elif self.can_auto_convert_png_to_jpg():
-                image_extension = ".jpg"
-                logger.debug(
-                    "Image format set by AUTO_PNG_TO_JPG as %s.", image_extension,
-                )
-            else:
-                image_extension = context.request.engine.extension
-                logger.debug(
-                    "No image format specified. Retrieving "
-                    "from the image extension: %s.",
-                    image_extension,
-                )
+            image_extension = context.request.engine.extension
+            logger.debug(
+                "No image format specified. Retrieving "
+                "from the image extension: %s.",
+                image_extension,
+            )
 
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE[".jpg"])
 
@@ -467,7 +479,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 if result_last_modified:
                     if "If-Modified-Since" in self.request.headers:
                         date_modified_since = datetime.datetime.strptime(
-                            self.request.headers["If-Modified-Since"], HTTP_DATE_FMT,
+                            self.request.headers["If-Modified-Since"],
+                            HTTP_DATE_FMT,
                         ).replace(tzinfo=pytz.utc)
 
                         if result_last_modified <= date_modified_since:
@@ -476,7 +489,8 @@ class BaseHandler(tornado.web.RequestHandler):
                             return
 
                     self.set_header(
-                        "Last-Modified", result_last_modified.strftime(HTTP_DATE_FMT),
+                        "Last-Modified",
+                        result_last_modified.strftime(HTTP_DATE_FMT),
                     )
             except NotImplementedError:
                 logger.warning(
@@ -581,7 +595,8 @@ class BaseHandler(tornado.web.RequestHandler):
         finish = datetime.datetime.now()
         metrics.incr("result_storage.bytes_written", len(results))
         metrics.timing(
-            "result_storage.outgoing_time", (finish - start).total_seconds() * 1000,
+            "result_storage.outgoing_time",
+            (finish - start).total_seconds() * 1000,
         )
 
     def optimize(self, context, image_extension, results):

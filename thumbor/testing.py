@@ -32,7 +32,12 @@ def get_ssim(actual, expected):
         raise RuntimeError(
             "Can't calculate SSIM for images of different sizes "
             "(one is %dx%d, the other %dx%d)."
-            % (actual.size[0], actual.size[1], expected.size[0], expected.size[1],)
+            % (
+                actual.size[0],
+                actual.size[1],
+                expected.size[0],
+                expected.size[1],
+            )
         )
 
     return compute_ssim(actual, expected)
@@ -71,6 +76,20 @@ class TestCase(AsyncHTTPTestCase):
     _multiprocess_can_split_ = True
 
     def get_app(self):
+        self.config = (  # This is a test case pylint: disable=attribute-defined-outside-init
+            self.get_config()
+        )
+        self.server = (  # This is a test case pylint: disable=attribute-defined-outside-init
+            self.get_server()
+        )
+        self.importer = (  # This is a test case pylint: disable=attribute-defined-outside-init
+            self.get_importer()
+        )
+        self.request_handler = (  # This is a test case pylint: disable=attribute-defined-outside-init
+            self.get_request_handler()
+        )
+        self.importer.import_modules()
+
         self.context = self.get_context()
         return ThumborServiceApp(self.context)
 
@@ -85,22 +104,12 @@ class TestCase(AsyncHTTPTestCase):
         importer.import_modules()
         return importer
 
-    def get_request_handler(self,):  # Meant to be overriden pylint: disable=no-self-use
+    def get_request_handler(
+        self,
+    ):  # Meant to be overriden pylint: disable=no-self-use
         return None
 
     def get_context(self):
-        self.config = (  # This is a test case pylint: disable=attribute-defined-outside-init
-            self.get_config()
-        )
-        self.server = (  # This is a test case pylint: disable=attribute-defined-outside-init
-            self.get_server()
-        )
-        self.importer = (  # This is a test case pylint: disable=attribute-defined-outside-init
-            self.get_importer()
-        )
-        self.request_handler = (  # This is a test case pylint: disable=attribute-defined-outside-init
-            self.get_request_handler()
-        )
         self.importer.import_modules()
         return Context(self.server, self.config, self.importer, self.request_handler)
 
@@ -120,14 +129,27 @@ class TestCase(AsyncHTTPTestCase):
         )
 
     async def async_post(self, path, headers, body):
-        return await self.async_fetch(path, method="POST", body=body, headers=headers,)
+        return await self.async_fetch(
+            path,
+            method="POST",
+            body=body,
+            headers=headers,
+        )
 
     async def async_put(self, path, headers, body):
-        return await self.async_fetch(path, method="PUT", body=body, headers=headers,)
+        return await self.async_fetch(
+            path,
+            method="PUT",
+            body=body,
+            headers=headers,
+        )
 
     async def async_delete(self, path, headers):
         return await self.async_fetch(
-            path, method="DELETE", body=urlencode({}, doseq=True), headers=headers,
+            path,
+            method="DELETE",
+            body=urlencode({}, doseq=True),
+            headers=headers,
         )
 
     async def async_post_files(self, path, data=None, files=None):
@@ -191,7 +213,12 @@ class FilterTestCase(TestCase):
         return image.convert(mode)
 
     async def get_filtered(
-        self, source_image, filter_name, params_string, config_context=None, mode="RGB",
+        self,
+        source_image,
+        filter_name,
+        params_string,
+        config_context=None,
+        mode="RGB",
     ):
         fltr = self.get_filter(filter_name, params_string, config_context)
         image = Image.open(self.get_fixture_path(source_image))

@@ -88,7 +88,9 @@ class UploadAPINewFileTestCase(UploadTestCase):
     async def test_can_post_image_with_charset(self):
         filename = self.default_filename + ".jpg"
         response = await self.async_post(
-            self.base_uri, {"Content-Type": "image/jpeg;charset=UTF-8"}, valid_image(),
+            self.base_uri,
+            {"Content-Type": "image/jpeg;charset=UTF-8"},
+            valid_image(),
         )
 
         expect(response.code).to_equal(201)

@@ -6,7 +6,8 @@ RUN pip install --upgrade pip
 COPY setup.py /app/setup.py
 RUN mkdir -p /app/thumbor
 RUN touch /app/thumbor/__init__.py
-RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_python3-py37.so /usr/lib/libboost_python38.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_python39.so /usr/lib/libboost_python38.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_python39.so /usr/lib/libboost_python3.so
 RUN python -m pip install -e .[tests] && rm -rf ~/.cache/pip
 RUN pip install coveralls
 RUN pip install --upgrade pytest

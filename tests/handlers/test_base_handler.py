@@ -161,7 +161,8 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
     async def test_image_with_utf8_url(self):
         with open("./tests/fixtures/images/maracujá.jpg", "rb") as fixture:
             await self.context.modules.storage.put(
-                quote(u"http://test.com/maracujá.jpg".encode("utf-8")), fixture.read(),
+                quote(u"http://test.com/maracujá.jpg".encode("utf-8")),
+                fixture.read(),
             )
         crypto = CryptoURL("ACME-SEC")
         image_url = self.get_url(
@@ -175,7 +176,8 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
     async def test_image_with_http_utf8_url(self):
         with open("./tests/fixtures/images/maracujá.jpg", "rb") as fixture:
             await self.context.modules.storage.put(
-                quote(u"http://test.com/maracujá.jpg".encode("utf-8")), fixture.read(),
+                quote(u"http://test.com/maracujá.jpg".encode("utf-8")),
+                fixture.read(),
             )
 
         url = quote(u"/unsafe/http://test.com/maracujá.jpg".encode("utf-8"))
@@ -988,7 +990,9 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         response = await self.async_fetch("/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif")
         expect(response.code).to_equal(200)
 
-        self.context.request = Mock(accepts_webp=False,)
+        self.context.request = Mock(
+            accepts_webp=False,
+        )
         expected_path = self.result_storage.normalize_path(
             "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
         )
@@ -1028,7 +1032,9 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_loads_image_from_result_storage(self):
-        self.context.request = Mock(accepts_webp=False,)
+        self.context.request = Mock(
+            accepts_webp=False,
+        )
         expected_path = self.result_storage.normalize_path(
             "gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
         )
@@ -1104,7 +1110,9 @@ class ImageOperationsWithGifWithoutGifsicleOnResultStorage(BaseImagingTestCase):
 
     @gen_test
     async def test_loads_image_from_result_storage(self):
-        self.context.request = Mock(accepts_webp=False,)
+        self.context.request = Mock(
+            accepts_webp=False,
+        )
         expected_path = self.result_storage.normalize_path(
             "5Xr8gyuWE7jL_VB72K0wvzTMm2U=/animated-one-frame.gif"
         )
