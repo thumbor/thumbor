@@ -25,7 +25,7 @@ Using thumbor is very easy (after it is running). All you have to do is access i
 http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
 ```
 
-That URL would show an image of the big brother brasil participants in 300x200 using smart crop.
+That URL would show an image of the thumbor logo in 300x200 using smart crop.
 
 There are several other options to the image URL configuration. You can check them in the [Usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
 
