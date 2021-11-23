@@ -430,6 +430,11 @@ Config.define(
     'Custom app class to override ThumborServiceApp. This config value is overridden by the -a command-line parameter.'
 )
 
+Config.define(
+    'ACCESS_CONTROL_ALLOW_ORIGIN_HEADER', False,
+    'Sends Access-Control-Allow-Origin header'
+)
+
 
 def generate_config():
     config.generate_config()
