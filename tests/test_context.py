@@ -57,7 +57,9 @@ class ContextTestCase(TestCase):
 
     @staticmethod
     def test_can_create_context_without_importer_metrics():
-        cfg = Config(METRICS="",)
+        cfg = Config(
+            METRICS="",
+        )
         importer = Importer(cfg)
         ctx = Context(config=cfg, importer=importer)
 
@@ -75,7 +77,9 @@ class ContextTestCase(TestCase):
             app_class="thumbor.app.ThumborServiceApp",
         )
 
-        cfg = Config(APP_CLASS="config.app",)
+        cfg = Config(
+            APP_CLASS="config.app",
+        )
         importer = Importer(cfg)
         ctx = Context(config=cfg, importer=importer, server=server)
 
@@ -92,7 +96,9 @@ class ContextTestCase(TestCase):
             app_class="server.app",
         )
 
-        cfg = Config(APP_CLASS="config.app",)
+        cfg = Config(
+            APP_CLASS="config.app",
+        )
         importer = Importer(cfg)
         ctx = Context(config=cfg, importer=importer, server=server)
 
@@ -140,9 +146,9 @@ class ServerParametersTestCase(TestCase):
             gifsicle_path="gifsicle_path",
         )
 
-        params.security_key = u"testé"
+        params.security_key = "testé"
         expect(params._security_key).to_equal(  # pylint: disable=protected-access
-            u"testé".encode("utf-8")
+            "testé".encode("utf-8")
         )
 
     @staticmethod
@@ -237,7 +243,10 @@ class RequestParametersTestCase(TestCase):
     @staticmethod
     def test_can_get_params_with_crop():
         params = RequestParameters(
-            crop_left=10, crop_right=20, crop_top=30, crop_bottom=40,
+            crop_left=10,
+            crop_right=20,
+            crop_top=30,
+            crop_bottom=40,
         )
         expect(params.crop).to_be_like(
             {"top": 30, "right": 20, "bottom": 40, "left": 10}
@@ -255,7 +264,10 @@ class RequestParametersTestCase(TestCase):
 
     @staticmethod
     def test_can_get_orig_dimensions():
-        params = RequestParameters(width="orig", height="orig",)
+        params = RequestParameters(
+            width="orig",
+            height="orig",
+        )
         expect(params.width).to_equal("orig")
         expect(params.height).to_equal("orig")
 
@@ -280,7 +292,9 @@ class RequestParametersTestCase(TestCase):
 class ContextImporterTestCase(TestCase):
     @staticmethod
     def test_can_create_context_importer():
-        cfg = Config(RESULT_STORAGE="thumbor.result_storages.file_storage",)
+        cfg = Config(
+            RESULT_STORAGE="thumbor.result_storages.file_storage",
+        )
         importer = Importer(cfg)
         importer.import_modules()
         ctx = Context(config=cfg, importer=importer)

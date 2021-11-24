@@ -29,8 +29,7 @@ def generate_1d_matrix(sigma, radius):
 def apply_blur(mode, data, size, radius, sigma=0):
     if sigma == 0:
         sigma = radius
-    if radius > MAX_RADIUS:
-        radius = MAX_RADIUS
+    radius = min(radius, MAX_RADIUS)
     matrix, matrix_size = generate_1d_matrix(sigma, radius)
     data = _convolution.apply(mode, data, size[0], size[1], matrix, matrix_size, True)
     return _convolution.apply(mode, data, size[0], size[1], matrix, 1, True)
@@ -38,11 +37,11 @@ def apply_blur(mode, data, size, radius, sigma=0):
 
 class Filter(BaseFilter):
     """
-        Usage: /filters:blur(<radius> [, <sigma>])
-        Examples of use:
-            /filters:blur(1)/
-            /filters:blur(4)/
-            /filters:blur(4, 2)/
+    Usage: /filters:blur(<radius> [, <sigma>])
+    Examples of use:
+        /filters:blur(1)/
+        /filters:blur(4)/
+        /filters:blur(4, 2)/
     """
 
     @filter_method(BaseFilter.PositiveNonZeroNumber, BaseFilter.DecimalNumber)

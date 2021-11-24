@@ -171,7 +171,7 @@ def get_options(arguments):
 
 def get_thumbor_params(image_url, params, config):
     if params.key_file:
-        with open(params.key_file) as key_file:
+        with open(params.key_file, "rb") as key_file:
             security_key = key_file.read().strip()
     else:
         security_key = config.SECURITY_KEY if not params.key else params.key
@@ -241,7 +241,7 @@ def main(arguments=None):
     crypto = CryptoURL(key=security_key)
     url = crypto.generate(**thumbor_params)
     sys.stdout.write("URL:\n")
-    sys.stdout.write("%s\n" % url)
+    sys.stdout.write(f"{url}\n")
 
     return url
 

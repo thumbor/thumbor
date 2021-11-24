@@ -17,7 +17,7 @@ class ExifOrientationEditor:
 
     def __init__(self, data):
         if data[:6] != EXIF_HEADER:
-            raise SyntaxError("not a TIFF file (header %r not valid)" % data[:4])
+            raise SyntaxError(f"not a TIFF file (header {data[:4]} not valid)")
 
         # Skip 6 bytes of exif header to simplify seeks in ImageFileDirectory
         self.exif_buffer = BytesIO(data[6:])
@@ -29,7 +29,7 @@ class ExifOrientationEditor:
         header = self.exif_buffer.read(8)
 
         if header[:4] not in PREFIXES:
-            raise SyntaxError("not a TIFF file (header %r not valid)" % header)
+            raise SyntaxError(f"not a TIFF file (header {header} not valid)")
         prefix = header[:2]
         if prefix == b"MM":
             self._endian = ">"

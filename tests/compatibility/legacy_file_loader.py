@@ -8,9 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from os import fstat
+# pylint: disable=all
+
 from datetime import datetime
-from os.path import join, exists, abspath
+from os import fstat
+from os.path import abspath, exists, join
 
 from six.moves.urllib.parse import unquote
 from tornado.concurrent import return_future

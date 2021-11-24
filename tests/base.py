@@ -53,9 +53,9 @@ def to_be_the_same_as(topic, expected):
     expected = normalize_unicode_path(expected)
 
     if not exists(topic):
-        raise AssertionError("File at %s does not exist" % topic)
+        raise AssertionError(f"File at {topic} does not exist")
     if not exists(expected):
-        raise AssertionError("File at %s does not exist" % expected)
+        raise AssertionError(f"File at {expected} does not exist")
 
     topic_image = Image.open(topic)
     expected_image = Image.open(expected)

@@ -34,7 +34,9 @@ class CompatibilityLoaderTestCase(TestCase):
 
     async def load_file(self, context, file_name):
         Importer.deprecated_monkey_patch_tornado_return_future()
-        from thumbor.compatibility.loader import load
+        from thumbor.compatibility.loader import (  # pylint: disable=import-outside-toplevel
+            load,
+        )
 
         return await load(context, file_name)
 
@@ -60,7 +62,6 @@ class CompatibilityLoaderTestCase(TestCase):
     async def test_should_load_file(self):
         result = await self.load_file(self.context, "image.jpg")
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(
-            open(join(STORAGE_PATH, "image.jpg"), "rb").read()
-        )
-        expect(result.successful).to_be_true()
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as img:
+            expect(result.buffer).to_equal(img.read())
+            expect(result.successful).to_be_true()

@@ -21,6 +21,9 @@ from thumbor import __release_date__, __version__
 from thumbor.ext import BUILTIN_EXTENSIONS
 from thumbor.filters import BUILTIN_FILTERS
 
+CHECK = "✅"
+CROSS = "❎ "
+
 
 def get_options():
     parser = argparse.ArgumentParser(description="thumbor doctor")
@@ -60,9 +63,9 @@ def check_filters():
     for filter_name in BUILTIN_FILTERS:
         try:
             import_module(filter_name)
-            print(cf.bold_green("✅ %s" % filter_name))
+            print(cf.bold_green(f"{CHECK} {filter_name}"))
         except ImportError as error:
-            print(cf.bold_red("❎ %s" % filter_name))
+            print(cf.bold_red(f"{CROSS} {filter_name}"))
             errors.append(error)
 
     return errors
@@ -77,9 +80,9 @@ def check_compiled_extensions():
         ext_name = extension.replace("thumbor.ext.filters.", "")
         try:
             import_module(extension)
-            print(cf.bold_green("✅ %s" % ext_name))
+            print(cf.bold_green(f"{CHECK} {ext_name}"))
         except ImportError as error:
-            print(cf.bold_red("❎ %s" % ext_name))
+            print(cf.bold_red(f"{CROSS} {ext_name}"))
             errors.append(error)
 
     return errors
@@ -115,12 +118,12 @@ def check_modules():
     for module, error_message in modules:
         try:
             import_module(module)  # NOQA
-            print(cf.bold_green("✅ %s is installed correctly." % module))
+            print(cf.bold_green(f"{CHECK} {module} is installed correctly."))
         except ImportError as error:
-            print(cf.bold_red("❎ %s is not installed." % module))
+            print(cf.bold_red(f"{CROSS} {module} is not installed."))
             print(error_message)
             newline()
-            errors.append("%s - %s" % (str(error), error_message))
+            errors.append(f"{str(error)} - {error_message}")
 
     return errors
 
@@ -152,12 +155,12 @@ def check_extensions():
     for program, error_message in programs:
         path = which(program)
         if path is None:
-            print(cf.bold_red("❎ %s is not installed." % program))
+            print(cf.bold_red(f"{CROSS} {program} is not installed."))
             print(error_message)
             newline()
             errors.append(error_message)
         else:
-            print(cf.bold_green("✅ %s is installed correctly." % program))
+            print(cf.bold_green(f"{CHECK} {program} is installed correctly."))
 
     return errors
 
@@ -172,7 +175,7 @@ def main():
         cf.disable()
 
     newline()
-    header("Thumbor v%s (of %s)" % (__version__, __release_date__))
+    header(f"Thumbor v{__version__} (of {__release_date__})")
 
     newline()
     print(
@@ -189,7 +192,7 @@ def main():
     if errors:
         print(cf.bold_red("😞 Oh no! We found some things that could improve... 😞"))
         newline()
-        print("\n".join(["* %s" % str(err) for err in errors]))
+        print("\n".join([f"* {str(err)}" for err in errors]))
         newline()
         newline()
         print(

@@ -31,8 +31,8 @@ class ThreadPool:
     @classmethod
     def reset(cls):
         if cls._instance is not None:
-            for size in cls._instance:
-                cls._instance[size].cleanup()
+            for instance in cls._instance.values():
+                instance.cleanup()
         cls._instance = None
 
     def __init__(self, thread_pool_size):

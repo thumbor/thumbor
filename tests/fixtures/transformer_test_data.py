@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines,consider-using-f-string
 
 from thumbor.config import Config
 from thumbor.context import Context, RequestParameters

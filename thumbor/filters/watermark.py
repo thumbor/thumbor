@@ -30,11 +30,9 @@ class Filter(BaseFilter):
             return pos
 
         sign, ratio = match.groups()
-        pos = "{sign}{pos}".format(
-            sign=sign, pos=round(length * float(ratio) / 100 + 1e-5)
-        )
+        new_pos = round(length * float(ratio) / 100 + 1e-5)
 
-        return pos
+        return f"{sign}{new_pos}"
 
     @staticmethod
     def calc_watermark_size(image_size, watermark_sz, w_ratio, h_ratio):

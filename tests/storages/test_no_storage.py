@@ -19,14 +19,14 @@ from thumbor.storages.no_storage import Storage as NoStorage
 
 class NoStorageTestCase(TestCase):
     def get_image_url(self, image):
-        return "s.glbimg.com/some/{0}".format(image)
+        return f"s.glbimg.com/some/{image}"
 
     def get_image_path(self, image):
         return join(abspath(dirname(__file__)), image)
 
     def get_image_bytes(self, image):
         ipath = self.get_image_path(image)
-        with open(ipath, "r") as img:
+        with open(ipath, "rb") as img:
             return img.read()
 
     @gen_test

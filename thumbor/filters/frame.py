@@ -21,7 +21,10 @@ class Filter(BaseFilter):
         self.nine_patch_engine.enable_alpha()
         self.engine.enable_alpha()
 
-        (nine_patch_mode, nine_patch_data,) = self.nine_patch_engine.image_data_as_rgb()
+        (
+            nine_patch_mode,
+            nine_patch_data,
+        ) = self.nine_patch_engine.image_data_as_rgb()
         padding = _nine_patch.get_padding(
             nine_patch_mode,
             nine_patch_data,
@@ -34,9 +37,7 @@ class Filter(BaseFilter):
         mode, data = self.engine.image_data_as_rgb()
 
         if mode != nine_patch_mode:
-            raise RuntimeError(
-                "Image mode mismatch: %s != %s" % (mode, nine_patch_mode)
-            )
+            raise RuntimeError(f"Image mode mismatch: {mode} != {nine_patch_mode}")
 
         imgdata = _nine_patch.apply(
             mode,

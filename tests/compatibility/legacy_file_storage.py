@@ -8,17 +8,20 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import os
-from shutil import move
-from json import dumps, loads
-from datetime import datetime
-from os.path import exists, dirname, getmtime, splitext
+# pylint: disable-all
+
 import hashlib
+import os
+from datetime import datetime
+from json import dumps, loads
+from os.path import dirname, exists, getmtime, splitext
+from shutil import move
 from uuid import uuid4
+
+from tornado.concurrent import return_future
 
 import thumbor.storages as storages
 from thumbor.utils import logger
-from tornado.concurrent import return_future
 
 
 class Storage(storages.BaseStorage):

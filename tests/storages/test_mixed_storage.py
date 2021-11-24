@@ -37,7 +37,7 @@ class Storage:
 
     async def get_crypto(self, path):
         if path not in self.storage:
-            raise RuntimeError("%s was not found in storage" % path)
+            raise RuntimeError(f"{path} was not found in storage")
 
         return self.storage[path]["crypto"]
 
@@ -49,7 +49,7 @@ class Storage:
 
     async def get(self, path):
         if path not in self.storage:
-            raise RuntimeError("%s was not found in storage" % path)
+            raise RuntimeError(f"{path} was not found in storage")
 
         return self.storage[path]["contents"]
 

@@ -16,14 +16,14 @@ from os.path import dirname, exists, getmtime, splitext
 from shutil import move
 from uuid import uuid4
 
-import thumbor.storages as storages
+from thumbor import storages
 from thumbor.utils import logger
 
 
 class Storage(storages.BaseStorage):
     async def put(self, path, file_bytes):
         file_abspath = self.path_on_filesystem(path)
-        temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace("-", ""))
+        temp_abspath = f"{file_abspath}.{str(uuid4()).replace('-', '')}"
         file_dir_abspath = dirname(file_abspath)
 
         logger.debug("creating tempfile for %s in %s...", path, temp_abspath)
@@ -53,10 +53,10 @@ class Storage(storages.BaseStorage):
                 "True if no SECURITY_KEY specified"
             )
 
-        crypto_path = "%s.txt" % splitext(file_abspath)[0]
-        temp_abspath = "%s.%s" % (crypto_path, str(uuid4()).replace("-", ""))
-        with open(temp_abspath, "wb") as _file:
-            _file.write(self.context.server.security_key.encode())
+        crypto_path = f"{splitext(file_abspath)[0]}.txt"
+        temp_abspath = f"{crypto_path}.{str(uuid4()).replace('-', '')}"
+        with open(temp_abspath, "w", encoding="utf-8") as _file:
+            _file.write(self.context.server.security_key)
 
         move(temp_abspath, crypto_path)
         logger.debug(
@@ -70,13 +70,13 @@ class Storage(storages.BaseStorage):
     async def put_detector_data(self, path, data):
         file_abspath = self.path_on_filesystem(path)
 
-        path = "%s.detectors.txt" % splitext(file_abspath)[0]
-        temp_abspath = "%s.%s" % (path, str(uuid4()).replace("-", ""))
+        path = f"{splitext(file_abspath)[0]}.detectors.txt"
+        temp_abspath = f"{path}.{str(uuid4()).replace('-', '')}"
 
         file_dir_abspath = dirname(file_abspath)
         self.ensure_dir(file_dir_abspath)
 
-        with open(temp_abspath, "w") as _file:
+        with open(temp_abspath, "w", encoding="utf-8") as _file:
             _file.write(dumps(data))
 
         move(temp_abspath, path)
@@ -95,32 +95,30 @@ class Storage(storages.BaseStorage):
 
     async def get_crypto(self, path):
         file_abspath = self.path_on_filesystem(path)
-        crypto_file = "%s.txt" % (splitext(file_abspath)[0])
+        crypto_file = f"{splitext(file_abspath)[0]}.txt"
 
         if not exists(crypto_file):
             return None
 
-        with open(crypto_file, "r") as crypto_f:
+        with open(crypto_file, "r", encoding="utf-8") as crypto_f:
             return crypto_f.read()
 
     async def get_detector_data(self, path):
         file_abspath = self.path_on_filesystem(path)
-        path = "%s.detectors.txt" % splitext(file_abspath)[0]
+        path = f"{splitext(file_abspath)[0]}.detectors.txt"
 
         resource_available = await self.exists(path, path_on_filesystem=path)
 
         if not resource_available:
             return None
 
-        return loads(open(path, "r").read())
+        with open(path, "r", encoding="utf-8") as detector_file:
+            return loads(detector_file.read())
 
     def path_on_filesystem(self, path):
         digest = hashlib.sha1(path.encode("utf-8")).hexdigest()
-        return "%s/%s/%s" % (
-            self.context.config.FILE_STORAGE_ROOT_PATH.rstrip("/"),
-            digest[:2],
-            digest[2:],
-        )
+        root_path = self.context.config.FILE_STORAGE_ROOT_PATH.rstrip("/")
+        return f"{root_path}/{digest[:2]}/{digest[2:]}"
 
     async def exists(
         self, path, path_on_filesystem=None

@@ -16,7 +16,7 @@ def _normalize_url(url):
     if url.startswith("http:"):
         url = url.replace("http:", "https:", 1)
 
-    return url if url.startswith("https://") else "https://%s" % url
+    return url if url.startswith("https://") else f"https://{url}"
 
 
 def validate(context, url):

@@ -23,7 +23,7 @@ def get_server_parameters(arguments=None):
     parser.add_argument(
         "--version",
         action="version",
-        version="Thumbor v%s (%s)" % (__version__, __release_date__),
+        version=f"Thumbor v{__version__} ({__release_date__})",
     )
 
     parser.add_argument(
@@ -91,7 +91,9 @@ def get_server_parameters(arguments=None):
     )
 
     parser.add_argument(
-        "--use-environment", default=False, help="Use environment variables for config",
+        "--use-environment",
+        default=False,
+        help="Use environment variables for config",
     )
 
     parser.add_argument(

@@ -110,7 +110,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def deprecated_monkey_patch_tornado_return_future():
-        import tornado.concurrent
+        import tornado.concurrent  # pylint: disable=import-outside-toplevel
 
         if not hasattr(tornado.concurrent, "return_future"):
             setattr(tornado.concurrent, "return_future", noop)
@@ -139,7 +139,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
             )
         else:
             if class_name is not None:
-                module = self.import_class("%s.%s" % (conf_value, class_name))
+                module = self.import_class(f"{conf_value}.{class_name}")
             else:
                 module = self.import_class(conf_value, get_module=True)
             setattr(self, config_key.lower(), module)
@@ -163,7 +163,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
                             )
                         else:
                             module = self.import_class(
-                                "%s.%s" % (module_name, class_name),
+                                f"{module_name}.{class_name}",
                                 validate_fn=validate_fn,
                             )
                     else:

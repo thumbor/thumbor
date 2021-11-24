@@ -310,7 +310,7 @@ class Engine(BaseEngine):
 
         command = ["gifsicle", "--colors", "256", tmp_file_path]
 
-        popen = Popen(command, stdout=PIPE)
+        popen = Popen(command, stdout=PIPE)  # pylint: disable=consider-using-with
         pipe = popen.stdout
         pipe_output = pipe.read()
         pipe.close()

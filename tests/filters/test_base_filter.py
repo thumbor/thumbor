@@ -114,14 +114,14 @@ class FilterParamsTestCase(TestCase):
         for params in FILTER_PARAMS_DATA:
             for test_data, expected_data in params["values"]:
                 BaseFilter.compile_regex({"name": "x", "params": [params["type"]]})
-                filter_instance = BaseFilter("x(%s)" % test_data)
+                filter_instance = BaseFilter(f"x({test_data})")
                 expect(filter_instance.params[0]).to_equal(expected_data)
 
     def test_with_invalid_values_should_correctly_parse_value(self):
         for params in FILTER_PARAMS_DATA:
             for test_data in params["invalid_values"]:
                 BaseFilter.compile_regex({"name": "x", "params": [params["type"]]})
-                filter_instance = BaseFilter("x(%s)" % test_data)
+                filter_instance = BaseFilter(f"x({test_data})")
                 expect(filter_instance.params).to_be_null()
 
 

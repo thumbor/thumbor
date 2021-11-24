@@ -22,7 +22,9 @@ from thumbor.importer import Importer
 
 class BlacklistHandlerTestCase(TestCase):
     def get_context(self):
-        file_storage_root_path = tempfile.TemporaryDirectory().name
+        file_storage_root_path = (
+            tempfile.TemporaryDirectory().name  # pylint: disable=consider-using-with
+        )
         cfg = Config()
         cfg.USE_BLACKLIST = True
         cfg.LOADER = "thumbor.loaders.file_loader"

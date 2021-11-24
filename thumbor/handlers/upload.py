@@ -72,4 +72,4 @@ class ImageUploadHandler(ImageApiHandler):
 
     def location(self, image_id, filename):
         base_uri = self.request.uri
-        return "%s/%s/%s" % (base_uri, image_id, filename)
+        return f"{base_uri}/{image_id}/{filename}"
