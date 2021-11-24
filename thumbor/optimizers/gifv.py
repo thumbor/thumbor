@@ -84,7 +84,7 @@ class Optimizer(BaseOptimizer):
     def set_format(self):
         if "webm" in self.context.request.filters:
             file_format = "webm"
-            command_params = ["-quality", "good", "-cpu-used", "4"]
+            command_params = ["-quality", "good", "-cpu-used", "4", "-b:v", "500k"]
         else:
             file_format = "mp4"
             command_params = ["-profile:v", "baseline", "-level", "4.0"]

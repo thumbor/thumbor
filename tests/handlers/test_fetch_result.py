@@ -13,7 +13,7 @@ from tests.base import TestCase
 from preggy import expect
 from mock import Mock
 
-from thumbor.handlers import BaseHandler, FetchResult
+from thumbor.handlers import FetchResult
 
 # pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
 # pylint: disable=too-many-lines
