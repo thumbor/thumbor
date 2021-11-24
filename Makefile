@@ -128,6 +128,7 @@ sample_images:
 	cp tests/fixtures/images/image.jpg tests/fixtures/images/alabama1_ap620é.jpg
 	mkdir -p tests/fixtures/result_storages/v2/im/ag/
 	cp tests/fixtures/images/image.jpg tests/fixtures/result_storages/v2/im/ag/image.jpg
+	mkdir -p tests/fixtures/filters
 	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Katherine_Maher.jpg/800px-Katherine_Maher.jpg -o tests/fixtures/filters/source.jpg
 	convert tests/fixtures/filters/source.jpg -quality 10 tests/fixtures/filters/quality-10%.jpg
 	convert tests/fixtures/filters/source.jpg -rotate 180 tests/fixtures/filters/rotate.jpg

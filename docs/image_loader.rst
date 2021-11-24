@@ -68,3 +68,16 @@ you'll get an error.
 
 To use it you should set the **LOADER** configuration to
 **'thumbor.loaders.file\_loader\_http\_fallback'**.
+
+Compatibility Loader
+~~~~~~~~~~~~~~~~~~~~
+
+The compatibility loader allows you to use legacy loaders (that do not support AsyncIO)
+in order to make it easier to transition to thumbor's Python 3 version.
+
+To use it you should set the **LOADER** configuration to
+**'thumbor.compatibility.loader'**.
+
+You also need to specify what's the legacy loader that the compatibility loader will use.
+Just set the **COMPATIBILITY_LEGACY_LOADER** configuration to the full name of the legacy
+loader you want to use. i.e.: COMPATIBILITY_LEGACY_LOADER = 'tc_aws.loaders.s3_loader'

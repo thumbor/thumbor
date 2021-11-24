@@ -104,16 +104,6 @@ class BaseHandler(tornado.web.RequestHandler):
                     "response.bytes{0}".format(ext), self._response_length
                 )
 
-        self.context.request_handler = None
-        if hasattr(self.context, "request"):
-            self.context.request.engine = None
-        self.context.modules = None
-        self.context.filters_factory = None
-        self.context.metrics = None
-        self.context.thread_pool = None
-        self.context.transformer = None
-        self.context = None  # Handlers should not override __init__ pylint: disable=attribute-defined-outside-init
-
     def _error(self, status, msg=None):
         self.set_status(status)
         if msg is not None:
@@ -535,6 +525,20 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if should_store:
             await self._store_results(result_storage, metrics, results)
+
+        # can't cleanup before storing results as the storage requires context
+        self._cleanup()
+
+    def _cleanup(self):
+        self.context.request_handler = None
+        if hasattr(self.context, "request"):
+            self.context.request.engine = None
+        self.context.modules = None
+        self.context.filters_factory = None
+        self.context.metrics = None
+        self.context.thread_pool = None
+        self.context.transformer = None
+        self.context = None  # Handlers should not override __init__ pylint: disable=attribute-defined-outside-init
 
     async def _write_results_to_client(self, results, content_type):
         max_age = self.context.config.MAX_AGE
