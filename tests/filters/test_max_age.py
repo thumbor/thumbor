@@ -18,7 +18,7 @@ from thumbor.importer import Importer
 
 class BaseMaxAgeFilterTestCase(TestCase):
     def get_fixture_path(self, name):
-        return "./tests/fixtures/%s" % name
+        return f"./tests/fixtures/{name}"
 
     def get_config(self):
         return Config.load(self.get_fixture_path("max_age_conf.py"))

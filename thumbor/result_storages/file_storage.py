@@ -36,7 +36,7 @@ class Storage(BaseStorage):
                 "[RESULT_STORAGE] unable to write outside root path: %s", file_abspath
             )
             return
-        temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace("-", ""))
+        temp_abspath = f"{file_abspath}.{str(uuid4()).replace('-', '')}"
         file_dir_abspath = dirname(file_abspath)
         logger.debug(
             "[RESULT_STORAGE] putting at %s (%s)", file_abspath, file_dir_abspath
@@ -108,14 +108,12 @@ class Storage(BaseStorage):
 
     def normalize_path(self, path):
         digest = hashlib.sha1(unquote(path).encode("utf-8")).hexdigest()
-
-        return "%s/%s/%s/%s/%s" % (
-            self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip("/"),
-            "auto_webp" if self.is_auto_webp else "default",
-            digest[:2],
-            digest[2:4],
-            digest[4:],
+        root_path = self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip(
+            "/"
         )
+        prefix = "auto_webp" if self.is_auto_webp else "default"
+
+        return f"{root_path}/{prefix}/{digest[:2]}/{digest[2:4]}/{digest[4:]}"
 
     def normalize_path_legacy(self, path):
         path = unquote(path)

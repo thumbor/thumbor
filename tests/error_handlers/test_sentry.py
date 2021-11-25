@@ -44,7 +44,7 @@ class FakeRequest:
         self.remote_ip = "127.0.0.1"
 
     def full_url(self):
-        return "http://test/%s" % self.url
+        return f"http://test/{self.url}"
 
 
 class FakeHandler:

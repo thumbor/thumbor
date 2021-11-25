@@ -27,13 +27,14 @@ class SimpleCompatibilityTestCase(TestCase):
     @gen_test
     async def test_can_get_result(self):
         Importer.deprecated_monkey_patch_tornado_return_future()
-        from tests.compatibility.legacy_file_loader import load
+        from tests.compatibility.legacy_file_loader import (  # pylint: disable=import-outside-toplevel
+            load,
+        )
 
         config = Config(FILE_LOADER_ROOT_PATH=STORAGE_PATH)
         ctx = Context(config=config)
         result = await compatibility_get(ctx, "image.jpg", func=load)
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(
-            open(join(STORAGE_PATH, "image.jpg"), "rb").read()
-        )
-        expect(result.successful).to_be_true()
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as img:
+            expect(result.buffer).to_equal(img.read())
+            expect(result.successful).to_be_true()

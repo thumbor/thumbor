@@ -54,7 +54,9 @@ class Optimizer(BaseOptimizer):
             else:
                 logger.warning("jpegtran optimizer scans file does not exist")
 
-        jpg_process = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        jpg_process = Popen(  # pylint: disable=consider-using-with
+            command, stdin=PIPE, stdout=PIPE, stderr=PIPE
+        )
         output_stdout, output_stderr = jpg_process.communicate(buffer)
 
         if jpg_process.returncode != 0:

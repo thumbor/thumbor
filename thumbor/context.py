@@ -116,13 +116,12 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
         if not exists(path):
             raise ValueError(
                 (
-                    "Could not find security key file at %s. "
+                    f"Could not find security key file at {path}. "
                     "Please verify the keypath argument."
                 )
-                % path
             )
 
-        with open(path, "r") as security_key_file:
+        with open(path, "rb") as security_key_file:
             security_key = security_key_file.read().strip()
 
         self.security_key = security_key

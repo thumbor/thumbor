@@ -11,7 +11,7 @@
 import tempfile
 from os.path import expanduser, join
 
-import derpconf.config as config
+from derpconf import config
 from derpconf.config import Config
 
 from thumbor import __version__
@@ -372,7 +372,7 @@ Config.define(
 )
 Config.define(
     "HTTP_LOADER_DEFAULT_USER_AGENT",
-    "Thumbor/%s" % __version__,
+    f"Thumbor/{__version__}",
     "Default user agent for thumbor http loader requests",
     "HTTP Loader",
 )
@@ -784,11 +784,11 @@ def generate_config():
 
 def format_value(value):
     if isinstance(value, str):
-        return "'%s'" % value
+        return f"'{value}'"
     if isinstance(value, (tuple, list, set)):
         representation = "[\n"
         for item in value:
-            representation += "#    %s" % item
+            representation += f"#    {item}"
         representation += "#]"
         return representation
     return value

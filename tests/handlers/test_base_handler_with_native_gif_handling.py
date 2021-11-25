@@ -15,16 +15,11 @@ from mock import Mock
 from preggy import expect
 from tornado.testing import gen_test
 
-from tests.fixtures.images import (
-    not_so_animated_image,
-)
+from tests.fixtures.images import not_so_animated_image
+from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.importer import Importer
-from tests.handlers.test_base_handler import BaseImagingTestCase
-
-# pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
-# pylint: disable=too-many-lines
 
 
 class ImageOperationsWithGifWithoutGifsicle(BaseImagingTestCase):

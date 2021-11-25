@@ -34,14 +34,14 @@ class BaseFileStorageTestCase(TestCase):
         return server
 
     def get_image_path(self, name):
-        return "./tests/fixtures/images/{0}".format(name)
+        return f"./tests/fixtures/images/{name}"
 
     def get_image_bytes(self, name):
         with open(self.get_image_path(name), "rb") as img:
             return img.read()
 
     def get_image_url(self, name):
-        return "s.glbimg.com/some/{0}".format(name)
+        return f"s.glbimg.com/some/{name}"
 
 
 class FileStorageTestCase(BaseFileStorageTestCase):
@@ -203,7 +203,8 @@ class CryptoBadConfFileStorageTestCase(BaseFileStorageTestCase):
 
         msg = "STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
         with expect.error_to_happen(
-            RuntimeError, message=msg,
+            RuntimeError,
+            message=msg,
         ):
             await storage.put_crypto(iurl)
 

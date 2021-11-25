@@ -10,7 +10,8 @@
 
 # This file is copied from legacy way of using thumbor result storages,
 # thus we did not fix lint errors
-# pylint: disable=invalid-overridden-method,redefined-builtin,arguments-differ,logging-not-lazy,inconsistent-return-statements,invalid-name,deprecated-method
+
+# pylint: disable=all
 
 from datetime import datetime
 from os.path import abspath, dirname, exists, getmtime, join

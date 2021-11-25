@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+# pylint: disable=unsupported-membership-test
+
 import datetime
 from io import BytesIO
 from os.path import abspath, dirname, join
@@ -161,7 +163,8 @@ class PilEngineTestCase(TestCase):
         expect(mode).to_equal("RGB")
 
     @skipUnless(
-        METADATA_AVAILABLE, "Pyexiv2 library not found. Skipping metadata tests.",
+        METADATA_AVAILABLE,
+        "Pyexiv2 library not found. Skipping metadata tests.",
     )
     def test_load_image_with_metadata(self):
         engine = Engine(self.context)

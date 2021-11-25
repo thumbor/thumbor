@@ -72,6 +72,6 @@ class FocalPoint:
 
     def __repr__(self):
         return (
-            "FocalPoint(x: %d, y: %d, width: %d, height: %d, weight: %d, origin: %s)"
-            % (self.x, self.y, self.width, self.height, self.weight, self.origin,)
+            f"FocalPoint(x: {self.x}, y: {self.y}, width: {self.width}, "
+            f"height: {self.height}, weight: {self.weight:.0f}, origin: {self.origin})"
         )

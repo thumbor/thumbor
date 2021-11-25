@@ -32,7 +32,9 @@ class BaseFileStorageTestCase(TestCase):
 
     def get_config(self):
         config = super().get_config()
-        self.storage_path = tempfile.TemporaryDirectory()
+        self.storage_path = (
+            tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        )
         config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.storage_path.name
         return config
 
@@ -75,7 +77,9 @@ class FileStorageTestCase(BaseFileStorageTestCase):
 
 class WebPFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
-        self.storage_path = tempfile.TemporaryDirectory()
+        self.storage_path = (
+            tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        )
         return Config(
             AUTO_WEBP=True,
             RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=self.storage_path.name,
@@ -130,7 +134,8 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
         current_timestamp = (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()
         new_mtime = current_timestamp - 60 * 60 * 24
         with mock.patch(
-            "thumbor.result_storages.file_storage.getmtime", return_value=new_mtime,
+            "thumbor.result_storages.file_storage.getmtime",
+            return_value=new_mtime,
         ):
             result = await self.file_storage.get()
         expect(result).to_be_null()

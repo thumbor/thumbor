@@ -125,10 +125,10 @@ class BaseFilter:
     PositiveNumber = {"regex": r"[\d]+", "parse": int}
     PositiveNonZeroNumber = {"regex": r"[\d]*[1-9][\d]*", "parse": int}
     NegativeNumber = {
-        "regex": r"[-]%s" % PositiveNumber["regex"],
+        "regex": f"[-]{PositiveNumber['regex']}",
         "parse": int,
     }
-    Number = {"regex": r"[-]?%s" % PositiveNumber["regex"], "parse": int}
+    Number = {"regex": f"[-]?{PositiveNumber['regex']}", "parse": int}
     DecimalNumber = {
         "regex": r"[-]?(?:(?:[\d]+\.?[\d]*)|(?:[\d]*\.?[\d]+))",
         "parse": float,
@@ -170,11 +170,11 @@ class BaseFilter:
                 optional = "?"
             if i > 0:
                 comma = ","
-            regexes.append(r"(?:%s\s*(%s)\s*)%s" % (comma, val[0], optional))
+            regexes.append(f"(?:{comma}\\s*({val[0]})\\s*){optional}")
             parsers.append(val[1])
 
         cls.parsers = parsers
-        cls.regex_str = r"%s\(%s\)" % (filter_data["name"], "".join(regexes))
+        cls.regex_str = f"{filter_data['name']}\\({''.join(regexes)}\\)"
         cls.regex = re.compile(cls.regex_str)
 
     @classmethod

@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import thumbor.storages as storages
+from thumbor import storages
 from thumbor.compatibility import compatibility_get
 
 
