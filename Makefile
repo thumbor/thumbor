@@ -209,3 +209,8 @@ test-docker-310-run:
 test-docker-310-publish:
 	@docker image tag thumbor-test-310:latest thumbororg/thumbor-test:310
 	@docker push thumbororg/thumbor-test:310
+
+publish:
+	@python setup.py sdist
+	@twine upload dist/*
+	@rm -rf dist/
