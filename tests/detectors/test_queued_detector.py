@@ -53,7 +53,10 @@ class QueuedDetectorTestCase(DetectorTestCase):
                 REDIS_QUEUE_SERVER_DB=0,
                 REDIS_QUEUE_SERVER_PASSWORD=TEST_REDIS_PASSWORD,
             ),
-            request=mock.Mock(image_url="/image/test.jpg", detection_error=False,),
+            request=mock.Mock(
+                image_url="/image/test.jpg",
+                detection_error=False,
+            ),
         )
 
         detector = QueuedDetector(ctx, 1, [])
@@ -85,7 +88,10 @@ class QueuedDetectorTestCase(DetectorTestCase):
                 REDIS_QUEUE_SERVER_DB=0,
                 REDIS_QUEUE_SERVER_PASSWORD=TEST_REDIS_PASSWORD,
             ),
-            request=mock.Mock(image_url="/image/test.jpg", detection_error=False,),
+            request=mock.Mock(
+                image_url="/image/test.jpg",
+                detection_error=False,
+            ),
         )
 
         detector = QueuedDetector(ctx, 1, [])
@@ -105,7 +111,10 @@ class QueuedDetectorTestCase(DetectorTestCase):
                 REDIS_QUEUE_SERVER_DB=0,
                 REDIS_QUEUE_SERVER_PASSWORD=TEST_REDIS_PASSWORD,
             ),
-            request=mock.Mock(image_url="/image/test.jpg", detection_error=False,),
+            request=mock.Mock(
+                image_url="/image/test.jpg",
+                detection_error=False,
+            ),
         )
 
         detector = QueuedDetector(ctx, 1, [])

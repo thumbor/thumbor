@@ -18,7 +18,9 @@ class RoundCornerFilterTestCase(FilterTestCase):
     @gen_test
     async def test_round_corner_filter_with_a_radius(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.round_corner", "round_corner(50,255,0,0)",
+            "source.jpg",
+            "thumbor.filters.round_corner",
+            "round_corner(50,255,0,0)",
         )
         expected = self.get_fixture("round_corner.jpg")
 
@@ -28,7 +30,9 @@ class RoundCornerFilterTestCase(FilterTestCase):
     @gen_test
     async def test_round_corner_filter_with_ab_radius(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.round_corner", "round_corner(50|75,255,0,0)",
+            "source.jpg",
+            "thumbor.filters.round_corner",
+            "round_corner(50|75,255,0,0)",
         )
         expected = self.get_fixture("round_corner1.jpg")
 
@@ -38,7 +42,9 @@ class RoundCornerFilterTestCase(FilterTestCase):
     @gen_test
     async def test_round_corner_filter_with_blue_background(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.round_corner", "round_corner(50,0,0,255)",
+            "source.jpg",
+            "thumbor.filters.round_corner",
+            "round_corner(50,0,0,255)",
         )
         expected = self.get_fixture("round_corner2.jpg")
 
@@ -48,7 +54,9 @@ class RoundCornerFilterTestCase(FilterTestCase):
     @gen_test
     async def test_round_corner_filter_without_transparent(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.round_corner", "round_corner(50,255,0,0,0)",
+            "source.jpg",
+            "thumbor.filters.round_corner",
+            "round_corner(50,255,0,0,0)",
         )
         expected = self.get_fixture("round_corner3.jpg")
 
@@ -58,7 +66,9 @@ class RoundCornerFilterTestCase(FilterTestCase):
     @gen_test
     async def test_round_corner_filter_with_transparent(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.round_corner", "round_corner(50,255,0,0,1)",
+            "source.jpg",
+            "thumbor.filters.round_corner",
+            "round_corner(50,255,0,0,1)",
         )
         expected = self.get_fixture("round_corner3.jpg")
 

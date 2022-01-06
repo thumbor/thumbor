@@ -71,7 +71,9 @@ class ServerTestCase(TestCase):
         conf = Config(THUMBOR_LOG_CONFIG={"level": "INFO"})
         configure_log(conf, "DEBUG")
 
-        params = dict(level="INFO",)
+        params = dict(
+            level="INFO",
+        )
 
         dict_config_mock.assert_called_with(params)
 

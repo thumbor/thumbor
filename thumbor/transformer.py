@@ -209,7 +209,9 @@ class Transformer:
 
         The actual work happens in self.img_operation_worker
         """
-        await self.context.thread_pool.queue(operation=self.img_operation_worker,)
+        await self.context.thread_pool.queue(
+            operation=self.img_operation_worker,
+        )
 
     def img_operation_worker(self):
         if (
@@ -278,18 +280,29 @@ class Transformer:
             )
         else:
             crop_width = int(
-                round(math.ceil(self.target_width * source_height / target_height), 0,)
+                round(
+                    math.ceil(self.target_width * source_height / target_height),
+                    0,
+                )
             )
             crop_height = source_height
 
         crop_left = int(
-            round(min(max(focal_x - (crop_width / 2), 0.0), source_width - crop_width,))
+            round(
+                min(
+                    max(focal_x - (crop_width / 2), 0.0),
+                    source_width - crop_width,
+                )
+            )
         )
         crop_right = min(crop_left + crop_width, source_width)
 
         crop_top = int(
             round(
-                min(max(focal_y - (crop_height / 2), 0.0), source_height - crop_height,)
+                min(
+                    max(focal_y - (crop_height / 2), 0.0),
+                    source_height - crop_height,
+                )
             )
         )
         crop_bottom = min(crop_top + crop_height, source_height)

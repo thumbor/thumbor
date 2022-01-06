@@ -97,7 +97,7 @@ def int2long(i):
 
 
 def checkImages(images):
-    """ checkImages(images)
+    """checkImages(images)
     Check numpy images and correct intensity range etc.
     The same for all movie formats.
     """
@@ -138,14 +138,14 @@ def checkImages(images):
 
 
 class GifWriter:
-    """ GifWriter()
+    """GifWriter()
 
     Class that contains methods for helping write the animated GIF file.
 
     """
 
     def getheaderAnim(self, im):
-        """ getheaderAnim(im)
+        """getheaderAnim(im)
 
         Get animation header. To replace PILs getheader()[0]
 
@@ -157,7 +157,7 @@ class GifWriter:
         return bb
 
     def getImageDescriptor(self, im, xy=None):
-        """ getImageDescriptor(im, xy=None)
+        """getImageDescriptor(im, xy=None)
 
         Used for the local color table properties per image.
         Otherwise global color table applies to all frames irrespective of
@@ -192,7 +192,7 @@ class GifWriter:
         return bb
 
     def getAppExt(self, loops=float("inf")):
-        """ getAppExt(loops=float('inf'))
+        """getAppExt(loops=float('inf'))
 
         Application extention. This part specifies the amount of loops.
         If loops is 0 or inf, it goes on infinitely.
@@ -214,7 +214,7 @@ class GifWriter:
         return bb
 
     def getGraphicsControlExt(self, duration=0.1, dispose=2):
-        """ getGraphicsControlExt(duration=0.1, dispose=2)
+        """getGraphicsControlExt(duration=0.1, dispose=2)
 
         Graphics Control Extension. A sort of header at the start of
         each image. Specifies duration and transparancy.
@@ -242,7 +242,7 @@ class GifWriter:
         return bb
 
     def handleSubRectangles(self, images, subRectangles):
-        """ handleSubRectangles(images)
+        """handleSubRectangles(images)
 
         Handle the sub-rectangle stuff. If the rectangles are given by the
         user, the values are checked. Otherwise the subrectangles are
@@ -292,7 +292,7 @@ class GifWriter:
         return images, xy
 
     def getSubRectangles(self, ims):
-        """ getSubRectangles(ims)
+        """getSubRectangles(ims)
 
         Calculate the minimal rectangles that need updating each frame.
         Returns a two-element tuple containing the cropped images and a
@@ -348,7 +348,7 @@ class GifWriter:
         return ims2, xy
 
     def convertImagesToPIL(self, images, dither, nq=0):
-        """ convertImagesToPIL(images, nq=0)
+        """convertImagesToPIL(images, nq=0)
 
         Convert images to Paletted PIL images, which can then be
         written to a single animaged GIF.
@@ -382,7 +382,7 @@ class GifWriter:
         return images2
 
     def writeGifToFile(self, fp, images, durations, loops, xys, disposes):
-        """ writeGifToFile(fp, images, durations, loops, xys, disposes)
+        """writeGifToFile(fp, images, durations, loops, xys, disposes)
 
         Given a set of images writes the bytes to the specified stream.
 
@@ -466,7 +466,7 @@ def writeGif(
     subRectangles=True,
     dispose=None,
 ):
-    """ writeGif(filename, images, duration=0.1, repeat=True, dither=False,
+    """writeGif(filename, images, duration=0.1, repeat=True, dither=False,
                     nq=0, subRectangles=True, dispose=None)
 
     Write an animated gif from the specified images.
@@ -564,7 +564,7 @@ def writeGif(
 
 
 def readGif(filename, asNumpy=True):
-    """ readGif(filename, asNumpy=True)
+    """readGif(filename, asNumpy=True)
 
     Read images from an animated GIF file.  Returns a list of numpy
     arrays, or, if asNumpy is false, a list if PIL images.

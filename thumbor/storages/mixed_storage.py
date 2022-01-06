@@ -13,7 +13,11 @@ from thumbor.storages import BaseStorage
 
 class Storage(BaseStorage):
     def __init__(
-        self, context, file_storage=None, crypto_storage=None, detector_storage=None,
+        self,
+        context,
+        file_storage=None,
+        crypto_storage=None,
+        detector_storage=None,
     ):
         BaseStorage.__init__(self, context)
 

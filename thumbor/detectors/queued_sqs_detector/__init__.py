@@ -31,7 +31,9 @@ class Detector(BaseDetector):
                 Detector.detect_task = celery_tasks.get_detect_task()
 
             Detector.detect_task.delay(
-                "all", self.context.request.image_url, self.context.request.image_url,
+                "all",
+                self.context.request.image_url,
+                self.context.request.image_url,
             )
         except RuntimeError:
             self.context.request.detection_error = True

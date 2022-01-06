@@ -61,8 +61,9 @@ def get_importer(config):
     importer.import_modules()
 
     if importer.error_handler_class is not None:
-        importer.error_handler = importer.error_handler_class(config)  # pylint: disable=not-callable
-
+        importer.error_handler = (
+            importer.error_handler_class(config)  # pylint: disable=not-callable
+        )
     return importer
 
 
@@ -105,7 +106,9 @@ def run_server(application, context):
         fd_number = get_as_integer(context.server.fd)
         if fd_number is not None:
             # TODO: replace with socket.socket(fileno=fd_number) when we require Python>=3.7
-            sock = socket_from_fd(fd_number, True)  # pylint: disable=too-many-function-args
+            sock = socket_from_fd(  # pylint: disable=too-many-function-args
+                fd_number, True
+            )
         else:
             sock = bind_unix_socket(context.server.fd)
 

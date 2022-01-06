@@ -31,7 +31,9 @@ class FocalFilterTestCase(FilterTestCase):
     @gen_test
     async def test_focal_filter_no_change(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.focal", "focal(0x0:400x600)",
+            "source.jpg",
+            "thumbor.filters.focal",
+            "focal(0x0:400x600)",
         )
         expected = self.get_fixture("source.jpg")
 

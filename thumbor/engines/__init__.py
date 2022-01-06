@@ -32,7 +32,10 @@ except ImportError:
 
 WEBP_SIDE_LIMIT = 16383
 
-SVG_RE = re.compile(b"<svg\s[^>]*([\"'])http[^\"']*svg[^\"']*", re.I)  # pylint: disable=anomalous-backslash-in-string
+SVG_RE = re.compile(
+    b"<svg\s[^>]*([\"'])http[^\"']*svg[^\"']*",  # pylint: disable=anomalous-backslash-in-string
+    re.I,
+)
 
 
 class EngineResult:
@@ -78,7 +81,8 @@ class MultipleEngine:
 
     def read(self, extension=None, quality=None):
         return self.source_engine.read_multiple(
-            [frame_engine.image for frame_engine in self.frame_engines], extension,
+            [frame_engine.image for frame_engine in self.frame_engines],
+            extension,
         )
 
     def size(self):
@@ -356,8 +360,8 @@ class BaseEngine:
         raise NotImplementedError()
 
     def get_image_mode(self):
-        """ Possible return values should be: RGB, RBG, GRB, GBR,
-            BRG, BGR, RGBA, AGBR, ...  """
+        """Possible return values should be: RGB, RBG, GRB, GBR,
+        BRG, BGR, RGBA, AGBR, ..."""
         raise NotImplementedError()
 
     def paste(self, other_engine, pos, merge=True):
