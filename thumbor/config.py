@@ -749,6 +749,11 @@ Config.define(
     "This config value is overridden by the -a command-line parameter.",
 )
 
+Config.define(
+    'ACCESS_CONTROL_ALLOW_ORIGIN_HEADER', False,
+    'Sends Access-Control-Allow-Origin header'
+)
+
 
 # COMPATIBILITY
 
