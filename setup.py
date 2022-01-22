@@ -20,7 +20,7 @@ except ImportError:
     __version__ = "0.0.0"
 
 TESTS_REQUIREMENTS = [
-    "cairosvg!=1.0.21,<2.0.0,>=1.0.0",
+    "cairosvg>=2.5.2",
     "colorama==0.*,>=0.4.3",
     "coverage==5.*,>=5.0.3",
     "flake8==3.*,>=3.7.9",
