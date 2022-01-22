@@ -1,5 +1,16 @@
 So you want to contribute with thumbor? Awesome! Welcome aboard!
 
+## First things first
+
+What kind of contribution are you aiming for?
+
+* Is it a new feature, improving the docs or a bug fix?
+* Should it be available for users of python 3 (thumbor 7.0.0+) or python2?
+
+If you answered python 2, then the first question can only be true for a bug fix. If that's the case, you are fixing a bug in our python 2 version, please start from the version in branch `fixes/6.7.x`. Othewise you can do a pull request for thumbor's master branch.
+
+Creating new features in python 2 is not supported anymore. Please do not ask as we cannot keep maintaining a version that's dead.
+
 ## Steps
 
 There are a few things you'll need in order to properly start hacking on
@@ -26,26 +37,13 @@ We seriously advise you to use
 your environment clean of thumbor's dependencies and you can choose when
 to "turn them on".
 
-You'll also need python \>= 3.7 and [python
-poetry](https://python-poetry.org/).
-
-Installing poetry should be as easy as `pip install poetry`, but you can
-find more about it in their website.
-
 Other than that, you'll also need `<span class="title-ref">redis-server
 \<https://redis.io\></span>\` installed (for queued detector unit
 tests).
 
 ## Initializing the Environment
 
-Once you've created your virtualenv, and installed poetry, make sure you
-can use poetry:
-
-    $ poetry --version
-    Poetry version 1.0.3
-
-You should see something similar. After that we just need to download
-all python packages with:
+You can install thumbor dev dependencies with:
 
     $ make setup
 
