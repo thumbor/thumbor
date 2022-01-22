@@ -228,8 +228,8 @@ class BaseEngine:
         self.source_height = height
 
         if (
-            width <= self.context.config.MAX_WIDTH
-            and height <= self.context.config.MAX_HEIGHT
+            width > self.context.config.MAX_WIDTH
+            or height > self.context.config.MAX_HEIGHT
         ):
             width_diff = width - self.context.config.MAX_WIDTH
             height_diff = height - self.context.config.MAX_HEIGHT
