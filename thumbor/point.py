@@ -40,7 +40,15 @@ class FocalPoint:
             origin=values.get("origin", "alignment"),
         )
 
-    def __init__(self, x, y, height=1, width=1, weight=1.0, origin="alignment"):
+    def __init__(
+        self,
+        x,  # pylint: disable=invalid-name
+        y,  # pylint: disable=invalid-name
+        height=1,
+        width=1,
+        weight=1.0,
+        origin="alignment",
+    ):
         self.x = int(x)  # pylint: disable=invalid-name
         self.y = int(y)  # pylint: disable=invalid-name
         self.height = int(height)

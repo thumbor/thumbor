@@ -53,6 +53,7 @@ class ImageOperationsWithMaxWidthAndMaxHeight(BaseImagingTestCase):
         expect(response.headers["Content-Type"]).to_equal("image/jpeg")
         expect(engine.size).to_equal((150, 150))
 
+
 class ImageOperationsWithMaxWidthAndMaxHeightShouldNotUpscale(BaseImagingTestCase):
     def get_context(self):
         cfg = Config(SECURITY_KEY="ACME-SEC")
@@ -64,11 +65,11 @@ class ImageOperationsWithMaxWidthAndMaxHeightShouldNotUpscale(BaseImagingTestCas
         cfg.AUTO_WEBP = True
         cfg.MAX_AGE = 315360000
         cfg.ENGINE_THREADPOOL_SIZE = 2
-        cfg.STORAGE = 'thumbor.storages.no_storage'
+        cfg.STORAGE = "thumbor.storages.no_storage"
 
         # Tried with optimizer on and off and made no difference
         cfg.OPTIMIZERS = [
-                'thumbor.optimizers.jpegtran'
+            "thumbor.optimizers.jpegtran",
         ]
 
         cfg.RESULT_STORAGE = "thumbor.result_storages.no_storage"
@@ -81,10 +82,11 @@ class ImageOperationsWithMaxWidthAndMaxHeightShouldNotUpscale(BaseImagingTestCas
 
         return ctx
 
-
     @gen_test
     async def test_should_return_original_image_size(self):
-        response = await self.async_fetch("/unsafe/filters:format(jpeg)/very-small-jpeg.jpg")
+        response = await self.async_fetch(
+            "/unsafe/filters:format(jpeg)/very-small-jpeg.jpg"
+        )
 
         engine = Engine(self.context)
         engine.load(response.body, ".jpg")

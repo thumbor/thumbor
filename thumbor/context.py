@@ -75,13 +75,13 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         port,
-        ip,
+        ip,  # pylint: disable=invalid-name
         config_path,
         keyfile,
         log_level,
         app_class,
         debug=False,
-        fd=None,
+        fd=None,  # pylint: disable=invalid-name
         gifsicle_path=None,
         use_environment=False,
         processes=1,
