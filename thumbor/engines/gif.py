@@ -10,6 +10,7 @@
 
 import re
 from io import BytesIO
+from shutil import which
 from subprocess import PIPE, Popen
 
 from PIL import Image
@@ -21,6 +22,7 @@ GIFSICLE_SIZE_REGEX = re.compile(r"(?:logical\sscreen\s(\d+x\d+))")
 GIFSICLE_IMAGE_COUNT_REGEX = re.compile(r"(?:(\d+)\simage)")
 
 
+# TODO: Rename this weird error to GifsicleError
 class GifSicleError(RuntimeError):
     pass
 
@@ -31,6 +33,12 @@ class Engine(PILEngine):
         return self.image_size
 
     def run_gifsicle(self, command):
+        if self.context.server.gifsicle_path is None or \
+                not which(self.context.server.gifsicle_path):
+            raise GifSicleError(
+                "gifsicle command was not found and it is required"
+                " for your configuration of Thumbor"
+            )
         process = Popen(  # pylint: disable=consider-using-with
             [self.context.server.gifsicle_path] + command.split(" "),
             stdout=PIPE,
