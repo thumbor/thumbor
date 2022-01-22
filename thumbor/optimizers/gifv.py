@@ -47,7 +47,7 @@ class Optimizer(BaseOptimizer):
             "-f",
             "gif",
             "-trans_color",
-            "0xff%s" % (bg_color_hex[1:] if bg_color_hex else "ffffff"),
+            f"0xff{(bg_color_hex[1:] if bg_color_hex else 'ffffff')}",
             "-i",
             input_file,
             "-filter_complex",
@@ -84,7 +84,7 @@ class Optimizer(BaseOptimizer):
     def set_format(self):
         if "webm" in self.context.request.filters:
             file_format = "webm"
-            command_params = ["-quality", "good", "-cpu-used", "4"]
+            command_params = ["-quality", "good", "-cpu-used", "4", "-b:v", "500k"]
         else:
             file_format = "mp4"
             command_params = ["-profile:v", "baseline", "-level", "4.0"]
@@ -108,3 +108,5 @@ class Optimizer(BaseOptimizer):
 
         if color_string:
             logger.error("background_color value could not be parsed")
+
+        return None

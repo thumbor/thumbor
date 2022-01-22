@@ -72,3 +72,16 @@ configuration:
 
 As you can see, you still have to tell thumbor the specific
 configurations for each storage you choose.
+
+Compatibility Storage
+~~~~~~~~~~~~~~~~~~~~~
+
+The compatibility storage allows you to use legacy storages (that do not support AsyncIO)
+in order to make it easier to transition to thumbor's Python 3 version.
+
+To use it you should set the **STORAGE** configuration to
+**'thumbor.compatibility.storage'**.
+
+You also need to specify what's the legacy storage that the compatibility storage will use.
+Just set the **COMPATIBILITY_LEGACY_STORAGE** configuration to the full name of the legacy
+storage you want to use. i.e.: COMPATIBILITY_LEGACY_STORAGE = 'tc_aws.storages.s3_storage'

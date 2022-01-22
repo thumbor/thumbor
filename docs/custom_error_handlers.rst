@@ -20,7 +20,9 @@ called ``ErrorHandler``, like the one below:
 
 When you have your handler done, just put it's full name in thumbor.conf
 and make sure thumbor can import it (it's somewhere in PYTHONPATH).
+You also need to set ``USE_CUSTOM_ERROR_HANDLING`` to ``True``.
 
 .. code:: python
 
+   USE_CUSTOM_ERROR_HANDLING = True
    ERROR_HANDLER_MODULE = 'mylib.error_handling'

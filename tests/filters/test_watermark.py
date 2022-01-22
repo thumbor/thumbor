@@ -91,7 +91,9 @@ class WatermarkFilterTestCase(FilterTestCase):
     @gen_test
     async def test_watermark_filter_detect_extension_simple(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.watermark", "watermark(watermark,30,-50,60)",
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark,30,-50,60)",
         )
         expected = self.get_fixture("watermarkSimple.jpg")
         ssim = self.get_ssim(image, expected)
@@ -246,7 +248,10 @@ class WatermarkFilterTestCase(FilterTestCase):
                         watermark_image_height,
                     ) = filter_instance.calc_watermark_size(
                         (source_image_width, source_image_height),
-                        (watermark_source_image_width, watermark_source_image_height,),
+                        (
+                            watermark_source_image_width,
+                            watermark_source_image_height,
+                        ),
                         w_ratio,
                         h_ratio,
                     )

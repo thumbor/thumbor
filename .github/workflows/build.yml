@@ -11,6 +11,7 @@ jobs:
           - 37
           - 38
           - 39
+          - 310
     container: thumbororg/thumbor-test:${{ matrix.image-tag }}
     steps:
       - uses: actions/checkout@v2
@@ -25,7 +26,6 @@ jobs:
       - name: Run Integration Tests
         run: env ASYNC_TEST_TIMEOUT=30 make integration_run
       - name: Lint
-        if: matrix.image-tag == '39'
         run: make flake pylint
       - name: Coveralls
         if: matrix.image-tag == '39'

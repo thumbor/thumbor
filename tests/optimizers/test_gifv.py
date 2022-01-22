@@ -55,7 +55,7 @@ class GifvOptimizerTest(TestCase):
 
     def test_should_parse_background_color_with_valid_value(self):
         optimizer = Optimizer(self.get_context())
-        magenta_unicode_hex = u"#ff00ff"
+        magenta_unicode_hex = "#ff00ff"
         self.assertEqual(
             optimizer.normalize_color_to_hex("ff00ff"), magenta_unicode_hex
         )

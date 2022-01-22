@@ -20,7 +20,7 @@ class Filter(BaseFilter):
             self.fill_engine.image = self.fill_engine.gen_image((width, height), color)
         except (ValueError, RuntimeError):
             self.fill_engine.image = self.fill_engine.gen_image(
-                (width, height), "#%s" % color
+                (width, height), f"#{color}"
             )
         self.fill_engine.paste(self.engine, (0, 0), merge=True)
         self.engine.image = self.fill_engine.image

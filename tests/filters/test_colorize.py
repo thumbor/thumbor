@@ -18,7 +18,9 @@ class ColorizeFilterTestCase(FilterTestCase):
     @gen_test
     async def test_colorize_filter(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.colorize", "colorize(40,80,20,ffffff)",
+            "source.jpg",
+            "thumbor.filters.colorize",
+            "colorize(40,80,20,ffffff)",
         )
         expected = self.get_fixture("colorize.jpg")
 

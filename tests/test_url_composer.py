@@ -56,11 +56,16 @@ class UrlComposerTestCase(TestCase):
         )
 
     def test_get_thumbor_params(self):
-        params = mock.Mock(key_file="./tests/fixtures/thumbor.key", crop=None,)
+        params = mock.Mock(
+            key_file="./tests/fixtures/thumbor.key",
+            crop=None,
+        )
         config = mock.Mock()
 
         security_key, thumbor_params = get_thumbor_params(
-            "/image/url.jpg", params, config,
+            "/image/url.jpg",
+            params,
+            config,
         )
 
         expect(security_key).to_equal("SECURITY_KEY_FILE")
@@ -68,12 +73,15 @@ class UrlComposerTestCase(TestCase):
 
     def test_get_thumbor_params_with_crop(self):
         params = mock.Mock(
-            key_file="./tests/fixtures/thumbor.key", crop="300x200:400x500",
+            key_file="./tests/fixtures/thumbor.key",
+            crop="300x200:400x500",
         )
         config = mock.Mock()
 
         security_key, thumbor_params = get_thumbor_params(
-            "/image/url.jpg", params, config,
+            "/image/url.jpg",
+            params,
+            config,
         )
 
         expect(security_key).to_equal("SECURITY_KEY_FILE")
@@ -85,12 +93,18 @@ class UrlComposerTestCase(TestCase):
 
     def test_get_thumbor_params_full_adaptive_fitin_false(self):
         params = mock.Mock(
-            key_file=None, crop=None, fitin=False, full=False, adaptive=False,
+            key_file=None,
+            crop=None,
+            fitin=False,
+            full=False,
+            adaptive=False,
         )
         config = mock.Mock(SECURITY_KEY="woot")
 
         security_key, thumbor_params = get_thumbor_params(
-            "/image/url.jpg", params, config,
+            "/image/url.jpg",
+            params,
+            config,
         )
 
         expect(security_key).not_to_be_null()
@@ -101,12 +115,18 @@ class UrlComposerTestCase(TestCase):
 
     def test_get_thumbor_params_full_adaptive_fitin(self):
         params = mock.Mock(
-            key_file=None, crop=None, fitin=True, full=True, adaptive=True,
+            key_file=None,
+            crop=None,
+            fitin=True,
+            full=True,
+            adaptive=True,
         )
         config = mock.Mock(SECURITY_KEY="woot")
 
         security_key, thumbor_params = get_thumbor_params(
-            "/image/url.jpg", params, config,
+            "/image/url.jpg",
+            params,
+            config,
         )
 
         expect(security_key).not_to_be_null()
@@ -114,12 +134,18 @@ class UrlComposerTestCase(TestCase):
 
     def test_get_thumbor_params_adaptive_fitin(self):
         params = mock.Mock(
-            key_file=None, crop=None, fitin=True, full=False, adaptive=True,
+            key_file=None,
+            crop=None,
+            fitin=True,
+            full=False,
+            adaptive=True,
         )
         config = mock.Mock(SECURITY_KEY="woot")
 
         security_key, thumbor_params = get_thumbor_params(
-            "/image/url.jpg", params, config,
+            "/image/url.jpg",
+            params,
+            config,
         )
 
         expect(security_key).not_to_be_null()
@@ -127,12 +153,18 @@ class UrlComposerTestCase(TestCase):
 
     def test_get_thumbor_params_full_fitin(self):
         params = mock.Mock(
-            key_file=None, crop=None, fitin=True, full=True, adaptive=False,
+            key_file=None,
+            crop=None,
+            fitin=True,
+            full=True,
+            adaptive=False,
         )
         config = mock.Mock(SECURITY_KEY="woot")
 
         security_key, thumbor_params = get_thumbor_params(
-            "/image/url.jpg", params, config,
+            "/image/url.jpg",
+            params,
+            config,
         )
 
         expect(security_key).not_to_be_null()
@@ -140,12 +172,18 @@ class UrlComposerTestCase(TestCase):
 
     def test_get_thumbor_params_fitin(self):
         params = mock.Mock(
-            key_file=None, crop=None, fitin=True, full=False, adaptive=False,
+            key_file=None,
+            crop=None,
+            fitin=True,
+            full=False,
+            adaptive=False,
         )
         config = mock.Mock(SECURITY_KEY="woot")
 
         security_key, thumbor_params = get_thumbor_params(
-            "/image/url.jpg", params, config,
+            "/image/url.jpg",
+            params,
+            config,
         )
 
         expect(security_key).not_to_be_null()

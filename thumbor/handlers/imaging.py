@@ -43,12 +43,13 @@ class ImagingHandler(ContextHandler):
         has_both = self.context.request.unsafe and self.context.request.hash
 
         if has_none or has_both:
-            self._error(400, "URL does not have hash or unsafe, or has both: %s" % url)
+            self._error(400, f"URL does not have hash or unsafe, or has both: {url}")
             return
 
         if self.context.request.unsafe and not self.context.config.ALLOW_UNSAFE_URL:
             self._error(
-                400, "URL has unsafe but unsafe is not allowed by the config: %s" % url,
+                400,
+                f"URL has unsafe but unsafe is not allowed by the config: {url}",
             )
             return
 
@@ -57,8 +58,7 @@ class ImagingHandler(ContextHandler):
             if self.context.request.image_url in blacklist:
                 self._error(
                     400,
-                    "Source image url has been blacklisted: %s"
-                    % self.context.request.image_url,
+                    f"Source image url has been blacklisted: {self.context.request.image_url}",
                 )
                 return
 
@@ -69,12 +69,12 @@ class ImagingHandler(ContextHandler):
             try:
                 quoted_hash = quote(self.context.request.hash)
             except KeyError:
-                self._error(400, "Invalid hash: %s" % self.context.request.hash)
+                self._error(400, f"Invalid hash: {self.context.request.hash}")
                 return
 
-            url_to_validate = url.replace(
-                "/%s/" % self.context.request.hash, ""
-            ).replace("/%s/" % quoted_hash, "")
+            url_to_validate = url.replace(f"/{self.context.request.hash}/", "").replace(
+                f"/{quoted_hash}/", ""
+            )
 
             valid = signer.validate(unquote(url_signature).encode(), url_to_validate)
 
@@ -88,7 +88,7 @@ class ImagingHandler(ContextHandler):
                     valid = signer.validate(url_signature.encode(), url_to_validate)
 
             if not valid:
-                self._error(400, "Malformed URL: %s" % url)
+                self._error(400, f"Malformed URL: {url}")
                 return
 
         return await self.execute_image_operations()

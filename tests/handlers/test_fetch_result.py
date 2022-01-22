@@ -8,15 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from tests.base import TestCase
-
-from preggy import expect
 from mock import Mock
+from preggy import expect
 
-from thumbor.handlers import BaseHandler, FetchResult
-
-# pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
-# pylint: disable=too-many-lines
+from tests.base import TestCase
+from thumbor.handlers import FetchResult
 
 
 class FetchResultTestCase(TestCase):

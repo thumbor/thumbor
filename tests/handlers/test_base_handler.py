@@ -14,25 +14,22 @@ from os.path import abspath, dirname, join
 from shutil import which
 from urllib.parse import quote
 
-from preggy import expect
 import tornado.web
+from preggy import expect
 from tornado.testing import gen_test
+
+from tests.base import TestCase
 from tests.fixtures.images import (
     alabama1,
     default_image,
     invalid_quantization,
     space_image,
 )
-
-from tests.base import TestCase
-from thumbor.handlers import BaseHandler
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.engines.pil import Engine
+from thumbor.handlers import BaseHandler
 from thumbor.importer import Importer
-
-# pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
-# pylint: disable=too-many-lines
 
 JPEGTRAN_AVAILABLE = which("jpegtran") is not None
 EXIFTOOL_AVAILABLE = which("exiftool") is not None
@@ -95,10 +92,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_can_get_unicode_image(self):
-        response = await self.async_fetch(
-            u"/unsafe/%s"
-            % quote(u"15967251_212831_19242645_АгатавЗоопарке.jpg".encode("utf-8"))
-        )
+        enc_url = quote("15967251_212831_19242645_АгатавЗоопарке.jpg".encode("utf-8"))
+        response = await self.async_fetch(f"/unsafe/{enc_url}")
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(default_image())
 
@@ -135,7 +130,7 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_image_with_spaces_on_url(self):
-        response = await self.async_fetch(u"/unsafe/image%20space.jpg")
+        response = await self.async_fetch("/unsafe/image%20space.jpg")
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(space_image())
 

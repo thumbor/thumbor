@@ -51,7 +51,7 @@ class EchoUserAgentHandler(tornado.web.RequestHandler):
 class EchoAllHeadersHandler(tornado.web.RequestHandler):
     async def get(self):
         for header, value in sorted(self.request.headers.items()):
-            self.write("%s:%s\n" % (header, value))
+            self.write(f"{header}:{value}\n")
 
 
 class HandlerMock:

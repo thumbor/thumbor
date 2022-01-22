@@ -21,6 +21,13 @@ def import_class(name, get_module=False):
     return module if get_module else getattr(module, klass)
 
 
+def noop(func):
+    def noop_decorator(*args, **kw):
+        return func(*args, **kw)  # pass through
+
+    return noop_decorator
+
+
 # Unfortunately this is a very useful class and rearchitecting it is going to be hard
 # So while we agree that it has too many attributes, it will remain like that for now
 class Importer:  # pylint: disable=too-many-instance-attributes
@@ -40,6 +47,9 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         self.handler_lists = []
         self.error_handler_module = None
         self.error_handler_class = None
+        self.compatibility_legacy_loader = None
+        self.compatibility_legacy_storage = None
+        self.compatibility_legacy_result_storage = None
 
     @staticmethod
     def import_class(name, get_module=False, validate_fn=None):
@@ -49,6 +59,13 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         return kls
 
     def import_modules(self):
+        if (
+            self.config.COMPATIBILITY_LEGACY_LOADER
+            or self.config.COMPATIBILITY_LEGACY_STORAGE
+            or self.config.COMPATIBILITY_LEGACY_RESULT_STORAGE
+        ):
+            Importer.deprecated_monkey_patch_tornado_return_future()
+
         self.config.validates_presence_of(
             "ENGINE",
             "GIF_ENGINE",
@@ -82,6 +99,22 @@ class Importer:  # pylint: disable=too-many-instance-attributes
             self.import_item("ERROR_HANDLER_MODULE", "ErrorHandler")
             self.error_handler_class = self.error_handler_module
 
+        if self.config.COMPATIBILITY_LEGACY_LOADER:
+            self.import_item("COMPATIBILITY_LEGACY_LOADER")
+
+        if self.config.COMPATIBILITY_LEGACY_STORAGE:
+            self.import_item("COMPATIBILITY_LEGACY_STORAGE", "Storage")
+
+        if self.config.COMPATIBILITY_LEGACY_RESULT_STORAGE:
+            self.import_item("COMPATIBILITY_LEGACY_RESULT_STORAGE", "Storage")
+
+    @staticmethod
+    def deprecated_monkey_patch_tornado_return_future():
+        import tornado.concurrent  # pylint: disable=import-outside-toplevel
+
+        if not hasattr(tornado.concurrent, "return_future"):
+            setattr(tornado.concurrent, "return_future", noop)
+
     def import_item(
         self,
         config_key=None,
@@ -106,7 +139,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
             )
         else:
             if class_name is not None:
-                module = self.import_class("%s.%s" % (conf_value, class_name))
+                module = self.import_class(f"{conf_value}.{class_name}")
             else:
                 module = self.import_class(conf_value, get_module=True)
             setattr(self, config_key.lower(), module)
@@ -130,7 +163,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
                             )
                         else:
                             module = self.import_class(
-                                "%s.%s" % (module_name, class_name),
+                                f"{module_name}.{class_name}",
                                 validate_fn=validate_fn,
                             )
                     else:
@@ -141,7 +174,9 @@ class Importer:  # pylint: disable=too-many-instance-attributes
                 except ImportError as error:
                     if ignore_errors:
                         logger.warning(
-                            "Module %s could not be imported: %s", module_name, error,
+                            "Module %s could not be imported: %s",
+                            module_name,
+                            error,
                         )
                     else:
                         raise

@@ -24,8 +24,7 @@ class ErrorHandler:
         ):
             raise RuntimeError(
                 r"ERROR_FILE_NAME_USE_CONTEXT config must refer an attribute of context "
-                r"object and be form of ^(\w+.)?\w+$ : %s"
-                % config.ERROR_FILE_NAME_USE_CONTEXT
+                f"object and be form of ^(\\w+.)?\\w+$ : {config.ERROR_FILE_NAME_USE_CONTEXT}"
             )
         self.file_name = config.ERROR_FILE_LOGGER
         if config.ERROR_FILE_NAME_USE_CONTEXT:

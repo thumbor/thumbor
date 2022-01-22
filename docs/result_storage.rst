@@ -33,3 +33,16 @@ implies, it specifies the number of seconds with which files expire.
 
 To use it you should set the ``RESULT_STORAGE`` configuration to
 ``'thumbor.result_storages.file_storage'``.
+
+Compatibility Result Storage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The compatibility result storage allows you to use legacy result storages (that do not support AsyncIO)
+in order to make it easier to transition to thumbor's Python 3 version.
+
+To use it you should set the **RESULT_STORAGE** configuration to
+**'thumbor.compatibility.result_storage'**.
+
+You also need to specify what's the legacy result storage that the compatibility result storage will use.
+Just set the **COMPATIBILITY_LEGACY_RESULT_STORAGE** configuration to the full name of the legacy
+result storage you want to use. i.e.: COMPATIBILITY_LEGACY_RESULT_STORAGE = 'tc_aws.result_storages.s3_storage'

@@ -9,24 +9,19 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import os
-from shutil import which
 from os.path import dirname
+from shutil import which
 
 from mock import Mock, patch
 from preggy import expect
 from tornado.testing import gen_test
 
-from tests.fixtures.images import (
-    animated_image,
-)
+from tests.fixtures.images import animated_image
+from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.importer import Importer
 from thumbor.result_storages.file_storage import Storage as FileResultStorage
-from tests.handlers.test_base_handler import BaseImagingTestCase
-
-# pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
-# pylint: disable=too-many-lines
 
 JPEGTRAN_AVAILABLE = which("jpegtran") is not None
 EXIFTOOL_AVAILABLE = which("exiftool") is not None

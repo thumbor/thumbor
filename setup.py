@@ -20,6 +20,8 @@ except ImportError:
     __version__ = "0.0.0"
 
 TESTS_REQUIREMENTS = [
+    # Going to update in a proper commit
+    #  "cairosvg>=2.5.2",
     "cairosvg!=1.0.21,<2.0.0,>=1.0.0",
     "colorama==0.*,>=0.4.3",
     "coverage==5.*,>=5.0.3",
@@ -32,11 +34,11 @@ TESTS_REQUIREMENTS = [
     "pycurl==7.*,>=7.43.0",
     "pylint==2.*,>=2.4.4",
     "pyssim==0.*,>=0.4.0",
-    "pytest==5.*,>=5.3.5",
+    "pytest>=6.2.5",
     "pytest-asyncio==0.*,>=0.10.0",
-    "pytest-cov==2.*,>=2.8.1",
+    "pytest-cov==3.*,>=3.0.0",
     "pytest-tldr==0.*,>=0.2.1",
-    "pytest-xdist==1.*,>=1.31.0",
+    "pytest-xdist==2.*,>=2.4.0",
     "redis==3.*,>=3.4.0",
     "remotecv>=2.3.0",
     "sentry-sdk==0.*,>=0.14.1",
@@ -46,8 +48,8 @@ TESTS_REQUIREMENTS = [
 
 def filter_extension_module(name, lib_objs, lib_headers):
     return Extension(
-        "thumbor.ext.filters.%s" % name,
-        ["thumbor/ext/filters/%s.c" % name] + lib_objs,
+        f"thumbor.ext.filters.{name}",
+        [f"thumbor/ext/filters/{name}.c"] + lib_objs,
         libraries=["m"],
         include_dirs=["thumbor/ext/filters/lib"],
         depends=["setup.py"] + lib_objs + lib_headers,
@@ -116,7 +118,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.0",
             "opencv-python-headless==4.*,>=4.2.0",
-            "Pillow>=7.0.0,<9",
+            "Pillow>=8.4.0,<9",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
             "socketfromfd>=0.2.0",
@@ -139,9 +141,9 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
 
 try:
     run_setup(gather_filter_extensions())
-except SystemExit as exit:
-    print("\n\n%s" % ("*" * 66))
-    logging.exception(exit)
-    print("\n\n%s" % ("*" * 66))
+except SystemExit as exit_error:
+    print(f"\n\n{'*' * 66}")
+    logging.exception(exit_error)
+    print(f"\n\n{'*' * 66}")
     print("Couldn't build one or more native extensions" ", skipping compilation.\n\n")
     run_setup()

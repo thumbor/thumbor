@@ -75,13 +75,13 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         port,
-        ip,
+        ip,  # pylint: disable=invalid-name
         config_path,
         keyfile,
         log_level,
         app_class,
         debug=False,
-        fd=None,
+        fd=None,  # pylint: disable=invalid-name
         gifsicle_path=None,
         use_environment=False,
         processes=1,
@@ -116,13 +116,12 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
         if not exists(path):
             raise ValueError(
                 (
-                    "Could not find security key file at %s. "
+                    f"Could not find security key file at {path}. "
                     "Please verify the keypath argument."
                 )
-                % path
             )
 
-        with open(path, "r") as security_key_file:
+        with open(path, "rb") as security_key_file:
             security_key = security_key_file.read().strip()
 
         self.security_key = security_key
@@ -264,6 +263,20 @@ class ContextImporter:  # pylint: disable=too-few-public-methods,too-many-instan
         self.filters = importer.filters
         self.optimizers = importer.optimizers
         self.url_signer = importer.url_signer
+
+        self.compatibility_legacy_loader = importer.compatibility_legacy_loader
+
+        self.compatibility_legacy_storage = None
+        if importer.compatibility_legacy_storage is not None:
+            self.compatibility_legacy_storage = importer.compatibility_legacy_storage(
+                context
+            )
+
+        self.compatibility_legacy_result_storage = None
+        if importer.compatibility_legacy_result_storage is not None:
+            self.compatibility_legacy_result_storage = (
+                importer.compatibility_legacy_result_storage(context)
+            )
 
     def cleanup(self):
         if self.engine:

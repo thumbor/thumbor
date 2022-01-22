@@ -148,6 +148,6 @@ class JSONEngine(BaseEngine):
         thumbor_json = json.dumps(thumbor_json)
 
         if self.callback_name:
-            return "%s(%s);" % (self.callback_name, thumbor_json)
+            return f"{self.callback_name}({thumbor_json});"
 
         return thumbor_json

@@ -30,14 +30,9 @@ from thumbor.transformer import Transformer
 def get_ssim(actual, expected):
     if actual.size[0] != expected.size[0] or actual.size[1] != expected.size[1]:
         raise RuntimeError(
-            "Can't calculate SSIM for images of different sizes "
-            "(one is %dx%d, the other %dx%d)."
-            % (
-                actual.size[0],
-                actual.size[1],
-                expected.size[0],
-                expected.size[1],
-            )
+            "Can't calculate SSIM for images of different sizes ("
+            f"one is {actual.size[0]}x{actual.size[1]}, "
+            f"the other {expected.size[0]}x{expected.size[1]}).",
         )
 
     return compute_ssim(actual, expected)
@@ -249,16 +244,15 @@ class FilterTestCase(TestCase):
 
     def debug(self, image):  # pylint: disable=arguments-differ
         image = Image.fromarray(image)
-        path = "/tmp/debug_image_%s.jpg" % random.randint(1, 10000)
+        path = f"/tmp/debug_image_{random.randint(1, 10000)}.jpg"
         image.save(path, "JPEG")
-        print("The debug image was in %s." % path)
+        print(f"The debug image was in {path}.")
 
     @staticmethod
     def debug_size(image):
         loaded = Image.fromarray(image)
         print(
-            "Image dimensions are %dx%d (shape is %s)"
-            % (loaded.size[0], loaded.size[1], image.shape)
+            f"Image dimensions are {loaded.size[0]}x{loaded.size[1]} (shape is {image.shape})"
         )
 
 

@@ -85,28 +85,24 @@ RATIOS = [
 def to_fit_into(topic, boundary, **kwargs):
     assert (
         topic <= boundary
-    ), "Expected topic({topic}) to fit into boundary {boundary} with test: {test}".format(
-        topic=topic, boundary=boundary, test=kwargs
-    )
+    ), f"Expected topic({topic}) to fit into boundary {boundary} with test: {kwargs}"
 
 
 @preggy.assertion
 def to_be_true_with_additional_info(topic, **kwargs):
-    assert topic, "Expected topic to be true with test: {test}".format(test=kwargs)
+    assert topic, f"Expected topic to be true with test: {kwargs}"
 
 
 @preggy.assertion
 def to_be_equal_with_additional_info(topic, expected, **kwargs):
     assert (
         topic == expected
-    ), "Expected topic({topic}) to be ({expected}) with test: {test}".format(
-        topic=topic, expected=expected, test=kwargs
-    )
+    ), f"Expected topic({topic}) to be ({expected}) with test: {kwargs}"
 
 
 @preggy.assertion
 def to_almost_equal(topic, expected, differ, **kwargs):
     assert abs(1 - topic / expected) <= (differ / 100.0), (
-        "Expected topic({topic}) to be almost equal expected"
-        "({expected}) differing only in {percent}% with test: {test}"
-    ).format(topic=topic, expected=expected, test=kwargs, percent=differ)
+        f"Expected topic({topic}) to be almost equal expected"
+        f"({expected}) differing only in {differ}% with test: {kwargs}"
+    )

@@ -44,7 +44,7 @@ def quote_url(url):
 
 def _normalize_url(url):
     url = quote_url(url)
-    return url if url.startswith("http") else "http://%s" % url
+    return url if url.startswith("http") else f"http://{url}"
 
 
 def validate(context, url, normalize_url_func=_normalize_url):
@@ -58,10 +58,12 @@ def validate(context, url, normalize_url_func=_normalize_url):
         return True
 
     for pattern in context.config.ALLOWED_SOURCES:
-        if isinstance(pattern, Pattern):  # pylint: disable=isinstance-second-argument-not-valid-type
+        if isinstance(  # pylint: disable=isinstance-second-argument-not-valid-type
+            pattern, Pattern
+        ):
             match = url
         else:
-            pattern = "^%s$" % pattern
+            pattern = f"^{pattern}$"
             match = res.hostname
 
         if re.match(pattern, match):
@@ -72,23 +74,22 @@ def validate(context, url, normalize_url_func=_normalize_url):
 
 def return_contents(response, url, context, req_start=None):
     res = urlparse(url)
+    netloc = res.netloc.replace(".", "_")
+    code = response.code
+
     if req_start:
         finish = datetime.datetime.now()
         context.metrics.timing(
-            "original_image.fetch.{0}.{1}".format(
-                response.code, res.netloc.replace(".", "_")
-            ),
+            f"original_image.fetch.{code}.{netloc}",
             (finish - req_start).total_seconds() * 1000,
         )
         context.metrics.incr(
-            "original_image.fetch.{0}.{1}".format(response.code, res.netloc.replace(".", "_"))
+            f"original_image.fetch.{code}.{netloc}",
         )
 
     result = LoaderResult()
-    context.metrics.incr("original_image.status." + str(response.code))
-    context.metrics.incr(
-        "original_image.status.{0}.{1}".format(response.code, res.netloc.replace(".", "_"))
-    )
+    context.metrics.incr(f"original_image.status.{code}")
+    context.metrics.incr(f"original_image.status.{code}.{netloc}")
     if response.error:
         result.successful = False
         if response.code == 599:
@@ -97,13 +98,13 @@ def return_contents(response, url, context, req_start=None):
         else:
             result.error = LoaderResult.ERROR_NOT_FOUND
 
-        logger.warning(u"ERROR retrieving image %s: %s", url, str(response.error))
+        logger.warning("ERROR retrieving image %s: %s", url, str(response.error))
 
     elif response.body is None or len(response.body) == 0:
         result.successful = False
         result.error = LoaderResult.ERROR_UPSTREAM
 
-        logger.warning(u"ERROR retrieving image %s: Empty response.", url)
+        logger.warning("ERROR retrieving image %s: Empty response.", url)
     else:
         if response.time_info:
             for metric_name in response.time_info:
@@ -142,7 +143,8 @@ async def load(
         exc_type = tornado.httpclient.HTTPClientError
 
     tornado.httpclient.AsyncHTTPClient.configure(
-        http_client_implementation, max_clients=context.config.HTTP_LOADER_MAX_CLIENTS,
+        http_client_implementation,
+        max_clients=context.config.HTTP_LOADER_MAX_CLIENTS,
     )
     client = tornado.httpclient.AsyncHTTPClient()
 
@@ -197,7 +199,10 @@ async def load(
         )
 
     return return_contents_fn(
-        response=response, url=url, context=context, req_start=start,
+        response=response,
+        url=url,
+        context=context,
+        req_start=start,
     )
 
 
@@ -214,10 +219,12 @@ def _get_prepare_curl_callback(config):
 
         def prepare_curl_callback(self, curl):
             curl.setopt(
-                curl.LOW_SPEED_TIME, self.config.HTTP_LOADER_CURL_LOW_SPEED_TIME,
+                curl.LOW_SPEED_TIME,
+                self.config.HTTP_LOADER_CURL_LOW_SPEED_TIME,
             )
             curl.setopt(
-                curl.LOW_SPEED_LIMIT, self.config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT,
+                curl.LOW_SPEED_LIMIT,
+                self.config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT,
             )
 
     return CurlOpts(config).prepare_curl_callback

@@ -23,7 +23,9 @@ class ProfileDetectorTestCase(DetectorTestCase):
     async def test_detector_uses_proper_cascade(self):
         cascade = "./tests/fixtures/haarcascade_profileface.xml"
         ctx = mock.Mock(
-            config=mock.Mock(PROFILE_DETECTOR_CASCADE_FILE=abspath(cascade),)
+            config=mock.Mock(
+                PROFILE_DETECTOR_CASCADE_FILE=abspath(cascade),
+            )
         )
 
         detector = Detector(ctx, 1, [])

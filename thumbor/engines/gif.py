@@ -10,6 +10,7 @@
 
 import re
 from io import BytesIO
+from shutil import which
 from subprocess import PIPE, Popen
 
 from PIL import Image
@@ -21,6 +22,7 @@ GIFSICLE_SIZE_REGEX = re.compile(r"(?:logical\sscreen\s(\d+x\d+))")
 GIFSICLE_IMAGE_COUNT_REGEX = re.compile(r"(?:(\d+)\simage)")
 
 
+# TODO: Rename this weird error to GifsicleError
 class GifSicleError(RuntimeError):
     pass
 
@@ -31,7 +33,13 @@ class Engine(PILEngine):
         return self.image_size
 
     def run_gifsicle(self, command):
-        process = Popen(
+        if self.context.server.gifsicle_path is None or \
+                not which(self.context.server.gifsicle_path):
+            raise GifSicleError(
+                "gifsicle command was not found and it is required"
+                " for your configuration of Thumbor"
+            )
+        process = Popen(  # pylint: disable=consider-using-with
             [self.context.server.gifsicle_path] + command.split(" "),
             stdout=PIPE,
             stdin=PIPE,
@@ -42,17 +50,18 @@ class Engine(PILEngine):
             logger.error(stderr_data)
 
         if stdout_data is None:
+            gifsicle_command = (
+                " ".join(
+                    [self.context.server.gifsicle_path]
+                    + command.split(" ")
+                    + [self.context.request.url]
+                ),
+            )
+
             raise GifSicleError(
                 (
-                    "gifsicle command returned errorlevel {0} for "
-                    'command "{1}" (image maybe corrupted?)'
-                ).format(
-                    process.returncode,
-                    " ".join(
-                        [self.context.server.gifsicle_path]
-                        + command.split(" ")
-                        + [self.context.request.url]
-                    ),
+                    f"gifsicle command returned errorlevel {process.returncode} for "
+                    f'command "{gifsicle_command}" (image maybe corrupted?)'
                 )
             )
 
@@ -90,16 +99,16 @@ class Engine(PILEngine):
             return
 
         if width > 0 and height == 0:
-            arguments = "--resize-width %d" % width
+            arguments = f"--resize-width {width}"
         elif height > 0 and width == 0:
-            arguments = "--resize-height %d" % height
+            arguments = f"--resize-height {height}"
         else:
-            arguments = "--resize %dx%d" % (width, height)
+            arguments = f"--resize {width}x{height}"
 
         self.operations.append(arguments)
 
     def crop(self, left, top, right, bottom):
-        arguments = "--crop %d,%d-%d,%d" % (left, top, right, bottom)
+        arguments = f"--crop {left},{top}-{right},{bottom}"
         self.operations.append(arguments)
         self.flush_operations()
         self.update_image_info()
@@ -107,7 +116,7 @@ class Engine(PILEngine):
     def rotate(self, degrees):
         if degrees not in [90, 180, 270]:
             return
-        arguments = "--rotate-%d" % degrees
+        arguments = f"--rotate-{degrees}"
         self.operations.append(arguments)
 
     def flip_vertically(self):

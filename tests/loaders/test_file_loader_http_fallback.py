@@ -27,14 +27,20 @@ STORAGE_PATH = abspath(join(dirname(__file__), "../fixtures/images/"))
 async def dummy_file_load(
     context, url, normalize_url_func=None
 ):  # pylint: disable=unused-argument
-    result = LoaderResult(successful=True, buffer="file",)
+    result = LoaderResult(
+        successful=True,
+        buffer="file",
+    )
     return result
 
 
 async def dummy_http_load(
     context, url, normalize_url_func=None
 ):  # pylint: disable=unused-argument
-    result = LoaderResult(successful=True, buffer="http",)
+    result = LoaderResult(
+        successful=True,
+        buffer="http",
+    )
     return result
 
 

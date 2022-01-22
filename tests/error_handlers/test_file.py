@@ -32,7 +32,7 @@ class FakeRequest:
         self.remote_ip = "127.0.0.1"
 
     def full_url(self):
-        return "http://test/%s" % self.url
+        return f"http://test/{self.url}"
 
 
 class FakeHandler:
@@ -55,7 +55,9 @@ class InvalidFileErrorHandlerTestCase(TestCase):
 
 class BasicFileErrorHandlerTestCase(TestCase):
     def get_config(self):
-        self.tmp = tempfile.NamedTemporaryFile(prefix="thumborTest.")
+        self.tmp = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
+            prefix="thumborTest."
+        )
         return Config(SECURITY_KEY="ACME-SEC", ERROR_FILE_LOGGER=self.tmp.name)
 
     def get_server(self):
@@ -96,11 +98,13 @@ class FileErrorHandlerTestCase(TestCase):
     PORT = 8890
 
     def get_config(self):
-        self.tmp = tempfile.NamedTemporaryFile(prefix="thumborTest.%i." % self.PORT)
+        self.tmp = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
+            prefix=f"thumborTest.{self.PORT}."
+        )
         return Config(
             SECURITY_KEY="ACME-SEC",
             ERROR_FILE_LOGGER=self.tmp.name.replace(
-                "thumborTest.%i." % self.PORT, "thumborTest.%i."
+                f"thumborTest.{self.PORT}.", "thumborTest.%i."
             ),
             ERROR_FILE_NAME_USE_CONTEXT="server.port",
         )

@@ -31,7 +31,9 @@ from thumbor.transformer import Transformer
 class TransformerTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.root_folder = tempfile.TemporaryDirectory()
+        cls.root_folder = (
+            tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        )
         cls.root_path = cls.root_folder.name
         cls.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
         cls.base_uri = "/image"
@@ -126,7 +128,9 @@ class TransformerTestCase(TestCase):
         self.validate_resize(test_data)
 
     @gen_test
-    async def test_can_resize_images_with_detection_error_not_ignoring_it(self,):
+    async def test_can_resize_images_with_detection_error_not_ignoring_it(
+        self,
+    ):
         test_data = TestData(
             source_width=800,
             source_height=600,

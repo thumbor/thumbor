@@ -22,7 +22,7 @@ from thumbor.importer import Importer
 STORAGE_PATH = abspath(join(dirname(__file__), "../fixtures/images/"))
 
 
-class GitEngineTestCase(TestCase):
+class GifEngineTestCase(TestCase):
     def get_config(self):
         return Config(
             SECURITY_KEY="ACME-SEC",

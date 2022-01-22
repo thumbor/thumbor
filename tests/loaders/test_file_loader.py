@@ -35,10 +35,9 @@ class FileLoaderTestCase(TestCase):
     async def test_should_load_file(self):
         result = await self.load_file("image.jpg")
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(
-            open(join(STORAGE_PATH, "image.jpg"), "rb").read()
-        )
-        expect(result.successful).to_be_true()
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as img:
+            expect(result.buffer).to_equal(img.read())
+            expect(result.successful).to_be_true()
 
     @gen_test
     async def test_should_fail_when_inexistent_file(self):
@@ -58,16 +57,14 @@ class FileLoaderTestCase(TestCase):
     async def test_should_load_file_with_spaces_in_name(self):
         result = await self.load_file("image .jpg")
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(
-            open(join(STORAGE_PATH, "image.jpg"), "rb").read()
-        )
-        expect(result.successful).to_be_true()
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as img:
+            expect(result.buffer).to_equal(img.read())
+            expect(result.successful).to_be_true()
 
     @gen_test
     async def test_should_load_file_with_spaces_encoded_in_name(self):
         result = await self.load_file("image2%20.jpg")
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(
-            open(join(STORAGE_PATH, "image2%20.jpg"), "rb").read()
-        )
-        expect(result.successful).to_be_true()
+        with open(join(STORAGE_PATH, "image2%20.jpg"), "rb") as img:
+            expect(result.buffer).to_equal(img.read())
+            expect(result.successful).to_be_true()

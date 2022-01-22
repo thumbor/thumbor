@@ -44,7 +44,9 @@ def deprecated(message):
         @wraps(func)
         def wrapper_deprecated(*args, **kwargs):
             logger.warning(
-                "Deprecated function %s%s", func.__name__, message,
+                "Deprecated function %s%s",
+                func.__name__,
+                message,
             )
             return func(*args, **kwargs)
 

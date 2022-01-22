@@ -11,7 +11,7 @@
 import tempfile
 from os.path import expanduser, join
 
-import derpconf.config as config
+from derpconf import config
 from derpconf.config import Config
 
 from thumbor import __version__
@@ -292,10 +292,16 @@ Config.define(
 )
 Config.define("ENABLE_ETAGS", True, "Enables automatically generated etags", "HTTP")
 Config.define(
-    "MAX_ID_LENGTH", 32, "Set maximum id length for images when stored", "Storage",
+    "MAX_ID_LENGTH",
+    32,
+    "Set maximum id length for images when stored",
+    "Storage",
 )
 Config.define(
-    "GC_INTERVAL", None, "Set garbage collection interval in seconds", "Performance",
+    "GC_INTERVAL",
+    None,
+    "Set garbage collection interval in seconds",
+    "Performance",
 )
 
 Config.define(
@@ -366,7 +372,7 @@ Config.define(
 )
 Config.define(
     "HTTP_LOADER_DEFAULT_USER_AGENT",
-    "Thumbor/%s" % __version__,
+    f"Thumbor/{__version__}",
     "Default user agent for thumbor http loader requests",
     "HTTP Loader",
 )
@@ -377,7 +383,10 @@ Config.define(
     "HTTP Loader",
 )
 Config.define(
-    "HTTP_LOADER_PROXY_PORT", None, "The proxy port for the proxy host", "HTTP Loader",
+    "HTTP_LOADER_PROXY_PORT",
+    None,
+    "The proxy port for the proxy host",
+    "HTTP Loader",
 )
 Config.define(
     "HTTP_LOADER_PROXY_USERNAME",
@@ -404,7 +413,10 @@ Config.define(
     "HTTP Loader",
 )
 Config.define(
-    "HTTP_LOADER_CLIENT_KEY", None, "The filename for client SSL key", "HTTP Loader",
+    "HTTP_LOADER_CLIENT_KEY",
+    None,
+    "The filename for client SSL key",
+    "HTTP Loader",
 )
 Config.define(
     "HTTP_LOADER_CLIENT_CERT",
@@ -458,7 +470,10 @@ Config.define(
 
 # PHOTO UPLOAD OPTIONS
 Config.define(
-    "UPLOAD_MAX_SIZE", 0, "Max size in bytes for images uploaded to thumbor", "Upload",
+    "UPLOAD_MAX_SIZE",
+    0,
+    "Max size in bytes for images uploaded to thumbor",
+    "Upload",
 )
 Config.define(
     "UPLOAD_ENABLED",
@@ -485,7 +500,10 @@ Config.define(
     "Upload",
 )
 Config.define(
-    "UPLOAD_DEFAULT_FILENAME", "image", "Default filename for image uploaded", "Upload",
+    "UPLOAD_DEFAULT_FILENAME",
+    "image",
+    "Default filename for image uploaded",
+    "Upload",
 )
 
 # ALIASES FOR OLD PHOTO UPLOAD OPTIONS
@@ -569,7 +587,10 @@ Config.define(
 
 # OPTIMIZER CONFIGURATIONS
 Config.define(
-    "JPEGTRAN_PATH", "/usr/bin/jpegtran", "Path for the jpegtran binary", "Optimizers",
+    "JPEGTRAN_PATH",
+    "/usr/bin/jpegtran",
+    "Path for the jpegtran binary",
+    "Optimizers",
 )
 
 Config.define(
@@ -673,7 +694,10 @@ Config.define(
 
 # SENTRY REPORTING MODULE
 Config.define(
-    "SENTRY_ENVIRONMENT", None, "Sentry environment i.e.: staging ", "Errors - Sentry",
+    "SENTRY_ENVIRONMENT",
+    None,
+    "Sentry environment i.e.: staging ",
+    "Errors - Sentry",
 )
 
 # FILE REPORTING MODULE
@@ -731,17 +755,45 @@ Config.define(
 )
 
 
+# COMPATIBILITY
+
+Config.define(
+    "COMPATIBILITY_LEGACY_LOADER",
+    None,
+    "Loader that will be used with the compatibility layer, instead of the "
+    "compatibility loader. Please only use this if you can't use up-to-date loaders.",
+    "Compatibility",
+)
+
+Config.define(
+    "COMPATIBILITY_LEGACY_STORAGE",
+    None,
+    "Storage that will be used with the compatibility layer, instead of the "
+    "compatibility storage. Please only use this if you can't use up-to-date storages.",
+    "Compatibility",
+)
+
+Config.define(
+    "COMPATIBILITY_LEGACY_RESULT_STORAGE",
+    None,
+    "Result Storage that will be used with the compatibility layer, instead of the "
+    "compatibility result storage. Please only use this if you can't use "
+    "up-to-date result storages.",
+    "Compatibility",
+)
+
+
 def generate_config():
     config.generate_config()
 
 
 def format_value(value):
     if isinstance(value, str):
-        return "'%s'" % value
+        return f"'{value}'"
     if isinstance(value, (tuple, list, set)):
         representation = "[\n"
         for item in value:
-            representation += "#    %s" % item
+            representation += f"#    {item}"
         representation += "#]"
         return representation
     return value

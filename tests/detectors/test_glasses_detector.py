@@ -23,7 +23,9 @@ class GlassesDetectorTestCase(DetectorTestCase):
     async def test_detector_uses_proper_cascade(self):
         cascade = "./tests/fixtures/haarcascade_eye_tree_eyeglasses.xml"
         ctx = mock.Mock(
-            config=mock.Mock(GLASSES_DETECTOR_CASCADE_FILE=abspath(cascade),)
+            config=mock.Mock(
+                GLASSES_DETECTOR_CASCADE_FILE=abspath(cascade),
+            )
         )
 
         detector = GlassesDetector(ctx, 1, [])
@@ -32,7 +34,8 @@ class GlassesDetectorTestCase(DetectorTestCase):
     @gen_test
     async def test_should_detect_glasses(self):
         with open(
-            abspath("./tests/fixtures/images/Christophe_Henner_-_June_2016.jpg"), "rb",
+            abspath("./tests/fixtures/images/Christophe_Henner_-_June_2016.jpg"),
+            "rb",
         ) as fixture:
             self.engine.load(fixture.read(), None)
 
