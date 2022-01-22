@@ -94,6 +94,18 @@ class ImageOperationsWithMaxWidthAndMaxHeightShouldNotUpscale(BaseImagingTestCas
         expect(response.headers["Content-Type"]).to_equal("image/jpeg")
         expect(engine.size).to_equal((100, 100))
 
+    @gen_test
+    async def test_should_return_original_image_size_with_normalize(self):
+        response = await self.async_fetch(
+            "/unsafe/filters:format(jpeg)/weird_normalize_error.jpg"
+        )
+
+        engine = Engine(self.context)
+        engine.load(response.body, ".jpg")
+        expect(response.code).to_equal(200)
+        expect(response.headers["Content-Type"]).to_equal("image/jpeg")
+        expect(engine.size).to_equal((159, 239))
+
 
 class ImageOperationsWithMaxPixels(BaseImagingTestCase):
     def get_context(self):
