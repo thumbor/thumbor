@@ -1374,3 +1374,42 @@ class LoaderErrorTestCase(BaseImagingTestCase):
         self.context.modules.loader.load = old_load
 
         expect(response.code).to_equal(409)
+
+
+class CorsHeaderIsNotSetTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.file_storage"
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
+
+    def test_response_should_not_contain_cors_header(self):
+        response = self.fetch('/unsafe/image.jpg')
+        expect(response.headers).not_to_include('Access-Control-Allow-Origin')
+
+
+class CorsHeaderIsSetTestCase(BaseImagingTestCase):
+    def get_context(self):
+        cfg = Config(SECURITY_KEY='ACME-SEC', ACCESS_CONTROL_ALLOW_ORIGIN_HEADER='*')
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.loader_path
+        cfg.STORAGE = "thumbor.storages.file_storage"
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(8889, 'localhost', 'thumbor.conf', None, 'info', None)
+        server.security_key = 'ACME-SEC'
+        return Context(server, cfg, importer)
+
+    def test_response_should_contain_cors_header(self):
+        response = self.fetch('/unsafe/image.jpg')
+        expect(response.headers).to_include('Access-Control-Allow-Origin')
+        expect(response.headers['Access-Control-Allow-Origin']).to_equal('*')
