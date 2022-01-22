@@ -561,7 +561,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.set_header('Access-Control-Allow-Origin', ac_header)
                 logger.debug('CORS header found. Set to: %s', ac_header)
 
-        self.set_header("Server", "Thumbor/%s" % __version__)
+        self.set_header("Server", f"Thumbor/{__version__}")
         self.set_header("Content-Type", content_type)
 
         if isinstance(results, ResultStorageResult):
