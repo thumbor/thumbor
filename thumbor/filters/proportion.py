@@ -19,7 +19,7 @@ class Filter(BaseFilter):
         new_width = source_width * value
         new_height = source_height * value
 
-        if new_width <= 0 or new_height <= 0:
+        if new_width < 1 or new_height < 1:
             return
 
         self.engine.resize(new_width, new_height)

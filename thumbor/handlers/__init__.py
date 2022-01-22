@@ -163,6 +163,7 @@ class BaseHandler(tornado.web.RequestHandler):
             and req.width > conf.MAX_WIDTH
         ):
             req.width = conf.MAX_WIDTH
+
         if (
             conf.MAX_HEIGHT
             and (not isinstance(req.height, str))
