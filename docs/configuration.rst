@@ -188,6 +188,25 @@ ALLOWED\_SOURCES = ['.+.globo.com', '.+.glbimg.com']
 This is to get any images that are in *.globo.com or *.glbimg.com and it
 will fail with any other domains.
 
+ACCESS\_CONTROL\_ALLOW\_ORIGIN\_HEADER
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This allows to send the ACCESS_CONTROL_ALLOW_ORIGIN header. For example,
+if you want to tell the browser to allow code from any origin to
+access your thumbor resources:
+
+.. code:: python
+
+   ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = '*'
+
+If you want restrict access to a certain resource:
+
+.. code:: python
+
+   ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = 'https://www.example.com'
+
+Not set by default.
+
 MAX\_WIDTH and MAX\_HEIGHT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -738,6 +757,9 @@ Example of Configuration File
     ## gifs.
     ## Defaults to: True
     #ALLOW_ANIMATED_GIFS = True
+
+    ## Sends the Access-Control-Allow-Origin header
+    #ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = '*'
 
     ################################################################################
 
