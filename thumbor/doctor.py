@@ -100,7 +100,7 @@ def check_filters(cfg):
 
 def check_extensibility_modules(cfg):
     if cfg is None:
-        return
+        return None
 
     newline()
     errors = []
