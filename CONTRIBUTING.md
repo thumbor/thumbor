@@ -2,21 +2,18 @@ So you want to contribute with thumbor? Awesome! Welcome aboard!
 
 ## First things first
 
-What kind of contribution are you aiming for?
+What kind of contribution are you aiming for? Features, documentation and
+bug fixes are always welcome.
 
-* Is it a new feature, improving the docs or a bug fix?
-* Should it be available for users of python 3 (thumbor 7.0.0+) or python2?
-
-If you answered python 2, then the first question can only be true for a bug fix. If that's the case, you are fixing a bug in our python 2 version, please start from the version in branch `fixes/6.7.x`. Othewise you can do a pull request for thumbor's master branch.
-
-Creating new features in python 2 is not supported anymore. Please do not ask as we cannot keep maintaining a version that's dead.
+**Please note**: we dropped feature-support for thumbor 6. That said, no
+new features are going to be added on thumbor 6.x. If you still want to
+contribute (a bug fix), please head at `fixes/6.7.x`.
 
 ## Steps
 
-There are a few things you'll need in order to properly start hacking on
-it.
+There are a few things you'll need in order to properly start hacking on it.
 
-1. Fork and clone
+1. [Fork it](http://help.github.com/fork-a-repo/)
 2. Install dependencies and initialize environment
 3. Hack, in no particular order:
    - Write enough code
@@ -25,11 +22,6 @@ it.
    - Repeat until you're satisfied
 4. Submit a pull request
 
-## Fork and Clone
-
-First step is to [fork it](http://help.github.com/fork-a-repo/) and
-create your own clone of thumbor.
-
 ## Install Dependencies
 
 We seriously advise you to use
@@ -37,9 +29,8 @@ We seriously advise you to use
 your environment clean of thumbor's dependencies and you can choose when
 to "turn them on".
 
-Other than that, you'll also need `<span class="title-ref">redis-server
-\<https://redis.io\></span>\` installed (for queued detector unit
-tests).
+Other than that, you'll also need [redis-server](https://redis.io)
+installed (for queued detector unit tests).
 
 ## Initializing the Environment
 
@@ -79,7 +70,7 @@ request for doing so in your PR.
 ## Pull Requests
 
 After hacking and testing your contribution, it is time to make a pull
-request. Make sure that your code is already integrated with the master
+request. Make sure that your code is already integrated with the `master`
 branch of thumbor before asking for a pull request.
 
 To add thumbor as a valid remote for your repository:
