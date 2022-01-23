@@ -1,19 +1,43 @@
-# Survey
+If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? Only 2 questions!
 
-If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? It's only 2 questions and one is multiple choice!!!
+<p align="center">
+<img src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png" />
+</p>
 
-[<img src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png">](https://github.com/thumbor/thumbor)
+<h3 align="center">thumbor</h3>
 
-![build](https://github.com/thumbor/thumbor/workflows/build/badge.svg)
-[![CircleCI Status](https://circleci.com/gh/thumbor/thumbor.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/thumbor/thumbor)
-[![Coverage Status](https://coveralls.io/repos/thumbor/thumbor/badge.svg?branch=master&service=github)](https://coveralls.io/github/thumbor/thumbor?branch=master)
-[![Code Climate](https://codeclimate.com/github/thumbor/thumbor/badges/gpa.svg)](https://codeclimate.com/github/thumbor/thumbor)
-[![Codacy Badge](https://api.codacy.com/project/badge/373e13c719c0417f84f0d7d363c9d539)](https://www.codacy.com/app/heynemann/thumbor)
-[![Shields](https://img.shields.io/github/issues-pr-raw/thumbor/thumbor.svg)](https://github.com/thumbor/thumbor/pulls)
-[![Shields](https://img.shields.io/github/issues-raw/thumbor/thumbor.svg)](https://github.com/thumbor/thumbor/issues)
-[![PyPI](https://img.shields.io/pypi/v/thumbor.svg)](https://pypi.python.org/pypi/thumbor)
-[![PyPI](https://img.shields.io/pypi/dm/thumbor.svg)](https://pypi.python.org/pypi/thumbor)
-[![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=257692)](https://www.bountysource.com/trackers/257692-globocom-thumbor?utm_source=257692&utm_medium=shield&utm_campaign=TRACKER_BADGE)
+<p align="center">
+open-source smart on-demand image cropping, resizing and filters.
+</p>
+
+<p align="center">
+  <img src='https://github.com/thumbor/thumbor/workflows/build/badge.svg' />
+  <a href='https://circleci.com/gh/thumbor/thumbor' target='_blank'>
+    <img src='https://circleci.com/gh/thumbor/thumbor.svg?style=shield&circle-token=:circle-token'/>
+  </a>
+  <a href='https://coveralls.io/github/thumbor/thumbor?branch=master' target='_blank'>
+    <img src='https://coveralls.io/repos/thumbor/thumbor/badge.svg?branch=master&service=github'/>
+  </a>
+  <a href='https://codeclimate.com/github/thumbor/thumbor' target='_blank'>
+    <img src='https://codeclimate.com/github/thumbor/thumbor/badges/gpa.svg'/>
+  </a>
+  <a href='https://github.com/thumbor/thumbor/pulls' target='_blank'>
+    <img src='https://img.shields.io/github/issues-pr-raw/thumbor/thumbor.svg'/>
+  </a>
+  <a href='https://github.com/thumbor/thumbor/issues' target='_blank'>
+    <img src='https://img.shields.io/github/issues-raw/thumbor/thumbor.svg'/>
+  </a>
+  <a href='https://pypi.python.org/pypi/thumbor' target='_blank'>
+    <img src='https://img.shields.io/pypi/v/thumbor.svg'/>
+  </a>
+  <a href='https://pypi.python.org/pypi/thumbor' target='_blank'>
+    <img src='https://img.shields.io/pypi/dm/thumbor.svg'/>
+  </a>
+  <a href='https://www.bountysource.com/trackers/257692-globocom-thumbor?utm_source=257692&utm_medium=shield&utm_campaign=TRACKER_BADGE' target='_blank'>
+    <img src='https://www.bountysource.com/badge/tracker?tracker_id=257692'/>
+  </a>
+</p>
+
 
 thumbor is a smart imaging service. It enables on-demand [crop, resizing and flipping](http://thumbor.readthedocs.io/en/latest/crop_and_resize_algorithms.html) of images.
 
@@ -25,17 +49,68 @@ Using thumbor is very easy (after it is running). All you have to do is access i
 http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
 ```
 
-That URL would show an image of the thumbor logo in 300x200 using smart crop.
+That URL will show an image of the thumbor logo in 300x200 using smart crop.
 
 There are several other options to the image URL configuration. You can check them in the [Usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
 
-For more information check [thumbor's
-documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
+For more information check [thumbor's documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
 
-### Demo
+## ⚙️ Installation
 
-You can see thumbor in action at http://thumborize.me/
+Decide which installation option you want to use.
 
+### Option 1: pip
 
+```bash
+pip install thumbor
+```
+
+### Option 2: Binary
+
+```bash
+sudo add-apt-repository ppa:thumbor/ppa
+sudo aptitude update
+sudo aptitude install thumbor
+```
+
+For more ways, please check out [Installation](https://thumbor.readthedocs.io/en/latest/installing.html).
+
+### Run
+
+Running it is as easy as hit:
+
+```bash
+thumbor
+```
+
+After this, you can reach it on https://localhost:8888/unsafe/https://raw.githubusercontent.com/thumbor/thumbor/master/example.jpg
+
+### Troubles?
+
+If you experience any troubles, try running:
+
+```bash
+thumbor-doctor
+```
+
+If you still need help, please [raise an issue](https://github.com/thumbor/thumbor/issues).
+
+## 🎯 Features
+
+- supports all common images formats out of the box
+- [intelligent cropping and resizing](http://thumbor.readthedocs.io/en/latest/detection_algorithms.html)
+- blazing fast using caching
+- supports many storages (local storage, AWS S3, rackspace, ceph, ...)
+- [highly extensible](https://thumbor.readthedocs.io/en/latest/customizing.html)
+
+## 👍 Contribute
+
+thumbor is an open-source project with many contributors. Join them
+[contributing code](https://github.com/thumbor/thumbor/blob/master/CONTRIBUTING.md) or
+[contributing documentation](https://github.com/thumbor/thumbor/blob/master/CONTRIBUTING.md).
 
 Join the chat at https://gitter.im/thumbor/thumbor
+
+## 👀 Demo
+
+You can see thumbor in action at http://thumborize.me/
