@@ -87,7 +87,61 @@ def check_filters(cfg):
             print(cf.bold_green(f"{CHECK} {filter_name}"))
         except ImportError as error:
             print(cf.bold_red(f"{CROSS} {filter_name}"))
-            errors.append(error)
+            errors.append(
+                format_error(
+                    filter_name,
+                    str(error),
+                    "Can't import filter meaning this filter won't work.",
+                )
+            )
+
+    return errors
+
+
+def check_extensibility_modules(cfg):
+    if cfg is None:
+        return
+
+    newline()
+    errors = []
+
+    to_check = [
+        (
+            lambda cfg: True,
+            cfg.STORAGE,
+            "Storage for source images could not be imported.",
+        ),
+        (
+            lambda cfg: True,
+            cfg.LOADER,
+            "Loader for source images could not be imported.",
+        ),
+        (lambda cfg: True, cfg.RESULT_STORAGE, "ResultStorage could not be imported."),
+        (
+            lambda cfg: cfg.UPLOAD_ENABLED,
+            cfg.UPLOAD_PHOTO_STORAGE,
+            "Uploading to thumbor is enabled and the Upload Storage could not be imported.",
+        ),
+    ]
+
+    if any(c[0](cfg) for c in to_check):
+        subheader("Verifying extensibility modules found in your thumbor.conf...")
+
+    for should_check, module, error_message in to_check:
+        if not should_check(cfg):
+            continue
+        try:
+            import_module(module)
+            print(cf.bold_green(f"{CHECK} {module}"))
+        except ImportError as error:
+            print(cf.bold_red(f"{CROSS} {module} - {error_message}"))
+            errors.append(
+                format_error(
+                    module,
+                    str(error),
+                    error_message,
+                )
+            )
 
     return errors
 
@@ -104,7 +158,16 @@ def check_compiled_extensions():
             print(cf.bold_green(f"{CHECK} {ext_name}"))
         except ImportError as error:
             print(cf.bold_red(f"{CROSS} {ext_name}"))
-            errors.append(error)
+            errors.append(
+                format_error(
+                    f"Extension {extension}",
+                    str(error),
+                    (
+                        "Extension could not be compiled. "
+                        "This will lead to filter being disabled."
+                    ),
+                )
+            )
 
     return errors
 
@@ -112,8 +175,7 @@ def check_compiled_extensions():
 def format_error(dependency, err, msg):
     formatted_msg = "\n\t".join(msg.split("\n"))
     result = f"""
-* {dependency} - thumbor-doctor got this error:
-
+* {dependency}
     Error Message:
         {err}
 
@@ -148,7 +210,7 @@ def check_modules(cfg):
                 "cv2",
                 "Thumbor requires OpenCV for smart cropping. "
                 "For more information check https://opencv.org/.",
-            ),
+            )
         )
 
     if modules:
@@ -162,7 +224,7 @@ def check_modules(cfg):
             print(cf.bold_red(f"{CROSS} {module} is not installed."))
             print(error_message)
             newline()
-            errors.append(f"{str(error)} - {error_message}")
+            errors.append(format_error(module, str(error), error_message))
 
     warn_modules = [
         (
@@ -216,7 +278,7 @@ def check_extensions(cfg):
                 "ffmpeg",
                 "Thumbor uses ffmpeg for rendering animated images as GIFV. "
                 "For more information visit https://www.ffmpeg.org/.",
-            ),
+            )
         )
 
     if cfg is None or cfg.USE_GIFSICLE_ENGINE:
@@ -225,7 +287,7 @@ def check_extensions(cfg):
                 "gifsicle",
                 "Thumbor uses gifsicle for better processing of GIF images. "
                 "For more information visit https://www.lcdf.org/gifsicle/.",
-            ),
+            )
         )
 
     if programs:
@@ -237,7 +299,9 @@ def check_extensions(cfg):
             print(cf.bold_red(f"{CROSS} {program} is not installed."))
             print(error_message)
             newline()
-            errors.append(error_message)
+            errors.append(
+                format_error(program, f"Could not find {program}.", error_message)
+            )
         else:
             print(cf.bold_green(f"{CHECK} {program} is installed correctly."))
 
@@ -271,6 +335,7 @@ def main():
     warnings, errors = check_modules(cfg)
     errors += check_compiled_extensions()
     errors += check_filters(cfg)
+    errors += check_extensibility_modules(cfg)
     errors += check_extensions(cfg)
 
     newline()
@@ -281,12 +346,12 @@ def main():
 
         if warnings:
             print(cf.bold_yellow(f"{WARNING}Warnings{WARNING}"))
-            print("\n".join([f"{str(err)}" for err in warnings]))
+            print("\n\n".join([f"{str(err)}" for err in warnings]))
             newline()
 
         if errors:
             print(cf.bold_red(f"{ERROR}Errors{ERROR}"))
-            print("\n".join([f"* {str(err)}" for err in errors]))
+            print("\n\n".join([f"{str(err)}" for err in errors]))
             newline()
 
         newline()
