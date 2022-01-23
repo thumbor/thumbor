@@ -21,8 +21,7 @@ except ImportError:
 
 TESTS_REQUIREMENTS = [
     # Going to update in a proper commit
-    #  "cairosvg>=2.5.2",
-    "cairosvg!=1.0.21,<2.0.0,>=1.0.0",
+    "cairosvg>=2.5.2",
     "colorama==0.*,>=0.4.3",
     "coverage==5.*,>=5.0.3",
     "flake8==3.*,>=3.7.9",
