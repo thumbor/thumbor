@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-# pylint: disable=no-member
+# pylint: disable=no-member,line-too-long
 
 import argparse
 import sys
@@ -308,30 +308,32 @@ def check_extensions(cfg):
     return errors
 
 
-def main():
-    """Converts a given url with the specified arguments."""
-
-    options = get_options()
-
+def load_config(config_path):
     cfg = None
-    if options["config"] is not None:
-        path = abspath(options["config"])
+    if config_path is not None:
+        path = abspath(config_path)
         cfg = Config.load(path, conf_name="thumbor.conf", lookup_paths=[])
-        print(f'Using configuration file found at {options["config"]}')
+        print(f"Using configuration file found at {config_path}")
+    return cfg
 
+
+def configure_colors(nocolor):
     cf.use_style("solarized")
-    if options["nocolor"]:
+    if nocolor:
         cf.disable()
 
+
+def print_header():
     newline()
     header(f"Thumbor v{__version__} (of {__release_date__})")
-
     newline()
     print(
         "Thumbor doctor will analyze your install and verify "
         "if everything is working as expected."
     )
 
+
+def check_everything(cfg):
     warnings, errors = check_modules(cfg)
     errors += check_compiled_extensions()
     errors += check_filters(cfg)
@@ -339,40 +341,52 @@ def main():
     errors += check_extensions(cfg)
 
     newline()
+    return warnings, errors
 
-    if warnings or errors:
-        print(cf.bold_red("😞 Oh no! We found some things that could improve... 😞"))
-        newline()
 
-        if warnings:
-            print(cf.bold_yellow(f"{WARNING}Warnings{WARNING}"))
-            print("\n\n".join([f"{str(err)}" for err in warnings]))
-            newline()
-
-        if errors:
-            print(cf.bold_red(f"{ERROR}Errors{ERROR}"))
-            print("\n\n".join([f"{str(err)}" for err in errors]))
-            newline()
-
-        newline()
-        print(
-            cf.cyan(
-                "If you don't know how to fix them, please open an issue with thumbor."
-            )
-        )
-        print(
-            cf.cyan(
-                "Don't forget to copy this log and add it to the description of your issue."
-            )
-        )
-        print("Open an issue at https://github.com/thumbor/thumbor/issues/new")
-        if errors:
-            sys.exit(1)
-            return
-
+def print_results(warnings, errors):
+    if not warnings and not errors:
+        print(cf.bold_green("🎉 Congratulations! No errors found! 🎉"))
+        sys.exit(1)
         return
 
-    print(cf.bold_green("🎉 Congratulations! No errors found! 🎉"))
+    print(cf.bold_red("😞 Oh no! We found some things that could improve... 😞"))
+    newline()
+
+    if warnings:
+        print(cf.bold_yellow(f"{WARNING}Warnings{WARNING}"))
+        print("\n\n".join([f"{str(err)}" for err in warnings]))
+        newline()
+
+    if errors:
+        print(cf.bold_red(f"{ERROR}Errors{ERROR}"))
+        print("\n\n".join([f"{str(err)}" for err in errors]))
+        newline()
+
+    newline()
+    print(
+        cf.cyan("If you don't know how to fix them, please open an issue with thumbor.")
+    )
+    print(
+        cf.cyan(
+            "Don't forget to copy this log and add it to the description of your issue."
+        )
+    )
+    print("Open an issue at https://github.com/thumbor/thumbor/issues/new")
+    if errors:
+        sys.exit(1)
+
+
+def main():
+    """Converts a given url with the specified arguments."""
+
+    options = get_options()
+    cfg = load_config(options["config"])
+    configure_colors(options["nocolor"])
+
+    print_header()
+    warnings, errors = check_everything(cfg)
+    print_results(warnings, errors)
 
 
 if __name__ == "__main__":
