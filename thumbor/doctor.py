@@ -378,7 +378,7 @@ def print_results(warnings, errors):
 
 
 def main():
-    """Converts a given url with the specified arguments."""
+    """Verifies the current environment for problems with thumbor"""
 
     options = get_options()
     cfg = load_config(options["config"])
