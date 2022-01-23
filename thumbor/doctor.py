@@ -13,16 +13,20 @@
 import argparse
 import sys
 from importlib import import_module
+from os.path import abspath
 from shutil import which
 
 import colorful as cf
 
 from thumbor import __release_date__, __version__
+from thumbor.config import Config
 from thumbor.ext import BUILTIN_EXTENSIONS
 from thumbor.filters import BUILTIN_FILTERS
 
 CHECK = "✅"
 CROSS = "❎ "
+WARNING = "⚠️"
+ERROR = "⛔"
 
 
 def get_options():
@@ -35,10 +39,21 @@ def get_options():
         help="Disables coloring of thumbor doctor",
     )
 
+    parser.add_argument(
+        "-c",
+        "--config",
+        default=None,
+        help=(
+            "thumbor configuration file. If specified "
+            "thumbor-doctor can be fine tuned."
+        ),
+    )
+
     options = parser.parse_args()
 
     return {
         "nocolor": options.nocolor,
+        "config": options.config,
     }
 
 
@@ -55,12 +70,18 @@ def newline():
     print()
 
 
-def check_filters():
+def check_filters(cfg):
     newline()
-    subheader("Verifying thumbor filters...")
     errors = []
 
-    for filter_name in BUILTIN_FILTERS:
+    to_check = BUILTIN_FILTERS
+    if cfg is not None:
+        to_check = cfg.FILTERS
+
+    if to_check:
+        subheader("Verifying thumbor filters...")
+
+    for filter_name in to_check:
         try:
             import_module(filter_name)
             print(cf.bold_green(f"{CHECK} {filter_name}"))
@@ -88,32 +109,50 @@ def check_compiled_extensions():
     return errors
 
 
-def check_modules():
+def format_error(dependency, err, msg):
+    formatted_msg = "\n\t".join(msg.split("\n"))
+    result = f"""
+* {dependency} - thumbor-doctor got this error:
+
+    Error Message:
+        {err}
+
+    Error Description:
+        { formatted_msg }
+    """
+    return result.strip()
+
+
+def check_modules(cfg):
     newline()
-    subheader("Verifying libraries support...")
     errors = []
 
-    modules = (
+    modules = [
         (
             "pycurl",
-            "Thumbor works much better with PyCurl. For more information visit http://pycurl.io/.",
-        ),
-        (
-            "cv2",
-            "Thumbor requires OpenCV for smart cropping. "
-            "For more information check https://opencv.org/.",
-        ),
-        (
-            "pyexiv2",
-            "Thumbor uses exiv2 for reading image metadata. "
-            "For more information check https://python3-exiv2.readthedocs.io/en/latest/.",
+            (
+                "Thumbor works much better with PyCurl. "
+                "For more information visit http://pycurl.io/."
+            ),
         ),
         (
             "cairosvg",
             "Thumbor uses CairoSVG for reading SVG files. "
             "For more information check https://cairosvg.org/.",
         ),
-    )
+    ]
+
+    if cfg is None or len(cfg.DETECTORS) != 0:
+        modules.append(
+            (
+                "cv2",
+                "Thumbor requires OpenCV for smart cropping. "
+                "For more information check https://opencv.org/.",
+            ),
+        )
+
+    if modules:
+        subheader("Verifying libraries support...")
 
     for module, error_message in modules:
         try:
@@ -125,32 +164,72 @@ def check_modules():
             newline()
             errors.append(f"{str(error)} - {error_message}")
 
-    return errors
+    warn_modules = [
+        (
+            "pyexiv2",
+            (
+                "Thumbor uses exiv2 for reading image metadata.\n"
+                "Don't worry. If you don't have exiv2 installed, "
+                "Thumbor will still work.\nIt just means your images won't "
+                "have EXIF metadata stored properly.\n"
+                "For more information check "
+                "https://python3-exiv2.readthedocs.io/en/latest/."
+            ),
+        ),
+    ]
+
+    warnings = []
+    for module, error_message in warn_modules:
+        try:
+            import_module(module)  # NOQA
+            print(cf.bold_green(f"{CHECK} {module} is installed correctly."))
+        except ImportError as error:
+            print(cf.bold_yellow(f"{CROSS} {module} is not installed."))
+            print(error_message)
+            newline()
+            warnings.append(format_error(module, str(error), error_message))
+
+    return warnings, errors
 
 
-def check_extensions():
+def check_extensions(cfg):
     newline()
 
-    subheader("Verifying extension programs...")
     errors = []
+    programs = []
 
-    programs = (
-        (
-            "jpegtran",
-            "Thumbor uses jpegtran for optimizing JPEG images. "
-            "For more information visit https://linux.die.net/man/1/jpegtran.",
-        ),
-        (
-            "ffmpeg",
-            "Thumbor uses ffmpeg for rendering animated images as GIFV. "
-            "For more information visit https://www.ffmpeg.org/.",
-        ),
-        (
-            "gifsicle",
-            "Thumbor uses gifsicle for better processing of GIF images. "
-            "For more information visit https://www.lcdf.org/gifsicle/.",
-        ),
-    )
+    if cfg is None or "thumbor.optimizers.jpegtran" in cfg.OPTIMIZERS:
+        programs.append(
+            (
+                "jpegtran",
+                (
+                    "Thumbor uses jpegtran for optimizing JPEG images. "
+                    "For more information visit "
+                    "https://linux.die.net/man/1/jpegtran."
+                ),
+            )
+        )
+
+    if cfg is None or "thumbor.optimizers.gifv" in cfg.OPTIMIZERS:
+        programs.append(
+            (
+                "ffmpeg",
+                "Thumbor uses ffmpeg for rendering animated images as GIFV. "
+                "For more information visit https://www.ffmpeg.org/.",
+            ),
+        )
+
+    if cfg is None or cfg.USE_GIFSICLE_ENGINE:
+        programs.append(
+            (
+                "gifsicle",
+                "Thumbor uses gifsicle for better processing of GIF images. "
+                "For more information visit https://www.lcdf.org/gifsicle/.",
+            ),
+        )
+
+    if programs:
+        subheader("Verifying extension programs...")
 
     for program, error_message in programs:
         path = which(program)
@@ -170,6 +249,12 @@ def main():
 
     options = get_options()
 
+    cfg = None
+    if options["config"] is not None:
+        path = abspath(options["config"])
+        cfg = Config.load(path, conf_name="thumbor.conf", lookup_paths=[])
+        print(f'Using configuration file found at {options["config"]}')
+
     cf.use_style("solarized")
     if options["nocolor"]:
         cf.disable()
@@ -179,21 +264,31 @@ def main():
 
     newline()
     print(
-        "Thumbor doctor will analyze your install and verify if everything is working as expected."
+        "Thumbor doctor will analyze your install and verify "
+        "if everything is working as expected."
     )
 
-    errors = check_modules()
+    warnings, errors = check_modules(cfg)
     errors += check_compiled_extensions()
-    errors += check_filters()
-    errors += check_extensions()
+    errors += check_filters(cfg)
+    errors += check_extensions(cfg)
 
     newline()
 
-    if errors:
+    if warnings or errors:
         print(cf.bold_red("😞 Oh no! We found some things that could improve... 😞"))
         newline()
-        print("\n".join([f"* {str(err)}" for err in errors]))
-        newline()
+
+        if warnings:
+            print(cf.bold_yellow(f"{WARNING}Warnings{WARNING}"))
+            print("\n".join([f"{str(err)}" for err in warnings]))
+            newline()
+
+        if errors:
+            print(cf.bold_red(f"{ERROR}Errors{ERROR}"))
+            print("\n".join([f"* {str(err)}" for err in errors]))
+            newline()
+
         newline()
         print(
             cf.cyan(
