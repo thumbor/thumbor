@@ -93,7 +93,17 @@ If you experience any troubles, try running:
 thumbor-doctor
 ```
 
-If you still need help, please [raise an issue](https://github.com/thumbor/thumbor/issues).
+If you have a `thumbor.conf` file, you can use that to help thumbor-doctor:
+
+```bash
+thumbor-doctor -c thumbor.conf
+```
+
+If you still need help, please [raise an issue](https://github.com/thumbor/thumbor/issues). Remember to send your `thumbor-doctor` output in the issue:
+
+```bash
+thumbor-doctor --nocolor -c thumbor.conf
+```
 
 ## 🎯 Features
 
