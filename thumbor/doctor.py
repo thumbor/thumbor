@@ -366,7 +366,10 @@ def main():
             )
         )
         print("Open an issue at https://github.com/thumbor/thumbor/issues/new")
-        sys.exit(1)
+        if errors:
+            sys.exit(1)
+            return
+
         return
 
     print(cf.bold_green("🎉 Congratulations! No errors found! 🎉"))
