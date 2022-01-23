@@ -663,11 +663,6 @@ Config.define(
     "Queued Redis Detector",
 )
 
-# QUEUED DETECTOR SQS OPTIONS
-Config.define("SQS_QUEUE_KEY_ID", None, "AWS key id", "Queued SQS Detector")
-Config.define("SQS_QUEUE_KEY_SECRET", None, "AWS key secret", "Queued SQS Detector")
-Config.define("SQS_QUEUE_REGION", "us-east-1", "AWS SQS region", "Queued SQS Detector")
-
 # ERROR HANDLING
 Config.define(
     "USE_CUSTOM_ERROR_HANDLING",

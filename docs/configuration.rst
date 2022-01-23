@@ -411,38 +411,6 @@ Server password for the queued redis detector
 
    REDIS_QUEUE_SERVER_PASSWORD = None
 
-Queueing - Amazon SQS
----------------------
-
-This queue will be removed in an upcoming release in favor of the open source AWS plug-ins for thumbor.
-
-SQS\_QUEUE\_KEY\_ID
-~~~~~~~~~~~~~~~~~~~
-
-Amazon AWS key id.
-
-.. code:: python
-
-   SQS_QUEUE_KEY_ID = None
-
-SQS\_QUEUE\_KEY\_SECRET
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Amazon AWS key secret.
-
-.. code:: python
-
-   SQS_QUEUE_KEY_SECRET = None
-
-SQS\_QUEUE\_REGION
-~~~~~~~~~~~~~~~~~~
-
-Amazon AWS SQS region.
-
-.. code:: python
-
-   SQS_QUEUE_REGION = 'us-east-1'
-
 Security Section
 ----------------
 
@@ -1373,23 +1341,6 @@ Example of Configuration File
    ## Server password for the queued redis detector
    ## Defaults to: None
    #REDIS_QUEUE_SERVER_PASSWORD = None
-
-   ################################################################################
-
-
-   ############################# Queued SQS Detector ##############################
-
-   ## AWS key id
-   ## Defaults to: None
-   #SQS_QUEUE_KEY_ID = None
-
-   ## AWS key secret
-   ## Defaults to: None
-   #SQS_QUEUE_KEY_SECRET = None
-
-   ## AWS SQS region
-   ## Defaults to: 'us-east-1'
-   #SQS_QUEUE_REGION = 'us-east-1'
 
    ################################################################################
 
