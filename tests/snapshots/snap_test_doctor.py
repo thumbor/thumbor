@@ -17,10 +17,6 @@ Verifying libraries support...
 ✅ pycurl is installed correctly.
 ✅ cairosvg is installed correctly.
 ✅ cv2 is installed correctly.
-❎  pyexiv2 is not installed.
-If you do not need EXIF metadata, you can safely ignore this.
-For more information visit https://python3-exiv2.readthedocs.io/en/latest/.
-
 
 Verifying thumbor compiled extensions...
 
@@ -72,14 +68,6 @@ Verifying security...
 😞 Oh no! We found some things that could improve... 😞
 
 ⚠️Warnings⚠️
-* pyexiv2
-    Error Message:
-        /lib/x86_64-linux-gnu/libboost_python38.so.1.71.0: undefined symbol: _Py_fopen
-
-    Error Description:
-        If you do not need EXIF metadata, you can safely ignore this.
-\tFor more information visit https://python3-exiv2.readthedocs.io/en/latest/.
-
 * Security
     Error Message:
         Using default security key configuration in thumbor.conf.
