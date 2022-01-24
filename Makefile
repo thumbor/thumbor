@@ -53,7 +53,7 @@ format:
 	@black .
 
 flake:
-	@flake8 --config flake8
+	@flake8 --config .flake8
 
 pylint:
 	@pylint thumbor tests
