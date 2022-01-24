@@ -8,8 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import sys
-from io import StringIO
 
 from thumbor.doctor import run_doctor
 
