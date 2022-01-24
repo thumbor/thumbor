@@ -10,9 +10,8 @@
 
 from preggy import expect
 
-from thumbor.point import FocalPoint
-
 from tests.base import TestCase
+from thumbor.point import FocalPoint
 
 
 class FocalPointTestCase(TestCase):

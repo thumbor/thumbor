@@ -10,12 +10,11 @@
 
 from preggy import expect
 
+import thumbor.metrics
+from tests.base import TestCase
+from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.importer import Importer
-from thumbor.config import Config
-import thumbor.metrics
-
-from tests.base import TestCase
 
 
 class StatsdMetricsTestCase(TestCase):

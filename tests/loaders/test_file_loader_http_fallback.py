@@ -9,8 +9,8 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from os.path import abspath, dirname, join
+from unittest.mock import patch
 
-from mock import patch
 from preggy import expect
 from tornado.testing import gen_test
 

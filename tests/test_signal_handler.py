@@ -9,9 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import signal
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from thumbor.signal_handler import setup_signal_handler, signal_handler
 

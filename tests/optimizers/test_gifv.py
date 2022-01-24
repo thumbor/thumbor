@@ -9,9 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from shutil import which
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from thumbor.config import Config
 from thumbor.context import Context, RequestParameters

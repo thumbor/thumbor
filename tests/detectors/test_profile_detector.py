@@ -9,8 +9,8 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from os.path import abspath
+from unittest import mock
 
-import mock
 from preggy import expect
 from tornado.testing import gen_test
 

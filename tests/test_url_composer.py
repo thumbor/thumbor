@@ -11,9 +11,8 @@
 import optparse
 import sys
 from io import StringIO
-from unittest import TestCase
+from unittest import TestCase, mock
 
-import mock
 from preggy import expect
 
 import thumbor.url_composer as composer

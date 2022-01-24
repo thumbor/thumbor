@@ -10,9 +10,8 @@
 
 import logging
 from shutil import which
-from unittest import TestCase
+from unittest import TestCase, mock
 
-from mock import patch
 from preggy import expect
 
 from thumbor.utils import CONTENT_TYPE, EXTENSION, deprecated, logger
@@ -57,7 +56,7 @@ class UtilsTestCase(TestCase):
         def test_func():
             pass
 
-        with patch.object(logger, "warning") as mock_warn:
+        with mock.patch.object(logger, "warning") as mock_warn:
             test_func()
             mock_warn.assert_called_once_with(
                 "Deprecated function %s%s", "test_func", "func2"

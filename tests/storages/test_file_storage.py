@@ -12,8 +12,8 @@ import shutil
 from datetime import datetime
 from os.path import dirname, exists, join
 from tempfile import mkdtemp
+from unittest import mock
 
-import mock
 from preggy import expect
 from tornado.testing import gen_test
 
