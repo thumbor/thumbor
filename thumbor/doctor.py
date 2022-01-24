@@ -21,12 +21,12 @@ import colorful as cf
 from thumbor import __release_date__, __version__
 from thumbor.config import Config
 from thumbor.ext import BUILTIN_EXTENSIONS
-from thumbor.filters import BUILTIN_FILTERS
 
 CHECK = "✅"
-CROSS = "❎ "
+CROSS = "❎"
 WARNING = "⚠️"
 ERROR = "⛔"
+QUESTION = "❓"
 
 
 def get_options():
@@ -68,34 +68,6 @@ def subheader(msg, color=cf.bold_coral):
 
 def newline():
     print()
-
-
-def check_filters(cfg):
-    newline()
-    errors = []
-
-    to_check = BUILTIN_FILTERS
-    if cfg is not None:
-        to_check = cfg.FILTERS
-
-    if to_check:
-        subheader("Verifying thumbor filters...")
-
-    for filter_name in to_check:
-        try:
-            import_module(filter_name)
-            print(cf.bold_green(f"{CHECK} {filter_name}"))
-        except ImportError as error:
-            print(cf.bold_red(f"{CROSS} {filter_name}"))
-            errors.append(
-                format_error(
-                    filter_name,
-                    str(error),
-                    "Can't import filter meaning this filter won't work.",
-                )
-            )
-
-    return errors
 
 
 def check_extensibility_modules(cfg):
@@ -158,21 +130,21 @@ def check_extensibility_modules(cfg):
     if any(c[0](cfg) for c in to_check):
         subheader("Verifying extensibility modules found in your thumbor.conf...")
 
-    for should_check, module, error_message in to_check:
+    for should_check, modules, error_message in to_check:
         if not should_check(cfg):
             continue
-        if not isinstance(module, (list, tuple)):
-            module = [module]
+        if not isinstance(modules, (list, tuple)):
+            modules = [modules]
 
-        for m in module:
+        for module in modules:
             try:
-                import_module(m)
-                print(cf.bold_green(f"{CHECK} {m}"))
+                import_module(module)
+                print(cf.bold_green(f"{CHECK} {module}"))
             except ImportError as error:
-                print(cf.bold_red(f"{CROSS} {m} - {error_message}"))
+                print(cf.bold_red(f"{CROSS} {module} - {error_message}"))
                 errors.append(
                     format_error(
-                        m,
+                        module,
                         str(error),
                         error_message,
                     )
@@ -408,7 +380,6 @@ def print_header(print_version=True):
 def check_everything(cfg, check_pyexiv):
     warnings, errors = check_modules(cfg, check_pyexiv)
     errors += check_compiled_extensions()
-    errors += check_filters(cfg)
     errors += check_extensibility_modules(cfg)
     errors += check_extensions(cfg)
 
@@ -439,15 +410,13 @@ def print_results(warnings, errors):
         print("\n\n".join([f"{str(err)}" for err in errors]))
         newline()
 
-    newline()
-    print(
-        cf.cyan("If you don't know how to fix them, please open an issue with thumbor.")
-    )
+    subheader(f"{QUESTION}Need Help{QUESTION}")
     print(
         cf.cyan(
-            "Don't forget to copy this log and add it to the description of your issue."
+            "If you don't know how to fix the above problems, please open an issue with thumbor."
         )
     )
+    print(cf.cyan("Don't forget to copy this log and add it to the description."))
     print("Open an issue at https://github.com/thumbor/thumbor/issues/new")
 
 
