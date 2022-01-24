@@ -118,9 +118,40 @@ def check_extensibility_modules(cfg):
         ),
         (lambda cfg: True, cfg.RESULT_STORAGE, "ResultStorage could not be imported."),
         (
+            lambda cfg: True,
+            cfg.ENGINE,
+            "Engine for transforming images could not be imported.",
+        ),
+        (
             lambda cfg: cfg.UPLOAD_ENABLED,
             cfg.UPLOAD_PHOTO_STORAGE,
             "Uploading to thumbor is enabled and the Upload Storage could not be imported.",
+        ),
+        (
+            lambda cfg: True,
+            cfg.DETECTORS,
+            "Detector could not be imported.",
+        ),
+        (
+            lambda cfg: True,
+            cfg.FILTERS,
+            "Filter could not be imported.",
+        ),
+        (
+            lambda cfg: True,
+            cfg.OPTIMIZERS,
+            "Optimizer could not be imported.",
+        ),
+        (
+            lambda cfg: cfg.USE_CUSTOM_ERROR_HANDLING,
+            cfg.ERROR_HANDLER_MODULE,
+            "Custom error handling is enabled and the "
+            "error handler module could not be imported.",
+        ),
+        (
+            lambda cfg: True,
+            cfg.HANDLER_LISTS,
+            "Custom http handler could not be imported.",
         ),
     ]
 
@@ -130,18 +161,22 @@ def check_extensibility_modules(cfg):
     for should_check, module, error_message in to_check:
         if not should_check(cfg):
             continue
-        try:
-            import_module(module)
-            print(cf.bold_green(f"{CHECK} {module}"))
-        except ImportError as error:
-            print(cf.bold_red(f"{CROSS} {module} - {error_message}"))
-            errors.append(
-                format_error(
-                    module,
-                    str(error),
-                    error_message,
+        if not isinstance(module, (list, tuple)):
+            module = [module]
+
+        for m in module:
+            try:
+                import_module(m)
+                print(cf.bold_green(f"{CHECK} {m}"))
+            except ImportError as error:
+                print(cf.bold_red(f"{CROSS} {m} - {error_message}"))
+                errors.append(
+                    format_error(
+                        m,
+                        str(error),
+                        error_message,
+                    )
                 )
-            )
 
     return errors
 
@@ -303,6 +338,44 @@ def check_extensions(cfg):
     return errors
 
 
+def check_security(cfg):
+    newline()
+    subheader("Verifying security...")
+    errors = []
+    warnings = []
+
+    if cfg.SECURITY_KEY == "MY_SECURE_KEY":
+        print(cf.bold_red(f"{CROSS} Using default security key."))
+
+        warnings.append(
+            format_error(
+                "Security",
+                "Using default security key configuration in thumbor.conf.",
+                "You should specify a unique security key for thumbor or "
+                "use a command line param to specify a security key.\n"
+                "For more information visit "
+                "https://thumbor.readthedocs.io/en/latest/running.html",
+            )
+        )
+
+    if cfg.ALLOW_UNSAFE_URL:
+        print(cf.bold_red(f"{CROSS} Allowing unsafe URLs."))
+
+        errors.append(
+            format_error(
+                "Security",
+                "Unsafe URLs are enabled.",
+                "It is STRONGLY recommended that you turn off "
+                "ALLOW_UNSAFE_URLS flag in production environments "
+                "as this can lead to DDoS attacks against thumbor.\n"
+                "For more information visit "
+                "https://thumbor.readthedocs.io/en/latest/security.html",
+            )
+        )
+
+    return errors, warnings
+
+
 def load_config(config_path):
     cfg = None
     if config_path is not None:
@@ -335,6 +408,10 @@ def check_everything(cfg):
     errors += check_filters(cfg)
     errors += check_extensibility_modules(cfg)
     errors += check_extensions(cfg)
+
+    sec_err, sec_warn = check_security(cfg)
+    errors += sec_err
+    warnings += sec_warn
 
     newline()
     return warnings, errors
