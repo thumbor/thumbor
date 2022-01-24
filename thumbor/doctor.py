@@ -192,10 +192,8 @@ def check_modules(cfg):
     modules = [
         (
             "pycurl",
-            (
-                "Thumbor works much better with PyCurl. "
-                "For more information visit http://pycurl.io/."
-            ),
+            "Thumbor works much better with PyCurl. "
+            "For more information visit http://pycurl.io/.",
         ),
         (
             "cairosvg",
