@@ -117,7 +117,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.0",
             "opencv-python-headless==4.*,>=4.2.0",
-            "Pillow>=8.4.0,<9",
+            "Pillow>=9.0.0",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
             "socketfromfd>=0.2.0",
