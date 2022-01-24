@@ -9,7 +9,6 @@ snapshots = Snapshot()
 
 snapshots['test_get_doctor_output 1'] = '''Using configuration file found at ./tests/invalid-thumbor.conf
 
-
 Thumbor doctor will analyze your install and verify if everything is working as expected.
 
 Verifying libraries support...
@@ -54,7 +53,6 @@ Verifying extensibility modules found in your thumbor.conf...
 ✅ thumbor.handler_lists.upload
 ✅ thumbor.handler_lists.blacklist
 ❎ my.invalid.handler - Custom http handler could not be imported.
-
 
 Verifying security...
 

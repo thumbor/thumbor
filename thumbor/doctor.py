@@ -314,7 +314,6 @@ def check_extensions(cfg):
 
 
 def check_security(cfg):
-    newline()
     subheader("Verifying security...")
     errors = []
     warnings = []
@@ -367,8 +366,8 @@ def configure_colors(nocolor):
 
 
 def print_header(print_version=True):
-    newline()
     if print_version:
+        newline()
         header(f"Thumbor v{__version__} (of {__release_date__})")
     newline()
     print(
