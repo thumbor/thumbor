@@ -41,6 +41,7 @@ TESTS_REQUIREMENTS = [
     "redis==3.*,>=3.4.0",
     "remotecv>=2.3.0",
     "sentry-sdk==0.*,>=0.14.1",
+    "snapshottest>=0.6.0,<1.0.0",
     "yanc==0.*,>=0.3.3",
 ]
 

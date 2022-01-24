@@ -318,9 +318,10 @@ def configure_colors(nocolor):
         cf.disable()
 
 
-def print_header():
+def print_header(print_version=True):
     newline()
-    header(f"Thumbor v{__version__} (of {__release_date__})")
+    if print_version:
+        header(f"Thumbor v{__version__} (of {__release_date__})")
     newline()
     print(
         "Thumbor doctor will analyze your install and verify "
@@ -368,7 +369,17 @@ def print_results(warnings, errors):
         )
     )
     print("Open an issue at https://github.com/thumbor/thumbor/issues/new")
-    if errors:
+
+
+def run_doctor(options, print_version=True, exit_with_error=True):
+    cfg = load_config(options["config"])
+    configure_colors(options["nocolor"])
+
+    print_header(print_version)
+    warnings, errors = check_everything(cfg)
+    print_results(warnings, errors)
+
+    if exit_with_error and errors:
         sys.exit(1)
 
 
@@ -376,12 +387,7 @@ def main():
     """Verifies the current environment for problems with thumbor"""
 
     options = get_options()
-    cfg = load_config(options["config"])
-    configure_colors(options["nocolor"])
-
-    print_header()
-    warnings, errors = check_everything(cfg)
-    print_results(warnings, errors)
+    run_doctor(options, print_version=True, exit_with_error=True)
 
 
 if __name__ == "__main__":
