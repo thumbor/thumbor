@@ -228,11 +228,8 @@ def check_modules(cfg):
         (
             "pyexiv2",
             (
-                "Thumbor uses exiv2 for reading image metadata.\n"
-                "Don't worry. If you don't have exiv2 installed, "
-                "Thumbor will still work.\nIt just means your images won't "
-                "have EXIF metadata stored properly.\n"
-                "For more information check "
+                "If you do not need EXIF metadata, you can safely ignore this.\n"
+                "For more information visit "
                 "https://python3-exiv2.readthedocs.io/en/latest/."
             ),
         ),
