@@ -169,3 +169,42 @@ If you don't know how to fix the above problems, please open an issue with thumb
 Don't forget to copy this log and add it to the description.
 Open an issue at https://github.com/thumbor/thumbor/issues/new
 '''
+
+snapshots['test_get_doctor_output_no_config 1'] = '''
+Thumbor doctor will analyze your install and verify if everything is working as expected.
+
+Verifying libraries support...
+
+✅ pycurl is installed correctly.
+✅ cairosvg is installed correctly.
+✅ cv2 is installed correctly.
+
+Verifying thumbor compiled extensions...
+
+✅ _alpha
+✅ _bounding_box
+✅ _brightness
+✅ _colorize
+✅ _composite
+✅ _contrast
+✅ _convolution
+✅ _curve
+✅ _equalize
+✅ _fill
+✅ _nine_patch
+✅ _noise
+✅ _rgb
+✅ _round_corner
+✅ _saturation
+✅ _sharpen
+
+Verifying extension programs...
+
+✅ jpegtran is installed correctly.
+✅ ffmpeg is installed correctly.
+✅ gifsicle is installed correctly.
+Verifying security...
+
+
+🎉 Congratulations! No errors found! 🎉
+'''
