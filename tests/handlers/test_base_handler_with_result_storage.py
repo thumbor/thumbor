@@ -11,8 +11,8 @@
 import os
 from os.path import dirname
 from shutil import which
+from unittest.mock import Mock, patch
 
-from mock import Mock, patch
 from preggy import expect
 from tornado.testing import gen_test
 

@@ -9,12 +9,11 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from os.path import expanduser
-from unittest import TestCase
-import mock
+from unittest import TestCase, mock
 
 from preggy import expect
 
-from thumbor.config import generate_config, format_value, Config
+from thumbor.config import Config, format_value, generate_config
 
 
 class ConfigTestCase(TestCase):

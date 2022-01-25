@@ -10,8 +10,8 @@
 
 import os
 from os.path import dirname
+from unittest.mock import Mock
 
-from mock import Mock
 from preggy import expect
 from tornado.testing import gen_test
 

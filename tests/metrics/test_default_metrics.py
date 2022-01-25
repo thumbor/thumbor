@@ -8,13 +8,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import mock
+from unittest import mock
+
 from preggy import expect
 
 import thumbor.metrics
-from thumbor.importer import Importer
-
 from tests.base import TestCase
+from thumbor.importer import Importer
 
 
 class DefaultMetricsTestCase(TestCase):

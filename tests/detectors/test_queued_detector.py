@@ -9,8 +9,8 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from json import loads
+from unittest import mock
 
-import mock
 from preggy import expect
 from redis import Redis
 from tornado.testing import gen_test

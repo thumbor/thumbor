@@ -8,16 +8,17 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from unittest.mock import patch
+
 import pytest
-from mock import patch
 from preggy import expect
 from tornado.testing import gen_test
 
+from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.engines.pil import Engine
 from thumbor.importer import Importer
-from tests.handlers.test_base_handler import BaseImagingTestCase
 
 # pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
 # pylint: disable=too-many-lines

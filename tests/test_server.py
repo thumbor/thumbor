@@ -8,9 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from unittest import TestCase
+from unittest import TestCase, mock
 
-import mock
 from preggy import expect
 
 import thumbor.server

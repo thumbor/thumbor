@@ -8,7 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from mock import Mock
+from unittest.mock import Mock
+
 from preggy import expect
 
 from tests.base import TestCase

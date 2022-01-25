@@ -11,8 +11,8 @@
 import tempfile
 from datetime import datetime
 from os.path import abspath, dirname, join
+from unittest import mock
 
-import mock
 from preggy import expect
 from tornado.testing import gen_test
 

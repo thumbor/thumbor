@@ -12,10 +12,9 @@
 
 from os.path import abspath, dirname, join
 from struct import pack
-from unittest import TestCase
+from unittest import TestCase, mock
 from xml.etree.ElementTree import ParseError
 
-import mock
 from preggy import expect
 
 from thumbor.config import Config

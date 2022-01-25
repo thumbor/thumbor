@@ -11,8 +11,8 @@
 # pylint: disable=protected-access
 
 from time import sleep
+from unittest import mock
 
-import mock
 import pytest
 from preggy import expect
 

@@ -74,7 +74,7 @@ class ImageOperationsWithoutCorsHeaderTestCase(BaseImagingTestCase):
 
 class ImageOperationsWithCorsHeaderTestCase(BaseImagingTestCase):
     def get_context(self):
-        cfg = Config(SECURITY_KEY="ACME-SEC", ACCESS_CONTROL_ALLOW_ORIGIN_HEADER='*')
+        cfg = Config(SECURITY_KEY="ACME-SEC", ACCESS_CONTROL_ALLOW_ORIGIN_HEADER="*")
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.ENABLE_ETAGS = False
@@ -93,7 +93,7 @@ class ImageOperationsWithCorsHeaderTestCase(BaseImagingTestCase):
 
         expect(response.code).to_equal(200)
         expect(response.headers).to_include("Access-Control-Allow-Origin")
-        expect(response.headers['Access-Control-Allow-Origin']).to_equal('*')
+        expect(response.headers["Access-Control-Allow-Origin"]).to_equal("*")
 
 
 class ImageOperationsWithLastModifiedTestCase(BaseImagingTestCase):
