@@ -24,3 +24,17 @@ def test_get_doctor_output(snapshot, capsys):
     )
     result = capsys.readouterr()
     snapshot.assert_match(result.out)
+
+
+def test_get_doctor_output_no_config(snapshot, capsys):
+    run_doctor(
+        {
+            "nocolor": True,
+            "config": None,
+        },
+        print_version=False,
+        exit_with_error=False,
+        check_pyexiv=False,
+    )
+    result = capsys.readouterr()
+    snapshot.assert_match(result.out)

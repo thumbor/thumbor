@@ -72,7 +72,7 @@ def newline():
 
 def check_extensibility_modules(cfg):
     if cfg is None:
-        return None
+        return []
 
     newline()
     errors = []
@@ -318,6 +318,9 @@ def check_security(cfg):
     errors = []
     warnings = []
 
+    if cfg is None:
+        return errors, warnings
+
     if cfg.SECURITY_KEY == "MY_SECURE_KEY":
         print(cf.bold_red(f"{CROSS} Using default security key."))
 
@@ -393,7 +396,6 @@ def check_everything(cfg, check_pyexiv):
 def print_results(warnings, errors):
     if not warnings and not errors:
         print(cf.bold_green("🎉 Congratulations! No errors found! 🎉"))
-        sys.exit(1)
         return
 
     print(cf.bold_red("😞 Oh no! We found some things that could improve... 😞"))
