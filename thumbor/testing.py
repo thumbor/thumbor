@@ -12,9 +12,9 @@ import mimetypes
 import random
 from io import BytesIO
 from os.path import dirname, join, realpath
+from unittest import mock
 from urllib.parse import urlencode
 
-import mock
 from PIL import Image
 from ssim import compute_ssim
 from tornado.testing import AsyncHTTPTestCase
