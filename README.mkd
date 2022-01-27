@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-Crop, resize, transform, all on-demand and AI Powered
+Crop, resize, transform and much more, all on-demand and AI Powered
 </p>
 
 <p align="center">
