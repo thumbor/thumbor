@@ -2,9 +2,9 @@
   <img title="thumbor" alt="thumbor" src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png" />
 </p>
 
-<p align="center">
+<h2 align="center">
 Crop, resize, transform and much more, all on-demand and AI Powered
-</p>
+</h2>
 
 <p align="center">
   <img src='https://github.com/thumbor/thumbor/workflows/build/badge.svg' />
