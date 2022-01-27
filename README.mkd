@@ -18,14 +18,16 @@ open-source smart on-demand image cropping, resizing and filters.
   <a href='https://codeclimate.com/github/thumbor/thumbor' target='_blank'>
     <img src='https://codeclimate.com/github/thumbor/thumbor/badges/gpa.svg'/>
   </a>
+  <a href='https://pypi.python.org/pypi/thumbor' target='_blank'>
+    <img src='https://img.shields.io/pypi/v/thumbor.svg'/>
+  </a>
+</p>
+<p align="center">
   <a href='https://github.com/thumbor/thumbor/pulls' target='_blank'>
     <img src='https://img.shields.io/github/issues-pr-raw/thumbor/thumbor.svg'/>
   </a>
   <a href='https://github.com/thumbor/thumbor/issues' target='_blank'>
     <img src='https://img.shields.io/github/issues-raw/thumbor/thumbor.svg'/>
-  </a>
-  <a href='https://pypi.python.org/pypi/thumbor' target='_blank'>
-    <img src='https://img.shields.io/pypi/v/thumbor.svg'/>
   </a>
   <a href='https://pypi.python.org/pypi/thumbor' target='_blank'>
     <img src='https://img.shields.io/pypi/dm/thumbor.svg'/>
