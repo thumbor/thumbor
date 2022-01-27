@@ -55,8 +55,10 @@ There are many options to explore in image URLs. You can learn more in the [usag
 <h3 align="center">thumbor is trusted by thousands of companies worldwide</h3>
 <p align="center">
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/wikipedia-logo.png?raw=true" alt="Wikipedia trusts thumbor" title="Wikipedia trusts thumbor" width="128" height="128" />
+  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/globocom.png?raw=true" alt="Globo.com trusts thumbor" title="Globo.com trusts thumbor" width="128" height="128" />
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/voxmedia.png?raw=true" alt="Vox Media trusts thumbor" title="Vox Media trusts thumbor" width="128" height="128" />
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/forbes.png?raw=true" alt="Forbes trusts thumbor" title="Forbes trusts thumbor" width="128" height="128" />
+  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/deliveroo.png?raw=true" alt="Deliveroo trusts thumbor" title="Deliveroo trusts thumbor" width="128" height="128" />
 </p>
 
 For more information check [thumbor's documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
