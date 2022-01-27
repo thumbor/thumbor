@@ -2,8 +2,8 @@ If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qP
 
 <p align="center">
   <img src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png" />
-  <h3 align="center">thumbor</h3>
 </p>
+<h3 align="center">thumbor</h3>
 
 
 <p align="center">
@@ -52,7 +52,7 @@ You should see an image of the thumbor logo in 300x200.
 
 There are many options to explore in image URLs. You can learn more in the [usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
 
-<h3 align="center">thumbor is trusted by thousands of companies worldwide</h3>
+<h3 align="center">thumbor is trusted by hundreds of companies worldwide</h3>
 <p align="center">
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/wikipedia.png?raw=true" alt="Wikipedia trusts thumbor" title="Wikipedia trusts thumbor" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/globocom.png?raw=true" alt="Globo.com trusts thumbor" title="Globo.com trusts thumbor" width="128" height="128" />&nbsp;
@@ -66,7 +66,7 @@ There are many options to explore in image URLs. You can learn more in the [usag
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/webdev.png?raw=true" alt="web.dev indicates thumbor for high-performance web sites" title="web.dev indicates thumbor for high-performance web sites" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/aws.png?raw=true" alt="aws indicates thumbor for serverless image handling" title="aws indicates thumbor for serverless image handling" width="128" height="128" />
   <br />
-  and many more...
+  and hundreds more...
 </p>
 
 For more information check [thumbor's documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
