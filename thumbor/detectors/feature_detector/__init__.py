@@ -8,9 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import numpy as np
+try:
+    import numpy as np
+    import cv2
+except ImportError:
+    pass
 
-import cv2
 from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
 from thumbor.utils import logger

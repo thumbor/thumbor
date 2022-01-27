@@ -15,7 +15,6 @@ Verifying libraries support...
 
 ✅ pycurl is installed correctly.
 ✅ cairosvg is installed correctly.
-✅ cv2 is installed correctly.
 
 Verifying thumbor compiled extensions...
 
@@ -43,16 +42,18 @@ Verifying extensibility modules found in your thumbor.conf...
 ❎ thumbor.result_storages.file_storagee - ResultStorage could not be imported.
 ❎ thumbor.engines.pillage - Engine for transforming images could not be imported.
 ❎ thumbor.storages.file_storager - Uploading to thumbor is enabled and the Upload Storage could not be imported.
+✅ thumbor.detectors.face_detector
 ❎ thumbor.detectors.face_detectorer - Detector could not be imported.
 ❎ thumbor.detectors.other_invalid - Detector could not be imported.
 ❎ invalid-filter - Filter could not be imported.
-❎ thumbor.optimizers.jpegtraner - Optimizer could not be imported.
+✅ thumbor.filters.redeye
 ❎ thumbor.optimizers.gifver - Optimizer could not be imported.
+❎ thumbor.optimizers.jpegtraner - Optimizer could not be imported.
 ❎ thumbor.error_handlers.sentryer - Custom error handling is enabled and the error handler module could not be imported.
+❎ my.invalid.handler - Custom http handler could not be imported.
+✅ thumbor.handler_lists.blacklist
 ✅ thumbor.handler_lists.healthcheck
 ✅ thumbor.handler_lists.upload
-✅ thumbor.handler_lists.blacklist
-❎ my.invalid.handler - Custom http handler could not be imported.
 
 Verifying security...
 
@@ -127,16 +128,16 @@ Verifying security...
     Error Description:
         Filter could not be imported.
 
-* thumbor.optimizers.jpegtraner
+* thumbor.optimizers.gifver
     Error Message:
-        No module named 'thumbor.optimizers.jpegtraner'
+        No module named 'thumbor.optimizers.gifver'
 
     Error Description:
         Optimizer could not be imported.
 
-* thumbor.optimizers.gifver
+* thumbor.optimizers.jpegtraner
     Error Message:
-        No module named 'thumbor.optimizers.gifver'
+        No module named 'thumbor.optimizers.jpegtraner'
 
     Error Description:
         Optimizer could not be imported.
@@ -177,7 +178,6 @@ Verifying libraries support...
 
 ✅ pycurl is installed correctly.
 ✅ cairosvg is installed correctly.
-✅ cv2 is installed correctly.
 
 Verifying thumbor compiled extensions...
 
