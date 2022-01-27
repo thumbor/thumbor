@@ -63,12 +63,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
 
 You should see an image of the thumbor logo in 300x200.
 
-There are many options to explore in image URLs. You can learn more in the [usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
-
-
-If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? Only 2 questions!
-
-For more information check [thumbor's documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
+Learn more about all you can do in [thumbor's documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
 
 ## ⚙️ Installation
 
@@ -146,6 +141,8 @@ All of it with clear indication of each project quality. Have fun!
 thumbor is an open-source project with many contributors. Join them
 [contributing code](https://github.com/thumbor/thumbor/blob/master/CONTRIBUTING.md) or
 [contributing documentation](https://github.com/thumbor/thumbor/blob/master/CONTRIBUTING.md).
+
+If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? Only 2 questions!
 
 Join the chat at https://gitter.im/thumbor/thumbor
 
