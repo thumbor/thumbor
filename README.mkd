@@ -12,9 +12,6 @@ open-source smart on-demand image cropping, resizing and filters.
 
 <p align="center">
   <img src='https://github.com/thumbor/thumbor/workflows/build/badge.svg' />
-  <a href='https://circleci.com/gh/thumbor/thumbor' target='_blank'>
-    <img src='https://circleci.com/gh/thumbor/thumbor.svg?style=shield&circle-token=:circle-token'/>
-  </a>
   <a href='https://coveralls.io/github/thumbor/thumbor?branch=master' target='_blank'>
     <img src='https://coveralls.io/repos/thumbor/thumbor/badge.svg?branch=master&service=github'/>
   </a>
