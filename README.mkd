@@ -32,22 +32,6 @@ Crop, resize, transform and much more, all on-demand and AI Powered
   </a>
 </p>
 
-
-thumbor is a smart imaging service. It enables on-demand [cropping, resizing, applying filters and optimizing](http://thumbor.readthedocs.io/en/latest/crop_and_resize_algorithms.html) images.
-
-Cropping photos automatically can be a frustrating experience with severed heads involved. thumbor
-uses [AI for smart detection](http://thumbor.readthedocs.io/en/latest/detection_algorithms.html).
-
-thumbor is an HTTP server and you can create as many different images as you want just by varying path parameters:
-
-```
-http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
-```
-
-You should see an image of the thumbor logo in 300x200.
-
-There are many options to explore in image URLs. You can learn more in the [usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
-
 <h3 align="center">thumbor is trusted by hundreds of companies worldwide</h3>
 <p align="center">
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/wikipedia.png?raw=true" alt="Wikipedia trusts thumbor" title="Wikipedia trusts thumbor" width="128" height="128" />&nbsp;
@@ -64,6 +48,22 @@ There are many options to explore in image URLs. You can learn more in the [usag
   <br />
   and hundreds more...
 </p>
+
+thumbor is a smart imaging service. It enables on-demand [cropping, resizing, applying filters and optimizing](http://thumbor.readthedocs.io/en/latest/crop_and_resize_algorithms.html) images.
+
+Cropping photos automatically can be a frustrating experience with severed heads involved. thumbor
+uses [AI for smart detection](http://thumbor.readthedocs.io/en/latest/detection_algorithms.html).
+
+thumbor is an HTTP server and you can create as many different images as you want just by varying path parameters:
+
+```
+http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
+```
+
+You should see an image of the thumbor logo in 300x200.
+
+There are many options to explore in image URLs. You can learn more in the [usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
+
 
 If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? Only 2 questions!
 
