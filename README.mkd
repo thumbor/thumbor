@@ -115,7 +115,7 @@ thumbor-doctor --nocolor -c thumbor.conf
 
 ## 🌟 Awesome Goodies
 
-[awesome-thumbor](https://github.com/thumbor/awesome-thumbor) is a curated list of all things thumbor. There you can find links to filters, storages, docker images, extensions in your favorite language and framework, and much more.
+[awesome-thumbor](https://github.com/thumbor/awesome-thumbor) is a curated list of all things thumbor. There you can find filters, storages, engines, loaders, docker images, extensions in your favorite language and framework, and much more.
 
 All of it with clear indication of each project quality. Have fun!
 
