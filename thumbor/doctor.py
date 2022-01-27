@@ -241,7 +241,7 @@ def format_error(dependency, err, msg):
     return result.strip()
 
 
-def check_modules(cfg, check_pyexiv=True):
+def check_modules(check_pyexiv=True):
     newline()
     errors = []
 
@@ -422,7 +422,7 @@ def print_header(print_version=True):
 
 
 def check_everything(cfg, check_pyexiv):
-    warnings, errors = check_modules(cfg, check_pyexiv)
+    warnings, errors = check_modules(check_pyexiv)
     errors += check_compiled_extensions()
     errors += check_extensibility_modules(cfg)
     errors += check_extensions(cfg)
