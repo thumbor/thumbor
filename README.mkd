@@ -21,8 +21,7 @@ open-source smart on-demand image cropping, resizing and filters.
   <a href='https://pypi.python.org/pypi/thumbor' target='_blank'>
     <img src='https://img.shields.io/pypi/v/thumbor.svg'/>
   </a>
-</p>
-<p align="center" style="margin-top: -5px">
+  <br />
   <a href='https://github.com/thumbor/thumbor/pulls' target='_blank'>
     <img src='https://img.shields.io/github/issues-pr-raw/thumbor/thumbor.svg'/>
   </a>
