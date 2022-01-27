@@ -62,6 +62,7 @@ There are many options to explore in image URLs. You can learn more in the [usag
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/deliveroo.png?raw=true" alt="Deliveroo trusts thumbor" title="Deliveroo trusts thumbor" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/canalplus.png?raw=true" alt="Canal+ trusts thumbor" title="Canal+ trusts thumbor" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/terra.png?raw=true" alt="Terra trusts thumbor" title="Terra trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/olx.png?raw=true" alt="OLX trusts thumbor" title="OLX trusts thumbor" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/webdev.png?raw=true" alt="web.dev indicates thumbor for high-performance web sites" title="web.dev indicates thumbor for high-performance web sites" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/aws.png?raw=true" alt="aws indicates thumbor for serverless image handling" title="aws indicates thumbor for serverless image handling" width="128" height="128" />
   <br />
