@@ -52,9 +52,9 @@ You should see an image of the thumbor logo in 300x200.
 
 There are many options to explore in image URLs. You can learn more in the [usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
 
-thumbor is trusted by thousands of companies worldwide, such as:
 
 <p align="center">
+  <h3>thumbor is trusted by thousands of companies worldwide, such as:</h3>
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/wikipedia-logo.png?raw=true" alt="Wikipedia trusts thumbor" title="Wikipedia trusts thumbor" />
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/voxmedia.png?raw=true" alt="Vox Media trusts thumbor" title="Vox Media trusts thumbor" />
 </p>
