@@ -1,9 +1,6 @@
-If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? Only 2 questions!
-
-<h3 align="center">
-  <img src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png" />
-  <br />thumbor
-</h3>
+<p align="center">
+  <img title="thumbor" alt="thumbor" src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png" />
+</p>
 
 <p align="center">
 open-source smart on-demand image cropping, resizing and filters.
@@ -67,6 +64,8 @@ There are many options to explore in image URLs. You can learn more in the [usag
   <br />
   and hundreds more...
 </p>
+
+If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? Only 2 questions!
 
 For more information check [thumbor's documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
 
