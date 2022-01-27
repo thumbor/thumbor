@@ -2,9 +2,9 @@
   <img title="thumbor" alt="thumbor" src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png" />
 </p>
 
-<h2 align="center">
+<h3 align="center">
 Crop, resize, transform and much more, all on-demand and AI Powered
-</h2>
+</h3>
 
 <p align="center">
   <img src='https://github.com/thumbor/thumbor/workflows/build/badge.svg' />
@@ -32,7 +32,7 @@ Crop, resize, transform and much more, all on-demand and AI Powered
   </a>
 </p>
 
-<h3 align="center">thumbor is trusted by hundreds of companies worldwide</h3>
+<h4 align="center">thumbor is trusted by hundreds of companies worldwide</h4>
 <p align="center">
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/wikipedia.png?raw=true" alt="Wikipedia trusts thumbor" title="Wikipedia trusts thumbor" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/globocom.png?raw=true" alt="Globo.com trusts thumbor" title="Globo.com trusts thumbor" width="128" height="128" />&nbsp;
