@@ -37,19 +37,25 @@ open-source smart on-demand image cropping, resizing and filters.
 </p>
 
 
-thumbor is a smart imaging service. It enables on-demand [crop, resizing and flipping](http://thumbor.readthedocs.io/en/latest/crop_and_resize_algorithms.html) of images.
+thumbor is a smart imaging service. It enables on-demand [cropping, resizing, applying filters and optimizing](http://thumbor.readthedocs.io/en/latest/crop_and_resize_algorithms.html) images.
 
-It also features a VERY smart detection of important points in the image for better cropping and resizing, using state-of-the-art face and feature detection algorithms (more on that in [Detection Algorithms](http://thumbor.readthedocs.io/en/latest/detection_algorithms.html)).
+Cropping photos automatically can be a frustrating experience with severed heads involved. thumbor
+uses [AI for smart detection](http://thumbor.readthedocs.io/en/latest/detection_algorithms.html).
 
-Using thumbor is very easy (after it is running). All you have to do is access it using an URL for an image, like this:
+thumbor is an HTTP server and you can create as many different images as you want just by varying path parameters:
 
 ```
 http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
 ```
 
-That URL will show an image of the thumbor logo in 300x200 using smart crop.
+You should see an image of the thumbor logo in 300x200.
 
-There are several other options to the image URL configuration. You can check them in the [Usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
+There are many options to explore in image URLs. You can learn more in the [usage page](http://thumbor.readthedocs.io/en/latest/usage.html).
+
+thumbor is trusted by thousands of companies worldwide, such as:
+
+<p align="center">
+</p>
 
 For more information check [thumbor's documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
 
