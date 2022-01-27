@@ -129,7 +129,7 @@ thumbor-doctor --nocolor -c thumbor.conf
 - blazing fast using caching
 - supports many storages (local storage, AWS S3, rackspace, ceph, ...)
 - AI-powered cropping based on face and feature detection (glasses, interesting points, ...)
-- Integrated with many different programming languages and frameworks <img src="https://www.python.org/favicon.ico" width="16" height="16" /><img src="https://nodejs.org/static/images/favicons/favicon-32x32.png" width="16" height="16" /><img src="https://rubygems.org/favicon.ico" width="16" height="16" /><img src="https://www.java.com/favicon.ico" width="16" height="16" />
+- Integrated with many different programming languages and frameworks <img src="https://www.python.org/favicon.ico" width="16" height="16" /><img src="https://nodejs.org/static/images/favicons/favicon-32x32.png" width="16" height="16" /><img src="https://rubygems.org/favicon.ico" width="16" height="16" /> and many more...
 - [highly extensible](https://thumbor.readthedocs.io/en/latest/customizing.html)
 
 ## 🌟 Awesome Goodies
