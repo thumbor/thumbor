@@ -1,6 +1,6 @@
 <p align="center">
   <!-- <img title="thumbor" alt="thumbor" src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png" /> -->
-  <img title="thumbor" alt="thumbor" src="https://github.com/thumbor/thumbor/blob/readme/docs/thumbor-logo.png?raw=true" />
+  <img title="thumbor" alt="thumbor" src="https://raw.github.com/thumbor/thumbor/master/docs/logo-thumbor.png" />
 </p>
 
 <h3 align="center">
@@ -35,8 +35,8 @@ Crop, resize, transform and much more, all on-demand and AI Powered
 
 <h4 align="center">thumbor is trusted by hundreds of companies worldwide</h4>
 <p align="center">
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/wikipedia.png?raw=true" alt="Wikipedia trusts thumbor" title="Wikipedia trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/globocom.png?raw=true" alt="Globo.com trusts thumbor" title="Globo.com trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="https://raw.github.com/thumbor/thumbor/master/docs/wikipedia.png?raw=true" alt="Wikipedia trusts thumbor" title="Wikipedia trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="https://raw.github.com/thumbor/thumbor/master/docs/globocom.png?raw=true" alt="Globo.com trusts thumbor" title="Globo.com trusts thumbor" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/vox.png?raw=true" alt="Vox Media trusts thumbor" title="Vox Media trusts thumbor" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/forbes-logo.png?raw=true" alt="Forbes trusts thumbor" title="Forbes trusts thumbor" width="128" height="128" />&nbsp;
   <img src="https://github.com/thumbor/thumbor/blob/readme/docs/squareup.png?raw=true" alt="Square trusts thumbor" title="Square trusts thumbor" width="128" height="128" />&nbsp;
