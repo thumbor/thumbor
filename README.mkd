@@ -113,6 +113,12 @@ thumbor-doctor --nocolor -c thumbor.conf
 - supports many storages (local storage, AWS S3, rackspace, ceph, ...)
 - [highly extensible](https://thumbor.readthedocs.io/en/latest/customizing.html)
 
+## 🌟 Awesome Goodies
+
+[awesome-thumbor](https://github.com/thumbor/awesome-thumbor) is a curated list of all things thumbor. There you can find links to filters, storages, docker images, extensions in your favorite language and framework, and much more.
+
+All of it with clear indication of each project quality. Have fun!
+
 ## 👍 Contribute
 
 thumbor is an open-source project with many contributors. Join them
