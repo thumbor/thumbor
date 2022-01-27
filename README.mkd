@@ -62,7 +62,14 @@ Decide which installation option you want to use.
 ### Option 1: pip
 
 ```bash
+# thumbor with main dependencies only
 pip install thumbor
+
+# thumbor with opencv dependency
+pip install thumbor[opencv]
+
+# thumbor with all dependencies
+pip install thumbor[all]
 ```
 
 ### Option 2: Binary
