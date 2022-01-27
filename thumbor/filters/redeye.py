@@ -11,10 +11,17 @@
 # pylint: disable=no-member
 from os.path import abspath, dirname, join
 
-import cv2
-import numpy as np
-
 from thumbor.filters import BaseFilter, filter_method
+from thumbor.utils import logger
+
+try:
+    import cv2
+    import numpy as np
+
+    OPENCV_AVAILABLE = True
+except ImportError:
+    OPENCV_AVAILABLE = False
+
 
 CASCADE_FILE_PATH = abspath(join(dirname(__file__), "haarcascade_eye.xml"))
 
@@ -26,12 +33,20 @@ RED_THRESHOLD = 2.0
 
 class Filter(BaseFilter):
     @filter_method()
-    async def red_eye(self):
+    async def red_eye(self) -> None:
+        if not OPENCV_AVAILABLE:
+            logger.error(
+                "Can't use red eye removal filter if OpenCV and NumPy are not available."
+            )
+
+            return
+
         faces = [
             face
             for face in self.context.request.focal_points
             if face.origin == "Face Detection"
         ]
+
         if not faces:
             return
 
@@ -62,7 +77,9 @@ class Filter(BaseFilter):
 
             for pos_x, pos_y, width, height in eye_rects:
                 # Crop the eye region
-                eye_image = face_image[pos_y : pos_y + height, pos_x : pos_x + width]
+                eye_image = face_image[
+                    pos_y : pos_y + height, pos_x : pos_x + width
+                ]
 
                 # split the images into 3 channels
                 red, green, blue = cv2.split(eye_image)
@@ -88,8 +105,10 @@ class Filter(BaseFilter):
                 # find contour with max area
                 max_area = 0
                 max_cont = None
+
                 for cont in contours:
                     area = cv2.contourArea(cont)
+
                     if area > max_area:
                         max_area = area
                         max_cont = cont
@@ -127,7 +146,7 @@ class Filter(BaseFilter):
         self.engine.set_image_data(image.tobytes())
 
     @property
-    def cascade(self):
+    def cascade(self) -> None:
         if not hasattr(self, "_cascade"):
             setattr(self, "_cascade", cv2.CascadeClassifier(CASCADE_FILE_PATH))
 

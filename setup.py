@@ -26,7 +26,6 @@ TESTS_REQUIREMENTS = [
     "coverage==5.*,>=5.0.3",
     "flake8==3.*,>=3.7.9",
     "isort==4.*,>=4.3.21",
-    "numpy==1.*,>=1.18.1",
     "preggy==1.*,>=1.4.4",
     "py3exiv2==0.*,>=0.7.1,!=0.7.2,!=0.8.0,!=0.9.3",
     "pycurl==7.*,>=7.43.0",
@@ -46,6 +45,7 @@ TESTS_REQUIREMENTS = [
 
 OPENCV_REQUIREMENTS = [
     "opencv-python-headless==4.*,>=4.2.0",
+    "numpy==1.*,>=1.18.1",
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS

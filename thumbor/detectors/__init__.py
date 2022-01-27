@@ -12,6 +12,7 @@ from thumbor.utils import logger
 
 try:
     import cv2  # noqa
+    import numpy as np  # noqa
 
     CV_AVAILABLE = True
 except ImportError:
