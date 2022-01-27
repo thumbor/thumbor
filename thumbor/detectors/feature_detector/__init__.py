@@ -8,8 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import cv2
-import numpy as np
+try:
+    import numpy as np
+    import cv2
+except ImportError:
+    pass
 
 from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
@@ -18,12 +21,22 @@ from thumbor.utils import logger
 
 class Detector(BaseDetector):
     async def detect(self):
+        if not self.verify_cv():
+            await self.next()
+
+            return
+
         engine = self.context.modules.engine
         try:
-            img = np.array(engine.convert_to_grayscale(update_image=False, alpha=False))
+            img = np.array(
+                engine.convert_to_grayscale(update_image=False, alpha=False)
+            )
         except Exception as error:
             logger.exception(error)
-            logger.warning("Error during feature detection; skipping to next detector")
+            logger.warning(
+                "Error during feature detection; skipping to next detector"
+            )
+
             return await self.next()  # pylint: disable=not-callable
 
         points = cv2.goodFeaturesToTrack(  # pylint: disable=no-member
@@ -33,12 +46,14 @@ class Detector(BaseDetector):
             minDistance=1.0,
             useHarrisDetector=False,
         )
+
         if points is not None:
             for point in points:
                 x_pos, y_pos = point.ravel()
                 self.context.request.focal_points.append(
                     FocalPoint(x_pos.item(), y_pos.item(), 1)
                 )
+
             return
 
         await self.next()  # pylint: disable=not-callable

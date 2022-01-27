@@ -14,6 +14,7 @@ from unittest import mock
 from preggy import expect
 from tornado.testing import gen_test
 
+import thumbor.detectors
 from tests.base import DetectorTestCase
 from thumbor.detectors.glasses_detector import Detector as GlassesDetector
 
@@ -34,7 +35,9 @@ class GlassesDetectorTestCase(DetectorTestCase):
     @gen_test
     async def test_should_detect_glasses(self):
         with open(
-            abspath("./tests/fixtures/images/Christophe_Henner_-_June_2016.jpg"),
+            abspath(
+                "./tests/fixtures/images/Christophe_Henner_-_June_2016.jpg"
+            ),
             "rb",
         ) as fixture:
             self.engine.load(fixture.read(), None)
@@ -43,6 +46,7 @@ class GlassesDetectorTestCase(DetectorTestCase):
             "./thumbor/detectors/glasses_detector/"
             "haarcascade_eye_tree_eyeglasses.xml",
         )
+
         if hasattr(GlassesDetector, "cascade"):
             del GlassesDetector.cascade
         await GlassesDetector(self.context, 0, []).detect()
@@ -52,3 +56,29 @@ class GlassesDetectorTestCase(DetectorTestCase):
         expect(detection_result.y).to_be_numeric()
         expect(detection_result.width).to_be_numeric()
         expect(detection_result.height).to_be_numeric()
+
+    @gen_test
+    async def test_should_skip_if_opencv_not_found(self):
+        with open(
+            abspath(
+                "./tests/fixtures/images/Christophe_Henner_-_June_2016.jpg"
+            ),
+            "rb",
+        ) as fixture:
+            self.engine.load(fixture.read(), None)
+
+        self.context.config.GLASSES_DETECTOR_CASCADE_FILE = abspath(
+            "./thumbor/detectors/glasses_detector/"
+            "haarcascade_eye_tree_eyeglasses.xml",
+        )
+
+        if hasattr(GlassesDetector, "cascade"):
+            del GlassesDetector.cascade
+
+        with mock.patch.object(
+            thumbor.detectors.BaseDetector, "verify_cv", lambda self: False
+        ):
+            await GlassesDetector(self.context, 0, []).detect()
+
+        detection_result = self.context.request.focal_points
+        expect(detection_result).to_length(0)

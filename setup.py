@@ -26,7 +26,6 @@ TESTS_REQUIREMENTS = [
     "coverage==5.*,>=5.0.3",
     "flake8==3.*,>=3.7.9",
     "isort==4.*,>=4.3.21",
-    "numpy==1.*,>=1.18.1",
     "preggy==1.*,>=1.4.4",
     "py3exiv2==0.*,>=0.7.1,!=0.7.2,!=0.8.0,!=0.9.3",
     "pycurl==7.*,>=7.43.0",
@@ -44,6 +43,13 @@ TESTS_REQUIREMENTS = [
     "yanc==0.*,>=0.3.3",
 ]
 
+OPENCV_REQUIREMENTS = [
+    "opencv-python-headless==4.*,>=4.2.0",
+    "numpy==1.*,>=1.18.1",
+]
+
+ALL_REQUIREMENTS = OPENCV_REQUIREMENTS
+
 
 def filter_extension_module(name, lib_objs, lib_headers):
     return Extension(
@@ -52,7 +58,12 @@ def filter_extension_module(name, lib_objs, lib_headers):
         libraries=["m"],
         include_dirs=["thumbor/ext/filters/lib"],
         depends=["setup.py"] + lib_objs + lib_headers,
-        extra_compile_args=["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter"],
+        extra_compile_args=[
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-Wno-unused-parameter",
+        ],
     )
 
 
@@ -116,7 +127,6 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
         install_requires=[
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.0",
-            "opencv-python-headless==4.*,>=4.2.0",
             "Pillow>=9.0.0",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
@@ -125,7 +135,11 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "webcolors==1.*,>=1.10.0",
             "colorful==0.*,>=0.5.4",
         ],
-        extras_require={"tests": TESTS_REQUIREMENTS},
+        extras_require={
+            "all": ALL_REQUIREMENTS,
+            "opencv": OPENCV_REQUIREMENTS,
+            "tests": ALL_REQUIREMENTS + TESTS_REQUIREMENTS,
+        },
         entry_points={
             "console_scripts": [
                 "thumbor=thumbor.server:main",
@@ -144,5 +158,8 @@ except SystemExit as exit_error:
     print(f"\n\n{'*' * 66}")
     logging.exception(exit_error)
     print(f"\n\n{'*' * 66}")
-    print("Couldn't build one or more native extensions" ", skipping compilation.\n\n")
+    print(
+        "Couldn't build one or more native extensions"
+        ", skipping compilation.\n\n"
+    )
     run_setup()

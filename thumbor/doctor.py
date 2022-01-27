@@ -15,6 +15,7 @@ import sys
 from importlib import import_module
 from os.path import abspath
 from shutil import which
+from typing import List
 
 import colorful as cf
 
@@ -88,7 +89,11 @@ def check_extensibility_modules(cfg):
             cfg.LOADER,
             "Loader for source images could not be imported.",
         ),
-        (lambda cfg: True, cfg.RESULT_STORAGE, "ResultStorage could not be imported."),
+        (
+            lambda cfg: True,
+            cfg.RESULT_STORAGE,
+            "ResultStorage could not be imported.",
+        ),
         (
             lambda cfg: True,
             cfg.ENGINE,
@@ -101,17 +106,17 @@ def check_extensibility_modules(cfg):
         ),
         (
             lambda cfg: True,
-            cfg.DETECTORS,
+            sorted(cfg.DETECTORS),
             "Detector could not be imported.",
         ),
         (
             lambda cfg: True,
-            cfg.FILTERS,
+            sorted(cfg.FILTERS),
             "Filter could not be imported.",
         ),
         (
             lambda cfg: True,
-            cfg.OPTIMIZERS,
+            sorted(cfg.OPTIMIZERS),
             "Optimizer could not be imported.",
         ),
         (
@@ -122,17 +127,20 @@ def check_extensibility_modules(cfg):
         ),
         (
             lambda cfg: True,
-            cfg.HANDLER_LISTS,
+            sorted(cfg.HANDLER_LISTS),
             "Custom http handler could not be imported.",
         ),
     ]
 
     if any(c[0](cfg) for c in to_check):
-        subheader("Verifying extensibility modules found in your thumbor.conf...")
+        subheader(
+            "Verifying extensibility modules found in your thumbor.conf..."
+        )
 
     for should_check, modules, error_message in to_check:
         if not should_check(cfg):
             continue
+
         if not isinstance(modules, (list, tuple)):
             modules = [modules]
 
@@ -150,7 +158,48 @@ def check_extensibility_modules(cfg):
                     )
                 )
 
+    if cfg and (
+        has_cv_detector(cfg.DETECTORS) or has_redeye_filter(cfg.FILTERS)
+    ):
+        try:
+            import cv2  # noqa pylint: disable=unused-import,import-outside-toplevel
+            import numpy  # noqa pylint: disable=unused-import,import-outside-toplevel
+        except ImportError as error:
+            print(
+                cf.bold_red(
+                    f"{CROSS} OpenCV Detectors and Filters - {error_message}"
+                )
+            )
+            errors.append(
+                format_error(
+                    "Could not import OpenCV, so detectors and filters "
+                    "that depend on it will not work",
+                    str(error),
+                    error_message,
+                )
+            )
+
     return errors
+
+
+def has_redeye_filter(filters: List[str]):
+    return any(filter_module.endswith("redeye") for filter_module in filters)
+
+
+def has_cv_detector(detectors: List[str]):
+    cv_detectors = [
+        "face_detector",
+        "feature_detector",
+        "glasses_detector",
+        "local_detector",
+        "profile_detector",
+    ]
+
+    for detector in detectors:
+        if any(cv_detector.endswith(detector) for cv_detector in cv_detectors):
+            return True
+
+    return False
 
 
 def check_compiled_extensions():
@@ -192,7 +241,7 @@ def format_error(dependency, err, msg):
     return result.strip()
 
 
-def check_modules(cfg, check_pyexiv=True):
+def check_modules(check_pyexiv=True):
     newline()
     errors = []
 
@@ -208,15 +257,6 @@ def check_modules(cfg, check_pyexiv=True):
             "For more information check https://cairosvg.org/.",
         ),
     ]
-
-    if cfg is None or len(cfg.DETECTORS) != 0:
-        modules.append(
-            (
-                "cv2",
-                "Thumbor requires OpenCV for smart cropping. "
-                "For more information check https://opencv.org/.",
-            )
-        )
 
     if modules:
         subheader("Verifying libraries support...")
@@ -305,7 +345,9 @@ def check_extensions(cfg):
             print(error_message)
             newline()
             errors.append(
-                format_error(program, f"Could not find {program}.", error_message)
+                format_error(
+                    program, f"Could not find {program}.", error_message
+                )
             )
         else:
             print(cf.bold_green(f"{CHECK} {program} is installed correctly."))
@@ -380,7 +422,7 @@ def print_header(print_version=True):
 
 
 def check_everything(cfg, check_pyexiv):
-    warnings, errors = check_modules(cfg, check_pyexiv)
+    warnings, errors = check_modules(check_pyexiv)
     errors += check_compiled_extensions()
     errors += check_extensibility_modules(cfg)
     errors += check_extensions(cfg)
@@ -417,11 +459,15 @@ def print_results(warnings, errors):
             "If you don't know how to fix the above problems, please open an issue with thumbor."
         )
     )
-    print(cf.cyan("Don't forget to copy this log and add it to the description."))
+    print(
+        cf.cyan("Don't forget to copy this log and add it to the description.")
+    )
     print("Open an issue at https://github.com/thumbor/thumbor/issues/new")
 
 
-def run_doctor(options, print_version=True, exit_with_error=True, check_pyexiv=True):
+def run_doctor(
+    options, print_version=True, exit_with_error=True, check_pyexiv=True
+):
     cfg = load_config(options["config"])
     configure_colors(options["nocolor"])
 
