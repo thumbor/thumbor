@@ -32,29 +32,21 @@ Other than that, we seriously advise you to use
 your environment clean of thumbor's dependencies and you can choose when
 to "turn them on".
 
-You can install and use virtualenv following the next steps:
+The project requires Python 3.7+, and in this version virtualenv is already installed by default, to create a virtual enviroment follow the next steps:
 
-1. Check if you already have virtualenv:
-```
-$ which virtualenv
-```
 
-2. In case virtualenv is not installed, install it
+1. Create a virtual enviroment
 ```
-$ pip install virtualenv 
+$ python3 -m venv /path/to/new/virtual/environment 
 ```
 
-3. Create a virtual enviroment
-```
-$ virtualenv <my_env_name>
-```
-
-4. Activate the virtual enviroment
+2. Activate the virtual enviroment
 ```
 $ source <my_env_name>/bin/activate
 ```
-5. Now you can install the dependencies in your virtual enviroment
-6. In case you want deactivate your virtual enviroment:
+
+3. Now you can install the dependencies in your virtual enviroment
+4. In case you want deactivate your virtual enviroment:
 ```
 $ deactivate
 ```
