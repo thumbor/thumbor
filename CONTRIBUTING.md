@@ -29,6 +29,26 @@ We seriously advise you to use
 your environment clean of thumbor's dependencies and you can choose when
 to "turn them on".
 
+You can install and use virtualenv following the next steps:
+
+1. Check if you already have virtualenv:
+    $ which virtualenv
+
+2. In case virtualenv is not installed:
+    $ pip install virtualenv
+
+3. Create a virtual enviroment
+    $ virtualenv <my_env_name>
+
+4. Activate the virtual enviroment
+    $ source <my_env_name>/bin/activate
+
+5. Now you can install the dependencies in your virtual enviroment
+
+6. In case you want deactivate your virtual enviroment:
+    $ deactivate
+
+
 Other than that, you'll also need [redis-server](https://redis.io)
 installed (for queued detector unit tests).
 
