@@ -35,14 +35,14 @@ to "turn them on".
 The project requires Python 3.7+, and in this version virtualenv is already installed by default, to create a virtual enviroment follow the next steps:
 
 
-1. Create a virtual enviroment
+1. Create a virtual enviroment, in the folder .venv, located in the root
 ```
-$ python3 -m venv /path/to/new/virtual/environment 
+$ python3 -m venv ~/.venv/<my_env_name>  
 ```
 
 2. Activate the virtual enviroment
 ```
-$ source <my_env_name>/bin/activate
+$ source ~/.venv/<my_env_name>/bin/activate
 ```
 
 3. Now you can install the dependencies in your virtual enviroment
