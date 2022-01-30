@@ -73,7 +73,9 @@ class BasedMixedStorageTestCase(TestCase):
         return context
 
     def get_server(self):
-        server = ServerParameters(8888, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8888, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return server
 
@@ -88,18 +90,24 @@ class MixedStorageTestCase(BasedMixedStorageTestCase):
         await self.storage.put_crypto("path1")
         await self.storage.put_detector_data("path1", "detector")
 
-        expect(self.storage.file_storage.storage["path1"]["path"]).to_equal("path1")
-        expect(self.storage.file_storage.storage["path1"]["contents"]).to_equal(
-            "contents"
+        expect(self.storage.file_storage.storage["path1"]["path"]).to_equal(
+            "path1"
         )
+        expect(
+            self.storage.file_storage.storage["path1"]["contents"]
+        ).to_equal("contents")
 
         contents = await self.storage.get("path1")
         expect(contents).to_equal("contents")
-        expect(self.storage.file_storage.storage["path1"]).not_to_include("crypto")
-        expect(self.storage.crypto_storage.storage["path1"]).not_to_include("contents")
-        expect(self.storage.crypto_storage.storage["path1"]["crypto"]).to_equal(
-            "security-key"
+        expect(self.storage.file_storage.storage["path1"]).not_to_include(
+            "crypto"
         )
+        expect(self.storage.crypto_storage.storage["path1"]).not_to_include(
+            "contents"
+        )
+        expect(
+            self.storage.crypto_storage.storage["path1"]["crypto"]
+        ).to_equal("security-key")
 
         contents = await self.storage.get_crypto("path1")
         expect(contents).to_equal("security-key")

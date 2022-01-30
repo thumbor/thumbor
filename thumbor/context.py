@@ -28,7 +28,9 @@ class Context:  # pylint: disable=too-many-instance-attributes
     This class should not be cached in the server.
     """
 
-    def __init__(self, server=None, config=None, importer=None, request_handler=None):
+    def __init__(
+        self, server=None, config=None, importer=None, request_handler=None
+    ):
         self.server = server
         self.config = config
         if importer:
@@ -87,7 +89,9 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
         processes=1,
     ):
         self.port = port
-        self.ip = ip  # Other people may depend on this pylint: disable=invalid-name
+        self.ip = (
+            ip  # Other people may depend on this pylint: disable=invalid-name
+        )
         self.config_path = config_path
         self.keyfile = keyfile
         self.log_level = log_level
@@ -95,7 +99,9 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
         self.debug = debug
         self._security_key = None
         self.load_security_key()
-        self.fd = fd  # Other people may depend on this pylint: disable=invalid-name
+        self.fd = (
+            fd  # Other people may depend on this pylint: disable=invalid-name
+        )
         self.gifsicle_path = gifsicle_path
         self.use_environment = use_environment
         self.processes = processes
@@ -168,8 +174,12 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         self.trim = trim
         if trim is not None:
             trim_parts = trim.split(":")
-            self.trim_pos = trim_parts[1] if len(trim_parts) > 1 else "top-left"
-            self.trim_tolerance = int(trim_parts[2]) if len(trim_parts) > 2 else 0
+            self.trim_pos = (
+                trim_parts[1] if len(trim_parts) > 1 else "top-left"
+            )
+            self.trim_tolerance = (
+                int(trim_parts[2]) if len(trim_parts) > 2 else 0
+            )
 
         if crop is not None:
             self.crop = {k: self.int_or_0(v) for k, v in crop.items()}
@@ -226,7 +236,9 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
 
         if request:
             self.url = request.path
-            self.accepts_webp = "image/webp" in request.headers.get("Accept", "")
+            self.accepts_webp = "image/webp" in request.headers.get(
+                "Accept", ""
+            )
 
     @staticmethod
     def int_or_0(value):
@@ -268,8 +280,8 @@ class ContextImporter:  # pylint: disable=too-few-public-methods,too-many-instan
 
         self.compatibility_legacy_storage = None
         if importer.compatibility_legacy_storage is not None:
-            self.compatibility_legacy_storage = importer.compatibility_legacy_storage(
-                context
+            self.compatibility_legacy_storage = (
+                importer.compatibility_legacy_storage(context)
             )
 
         self.compatibility_legacy_result_storage = None

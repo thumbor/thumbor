@@ -35,17 +35,22 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         ctx.server.gifsicle_path = which("gifsicle")
+
         return ctx
 
     @gen_test
     async def test_should_convert_animated_gif_to_mp4_when_filter_without_params(  # NOQA
         self,
     ):
-        response = await self.async_fetch("/unsafe/filters:gifv()/animated.gif")
+        response = await self.async_fetch(
+            "/unsafe/filters:gifv()/animated.gif"
+        )
 
         expect(response.code).to_equal(200)
         expect(response.headers["Content-Type"]).to_equal("video/mp4")
@@ -58,7 +63,9 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
     async def test_should_convert_animated_gif_to_webm_when_filter_with_gifv_webm_param(  # NOQA
         self,
     ):
-        response = await self.async_fetch("/unsafe/filters:gifv(webm)/animated.gif")
+        response = await self.async_fetch(
+            "/unsafe/filters:gifv(webm)/animated.gif"
+        )
 
         expect(response.code).to_equal(200)
         expect(response.headers["Content-Type"]).to_equal("video/webm")

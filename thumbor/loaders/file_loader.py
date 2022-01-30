@@ -17,7 +17,9 @@ from thumbor.loaders import LoaderResult
 
 
 async def load(context, path):
-    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip("/"), path.lstrip("/"))
+    file_path = join(
+        context.config.FILE_LOADER_ROOT_PATH.rstrip("/"), path.lstrip("/")
+    )
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(
         abspath(context.config.FILE_LOADER_ROOT_PATH)

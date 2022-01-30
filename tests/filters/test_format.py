@@ -24,5 +24,7 @@ class FormatFilterTestCase(FilterTestCase):
 
     @gen_test
     async def test_can_set_proper_format(self):
-        await self.get_filtered("source.jpg", "thumbor.filters.format", "format(webp)")
+        await self.get_filtered(
+            "source.jpg", "thumbor.filters.format", "format(webp)"
+        )
         expect(self.context.request.format).to_equal("webp")

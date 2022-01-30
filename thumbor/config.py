@@ -20,7 +20,9 @@ from thumbor.handler_lists import BUILTIN_HANDLERS
 
 HOME = expanduser("~")
 
-Config.define("THUMBOR_LOG_CONFIG", None, "Logging configuration as json", "Logging")
+Config.define(
+    "THUMBOR_LOG_CONFIG", None, "Logging configuration as json", "Logging"
+)
 Config.define(
     "THUMBOR_LOG_FORMAT",
     "%(asctime)s %(name)s:%(levelname)s %(message)s",
@@ -68,7 +70,9 @@ Config.define(
     "Allowed domains for the http loader to download. These are regular expressions.",
     "Imaging",
 )
-Config.define("QUALITY", 80, "Quality index used for generated JPEG images", "Imaging")
+Config.define(
+    "QUALITY", 80, "Quality index used for generated JPEG images", "Imaging"
+)
 Config.define(
     "PROGRESSIVE_JPEG",
     True,
@@ -290,7 +294,9 @@ Config.define(
     "Indicates if the /unsafe URL should be available",
     "Security",
 )
-Config.define("ENABLE_ETAGS", True, "Enables automatically generated etags", "HTTP")
+Config.define(
+    "ENABLE_ETAGS", True, "Enables automatically generated etags", "HTTP"
+)
 Config.define(
     "MAX_ID_LENGTH",
     32,
@@ -309,8 +315,12 @@ Config.define(
 )
 
 # METRICS OPTIONS
-Config.define("STATSD_HOST", None, "Host to send statsd instrumentation to", "Metrics")
-Config.define("STATSD_PORT", 8125, "Port to send statsd instrumentation to", "Metrics")
+Config.define(
+    "STATSD_HOST", None, "Host to send statsd instrumentation to", "Metrics"
+)
+Config.define(
+    "STATSD_PORT", 8125, "Port to send statsd instrumentation to", "Metrics"
+)
 Config.define("STATSD_PREFIX", None, "Prefix for statsd", "Metrics")
 
 # FILE LOADER OPTIONS
@@ -665,8 +675,12 @@ Config.define(
 
 # QUEUED DETECTOR SQS OPTIONS
 Config.define("SQS_QUEUE_KEY_ID", None, "AWS key id", "Queued SQS Detector")
-Config.define("SQS_QUEUE_KEY_SECRET", None, "AWS key secret", "Queued SQS Detector")
-Config.define("SQS_QUEUE_REGION", "us-east-1", "AWS SQS region", "Queued SQS Detector")
+Config.define(
+    "SQS_QUEUE_KEY_SECRET", None, "AWS key secret", "Queued SQS Detector"
+)
+Config.define(
+    "SQS_QUEUE_REGION", "us-east-1", "AWS SQS region", "Queued SQS Detector"
+)
 
 # ERROR HANDLING
 Config.define(
@@ -750,8 +764,9 @@ Config.define(
 )
 
 Config.define(
-    'ACCESS_CONTROL_ALLOW_ORIGIN_HEADER', False,
-    'Sends Access-Control-Allow-Origin header'
+    "ACCESS_CONTROL_ALLOW_ORIGIN_HEADER",
+    False,
+    "Sends Access-Control-Allow-Origin header",
 )
 
 

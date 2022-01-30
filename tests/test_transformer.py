@@ -35,7 +35,9 @@ class TransformerTestCase(TestCase):
             tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
         )
         cls.root_path = cls.root_folder.name
-        cls.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
+        cls.loader_path = abspath(
+            join(dirname(__file__), "../fixtures/images/")
+        )
         cls.base_uri = "/image"
 
     @classmethod
@@ -56,7 +58,9 @@ class TransformerTestCase(TestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 
@@ -242,7 +246,9 @@ class TransformerTestCase(TestCase):
 
         await trans.transform()
 
-        expect(engine.calls["resize"]).to_equal([{"width": 800, "height": 200}])
+        expect(engine.calls["resize"]).to_equal(
+            [{"width": 800, "height": 200}]
+        )
         expect(engine.calls["crop"]).to_be_empty()
 
     @gen_test

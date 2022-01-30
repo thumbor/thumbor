@@ -23,7 +23,9 @@ class EngineCase(AsyncHTTPTestCase):
         ]
         cfg.STORAGE = "thumbor.storages.no_storage"
         cfg.LOADER = "thumbor.loaders.file_loader"
-        cfg.FILE_LOADER_ROOT_PATH = os.path.join(os.path.dirname(__file__), "imgs")
+        cfg.FILE_LOADER_ROOT_PATH = os.path.join(
+            os.path.dirname(__file__), "imgs"
+        )
         cfg.ENGINE = getattr(self, "engine", None)
         cfg.USE_GIFSICLE_ENGINE = True
         cfg.FFMPEG_PATH = which("ffmpeg")

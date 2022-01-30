@@ -34,7 +34,9 @@ SENTRY_DSN_URL configuration."
         ignore_logger("thumbor")
         ignore_logger("tornado.access")
 
-        sentry_sdk.init(**kwargs)  # pylint: disable=abstract-class-instantiated
+        sentry_sdk.init(
+            **kwargs
+        )  # pylint: disable=abstract-class-instantiated
 
     def handle_error(self, _, handler, exception):
         req = handler.request

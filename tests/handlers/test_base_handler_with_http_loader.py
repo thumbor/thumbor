@@ -37,7 +37,9 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 
@@ -59,7 +61,9 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
     @gen_test
     async def test_image_already_generated_by_thumbor_2_times(self):
         with open(
-            normalize_unicode_path("./tests/fixtures/images/alabama1_ap620é.jpg"),
+            normalize_unicode_path(
+                "./tests/fixtures/images/alabama1_ap620é.jpg"
+            ),
             "rb",
         ) as fixture:
             await self.context.modules.storage.put(
@@ -71,7 +75,9 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
                 image_url=quote(
                     self.get_url(
                         crypto.generate(
-                            image_url=quote("http://test.com/smart/alabama1_ap620é")
+                            image_url=quote(
+                                "http://test.com/smart/alabama1_ap620é"
+                            )
                         )
                     )
                 )

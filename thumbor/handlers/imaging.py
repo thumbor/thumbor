@@ -20,33 +20,46 @@ class ImagingHandler(ContextHandler):
             return super().compute_etag()
         return None
 
-    async def check_image(self, kwargs):  # pylint: disable=too-many-return-statements
+    async def check_image(
+        self, kwargs
+    ):  # pylint: disable=too-many-return-statements
         if self.context.config.MAX_ID_LENGTH > 0:
             # Check if an image with an uuid exists in storage
             exists = await self.context.modules.storage.exists(
                 kwargs["image"][: self.context.config.MAX_ID_LENGTH]
             )
             if exists:
-                kwargs["image"] = kwargs["image"][: self.context.config.MAX_ID_LENGTH]
+                kwargs["image"] = kwargs["image"][
+                    : self.context.config.MAX_ID_LENGTH
+                ]
 
         url = self.request.path
 
         kwargs["image"] = quote(kwargs["image"].encode("utf-8"))
         if not self.validate(kwargs["image"]):
-            self._error(400, "No original image was specified in the given URL")
+            self._error(
+                400, "No original image was specified in the given URL"
+            )
             return
 
         kwargs["request"] = self.request
         self.context.request = RequestParameters(**kwargs)
 
-        has_none = not self.context.request.unsafe and not self.context.request.hash
+        has_none = (
+            not self.context.request.unsafe and not self.context.request.hash
+        )
         has_both = self.context.request.unsafe and self.context.request.hash
 
         if has_none or has_both:
-            self._error(400, f"URL does not have hash or unsafe, or has both: {url}")
+            self._error(
+                400, f"URL does not have hash or unsafe, or has both: {url}"
+            )
             return
 
-        if self.context.request.unsafe and not self.context.config.ALLOW_UNSAFE_URL:
+        if (
+            self.context.request.unsafe
+            and not self.context.config.ALLOW_UNSAFE_URL
+        ):
             self._error(
                 400,
                 f"URL has unsafe but unsafe is not allowed by the config: {url}",
@@ -64,7 +77,9 @@ class ImagingHandler(ContextHandler):
 
         url_signature = self.context.request.hash
         if url_signature:
-            signer = self.context.modules.url_signer(self.context.server.security_key)
+            signer = self.context.modules.url_signer(
+                self.context.server.security_key
+            )
 
             try:
                 quoted_hash = quote(self.context.request.hash)
@@ -72,20 +87,27 @@ class ImagingHandler(ContextHandler):
                 self._error(400, f"Invalid hash: {self.context.request.hash}")
                 return
 
-            url_to_validate = url.replace(f"/{self.context.request.hash}/", "").replace(
-                f"/{quoted_hash}/", ""
+            url_to_validate = url.replace(
+                f"/{self.context.request.hash}/", ""
+            ).replace(f"/{quoted_hash}/", "")
+
+            valid = signer.validate(
+                unquote(url_signature).encode(), url_to_validate
             )
 
-            valid = signer.validate(unquote(url_signature).encode(), url_to_validate)
-
-            if not valid and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE:
+            if (
+                not valid
+                and self.context.config.STORES_CRYPTO_KEY_FOR_EACH_IMAGE
+            ):
                 # Retrieves security key for this image if it has been seen before
                 security_key = await self.context.modules.storage.get_crypto(
                     self.context.request.image_url
                 )
                 if security_key is not None:
                     signer = self.context.modules.url_signer(security_key)
-                    valid = signer.validate(url_signature.encode(), url_to_validate)
+                    valid = signer.validate(
+                        url_signature.encode(), url_to_validate
+                    )
 
             if not valid:
                 self._error(400, f"Malformed URL: {url}")

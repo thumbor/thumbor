@@ -48,7 +48,9 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         return ctx

@@ -52,12 +52,16 @@ class ImageUploadHandler(ImageApiHandler):
                         BaseEngine.get_mimetype(body), False
                     )
                 if extension == ".jpe":
-                    extension = ".jpg"  # Hack because mimetypes return .jpe by default
+                    extension = (
+                        ".jpg"  # Hack because mimetypes return .jpe by default
+                    )
                 if (
                     extension is None
                 ):  # Even body is unknown, return an empty string to be contat
                     extension = ""
-                filename = self.context.config.UPLOAD_DEFAULT_FILENAME + extension
+                filename = (
+                    self.context.config.UPLOAD_DEFAULT_FILENAME + extension
+                )
 
             # Build image id based on a random uuid (32 characters)
             image_id = str(uuid.uuid4().hex)
@@ -66,7 +70,10 @@ class ImageUploadHandler(ImageApiHandler):
             self.set_header("Location", self.location(image_id, filename))
 
     def multipart_form_data(self):
-        if "media" not in self.request.files or not self.request.files["media"]:
+        if (
+            "media" not in self.request.files
+            or not self.request.files["media"]
+        ):
             return False
         return True
 

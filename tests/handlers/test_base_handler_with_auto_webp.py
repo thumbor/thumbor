@@ -35,14 +35,18 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         ctx.server.gifsicle_path = which("gifsicle")
         return ctx
 
     async def get_as_webp(self, url):
-        return await self.async_fetch(url, headers={"Accept": "image/webp,*/*;q=0.8"})
+        return await self.async_fetch(
+            url, headers={"Accept": "image/webp,*/*;q=0.8"}
+        )
 
     @gen_test
     async def test_can_auto_convert_jpeg(self):
@@ -88,35 +92,45 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_shouldnt_convert_cmyk_jpeg_if_format_specified(self):
-        response = await self.get_as_webp("/unsafe/filters:format(png)/cmyk.jpg")
+        response = await self.get_as_webp(
+            "/unsafe/filters:format(png)/cmyk.jpg"
+        )
         expect(response.code).to_equal(200)
         expect(response.headers).not_to_include("Vary")
         expect(response.body).to_be_png()
 
     @gen_test
     async def test_shouldnt_convert_cmyk_jpeg_if_gif(self):
-        response = await self.get_as_webp("/unsafe/filters:format(gif)/cmyk.jpg")
+        response = await self.get_as_webp(
+            "/unsafe/filters:format(gif)/cmyk.jpg"
+        )
         expect(response.code).to_equal(200)
         expect(response.headers).not_to_include("Vary")
         expect(response.body).to_be_gif()
 
     @gen_test
     async def test_shouldnt_convert_if_format_specified(self):
-        response = await self.get_as_webp("/unsafe/filters:format(gif)/image.jpg")
+        response = await self.get_as_webp(
+            "/unsafe/filters:format(gif)/image.jpg"
+        )
         expect(response.code).to_equal(200)
         expect(response.headers).not_to_include("Vary")
         expect(response.body).to_be_gif()
 
     @gen_test
     async def test_shouldnt_add_vary_if_format_specified(self):
-        response = await self.get_as_webp("/unsafe/filters:format(webp)/image.jpg")
+        response = await self.get_as_webp(
+            "/unsafe/filters:format(webp)/image.jpg"
+        )
         expect(response.code).to_equal(200)
         expect(response.headers).not_to_include("Vary")
         expect(response.body).to_be_webp()
 
     @gen_test
     async def test_should_add_vary_if_format_invalid(self):
-        response = await self.get_as_webp("/unsafe/filters:format(asdf)/image.jpg")
+        response = await self.get_as_webp(
+            "/unsafe/filters:format(asdf)/image.jpg"
+        )
         expect(response.code).to_equal(200)
         expect(response.headers).to_include("Vary")
         expect(response.headers["Vary"]).to_include("Accept")
@@ -128,7 +142,9 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         expect(response.headers).to_include("Etag")
 
 
-class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
+class ImageOperationsWithAutoWebPWithResultStorageTestCase(
+    BaseImagingTestCase
+):
     def get_request(self, *args, **kwargs):
         return RequestParameters(*args, **kwargs)
 
@@ -143,7 +159,9 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         ctx.request = self.get_request()
@@ -155,7 +173,9 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
         return self.context.modules.result_storage
 
     async def get_as_webp(self, url):
-        return await self.async_fetch(url, headers={"Accept": "image/webp,*/*;q=0.8"})
+        return await self.async_fetch(
+            url, headers={"Accept": "image/webp,*/*;q=0.8"}
+        )
 
     @patch("thumbor.handlers.Context")
     @gen_test
@@ -164,7 +184,9 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
     ):  # NOQA
         context_mock.return_value = self.context
         crypto = CryptoURL("ACME-SEC")
-        url = crypto.generate(image_url=quote("http://test.com/smart/image.jpg"))
+        url = crypto.generate(
+            image_url=quote("http://test.com/smart/image.jpg")
+        )
         self.context.request = self.get_request(url=url, accepts_webp=True)
         with open("./tests/fixtures/images/image.webp", "rb") as fixture:
             await self.context.modules.result_storage.put(fixture.read())
@@ -177,7 +199,9 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(BaseImagingTestCase):
 
     @patch("thumbor.handlers.Context")
     @gen_test
-    async def test_can_auto_convert_unsafe_jpeg_from_result_storage(self, context_mock):
+    async def test_can_auto_convert_unsafe_jpeg_from_result_storage(
+        self, context_mock
+    ):
         context_mock.return_value = self.context
         self.context.request = self.get_request(accepts_webp=True)
 

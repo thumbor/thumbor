@@ -28,7 +28,10 @@ from thumbor.transformer import Transformer
 
 
 def get_ssim(actual, expected):
-    if actual.size[0] != expected.size[0] or actual.size[1] != expected.size[1]:
+    if (
+        actual.size[0] != expected.size[0]
+        or actual.size[1] != expected.size[1]
+    ):
         raise RuntimeError(
             "Can't calculate SSIM for images of different sizes ("
             f"one is {actual.size[0]}x{actual.size[1]}, "
@@ -44,7 +47,9 @@ def encode_multipart_formdata(fields, files):
     lines = []
     for key, value in fields.items():
         lines.append(b"--" + boundary)
-        lines.append(b'Content-Disposition: form-data; name="%s"' % key.encode())
+        lines.append(
+            b'Content-Disposition: form-data; name="%s"' % key.encode()
+        )
         lines.append(b"")
         lines.append(value)
     for (key, filename, value) in files:
@@ -106,7 +111,9 @@ class TestCase(AsyncHTTPTestCase):
 
     def get_context(self):
         self.importer.import_modules()
-        return Context(self.server, self.config, self.importer, self.request_handler)
+        return Context(
+            self.server, self.config, self.importer, self.request_handler
+        )
 
     async def async_fetch(self, path, method="GET", body=None, headers=None):
         return await self.http_client.fetch(

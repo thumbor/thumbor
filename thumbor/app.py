@@ -10,7 +10,7 @@
 
 import tornado.ioloop
 import tornado.web
-from libthumbor.url import Url
+from libthumbor.url import Url  # type: ignore
 
 from thumbor.handlers.imaging import ImagingHandler
 
@@ -23,13 +23,17 @@ class ThumborServiceApp(tornado.web.Application):
 
     def get_handlers(self):
         handlers = []
+
         for handler_list in self.context.modules.importer.handler_lists:
             get_handlers = getattr(handler_list, "get_handlers", None)
+
             if get_handlers is None:
                 continue
             handlers.extend(get_handlers(self.context))
 
         # Imaging handler (GET)
-        handlers.append((Url.regex(), ImagingHandler, {"context": self.context}))
+        handlers.append(
+            (Url.regex(), ImagingHandler, {"context": self.context})
+        )
 
         return handlers

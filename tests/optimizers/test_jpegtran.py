@@ -19,7 +19,9 @@ class JpegtranOptimizerTest(TestCase):
     def setUp(self):
         self.patcher = mock.patch("thumbor.optimizers.jpegtran.Popen")
         self.mock_popen = self.patcher.start()
-        self.os_path_exists_patcher = mock.patch("thumbor.optimizers.jpegtran.exists")
+        self.os_path_exists_patcher = mock.patch(
+            "thumbor.optimizers.jpegtran.exists"
+        )
         self.mock_os_path_exists = self.os_path_exists_patcher.start()
 
     def tearDown(self):
@@ -70,7 +72,9 @@ class JpegtranOptimizerTest(TestCase):
         optimizer = self.get_optimizer()
         return_buffer = optimizer.run_optimizer(".jpg", input_buffer)
 
-        self.mock_popen.return_value.communicate.assert_called_with(input_buffer)
+        self.mock_popen.return_value.communicate.assert_called_with(
+            input_buffer
+        )
         self.assertEqual(output_buffer, return_buffer)
 
     def test_should_return_old_buffer_for_invalid_extension(self):

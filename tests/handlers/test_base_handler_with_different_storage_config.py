@@ -36,7 +36,9 @@ class StorageOverrideTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 
@@ -77,7 +79,9 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         ctx.server.gifsicle_path = which("gifsicle")

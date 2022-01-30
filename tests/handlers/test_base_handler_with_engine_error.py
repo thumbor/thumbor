@@ -34,7 +34,9 @@ class EngineLoadException(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 
@@ -68,6 +70,8 @@ class EngineLoadException(BaseImagingTestCase):
 
     @patch.object(Engine, "read", side_effect=Exception)
     @gen_test
-    async def test_should_fail_with_500_upon_engine_read_exception(self, _):  # NOQA
+    async def test_should_fail_with_500_upon_engine_read_exception(
+        self, _
+    ):  # NOQA
         response = await self.async_fetch("/unsafe/fit-in/134x134/940x2.png")
         expect(response.code).to_equal(500)

@@ -14,4 +14,6 @@ from thumbor.detectors.local_detector import CascadeLoaderDetector
 class Detector(CascadeLoaderDetector):
     def __init__(self, context, index, detectors):
         super().__init__(context, index, detectors)
-        self.load_cascade_file(__file__, context.config.GLASSES_DETECTOR_CASCADE_FILE)
+        self.load_cascade_file(
+            __file__, context.config.GLASSES_DETECTOR_CASCADE_FILE
+        )

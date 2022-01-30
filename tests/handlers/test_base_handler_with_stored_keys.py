@@ -31,7 +31,9 @@ class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8891, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8891, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "MYKEY"
         return Context(server, cfg, importer)
 

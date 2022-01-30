@@ -22,7 +22,9 @@ from thumbor.loaders import LoaderResult
 
 @return_future
 def load(context, path, callback):
-    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip("/"), path.lstrip("/"))
+    file_path = join(
+        context.config.FILE_LOADER_ROOT_PATH.rstrip("/"), path.lstrip("/")
+    )
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(
         abspath(context.config.FILE_LOADER_ROOT_PATH)
@@ -49,7 +51,8 @@ def load(context, path, callback):
             result.buffer = f.read()
 
             result.metadata.update(
-                size=stats.st_size, updated_at=datetime.utcfromtimestamp(stats.st_mtime)
+                size=stats.st_size,
+                updated_at=datetime.utcfromtimestamp(stats.st_mtime),
             )
     else:
         result.error = LoaderResult.ERROR_NOT_FOUND

@@ -30,7 +30,9 @@ class BackgroundColorFilterTestCase(FilterTestCase):
             config_context=config_context,
         )
 
-        expected = self.get_fixture("PNG_transparency_demonstration_1_blue.png")
+        expected = self.get_fixture(
+            "PNG_transparency_demonstration_1_blue.png"
+        )
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)

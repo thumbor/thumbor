@@ -391,7 +391,9 @@ class GifWriter:
         palettes, occur = [], []
         for im in images:
             header, usedPaletteColors = getheader(im)
-            palettes.append(header[-1])  # Last part of the header is the frame palette
+            palettes.append(
+                header[-1]
+            )  # Last part of the header is the frame palette
         for palette in palettes:
             occur.append(palettes.count(palette))
 
@@ -595,7 +597,9 @@ def readGif(filename, asNumpy=True):
             tmp = pilIm.convert()  # Make without palette
             a = np.asarray(tmp)
             if len(a.shape) == 0:
-                raise MemoryError("Too little memory to convert PIL image to array")
+                raise MemoryError(
+                    "Too little memory to convert PIL image to array"
+                )
             # Store, and next
             images.append(a)
             pilIm.seek(pilIm.tell() + 1)

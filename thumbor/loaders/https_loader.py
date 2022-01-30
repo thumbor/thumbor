@@ -17,7 +17,9 @@ def _normalize_url(url):
 
 
 def validate(context, url):
-    return http_loader.validate(context, url, normalize_url_func=_normalize_url)
+    return http_loader.validate(
+        context, url, normalize_url_func=_normalize_url
+    )
 
 
 async def load(context, url):

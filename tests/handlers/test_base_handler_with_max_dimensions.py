@@ -38,7 +38,9 @@ class ImageOperationsWithMaxWidthAndMaxHeight(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
 
@@ -54,7 +56,9 @@ class ImageOperationsWithMaxWidthAndMaxHeight(BaseImagingTestCase):
         expect(engine.size).to_equal((150, 150))
 
 
-class ImageOperationsWithMaxWidthAndMaxHeightShouldNotUpscale(BaseImagingTestCase):
+class ImageOperationsWithMaxWidthAndMaxHeightShouldNotUpscale(
+    BaseImagingTestCase
+):
     def get_context(self):
         cfg = Config(SECURITY_KEY="ACME-SEC")
         cfg.LOADER = "thumbor.loaders.file_loader"
@@ -76,7 +80,9 @@ class ImageOperationsWithMaxWidthAndMaxHeightShouldNotUpscale(BaseImagingTestCas
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
 
@@ -117,7 +123,9 @@ class ImageOperationsWithMaxPixels(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         ctx.server.gifsicle_path = which("gifsicle")

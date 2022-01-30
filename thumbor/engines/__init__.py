@@ -14,7 +14,9 @@
 import re
 from xml.etree.ElementTree import ParseError
 
-from thumbor.engines.extensions.exif_orientation_editor import ExifOrientationEditor
+from thumbor.engines.extensions.exif_orientation_editor import (
+    ExifOrientationEditor,
+)
 from thumbor.utils import EXTENSION, logger
 
 try:
@@ -42,7 +44,9 @@ class EngineResult:
 
     COULD_NOT_LOAD_IMAGE = "could not load image"
 
-    def __init__(self, buffer_=None, successful=True, error=None, metadata=None):
+    def __init__(
+        self, buffer_=None, successful=True, error=None, metadata=None
+    ):
         """
         :param buffer: The media buffer
 
@@ -147,7 +151,10 @@ class BaseEngine:
         setattr(self, "read", multiple_engine.read)
 
     def is_multiple(self):
-        return hasattr(self, "multiple_engine") and self.multiple_engine is not None
+        return (
+            hasattr(self, "multiple_engine")
+            and self.multiple_engine is not None
+        )
 
     def frame_engines(self):
         return self.multiple_engine.frame_engines
@@ -220,7 +227,9 @@ class BaseEngine:
         return self.image.size
 
     def can_convert_to_webp(self):
-        return self.size[0] <= WEBP_SIDE_LIMIT and self.size[1] <= WEBP_SIDE_LIMIT
+        return (
+            self.size[0] <= WEBP_SIDE_LIMIT and self.size[1] <= WEBP_SIDE_LIMIT
+        )
 
     def normalize(self):
         width, height = self.size
@@ -234,12 +243,16 @@ class BaseEngine:
             width_diff = width - self.context.config.MAX_WIDTH
             height_diff = height - self.context.config.MAX_HEIGHT
             if self.context.config.MAX_WIDTH and width_diff > height_diff:
-                height = self.get_proportional_height(self.context.config.MAX_WIDTH)
+                height = self.get_proportional_height(
+                    self.context.config.MAX_WIDTH
+                )
                 self.resize(self.context.config.MAX_WIDTH, height)
                 return True
 
             if self.context.config.MAX_HEIGHT and height_diff > width_diff:
-                width = self.get_proportional_width(self.context.config.MAX_HEIGHT)
+                width = self.get_proportional_width(
+                    self.context.config.MAX_HEIGHT
+                )
                 self.resize(width, self.context.config.MAX_HEIGHT)
                 return True
 
@@ -379,7 +392,9 @@ class BaseEngine:
     def convert_to_grayscale(self, update_image=True, alpha=True):
         raise NotImplementedError()
 
-    def draw_rectangle(self, x, y, width, height):  # pylint: disable=invalid-name
+    def draw_rectangle(
+        self, x, y, width, height
+    ):  # pylint: disable=invalid-name
         raise NotImplementedError()
 
     def strip_icc(self):

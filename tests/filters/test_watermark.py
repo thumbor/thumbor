@@ -271,9 +271,13 @@ class WatermarkFilterTestCase(FilterTestCase):
                     }
 
                     test["topic_name"] = "watermark_image_width"
-                    expect(watermark_image_width).to_fit_into(max_width, **test)
+                    expect(watermark_image_width).to_fit_into(
+                        max_width, **test
+                    )
                     test["topic_name"] = "watermark_image_height"
-                    expect(watermark_image_height).to_fit_into(max_height, **test)
+                    expect(watermark_image_height).to_fit_into(
+                        max_height, **test
+                    )
 
                     test["topic_name"] = "fill out"
                     expect(

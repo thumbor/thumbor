@@ -98,7 +98,10 @@ class Filter(BaseFilter):
         else:
             repeat_x = divmod(image_size[0], watermark_sz[0])
             if image_size[0] * 1.0 / watermark_sz[0] < 2:
-                repeat_x = (math.ceil(image_size[0] * 1.0 / watermark_sz[0]), 10)
+                repeat_x = (
+                    math.ceil(image_size[0] * 1.0 / watermark_sz[0]),
+                    10,
+                )
                 space_x = 10
         if not mos_y:
             repeat_y = (1, 0)
@@ -109,7 +112,10 @@ class Filter(BaseFilter):
         else:
             repeat_y = divmod(image_size[1], watermark_sz[1])
             if image_size[1] * 1.0 / watermark_sz[1] < 2:
-                repeat_y = (math.ceil(image_size[1] * 1.0 / watermark_sz[1]), 10)
+                repeat_y = (
+                    math.ceil(image_size[1] * 1.0 / watermark_sz[1]),
+                    10,
+                )
                 space_y = 10
 
         if not mos_x and not mos_y:
@@ -118,15 +124,23 @@ class Filter(BaseFilter):
             if (repeat_x[0] * repeat_y[0]) > 100:
                 tmpRepeatX = min(6, repeat_x[0])
                 tmpRepeatY = min(6, repeat_y[0])
-                repeat_x = (tmpRepeatX, image_size[0] - tmpRepeatX * watermark_sz[0])
-                repeat_y = (tmpRepeatY, image_size[1] - tmpRepeatY * watermark_sz[1])
+                repeat_x = (
+                    tmpRepeatX,
+                    image_size[0] - tmpRepeatX * watermark_sz[0],
+                )
+                repeat_y = (
+                    tmpRepeatY,
+                    image_size[1] - tmpRepeatY * watermark_sz[1],
+                )
             space_x = repeat_x[1] // (max(repeat_x[0], 2) - 1)
             space_y = repeat_y[1] // (max(repeat_y[0], 2) - 1)
             for i in range(int(repeat_x[0])):
                 x = i * space_x + i * watermark_sz[0]
                 for j in range(int(repeat_y[0])):
                     y = j * space_y + j * watermark_sz[1]
-                    self.engine.paste(self.watermark_engine, (x, y), merge=True)
+                    self.engine.paste(
+                        self.watermark_engine, (x, y), merge=True
+                    )
         elif mos_x:
             space_x = repeat_x[1] // (max(repeat_x[0], 2) - 1)
             for i in range(int(repeat_x[0])):
@@ -157,7 +171,9 @@ class Filter(BaseFilter):
         self.h_ratio = (
             float(h_ratio) / 100.0 if h_ratio and h_ratio != "none" else False
         )
-        self.watermark_engine = self.context.modules.engine.__class__(self.context)
+        self.watermark_engine = self.context.modules.engine.__class__(
+            self.context
+        )
         self.storage = self.context.modules.storage
 
         try:
@@ -165,7 +181,9 @@ class Filter(BaseFilter):
             if buffer is not None:
                 return self.on_image_ready(buffer)
 
-            result = await self.context.modules.loader.load(self.context, self.url)
+            result = await self.context.modules.loader.load(
+                self.context, self.url
+            )
 
             if isinstance(result, LoaderResult) and not result.successful:
                 logger.warning(

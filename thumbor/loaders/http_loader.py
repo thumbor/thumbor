@@ -98,7 +98,9 @@ def return_contents(response, url, context, req_start=None):
         else:
             result.error = LoaderResult.ERROR_NOT_FOUND
 
-        logger.warning("ERROR retrieving image %s: %s", url, str(response.error))
+        logger.warning(
+            "ERROR retrieving image %s: %s", url, str(response.error)
+        )
 
     elif response.body is None or len(response.body) == 0:
         result.successful = False
@@ -118,7 +120,9 @@ def return_contents(response, url, context, req_start=None):
             )
         result.buffer = response.body
         result.metadata.update(response.headers)
-        context.metrics.incr("original_image.response_bytes", len(response.body))
+        context.metrics.incr(
+            "original_image.response_bytes", len(response.body)
+        )
 
     return result
 
@@ -131,10 +135,13 @@ async def load(
     encode_fn=encode,
 ):
     using_proxy = (
-        context.config.HTTP_LOADER_PROXY_HOST and context.config.HTTP_LOADER_PROXY_PORT
+        context.config.HTTP_LOADER_PROXY_HOST
+        and context.config.HTTP_LOADER_PROXY_PORT
     )
     if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
-        http_client_implementation = "tornado.curl_httpclient.CurlAsyncHTTPClient"
+        http_client_implementation = (
+            "tornado.curl_httpclient.CurlAsyncHTTPClient"
+        )
         prepare_curl_callback = _get_prepare_curl_callback(context.config)
         exc_type = tornado.curl_httpclient.CurlError
     else:
@@ -155,13 +162,17 @@ async def load(
     else:
         if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
             if "User-Agent" in context.request_handler.request.headers:
-                user_agent = context.request_handler.request.headers["User-Agent"]
+                user_agent = context.request_handler.request.headers[
+                    "User-Agent"
+                ]
         if context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
-            for header_key in context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
+            for (
+                header_key
+            ) in context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
                 if header_key in context.request_handler.request.headers:
-                    headers[header_key] = context.request_handler.request.headers[
+                    headers[
                         header_key
-                    ]
+                    ] = context.request_handler.request.headers[header_key]
 
     if user_agent is None and "User-Agent" not in headers:
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT

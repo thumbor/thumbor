@@ -47,7 +47,14 @@ class FocalPointTestCase(TestCase):
             {"x": 10.1, "y": 20.1, "z": 5.1, "width": 1.1, "height": 1.6}
         )
         expect(point.to_dict()).to_be_like(
-            {"x": 10, "y": 20, "z": 5, "origin": "alignment", "width": 1, "height": 1}
+            {
+                "x": 10,
+                "y": 20,
+                "z": 5,
+                "origin": "alignment",
+                "width": 1,
+                "height": 1,
+            }
         )
 
     def test_new_point_square_point(self):

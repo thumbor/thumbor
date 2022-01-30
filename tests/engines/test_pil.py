@@ -119,7 +119,9 @@ class PilEngineTestCase(TestCase):
 
     def test_convert_should_preserve_palette_mode(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, "256_color_palette.png"), "rb") as image_file:
+        with open(
+            join(STORAGE_PATH, "256_color_palette.png"), "rb"
+        ) as image_file:
             buffer = image_file.read()
         engine.load(buffer, ".png")
         expect(engine.original_mode).to_equal("P")
@@ -155,7 +157,9 @@ class PilEngineTestCase(TestCase):
 
     def test_resize_truncated_image(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, "BlueSquare_truncated.jpg"), "rb") as image_file:
+        with open(
+            join(STORAGE_PATH, "BlueSquare_truncated.jpg"), "rb"
+        ) as image_file:
             buffer = image_file.read()
         engine.load(buffer, ".jpg")
         engine.resize(10, 10)
@@ -199,14 +203,16 @@ class PilEngineTestCase(TestCase):
         iptc_keys = engine.metadata.iptc_keys
         expect(len(iptc_keys)).to_equal(6)
         expect("Iptc.Application2.DateCreated" in iptc_keys).to_be_true()
-        expect(engine.metadata["Iptc.Application2.DateCreated"].value).to_equal(
-            [datetime.date(2016, 6, 23)]
-        )
+        expect(
+            engine.metadata["Iptc.Application2.DateCreated"].value
+        ).to_equal([datetime.date(2016, 6, 23)])
 
     def test_should_preserve_png_transparency(self):
         engine = Engine(self.context)
 
-        with open(join(STORAGE_PATH, "paletted-transparent.png"), "rb") as image_file:
+        with open(
+            join(STORAGE_PATH, "paletted-transparent.png"), "rb"
+        ) as image_file:
             buffer = image_file.read()
 
         engine.load(buffer, "png")

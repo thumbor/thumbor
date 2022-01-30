@@ -4,7 +4,11 @@ import glob
 import os
 from distutils.command.build_ext import build_ext
 from distutils.core import Extension
-from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
+from distutils.errors import (
+    CCompilerError,
+    DistutilsExecError,
+    DistutilsPlatformError,
+)
 
 
 def filter_extension_module(name, lib_objs, lib_headers):
@@ -14,7 +18,12 @@ def filter_extension_module(name, lib_objs, lib_headers):
         libraries=["m"],
         include_dirs=["thumbor/ext/filters/lib"],
         depends=["setup.py"] + lib_objs + lib_headers,
-        extra_compile_args=["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter"],
+        extra_compile_args=[
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-Wno-unused-parameter",
+        ],
     )
 
 

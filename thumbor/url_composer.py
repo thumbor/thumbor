@@ -236,7 +236,9 @@ def main(arguments=None):
         )
         return None
 
-    security_key, thumbor_params = get_thumbor_params(image_url, parsed_options, config)
+    security_key, thumbor_params = get_thumbor_params(
+        image_url, parsed_options, config
+    )
 
     crypto = CryptoURL(key=security_key)
     url = crypto.generate(**thumbor_params)

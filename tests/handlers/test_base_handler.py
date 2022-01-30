@@ -49,7 +49,9 @@ class BaseHandlerTestApp(tornado.web.Application):
 class BaseImagingTestCase(TestCase):
     def setUp(self):
         self.root_path = tempfile.mkdtemp()
-        self.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
+        self.loader_path = abspath(
+            join(dirname(__file__), "../fixtures/images/")
+        )
         self.base_uri = "/image"
         super().setUp()
 
@@ -69,7 +71,9 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 
@@ -92,7 +96,9 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_can_get_unicode_image(self):
-        enc_url = quote("15967251_212831_19242645_АгатавЗоопарке.jpg".encode("utf-8"))
+        enc_url = quote(
+            "15967251_212831_19242645_АгатавЗоопарке.jpg".encode("utf-8")
+        )
         response = await self.async_fetch(f"/unsafe/{enc_url}")
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(default_image())
@@ -179,7 +185,9 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_can_read_cmyk_jpeg_as_png(self):
-        response = await self.async_fetch("/unsafe/filters:format(png)/cmyk.jpg")
+        response = await self.async_fetch(
+            "/unsafe/filters:format(png)/cmyk.jpg"
+        )
         expect(response.code).to_equal(200)
         expect(response.body).to_be_png()
 
@@ -211,12 +219,16 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_can_read_16bit_lsb_tiff_as_png(self):
-        response = await self.async_fetch("/unsafe/gradient_lsb_16bperchannel.tif")
+        response = await self.async_fetch(
+            "/unsafe/gradient_lsb_16bperchannel.tif"
+        )
         expect(response.code).to_equal(200)
         expect(response.body).to_be_png()
 
     @gen_test
     async def test_can_read_16bit_msb_tiff_as_png(self):
-        response = await self.async_fetch("/unsafe/gradient_msb_16bperchannel.tif")
+        response = await self.async_fetch(
+            "/unsafe/gradient_msb_16bperchannel.tif"
+        )
         expect(response.code).to_equal(200)
         expect(response.body).to_be_png()

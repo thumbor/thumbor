@@ -35,5 +35,7 @@ class Filter(BaseFilter):
 
             if width and height:
                 self.context.request.focal_points.append(
-                    FocalPoint.from_square(left, top, width, height, origin="Explicit")
+                    FocalPoint.from_square(
+                        left, top, width, height, origin="Explicit"
+                    )
                 )

@@ -33,10 +33,13 @@ class ImageResourceHandler(ImageApiHandler):
 
             max_age = self.context.config.MAX_AGE
             if max_age:
-                self.set_header("Cache-Control", "max-age=" + str(max_age) + ",public")
+                self.set_header(
+                    "Cache-Control", "max-age=" + str(max_age) + ",public"
+                )
                 self.set_header(
                     "Expires",
-                    datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age),
+                    datetime.datetime.utcnow()
+                    + datetime.timedelta(seconds=max_age),
                 )
             self.write(body)
             self.finish()

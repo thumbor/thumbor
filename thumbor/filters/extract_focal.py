@@ -34,7 +34,10 @@ class Filter(BaseFilter):
             parts = result.groupdict()
             image = parts.get("image", None)
 
-            if not (image and (parts.get("hash", None) or parts.get("unsafe", None))):
+            if not (
+                image
+                and (parts.get("hash", None) or parts.get("unsafe", None))
+            ):
                 return None
 
             top, right, left, bottom = (

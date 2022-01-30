@@ -79,7 +79,9 @@ class UploadAPINewFileTestCase(UploadTestCase):
             self.base_uri + r"/[^\/]{32}/" + filename
         )
 
-        expected_path = self.get_path_from_location(response.headers["Location"])
+        expected_path = self.get_path_from_location(
+            response.headers["Location"]
+        )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         expect(expected_path).to_exist()
         expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
@@ -100,7 +102,9 @@ class UploadAPINewFileTestCase(UploadTestCase):
             self.base_uri + r"/[^\/]{32}/" + filename
         )
 
-        expected_path = self.get_path_from_location(response.headers["Location"])
+        expected_path = self.get_path_from_location(
+            response.headers["Location"]
+        )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         expect(expected_path).to_exist()
         expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
@@ -121,7 +125,9 @@ class UploadAPINewFileTestCase(UploadTestCase):
             self.base_uri + r"/[^\/]{32}/" + filename
         )
 
-        expected_path = self.get_path_from_location(response.headers["Location"])
+        expected_path = self.get_path_from_location(
+            response.headers["Location"]
+        )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         expect(expected_path).to_exist()
         expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
@@ -140,7 +146,9 @@ class UploadAPINewFileTestCase(UploadTestCase):
             self.base_uri + r"/[^\/]{32}/" + filename
         )
 
-        expected_path = self.get_path_from_location(response.headers["Location"])
+        expected_path = self.get_path_from_location(
+            response.headers["Location"]
+        )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         expect(expected_path).to_exist()
         expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
@@ -160,7 +168,9 @@ class UploadAPINewFileTestCase(UploadTestCase):
             self.base_uri + r"/[^\/]{32}/" + filename
         )
 
-        expected_path = self.get_path_from_location(response.headers["Location"])
+        expected_path = self.get_path_from_location(
+            response.headers["Location"]
+        )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         expect(expected_path).to_exist()
         expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
@@ -208,7 +218,9 @@ class UploadAPIUpdateFileTestCase(UploadTestCase):
         id_shouldnt_exist = (
             re.compile(self.base_uri + r"/(.*)").search(location).group(1)
         )
-        expected_path = self.upload_storage.path_on_filesystem(id_shouldnt_exist)
+        expected_path = self.upload_storage.path_on_filesystem(
+            id_shouldnt_exist
+        )
         expect(expected_path).not_to_exist()
 
 
@@ -240,15 +252,21 @@ class UploadAPIUpdateSmallIdFileTestCase(UploadTestCase):
         )
         expect(response.code).to_equal(204)
 
-        response = await self.async_get(path[: 7 + 32], {"Accept": "image/jpeg"})
+        response = await self.async_get(
+            path[: 7 + 32], {"Accept": "image/jpeg"}
+        )
         expect(response.code).to_equal(404)
 
     @gen_test
     async def test_can_get_actual_id_when_stored_with_large_id(self):
         path = "/image/e5bcf126-791b-4375-9f73-925ab8b9fb5g"
 
-        await self.async_put(path, {"Content-Type": "image/jpeg"}, valid_image())
-        response = await self.async_get(path + "123456", {"Accept": "image/jpeg"})
+        await self.async_put(
+            path, {"Content-Type": "image/jpeg"}, valid_image()
+        )
+        response = await self.async_get(
+            path + "123456", {"Accept": "image/jpeg"}
+        )
 
         expect(response.code).to_equal(200)
 

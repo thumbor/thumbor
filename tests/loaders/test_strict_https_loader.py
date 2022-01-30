@@ -107,15 +107,21 @@ class ValidateUrlTestCase(TestCase):
         config = Config()
         config.ALLOWED_SOURCES = ["s.glbimg.com"]
         ctx = Context(None, config, None)
-        expect(loader.validate(ctx, "http://www.google.com/logo.jpg")).to_be_false()
-        expect(loader.validate(ctx, "http://s2.glbimg.com/logo.jpg")).to_be_false()
+        expect(
+            loader.validate(ctx, "http://www.google.com/logo.jpg")
+        ).to_be_false()
+        expect(
+            loader.validate(ctx, "http://s2.glbimg.com/logo.jpg")
+        ).to_be_false()
         expect(
             loader.validate(
                 ctx,
                 "/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=",  # NOQA
             )
         ).to_be_false()
-        expect(loader.validate(ctx, "https://s.glbimg.com/logo.jpg")).to_be_true()
+        expect(
+            loader.validate(ctx, "https://s.glbimg.com/logo.jpg")
+        ).to_be_true()
 
     @gen_test
     async def test_without_allowed_sources(self):
@@ -132,7 +138,9 @@ class ValidateUrlTestCase(TestCase):
 class NormalizeUrlTestCase(TestCase):
     @gen_test
     async def test_should_normalize_url(self):
-        expect(loader._normalize_url("https://some.url")).to_equal("https://some.url")
+        expect(loader._normalize_url("https://some.url")).to_equal(
+            "https://some.url"
+        )
         expect(loader._normalize_url("some.url")).to_equal("https://some.url")
 
     @gen_test

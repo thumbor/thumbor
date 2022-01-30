@@ -124,7 +124,9 @@ class ServerParametersTestCase(TestCase):
         expect(params.keyfile).to_equal("./tests/fixtures/thumbor.key")
         expect(params.log_level).to_equal("debug")
         expect(params.app_class).to_equal("app")
-        expect(params._security_key).to_equal(  # pylint: disable=protected-access
+        expect(
+            params._security_key
+        ).to_equal(  # pylint: disable=protected-access
             "SECURITY_KEY_FILE"
         )
         expect(params.fd).to_equal("fd")
@@ -146,7 +148,9 @@ class ServerParametersTestCase(TestCase):
         )
 
         params.security_key = "testé"
-        expect(params._security_key).to_equal(  # pylint: disable=protected-access
+        expect(
+            params._security_key
+        ).to_equal(  # pylint: disable=protected-access
             "testé".encode("utf-8")
         )
 
@@ -162,7 +166,9 @@ class ServerParametersTestCase(TestCase):
             fd="fd",
             gifsicle_path="gifsicle_path",
         )
-        expect(params._security_key).to_be_null()  # pylint: disable=protected-access
+        expect(
+            params._security_key
+        ).to_be_null()  # pylint: disable=protected-access
 
     @staticmethod
     def test_cant_load_invalid_security_key_file():
@@ -191,7 +197,9 @@ class RequestParametersTestCase(TestCase):
         expect(params.debug).to_be_false()
         expect(params.meta).to_be_false()
         expect(params.trim).to_be_null()
-        expect(params.crop).to_be_like({"top": 0, "right": 0, "bottom": 0, "left": 0})
+        expect(params.crop).to_be_like(
+            {"top": 0, "right": 0, "bottom": 0, "left": 0}
+        )
         expect(params.should_crop).to_be_false()
 
         expect(params.adaptive).to_be_false()
@@ -305,7 +313,9 @@ class ContextImporterTestCase(TestCase):
         expect(ctx_importer.gif_engine).to_be_instance_of(importer.gif_engine)
 
         expect(ctx_importer.storage).to_be_instance_of(importer.storage)
-        expect(ctx_importer.result_storage).to_be_instance_of(importer.result_storage)
+        expect(ctx_importer.result_storage).to_be_instance_of(
+            importer.result_storage
+        )
         expect(ctx_importer.upload_photo_storage).to_be_instance_of(
             importer.upload_photo_storage
         )

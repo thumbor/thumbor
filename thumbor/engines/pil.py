@@ -83,7 +83,10 @@ class Engine(BaseEngine):
             self.subsampling = None
         self.qtables = getattr(img, "quantization", None)
 
-        if self.context.config.ALLOW_ANIMATED_GIFS and self.extension == ".gif":
+        if (
+            self.context.config.ALLOW_ANIMATED_GIFS
+            and self.extension == ".gif"
+        ):
             frames = []
             for frame in ImageSequence.Iterator(img):
                 frames.append(frame.convert("P"))
@@ -144,7 +147,9 @@ class Engine(BaseEngine):
         self.image = self.image.resize(size, resample)
 
     def crop(self, left, top, right, bottom):
-        self.image = self.image.crop((int(left), int(top), int(right), int(bottom)))
+        self.image = self.image.crop(
+            (int(left), int(top), int(right), int(bottom))
+        )
 
     def rotate(self, degrees):
         # PIL rotates counter clockwise
@@ -211,10 +216,15 @@ class Engine(BaseEngine):
             if self.image.mode != "RGB":
                 self.image = self.image.convert("RGB")
             else:
-                subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
+                subsampling_config = (
+                    self.context.config.PILLOW_JPEG_SUBSAMPLING
+                )
                 qtables_config = self.context.config.PILLOW_JPEG_QTABLES
 
-                if subsampling_config is not None or qtables_config is not None:
+                if (
+                    subsampling_config is not None
+                    or qtables_config is not None
+                ):
                     # can't use 'keep' here as Pillow would try to extract
                     # qtables/subsampling and fail
                     options["quality"] = 0
@@ -223,21 +233,27 @@ class Engine(BaseEngine):
                     orig_qtables = self.qtables
 
                     if (
-                        subsampling_config == "keep" or subsampling_config is None
+                        subsampling_config == "keep"
+                        or subsampling_config is None
                     ) and (orig_subsampling is not None):
                         options["subsampling"] = orig_subsampling
                     else:
                         options["subsampling"] = subsampling_config
 
-                    if (qtables_config == "keep" or qtables_config is None) and (
-                        orig_qtables and 2 <= len(orig_qtables) <= 4
-                    ):
+                    if (
+                        qtables_config == "keep" or qtables_config is None
+                    ) and (orig_qtables and 2 <= len(orig_qtables) <= 4):
                         options["qtables"] = orig_qtables
                     else:
                         options["qtables"] = qtables_config
 
-        if ext == ".png" and self.context.config.PNG_COMPRESSION_LEVEL is not None:
-            options["compress_level"] = self.context.config.PNG_COMPRESSION_LEVEL
+        if (
+            ext == ".png"
+            and self.context.config.PNG_COMPRESSION_LEVEL is not None
+        ):
+            options[
+                "compress_level"
+            ] = self.context.config.PNG_COMPRESSION_LEVEL
 
         if options["quality"] is None:
             options["quality"] = self.context.config.QUALITY
@@ -265,7 +281,9 @@ class Engine(BaseEngine):
             if ext in [".png", ".gif"] and self.image.mode == "CMYK":
                 self.image = self.image.convert("RGBA")
 
-            self.image.format = FORMATS.get(ext, FORMATS[self.get_default_extension()])
+            self.image.format = FORMATS.get(
+                ext, FORMATS[self.get_default_extension()]
+            )
             self.image.save(img_buffer, self.image.format, **options)
         except IOError:
             logger.exception(
@@ -310,7 +328,9 @@ class Engine(BaseEngine):
 
         command = ["gifsicle", "--colors", "256", tmp_file_path]
 
-        popen = Popen(command, stdout=PIPE)  # pylint: disable=consider-using-with
+        popen = Popen(
+            command, stdout=PIPE
+        )  # pylint: disable=consider-using-with
         pipe = popen.stdout
         pipe_output = pipe.read()
         pipe.close()
@@ -357,12 +377,15 @@ class Engine(BaseEngine):
         return image
 
     def has_transparency(self):
-        has_transparency = "A" in self.image.mode or "transparency" in self.image.info
+        has_transparency = (
+            "A" in self.image.mode or "transparency" in self.image.info
+        )
         if has_transparency:
             # If the image has alpha channel,
             # we check for any pixels that are not opaque (255)
             has_transparency = (
-                min(self.image.convert("RGBA").getchannel("A").getextrema()) < 255
+                min(self.image.convert("RGBA").getchannel("A").getextrema())
+                < 255
             )
         return has_transparency
 

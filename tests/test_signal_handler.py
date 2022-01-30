@@ -35,4 +35,6 @@ class SignalhandlerTestCase(TestCase):
 
         signal_handler(mock.Mock(), mock.Mock(), signal.SIGTERM, mock.Mock())
 
-        ioloop_instance_mock.add_callback_from_signal.assert_called_with(mock.ANY)
+        ioloop_instance_mock.add_callback_from_signal.assert_called_with(
+            mock.ANY
+        )

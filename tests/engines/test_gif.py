@@ -39,7 +39,9 @@ class GifEngineTestCase(TestCase):
         return Importer(self.config)
 
     def get_server(self):
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         server.gifsicle_path = which("gifsicle")
         return server
@@ -63,7 +65,9 @@ class GifEngineTestCase(TestCase):
 
     def test_errors_on_gifsicle_should_not_raises_errors_when_output(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, "SmallFullColourGIF.gif"), "rb") as image_file:
+        with open(
+            join(STORAGE_PATH, "SmallFullColourGIF.gif"), "rb"
+        ) as image_file:
             buffer = image_file.read()
 
         engine.load(buffer, ".gif")
@@ -80,7 +84,9 @@ class GifEngineTestCase(TestCase):
 
     def test_is_multiple_should_returns_false_if_gif_has_one_frame(self):
         engine = Engine(self.context)
-        with open(join(STORAGE_PATH, "animated-one-frame.gif"), "rb") as image_file:
+        with open(
+            join(STORAGE_PATH, "animated-one-frame.gif"), "rb"
+        ) as image_file:
             buffer = image_file.read()
 
         engine.load(buffer, ".gif")

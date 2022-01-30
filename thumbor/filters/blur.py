@@ -31,7 +31,9 @@ def apply_blur(mode, data, size, radius, sigma=0):
         sigma = radius
     radius = min(radius, MAX_RADIUS)
     matrix, matrix_size = generate_1d_matrix(sigma, radius)
-    data = _convolution.apply(mode, data, size[0], size[1], matrix, matrix_size, True)
+    data = _convolution.apply(
+        mode, data, size[0], size[1], matrix, matrix_size, True
+    )
     return _convolution.apply(mode, data, size[0], size[1], matrix, 1, True)
 
 

@@ -100,9 +100,9 @@ class FiltersFactory:
             instance = cls.init_if_valid(param, context)
 
             if instance:
-                filter_instances[getattr(cls, "phase", PHASE_POST_TRANSFORM)].append(
-                    instance
-                )
+                filter_instances[
+                    getattr(cls, "phase", PHASE_POST_TRANSFORM)
+                ].append(instance)
 
         return FiltersRunner(filter_instances)
 
@@ -144,7 +144,9 @@ class BaseFilter:
 
     @classmethod
     def pre_compile(cls):
-        meths = [f for f in list(cls.__dict__.values()) if hasattr(f, "filter_data")]
+        meths = [
+            f for f in list(cls.__dict__.values()) if hasattr(f, "filter_data")
+        ]
         if len(meths) == 0:
             return None
         cls.runnable_method = meths[0]
@@ -194,7 +196,9 @@ class BaseFilter:
             ]
         self.params = params
         self.context = context
-        self.engine = context.modules.engine if context and context.modules else None
+        self.engine = (
+            context.modules.engine if context and context.modules else None
+        )
 
     async def run(self):
         if self.params is None:

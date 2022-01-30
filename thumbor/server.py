@@ -42,7 +42,9 @@ def get_config(config_path, use_environment=False):
 
     lookup_paths = [os.curdir, expanduser("~"), "/etc/", dirname(__file__)]
 
-    return Config.load(config_path, conf_name="thumbor.conf", lookup_paths=lookup_paths)
+    return Config.load(
+        config_path, conf_name="thumbor.conf", lookup_paths=lookup_paths
+    )
 
 
 def configure_log(config, log_level):
@@ -61,9 +63,9 @@ def get_importer(config):
     importer.import_modules()
 
     if importer.error_handler_class is not None:
-        importer.error_handler = (
-            importer.error_handler_class(config)  # pylint: disable=not-callable
-        )
+        importer.error_handler = importer.error_handler_class(
+            config
+        )  # pylint: disable=not-callable
     return importer
 
 
