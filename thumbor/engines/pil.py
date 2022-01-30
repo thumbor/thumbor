@@ -40,6 +40,7 @@ ImageFile.MAXBLOCK = 2 ** 25
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 DECOMPRESSION_BOMB_EXCEPTIONS = (Image.DecompressionBombWarning,)
+
 if hasattr(Image, "DecompressionBombError"):
     DECOMPRESSION_BOMB_EXCEPTIONS += (Image.DecompressionBombError,)
 
@@ -66,6 +67,7 @@ class Engine(BaseEngine):
         if color == "transparent":
             color = None
         img = Image.new("RGBA", size, color)
+
         return img
 
     def create_image(self, buffer):
@@ -73,12 +75,14 @@ class Engine(BaseEngine):
             img = Image.open(BytesIO(buffer))
         except DECOMPRESSION_BOMB_EXCEPTIONS as error:
             logger.warning("[PILEngine] create_image failed: %s", error)
+
             return None
         self.icc_profile = img.info.get("icc_profile")
         self.exif = img.info.get("exif")
         self.original_mode = img.mode
 
         self.subsampling = JpegImagePlugin.get_sampling(img)
+
         if self.subsampling == -1:  # n/a for this file
             self.subsampling = None
         self.qtables = getattr(img, "quantization", None)
@@ -88,10 +92,12 @@ class Engine(BaseEngine):
             and self.extension == ".gif"
         ):
             frames = []
+
             for frame in ImageSequence.Iterator(img):
                 frames.append(frame.convert("P"))
             img.seek(0)
             self.frame_count = len(frames)
+
             return frames
 
         return img
@@ -128,10 +134,12 @@ class Engine(BaseEngine):
         # Indexed color modes (such as 1 and P) will be forced to use a
         # nearest neighbor resampling algorithm. So we convert them to
         # RGB(A) mode before resizing to avoid nasty scaling artifacts.
+
         if self.image.mode in ["1", "P"]:
             logger.debug(
                 "converting image from 8-bit/1-bit palette to 32-bit RGB(A) for resize"
             )
+
             if self.image.mode == "1":
                 target_mode = "RGB"
             else:
@@ -153,6 +161,7 @@ class Engine(BaseEngine):
 
     def rotate(self, degrees):
         # PIL rotates counter clockwise
+
         if degrees == 90:
             self.image = self.image.transpose(Image.ROTATE_90)
         elif degrees == 180:
@@ -170,12 +179,16 @@ class Engine(BaseEngine):
 
     def get_default_extension(self):
         # extension is not present => force JPEG or PNG
+
         if self.image.mode in ["P", "RGBA", "LA"]:
             return ".png"
+
         return ".jpeg"
 
-    # TODO: Refactor this - pylint: disable=too-many-statements,too-many-branches
-    def read(self, extension=None, quality=None):  # NOQA
+    # TODO: Refactor this
+    def read(  # noqa
+        self, extension=None, quality=None
+    ):  # noqa pylint: disable=too-many-statements,too-many-branches
         # returns image buffer in byte format.
 
         img_buffer = BytesIO()
@@ -183,6 +196,7 @@ class Engine(BaseEngine):
 
         # 1 and P mode images will be much smaller if converted back to
         # their original mode. So let's do that after resizing. Get $$.
+
         if (
             self.context.config.PILLOW_PRESERVE_INDEXED_MODE
             and requested_extension in [None, ".png", ".gif"]
@@ -204,8 +218,10 @@ class Engine(BaseEngine):
         ext = requested_extension or self.get_default_extension()
 
         options = {"quality": quality}
+
         if ext in (".jpg", ".jpeg"):
             options["optimize"] = True
+
             if self.context.config.PROGRESSIVE_JPEG:
                 # Can't simply set options['progressive'] to the value
                 # of self.context.config.PROGRESSIVE_JPEG because save
@@ -271,6 +287,7 @@ class Engine(BaseEngine):
                     logger.debug("webp quality is 100, using lossless instead")
                     options["lossless"] = True
                     options.pop("quality")
+
                 if self.image.mode not in ["RGB", "RGBA"]:
                     if self.image.mode == "P":
                         mode = "RGBA"
@@ -294,6 +311,7 @@ class Engine(BaseEngine):
         results = img_buffer.getvalue()
         img_buffer.close()
         self.extension = ext
+
         return results
 
     def read_multiple(self, images, extension=None):
@@ -328,9 +346,9 @@ class Engine(BaseEngine):
 
         command = ["gifsicle", "--colors", "256", tmp_file_path]
 
-        popen = Popen(
+        popen = Popen(  # pylint: disable=consider-using-with
             command, stdout=PIPE
-        )  # pylint: disable=consider-using-with
+        )
         pipe = popen.stdout
         pipe_output = pipe.read()
         pipe.close()
@@ -355,6 +373,7 @@ class Engine(BaseEngine):
 
     def image_data_as_rgb(self, update_image=True):
         converted_image = self.image
+
         if converted_image.mode not in ["RGB", "RGBA"]:
             if "A" in converted_image.mode:
                 converted_image = converted_image.convert("RGBA")
@@ -363,8 +382,10 @@ class Engine(BaseEngine):
                 converted_image = converted_image.convert(None)
             else:
                 converted_image = converted_image.convert("RGB")
+
         if update_image:
             self.image = converted_image
+
         return converted_image.mode, converted_image.tobytes()
 
     def convert_to_grayscale(self, update_image=True, alpha=True):
@@ -372,14 +393,17 @@ class Engine(BaseEngine):
             image = self.image.convert("LA")
         else:
             image = self.image.convert("L")
+
         if update_image:
             self.image = image
+
         return image
 
     def has_transparency(self):
         has_transparency = (
             "A" in self.image.mode or "transparency" in self.image.info
         )
+
         if has_transparency:
             # If the image has alpha channel,
             # we check for any pixels that are not opaque (255)
@@ -387,6 +411,7 @@ class Engine(BaseEngine):
                 min(self.image.convert("RGBA").getchannel("A").getextrema())
                 < 255
             )
+
         return has_transparency
 
     def paste(self, other_engine, pos, merge=True):

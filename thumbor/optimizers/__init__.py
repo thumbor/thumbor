@@ -26,12 +26,12 @@ class BaseOptimizer:
         if not self.should_run(image_extension, buffer):
             return buffer
 
-        ifile = NamedTemporaryFile(
+        ifile = NamedTemporaryFile(  # pylint: disable=consider-using-with
             delete=False
-        )  # pylint: disable=consider-using-with
-        ofile = NamedTemporaryFile(
+        )
+        ofile = NamedTemporaryFile(  # pylint: disable=consider-using-with
             delete=False
-        )  # pylint: disable=consider-using-with
+        )
         try:
             ifile.write(buffer)
             ifile.close()

@@ -125,10 +125,8 @@ class ServerParametersTestCase(TestCase):
         expect(params.log_level).to_equal("debug")
         expect(params.app_class).to_equal("app")
         expect(
-            params._security_key
-        ).to_equal(  # pylint: disable=protected-access
-            "SECURITY_KEY_FILE"
-        )
+            params._security_key  # pylint: disable=protected-access
+        ).to_equal("SECURITY_KEY_FILE")
         expect(params.fd).to_equal("fd")
         expect(params.gifsicle_path).to_equal("gifsicle_path")
 
@@ -149,10 +147,8 @@ class ServerParametersTestCase(TestCase):
 
         params.security_key = "testé"
         expect(
-            params._security_key
-        ).to_equal(  # pylint: disable=protected-access
-            "testé".encode("utf-8")
-        )
+            params._security_key  # pylint: disable=protected-access
+        ).to_equal("testé".encode("utf-8"))
 
     @staticmethod
     def test_loading_does_nothing_if_no_keyfile():
@@ -167,8 +163,8 @@ class ServerParametersTestCase(TestCase):
             gifsicle_path="gifsicle_path",
         )
         expect(
-            params._security_key
-        ).to_be_null()  # pylint: disable=protected-access
+            params._security_key  # pylint: disable=protected-access
+        ).to_be_null()
 
     @staticmethod
     def test_cant_load_invalid_security_key_file():
