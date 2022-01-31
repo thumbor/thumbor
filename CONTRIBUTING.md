@@ -35,7 +35,7 @@ to "turn them on".
 The project requires Python 3.7+, and in this version virtualenv is already installed by default, to create a virtual enviroment follow the next steps:
 
 
-1. Create a virtual enviroment, in the folder .venv, located in the root
+1. Create a virtual enviroment, in the folder .venv, located in the user's home folder
 ```
 $ python3 -m venv ~/.venv/<my_env_name>  
 ```
