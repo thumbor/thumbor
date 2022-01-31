@@ -48,7 +48,7 @@ EXTRA_LIBS_REQUIREMENTS = [
     # Going to update in a proper commit
     "cairosvg>=2.5.2",
     "pycurl==7.*,>=7.43.0",
-    "py3exiv2==0.*,>=0.7.1,!=0.7.2,!=0.8.0,!=0.9.3",
+    "pyexiv2==2.*,>=2.7.1",
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
