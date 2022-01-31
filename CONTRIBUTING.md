@@ -24,13 +24,32 @@ There are a few things you'll need in order to properly start hacking on it.
 
 ## Install Dependencies
 
-We seriously advise you to use
+You'll need [redis-server](https://redis.io)
+installed (for queued detector unit tests).
+
+Other than that, we seriously advise you to use
 [virtualenv](http://pypi.python.org/pypi/virtualenv) since it will keep
 your environment clean of thumbor's dependencies and you can choose when
 to "turn them on".
 
-Other than that, you'll also need [redis-server](https://redis.io)
-installed (for queued detector unit tests).
+The project requires Python 3.7+, and in this version virtualenv is already installed by default, to create a virtual enviroment follow the next steps:
+
+
+1. Create a virtual enviroment, in the folder .venv, located in the user's home folder
+```
+$ python3 -m venv ~/.venv/<my_env_name>  
+```
+
+2. Activate the virtual enviroment
+```
+$ source ~/.venv/<my_env_name>/bin/activate
+```
+
+3. Now you can install the dependencies in your virtual enviroment
+4. In case you want deactivate your virtual enviroment:
+```
+$ deactivate
+```
 
 ## Initializing the Environment
 
