@@ -32,7 +32,9 @@ class BaseMaxAgeFilterTestCase(TestCase):
 class MaxAgeFilterTestCase(BaseMaxAgeFilterTestCase):
     @gen_test
     async def test_max_age_filter_with_regular_image(self):
-        response = await self.async_fetch("/unsafe/smart/image.jpg", method="GET")
+        response = await self.async_fetch(
+            "/unsafe/smart/image.jpg", method="GET"
+        )
         expect(response.code).to_equal(200)
         expect(response.headers["Cache-Control"]).to_equal("max-age=2,public")
         expect(response.headers).to_include("Expires")
@@ -55,7 +57,9 @@ class MaxAgeDetectorFilterTestCase(BaseMaxAgeFilterTestCase):
 
     @gen_test
     async def test_max_age_filter_with_non_storaged_image(self):
-        response = await self.async_fetch("/unsafe/smart/image.jpg", method="GET")
+        response = await self.async_fetch(
+            "/unsafe/smart/image.jpg", method="GET"
+        )
         expect(response.code).to_equal(200)
         expect(response.headers["Cache-Control"]).to_equal("max-age=1,public")
         expect(response.headers).to_include("Expires")
@@ -69,7 +73,9 @@ class MaxAgeErrorDectectorFilterTestCase(BaseMaxAgeFilterTestCase):
 
     @gen_test
     async def test_with_detection_error_image(self):
-        response = await self.async_fetch("/unsafe/smart/image.jpg", method="GET")
+        response = await self.async_fetch(
+            "/unsafe/smart/image.jpg", method="GET"
+        )
         expect(response.code).to_equal(200)
         expect(response.headers["Cache-Control"]).to_equal("max-age=1,public")
         expect(response.headers).to_include("Expires")

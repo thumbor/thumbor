@@ -46,7 +46,9 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         ctx.server.gifsicle_path = which("gifsicle")
@@ -61,7 +63,9 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
     @gen_test
     async def test_saves_image_to_result_storage(self, instance_mock):
         instance_mock.return_value = self.io_loop
-        response = await self.async_fetch("/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif")
+        response = await self.async_fetch(
+            "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
+        )
         expect(response.code).to_equal(200)
 
         self.context.request = Mock(
@@ -93,7 +97,9 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         ctx.server.gifsicle_path = which("gifsicle")
@@ -116,13 +122,17 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
         with open(expected_path, "wb") as img:
             img.write(animated_image())
 
-        response = await self.async_fetch("/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif")
+        response = await self.async_fetch(
+            "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
+        )
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(animated_image())
 
     @patch.object(FileResultStorage, "get", side_effect=Exception)
     @gen_test
     async def test_loads_image_from_result_storage_fails_on_exception(self, _):
-        response = await self.async_fetch("/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif")
+        response = await self.async_fetch(
+            "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
+        )
         expect(response.code).to_equal(500)
         expect(response.body).to_be_empty()

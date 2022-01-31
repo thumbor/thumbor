@@ -34,7 +34,9 @@ class ImageOperationsWithRespectOrientation(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         self.context = Context(server, cfg, importer)
         self.context.server.gifsicle_path = which("gifsicle")

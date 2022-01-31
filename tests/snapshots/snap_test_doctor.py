@@ -7,7 +7,9 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots['test_get_doctor_output 1'] = '''Using configuration file found at ./tests/invalid-thumbor.conf
+snapshots[
+    "test_get_doctor_output 1"
+] = """Using configuration file found at ./tests/invalid-thumbor.conf
 
 Thumbor doctor will analyze your install and verify if everything is working as expected.
 
@@ -169,9 +171,11 @@ Verifying security...
 If you don't know how to fix the above problems, please open an issue with thumbor.
 Don't forget to copy this log and add it to the description.
 Open an issue at https://github.com/thumbor/thumbor/issues/new
-'''
+"""
 
-snapshots['test_get_doctor_output_no_config 1'] = '''
+snapshots[
+    "test_get_doctor_output_no_config 1"
+] = """
 Thumbor doctor will analyze your install and verify if everything is working as expected.
 
 Verifying libraries support...
@@ -207,4 +211,4 @@ Verifying security...
 
 
 🎉 Congratulations! No errors found! 🎉
-'''
+"""

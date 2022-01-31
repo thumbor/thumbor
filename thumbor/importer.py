@@ -84,7 +84,9 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         self.import_item("STORAGE", "Storage")
         self.import_item("METRICS", "Metrics")
         self.import_item("DETECTORS", "Detector", is_multiple=True)
-        self.import_item("FILTERS", "Filter", is_multiple=True, ignore_errors=True)
+        self.import_item(
+            "FILTERS", "Filter", is_multiple=True, ignore_errors=True
+        )
         self.import_item("HANDLER_LISTS", is_multiple=True)
         self.import_item("OPTIMIZERS", "Optimizer", is_multiple=True)
         self.import_item("URL_SIGNER", "UrlSigner")
@@ -168,7 +170,9 @@ class Importer:  # pylint: disable=too-many-instance-attributes
                             )
                     else:
                         module = self.import_class(
-                            module_name, get_module=True, validate_fn=validate_fn
+                            module_name,
+                            get_module=True,
+                            validate_fn=validate_fn,
                         )
                     modules.append(module)
                 except ImportError as error:

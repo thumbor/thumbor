@@ -16,7 +16,12 @@ from unittest import TestCase, mock
 from preggy import expect
 
 import thumbor.url_composer as composer
-from thumbor.url_composer import get_options, get_parser, get_thumbor_params, main
+from thumbor.url_composer import (
+    get_options,
+    get_parser,
+    get_thumbor_params,
+    main,
+)
 
 
 class UrlComposerTestCase(TestCase):

@@ -39,10 +39,14 @@ class Storage(storages.BaseStorage):
         return await compatibility_get(path, func=self.storage.get_crypto)
 
     async def get_detector_data(self, path):
-        return await compatibility_get(path, func=self.storage.get_detector_data)
+        return await compatibility_get(
+            path, func=self.storage.get_detector_data
+        )
 
     async def exists(self, path, *args, **kw):
-        return await compatibility_get(path, func=self.storage.exists, *args, **kw)
+        return await compatibility_get(
+            path, func=self.storage.exists, *args, **kw
+        )
 
     async def remove(self, path):
         return self.storage.remove(path)

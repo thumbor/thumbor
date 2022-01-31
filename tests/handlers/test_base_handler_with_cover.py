@@ -32,7 +32,9 @@ class ImageOperationsImageCoverTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
         ctx.server.gifsicle_path = which("gifsicle")
@@ -40,7 +42,9 @@ class ImageOperationsImageCoverTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_can_get_image_cover(self):
-        response = await self.async_fetch("/unsafe/filters:cover()/animated.gif")
+        response = await self.async_fetch(
+            "/unsafe/filters:cover()/animated.gif"
+        )
 
         expect(response.code).to_equal(200)
         expect(response.headers["Content-Type"]).to_equal("image/gif")

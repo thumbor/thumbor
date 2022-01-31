@@ -60,7 +60,9 @@ class ImporterTestCase(TestCase):
 
             if prop is tuple:
                 for index, item in enumerate(prop):
-                    expect(item).not_to_be_null().to_equal(default_value[index])
+                    expect(item).not_to_be_null().to_equal(
+                        default_value[index]
+                    )
             else:
                 expect(prop).not_to_be_null().to_equal(default_value)
 

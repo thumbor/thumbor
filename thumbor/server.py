@@ -42,7 +42,9 @@ def get_config(config_path, use_environment=False):
 
     lookup_paths = [os.curdir, expanduser("~"), "/etc/", dirname(__file__)]
 
-    return Config.load(config_path, conf_name="thumbor.conf", lookup_paths=lookup_paths)
+    return Config.load(
+        config_path, conf_name="thumbor.conf", lookup_paths=lookup_paths
+    )
 
 
 def configure_log(config, log_level):
@@ -62,8 +64,11 @@ def get_importer(config):
 
     if importer.error_handler_class is not None:
         importer.error_handler = (
-            importer.error_handler_class(config)  # pylint: disable=not-callable
+            importer.error_handler_class(  # pylint: disable=not-callable
+                config
+            )
         )
+
     return importer
 
 
@@ -83,6 +88,7 @@ def validate_config(config, server_parameters):
 
     if config.USE_GIFSICLE_ENGINE:
         server_parameters.gifsicle_path = which("gifsicle")
+
         if server_parameters.gifsicle_path is None:
             raise RuntimeError(
                 "If using USE_GIFSICLE_ENGINE configuration to True,"
@@ -104,6 +110,7 @@ def run_server(application, context):
 
     if context.server.fd is not None:
         fd_number = get_as_integer(context.server.fd)
+
         if fd_number is not None:
             # TODO: replace with socket.socket(fileno=fd_number) when we require Python>=3.7
             sock = socket_from_fd(  # pylint: disable=too-many-function-args
@@ -123,11 +130,13 @@ def run_server(application, context):
         )
 
     server.start(context.server.processes)
+
     return server
 
 
 def main(arguments=None):
     """Runs thumbor server with the specified arguments."""
+
     if arguments is None:
         arguments = sys.argv[1:]
 

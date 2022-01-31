@@ -38,7 +38,9 @@ def get_image(img):
     encode_formats = ["NFD", "NFC", "NFKD", "NFKC"]
     for encode_format in encode_formats:
         try:
-            with open(unicodedata.normalize(encode_format, img), "rb") as stream:
+            with open(
+                unicodedata.normalize(encode_format, img), "rb"
+            ) as stream:
                 body = stream.read()
                 break
         except IOError:

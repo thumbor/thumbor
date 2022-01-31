@@ -41,7 +41,9 @@ class CompatibilityStorageTestCase(TestCase):
         )
         importer = Importer(config)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, config=config, importer=importer)
 
@@ -53,7 +55,9 @@ class CompatibilityStorageTestCase(TestCase):
         )
         importer = Importer(config)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, config=config, importer=importer)
         storage = Storage(ctx)

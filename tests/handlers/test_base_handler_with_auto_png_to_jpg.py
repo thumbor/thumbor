@@ -41,7 +41,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         return importer
 
     def get_server(self):
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return server
 
@@ -54,7 +56,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         return ctx
 
     async def get_as_webp(self, url):
-        return await self.async_fetch(url, headers={"Accept": "image/webp,*/*;q=0.8"})
+        return await self.async_fetch(
+            url, headers={"Accept": "image/webp,*/*;q=0.8"}
+        )
 
     @gen_test
     async def test_should_auto_convert_png_to_jpg(self):
@@ -72,7 +76,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
     ):
         context_mock.return_value = self.context
         crypto = CryptoURL("ACME-SEC")
-        url = crypto.generate(image_url="Giunchedi%2C_Filippo_January_2015_01.png")
+        url = crypto.generate(
+            image_url="Giunchedi%2C_Filippo_January_2015_01.png"
+        )
         self.context.request = self.get_request(url=url)
 
         context_mock.return_value = self.context
@@ -125,7 +131,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         self.config.AUTO_WEBP = True
         context_mock.return_value = self.context
         crypto = CryptoURL("ACME-SEC")
-        url = crypto.generate(image_url="Giunchedi%2C_Filippo_January_2015_01.png")
+        url = crypto.generate(
+            image_url="Giunchedi%2C_Filippo_January_2015_01.png"
+        )
         self.context.request = self.get_request(url=url, accepts_webp=True)
 
         # save on result storage

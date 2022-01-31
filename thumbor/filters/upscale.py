@@ -22,7 +22,10 @@ class Filter(BaseFilter):
         if source_width >= target_width or source_height >= target_height:
             return
 
-        if source_width * 1.0 / target_width >= source_height * 1.0 / target_height:
+        if (
+            source_width * 1.0 / target_width
+            >= source_height * 1.0 / target_height
+        ):
             new_width = target_width
             new_height = int(source_height * target_width / source_width)
         else:

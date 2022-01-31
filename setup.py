@@ -20,15 +20,11 @@ except ImportError:
     __version__ = "0.0.0"
 
 TESTS_REQUIREMENTS = [
-    # Going to update in a proper commit
-    "cairosvg>=2.5.2",
     "colorama==0.*,>=0.4.3",
     "coverage==5.*,>=5.0.3",
     "flake8==3.*,>=3.7.9",
     "isort==4.*,>=4.3.21",
     "preggy==1.*,>=1.4.4",
-    "py3exiv2==0.*,>=0.7.1,!=0.7.2,!=0.8.0,!=0.9.3",
-    "pycurl==7.*,>=7.43.0",
     "pylint==2.*,>=2.4.4",
     "pyssim==0.*,>=0.4.0",
     "pytest>=6.2.5",
@@ -48,7 +44,14 @@ OPENCV_REQUIREMENTS = [
     "numpy==1.*,>=1.18.1",
 ]
 
-ALL_REQUIREMENTS = OPENCV_REQUIREMENTS
+EXTRA_LIBS_REQUIREMENTS = [
+    # Going to update in a proper commit
+    "cairosvg>=2.5.2",
+    "pycurl==7.*,>=7.43.0",
+    "py3exiv2==0.*,>=0.7.1,!=0.7.2,!=0.8.0,!=0.9.3",
+]
+
+ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
 
 
 def filter_extension_module(name, lib_objs, lib_headers):

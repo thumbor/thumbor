@@ -30,19 +30,23 @@ class Storage(BaseStorage):
 
     @property
     def is_auto_webp(self):
-        return self.context.config.AUTO_WEBP and self.context.request.accepts_webp
+        return (
+            self.context.config.AUTO_WEBP and self.context.request.accepts_webp
+        )
 
     def put(self, bytes):
         file_abspath = self.normalize_path(self.context.request.url)
         if not self.validate_path(file_abspath):
             logger.warn(
-                "[RESULT_STORAGE] unable to write outside root path: %s" % file_abspath
+                "[RESULT_STORAGE] unable to write outside root path: %s"
+                % file_abspath
             )
             return
         temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace("-", ""))
         file_dir_abspath = dirname(file_abspath)
         logger.debug(
-            "[RESULT_STORAGE] putting at %s (%s)" % (file_abspath, file_dir_abspath)
+            "[RESULT_STORAGE] putting at %s (%s)"
+            % (file_abspath, file_dir_abspath)
         )
 
         self.ensure_dir(file_dir_abspath)
@@ -64,7 +68,9 @@ class Storage(BaseStorage):
         logger.debug("[RESULT_STORAGE] getting from %s" % file_abspath)
 
         if not exists(file_abspath) or self.is_expired(file_abspath):
-            logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
+            logger.debug(
+                "[RESULT_STORAGE] image not found at %s" % file_abspath
+            )
             callback(None)
         else:
             with open(file_abspath, "rb") as f:
@@ -90,7 +96,9 @@ class Storage(BaseStorage):
 
     def normalize_path(self, path):
         path_segments = [
-            self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip("/"),
+            self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip(
+                "/"
+            ),
             Storage.PATH_FORMAT_VERSION,
         ]
         if self.is_auto_webp:
@@ -134,7 +142,11 @@ class Storage(BaseStorage):
         logger.debug("[RESULT_STORAGE] getting from %s" % file_abspath)
 
         if not exists(file_abspath) or self.is_expired(file_abspath):
-            logger.debug("[RESULT_STORAGE] image not found at %s" % file_abspath)
+            logger.debug(
+                "[RESULT_STORAGE] image not found at %s" % file_abspath
+            )
             return True
 
-        return datetime.fromtimestamp(getmtime(file_abspath)).replace(tzinfo=pytz.utc)
+        return datetime.fromtimestamp(getmtime(file_abspath)).replace(
+            tzinfo=pytz.utc
+        )

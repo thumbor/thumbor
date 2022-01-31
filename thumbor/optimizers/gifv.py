@@ -36,7 +36,9 @@ class Optimizer(BaseOptimizer):
         if "background_color" in self.context.request.filters:
             filters = self.context.request.filters.split(":")
             bg_filter = [
-                filter for filter in filters if filter.startswith("background_color")
+                filter
+                for filter in filters
+                if filter.startswith("background_color")
             ][0]
             bg_color = re.search(r"\((.*?)\)", bg_filter).group(1)
             bg_color_hex = self.normalize_color_to_hex(bg_color)
@@ -84,7 +86,14 @@ class Optimizer(BaseOptimizer):
     def set_format(self):
         if "webm" in self.context.request.filters:
             file_format = "webm"
-            command_params = ["-quality", "good", "-cpu-used", "4", "-b:v", "500k"]
+            command_params = [
+                "-quality",
+                "good",
+                "-cpu-used",
+                "4",
+                "-b:v",
+                "500k",
+            ]
         else:
             file_format = "mp4"
             command_params = ["-profile:v", "baseline", "-level", "4.0"]

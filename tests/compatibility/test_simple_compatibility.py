@@ -22,7 +22,9 @@ def get_result(first, second, callback):
 class SimpleCompatibilityTestCase(TestCase):
     @gen_test
     async def test_can_get_result(self):
-        first, second, response = await compatibility_get(1, second=2, func=get_result)
+        first, second, response = await compatibility_get(
+            1, second=2, func=get_result
+        )
         expect(first).to_equal(1)
         expect(second).to_equal(2)
         expect(response).to_be_true()

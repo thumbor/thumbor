@@ -69,7 +69,9 @@ class FileStorageTestCase(BaseFileStorageTestCase):
     @gen_test
     async def test_normalized_path(self):
         expect(self.file_storage).not_to_be_null()
-        expect(self.file_storage.normalize_path(self.get_http_path())).to_equal(
+        expect(
+            self.file_storage.normalize_path(self.get_http_path())
+        ).to_equal(
             f"{self.storage_path.name}/default/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
@@ -95,7 +97,9 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
     @gen_test
     async def test_normalized_path_with_auto_webp_path(self):
         expect(self.file_storage).not_to_be_null()
-        expect(self.file_storage.normalize_path(self.get_http_path())).to_equal(
+        expect(
+            self.file_storage.normalize_path(self.get_http_path())
+        ).to_equal(
             f"{self.storage_path.name}/auto_webp/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
@@ -103,7 +107,9 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
 
 class ResultStorageResultTestCase(BaseFileStorageTestCase):
     def get_config(self):
-        return Config(RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=self.get_fixture_path())
+        return Config(
+            RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=self.get_fixture_path()
+        )
 
     def get_request(self):
         return RequestParameters(url="image.jpg")
@@ -131,7 +137,9 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
 
     @gen_test
     async def test_cannot_get_expired_1_day_old_image(self):
-        current_timestamp = (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()
+        current_timestamp = (
+            datetime.utcnow() - datetime(1970, 1, 1)
+        ).total_seconds()
         new_mtime = current_timestamp - 60 * 60 * 24
         with mock.patch(
             "thumbor.result_storages.file_storage.getmtime",

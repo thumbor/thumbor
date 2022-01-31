@@ -35,7 +35,9 @@ class ImageOperationsWithGifWithoutGifsicle(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
 
@@ -52,7 +54,9 @@ class ImageOperationsWithGifWithoutGifsicle(BaseImagingTestCase):
         expect(response.body).to_be_similar_to(not_so_animated_image())
 
 
-class ImageOperationsWithGifWithoutGifsicleOnResultStorage(BaseImagingTestCase):
+class ImageOperationsWithGifWithoutGifsicleOnResultStorage(
+    BaseImagingTestCase
+):
     def get_context(self):
         cfg = Config(SECURITY_KEY="ACME-SEC")
         cfg.LOADER = "thumbor.loaders.file_loader"
@@ -66,7 +70,9 @@ class ImageOperationsWithGifWithoutGifsicleOnResultStorage(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         ctx = Context(server, cfg, importer)
 

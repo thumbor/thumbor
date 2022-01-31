@@ -121,16 +121,24 @@ class ValidateUrlTestCase(TestCase):
             re.compile(r"https://www\.google\.com/img/.*"),
         ]
         ctx = Context(None, config, None)
-        expect(loader.validate(ctx, "http://www.google.com/logo.jpg")).to_be_false()
-        expect(loader.validate(ctx, "http://s2.glbimg.com/logo.jpg")).to_be_false()
+        expect(
+            loader.validate(ctx, "http://www.google.com/logo.jpg")
+        ).to_be_false()
+        expect(
+            loader.validate(ctx, "http://s2.glbimg.com/logo.jpg")
+        ).to_be_false()
         expect(
             loader.validate(
                 ctx,
                 "/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=",  # NOQA, pylint: disable=line-too-long
             )
         ).to_be_false()
-        expect(loader.validate(ctx, "https://www.google.com/img/logo.jpg")).to_be_true()
-        expect(loader.validate(ctx, "http://s.glbimg.com/logo.jpg")).to_be_true()
+        expect(
+            loader.validate(ctx, "https://www.google.com/img/logo.jpg")
+        ).to_be_true()
+        expect(
+            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
+        ).to_be_true()
 
     def test_without_allowed_sources(self):
         config = Config()
@@ -293,7 +301,9 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
 
         result = await loader.load(ctx, url)
         expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer.decode()).to_include("Accept:image/*;q=0.9,*/*;q=0.1\n")
+        expect(result.buffer.decode()).to_include(
+            "Accept:image/*;q=0.9,*/*;q=0.1\n"
+        )
 
 
 class HttpLoaderWithUserAgentForwardingTestCase(DummyAsyncHttpClientTestCase):

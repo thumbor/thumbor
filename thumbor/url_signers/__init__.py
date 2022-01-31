@@ -14,4 +14,6 @@ import sys
 # For backward compatibility
 from libthumbor.url_signers import BaseUrlSigner  # NOQA
 
-sys.modules[__name__] = importlib.import_module("libthumbor.url_signers")  # NOQA
+sys.modules[__name__] = importlib.import_module(
+    "libthumbor.url_signers"
+)  # NOQA

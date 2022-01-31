@@ -22,7 +22,10 @@ from thumbor.error_handlers.file import ErrorHandler
 
 class FakeRequest:
     def __init__(self):
-        self.headers = {"header1": "value1", "Cookie": "cookie1=value; cookie2=value2;"}
+        self.headers = {
+            "header1": "value1",
+            "Cookie": "cookie1=value; cookie2=value2;",
+        }
 
         self.url = "test/"
         self.method = "GET"
@@ -45,9 +48,12 @@ class InvalidFileErrorHandlerTestCase(TestCase):
         with expect.error_to_happen(RuntimeError):
             ErrorHandler(self.config)
 
-    def test_when_invalid_configuration_of_filename_with_context_should_be_error(self):
+    def test_when_invalid_configuration_of_filename_with_context_should_be_error(
+        self,
+    ):
         cfg = Config(
-            ERROR_FILE_NAME_USE_CONTEXT="server..port", ERROR_FILE_LOGGER="toto"
+            ERROR_FILE_NAME_USE_CONTEXT="server..port",
+            ERROR_FILE_LOGGER="toto",
         )
         with expect.error_to_happen(RuntimeError):
             ErrorHandler(cfg)
@@ -55,13 +61,17 @@ class InvalidFileErrorHandlerTestCase(TestCase):
 
 class BasicFileErrorHandlerTestCase(TestCase):
     def get_config(self):
-        self.tmp = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
-            prefix="thumborTest."
+        self.tmp = (
+            tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
+                prefix="thumborTest."
+            )
         )
         return Config(SECURITY_KEY="ACME-SEC", ERROR_FILE_LOGGER=self.tmp.name)
 
     def get_server(self):
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return server
 
@@ -98,8 +108,10 @@ class FileErrorHandlerTestCase(TestCase):
     PORT = 8890
 
     def get_config(self):
-        self.tmp = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
-            prefix=f"thumborTest.{self.PORT}."
+        self.tmp = (
+            tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
+                prefix=f"thumborTest.{self.PORT}."
+            )
         )
         return Config(
             SECURITY_KEY="ACME-SEC",

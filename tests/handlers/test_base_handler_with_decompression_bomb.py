@@ -28,7 +28,9 @@ from thumbor.server import validate_config
 class ImageBadRequestDecompressionBomb(TestCase):
     def setUp(self):
         self.root_path = tempfile.mkdtemp()
-        self.loader_path = abspath(join(dirname(__file__), "../fixtures/images/"))
+        self.loader_path = abspath(
+            join(dirname(__file__), "../fixtures/images/")
+        )
         self.base_uri = "/image"
         super().setUp()
 
@@ -36,7 +38,9 @@ class ImageBadRequestDecompressionBomb(TestCase):
         shutil.rmtree(self.root_path)
 
     async def get_as_webp(self, url):
-        return await self.async_fetch(url, headers={"Accept": "image/webp,*/*;q=0.8"})
+        return await self.async_fetch(
+            url, headers={"Accept": "image/webp,*/*;q=0.8"}
+        )
 
     def get_config(self):
         cfg = Config(SECURITY_KEY="ACME-SEC")
@@ -47,7 +51,9 @@ class ImageBadRequestDecompressionBomb(TestCase):
         return cfg
 
     def get_server(self):
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         validate_config(self.config, server)
         return server
 

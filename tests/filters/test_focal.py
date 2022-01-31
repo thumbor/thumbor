@@ -22,7 +22,9 @@ class FocalFilterTestCase(FilterTestCase):
             "source.jpg", "thumbor.filters.focal", "focal(146x156:279x208)"
         )
 
-        expect(self.context.request.focal_points[0].origin).to_equal("Explicit")
+        expect(self.context.request.focal_points[0].origin).to_equal(
+            "Explicit"
+        )
         expect(self.context.request.focal_points[0].height).to_equal(52)
         expect(self.context.request.focal_points[0].width).to_equal(133)
         expect(self.context.request.focal_points[0].y).to_equal(182)

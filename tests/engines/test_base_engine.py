@@ -104,7 +104,9 @@ class BaseEngineTestCase(TestCase):
 
     @mock.patch("thumbor.engines.cairosvg", new=None)
     @mock.patch("thumbor.engines.logger.error")
-    def test_not_imported_cairosvg_failed_to_convert_svg_to_png(self, mock_log_error):
+    def test_not_imported_cairosvg_failed_to_convert_svg_to_png(
+        self, mock_log_error
+    ):
         buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
@@ -114,13 +116,17 @@ class BaseEngineTestCase(TestCase):
         expect(buffer).to_equal(returned_buffer)
 
     def test_can_identify_msb_tiff(self):
-        with open(join(STORAGE_PATH, "gradient_msb_16bperchannel.tif"), "rb") as image:
+        with open(
+            join(STORAGE_PATH, "gradient_msb_16bperchannel.tif"), "rb"
+        ) as image:
             buffer = image.read()
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal("image/tiff")
 
     def test_can_identify_lsb_tiff(self):
-        with open(join(STORAGE_PATH, "gradient_lsb_16bperchannel.tif"), "rb") as image:
+        with open(
+            join(STORAGE_PATH, "gradient_lsb_16bperchannel.tif"), "rb"
+        ) as image:
             buffer = image.read()
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal("image/tiff")

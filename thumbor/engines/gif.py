@@ -33,8 +33,9 @@ class Engine(PILEngine):
         return self.image_size
 
     def run_gifsicle(self, command):
-        if self.context.server.gifsicle_path is None or \
-                not which(self.context.server.gifsicle_path):
+        if self.context.server.gifsicle_path is None or not which(
+            self.context.server.gifsicle_path
+        ):
             raise GifSicleError(
                 "gifsicle command was not found and it is required"
                 " for your configuration of Thumbor"

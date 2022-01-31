@@ -66,7 +66,9 @@ class FakeRotateEngineRotateFilterTestCase(FilterTestCase):
         runner = self.context.filters_factory.create_instances(
             self.context, "rotate(91)"
         )
-        filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
+        filter_instances = runner.filter_instances[
+            thumbor.filters.PHASE_POST_TRANSFORM
+        ]
         filter_instances[0].engine = FakeRotateEngine()
         await filter_instances[0].run()
         expect(filter_instances[0].engine.rotate_val).to_be_null()
@@ -76,7 +78,9 @@ class FakeRotateEngineRotateFilterTestCase(FilterTestCase):
         runner = self.context.filters_factory.create_instances(
             self.context, "rotate(90)"
         )
-        filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
+        filter_instances = runner.filter_instances[
+            thumbor.filters.PHASE_POST_TRANSFORM
+        ]
         filter_instances[0].engine = FakeRotateEngine()
         await filter_instances[0].run()
         expect(filter_instances[0].engine.rotate_val).to_equal(90)
@@ -86,7 +90,9 @@ class FakeRotateEngineRotateFilterTestCase(FilterTestCase):
         runner = self.context.filters_factory.create_instances(
             self.context, "rotate(540)"
         )
-        filter_instances = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
+        filter_instances = runner.filter_instances[
+            thumbor.filters.PHASE_POST_TRANSFORM
+        ]
         filter_instances[0].engine = FakeRotateEngine()
         await filter_instances[0].run()
         expect(filter_instances[0].engine.rotate_val).to_equal(180)

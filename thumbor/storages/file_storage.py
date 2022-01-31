@@ -86,7 +86,9 @@ class Storage(storages.BaseStorage):
     async def get(self, path):
         abs_path = self.path_on_filesystem(path)
 
-        resource_available = await self.exists(path, path_on_filesystem=abs_path)
+        resource_available = await self.exists(
+            path, path_on_filesystem=abs_path
+        )
         if not resource_available:
             return None
 
@@ -137,4 +139,7 @@ class Storage(storages.BaseStorage):
         if self.context.config.STORAGE_EXPIRATION_SECONDS is None:
             return False
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
-        return timediff.total_seconds() > self.context.config.STORAGE_EXPIRATION_SECONDS
+        return (
+            timediff.total_seconds()
+            > self.context.config.STORAGE_EXPIRATION_SECONDS
+        )

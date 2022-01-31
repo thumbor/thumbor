@@ -17,7 +17,9 @@ from tests.base import FilterTestCase
 class StretchFilterTestCase(FilterTestCase):
     @gen_test
     async def test_stretch_filter(self):
-        await self.get_filtered("source.jpg", "thumbor.filters.stretch", "stretch()")
+        await self.get_filtered(
+            "source.jpg", "thumbor.filters.stretch", "stretch()"
+        )
         expect(self.context.request.stretch).to_be_true()
 
     @gen_test

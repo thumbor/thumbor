@@ -13,7 +13,9 @@ from unittest import TestCase, mock
 from preggy import expect
 
 import thumbor.server
-from tests.fixtures.custom_error_handler import ErrorHandler as CustomErrorHandler
+from tests.fixtures.custom_error_handler import (
+    ErrorHandler as CustomErrorHandler,
+)
 from thumbor.app import ThumborServiceApp
 from thumbor.config import Config
 from thumbor.server import (
@@ -45,7 +47,9 @@ class ServerTestCase(TestCase):
             expect(config.ENGINE).to_be_like("thumbor.engines.pil")
 
     def test_can_get_config_with_env_enabled(self):
-        config = get_config("./tests/fixtures/thumbor_config_server_test.conf", True)
+        config = get_config(
+            "./tests/fixtures/thumbor_config_server_test.conf", True
+        )
 
         with mock.patch.dict("os.environ", {"ENGINE": "test"}):
             expect(config).not_to_be_null()
@@ -92,7 +96,9 @@ class ServerTestCase(TestCase):
 
         expect(importer).not_to_be_null()
         expect(importer.error_handler_class).not_to_be_null()
-        expect(importer.error_handler_class).to_be_instance_of(CustomErrorHandler)
+        expect(importer.error_handler_class).to_be_instance_of(
+            CustomErrorHandler
+        )
 
     def test_validate_config_security_key(self):
         server_parameters = mock.Mock(security_key=None)
@@ -162,7 +168,9 @@ class ServerTestCase(TestCase):
     def test_can_run_server_with_default_params(self, server_mock):
         application = mock.Mock()
         context = mock.Mock()
-        context.server = mock.Mock(fd=None, port=1234, ip="0.0.0.0", processes=1)
+        context.server = mock.Mock(
+            fd=None, port=1234, ip="0.0.0.0", processes=1
+        )
 
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
@@ -176,7 +184,9 @@ class ServerTestCase(TestCase):
     def test_can_run_server_with_multiple_processes(self, server_mock):
         application = mock.Mock()
         context = mock.Mock()
-        context.server = mock.Mock(fd=None, port=1234, ip="0.0.0.0", processes=5)
+        context.server = mock.Mock(
+            fd=None, port=1234, ip="0.0.0.0", processes=5
+        )
 
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock
@@ -203,10 +213,14 @@ class ServerTestCase(TestCase):
 
     @mock.patch.object(thumbor.server, "HTTPServer")
     @mock.patch.object(thumbor.server, "bind_unix_socket")
-    def test_can_run_server_with_unix_socket(self, bind_unix_socket, server_mock):
+    def test_can_run_server_with_unix_socket(
+        self, bind_unix_socket, server_mock
+    ):
         application = mock.Mock()
         context = mock.Mock()
-        context.server = mock.Mock(fd="/path/bin", port=1234, ip="0.0.0.0", processes=1)
+        context.server = mock.Mock(
+            fd="/path/bin", port=1234, ip="0.0.0.0", processes=1
+        )
 
         server_instance_mock = mock.Mock()
         server_mock.return_value = server_instance_mock

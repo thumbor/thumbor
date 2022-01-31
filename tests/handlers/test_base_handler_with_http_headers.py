@@ -35,7 +35,9 @@ class ImageOperationsWithoutEtagsTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 
@@ -58,7 +60,9 @@ class ImageOperationsWithoutCorsHeaderTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 
@@ -74,14 +78,18 @@ class ImageOperationsWithoutCorsHeaderTestCase(BaseImagingTestCase):
 
 class ImageOperationsWithCorsHeaderTestCase(BaseImagingTestCase):
     def get_context(self):
-        cfg = Config(SECURITY_KEY="ACME-SEC", ACCESS_CONTROL_ALLOW_ORIGIN_HEADER="*")
+        cfg = Config(
+            SECURITY_KEY="ACME-SEC", ACCESS_CONTROL_ALLOW_ORIGIN_HEADER="*"
+        )
         cfg.LOADER = "thumbor.loaders.file_loader"
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.ENABLE_ETAGS = False
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 
@@ -110,7 +118,9 @@ class ImageOperationsWithLastModifiedTestCase(BaseImagingTestCase):
 
         importer = Importer(cfg)
         importer.import_modules()
-        server = ServerParameters(8889, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return Context(server, cfg, importer)
 

@@ -30,14 +30,18 @@ class Storage(storages.BaseStorage):
         temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace("-", ""))
         file_dir_abspath = dirname(file_abspath)
 
-        logger.debug("creating tempfile for %s in %s..." % (path, temp_abspath))
+        logger.debug(
+            "creating tempfile for %s in %s..." % (path, temp_abspath)
+        )
 
         self.ensure_dir(file_dir_abspath)
 
         with open(temp_abspath, "wb") as _file:
             _file.write(bytes)
 
-        logger.debug("moving tempfile %s to %s..." % (temp_abspath, file_abspath))
+        logger.debug(
+            "moving tempfile %s to %s..." % (temp_abspath, file_abspath)
+        )
         move(temp_abspath, file_abspath)
 
         return path
@@ -147,4 +151,7 @@ class Storage(storages.BaseStorage):
         if self.context.config.STORAGE_EXPIRATION_SECONDS is None:
             return False
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
-        return timediff.total_seconds() > self.context.config.STORAGE_EXPIRATION_SECONDS
+        return (
+            timediff.total_seconds()
+            > self.context.config.STORAGE_EXPIRATION_SECONDS
+        )

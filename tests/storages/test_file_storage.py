@@ -29,7 +29,9 @@ class BaseFileStorageTestCase(TestCase):
         return Config(FILE_STORAGE_ROOT_PATH=tmp)
 
     def get_server(self):
-        server = ServerParameters(8888, "localhost", "thumbor.conf", None, "info", None)
+        server = ServerParameters(
+            8888, "localhost", "thumbor.conf", None, "info", None
+        )
         server.security_key = "ACME-SEC"
         return server
 
@@ -87,7 +89,9 @@ class FileStorageTestCase(BaseFileStorageTestCase):
     async def test_can_store_images_in_same_folder(self):
         iurl = self.get_image_url("image_999.jpg")
         other_iurl = iurl.replace("/some/", "/some_other/")
-        root_path = join(self.config.FILE_STORAGE_ROOT_PATH, dirname(other_iurl))
+        root_path = join(
+            self.config.FILE_STORAGE_ROOT_PATH, dirname(other_iurl)
+        )
         if exists(root_path):
             shutil.rmtree(root_path)
 
@@ -154,7 +158,9 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
         ibytes = self.get_image_bytes("image.jpg")
         storage = FileStorage(self.context)
         await storage.put(iurl, ibytes)
-        current_timestamp = (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()
+        current_timestamp = (
+            datetime.utcnow() - datetime(1970, 1, 1)
+        ).total_seconds()
         new_mtime = current_timestamp - 60 * 60 * 24
         with mock.patch(
             "thumbor.storages.file_storage.getmtime", return_value=new_mtime

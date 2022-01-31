@@ -27,7 +27,9 @@ class BlurFilterTestCase(FilterTestCase):
 
     @gen_test
     async def test_blur_filter_with_zero_radius(self):
-        image = await self.get_filtered("source.jpg", "thumbor.filters.blur", "blur(0)")
+        image = await self.get_filtered(
+            "source.jpg", "thumbor.filters.blur", "blur(0)"
+        )
         expected = self.get_fixture("source.jpg")
 
         ssim = self.get_ssim(image, expected)
@@ -35,7 +37,9 @@ class BlurFilterTestCase(FilterTestCase):
 
     @gen_test
     async def test_blur_filter_without_sigma(self):
-        image = await self.get_filtered("source.jpg", "thumbor.filters.blur", "blur(8)")
+        image = await self.get_filtered(
+            "source.jpg", "thumbor.filters.blur", "blur(8)"
+        )
         expected = self.get_fixture("blur2.jpg")
 
         ssim = self.get_ssim(image, expected)
