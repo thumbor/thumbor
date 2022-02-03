@@ -62,15 +62,13 @@ class FocalPoint:
 
     @classmethod
     def from_square(
-        cls: Type[T],
-        x: float,  # pylint: disable=invalid-name
-        y: float,  # pylint: disable=invalid-name
+        cls: Type[T], x: float, y: float,  # pylint: disable=invalid-name
         width: float,
         height: float,
         origin: str = "detection"
-    ) -> T:  # pylint: disable=invalid-name
-        center_x = x + width // 2
-        center_y = y + height // 2
+    ) -> T:
+        center_x = x + width // 2  # pylint: disable=invalid-name
+        center_y = y + height // 2  # pylint: disable=invalid-name
         return cls(
             center_x,
             center_y,
