@@ -68,7 +68,7 @@ class FocalPoint:
         width: float,
         height: float,
         origin: str = "detection"
-    ) -> T:
+    ) -> T:  # pylint: disable=invalid-name
         center_x = x + width // 2
         center_y = y + height // 2
         return cls(
