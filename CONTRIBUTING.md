@@ -83,7 +83,7 @@ Please ensure that your editor is configured to use
 [pylint](https://www.pylint.org/).
 
 Even if that's the case, don't forget to run `make flake pylint` before
-commiting and fixing any issues you find. That way you won't get a
+committing and fixing any issues you find. That way you won't get a
 request for doing so in your PR.
 
 ## Pull Requests
