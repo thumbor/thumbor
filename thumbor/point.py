@@ -9,7 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 
-from typing import TypeVar, Type
+from typing import TypeVar
 T = TypeVar('T', bound='FocalPoint')  # pylint: disable=invalid-name
 
 
@@ -23,7 +23,7 @@ class FocalPoint:
         "bottom": 1.0,
     }
 
-    def to_dict(self: T) -> dict:
+    def to_dict(self) -> dict:
         return {
             "x": self.x,
             "y": self.y,
@@ -34,7 +34,7 @@ class FocalPoint:
         }
 
     @classmethod
-    def from_dict(cls: Type[T], values: dict) -> T:
+    def from_dict(cls, values: dict) -> T:
         return cls(
             x=int(values["x"]),
             y=int(values["y"]),
@@ -45,7 +45,7 @@ class FocalPoint:
         )
 
     def __init__(
-        self: T,
+        self,
         x: float,  # pylint: disable=invalid-name
         y: float,  # pylint: disable=invalid-name
         height: float = 1,
@@ -62,12 +62,7 @@ class FocalPoint:
 
     @classmethod
     def from_square(
-        cls: Type[T],  # pylint: disable=invalid-name
-        x: float,  # pylint: disable=invalid-name
-        y: float,  # pylint: disable=invalid-name
-        width: float,
-        height: float,
-        origin: str = "detection"
+        cls, x: float, y: float, width: float, height: float, origin: str = "detection"  # pylint: disable=invalid-name
     ) -> T:
         center_x = x + width // 2
         center_y = y + height // 2
@@ -81,14 +76,14 @@ class FocalPoint:
         )
 
     @classmethod
-    def from_alignment(cls: Type[T], halign: str, valign: str, width: float, height: float) -> T:
+    def from_alignment(cls, halign: str, valign: str, width: float, height: float) -> T:
         x_coord = width * cls.ALIGNMENT_PERCENTAGES[halign]
         y_coord = height * cls.ALIGNMENT_PERCENTAGES[valign]
 
         return cls(x_coord, y_coord)
 
-    def __repr__(self: T) -> str:
+    def __repr__(self) -> str:
         return (
             f"FocalPoint(x: {self.x}, y: {self.y}, width: {self.width}, "
             f"height: {self.height}, weight: {self.weight:.0f}, origin: {self.origin})"
-        )  # pylint: disable=invalid-name
+        )
