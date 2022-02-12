@@ -112,3 +112,23 @@ class FillFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.97)
+
+    @gen_test
+    async def test_fill_filter_with_blur_transparency_true(self):
+        def config_context(context):
+            context.request.fit_in = True
+            context.request.width = 300
+            context.request.height = 325
+
+        image = await self.get_filtered(
+            "PNG_transparency_demonstration_1.png",
+            "thumbor.filters.fill",
+            "fill(blur,true)",
+            config_context=config_context,
+            mode="RGBA",
+        )
+
+        expected = self.get_fixture("fill5.png", mode="RGBA")
+
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.98)
