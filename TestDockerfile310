@@ -1,7 +1,7 @@
 FROM python:3.10-slim
 WORKDIR /app
 RUN apt-get update -y && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends --no-install-suggests \
         python3-dev \
         libcurl4-openssl-dev \
         libgnutls28-dev \
@@ -20,7 +20,7 @@ RUN apt-get update -y && \
         libjpeg-dev \
         libwebp-dev \
         redis && \
-    apt-get install --reinstall -y build-essential && \
+    apt-get install --reinstall -y --no-install-recommends --no-install-suggests build-essential && \
     apt-get clean
 
 RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_python39.so /usr/lib/libboost_python3.so
