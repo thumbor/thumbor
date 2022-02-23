@@ -19,21 +19,23 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build test image
         run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }} .
+      - name: Start test container
+        run: docker run -dt -v $(pwd):/app test_image --name thumbor_test
       - name: Fire up Redis
-        run: docker run -v $(pwd):/app test_image /bin/bash -c "make redis"
+        run: docker exec thumbor_test make redis
       - name: Setup
-        run: docker run -v $(pwd):/app test_image /bin/bash -c "make setup"
+        run: docker exec thumbor_test make setup
       - name: Compile Extensions
-        run: docker run -v $(pwd):/app test_image /bin/bash -c "make compile_ext"
+        run: docker exec thumbor_test make compile_ext
       - name: Run Unit Tests
-        run: docker run -v $(pwd):/app test_image /bin/bash -c "make sequential-unit"
+        run: docker exec thumbor_test make sequential-unit
       - name: Run Integration Tests
-        run: docker run -v $(pwd):/app -e ASYNC_TEST_TIMEOUT=30 test_image /bin/bash -c "make integration_run"
+        run: docker exec -e ASYNC_TEST_TIMEOUT=30 thumbor_test make integration_run
       - name: Lint
-        run: docker run -v $(pwd):/app -e ASYNC_TEST_TIMEOUT=30 test_image /bin/bash -c "make flake pylint"
+        run: docker exec thumbor_test make flake pylint
       - name: Coveralls
         if: matrix.image-tag == '39'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker run -v $(pwd):/app -e ASYNC_TEST_TIMEOUT=30 test_image /bin/bash -c "pip install --upgrade coveralls && coveralls --service=github"
+          docker exec thumbor_test /bin/bash -c "pip install --upgrade coveralls && coveralls --service=github"
