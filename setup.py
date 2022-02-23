@@ -21,7 +21,7 @@ except ImportError:
 
 TESTS_REQUIREMENTS = [
     "colorama==0.*,>=0.4.3",
-    "coverage==5.*,>=5.0.3",
+    "coverage==6.*,>=6.3.2",
     "flake8==3.*,>=3.7.9",
     "isort==4.*,>=4.3.21",
     "preggy==1.*,>=1.4.4",
