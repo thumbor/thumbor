@@ -33,9 +33,21 @@ jobs:
         run: docker exec -e ASYNC_TEST_TIMEOUT=30 thumbor_test make integration_run
       - name: Lint
         run: docker exec thumbor_test make flake pylint
+      - name: Generate lcov
+        run: docker exec thumbor_test coverage lcov
       - name: Coveralls
-        if: matrix.image-tag == '39'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          docker exec thumbor_test /bin/bash -c "pip install --upgrade coveralls && coveralls --service=github"
+        uses: coverallsapp/github-action@1.1.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage.lcov
+          flag-name: run-${{ matrix.image-tag }}
+          parallel: true
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@1.1.3
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
