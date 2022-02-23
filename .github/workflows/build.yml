@@ -11,25 +11,29 @@ jobs:
           - 38
           - 39
           - 310
-    container: thumbororg/thumbor-test:${{ matrix.image-tag }}
     steps:
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+        with:
+          key: thumbor-${{ matrix.image-tag }}
       - uses: actions/checkout@v2
+      - name: Build test image
+        run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }}
       - name: Fire up Redis
-        run: make redis
+        run: docker run -v $(pwd):/app test_image /bin/bash -c "make redis"
       - name: Setup
-        run: make setup
+        run: docker run -v $(pwd):/app test_image /bin/bash -c "make setup"
       - name: Compile Extensions
-        run: make compile_ext
+        run: docker run -v $(pwd):/app test_image /bin/bash -c "make compile_ext"
       - name: Run Unit Tests
-        run: make sequential-unit
+        run: docker run -v $(pwd):/app test_image /bin/bash -c "make sequential-unit"
       - name: Run Integration Tests
-        run: env ASYNC_TEST_TIMEOUT=30 make integration_run
+        run: docker run -v $(pwd):/app -e ASYNC_TEST_TIMEOUT=30 test_image /bin/bash -c "make integration_run"
       - name: Lint
-        run: make flake pylint
+        run: docker run -v $(pwd):/app -e ASYNC_TEST_TIMEOUT=30 test_image /bin/bash -c "make flake pylint"
       - name: Coveralls
         if: matrix.image-tag == '39'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pip install --upgrade coveralls
-          coveralls --service=github
+          docker run -v $(pwd):/app -e ASYNC_TEST_TIMEOUT=30 test_image /bin/bash -c "pip install --upgrade coveralls && coveralls --service=github"
