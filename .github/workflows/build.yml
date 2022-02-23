@@ -18,7 +18,7 @@ jobs:
           key: thumbor-${{ matrix.image-tag }}
       - uses: actions/checkout@v2
       - name: Build test image
-        run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }}
+        run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }} .
       - name: Fire up Redis
         run: docker run -v $(pwd):/app test_image /bin/bash -c "make redis"
       - name: Setup
