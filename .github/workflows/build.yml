@@ -18,7 +18,6 @@ jobs:
           key: thumbor-${{ matrix.image-tag }}-{hash}
           restore-keys: |
             thumbor-${{ matrix.image-tag }}-
-            thumbor-
       - uses: actions/checkout@v2
       - name: Build test image
         run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }} .
@@ -31,9 +30,10 @@ jobs:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ matrix.image-tag }}-${{ hashFiles('**/setup.py') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-pip-${{ matrix.image-tag }}-
       - name: Start test container
         run: |
+          chmod 777 ~/.cache
           chmod 777 ~/.cache/pip
           ls -lah ~/.cache/pip
           docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip:rw test_image
