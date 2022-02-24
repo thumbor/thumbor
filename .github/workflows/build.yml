@@ -19,8 +19,18 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build test image
         run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }} .
+      - name: Create pip cache folder
+        run: |
+          mkdir -p ~/.cache/pip
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.image-tag }}-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Start test container
-        run: docker run -dt --name thumbor_test -v $(pwd):/app test_image
+        run: docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip test_image
       - name: Fire up Redis
         run: docker exec thumbor_test make redis
       - name: Setup
