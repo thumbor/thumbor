@@ -24,7 +24,7 @@ jobs:
       - name: Create pip cache folder
         run: |
           mkdir -p ~/.cache/pip
-          ls -lah
+          ls -lah ~/.cache/pip
       - name: Cache pip
         uses: actions/cache@v2
         with:
