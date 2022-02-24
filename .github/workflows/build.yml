@@ -33,10 +33,7 @@ jobs:
             ${{ runner.os }}-pip-${{ matrix.image-tag }}-
       - name: Start test container
         run: |
-          chmod 777 ~/.cache
-          chmod 777 ~/.cache/pip
-          ls -lah ~/.cache/pip
-          docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip:rw test_image
+          docker run -dt --user 1001:121 --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip:rw test_image
       - name: Check folder permission
         run: docker exec thumbor_test ls -lah /root/.cache/pip
       - name: Fire up Redis
