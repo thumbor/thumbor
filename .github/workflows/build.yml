@@ -15,27 +15,15 @@ jobs:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
         with:
-          key: thumbor-${{ matrix.image-tag }}-{hash}
+          key: thumbor-docker-${{ matrix.image-tag }}-{hash}
           restore-keys: |
-            thumbor-${{ matrix.image-tag }}-
+            thumbor-docker-${{ matrix.image-tag }}-
       - uses: actions/checkout@v2
       - name: Build test image
         run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }} .
-      - name: Create pip cache folder
-        run: |
-          mkdir -p ~/.cache/pip
-      - name: Cache pip
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.image-tag }}-${{ hashFiles('**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.image-tag }}-
       - name: Start test container
         run: |
-          docker run -dt --user 1001:121 --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip:rw test_image
-      - name: Check folder permission
-        run: docker exec thumbor_test ls -lah /root/.cache/pip
+          docker run -dt --name thumbor_test -v $(pwd):/app test_image
       - name: Fire up Redis
         run: docker exec thumbor_test make redis
       - name: Setup
