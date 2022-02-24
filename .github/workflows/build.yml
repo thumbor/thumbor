@@ -25,8 +25,6 @@ jobs:
       - name: Create pip cache folder
         run: |
           mkdir -p ~/.cache/pip
-          chmod 777 ~/.cache/pip
-          ls -lah ~/.cache/pip
       - name: Cache pip
         uses: actions/cache@v2
         with:
@@ -36,6 +34,7 @@ jobs:
             ${{ runner.os }}-pip-
       - name: Start test container
         run: |
+          chmod 777 ~/.cache/pip
           ls -lah ~/.cache/pip
           docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip:rw test_image
       - name: Check folder permission
