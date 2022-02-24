@@ -35,7 +35,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Start test container
-        run: docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip:rw test_image
+        run: |
+          ls -lah ~/.cache/pip
+          docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip:rw test_image
       - name: Check folder permission
         run: docker exec thumbor_test ls -lah /root/.cache/pip
       - name: Fire up Redis
