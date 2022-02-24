@@ -15,7 +15,9 @@ jobs:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
         with:
-          key: thumbor-${{ matrix.image-tag }}
+          key: thumbor-${{ matrix.image-tag }}-{hash}
+          restore-keys: |
+            thumbor-
       - uses: actions/checkout@v2
       - name: Build test image
         run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }} .
