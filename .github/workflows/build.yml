@@ -17,6 +17,7 @@ jobs:
         with:
           key: thumbor-${{ matrix.image-tag }}-{hash}
           restore-keys: |
+            thumbor-${{ matrix.image-tag }}-
             thumbor-
       - uses: actions/checkout@v2
       - name: Build test image
