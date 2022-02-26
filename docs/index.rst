@@ -18,7 +18,7 @@ access it using an URL for an image, like this::
 
     http://thumbor-server/unsafe/300x200/smart/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
-That URL would show an image of the big brother brasil participants in
+That URL would show an image of the Big Brother Brasil participants in
 300x200 using smart crop. There are several other options to the image
 URL configuration. You can check them in the :doc:`usage`
 page. For more details on the /unsafe part of the URL, check the
