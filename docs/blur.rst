@@ -23,7 +23,9 @@ Example
 .. image:: images/blur_before.jpg
     :alt: Picture before the blur filter
 
-`<http://localhost:8888/unsafe/filters:blur(7)/http%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F8%2F8a%2F2006_Ojiya_balloon_festival_011.jpg%2F159px-2006_Ojiya_balloon_festival_011.jpg>`_
+::
+
+    http://localhost:8888/unsafe/filters:blur(7)/http%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F8%2F8a%2F2006_Ojiya_balloon_festival_011.jpg%2F159px-2006_Ojiya_balloon_festival_011.jpg
 
 .. image:: images/blur_after.jpg
     :alt: Picture after the blur filter

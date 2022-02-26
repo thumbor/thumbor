@@ -24,7 +24,9 @@ Example
 .. image:: images/tom_before_brightness.jpg
     :alt: Picture before the RGB filter
 
-`<http://localhost:8888/unsafe/filters:rgb(20,-20,40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
+::
+
+    http://localhost:8888/unsafe/filters:rgb(20,-20,40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 .. image:: images/tom_after_rgb.jpg
     :alt: Picture after the RGB filter

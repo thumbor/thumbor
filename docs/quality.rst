@@ -21,7 +21,9 @@ Example
 .. image:: images/tom_before_brightness.jpg
     :alt: Picture before the quality filter
 
-`<http://localhost:8888/unsafe/filters:quality(40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
+::
+
+    http://localhost:8888/unsafe/filters:quality(40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 .. image:: images/tom_after_quality.jpg
     :alt: Picture after 10% quality

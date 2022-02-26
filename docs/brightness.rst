@@ -19,7 +19,9 @@ Example
 .. image:: images/tom_before_brightness.jpg
     :alt: Picture before the brightness
 
-`<http://localhost:8888/unsafe/filters:brightness(40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
+::
+
+    http://localhost:8888/unsafe/filters:brightness(40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 .. image:: images/tom_after_brightness.jpg
     :alt: Picture after the brightness

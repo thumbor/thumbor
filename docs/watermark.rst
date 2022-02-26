@@ -43,11 +43,15 @@ Arguments
 Example
 -------
 
-`<http://thumbor-server/filters:watermark(http://my.site.com/img.png,-10,-10,50)/some/image.jpg>`_
+::
+
+    http://thumbor-server/filters:watermark(http://my.site.com/img.png,-10,-10,50)/some/image.jpg
 
 |watermark|
 
-`<http://thumbor-server/filters:watermark(http://my.site.com/img.png,10p,-20p,50)/some/image.jpg>`_
+::
+
+    http://thumbor-server/filters:watermark(http://my.site.com/img.png,10p,-20p,50)/some/image.jpg
 
 |watermark_relative|
 

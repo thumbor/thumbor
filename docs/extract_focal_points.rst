@@ -23,11 +23,15 @@ was the original for the segment with the manual cropping.
 
 This means that for an URL like:
 
-`<http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg>`_
+::
+
+    http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
 
 Thumbor will use as original the following image URL:
 
-`<https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg>`_
+::
+
+    https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
 
 Example
 -------
@@ -38,18 +42,24 @@ Original Image:
 
 Cat's eye cropped:
 
-`<http://localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg>`_
+::
+
+    http://localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
 
 .. image:: images/extract1.jpg
 
 A bigger image based on above's crop with the extract\_focal() filter:
 
-`<http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg>`_
+::
+
+    http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
 
 .. image:: images/extract2.jpg
 
 Without the filter that would be the result:
 
-`<http://localhost:8888/unsafe/300x100/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg>`_
+::
+
+    http://localhost:8888/unsafe/300x100/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
 
 .. image:: images/extract3.jpg
