@@ -24,7 +24,7 @@ class Filter(BaseFilter):
         BaseFilter.PositiveNumber,
         BaseFilter.Boolean,
     )
-    def convolution(self, matrix, columns, should_normalize=True):
+    async def convolution(self, matrix, columns, should_normalize=True):
         matrix = tuple(matrix.split(";"))
         mode, data = self.engine.image_data_as_rgb()
         imgdata = _convolution.apply(
