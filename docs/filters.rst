@@ -46,6 +46,7 @@ Available Filters
    rgb
    rotate
    round_corners
+   saturation
    sharpen
    stretch
    strip_exif
