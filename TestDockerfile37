@@ -20,7 +20,7 @@ RUN apt-get update -y && \
         libjpeg-dev \
         libwebp-dev \
         redis && \
-    apt-get install --reinstall --no-install-recommends --no-install-suggests -y build-essential && \
+    apt-get install -y --reinstall --no-install-recommends --no-install-suggests  build-essential && \
     apt-get clean
 
 RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_python39.so /usr/lib/libboost_python37.so
