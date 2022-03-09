@@ -1,5 +1,6 @@
 FROM python:3.7-slim
 WORKDIR /app
+
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends --no-install-suggests \
         python3-dev \
@@ -27,3 +28,6 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_python39.so /usr/lib/libboost_pytho
 RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_python39.so /usr/lib/libboost_python3.so
 
 RUN pip install --upgrade pip
+
+RUN useradd -r -m --uid 1001 runner
+USER runner
