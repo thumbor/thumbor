@@ -39,7 +39,7 @@ SENTRY_DSN_URL configuration."
             **kwargs
         )
 
-    def handle_error(self, _, handler, exception):
+    def handle_error(self, context, handler, exception):
         req = handler.request
 
         exc_info = exc_info_from_error(exception)
