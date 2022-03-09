@@ -36,7 +36,7 @@ jobs:
           docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip test_image
       - name: Change cache folder permission
         run: |
-          docker exec thumbor_test chown -R 0:0 /root/.cache/pip
+          docker exec thumbor_test -u 1001 chown -R 0:0 /root/.cache/pip
       - name: Fire up Redis
         run: docker exec thumbor_test make redis
       - name: Setup
