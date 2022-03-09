@@ -40,7 +40,7 @@ jobs:
       - name: Test cache folder
         run: |
           docker exec thumbor_test ls -lah /root/.cache/pip
-          touch /root/.cache/pip/a
+          docker exec thumbor_test touch /root/.cache/pip/a
       - name: Setup
         run: docker exec thumbor_test make setup
       - name: Compile Extensions
