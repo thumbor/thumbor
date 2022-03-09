@@ -14,7 +14,7 @@ from thumbor.ext.filters import _saturation
 
 class Filter(BaseFilter):
     @filter_method(BaseFilter.DecimalNumber)
-    def saturation(self, change):
+    async def saturation(self, change):
         mode, data = self.engine.image_data_as_rgb()
         imgdata = _saturation.apply(mode, change, data)
         self.engine.set_image_data(imgdata)
