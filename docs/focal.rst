@@ -22,7 +22,9 @@ Before cropping with specific focal point:
 .. image:: images/tom_before_brightness.jpg
     :alt: Original picture
 
-`<http://localhost:8888/unsafe/400x100/filters:focal(146x206:279x360)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>`_
+::
+
+    http://localhost:8888/unsafe/400x100/filters:focal(146x206:279x360)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 After specifying the focal point:
 

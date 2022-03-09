@@ -18,4 +18,6 @@ No arguments
 Example
 -------
 
-`<http://localhost:8888/unsafe/filters:strip\_icc()/http://videoprocessing.ucsd.edu/~stanleychan/research/pix/Blurred_foreman_0005.png>`_
+::
+
+    http://localhost:8888/unsafe/filters:strip\_icc()/http://videoprocessing.ucsd.edu/~stanleychan/research/pix/Blurred_foreman_0005.png
