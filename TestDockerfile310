@@ -26,6 +26,3 @@ RUN apt-get update -y && \
 RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_python39.so /usr/lib/libboost_python3.so
 
 RUN pip install --upgrade pip
-
-RUN groupadd -g 121 github_actions && \
-    usermod -a -G github_actions root
