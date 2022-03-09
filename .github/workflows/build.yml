@@ -33,8 +33,10 @@ jobs:
             ${{ runner.os }}-pip-${{ matrix.image-tag }}-
       - name: Start test container
         run: |
-          chown -R 0:0 ~/.cache/pip
-          docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/home/runner/.cache/pip test_image
+          docker run -dt --name thumbor_test -v $(pwd):/app -v ~/.cache/pip:/root/.cache/pip test_image
+      - name: Change cache folder permission
+        run: |
+          docker exec thumbor_test chown -R /root/.cache/pip
       - name: Fire up Redis
         run: docker exec thumbor_test make redis
       - name: Setup
