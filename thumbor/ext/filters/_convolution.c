@@ -89,6 +89,7 @@ _convolution_apply(PyObject *self, PyObject *args)
                     sum_r += copy_buffer[tmp_idx + r_idx] * kernel_value;
                     sum_g += copy_buffer[tmp_idx + g_idx] * kernel_value;
                     sum_b += copy_buffer[tmp_idx + b_idx] * kernel_value;
+                    // Change alpha channel only when available
                     if (num_bytes > 3) {
                         sum_a += copy_buffer[tmp_idx + a_idx] * kernel_value;
                     }
