@@ -15,6 +15,7 @@ import sys
 import warnings
 from os.path import dirname, expanduser
 from shutil import which
+from socket import socket
 
 import tornado.ioloop
 from PIL import Image
@@ -112,10 +113,7 @@ def run_server(application, context):
         fd_number = get_as_integer(context.server.fd)
 
         if fd_number is not None:
-            # TODO: replace with socket.socket(fileno=fd_number) when we require Python>=3.7
-            sock = socket_from_fd(  # pylint: disable=too-many-function-args
-                fd_number, True
-            )
+            sock = socket(fileno=fd_number)
         else:
             sock = bind_unix_socket(context.server.fd)
 
