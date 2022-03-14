@@ -13,14 +13,14 @@ from unittest import TestCase, mock
 
 from thumbor.config import Config
 from thumbor.context import Context, RequestParameters
-from thumbor.optimizers.gifv import Optimizer
+from thumbor_plugins.optimizers.gifv import Optimizer
 from thumbor.utils import EXTENSION
 
 
 class GifvOptimizerTest(TestCase):
     def setUp(self):
         self.os_path_exists_patcher = mock.patch(
-            "thumbor.optimizers.gifv.exists"
+            "thumbor_plugins.optimizers.gifv.exists"
         )
         self.mock_os_path_exists = self.os_path_exists_patcher.start()
 

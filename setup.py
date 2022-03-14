@@ -137,6 +137,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "tornado==6.*,>=6.0.3",
             "webcolors==1.*,>=1.10.0",
             "colorful==0.*,>=0.5.4",
+            "thumbor-plugins-gifv==0.*,>=0.1.2",
         ],
         extras_require={
             "all": ALL_REQUIREMENTS,

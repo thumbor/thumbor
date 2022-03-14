@@ -30,7 +30,7 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.FFMPEG_PATH = which("ffmpeg")
         cfg.OPTIMIZERS = [
-            "thumbor.optimizers.gifv",
+            "thumbor_plugins.optimizers.gifv",
         ]
 
         importer = Importer(cfg)

@@ -317,7 +317,7 @@ def check_extensions(cfg):
             )
         )
 
-    if cfg is None or "thumbor.optimizers.gifv" in cfg.OPTIMIZERS:
+    if cfg is None or "thumbor_plugins.optimizers.gifv" in cfg.OPTIMIZERS:
         programs.append(
             (
                 "ffmpeg",

@@ -41,7 +41,7 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         cfg.FFMPEG_PATH = which("ffmpeg")
         cfg.AUTO_WEBP = True
         cfg.OPTIMIZERS = [
-            "thumbor.optimizers.gifv",
+            "thumbor_plugins.optimizers.gifv",
         ]
 
         importer = Importer(cfg)
@@ -92,7 +92,7 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
         cfg.USE_GIFSICLE_ENGINE = True
         cfg.AUTO_WEBP = True
         cfg.OPTIMIZERS = [
-            "thumbor.optimizers.gifv",
+            "thumbor_plugins.optimizers.gifv",
         ]
 
         importer = Importer(cfg)
