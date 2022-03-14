@@ -11,11 +11,11 @@
 from shutil import which
 from unittest import TestCase, mock
 
+from thumbor_plugins.optimizers.gifv import Optimizer
+
 from thumbor.config import Config
 from thumbor.context import Context, RequestParameters
 from thumbor.utils import EXTENSION
-
-from thumbor_plugins.optimizers.gifv import Optimizer
 
 
 class GifvOptimizerTest(TestCase):
