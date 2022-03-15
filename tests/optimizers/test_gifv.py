@@ -11,9 +11,9 @@
 from shutil import which
 from unittest import TestCase, mock
 
-import thumbor_plugins.optimizers.gifv.Optimizer
+import thumbor_plugins.optimizers.gifv
 
-import thumbor.optimizers.gifv.Optimizer
+import thumbor.optimizers.gifv
 
 class GifvOptimizerTest(TestCase):
     def test_should_be_subclass_of_thumbor_plugins(self):
