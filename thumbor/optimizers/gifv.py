@@ -8,12 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import thumbor_plugins.optimizers.gifv.Optimizer as GifvOptimizer
+import thumbor_plugins.optimizers.gifv as gifv
 
 from thumbor.utils import logger
 
 
-class Optimizer(GifvOptimizer):
+class Optimizer(gifv.Optimizer):
     logger.warning("""
     This optimizer will be deprecated on the next major version.
     Add thumbor-plugins-gifv as a dependency, and
