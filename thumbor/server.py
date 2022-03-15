@@ -19,7 +19,6 @@ from socket import socket
 
 import tornado.ioloop
 from PIL import Image
-from socketfromfd import fromfd as socket_from_fd
 from tornado.httpserver import HTTPServer
 from tornado.netutil import bind_unix_socket
 
