@@ -31,7 +31,7 @@ class EngineCase(AsyncHTTPTestCase):
         cfg.FFMPEG_PATH = which("ffmpeg")
         cfg.ENGINE_THREADPOOL_SIZE = 10
         cfg.OPTIMIZERS = [
-            "thumbor_plugins.optimizers.gifv",
+            "thumbor.optimizers.gifv",
         ]
         if not cfg.ENGINE:
             return None
