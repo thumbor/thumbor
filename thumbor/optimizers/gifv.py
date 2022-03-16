@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import thumbor_plugins.optimizers.gifv as gifv
+from thumbor_plugins.optimizers import gifv
 
 from thumbor.utils import logger
 
