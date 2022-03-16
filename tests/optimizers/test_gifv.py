@@ -8,12 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from shutil import which
-from unittest import TestCase, mock
+from unittest import TestCase
 
 import thumbor_plugins.optimizers.gifv
 
 import thumbor.optimizers.gifv
+
 
 class GifvOptimizerTest(TestCase):
     def test_should_be_subclass_of_thumbor_plugins(self):
