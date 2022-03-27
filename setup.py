@@ -20,7 +20,6 @@ except ImportError:
     __version__ = "0.0.0"
 
 TESTS_REQUIREMENTS = [
-    "colorama==0.*,>=0.4.3",
     "coverage==6.*,>=6.3.2",
     "flake8==3.*,>=3.7.9",
     "isort==4.*,>=4.3.21",
@@ -128,15 +127,15 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
         include_package_data=True,
         package_data={"": ["*.xml"]},
         install_requires=[
+            "colorama==0.*,>=0.4.3",
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.2",
             "Pillow>=9.0.0",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
             "tornado==6.*,>=6.0.3",
-            "webcolors==1.*,>=1.10.0",
-            "colorful==0.*,>=0.5.4",
             "thumbor-plugins-gifv==0.*,>=0.1.2",
+            "webcolors==1.*,>=1.10.0",
         ],
         extras_require={
             "all": ALL_REQUIREMENTS,
