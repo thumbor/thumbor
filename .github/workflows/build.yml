@@ -37,6 +37,8 @@ jobs:
         run: docker exec thumbor_test make sequential-unit
       - name: Run Integration Tests
         run: docker exec -e ASYNC_TEST_TIMEOUT=30 thumbor_test make integration_run
+      - name: Lint
+        run: docker exec thumbor_test make pylint
       - name: Generate lcov
         run: docker exec thumbor_test coverage lcov
       - name: Coveralls

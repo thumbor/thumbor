@@ -26,14 +26,3 @@ jobs:
           checkName: 'flake8'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  pylint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-python@v3
-        with:
-          python-version: '3.x'
-      - uses: actions/checkout@v2
-      - name: Install pylint
-        run: pip install pylint
-      - name: Run flake8
-        run: pylint thumbor tests
