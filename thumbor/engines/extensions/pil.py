@@ -200,7 +200,7 @@ class GifWriter:
         """
 
         if loops == 0 or loops == float("inf"):
-            loops = 2 ** 16 - 1
+            loops = 2**16 - 1
             # bb = "" application extension should not be used
             #         (the extension interprets zero loops
             #          to mean an infinite number of loops)

@@ -39,7 +39,9 @@ SENTRY_DSN_URL configuration."
             **kwargs
         )
 
-    def handle_error(self, context, handler, exception):  # pylint: disable=unused-argument
+    def handle_error(
+        self, context, handler, exception
+    ):  # pylint: disable=unused-argument
         req = handler.request
 
         exc_info = exc_info_from_error(exception)

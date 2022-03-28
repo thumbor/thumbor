@@ -18,8 +18,9 @@ class ConvolutionFilterTestCase(FilterTestCase):
     @gen_test
     async def test_convolution_filter_true(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.convolution",
-            "convolution(1;2;1;2;4;2;1;2;1,3,true)"
+            "source.jpg",
+            "thumbor.filters.convolution",
+            "convolution(1;2;1;2;4;2;1;2;1,3,true)",
         )
         expected = self.get_fixture("convolution-true.png")
 
@@ -29,8 +30,9 @@ class ConvolutionFilterTestCase(FilterTestCase):
     @gen_test
     async def test_convolution_filter_false(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.convolution",
-            "convolution(-1;-1;-1;-1;8;-1;-1;-1;-1,3,false)"
+            "source.jpg",
+            "thumbor.filters.convolution",
+            "convolution(-1;-1;-1;-1;8;-1;-1;-1;-1,3,false)",
         )
         expected = self.get_fixture("convolution-false.png")
 
