@@ -196,7 +196,7 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(5)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
-    @mock.patch.object(thumbor.server, "socket_from_fd")
+    @mock.patch.object(thumbor.server, "socket")
     def test_can_run_server_with_fd(self, socket_from_fd_mock, server_mock):
         application = mock.Mock()
         context = mock.Mock()
