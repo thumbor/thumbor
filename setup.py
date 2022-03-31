@@ -129,7 +129,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
         package_data={"": ["*.xml"]},
         install_requires=[
             "derpconf==0.*,>=0.8.3",
-            "libthumbor==2.*,>=2.0.0",
+            "libthumbor==2.*,>=2.0.2",
             "Pillow>=9.0.0",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
