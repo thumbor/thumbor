@@ -1,0 +1,28 @@
+name: lint/formatter
+on:
+  push:
+  pull_request:
+    types: [opened, reopened]
+jobs:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - uses: actions/checkout@v2
+      - name: Install flake8
+        run: pip install flake8
+      - name: Run flake8
+        uses: suo/flake8-github-action@releases/v1
+        with:
+          checkName: 'flake8'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

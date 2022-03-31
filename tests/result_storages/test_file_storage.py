@@ -91,7 +91,7 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
         super().tearDown()
         self.storage_path.cleanup()
 
-    def get_request(self):
+    def get_request(self):  # pylint: disable=arguments-differ
         return RequestParameters(accepts_webp=True)
 
     @gen_test
@@ -111,7 +111,7 @@ class ResultStorageResultTestCase(BaseFileStorageTestCase):
             RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=self.get_fixture_path()
         )
 
-    def get_request(self):
+    def get_request(self):  # pylint: disable=arguments-differ
         return RequestParameters(url="image.jpg")
 
     @gen_test
@@ -132,7 +132,7 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
             RESULT_STORAGE_EXPIRATION_SECONDS=10,
         )
 
-    def get_request(self):
+    def get_request(self):  # pylint: disable=arguments-differ
         return RequestParameters(url="image.jpg")
 
     @gen_test
