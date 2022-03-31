@@ -589,7 +589,7 @@ Config.define(
     "OPTIMIZERS",
     [
         # 'thumbor.optimizers.jpegtran',
-        # 'thumbor.optimizers.gifv',
+        # 'thumbor_plugins.optimizers.gifv',
     ],
     "List of optimizers that thumbor will use to optimize images",
     "Optimizers",
