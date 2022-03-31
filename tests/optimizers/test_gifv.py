@@ -20,6 +20,6 @@ class GifvOptimizerTest(TestCase):
         self.assertTrue(
             issubclass(
                 thumbor.optimizers.gifv.Optimizer,
-                thumbor_plugins.optimizers.gifv.Optimizer
+                thumbor_plugins.optimizers.gifv.Optimizer,
             )
         )
