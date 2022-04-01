@@ -161,9 +161,6 @@ def get_options(arguments):
     (parsed_options, arguments) = parser.parse_args(arguments)
 
     if not arguments:
-        sys.stdout.write(
-            "Error: The image argument is mandatory. For more information type thumbor-url -h\n"
-        )
         return None, None
 
     return parsed_options, arguments
@@ -221,6 +218,12 @@ def main(arguments=None):
 
     parsed_options, arguments = get_options(arguments)
 
+    if not arguments:
+        sys.stdout.write(
+            "Error: The image argument is mandatory. For more information type thumbor-url -h\n"
+        )
+        return sys.exit(1)
+
     image_url = arguments[0]
     image_url = quote(image_url)
 
@@ -234,7 +237,7 @@ def main(arguments=None):
             "Error: The -k or --key argument is mandatory."
             " For more information type thumbor-url -h\n"
         )
-        return None
+        return sys.exit(1)
 
     security_key, thumbor_params = get_thumbor_params(
         image_url, parsed_options, config
