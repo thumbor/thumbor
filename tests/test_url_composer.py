@@ -51,13 +51,15 @@ class UrlComposerTestCase(TestCase):
     def test_fails_when_no_config_or_key(self, load_mock, mock_stdout):
         load_mock.side_effect = RuntimeError("fail to load")
 
-        result = main(["-w", "200", "-e", "300", "myserver.com/myimg.jpg"])
+        with self.assertRaises(SystemExit) as system_error:
+            main(["-w", "200", "-e", "300", "myserver.com/myimg.jpg"])
 
-        expect(result).to_be_null()
         expect(mock_stdout.getvalue()).to_equal(
             "Error: The -k or --key argument is mandatory. "
             "For more information type thumbor-url -h\n"
         )
+
+        expect(system_error.exception.code).to_equal(1)
 
     def test_get_thumbor_params(self):
         params = mock.Mock(
@@ -234,12 +236,12 @@ class UrlComposerTestCase(TestCase):
         expect(args).to_length(1)
         expect(args[0]).to_equal("myserver.com/myimg.jpg")
 
-    @mock.patch("sys.stdout", new_callable=StringIO)
-    def test_get_options_fails_when_no_url(self, mock_stdout):
-        get_options(["-k", "MY-SECURITY-KEY", "-w", "200", "-e", "300"])
-        expect(mock_stdout.getvalue()).to_equal(
-            "Error: The image argument is mandatory. For more information type thumbor-url -h\n"
+    def test_get_options_fails_when_no_url(self):
+        parsed_options, arguments = get_options(
+            ["-k", "MY-SECURITY-KEY", "-w", "200", "-e", "300"]
         )
+        expect(parsed_options).to_be_null()
+        expect(arguments).to_be_null()
 
     def test_get_parser(self):
         parser = get_parser()
