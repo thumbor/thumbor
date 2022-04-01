@@ -27,7 +27,7 @@ from thumbor.url_composer import (
 class UrlComposerTestCase(TestCase):
     @mock.patch("sys.stdout", new_callable=StringIO)
     def test_can_compose_url(self, mock_stdout):
-        url = main(
+        main(
             [
                 "-k",
                 "MY-SECURITY-KEY",
@@ -39,9 +39,6 @@ class UrlComposerTestCase(TestCase):
             ]
         )
 
-        expect(url).to_equal(
-            "/G_dykuWBGyEil5JnNh9cBke0Ajo=/200x300/myserver.com/myimg.jpg"
-        )
         expect(mock_stdout.getvalue()).to_equal(
             "URL:\n/G_dykuWBGyEil5JnNh9cBke0Ajo=/200x300/myserver.com/myimg.jpg\n"
         )

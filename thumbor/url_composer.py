@@ -222,7 +222,7 @@ def main(arguments=None):
         sys.stdout.write(
             "Error: The image argument is mandatory. For more information type thumbor-url -h\n"
         )
-        return sys.exit(1)
+        sys.exit(1)
 
     image_url = arguments[0]
     image_url = quote(image_url)
@@ -237,7 +237,7 @@ def main(arguments=None):
             "Error: The -k or --key argument is mandatory."
             " For more information type thumbor-url -h\n"
         )
-        return sys.exit(1)
+        sys.exit(1)
 
     security_key, thumbor_params = get_thumbor_params(
         image_url, parsed_options, config
@@ -247,8 +247,6 @@ def main(arguments=None):
     url = crypto.generate(**thumbor_params)
     sys.stdout.write("URL:\n")
     sys.stdout.write(f"{url}\n")
-
-    return url
 
 
 if __name__ == "__main__":
