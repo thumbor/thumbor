@@ -88,11 +88,15 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if status == 200 and self.context is not None:
             if self.context.request.smart:
-                self.context.metrics.incr("response.smart")
-                self.context.metrics.timing("response.smart", total_time)
+                self.context.metrics.incr("response.smart.count")
+                self.context.metrics.timing(
+                    "response.smart.latency", total_time
+                )
             else:
-                self.context.metrics.incr("response.none_smart")
-                self.context.metrics.timing("response.none_smart", total_time)
+                self.context.metrics.incr("response.not_smart.count")
+                self.context.metrics.timing(
+                    "response.not_smart.latency", total_time
+                )
 
         if self._response_ext is not None:
             ext = self._response_ext
