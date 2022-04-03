@@ -64,3 +64,29 @@ class BlurFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         expect(ssim).to_be_greater_than(0.99)
+
+    @gen_test
+    async def test_blur_filter_png_with_transparency_rgba_mode(self):
+        image = await self.get_filtered(
+            "PNG_transparency_demonstration_1.png",
+            "thumbor.filters.blur",
+            "blur(10)",
+            mode="RGBA",
+        )
+        expected = self.get_fixture("blur4.png", mode="RGBA")
+
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.99)
+
+    @gen_test
+    async def test_blur_filter_png_with_transparency_la_mode(self):
+        image = await self.get_filtered(
+            "PNG_transparency_demonstration_1.png",
+            "thumbor.filters.blur",
+            "blur(10)",
+            mode="LA",
+        )
+        expected = self.get_fixture("blur4.png", mode="LA")
+
+        ssim = self.get_ssim(image, expected)
+        expect(ssim).to_be_greater_than(0.99)
