@@ -133,7 +133,6 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "Pillow>=9.0.0",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
-            "socketfromfd>=0.2.0",
             "tornado==6.*,>=6.0.3",
             "webcolors==1.*,>=1.10.0",
             "colorful==0.*,>=0.5.4",
