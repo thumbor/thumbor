@@ -11,6 +11,7 @@ run-prod: compile_ext
 
 setup:
 	@$(PYTHON) -m pip install -e .[tests]
+	@echo  "\n\nYou are strongly recommended to run 'pre-commit install'\n"
 
 compile_ext build:
 	@$(PYTHON) setup.py build_ext -i
