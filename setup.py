@@ -23,6 +23,7 @@ TESTS_REQUIREMENTS = [
     "coverage==6.*,>=6.3.2",
     "flake8==3.*,>=3.7.9",
     "isort==4.*,>=4.3.21",
+    "pre-commit==2.*,>=2.17.0",
     "preggy==1.*,>=1.4.4",
     "pylint==2.*,>=2.4.4",
     "pyssim==0.*,>=0.4.0",
