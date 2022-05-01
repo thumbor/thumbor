@@ -17,7 +17,7 @@ from os.path import abspath
 from shutil import which
 from typing import List
 
-import colorful as cf
+from colorama import Fore, init
 
 from thumbor import __release_date__, __version__
 from thumbor.config import Config
@@ -58,13 +58,29 @@ def get_options():
     }
 
 
-def header(msg, color=cf.yellow):
-    print(color(msg))
+def header(msg):
+    print(f"{Fore.YELLOW}{msg}")
 
 
-def subheader(msg, color=cf.bold_coral):
-    print(color(msg))
+def subheader(msg):
+    print(f"{Fore.MAGENTA}{msg}")
     newline()
+
+
+def print_error(msg):
+    print(f"{Fore.RED}{msg}")
+
+
+def print_success(msg):
+    print(f"{Fore.GREEN}{msg}")
+
+
+def print_warning(msg):
+    print(f"{Fore.YELLOW}{msg}")
+
+
+def print_info(msg):
+    print(f"{Fore.CYAN}{msg}")
 
 
 def newline():
@@ -147,9 +163,9 @@ def check_extensibility_modules(cfg):
         for module in modules:
             try:
                 import_module(module)
-                print(cf.bold_green(f"{CHECK} {module}"))
+                print_success(f"{CHECK} {module}")
             except ImportError as error:
-                print(cf.bold_red(f"{CROSS} {module} - {error_message}"))
+                print_error(f"{CROSS} {module} - {error_message}")
                 errors.append(
                     format_error(
                         module,
@@ -165,10 +181,8 @@ def check_extensibility_modules(cfg):
             import cv2  # noqa pylint: disable=unused-import,import-outside-toplevel
             import numpy  # noqa pylint: disable=unused-import,import-outside-toplevel
         except ImportError as error:
-            print(
-                cf.bold_red(
-                    f"{CROSS} OpenCV Detectors and Filters - {error_message}"
-                )
+            print_error(
+                f"{CROSS} OpenCV Detectors and Filters - {error_message}"
             )
             errors.append(
                 format_error(
@@ -211,9 +225,9 @@ def check_compiled_extensions():
         ext_name = extension.replace("thumbor.ext.filters.", "")
         try:
             import_module(extension)
-            print(cf.bold_green(f"{CHECK} {ext_name}"))
+            print_success(f"{CHECK} {ext_name}")
         except ImportError as error:
-            print(cf.bold_red(f"{CROSS} {ext_name}"))
+            print_error(f"{CROSS} {ext_name}")
             errors.append(
                 format_error(
                     f"Extension {extension}",
@@ -264,9 +278,9 @@ def check_modules(check_pyexiv=True):
     for module, error_message in modules:
         try:
             import_module(module)  # NOQA
-            print(cf.bold_green(f"{CHECK} {module} is installed correctly."))
+            print_success(f"{CHECK} {module} is installed correctly.")
         except ImportError as error:
-            print(cf.bold_red(f"{CROSS} {module} is not installed."))
+            print_error(f"{CROSS} {module} is not installed.")
             print(error_message)
             newline()
             errors.append(format_error(module, str(error), error_message))
@@ -289,9 +303,9 @@ def check_modules(check_pyexiv=True):
     for module, error_message in warn_modules:
         try:
             import_module(module)  # NOQA
-            print(cf.bold_green(f"{CHECK} {module} is installed correctly."))
+            print_success(f"{CHECK} {module} is installed correctly.")
         except ImportError as error:
-            print(cf.bold_yellow(f"{CROSS} {module} is not installed."))
+            print_warning(f"{CROSS} {module} is not installed.")
             print(error_message)
             newline()
             warnings.append(format_error(module, str(error), error_message))
@@ -341,7 +355,7 @@ def check_extensions(cfg):
     for program, error_message in programs:
         path = which(program)
         if path is None:
-            print(cf.bold_red(f"{CROSS} {program} is not installed."))
+            print_error(f"{CROSS} {program} is not installed.")
             print(error_message)
             newline()
             errors.append(
@@ -350,7 +364,7 @@ def check_extensions(cfg):
                 )
             )
         else:
-            print(cf.bold_green(f"{CHECK} {program} is installed correctly."))
+            print_success(f"{CHECK} {program} is installed correctly.")
 
     return errors
 
@@ -364,7 +378,7 @@ def check_security(cfg):
         return errors, warnings
 
     if cfg.SECURITY_KEY == "MY_SECURE_KEY":
-        print(cf.bold_red(f"{CROSS} Using default security key."))
+        print_error(f"{CROSS} Using default security key.")
 
         warnings.append(
             format_error(
@@ -378,7 +392,7 @@ def check_security(cfg):
         )
 
     if cfg.ALLOW_UNSAFE_URL:
-        print(cf.bold_red(f"{CROSS} Allowing unsafe URLs."))
+        print_error(f"{CROSS} Allowing unsafe URLs.")
 
         errors.append(
             format_error(
@@ -405,9 +419,10 @@ def load_config(config_path):
 
 
 def configure_colors(nocolor):
-    cf.use_style("solarized")
     if nocolor:
-        cf.disable()
+        init(strip=True, convert=False)
+    else:
+        init(autoreset=True)
 
 
 def print_header(print_version=True):
@@ -437,31 +452,27 @@ def check_everything(cfg, check_pyexiv):
 
 def print_results(warnings, errors):
     if not warnings and not errors:
-        print(cf.bold_green("🎉 Congratulations! No errors found! 🎉"))
+        print_success("🎉 Congratulations! No errors found! 🎉")
         return
 
-    print(cf.bold_red("😞 Oh no! We found some things that could improve... 😞"))
+    print_error("😞 Oh no! We found some things that could improve... 😞")
     newline()
 
     if warnings:
-        print(cf.bold_yellow(f"{WARNING}Warnings{WARNING}"))
+        print_warning(f"{WARNING}Warnings{WARNING}")
         print("\n\n".join([f"{str(err)}" for err in warnings]))
         newline()
 
     if errors:
-        print(cf.bold_red(f"{ERROR}Errors{ERROR}"))
+        print_error(f"{ERROR}Errors{ERROR}")
         print("\n\n".join([f"{str(err)}" for err in errors]))
         newline()
 
     subheader(f"{QUESTION}Need Help{QUESTION}")
-    print(
-        cf.cyan(
-            "If you don't know how to fix the above problems, please open an issue with thumbor."
-        )
+    print_info(
+        "If you don't know how to fix the above problems, please open an issue with thumbor."
     )
-    print(
-        cf.cyan("Don't forget to copy this log and add it to the description.")
-    )
+    print_info("Don't forget to copy this log and add it to the description.")
     print("Open an issue at https://github.com/thumbor/thumbor/issues/new")
 
 
