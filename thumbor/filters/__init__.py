@@ -117,7 +117,7 @@ class FiltersRunner:
             return None
 
         while filters:
-            filter_to_run = filters.pop()
+            filter_to_run = filters.pop(0)
             await filter_to_run.run()
 
 
