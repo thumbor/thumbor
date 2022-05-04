@@ -12,8 +12,6 @@ import tornado.ioloop
 import tornado.web
 from libthumbor.url import Url  # type: ignore
 
-from thumbor.handlers.imaging import ImagingHandler
-
 
 class ThumborServiceApp(tornado.web.Application):
     def __init__(self, context):
@@ -33,7 +31,11 @@ class ThumborServiceApp(tornado.web.Application):
 
         # Imaging handler (GET)
         handlers.append(
-            (Url.regex(), ImagingHandler, {"context": self.context})
+            (
+                Url.regex(),
+                self.context.modules.imaging_handler,
+                {"context": self.context},
+            )
         )
 
         return handlers

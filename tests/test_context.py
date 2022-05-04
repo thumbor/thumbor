@@ -228,6 +228,8 @@ class RequestParametersTestCase(TestCase):
         expect(params.unsafe).to_be_false()
         expect(params.format).to_be_null()
         expect(params.accepts_webp).to_be_false()
+        expect(params.accept_formats).to_be_empty()
+        expect(params.vary_formats).to_be_empty()
         expect(params.max_bytes).to_be_null()
         expect(params.max_age).to_be_null()
 
@@ -286,9 +288,8 @@ class RequestParametersTestCase(TestCase):
 
     @staticmethod
     def test_can_get_params_from_request():
-        request = mock.Mock(path="/test.jpg", headers={"Accept": "image/webp"})
+        request = mock.Mock(path="/test.jpg")
         params = RequestParameters(request=request, image="/test.jpg")
-        expect(params.accepts_webp).to_be_true()
         expect(params.image_url).to_equal("/test.jpg")
 
 
@@ -306,7 +307,11 @@ class ContextImporterTestCase(TestCase):
         expect(ctx_importer.context).to_equal(ctx)
         expect(ctx_importer.importer).to_equal(importer)
         expect(ctx_importer.engine).to_be_instance_of(importer.engine)
-        expect(ctx_importer.gif_engine).to_be_instance_of(importer.gif_engine)
+        expect(
+            ctx_importer.gif_engine  # pylint: disable=no-member
+        ).to_be_instance_of(
+            importer.gif_engine  # pylint: disable=no-member
+        )
 
         expect(ctx_importer.storage).to_be_instance_of(importer.storage)
         expect(ctx_importer.result_storage).to_be_instance_of(

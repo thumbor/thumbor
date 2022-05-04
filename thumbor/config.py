@@ -17,6 +17,8 @@ from derpconf.config import Config
 from thumbor import __version__
 from thumbor.filters import BUILTIN_FILTERS
 from thumbor.handler_lists import BUILTIN_HANDLERS
+from thumbor.importer import Importer
+from thumbor.plugins import BUILTIN_PLUGINS
 
 HOME = expanduser("~")
 
@@ -627,6 +629,15 @@ Config.define(
     "Filters",
 )
 
+# AVAILABLE PLUGINS
+Config.define(
+    "PLUGINS",
+    BUILTIN_PLUGINS,
+    "List of plugins to extend thumbor's functionality. All must be "
+    "importable python modules.",
+    "Plugins",
+)
+
 # RESULT STORAGE
 Config.define(
     "RESULT_STORAGE_EXPIRATION_SECONDS",
@@ -757,6 +768,22 @@ Config.define(
 
 
 Config.define(
+    "IMAGING_HANDLER",
+    "thumbor.handlers.imaging.ImagingHandler",
+    "Custom handler class to override the built-in ImagingHandler.",
+    "Imaging",
+)
+Config.define(
+    "RESOURCE_HANDLER",
+    "thumbor.handlers.image_resource.ImageResourceHandler",
+    "Custom handler class to override the built-in ImageResourceHandler.",
+)
+Config.define(
+    "UPLOAD_HANDLER",
+    "thumbor.handlers.upload.ImageUploadHandler",
+    "Custom handler class to override the built-in ImageUploadHandler.",
+)
+Config.define(
     "APP_CLASS",
     "thumbor.app.ThumborServiceApp",
     "Custom app class to override ThumborServiceApp. "
@@ -799,6 +826,8 @@ Config.define(
 
 
 def generate_config():
+    importer = Importer(Config())
+    importer.import_modules()
     config.generate_config()
 
 

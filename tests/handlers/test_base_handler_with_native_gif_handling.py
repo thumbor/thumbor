@@ -85,7 +85,7 @@ class ImageOperationsWithGifWithoutGifsicleOnResultStorage(
     @gen_test
     async def test_loads_image_from_result_storage(self):
         self.context.request = Mock(
-            accepts_webp=False,
+            accept_formats=[],
         )
         expected_path = self.result_storage.normalize_path(
             "5Xr8gyuWE7jL_VB72K0wvzTMm2U=/animated-one-frame.gif"

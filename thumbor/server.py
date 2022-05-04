@@ -96,6 +96,11 @@ def validate_config(config, server_parameters):
                 "and must be an executable."
             )
 
+    importer = Importer(config)
+    importer.import_plugins("validate_config", "validate_config")
+    for validate in importer.validate_config_plugins:
+        validate(config, server_parameters)
+
 
 def get_context(server_parameters, config, importer):
     return Context(server=server_parameters, config=config, importer=importer)

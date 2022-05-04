@@ -92,7 +92,7 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
         self.storage_path.cleanup()
 
     def get_request(self):  # pylint: disable=arguments-differ
-        return RequestParameters(accepts_webp=True)
+        return RequestParameters(accepts_webp=True, accept_formats=["webp"])
 
     @gen_test
     async def test_normalized_path_with_auto_webp_path(self):

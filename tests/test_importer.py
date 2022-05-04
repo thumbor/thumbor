@@ -64,6 +64,10 @@ class ImporterTestCase(TestCase):
                         default_value[index]
                     )
             else:
+                if isinstance(prop, type) and prop.__name__.endswith(
+                    "Wrapped"
+                ):
+                    prop = prop.mro()[1]
                 expect(prop).not_to_be_null().to_equal(default_value)
 
     @staticmethod

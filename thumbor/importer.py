@@ -10,7 +10,7 @@
 
 from importlib import import_module
 
-from thumbor.utils import logger
+from thumbor.plugins import pluggable_class
 
 
 def import_class(name, get_module=False):
@@ -45,6 +45,18 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         self.filters = []
         self.optimizers = []
         self.handler_lists = []
+        self.imaging_handler = None
+        self.resource_handler = None
+        self.upload_handler = None
+        self.imaging_handler_plugins = []
+        self.result_storage_plugins = []
+        self.context_importer_plugins = []
+        self.import_modules_plugins = []
+        self.upload_handler_plugins = []
+        self.resource_handler_plugins = []
+        self.engine_plugins = []
+        self.transformer_plugins = []
+        self.validate_config_plugins = []
         self.error_handler_module = None
         self.error_handler_class = None
         self.compatibility_legacy_loader = None
@@ -76,10 +88,24 @@ class Importer:  # pylint: disable=too-many-instance-attributes
             "URL_SIGNER",
             "METRICS",
             "HANDLER_LISTS",
+            "IMAGING_HANDLER",
+            "UPLOAD_HANDLER",
+            "RESOURCE_HANDLER",
+            "PLUGINS",
         )
 
-        self.import_item("ENGINE", "Engine")
-        self.import_item("GIF_ENGINE", "Engine")
+        self.import_plugins("ImagingHandlerPlugin", "imaging_handler")
+        self.import_plugins("ResultStoragePlugin", "result_storage")
+        self.import_plugins("ResourceHandlerPlugin", "resource_handler")
+        self.import_plugins("UploadHandlerPlugin", "upload_handler")
+        self.import_plugins("EnginePlugin", "engine")
+        self.import_plugins("TransformerPlugin", "transformer")
+        self.import_plugins("modify_context_importer", "context_importer")
+        self.import_plugins("modify_import_modules", "import_modules")
+        self.import_plugins("validate_config", "validate_config")
+
+        self.import_item("ENGINE", "Engine", plugin_type="engine")
+        self.import_item("GIF_ENGINE", "Engine", plugin_type="engine")
         self.import_item("LOADER")
         self.import_item("STORAGE", "Storage")
         self.import_item("METRICS", "Metrics")
@@ -89,10 +115,21 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         )
         self.import_item("HANDLER_LISTS", is_multiple=True)
         self.import_item("OPTIMIZERS", "Optimizer", is_multiple=True)
+        self.import_item(
+            "IMAGING_HANDLER", class_name=True, plugin_type="imaging_handler"
+        )
+        self.import_item(
+            "UPLOAD_HANDLER", class_name=True, plugin_type="upload_handler"
+        )
+        self.import_item(
+            "RESOURCE_HANDLER", class_name=True, plugin_type="resource_handler"
+        )
         self.import_item("URL_SIGNER", "UrlSigner")
 
         if self.config.RESULT_STORAGE:
-            self.import_item("RESULT_STORAGE", "Storage")
+            self.import_item(
+                "RESULT_STORAGE", "Storage", plugin_type="result_storage"
+            )
 
         if self.config.UPLOAD_PHOTO_STORAGE:
             self.import_item("UPLOAD_PHOTO_STORAGE", "Storage")
@@ -110,12 +147,24 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         if self.config.COMPATIBILITY_LEGACY_RESULT_STORAGE:
             self.import_item("COMPATIBILITY_LEGACY_RESULT_STORAGE", "Storage")
 
+        for import_modules in self.import_modules_plugins:
+            import_modules(self)
+
     @staticmethod
     def deprecated_monkey_patch_tornado_return_future():
         import tornado.concurrent  # pylint: disable=import-outside-toplevel
 
         if not hasattr(tornado.concurrent, "return_future"):
             setattr(tornado.concurrent, "return_future", noop)
+
+    def import_plugins(self, class_name, plugin_type):
+        self.import_item(
+            "PLUGINS",
+            class_name,
+            is_multiple=True,
+            ignore_errors=True,
+            target_attr=f"{plugin_type}_plugins",
+        )
 
     def import_item(
         self,
@@ -125,7 +174,12 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         item_value=None,
         ignore_errors=False,
         validate_fn=None,
+        target_attr=None,
+        plugin_type=None,
     ):
+        if target_attr is None:
+            target_attr = config_key.lower()
+
         if item_value is None:
             conf_value = getattr(self.config, config_key)
         else:
@@ -138,13 +192,18 @@ class Importer:  # pylint: disable=too-many-instance-attributes
                 class_name,
                 ignore_errors,
                 validate_fn,
+                target_attr,
             )
         else:
-            if class_name is not None:
+            if class_name is True:
+                module = self.import_class(conf_value)
+            elif class_name is not None:
                 module = self.import_class(f"{conf_value}.{class_name}")
             else:
                 module = self.import_class(conf_value, get_module=True)
-            setattr(self, config_key.lower(), module)
+            if plugin_type is not None:
+                module = pluggable_class(plugin_type)(module)
+            setattr(self, target_attr, module)
 
     def load_multiple_item(
         self,
@@ -153,7 +212,10 @@ class Importer:  # pylint: disable=too-many-instance-attributes
         class_name,
         ignore_errors,
         validate_fn,
+        target_attr=None,
     ):
+        if target_attr is None:
+            target_attr = config_key.lower()
         modules = []
         if conf_value:
             for module_name in conf_value:
@@ -175,13 +237,7 @@ class Importer:  # pylint: disable=too-many-instance-attributes
                             validate_fn=validate_fn,
                         )
                     modules.append(module)
-                except ImportError as error:
-                    if ignore_errors:
-                        logger.warning(
-                            "Module %s could not be imported: %s",
-                            module_name,
-                            error,
-                        )
-                    else:
+                except (ImportError, AttributeError):
+                    if not ignore_errors:
                         raise
-        setattr(self, config_key.lower(), tuple(modules))
+        setattr(self, target_attr, tuple(modules))

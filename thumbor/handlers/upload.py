@@ -23,6 +23,8 @@ from thumbor.handlers import ImageApiHandler
 ##
 class ImageUploadHandler(ImageApiHandler):
     async def post(self):
+        await self.initialize_request(request=self.request)
+
         # Check if the image uploaded is a multipart/form-data
         if self.multipart_form_data():
             file_data = self.request.files["media"][0]

@@ -69,7 +69,7 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
 
         self.context.request = Mock(
-            accepts_webp=False,
+            accept_formats=[],
         )
         expected_path = self.result_storage.normalize_path(
             "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
@@ -113,7 +113,7 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
     @gen_test
     async def test_loads_image_from_result_storage(self):
         self.context.request = Mock(
-            accepts_webp=False,
+            accept_formats=[],
         )
         expected_path = self.result_storage.normalize_path(
             "gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"

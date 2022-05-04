@@ -25,12 +25,6 @@ from thumbor.utils import deprecated, logger
 class Storage(BaseStorage):
     PATH_FORMAT_VERSION = "v2"
 
-    @property
-    def is_auto_webp(self):
-        return (
-            self.context.config.AUTO_WEBP and self.context.request.accepts_webp
-        )
-
     async def put(self, image_bytes):
         file_abspath = self.normalize_path(self.context.request.url)
         if not self.validate_path(file_abspath):
@@ -114,28 +108,38 @@ class Storage(BaseStorage):
             self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH
         )
 
-    def normalize_path(self, path):
-        digest = hashlib.sha1(unquote(path).encode("utf-8")).hexdigest()
-        root_path = (
+    @property
+    def root_path(self):
+        return (
             self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip(
                 "/"
             )
         )
-        prefix = "auto_webp" if self.is_auto_webp else "default"
+
+    def normalize_path(self, path):
+        digest = hashlib.sha1(unquote(path).encode("utf-8")).hexdigest()
+        root_path = self.root_path
+        if (
+            hasattr(self.context, "request")
+            and self.context.request.accept_formats
+        ):
+            formats = "_".join(
+                sorted(set(self.context.request.accept_formats))
+            )
+            prefix = f"auto_{formats}"
+        else:
+            prefix = "default"
 
         return f"{root_path}/{prefix}/{digest[:2]}/{digest[2:4]}/{digest[4:]}"
 
     def normalize_path_legacy(self, path):
         path = unquote(path)
         path_segments = [
-            self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip(
-                "/"
-            ),
+            self.root_path,
             Storage.PATH_FORMAT_VERSION,
         ]
-        if self.is_auto_webp:
-            path_segments.append("webp")
-
+        if hasattr(self.context, "request"):
+            path_segments.extend(sorted(self.context.request.accept_formats))
         path_segments.extend([self.partition(path), path.lstrip("/")])
 
         normalized_path = join(*path_segments).replace("http://", "")

@@ -11,8 +11,6 @@
 from typing import Any, cast
 
 from thumbor.handler_lists import HandlerList
-from thumbor.handlers.image_resource import ImageResourceHandler
-from thumbor.handlers.upload import ImageUploadHandler
 
 
 def get_handlers(context: Any) -> HandlerList:
@@ -21,6 +19,10 @@ def get_handlers(context: Any) -> HandlerList:
         return []
 
     return [
-        (r"/image", ImageUploadHandler, {"context": context}),
-        (r"/image/(.*)", ImageResourceHandler, {"context": context}),
+        (r"/image", context.modules.upload_handler, {"context": context}),
+        (
+            r"/image/(.*)",
+            context.modules.resource_handler,
+            {"context": context},
+        ),
     ]

@@ -187,7 +187,9 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(
         url = crypto.generate(
             image_url=quote("http://test.com/smart/image.jpg")
         )
-        self.context.request = self.get_request(url=url, accepts_webp=True)
+        self.context.request = self.get_request(
+            url=url, accept_formats=["webp"]
+        )
         with open("./tests/fixtures/images/image.webp", "rb") as fixture:
             await self.context.modules.result_storage.put(fixture.read())
 
@@ -203,7 +205,7 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(
         self, context_mock
     ):
         context_mock.return_value = self.context
-        self.context.request = self.get_request(accepts_webp=True)
+        self.context.request = self.get_request(accept_formats=["webp"])
 
         response = await self.get_as_webp("/unsafe/image.jpg")
         expect(response.code).to_equal(200)

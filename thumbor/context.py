@@ -136,7 +136,7 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
         self.security_key = security_key
 
 
-class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-instance-attributes,too-many-locals
+class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-instance-attributes,too-many-locals,too-many-statements
     def __init__(
         self,
         debug=False,
@@ -171,6 +171,8 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         request=None,
         max_age=None,
         auto_png_to_jpg=None,
+        accept_formats=None,
+        vary_formats=None,
     ):
         self.debug = bool(debug)
         self.meta = bool(meta)
@@ -233,20 +235,29 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         self.prevent_result_storage = False
         self.unsafe = unsafe == "unsafe" or unsafe is True
         self.format = None
-        self.accepts_webp = accepts_webp
         self.max_bytes = None
         self.max_age = max_age
         self.auto_png_to_jpg = auto_png_to_jpg
+        self.accept_formats = accept_formats or []
+        self.vary_formats = vary_formats or []
+        # Legacy compatibility
+        if accepts_webp:
+            if "webp" not in self.accept_formats:
+                self.accept_formats.append("webp")
+            if "webp" not in self.vary_formats:
+                self.vary_formats.append("webp")
 
         if request:
             self.url = request.path
-            self.accepts_webp = "image/webp" in request.headers.get(
-                "Accept", ""
-            )
 
     @staticmethod
     def int_or_0(value):
         return 0 if value is None else int(value)
+
+    @property
+    def accepts_webp(self):
+        """@deprecated"""
+        return "webp" in self.accept_formats
 
 
 class ContextImporter:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
@@ -283,6 +294,26 @@ class ContextImporter:  # pylint: disable=too-few-public-methods,too-many-instan
         self.detectors = importer.detectors
         self.filters = importer.filters
         self.optimizers = importer.optimizers
+        self.imaging_handler = importer.imaging_handler
+        self.upload_handler = importer.upload_handler
+        self.resource_handler = importer.resource_handler
+        self.imaging_handler_plugins = [
+            p(context) for p in importer.imaging_handler_plugins
+        ]
+        self.upload_handler_plugins = [
+            p(context) for p in importer.upload_handler_plugins
+        ]
+        self.resource_handler_plugins = [
+            p(context) for p in importer.resource_handler_plugins
+        ]
+        self.result_storage_plugins = [
+            p(context) for p in importer.result_storage_plugins
+        ]
+        self.engine_plugins = [p(context) for p in importer.engine_plugins]
+        self.transformer_plugins = [
+            p(context) for p in importer.transformer_plugins
+        ]
+
         self.url_signer = importer.url_signer
 
         self.compatibility_legacy_loader = importer.compatibility_legacy_loader
@@ -300,6 +331,9 @@ class ContextImporter:  # pylint: disable=too-few-public-methods,too-many-instan
             self.compatibility_legacy_result_storage = (
                 importer.compatibility_legacy_result_storage(context)
             )
+
+        for modify_context_importer in importer.context_importer_plugins:
+            modify_context_importer(self)
 
     def cleanup(self):
         if self.engine:

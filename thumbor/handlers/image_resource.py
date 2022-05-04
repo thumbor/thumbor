@@ -19,6 +19,8 @@ from thumbor.handlers import ImageApiHandler
 ##
 class ImageResourceHandler(ImageApiHandler):
     async def check_resource(self, file_id):
+        await self.initialize_request(request=self.request)
+
         file_id = file_id[: self.context.config.MAX_ID_LENGTH]
         # Check if image exists
         exists = await self.context.modules.storage.exists(file_id)
@@ -47,6 +49,7 @@ class ImageResourceHandler(ImageApiHandler):
             self._error(404, "Image not found at the given URL")
 
     async def put(self, file_id):
+        await self.initialize_request(request=self.request)
         file_id = file_id[: self.context.config.MAX_ID_LENGTH]
         # Check if image overwriting is allowed
         if not self.context.config.UPLOAD_PUT_ALLOWED:
@@ -59,6 +62,7 @@ class ImageResourceHandler(ImageApiHandler):
             self.set_status(204)
 
     async def delete(self, file_id):
+        await self.initialize_request(request=self.request)
         file_id = file_id[: self.context.config.MAX_ID_LENGTH]
         # Check if image deleting is allowed
         if not self.context.config.UPLOAD_DELETE_ALLOWED:

@@ -170,7 +170,7 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         expect(response.headers).to_include("Vary")
         expect(response.body).to_be_webp()
 
-    @patch("thumbor.handlers.imaging.RequestParameters")
+    @patch("thumbor.handlers.RequestParameters")
     @gen_test
     async def test_shouldnt_auto_convert_png_to_jpg_if_requested_by_request_param(  # NOQA
         self, request_mock
@@ -190,7 +190,7 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         expect(response.headers).not_to_include("Vary")
         expect(response.body).to_be_png()
 
-    @patch("thumbor.handlers.imaging.RequestParameters")
+    @patch("thumbor.handlers.RequestParameters")
     @gen_test
     async def test_should_auto_convert_png_to_jpg_if_requested_by_request_param(  # NOQA
         self, request_mock

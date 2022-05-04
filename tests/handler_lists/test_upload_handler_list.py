@@ -27,11 +27,11 @@ class UploadHandlerListTestCase(TestCase):
         expect(handlers).to_length(2)
         url, handler, init = handlers[0]
         expect(url).to_equal(r"/image")
-        expect(handler).to_equal(ImageUploadHandler)
+        expect(handler.mro()[1]).to_equal(ImageUploadHandler)
         expect(init).to_equal({"context": ctx})
         url, handler, init = handlers[1]
         expect(url).to_equal(r"/image/(.*)")
-        expect(handler).to_equal(ImageResourceHandler)
+        expect(handler.mro()[1]).to_equal(ImageResourceHandler)
         expect(init).to_equal({"context": ctx})
 
     def test_can_disable_upload(self):

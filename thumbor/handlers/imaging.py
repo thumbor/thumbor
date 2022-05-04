@@ -10,7 +10,6 @@
 
 from urllib.parse import quote, unquote
 
-from thumbor.context import RequestParameters
 from thumbor.handlers import ContextHandler
 
 
@@ -43,7 +42,7 @@ class ImagingHandler(ContextHandler):
             return
 
         kwargs["request"] = self.request
-        self.context.request = RequestParameters(**kwargs)
+        await self.initialize_request(**kwargs)
 
         has_none = (
             not self.context.request.unsafe and not self.context.request.hash

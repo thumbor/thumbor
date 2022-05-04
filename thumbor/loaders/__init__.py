@@ -7,8 +7,17 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
+from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, TYPE_CHECKING, Union, Any
+
+try:
+    from typing import Protocol
+except ImportError:
+    Protocol = None
+
+if TYPE_CHECKING:
+    from thumbor.context import Context
 
 
 class LoaderResult:
@@ -53,3 +62,22 @@ class LoaderResult:
         self.error = error
         self.metadata = metadata
         self.extras = extras
+
+
+if Protocol is None:
+    Loader = Any
+else:
+
+    class Loader(Protocol):
+        """
+        Protocol type for a thumbor loader.
+
+        Expects an object having attribute ``load``, a callable that takes a
+        thumbor Context and a str path.
+        """
+
+        @staticmethod
+        async def load(
+            context: Context, path: str, **kwargs: Dict[str, Any]
+        ) -> Union[LoaderResult, bytes]:
+            pass

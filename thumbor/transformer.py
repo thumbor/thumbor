@@ -13,6 +13,7 @@ import sys
 
 from thumbor.point import FocalPoint
 from thumbor.utils import logger
+from thumbor.plugins import pluggable_class
 
 TRIM_ENABLED = True
 try:
@@ -22,6 +23,7 @@ except ImportError:
     TRIM_ENABLED = False
 
 
+@pluggable_class("transformer")
 class Transformer:
     def __init__(self, context):
         self.context = context
