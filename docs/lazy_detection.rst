@@ -54,3 +54,9 @@ If the image still hasn't been processed, the same process from before
 applies, except thumbor won't place another message in the queue. This
 is intended as a way not to flood the queue with requests for the same
 image.
+
+Redis Support
+-------------
+
+Thumbor supports `Redis single node <https://redis.io/docs/getting-started/>`_.
+and `Redis sentinel <https://redis.io/docs/manual/sentinel/>`_.

@@ -672,6 +672,50 @@ Config.define(
     "Server password for the queued redis detector",
     "Queued Redis Detector",
 )
+Config.define(
+    "REDIS_QUEUE_MODE",
+    "single_node",
+    "Redis operation mode 'single_node' or 'sentinel'",
+    "Queued Redis Detector",
+)
+
+# QUEUED DETECTOR REDIS SENTINEL OPTIONS
+Config.define(
+    "REDIS_QUEUE_SENTINEL_INSTANCES",
+    "localhost:26379",
+    "Sentinel server instances for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_PASSWORD",
+    None,
+    "Sentinel server password for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_MASTER_INSTANCE",
+    "master",
+    "Sentinel server master instance for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_MASTER_PASSWORD",
+    None,
+    "Sentinel server master password for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_MASTER_DB",
+    0,
+    "Sentinel server master database index for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_SOCKET_TIMEOUT",
+    10.0,
+    "Sentinel server socket timeout for the queued redis detector",
+    "Queued Redis Detector",
+)
 
 # QUEUED DETECTOR SQS OPTIONS
 Config.define("SQS_QUEUE_KEY_ID", None, "AWS key id", "Queued SQS Detector")
