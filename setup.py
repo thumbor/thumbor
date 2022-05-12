@@ -90,7 +90,7 @@ def run_setup(extension_modules=None):
     setup(
         name="thumbor",
         version=__version__,
-        description="thumbor is an open-source photo thumbnail service by globo.com",
+        description="The thumbor is an open-source photo thumbnail service by globo.com",
         long_description="""
 Thumbor is a smart imaging service. It enables on-demand crop, resizing and flipping of images.
 
