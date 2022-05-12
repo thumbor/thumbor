@@ -10,6 +10,7 @@
 
 from preggy import expect
 from tornado.testing import gen_test
+from unittest.mock import patch
 
 import thumbor.filters
 from tests.base import TestCase
@@ -293,6 +294,14 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         filter_instance = EmptyFilter("my_empty_filter()")
         result = await filter_instance.run()
         expect(result).to_equal(["ok"])
+
+    @gen_test
+    @patch.object(StringFilter, "run", autospec=True)
+    async def test_apply_filters_respects_filter_params_order(self, run_mock):
+        filter_order = []
+        run_mock.side_effect = lambda self: filter_order.append(self.params[0])
+        await self.runner.apply_filters(thumbor.filters.PHASE_POST_TRANSFORM)
+        assert filter_order == ["aaaa", "bbb"]
 
 
 class WithOneValidParamFilterTestCase(BaseFilterTestCase):
