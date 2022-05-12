@@ -8,9 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import sys
+from unittest.mock import patch
+
+import pytest
 from preggy import expect
 from tornado.testing import gen_test
-from unittest.mock import patch
 
 import thumbor.filters
 from tests.base import TestCase
@@ -295,6 +298,10 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         result = await filter_instance.run()
         expect(result).to_equal(["ok"])
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 8),
+        reason="python37 mock does not support async mocks, see https://bugs.python.org/issue26467",
+    )
     @gen_test
     @patch.object(StringFilter, "run", autospec=True)
     async def test_apply_filters_respects_filter_params_order(self, run_mock):
