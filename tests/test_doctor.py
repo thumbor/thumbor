@@ -12,7 +12,7 @@
 from thumbor.doctor import run_doctor
 
 
-def test_get_doctor_output(snapshot, capsys):
+def test_get_doctor_output(capsys, doctor_output):
     run_doctor(
         {
             "nocolor": True,
@@ -22,11 +22,10 @@ def test_get_doctor_output(snapshot, capsys):
         exit_with_error=False,
         check_pyexiv=False,
     )
-    result = capsys.readouterr()
-    snapshot.assert_match(result.out)
+    assert capsys.readouterr().out == doctor_output
 
 
-def test_get_doctor_output_no_config(snapshot, capsys):
+def test_get_doctor_output_no_config(capsys, doctor_output_no_config):
     run_doctor(
         {
             "nocolor": True,
@@ -36,5 +35,4 @@ def test_get_doctor_output_no_config(snapshot, capsys):
         exit_with_error=False,
         check_pyexiv=False,
     )
-    result = capsys.readouterr()
-    snapshot.assert_match(result.out)
+    assert capsys.readouterr().out == doctor_output_no_config
