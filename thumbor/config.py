@@ -102,7 +102,7 @@ Config.define(
 Config.define(
     "PILLOW_RESAMPLING_FILTER",
     "LANCZOS",
-    "Specify resampling filter for Pillow resize method."
+    "Specify resampling filter for Pillow resize method. "
     "One of LANCZOS, NEAREST, BILINEAR, BICUBIC, HAMMING (Pillow>=3.4.0).",
     "Imaging",
 )
@@ -150,7 +150,7 @@ Config.define(
 Config.define(
     "SVG_DPI",
     150,
-    "Specify the ratio between 1in and 1px for SVG images. This is only used when"
+    "Specify the ratio between 1in and 1px for SVG images. This is only used when "
     "rasterizing SVG images having their size units in cm or inches.",
     "Imaging",
 )
@@ -224,7 +224,7 @@ Config.define(
     "ENGINE_THREADPOOL_SIZE",
     0,
     "Size of the thread pool used for image transformations."
-    " The default value is 0 (don't use a threadpoool. "
+    " The default value is 0 (don't use a threadpoool). "
     "Increase this if you are seeing your IOLoop getting "
     "blocked (often indicated by your upstream HTTP "
     "requests timing out)",
@@ -743,7 +743,7 @@ Config.define(
 Config.define(
     "MAX_WAIT_SECONDS_BEFORE_IO_SHUTDOWN",
     0,
-    "The amount of time to waut before shutting down all io, after the server has been stopped",
+    "The amount of time to wait before shutting down all io, after the server has been stopped",
     "Server",
 )
 
