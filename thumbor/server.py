@@ -113,6 +113,7 @@ def run_server(application, context):
 
         if fd_number is not None:
             sock = socket(fileno=fd_number)
+            sock.setblocking(False)
         else:
             sock = bind_unix_socket(context.server.fd)
 
