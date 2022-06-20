@@ -181,6 +181,9 @@ class Filter(BaseFilter):
             if buffer is not None:
                 return self.on_image_ready(buffer)
 
+            if not self.validate(self.url):
+                raise tornado.web.HTTPError(400)
+
             result = await self.context.modules.loader.load(
                 self.context, self.url
             )
@@ -207,3 +210,12 @@ class Filter(BaseFilter):
                 raise error
             logger.warning("bad watermark")
             raise tornado.web.HTTPError(500)
+
+    def validate(self, url):
+        if not hasattr(self.context.modules.loader, "validate"):
+            return True
+
+        if not self.context.modules.loader.validate(self.context, url):
+            logger.warning('watermark source not allowed: "%s"', url)
+            return False
+        return True
