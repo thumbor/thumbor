@@ -17,7 +17,10 @@ from tests.fixtures.watermark_fixtures import (
     SOURCE_IMAGE_SIZES,
     WATERMARK_IMAGE_SIZES,
 )
+from thumbor.config import Config
+from thumbor.context import Context
 from thumbor.filters import watermark
+from thumbor.importer import Importer
 from thumbor.testing import FilterTestCase
 
 
@@ -289,3 +292,24 @@ class WatermarkFilterTestCase(FilterTestCase):
 
                     test["topic_name"] = "image ratio"
                     expect(watermark_image).to_almost_equal(ratio, 2, **test)
+
+    @gen_test
+    async def test_watermark_validate_allowed_source(self):
+        config = Config(
+            ALLOWED_SOURCES=[
+                "s.glbimg.com",
+            ],
+            LOADER="thumbor.loaders.http_loader",
+        )
+        importer = Importer(config)
+        importer.import_modules()
+
+        context = Context(config=config, importer=importer)
+        filter_instance = watermark.Filter("", context)
+
+        expect(
+            filter_instance.validate("https://s2.glbimg.com/logo.jpg")
+        ).to_be_false()
+        expect(
+            filter_instance.validate("https://s.glbimg.com/logo.jpg")
+        ).to_be_true()
