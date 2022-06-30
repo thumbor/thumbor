@@ -118,7 +118,7 @@ class Storage(storages.BaseStorage):
             return loads(detector_file.read())
 
     def path_on_filesystem(self, path):
-        digest = hashlib.sha1(path.encode("utf-8")).hexdigest()
+        digest = hashlib.sha256(path.encode("utf-8")).hexdigest()
         root_path = self.context.config.FILE_STORAGE_ROOT_PATH.rstrip("/")
         return f"{root_path}/{digest[:2]}/{digest[2:]}"
 

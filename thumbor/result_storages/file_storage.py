@@ -115,7 +115,7 @@ class Storage(BaseStorage):
         )
 
     def normalize_path(self, path):
-        digest = hashlib.sha1(unquote(path).encode("utf-8")).hexdigest()
+        digest = hashlib.sha256(unquote(path).encode("utf-8")).hexdigest()
         root_path = (
             self.context.config.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH.rstrip(
                 "/"

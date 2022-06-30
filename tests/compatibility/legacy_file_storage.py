@@ -127,7 +127,7 @@ class Storage(storages.BaseStorage):
         self.exists(None, file_exists, path_on_filesystem=path)
 
     def path_on_filesystem(self, path):
-        digest = hashlib.sha1(path.encode("utf-8")).hexdigest()
+        digest = hashlib.sha256(path.encode("utf-8")).hexdigest()
         return "%s/%s/%s" % (
             self.context.config.FILE_STORAGE_ROOT_PATH.rstrip("/"),
             digest[:2],
