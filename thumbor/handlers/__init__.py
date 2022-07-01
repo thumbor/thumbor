@@ -126,11 +126,11 @@ class BaseHandler(tornado.web.RequestHandler):
         ).total_seconds() * 1000
 
         if self.context.request.smart:
-            self.context.metrics.incr("response.smart")
-            self.context.metrics.timing("response.smart", total_time)
+            self.context.metrics.incr("response.smart.count")
+            self.context.metrics.timing("response.smart.latency", total_time)
         else:
-            self.context.metrics.incr("response.none_smart")
-            self.context.metrics.timing("response.none_smart", total_time)
+            self.context.metrics.incr("response.none_smart.count")
+            self.context.metrics.timing("response.none_smart.latency", total_time)
 
         should_store = (
             self.context.config.RESULT_STORAGE_STORES_UNSAFE
