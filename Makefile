@@ -45,9 +45,13 @@ sequential-unit:
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown
+	@-redis-cli -p 26379 -a hey_you shutdown
+	@-rm /tmp/redis-sentinel.conf 2>/dev/null
 
 redis: kill_redis
+	@cp redis-sentinel.conf /tmp/redis-sentinel.conf
 	@redis-server redis.conf ; sleep 1
+	@redis-server /tmp/redis-sentinel.conf --sentinel ; sleep 1
 	@redis-cli -p 6668 -a hey_you info
 
 format:

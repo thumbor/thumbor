@@ -372,8 +372,17 @@ You have to evaluate the majority of your use cases to take a decision about the
 
    AUTO_PNG_TO_JPG = True
 
-Queueing - Redis
-----------------
+Queueing - Redis Single Node
+----------------------------
+
+REDIS\_QUEUE\_MODE
+~~~~~~~~~~~~~~~~~~
+
+Redis operation mode 'single_node' or 'sentinel'
+
+.. code:: python
+
+   REDIS_QUEUE_MODE = 'single_node'
 
 REDIS\_QUEUE\_SERVER\_HOST
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -410,6 +419,72 @@ Server password for the queued redis detector
 .. code:: python
 
    REDIS_QUEUE_SERVER_PASSWORD = None
+
+Queueing - Redis Sentinel
+-------------------------
+
+REDIS\_QUEUE\_MODE
+~~~~~~~~~~~~~~~~~~
+
+Redis operation mode 'single_node' or 'sentinel'
+
+.. code:: python
+
+   REDIS_QUEUE_MODE = 'sentinel'
+
+REDIS\_QUEUE\_SENTINEL\_INSTANCES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sentinel server instances for the queued redis detector.
+
+.. code:: python
+
+   REDIS_QUEUE_SENTINEL_INSTANCES = 'localhost:23679,localhost:23680'
+
+REDIS\_QUEUE\_SENTINEL\_PASSWORD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sentinel server password for the queued redis detector.
+
+.. code:: python
+
+   REDIS_QUEUE_SENTINEL_PASSWORD = None
+
+REDIS\_QUEUE\_SENTINEL\_MASTER\_INSTANCE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sentinel server master instance for the queued redis detector.
+
+.. code:: python
+
+   REDIS_QUEUE_SENTINEL_MASTER_INSTANCE = 'masterinstance'
+
+REDIS\_QUEUE\_SENTINEL\_MASTER\_PASSWORD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sentinel server master password for the queued redis detector.
+
+.. code:: python
+
+   REDIS_QUEUE_SENTINEL_MASTER_PASSWORD = None
+
+REDIS\_QUEUE\_SENTINEL\_MASTER\_DB
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sentinel server master database index for the queued redis detector.
+
+.. code:: python
+
+   REDIS_QUEUE_SENTINEL_MASTER_DB = 0
+
+REDIS\_QUEUE\_SENTINEL\_SOCKET\_TIMEOUT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sentinel server socket timeout for the queued redis detector.
+
+.. code:: python
+
+   REDIS_QUEUE_SENTINEL_SOCKET_TIMEOUT = 10.0
 
 Queueing - Amazon SQS
 ---------------------
