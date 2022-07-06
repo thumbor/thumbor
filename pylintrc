@@ -16,7 +16,6 @@ disable=
       missing-function-docstring,
       missing-module-docstring,
       missing-class-docstring,
-      bad-continuation,
       c-extension-no-member,
       too-many-arguments,
       assignment-from-none,
