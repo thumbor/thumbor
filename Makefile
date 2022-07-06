@@ -57,7 +57,7 @@ flake:
 	@flake8 --config .flake8
 
 pylint:
-	@pylint thumbor tests
+	@pylint --load-plugins=pylint.extensions.no_self_use thumbor tests
 
 setup_docs:
 	@$(PYTHON) -m pip install -r docs/requirements.txt
