@@ -93,10 +93,10 @@ class TestCase(AsyncHTTPTestCase):
         self.context = self.get_context()
         return ThumborServiceApp(self.context)
 
-    def get_config(self):  # Meant to be overriden pylint: disable=no-self-use
+    def get_config(self):
         return Config()
 
-    def get_server(self):  # Meant to be overriden pylint: disable=no-self-use
+    def get_server(self):
         return None
 
     def get_importer(self):
@@ -106,7 +106,7 @@ class TestCase(AsyncHTTPTestCase):
 
     def get_request_handler(
         self,
-    ):  # Meant to be overriden pylint: disable=no-self-use
+    ):
         return None
 
     def get_context(self):
