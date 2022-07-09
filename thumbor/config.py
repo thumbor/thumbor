@@ -130,13 +130,6 @@ Config.define(
     "Imaging",
 )
 Config.define(
-    "AUTO_WEBP",
-    False,
-    "Specifies whether WebP format should be used automatically if the request accepts it "
-    "(via Accept header)",
-    "Imaging",
-)
-Config.define(
     "AUTO_PNG_TO_JPG",
     False,
     "Specifies whether a PNG image should be used automatically if the png image has "

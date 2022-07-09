@@ -116,11 +116,6 @@ class BaseHandler(tornado.web.RequestHandler):
         self.finish()
 
     async def initialize_request(self, **kwargs):
-        kwargs.setdefault("accept_formats", [])
-        if self.context.config.AUTO_WEBP:
-            if "webp" not in kwargs["accept_formats"]:
-                if "image/webp" in self.request.headers.get("Accept", ""):
-                    kwargs["accept_formats"].append("webp")
         self.context.request = RequestParameters(**kwargs)
 
     async def execute_image_operations(self):
@@ -355,56 +350,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 thumbor.filters.PHASE_POST_TRANSFORM
             )
 
-    def is_webp(self, context):
-        return (
-            context.config.AUTO_WEBP
-            and "webp" in context.request.accept_formats
-            and not context.request.engine.is_multiple()
-            and context.request.engine.can_convert_to_webp()
-        )
-
-    def is_animated_gif(self, data):
-        if data[:6] not in [b"GIF87a", b"GIF89a"]:
-            return False
-        i = 10  # skip header
-        frames = 0
-
-        def skip_color_table(i, flags):
-            if flags & 0x80:
-                i += 3 << ((flags & 7) + 1)
-
-            return i
-
-        flags = data[i]
-        i = skip_color_table(i + 3, flags)
-
-        while frames < 2:
-            block = data[i : i + 1]  # NOQA
-            i += 1
-
-            if block == b"\x3B":
-                break
-
-            if block == b"\x21":
-                i += 1
-            elif block == b"\x2C":
-                frames += 1
-                i += 8
-                i = skip_color_table(i + 1, data[i])
-                i += 1
-            else:
-                return False
-
-            while True:
-                j = data[i]
-                i += 1
-
-                if not j:
-                    break
-                i += j
-
-        return frames > 1
-
     def can_auto_convert_png_to_jpg(self):
         request_override = self.context.request.auto_png_to_jpg
         config = self.context.config
@@ -423,11 +368,6 @@ class BaseHandler(tornado.web.RequestHandler):
     def define_image_extension(self, context, image_extension):
         if image_extension is not None:
             logger.debug("Image format specified as %s.", image_extension)
-        elif self.is_webp(context):
-            image_extension = ".webp"
-            logger.debug(
-                "Image format set by AUTO_WEBP as %s.", image_extension
-            )
         elif self.can_auto_convert_png_to_jpg():
             image_extension = ".jpg"
             logger.debug(
@@ -639,13 +579,8 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header("Server", f"Thumbor/{__version__}")
         self.set_header("Content-Type", content_type)
 
-        # auto-convert configured?
-        should_vary = self.context.config.AUTO_WEBP
-        # we have image (not video)
-        should_vary = should_vary and content_type.startswith("image/")
         # output format is not requested via format filter
         has_format_filter = (
-            # format is supported by filter
             self.context.request.format
             and bool(  # format is supported by filter
                 re.search(
@@ -653,12 +588,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 )
             )  # filter is in request
         )
-        # our image is not animated gif
-        should_vary = should_vary and not self.is_animated_gif(buffer)
-
-        if should_vary and "webp" not in self.context.request.vary_formats:
-            self.context.request.vary_formats.append("webp")
-
         if not has_format_filter and self.context.request.vary_formats:
             self.set_header("Vary", "Accept")
 

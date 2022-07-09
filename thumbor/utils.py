@@ -53,3 +53,46 @@ def deprecated(message):
         return wrapper_deprecated
 
     return decorator_deprecated
+
+
+def is_animated_gif(data):
+    if data[:6] not in [b"GIF87a", b"GIF89a"]:
+        return False
+    i = 10  # skip header
+    frames = 0
+
+    def skip_color_table(i, flags):
+        if flags & 0x80:
+            i += 3 << ((flags & 7) + 1)
+
+        return i
+
+    flags = data[i]
+    i = skip_color_table(i + 3, flags)
+
+    while frames < 2:
+        block = data[i : i + 1]  # NOQA
+        i += 1
+
+        if block == b"\x3B":
+            break
+
+        if block == b"\x21":
+            i += 1
+        elif block == b"\x2C":
+            frames += 1
+            i += 8
+            i = skip_color_table(i + 1, data[i])
+            i += 1
+        else:
+            return False
+
+        while True:
+            j = data[i]
+            i += 1
+
+            if not j:
+                break
+            i += j
+
+    return frames > 1

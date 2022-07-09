@@ -16,7 +16,9 @@ if TYPE_CHECKING:
     import PIL.Image
 
 
-BUILTIN_PLUGINS = []
+BUILTIN_PLUGINS = [
+    "thumbor.plugins.auto_webp",
+]
 
 
 _PLUGIN_METHOD_MAP = {}
