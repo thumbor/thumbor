@@ -1,0 +1,12 @@
+From python:3.9.12-alpine3.14
+
+
+ADD ./thumbor.conf /usr/src/app/
+
+RUN apk add --no-cache build-base py-pip jpeg-dev zlib-dev curl curl-dev libcurl cairo-dev cairo cairo-tools exiv2 gcc g++ libc-dev exiv2-dev && \
+pip install pycurl && \
+pip install CairoSVG && \
+pip install thumbor==7.0.12
+
+ENTRYPOINT [ "/usr/local/bin/thumbor", "--port=8000", "--conf=/usr/src/app/thumbor.conf" ]
+
