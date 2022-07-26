@@ -212,6 +212,30 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
+    @mock.patch.object(thumbor.server, "socket", autospec=True)
+    def test_can_run_server_with_fd_non_blocking(
+        self, socket_mock, server_mock
+    ):
+        server_parameters = mock.Mock(security_key=None)
+        conf = Config(SECURITY_KEY="test", NON_BLOCKING_SOCKETS=True)
+        importer = get_importer(conf)
+        context = get_context(server_parameters, conf, importer)
+
+        context.server = mock.Mock(fd=11, port=1234, ip="0.0.0.0", processes=1)
+
+        server_instance_mock = mock.Mock()
+        server_mock.return_value = server_instance_mock
+
+        application = mock.Mock()
+        run_server(application, context)
+        socket_mock.assert_called_with(fileno=11)
+        socket_mock.return_value.setblocking.assert_called_with(False)
+        server_instance_mock.add_socket.assert_called_with(
+            socket_mock.return_value
+        )
+        server_instance_mock.start.assert_called_with(1)
+
+    @mock.patch.object(thumbor.server, "HTTPServer")
     @mock.patch.object(thumbor.server, "bind_unix_socket")
     def test_can_run_server_with_unix_socket(
         self, bind_unix_socket, server_mock
