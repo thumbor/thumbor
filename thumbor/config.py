@@ -790,6 +790,13 @@ Config.define(
     "The amount of time to wait before shutting down all io, after the server has been stopped",
     "Server",
 )
+Config.define(
+    "NON_BLOCKING_SOCKETS",
+    False,
+    "If True, thumbor will ensure that the socket from the file descriptor number passed using"
+    " the --fd flag is non-blocking. This setting has no effect if the --fd flag is a path,"
+    " sockets created that way are always non-blocking.",
+)
 
 # HANDLER LISTS
 Config.define(
