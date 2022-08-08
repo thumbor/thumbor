@@ -275,8 +275,8 @@ class Transformer:
         target_height = self.target_height or 1
         target_width = self.target_width or 1
 
-        source_ratio = round(source_width / source_height, 2)
-        target_ratio = round(target_width / target_height, 2)
+        source_ratio = round(source_width / source_height + 1e-5, 2)
+        target_ratio = round(target_width / target_height + 1e-5, 2)
 
         if source_ratio == target_ratio:
             return
@@ -289,7 +289,9 @@ class Transformer:
         ):
             crop_width = source_width
             crop_height = int(
-                round(source_width * self.target_height / target_width, 0)
+                round(
+                    source_width * self.target_height / target_width + 1e-5, 0
+                )
             )
         else:
             crop_width = int(
@@ -305,8 +307,8 @@ class Transformer:
         crop_left = int(
             round(
                 min(
-                    max(focal_x - (crop_width / 2), 0.0),
-                    source_width - crop_width,
+                    max(focal_x - (crop_width / 2) + 1e-5, 0.0),
+                    (source_width - crop_width) + 1e-5,
                 )
             )
         )
@@ -315,8 +317,8 @@ class Transformer:
         crop_top = int(
             round(
                 min(
-                    max(focal_y - (crop_height / 2), 0.0),
-                    source_height - crop_height,
+                    max(focal_y - (crop_height / 2) + 1e-5, 0.0),
+                    (source_height - crop_height) + 1e-5,
                 )
             )
         )
@@ -341,8 +343,8 @@ class Transformer:
             total_x += focal_point.x * focal_point.weight
             total_y += focal_point.y * focal_point.weight
 
-        avg_x = total_x // total_weight
-        avg_y = total_y // total_weight
+        avg_x = total_x / total_weight
+        avg_y = total_y / total_weight
 
         return avg_x, avg_y
 
@@ -433,8 +435,8 @@ class Transformer:
             if point.height <= 1:
                 point.height = 10
             self.engine.draw_rectangle(
-                point.x - (point.width // 2),
-                point.y - (point.height // 2),
+                point.x - (point.width / 2),
+                point.y - (point.height / 2),
                 point.width,
                 point.height,
             )

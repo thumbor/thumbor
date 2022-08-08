@@ -49,10 +49,10 @@ class FocalPoint:
         weight=1.0,
         origin="alignment",
     ):
-        self.x = int(x)  # pylint: disable=invalid-name
-        self.y = int(y)  # pylint: disable=invalid-name
-        self.height = int(height)
-        self.width = int(width)
+        self.x = x  # pylint: disable=invalid-name
+        self.y = y  # pylint: disable=invalid-name
+        self.height = height
+        self.width = width
         self.weight = weight
         self.origin = origin
 
@@ -80,6 +80,6 @@ class FocalPoint:
 
     def __repr__(self):
         return (
-            f"FocalPoint(x: {self.x}, y: {self.y}, width: {self.width}, "
-            f"height: {self.height}, weight: {self.weight:.0f}, origin: {self.origin})"
+            f"FocalPoint(x: {self.x:.0f}, y: {self.y:.0f}, width: {self.width:.0f}, "
+            f"height: {self.height:.0f}, weight: {self.weight:.0f}, origin: {self.origin})"
         )
