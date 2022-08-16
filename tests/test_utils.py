@@ -144,3 +144,10 @@ def test_ensure_srgb_returns_none_for_unsupported_color_space(color_space):
     img.info["icc_profile"] = profile.tobytes()
     retval = ensure_srgb(img)
     assert retval is None
+
+
+def test_ensure_srgb_returns_none_for_animated_cmyk():
+    img = Image.open("tests/fixtures/images/cmyk-icc.jpg")
+    with mock.patch.object(img, "is_animated", new=True, create=True):
+        retval = ensure_srgb(img)
+        assert retval is None

@@ -127,6 +127,8 @@ class BaseEngine:
             img_mime = "image/webp"
         elif buffer.startswith(b"\x00\x00\x00\x0c"):
             img_mime = "image/jp2"
+        elif buffer[4:12] in (b"ftypavif", b"ftypavis"):
+            img_mime = "image/avif"
         elif buffer.startswith(b"\x00\x00\x00 ftyp"):
             img_mime = "video/mp4"
         elif buffer.startswith(b"\x1aE\xdf\xa3"):
@@ -137,8 +139,6 @@ class BaseEngine:
             img_mime = "image/tiff"
         elif SVG_RE.search(buffer[:2048].replace(b"\0", b"")):
             img_mime = "image/svg+xml"
-        elif buffer[4:12] in (b"ftypavif", b"ftypavis"):
-            img_mime = "image/avif"
 
         return img_mime
 

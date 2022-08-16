@@ -280,6 +280,19 @@ class PilEngineTestCase(TestCase):
             mock_save.assert_called_once()
             assert mock_save.call_args[1].get("codec") == "aom"
 
+    @skip_unless_avif
+    def test_avif_speed_setting(self):
+        self.context.config.AVIF_SPEED = 5
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+
+        with mock.patch("PIL.ImageFile.ImageFile.save") as mock_save:
+            engine.read(".avif")
+            mock_save.assert_called_once()
+            assert mock_save.call_args[1].get("speed") == 5
+
     @skip_unless_avif_encoder("svt")
     def test_avif_svt_odd_dimensions(self):
         self.context.config.AVIF_CODEC = "svt"
