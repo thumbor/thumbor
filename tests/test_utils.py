@@ -13,8 +13,17 @@ from shutil import which
 from unittest import TestCase, mock
 
 from preggy import expect
+import pytest
+from PIL import Image, ImageCms
 
-from thumbor.utils import CONTENT_TYPE, EXTENSION, deprecated, logger
+from thumbor.utils import (
+    CONTENT_TYPE,
+    EXTENSION,
+    deprecated,
+    logger,
+    ensure_srgb,
+    get_color_space,
+)
 
 
 class UtilsTestCase(TestCase):
@@ -91,3 +100,47 @@ class UtilsTestCase(TestCase):
     @staticmethod
     def test_logger_should_not_be_an_error():
         expect(logger).not_to_be_an_error()
+
+
+def test_get_color_space_handles_invalid_icc():
+    img = Image.new("RGB", (50, 50), "white")
+    img.info["icc_profile"] = b"invalid"
+    result = get_color_space(img)
+    assert result is None
+
+
+def test_get_color_space_missing_imagecms_returns_none():
+    with mock.patch("thumbor.utils.ImageCms", new=None):
+        img = Image.open("tests/fixtures/images/cmyk-icc.jpg")
+        assert get_color_space(img) is None
+
+
+def test_ensure_srgb_handles_invalid_icc():
+    img = Image.new("RGB", (50, 50), "white")
+    img.info["icc_profile"] = b"invalid"
+    retval = ensure_srgb(img)
+    assert retval is None
+
+
+def test_ensure_srgb_missing_imagecms_runtimeerror():
+    with mock.patch("thumbor.utils.ImageCms", new=None):
+        img = Image.open("tests/fixtures/images/cmyk-icc.jpg")
+        with pytest.raises(RuntimeError):
+            ensure_srgb(img)
+
+
+def test_ensure_srgb_keeps_existing_srgb_profile():
+    img = Image.new("RGB", (50, 50), "white")
+    profile = ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB"))
+    img.info["icc_profile"] = profile.tobytes()
+    retval = ensure_srgb(img)
+    assert img is retval
+
+
+@pytest.mark.parametrize("color_space", ("LAB", "XYZ"))
+def test_ensure_srgb_returns_none_for_unsupported_color_space(color_space):
+    profile = ImageCms.ImageCmsProfile(ImageCms.createProfile(color_space))
+    img = Image.new("RGB", (50, 50), "white")
+    img.info["icc_profile"] = profile.tobytes()
+    retval = ensure_srgb(img)
+    assert retval is None

@@ -32,7 +32,8 @@ except ImportError:
     METADATA_AVAILABLE = False
 
 
-STORAGE_PATH = abspath(join(dirname(__file__), "../fixtures/images/"))
+FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
+STORAGE_PATH = join(FIXTURES_PATH, "images")
 
 
 class PilEngineTestCase(TestCase):
@@ -279,21 +280,6 @@ class PilEngineTestCase(TestCase):
             mock_save.assert_called_once()
             assert mock_save.call_args[1].get("codec") == "aom"
 
-    @skip_unless_avif
-    def test_avif_convert_cmyk_color_profile_to_srgb(self):
-        engine = Engine(self.context)
-        with open(join(STORAGE_PATH, "cmyk-icc.jpg"), "rb") as image_file:
-            buffer = image_file.read()
-        engine.load(buffer, ".jpg")
-        expect(engine.image.format).to_equal("JPEG")
-        expect(engine.image.getpixel((0, 0))).to_equal((102, 1, 45, 0))
-        avif_bytes = BytesIO(engine.read(".avif"))
-        with Image.open(avif_bytes) as img:
-            expect(img.format).to_equal("AVIF")
-            expect(img.mode).to_equal("RGB")
-            rgb_color = img.getpixel((0, 0))
-            expect(rgb_color).to_equal((148, 212, 212))
-
     @skip_unless_avif_encoder("svt")
     def test_avif_svt_odd_dimensions(self):
         self.context.config.AVIF_CODEC = "svt"
@@ -324,3 +310,38 @@ def test_avif_svt_codec_fallback(image_basename):
         engine.read(".avif")
         mock_save.assert_called_once()
         assert mock_save.call_args[1].get("codec") == "auto"
+
+
+@skip_unless_avif
+@pytest.mark.parametrize("srgb_profile", [None, "srgb.icc"])
+def test_avif_convert_cmyk_color_profile_to_srgb(srgb_profile):
+    context = PilEngineTestCase().get_context()
+    if srgb_profile:
+        context.config.SRGB_PROFILE = join(FIXTURES_PATH, srgb_profile)
+    engine = Engine(context)
+    with open(join(STORAGE_PATH, "cmyk-icc.jpg"), "rb") as image_file:
+        buffer = image_file.read()
+    engine.load(buffer, ".jpg")
+    expect(engine.image.getpixel((0, 0))).to_equal((102, 1, 45, 0))
+    avif_bytes = BytesIO(engine.read(".avif"))
+    with Image.open(avif_bytes) as img:
+        expect(img.format).to_equal("AVIF")
+        expect(img.mode).to_equal("RGB")
+        rgb_color = img.getpixel((0, 0))
+        expect(rgb_color).to_equal((148, 212, 212))
+
+
+@skip_unless_avif
+def test_avif_convert_gray_color_profile_to_srgb():
+    context = PilEngineTestCase().get_context()
+    engine = Engine(context)
+    with open(join(STORAGE_PATH, "grayscale-icc.jpg"), "rb") as image_file:
+        buffer = image_file.read()
+    engine.load(buffer, ".jpg")
+    expect(engine.image.getpixel((0, 0))).to_equal(186)
+    avif_bytes = BytesIO(engine.read(".avif"))
+    with Image.open(avif_bytes) as img:
+        expect(img.format).to_equal("AVIF")
+        expect(img.mode).to_equal("RGB")
+        rgb_color = img.getpixel((0, 0))
+        expect(rgb_color).to_equal((200, 200, 200))

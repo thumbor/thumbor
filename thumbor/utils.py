@@ -109,7 +109,7 @@ def ensure_srgb(img, srgb_profile=None):
         return img
 
     if ImageCms is None:
-        raise Exception("ImageCms is required for color profile utilities")
+        raise RuntimeError("ImageCms is required for color profile utilities")
 
     if srgb_profile is not None:
         srgb_profile = ImageCms.ImageCmsProfile(srgb_profile)
@@ -121,7 +121,7 @@ def ensure_srgb(img, srgb_profile=None):
         orig_profile = ImageCms.ImageCmsProfile(buf)
         color_space = orig_profile.profile.xcolor_space
     except (AttributeError, OSError, TypeError, ValueError):
-        return img
+        return None
     finally:
         buf.close()
 
