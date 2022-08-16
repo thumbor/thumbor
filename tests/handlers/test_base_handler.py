@@ -12,13 +12,14 @@ import shutil
 import tempfile
 from os.path import abspath, dirname, join
 from shutil import which
+from unittest import mock
 from urllib.parse import quote
 
 import tornado.web
 from preggy import expect
 from tornado.testing import gen_test
 
-from tests.base import TestCase
+from tests.base import TestCase, skip_unless_avif
 from tests.fixtures.images import (
     alabama1,
     default_image,
@@ -232,3 +233,21 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         )
         expect(response.code).to_equal(200)
         expect(response.body).to_be_png()
+
+    @skip_unless_avif
+    @gen_test
+    async def test_avif_quality_setting(self):
+        self.context.config.QUALITY = 80
+        self.context.config.AVIF_QUALITY = 50
+        with mock.patch.object(
+            Engine,
+            "read",
+            autospec=True,
+            side_effect=Engine.read,
+        ) as mock_read:
+            response = await self.async_fetch(
+                "/unsafe/filters:format(avif)/image.jpg"
+            )
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_avif()
+            mock_read.assert_called_with(mock.ANY, ".avif", 50)

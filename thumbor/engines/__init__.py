@@ -137,6 +137,8 @@ class BaseEngine:
             img_mime = "image/tiff"
         elif SVG_RE.search(buffer[:2048].replace(b"\0", b"")):
             img_mime = "image/svg+xml"
+        elif buffer[4:12] in (b"ftypavif", b"ftypavis"):
+            img_mime = "image/avif"
 
         return img_mime
 

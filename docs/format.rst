@@ -7,7 +7,7 @@ Description
 -----------
 
 This filter specifies the output format of the image. The output must be
-one of: "webp", "jpeg", "gif" or "png".
+one of: "webp", "jpeg", "gif", "png", or "avif".
 
 Arguments
 ---------

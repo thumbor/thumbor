@@ -34,6 +34,7 @@ class UtilsTestCase(TestCase):
         expect(CONTENT_TYPE.get(".svg")).to_equal("image/svg+xml")
         expect(CONTENT_TYPE.get(".tif")).to_equal("image/tiff")
         expect(CONTENT_TYPE.get(".tiff")).to_equal("image/tiff")
+        expect(CONTENT_TYPE.get(".avif")).to_equal("image/avif")
 
     @staticmethod
     def test_can_get_extension():
@@ -45,6 +46,7 @@ class UtilsTestCase(TestCase):
         expect(EXTENSION.get("video/webm")).to_equal(".webm")
         expect(EXTENSION.get("image/svg+xml")).to_equal(".svg")
         expect(EXTENSION.get("image/tiff")).to_equal(".tif")
+        expect(EXTENSION.get("image/avif")).to_equal(".avif")
 
     @staticmethod
     def test_can_get_logger():

@@ -13,11 +13,13 @@
 import datetime
 from io import BytesIO
 from os.path import abspath, dirname, join
-from unittest import TestCase, skipUnless
+from unittest import TestCase, skipUnless, mock
 
 from PIL import Image
 from preggy import expect
+import pytest
 
+from tests.base import skip_unless_avif, skip_unless_avif_encoder
 from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.engines.pil import Engine
@@ -252,3 +254,73 @@ class PilEngineTestCase(TestCase):
 
         # Image has total of 200x150=30000 pixels. Most of them should be transparent
         expect(transparent_pixels_count).to_be_greater_than(19000)
+
+    @skip_unless_avif
+    def test_convert_jpg_to_avif(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+        expect(engine.image.format).to_equal("JPEG")
+        avif_bytes = BytesIO(engine.read(".avif"))
+        with Image.open(avif_bytes) as img:
+            expect(img.format).to_equal("AVIF")
+
+    @skip_unless_avif_encoder("aom")
+    def test_avif_codec_setting(self):
+        self.context.config.AVIF_CODEC = "aom"
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+
+        with mock.patch("PIL.ImageFile.ImageFile.save") as mock_save:
+            engine.read(".avif")
+            mock_save.assert_called_once()
+            assert mock_save.call_args[1].get("codec") == "aom"
+
+    @skip_unless_avif
+    def test_avif_convert_cmyk_color_profile_to_srgb(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "cmyk-icc.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+        expect(engine.image.format).to_equal("JPEG")
+        expect(engine.image.getpixel((0, 0))).to_equal((102, 1, 45, 0))
+        avif_bytes = BytesIO(engine.read(".avif"))
+        with Image.open(avif_bytes) as img:
+            expect(img.format).to_equal("AVIF")
+            expect(img.mode).to_equal("RGB")
+            rgb_color = img.getpixel((0, 0))
+            expect(rgb_color).to_equal((148, 212, 212))
+
+    @skip_unless_avif_encoder("svt")
+    def test_avif_svt_odd_dimensions(self):
+        self.context.config.AVIF_CODEC = "svt"
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "1bit.png"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".png")
+        expect(engine.size).to_equal((691, 212))
+        avif_bytes = BytesIO(engine.read(".avif"))
+        with Image.open(avif_bytes) as img:
+            expect(img.format).to_equal("AVIF")
+            expect(img.size).to_equal((690, 212))
+
+
+@skip_unless_avif_encoder("svt")
+@pytest.mark.parametrize(
+    "image_basename", ("20x20.jpg", "Christophe_Henner_-_June_2016.jpg")
+)
+def test_avif_svt_codec_fallback(image_basename):
+    context = PilEngineTestCase().get_context()
+    context.config.AVIF_CODEC = "svt"
+    engine = Engine(context)
+    with open(join(STORAGE_PATH, image_basename), "rb") as image_file:
+        buffer = image_file.read()
+    engine.load(buffer, ".jpg")
+
+    with mock.patch("PIL.ImageFile.ImageFile.save") as mock_save:
+        engine.read(".avif")
+        mock_save.assert_called_once()
+        assert mock_save.call_args[1].get("codec") == "auto"

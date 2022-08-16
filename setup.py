@@ -48,6 +48,7 @@ EXTRA_LIBS_REQUIREMENTS = [
     "cairosvg>=2.5.2",
     "pycurl==7.*,>=7.43.0",
     "py3exiv2>=0.*,<0.7.2",
+    "pillow-avif-plugin==1.*,>=1.2.2",
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS

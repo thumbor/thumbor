@@ -116,6 +116,50 @@ Config.define(
 )
 
 Config.define(
+    "AVIF_QUALITY",
+    None,
+    "Quality index used for generated AVIF images. If not set (None) the same "
+    "level of JPEG quality will be used. Controls the max quantizer setting, "
+    "with quality=0 corresponding to max quantizer 63, and quality=100 to "
+    "max quantizer=0",
+    "Imaging",
+)
+
+Config.define(
+    "AVIF_SPEED",
+    None,
+    "Quality/speed trade-off (0=slower-better, 10=fastest).",
+    "Imaging",
+)
+
+Config.define(
+    "AVIF_CODEC",
+    "auto",
+    "Codec to use for encoding AVIF images. Can be `auto`, `aom`, `rav1e`, "
+    "or `svt`, depending on what is compiled into libavif.",
+    "Imaging",
+)
+
+Config.define(
+    "AVIF_CODEC_FALLBACK",
+    "auto",
+    "Codec to use for encoding AVIF images if `AVIF_CODEC` cannot be used. "
+    "For instance, if AVIF_CODEC is `svt` but an image is too small or too "
+    "large to be encoded with that codec, the image will be encoded using "
+    "the codec from this setting instead.",
+    "Imaging",
+)
+
+Config.define(
+    "SRGB_PROFILE",
+    None,
+    "Path to the file containing the sRGB ICC profile to use when images need "
+    "to be converted from other color spaces. If None, uses the default SRGB "
+    "profile from Pillow ImageCMS.",
+    "Imaging",
+)
+
+Config.define(
     "PNG_COMPRESSION_LEVEL",
     6,
     "Compression level for generated PNG images.",
