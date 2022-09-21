@@ -60,6 +60,13 @@ class PilEngineTestCase(TestCase):
         image = engine.create_image(buffer)
         expect(image.format).to_equal("JPEG")
 
+    def test_load_jp2_image(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jp2"), "rb") as image_file:
+            buffer = image_file.read()
+        image = engine.create_image(buffer)
+        expect(image.format).to_equal("JPEG2000")
+
     def test_load_tif_16bit_per_channel_lsb(self):
         engine = Engine(self.context)
         with open(
