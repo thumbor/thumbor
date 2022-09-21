@@ -91,7 +91,7 @@ def int2long(i):
 # getheader gives a 87a header and a color palette (two elements in a list).
 # getdata()[0] gives the Image Descriptor up to (including)
 # "LZW min code size".
-# getdatas()[1:] is the image data itself in chuncks of 256 bytes (well
+# getdatas()[1:] is the image data itself in chunks of 256 bytes (well
 # technically the first byte says how many bytes follow, after which that
 # amount (max 255) follows).
 
@@ -387,7 +387,7 @@ class GifWriter:
         Given a set of images writes the bytes to the specified stream.
 
         """
-        # Obtain palette for all images and count each occurance
+        # Obtain palette for all images and count each occurrence
         palettes, occur = [], []
         for im in images:
             header, usedPaletteColors = getheader(im)
@@ -484,7 +484,7 @@ def writeGif(
     duration : scalar or list of scalars
         The duration for all frames, or (if a list) for each frame.
     repeat : bool or integer
-        The amount of loops. If True, loops infinitetely.
+        The amount of loops. If True, loops infinitely.
     dither : bool
         Whether to apply dithering
     nq : integer

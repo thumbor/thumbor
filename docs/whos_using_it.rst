@@ -142,7 +142,7 @@ slogan into an original tee and order it immediately.
 
 `HeyCar <https://hey.car/>`__
 
-    HeyCar is using Thumbor to optmize images for each customers device, taking network and screen sizes into account.
+    HeyCar is using Thumbor to optimize images for each customers device, taking network and screen sizes into account.
 
     Our Thumbor instances run on our Kubernetes Cluster, served behind a CloudFront instance for caching purposes.
 
