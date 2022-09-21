@@ -66,6 +66,7 @@ Java
 PHP
 ~~~
 
+-  `Thumbor-PHP <https://github.com/beeyev/thumbor-php`__ - PHP implementation of URL generator for Thumbor. It also supports Laravel Framework.
 -  `Phumbor <https://github.com/99designs/phumbor>`__ - A minimal PHP
    client for generating Thumbor URLs.
 -  `Phumbor for Laravel <https://github.com/ceejayoz/laravel-phumbor>`__
