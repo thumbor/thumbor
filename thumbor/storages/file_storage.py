@@ -60,7 +60,6 @@ class Storage(storages.BaseStorage):
                 security_key = self.context.server.security_key.encode()
             except (UnicodeDecodeError, AttributeError):
                 security_key = self.context.server.security_key
-                pass
             _file.write(security_key)
 
         move(temp_abspath, crypto_path)
