@@ -19,7 +19,7 @@ class NoiseFilterTestCase(FilterTestCase):
     @gen_test
     async def test_noise_filter(self):
         image = await self.get_filtered(
-            "source.jpg", "thumbor.filters.noise", "noise(200,123)"
+            "source.jpg", "thumbor.filters.noise", "noise(200,123,1)"
         )
         expected = self.get_fixture("noise.png")
 
