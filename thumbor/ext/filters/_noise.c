@@ -24,11 +24,11 @@ _noise_apply(PyObject *self, PyObject *args)
         size -= num_bytes;
 
         if (seed_int > 0) {
-            srand(seed_int);
+            srandom(seed_int);
         }
 
         for (; i <= size; i += num_bytes) {
-            rand_val = (rand() % amount_int) - (amount_int >> 1);
+            rand_val = (random() % amount_int) - (amount_int >> 1);
 
             r = ptr[i + r_idx];
             g = ptr[i + g_idx];
