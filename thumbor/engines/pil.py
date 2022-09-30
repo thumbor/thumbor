@@ -81,7 +81,7 @@ class Engine(BaseEngine):
         self.exif = img.info.get("exif")
         self.original_mode = img.mode
 
-        if getattr(img, "layers", None):
+        if getattr(img, "layers", None) and getattr(img, "layer", None):
             self.subsampling = JpegImagePlugin.get_sampling(img)
             if self.subsampling == -1:  # n/a for this file
                 self.subsampling = None

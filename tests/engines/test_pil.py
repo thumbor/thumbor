@@ -59,6 +59,7 @@ class PilEngineTestCase(TestCase):
             buffer = image_file.read()
         image = engine.create_image(buffer)
         expect(image.format).to_equal("JPEG")
+        expect(engine.subsampling).to_equal(0)
 
     def test_load_jp2_image(self):
         engine = Engine(self.context)
@@ -66,6 +67,17 @@ class PilEngineTestCase(TestCase):
             buffer = image_file.read()
         image = engine.create_image(buffer)
         expect(image.format).to_equal("JPEG2000")
+        expect(engine.subsampling).to_be_null()
+
+    def test_load_psd_image(self):
+        engine = Engine(self.context)
+        with open(
+            join(STORAGE_PATH, "Guido-portrait-2014.psd"), "rb"
+        ) as image_file:
+            buffer = image_file.read()
+        image = engine.create_image(buffer)
+        expect(image.format).to_equal("PSD")
+        expect(engine.subsampling).to_be_null()
 
     def test_load_tif_16bit_per_channel_lsb(self):
         engine = Engine(self.context)
