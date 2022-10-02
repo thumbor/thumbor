@@ -16,7 +16,7 @@ from tests.base import FilterTestCase
 
 
 class BackgroundColorFilterTestCase(FilterTestCase):
-    def config_context(context):
+    def config_context(self, context):
         context.request.fit_in = True
         context.request.width = 300
         context.request.height = 300
