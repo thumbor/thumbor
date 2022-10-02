@@ -13,16 +13,16 @@ from thumbor.filters import BaseFilter, filter_method
 from thumbor.filters.blur import apply_blur
 
 
-def get_median_color(context):
-    mode, data = context.engine.image_data_as_rgb()
-    red, green, blue = _fill.apply(mode, data)
-    return "%02x%02x%02x" % (  # pylint: disable=consider-using-f-string
-        red,
-        green,
-        blue,
-    )
-
 class Filter(BaseFilter):
+    def get_median_color(self):
+        mode, data = self.engine.image_data_as_rgb()
+        red, green, blue = _fill.apply(mode, data)
+        return "%02x%02x%02x" % (  # pylint: disable=consider-using-f-string
+            red,
+            green,
+            blue,
+        )
+
     @filter_method(r"[\w]+", BaseFilter.Boolean)
     async def fill(self, color, fill_transparent=False):
         self.fill_engine = self.engine.__class__(self.context)
@@ -41,7 +41,7 @@ class Filter(BaseFilter):
         # we will calculate the median color of
         # all the pixels in the image and return
         if color == "auto":
-            color = get_median_color(self)
+            color = self.get_median_color()
 
         if color == "blur":
             self.fill_engine.image = self.fill_engine.gen_image(

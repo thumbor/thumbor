@@ -16,18 +16,18 @@ from tests.base import FilterTestCase
 
 
 class BackgroundColorFilterTestCase(FilterTestCase):
+    def config_context(context):
+        context.request.fit_in = True
+        context.request.width = 300
+        context.request.height = 300
+
     @gen_test
     async def test_background_color_filter_with_fixed_color(self):
-        def config_context(context):
-            context.request.fit_in = True
-            context.request.width = 300
-            context.request.height = 300
-
         image = await self.get_filtered(
             "PNG_transparency_demonstration_1.png",
             "thumbor.filters.background_color",
             "background_color(blue)",
-            config_context=config_context,
+            config_context=self.config_context,
         )
 
         expected = self.get_fixture(
@@ -39,16 +39,11 @@ class BackgroundColorFilterTestCase(FilterTestCase):
 
     @gen_test
     async def test_background_color_filter_with_auto_color(self):
-        def config_context(context):
-            context.request.fit_in = True
-            context.request.width = 300
-            context.request.height = 300
-
         image = await self.get_filtered(
             "PNG_transparency_demonstration_1.png",
             "thumbor.filters.background_color",
             "background_color(auto)",
-            config_context=config_context,
+            config_context=self.config_context,
         )
 
         expected = self.get_fixture(

@@ -18,8 +18,8 @@ from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
+from thumbor.filters.fill import Filter
 from thumbor.utils import deprecated, logger
-from thumbor.filters.fill import get_median_color
 
 try:
     from thumbor.ext.filters import _composite
@@ -68,9 +68,9 @@ class Engine(BaseEngine):
         if color == "transparent":
             color = None
         if color == "auto":
-            color = get_median_color(self.context.modules)
+            color = Filter.get_median_color(self.context.modules)
             color = f"#{color}"
-            
+
         img = Image.new("RGBA", size, color)
 
         return img
