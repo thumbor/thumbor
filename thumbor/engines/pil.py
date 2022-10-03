@@ -18,6 +18,7 @@ from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
+from thumbor.filters.fill import Filter
 from thumbor.utils import deprecated, logger
 
 try:
@@ -66,6 +67,10 @@ class Engine(BaseEngine):
     def gen_image(self, size, color):
         if color == "transparent":
             color = None
+        elif color == "auto":
+            color = Filter.get_median_color(self.context.modules)
+            color = f"#{color}"
+
         img = Image.new("RGBA", size, color)
 
         return img
