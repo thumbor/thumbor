@@ -67,7 +67,7 @@ class Engine(BaseEngine):
     def gen_image(self, size, color):
         if color == "transparent":
             color = None
-        if color == "auto":
+        elif color == "auto":
             color = Filter.get_median_color(self.context.modules)
             color = f"#{color}"
 
