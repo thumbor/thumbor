@@ -72,7 +72,7 @@ class PilEngineTestCase(TestCase):
     def test_load_psd_image(self):
         engine = Engine(self.context)
         with open(
-            join(STORAGE_PATH, "Guido-portrait-2014.psd"), "rb"
+            join(STORAGE_PATH, "1x1.psd"), "rb"
         ) as image_file:
             buffer = image_file.read()
         image = engine.create_image(buffer)
