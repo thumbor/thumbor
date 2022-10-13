@@ -69,7 +69,7 @@ Learn more about all you can do in [thumbor's documentation](http://thumbor.read
 
 ## ⚙️ Installation
 
-Decide which installation option you want to use.
+Decide according to the OS/device which installation option you want to use.
 
 ### Option 1: pip
 
@@ -92,7 +92,7 @@ sudo aptitude update
 sudo aptitude install thumbor
 ```
 
-For more ways, please check out [Installation](https://thumbor.readthedocs.io/en/latest/installing.html).
+For more ways, please check out the[Installation](https://thumbor.readthedocs.io/en/latest/installing.html).
 
 ### Run
 
@@ -104,9 +104,9 @@ thumbor
 
 After this, you can reach it on https://localhost:8888/unsafe/https://raw.githubusercontent.com/thumbor/thumbor/master/example.jpg
 
-### Troubles?
+### Troubleshooting
 
-If you experience any troubles, try running:
+If you experience any difficulties, try running:
 
 ```bash
 thumbor-doctor
