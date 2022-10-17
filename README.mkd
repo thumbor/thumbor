@@ -148,8 +148,8 @@ thumbor is an open-source project with many contributors. Join them
 
 If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? Only 2 questions!
 
-Join the chat at https://gitter.im/thumbor/thumbor
-
+Join the chat at https://gitter.im/thumbor/thumbor             
+*This article can also be read in [Brazilian Portuguese](README-pt-BR.md).*
 ## 👀 Demo
 
 You can see thumbor in action at http://thumborize.me/
