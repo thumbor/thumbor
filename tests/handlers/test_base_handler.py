@@ -236,6 +236,15 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
     @skip_unless_avif
     @gen_test
+    async def test_avif_format(self):
+        response = await self.async_fetch(
+            "/unsafe/filters:format(avif)/image.jpg"
+        )
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_avif()
+
+    @skip_unless_avif
+    @gen_test
     async def test_avif_quality_setting(self):
         self.context.config.QUALITY = 80
         self.context.config.AVIF_QUALITY = 50
