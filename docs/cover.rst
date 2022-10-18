@@ -1,5 +1,5 @@
 Cover
-========
+=====
 
 Usage: `cover()`
 
@@ -9,7 +9,12 @@ Description
 This filter is used in GIFs to extract their first frame as the image to be used as cover.
 
 .. note::
-This filter will only function when `USE_GIFSICLE_ENGINE = True` are set to true on `thumbor.conf`
+
+    This filter will only function when ``USE_GIFSICLE_ENGINE`` are set to ``True`` in ``thumbor.conf``:
+
+.. code:: python
+
+    USE_GIFSICLE_ENGINE = True
 
 Arguments
 ---------
