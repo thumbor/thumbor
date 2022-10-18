@@ -315,6 +315,9 @@ class Engine(BaseEngine):
                     height = (height // 2) * 2
                     self.crop(0, 0, width, height)
 
+            if options["quality"] == "keep":
+                options.pop("quality")
+
             if self.image.mode not in ["RGB", "RGBA"]:
                 if self.image.mode == "P":
                     mode = "RGBA"
