@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import logging
 import shutil
 import tempfile
 from os.path import abspath, dirname, join
@@ -15,10 +16,12 @@ from shutil import which
 from unittest import mock
 from urllib.parse import quote
 
+import pytest
 import tornado.web
 from preggy import expect
 from tornado.testing import gen_test
 
+import thumbor.engines.pil
 from tests.base import TestCase, skip_unless_avif
 from tests.fixtures.images import (
     alabama1,
@@ -34,6 +37,11 @@ from thumbor.importer import Importer
 
 JPEGTRAN_AVAILABLE = which("jpegtran") is not None
 EXIFTOOL_AVAILABLE = which("exiftool") is not None
+
+
+@pytest.fixture(scope="function")
+def unittest_caplog(request, caplog):
+    request.function.__self__.caplog = caplog
 
 
 class ErrorHandler(BaseHandler):
@@ -242,6 +250,24 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         )
         expect(response.code).to_equal(200)
         expect(response.body).to_be_avif()
+
+    @gen_test
+    @pytest.mark.usefixtures("unittest_caplog")
+    async def test_avif_unavailable(self):
+        self.caplog.set_level(logging.WARNING)
+        with mock.patch.object(thumbor.engines.pil, "HAVE_AVIF", False):
+            response = await self.async_fetch(
+                "/unsafe/filters:format(avif)/image.jpg"
+            )
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_jpeg()
+            assert self.caplog.record_tuples == [
+                (
+                    "thumbor",
+                    logging.WARNING,
+                    "[PILEngine] AVIF encoding unavailable, defaulting to JPEG",
+                )
+            ]
 
     @skip_unless_avif
     @gen_test
