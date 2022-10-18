@@ -69,6 +69,8 @@ class BaseImagingTestCase(TestCase):
 
 
 class ImagingOperationsTestCase(BaseImagingTestCase):
+    caplog = None  # can be added by unittest_caplog fixture
+
     def get_context(self):
         cfg = Config(SECURITY_KEY="ACME-SEC")
         cfg.LOADER = "thumbor.loaders.file_loader"
