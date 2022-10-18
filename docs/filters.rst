@@ -31,6 +31,7 @@ Available Filters
    brightness
    contrast
    convolution
+   cover
    equalize
    extract_focal_points
    filling

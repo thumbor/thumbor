@@ -340,7 +340,7 @@ well as static gifs with the smallest possible size.**
 
    USE_GIFSICLE_ENGINE = True
 
-WARNING: When using gifsicle engine, filters will be skipped. thumbor
+WARNING: When using gifsicle engine, filters will be skipped, except for `cover()` filter. thumbor
 will not do smart cropping as well.
 
 AUTO\_WEBP
