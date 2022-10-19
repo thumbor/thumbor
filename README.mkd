@@ -65,7 +65,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
 
 You should see an image of the thumbor logo in 300x200.
 
-Learn more about all you can do in [thumbor's documentation](http://thumbor.readthedocs.org/en/latest/index.html "thumbor docs").
+Learn more about all you can do in [thumbor's documentation](http://thumbor.readthedocs.io/en/latest/index.html "thumbor docs").
 
 ## ⚙️ Installation
 
