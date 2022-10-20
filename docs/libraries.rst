@@ -124,7 +124,7 @@ Here's how it was implemented in Ruby:
 
     def sign_in_thumbor(key, str)
         #bash command to call thumbor's decrypt method
-        command = "python -c 'from thumbor.crypto import Signer; signer = Signer(\"" << key << "\"); print signer.signature(\"" << str << "\")'"
+        command = "python3 -c 'from libthumbor.url_signers.base64_hmac_sha1 import UrlSigner; signer = UrlSigner(\"" << key << "\"); print(signer.signature(\"" << str << "\").decode(\"utf-8\"))'"
 
         #execute it in the shell using ruby's popen mechanism
         result = Array.new
