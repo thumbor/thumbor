@@ -52,7 +52,7 @@ Crop, resize, transform and much more, all on-demand and AI Powered
   and many more!
 </p>
 
-thumbor is a smart imaging service and enables on-demand [cropping, resizing, applying filters and optimizing](http://thumbor.readthedocs.io/en/latest/crop_and_resize_algorithms.html) images.
+thumbor is a smart imaging service that enables on-demand [cropping, resizing, applying filters and optimizing](http://thumbor.readthedocs.io/en/latest/crop_and_resize_algorithms.html) images.
 
 Cropping photos automatically can be a frustrating experience with severed heads involved. thumbor
 uses [AI for smart detection](http://thumbor.readthedocs.io/en/latest/detection_algorithms.html).
@@ -77,7 +77,7 @@ Decide which installation option you want to use.
 # thumbor with main dependencies only
 pip install thumbor
 
-# thumbor with opencv dependency
+# thumbor with OpenCV dependency
 pip install thumbor[opencv]
 
 # thumbor with all dependencies
@@ -129,7 +129,7 @@ thumbor-doctor --nocolor -c thumbor.conf
 - supports all common images formats out of the box
 - [intelligent cropping and resizing](http://thumbor.readthedocs.io/en/latest/detection_algorithms.html)
 - blazing fast using caching
-- supports many storages (local storage, AWS S3, rackspace, ceph, ...)
+- supports many storages (local storage, AWS S3, Rackspace, Ceph, ...)
 - AI-powered cropping based on face and feature detection (glasses, interesting points, ...)
 - integrated with many programming languages and frameworks <img src="https://www.python.org/favicon.ico" width="16" height="16" /><img src="https://nodejs.org/static/images/favicons/favicon-32x32.png" width="16" height="16" /><img src="https://rubygems.org/favicon.ico" width="16" height="16" /> and many more...
 - [highly extensible](https://thumbor.readthedocs.io/en/latest/customizing.html)
@@ -138,7 +138,7 @@ thumbor-doctor --nocolor -c thumbor.conf
 
 [awesome-thumbor](https://github.com/thumbor/awesome-thumbor) is a curated list of all things thumbor. There you can find filters, storages, engines, loaders, docker images, extensions in your favorite language and framework, and much more.
 
-All of it with clear indication of each project quality. Have fun!
+All of it with a clear indication of each project's quality. Have fun!
 
 ## 👍 Contribute
 
