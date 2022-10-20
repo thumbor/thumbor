@@ -2,8 +2,16 @@ name: build
 on:
   push:
   pull_request:
+
+permissions:
+  checks: write # to create new checks (coverallsapp/github-action)
+
 jobs:
   build:
+    permissions:
+      contents: read # to fetch code (actions/checkout)
+      checks: write # to create new checks (coverallsapp/github-action)
+
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
