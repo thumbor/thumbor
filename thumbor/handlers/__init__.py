@@ -480,6 +480,11 @@ class BaseHandler(tornado.web.RequestHandler):
                 and self.context.config.WEBP_QUALITY is not None
             ):
                 quality = self.context.config.get("WEBP_QUALITY")
+            elif (
+                image_extension == ".avif"
+                and self.context.config.AVIF_QUALITY is not None
+            ):
+                quality = self.context.config.AVIF_QUALITY
             else:
                 quality = self.context.config.QUALITY
 

@@ -162,6 +162,12 @@ class BaseEngineTestCase(TestCase):
         mime = self.engine.get_mimetype(buffer)
         expect(mime).to_equal("image/svg+xml")
 
+    def test_can_identify_avif(self):
+        with open(join(STORAGE_PATH, "image.avif"), "rb") as image:
+            buffer = image.read()
+        mime = self.engine.get_mimetype(buffer)
+        expect(mime).to_equal("image/avif")
+
     def test_convert_svg_already_converted_to_png(self):
         svg_buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">

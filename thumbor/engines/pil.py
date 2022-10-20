@@ -19,7 +19,7 @@ from PIL import features as pillow_features
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
 from thumbor.filters.fill import Filter
-from thumbor.utils import deprecated, logger
+from thumbor.utils import deprecated, ensure_srgb, get_color_space, logger
 
 try:
     from thumbor.ext.filters import _composite
@@ -28,6 +28,17 @@ try:
 except ImportError:
     FILTERS_AVAILABLE = False
 
+try:
+    from PIL import _avif  # pylint: disable=ungrouped-imports
+except ImportError:
+    try:
+        from pillow_avif import _avif
+    except ImportError:
+        _avif = None
+
+HAVE_AVIF = _avif is not None
+
+
 FORMATS = {
     ".tif": "PNG",  # serve tif as png
     ".jpg": "JPEG",
@@ -35,6 +46,7 @@ FORMATS = {
     ".gif": "GIF",
     ".png": "PNG",
     ".webp": "WEBP",
+    ".avif": "AVIF",
 }
 
 ImageFile.MAXBLOCK = 2**25
@@ -279,6 +291,55 @@ class Engine(BaseEngine):
 
         if options["quality"] is None:
             options["quality"] = self.context.config.QUALITY
+
+        if ext == ".avif" and not HAVE_AVIF:
+            logger.warning(
+                "[PILEngine] AVIF encoding unavailable, defaulting to JPEG"
+            )
+            ext = ".jpg"
+
+        if ext == ".avif":
+            options["codec"] = self.context.config.AVIF_CODEC
+            if self.context.config.AVIF_SPEED:
+                options["speed"] = self.context.config.AVIF_SPEED
+
+            if options["codec"] == "svt":
+                width, height = self.size
+                # SVT-AV1 has limits on min and max image dimension. If the
+                # image falls outside of those, use AVIF_CODEC_FALLBACK
+                if not 64 <= width <= 4096 or not 64 <= height <= 4096:
+                    options["codec"] = self.context.config.AVIF_CODEC_FALLBACK
+                elif width % 2 or height % 2:
+                    # SVT-AV1 requires width and height to be divisible by two
+                    width = (width // 2) * 2
+                    height = (height // 2) * 2
+                    self.crop(0, 0, width, height)
+
+            if options["quality"] == "keep":
+                options.pop("quality")
+
+            if self.image.mode not in ["RGB", "RGBA"]:
+                if self.image.mode == "P":
+                    mode = "RGBA"
+                else:
+                    mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
+                self.image = self.image.convert(mode)
+
+            # Some AVIF decoders (most notably the one in Chrome) do not
+            # display AVIF images if they have an embedded ICC profile with a
+            # color space that doesn't match the image's mode (e.g. if the
+            # mode is RGB but the profile is CMYK or GRAY).
+            #
+            # To address this issue we transform non-sRGB ICC profiles to sRGB
+            # if we're encoding to AVIF.
+            color_space = get_color_space(self.image)
+            if color_space not in ("RGB", None):
+                srgb_image = ensure_srgb(
+                    self.image, srgb_profile=self.context.config.SRGB_PROFILE
+                )
+                if srgb_image:
+                    self.image = srgb_image
+                    self.icc_profile = srgb_image.info.get("icc_profile")
 
         if self.icc_profile is not None:
             options["icc_profile"] = self.icc_profile

@@ -127,6 +127,8 @@ class BaseEngine:
             img_mime = "image/webp"
         elif buffer.startswith(b"\x00\x00\x00\x0c"):
             img_mime = "image/jp2"
+        elif buffer[4:12] in (b"ftypavif", b"ftypavis"):
+            img_mime = "image/avif"
         elif buffer.startswith(b"\x00\x00\x00 ftyp"):
             img_mime = "video/mp4"
         elif buffer.startswith(b"\x1aE\xdf\xa3"):

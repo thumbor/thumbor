@@ -11,6 +11,7 @@
 import unicodedata
 from io import BytesIO
 from os.path import exists
+from unittest import skipUnless
 
 from PIL import Image
 from preggy import create_assertions
@@ -19,6 +20,28 @@ from thumbor.testing import DetectorTestCase as ThumborDetectorTestCase
 from thumbor.testing import FilterTestCase as ThumborFilterTestCase
 from thumbor.testing import TestCase as ThumborTestCase
 from thumbor.testing import get_ssim
+
+try:
+    from PIL import _avif  # noqa pylint: disable=ungrouped-imports
+except ImportError:
+    try:
+        from pillow_avif import _avif
+    except ImportError:
+        _avif = None
+
+AVIF_AVAILABLE = _avif is not None
+
+skip_unless_avif = skipUnless(
+    AVIF_AVAILABLE,
+    "AVIF format support not found. Skipping AVIF tests.",
+)
+
+
+def skip_unless_avif_encoder(codec_name):
+    return skipUnless(
+        _avif and _avif.encoder_codec_available(codec_name),
+        f"{codec_name} encode not available",
+    )
 
 
 class TestCase(ThumborTestCase):
@@ -75,6 +98,12 @@ def to_be_similar_to(topic, expected):
 def to_be_webp(topic):
     image = Image.open(BytesIO(topic))
     return image.format.lower() == "webp"
+
+
+@create_assertions
+def to_be_avif(topic):
+    image = Image.open(BytesIO(topic))
+    return image.format.lower() == "avif"
 
 
 @create_assertions

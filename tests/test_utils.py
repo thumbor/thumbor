@@ -13,8 +13,17 @@ from shutil import which
 from unittest import TestCase, mock
 
 from preggy import expect
+import pytest
+from PIL import Image, ImageCms
 
-from thumbor.utils import CONTENT_TYPE, EXTENSION, deprecated, logger
+from thumbor.utils import (
+    CONTENT_TYPE,
+    EXTENSION,
+    deprecated,
+    logger,
+    ensure_srgb,
+    get_color_space,
+)
 
 
 class UtilsTestCase(TestCase):
@@ -34,6 +43,7 @@ class UtilsTestCase(TestCase):
         expect(CONTENT_TYPE.get(".svg")).to_equal("image/svg+xml")
         expect(CONTENT_TYPE.get(".tif")).to_equal("image/tiff")
         expect(CONTENT_TYPE.get(".tiff")).to_equal("image/tiff")
+        expect(CONTENT_TYPE.get(".avif")).to_equal("image/avif")
 
     @staticmethod
     def test_can_get_extension():
@@ -45,6 +55,7 @@ class UtilsTestCase(TestCase):
         expect(EXTENSION.get("video/webm")).to_equal(".webm")
         expect(EXTENSION.get("image/svg+xml")).to_equal(".svg")
         expect(EXTENSION.get("image/tiff")).to_equal(".tif")
+        expect(EXTENSION.get("image/avif")).to_equal(".avif")
 
     @staticmethod
     def test_can_get_logger():
@@ -89,3 +100,54 @@ class UtilsTestCase(TestCase):
     @staticmethod
     def test_logger_should_not_be_an_error():
         expect(logger).not_to_be_an_error()
+
+
+def test_get_color_space_handles_invalid_icc():
+    img = Image.new("RGB", (50, 50), "white")
+    img.info["icc_profile"] = b"invalid"
+    result = get_color_space(img)
+    assert result is None
+
+
+def test_get_color_space_missing_imagecms_returns_none():
+    with mock.patch("thumbor.utils.ImageCms", new=None):
+        img = Image.open("tests/fixtures/images/cmyk-icc.jpg")
+        assert get_color_space(img) is None
+
+
+def test_ensure_srgb_handles_invalid_icc():
+    img = Image.new("RGB", (50, 50), "white")
+    img.info["icc_profile"] = b"invalid"
+    retval = ensure_srgb(img)
+    assert retval is None
+
+
+def test_ensure_srgb_missing_imagecms_runtimeerror():
+    with mock.patch("thumbor.utils.ImageCms", new=None):
+        img = Image.open("tests/fixtures/images/cmyk-icc.jpg")
+        with pytest.raises(RuntimeError):
+            ensure_srgb(img)
+
+
+def test_ensure_srgb_keeps_existing_srgb_profile():
+    img = Image.new("RGB", (50, 50), "white")
+    profile = ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB"))
+    img.info["icc_profile"] = profile.tobytes()
+    retval = ensure_srgb(img)
+    assert img is retval
+
+
+@pytest.mark.parametrize("color_space", ("LAB", "XYZ"))
+def test_ensure_srgb_returns_none_for_unsupported_color_space(color_space):
+    profile = ImageCms.ImageCmsProfile(ImageCms.createProfile(color_space))
+    img = Image.new("RGB", (50, 50), "white")
+    img.info["icc_profile"] = profile.tobytes()
+    retval = ensure_srgb(img)
+    assert retval is None
+
+
+def test_ensure_srgb_returns_none_for_animated_cmyk():
+    img = Image.open("tests/fixtures/images/cmyk-icc.jpg")
+    with mock.patch.object(img, "is_animated", new=True, create=True):
+        retval = ensure_srgb(img)
+        assert retval is None
