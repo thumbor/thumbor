@@ -12,31 +12,78 @@ permissions:
   contents: read
   packages: write
 
+env:
+  python-version: "3.10"
+
 jobs:
-  release:
+  # Heavily inspired on https://github.com/tornadoweb/tornado/blob/master/.github/workflows/build.yml
+  build_sdist:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
         id: setup-python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: ${{ env.python-version }}
       - name: Install dependencies
         run: |
           pip install -U pip
       - name: Build package
         run: python setup.py sdist
-      - name: Publish a Python distribution to PyPI
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./dist/thumbor-*.tar.gz
+
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, macOS-11]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: ${{ env.python-version }}
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.11.1
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  upload_pypi:
+    name: Upload to PyPI
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+
+      - run: ls -lah dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.5.1
         if: github.event_name != 'pull_request'
-        uses: pypa/gh-action-pypi-publish@v1.5.1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
           skip_existing: true
 
   docker:
-    needs: release
+    needs: upload_pypi
     runs-on: ubuntu-latest
     strategy:
       matrix:

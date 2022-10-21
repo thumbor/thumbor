@@ -6,9 +6,9 @@ double* normalize_kernel(PyObject *kernel, Py_ssize_t size, PyObject *should_nor
     double *items = (double*)malloc(size * sizeof(double));
 
     for (i = 0; i < size; ++i) {
-        PyObject *obj = PyTuple_GET_ITEM(kernel, i);
+        PyObject *obj = PyTuple_GetItem(kernel, i);
         if (PyFloat_Check(obj)) {
-            sum += (items[i] = PyFloat_AS_DOUBLE(obj));
+            sum += (items[i] = PyFloat_AsDouble(obj));
         }
         if (PyLong_Check(obj)) {
             sum += (items[i] = (double)PyLong_AS_LONG(obj));

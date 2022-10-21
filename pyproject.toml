@@ -2,3 +2,16 @@
 line-length = 79
 target-version = ['py310']
 include = '\.pyi?$'
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+build = "cp3[6789]* cp310*"
+
+[tool.cibuildwheel.macos]
+archs = "x86_64 arm64 universal2"
+
+[tool.cibuildwheel.linux]
+archs = "auto aarch64"
