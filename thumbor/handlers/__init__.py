@@ -630,6 +630,9 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header("Server", f"Thumbor/{__version__}")
         self.set_header("Content-Type", content_type)
 
+        if self.context.config.ENABLE_CANONICAL_HEADER:
+            self.set_header("link", f'<{self.context.request.image_url}>; rel="canonical"')
+
         if isinstance(results, ResultStorageResult):
             buffer = results.buffer
         else:

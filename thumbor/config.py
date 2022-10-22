@@ -342,6 +342,9 @@ Config.define(
     "ENABLE_ETAGS", True, "Enables automatically generated etags", "HTTP"
 )
 Config.define(
+    "ENABLE_CANONICAL_HEADER", False, "EEnables link header with original url image", "HTTP"
+)
+Config.define(
     "MAX_ID_LENGTH",
     32,
     "Set maximum id length for images when stored",

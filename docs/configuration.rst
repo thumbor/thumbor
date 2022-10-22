@@ -1037,6 +1037,10 @@ Example of Configuration File
    ## Defaults to: True
    #ENABLE_ETAGS = True
 
+   ## Enables link header with original url image
+   ## Defaults to: False
+   #ENABLE_CANONICAL_HEADER = False
+
    ################################################################################
 
 
