@@ -2,7 +2,9 @@
 
 <p align="center">
   <!-- <img title="thumbor" alt="thumbor" src="https://raw.github.com/thumbor/thumbor/master/logo-thumbor.png" /> -->
+  <a href="http://www.thumbor.org">
   <img title="thumbor" alt="thumbor" src="https://github.com/thumbor/thumbor/blob/readme/docs/thumbor-logo.png?raw=true" />
+  </a>
 </p>
 
 <h3 align="center">
