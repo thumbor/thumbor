@@ -631,7 +631,9 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", content_type)
 
         if self.context.config.ENABLE_CANONICAL_HEADER:
-            self.set_header("link", f'<{self.context.request.image_url}>; rel="canonical"')
+            self.set_header(
+                "link", f'<{self.context.request.image_url}>; rel="canonical"'
+            )
 
         if isinstance(results, ResultStorageResult):
             buffer = results.buffer
