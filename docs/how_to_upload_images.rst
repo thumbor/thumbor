@@ -171,7 +171,7 @@ the HTTP **POST** request was send to the server :
     Content-Length: 822
     Slug : photo.jpg
 
-and the Thumbor server should return :
+and the Thumbor server should return:
 
 ::
 
@@ -208,7 +208,7 @@ the HTTP **POST** request was send to the server :
     Content-Type: multipart/form-data; boundary=----------------------------11df125d8b12
     Content-Length: 822
 
-and the Thumbor server should return :
+and the Thumbor server should return:
 
 ::
 
@@ -240,7 +240,7 @@ the HTTP **PUT** request was send to the server :
     Content-Length: 822
     Slug : modified_image.jpg
 
-and the Thumbor server should return :
+and the Thumbor server should return:
 
 ::
 
@@ -265,7 +265,7 @@ the HTTP **DELETE** request was send to the server :
 
     DELETE /image/05b2eda857314e559630c6f3334d818d/modified_image.jpg
 
-and the Thumbor server should return :
+and the Thumbor server should return:
 
 ::
 
