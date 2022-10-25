@@ -101,6 +101,7 @@ ORIGINAL_IMAGES_BASE = [
     "rgba.png",
     "grayscale.jpg",
     "16bit.png",
+    "thumbor-exif.png",
 ]
 
 ORIGINAL_IMAGES_GIF_WEBP = [

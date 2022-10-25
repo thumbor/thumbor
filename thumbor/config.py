@@ -249,6 +249,13 @@ Config.define(
 )
 
 Config.define(
+    "PRESERVE_EXIF_COPYRIGHT_INFO",
+    False,
+    "Preserves Exif copyright information in generated images.",
+    "Imaging",
+)
+
+Config.define(
     "ALLOW_ANIMATED_GIFS",
     True,
     "Indicates whether thumbor should enable the EXPERIMENTAL support for animated gifs.",
