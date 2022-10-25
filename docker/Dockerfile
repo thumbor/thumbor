@@ -45,8 +45,11 @@ FROM python:${PYTHON_VERSION}-slim-bullseye AS runner-image
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         curl \
+        ffmpeg \
         gifsicle \
-        libcairo2 && \
+        libcairo2 \
+        libexiv2-27 \
+        libjpeg-turbo-progs && \
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home thumbor
