@@ -129,7 +129,13 @@ class BaseEngine:
             img_mime = "image/jp2"
         elif buffer[4:12] in (b"ftypavif", b"ftypavis"):
             img_mime = "image/avif"
-        elif buffer[4:12] in (b"ftypheic", b"ftypmif1"):
+        elif buffer[4:8] == b"ftyp" and buffer[8:12] in (
+            b"heic",
+            b"heix",
+            b"heim",
+            b"heis",
+            b"mif1",
+        ):
             img_mime = "image/heif"
         elif buffer.startswith(b"\x00\x00\x00 ftyp"):
             img_mime = "video/mp4"
