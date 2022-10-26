@@ -247,12 +247,13 @@ class Engine(BaseEngine):
             logger.warning(
                 "[PILEngine] HEIF encoding unavailable, defaulting to %s",
                 self.extension,
-                )
+            )
             ext = self.extension
 
         if ext == ".avif" and not HAVE_AVIF:
             logger.warning(
-                f"[PILEngine] AVIF encoding unavailable, defaulting to {self.extension}"
+                "[PILEngine] AVIF encoding unavailable, defaulting to %s",
+                self.extension,
             )
             ext = self.extension
 
