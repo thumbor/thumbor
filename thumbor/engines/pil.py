@@ -243,6 +243,13 @@ class Engine(BaseEngine):
 
         ext = requested_extension or self.get_default_extension()
 
+        if ext in (".heic", ".heif") and not HAVE_HEIF:
+            logger.warning(
+                "[PILEngine] HEIF encoding unavailable, defaulting to %s",
+                self.extension,
+            )
+            ext = self.extension
+
         options = {"quality": quality}
 
         if ext in (".jpg", ".jpeg"):
@@ -348,12 +355,6 @@ class Engine(BaseEngine):
                 if srgb_image:
                     self.image = srgb_image
                     self.icc_profile = srgb_image.info.get("icc_profile")
-
-        if ext in (".heic", ".heif") and not HAVE_HEIF:
-            logger.warning(
-                "[PILEngine] HEIF encoding unavailable, defaulting to JPEG"
-            )
-            ext = ".jpg"
 
         if self.icc_profile is not None:
             options["icc_profile"] = self.icc_profile
