@@ -43,6 +43,8 @@ CONTENT_TYPE = {
     ".tif": "image/tiff",
     ".tiff": "image/tiff",
     ".avif": "image/avif",
+    ".heic": "image/heif",
+    ".heif": "image/heif",
 }
 
 EXTENSION = {
@@ -55,6 +57,7 @@ EXTENSION = {
     "image/svg+xml": ".svg",
     "image/tiff": ".tif",
     "image/avif": ".avif",
+    "image/heif": ".heic",
 }
 
 

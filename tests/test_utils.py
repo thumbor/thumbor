@@ -44,6 +44,8 @@ class UtilsTestCase(TestCase):
         expect(CONTENT_TYPE.get(".tif")).to_equal("image/tiff")
         expect(CONTENT_TYPE.get(".tiff")).to_equal("image/tiff")
         expect(CONTENT_TYPE.get(".avif")).to_equal("image/avif")
+        expect(CONTENT_TYPE.get(".heic")).to_equal("image/heif")
+        expect(CONTENT_TYPE.get(".heif")).to_equal("image/heif")
 
     @staticmethod
     def test_can_get_extension():
@@ -56,6 +58,7 @@ class UtilsTestCase(TestCase):
         expect(EXTENSION.get("image/svg+xml")).to_equal(".svg")
         expect(EXTENSION.get("image/tiff")).to_equal(".tif")
         expect(EXTENSION.get("image/avif")).to_equal(".avif")
+        expect(EXTENSION.get("image/heif")).to_equal(".heic")
 
     @staticmethod
     def test_can_get_logger():

@@ -485,6 +485,10 @@ class BaseHandler(tornado.web.RequestHandler):
                 and self.context.config.AVIF_QUALITY is not None
             ):
                 quality = self.context.config.AVIF_QUALITY
+            elif image_extension in (".heif", ".heic"):
+                quality = self.context.config.HEIF_QUALITY
+                if quality is None:
+                    quality = 75
             else:
                 quality = self.context.config.QUALITY
 

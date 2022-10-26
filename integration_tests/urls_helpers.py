@@ -83,6 +83,8 @@ FILTERS = [
     "filters:max_age(600)",
     "filters:upscale()",
     "filters:format(avif)",
+    "filters:format(heic)",
+    "filters:format(heif)",
     # one big filter 4-line string
     "filters:curve([(0,0),(255,255)],[(0,50),(16,51),(32,69),"
     "(58,85),(92,120),(128,170),(140,186),(167,225),"  # NOQA
