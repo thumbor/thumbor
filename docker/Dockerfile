@@ -45,7 +45,6 @@ FROM python:${PYTHON_VERSION}-slim-bullseye AS runner-image
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         curl \
-        ffmpeg \
         gifsicle \
         libcairo2 \
         libexiv2-27 \
