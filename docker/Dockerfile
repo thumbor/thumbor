@@ -47,7 +47,6 @@ RUN apt-get update && \
         curl \
         gifsicle \
         libcairo2 \
-        libexiv2-27 \
         libjpeg-turbo-progs && \
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 
