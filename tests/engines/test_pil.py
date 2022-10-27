@@ -19,7 +19,11 @@ from PIL import Image
 from preggy import expect
 import pytest
 
-from tests.base import skip_unless_avif, skip_unless_avif_encoder
+from tests.base import (
+    skip_unless_avif,
+    skip_unless_avif_encoder,
+    skip_unless_heif,
+)
 from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.engines.pil import Engine
@@ -305,6 +309,29 @@ class PilEngineTestCase(TestCase):
         with Image.open(avif_bytes) as img:
             expect(img.format).to_equal("AVIF")
             expect(img.size).to_equal((690, 212))
+
+    @skip_unless_heif
+    def test_convert_jpg_to_heif(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+        expect(engine.image.format).to_equal("JPEG")
+        heif_bytes = BytesIO(engine.read(".heic"))
+        with Image.open(heif_bytes) as img:
+            expect(img.format).to_equal("HEIF")
+
+    @skip_unless_heif
+    def test_heif_odd_dimensions(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "1bit.png"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".png")
+        expect(engine.size).to_equal((691, 212))
+        heif_bytes = BytesIO(engine.read(".heic"))
+        with Image.open(heif_bytes) as img:
+            expect(img.format).to_equal("HEIF")
+            expect(img.size).to_equal((691, 212))
 
 
 @skip_unless_avif_encoder("svt")

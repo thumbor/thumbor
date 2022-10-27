@@ -22,7 +22,7 @@ from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor.engines.pil
-from tests.base import TestCase, skip_unless_avif
+from tests.base import TestCase, skip_unless_avif, skip_unless_heif
 from tests.fixtures.images import (
     alabama1,
     default_image,
@@ -288,3 +288,72 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             expect(response.code).to_equal(200)
             expect(response.body).to_be_avif()
             mock_read.assert_called_with(mock.ANY, ".avif", 50)
+
+    @gen_test
+    async def test_can_read_heif(self):
+        response = await self.async_fetch("/unsafe/image.heic")
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_heif()
+
+    @skip_unless_heif
+    @gen_test
+    async def test_heif_format(self):
+        response = await self.async_fetch(
+            "/unsafe/filters:format(heic)/image.jpg"
+        )
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_heif()
+
+    @skip_unless_heif
+    @gen_test
+    async def test_heif_quality_setting(self):
+        self.context.config.QUALITY = 80
+        self.context.config.HEIF_QUALITY = 50
+        with mock.patch.object(
+            Engine,
+            "read",
+            autospec=True,
+            side_effect=Engine.read,
+        ) as mock_read:
+            response = await self.async_fetch(
+                "/unsafe/filters:format(heif)/image.jpg"
+            )
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_heif()
+            mock_read.assert_called_with(mock.ANY, ".heif", 50)
+
+    @gen_test
+    @pytest.mark.usefixtures("unittest_caplog")
+    async def test_heif_unavailable_format_jpg(self):
+        self.caplog.set_level(logging.WARNING)
+        with mock.patch.object(thumbor.engines.pil, "HAVE_HEIF", False):
+            response = await self.async_fetch(
+                "/unsafe/filters:format(heif)/image.jpg"
+            )
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_jpeg()
+            assert self.caplog.record_tuples == [
+                (
+                    "thumbor",
+                    logging.WARNING,
+                    "[PILEngine] HEIF encoding unavailable, defaulting to .jpg",
+                )
+            ]
+
+    @gen_test
+    @pytest.mark.usefixtures("unittest_caplog")
+    async def test_heif_unavailable_format_png(self):
+        self.caplog.set_level(logging.WARNING)
+        with mock.patch.object(thumbor.engines.pil, "HAVE_HEIF", False):
+            response = await self.async_fetch(
+                "/unsafe/filters:format(heif)/1x1.png"
+            )
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_png()
+            assert self.caplog.record_tuples == [
+                (
+                    "thumbor",
+                    logging.WARNING,
+                    "[PILEngine] HEIF encoding unavailable, defaulting to .png",
+                )
+            ]

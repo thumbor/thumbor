@@ -151,6 +151,14 @@ Config.define(
 )
 
 Config.define(
+    "HEIF_QUALITY",
+    None,
+    "Quality index used for generated HEIF images. If not set (None) the same "
+    "level of JPEG quality will be used.",
+    "Imaging",
+)
+
+Config.define(
     "SRGB_PROFILE",
     None,
     "Path to the file containing the sRGB ICC profile to use when images need "

@@ -36,7 +36,13 @@ except ImportError:
     except ImportError:
         _avif = None
 
+try:
+    from pillow_heif import HeifImagePlugin
+except ImportError:
+    HeifImagePlugin = None
+
 HAVE_AVIF = _avif is not None
+HAVE_HEIF = HeifImagePlugin is not None
 
 
 FORMATS = {
@@ -47,6 +53,8 @@ FORMATS = {
     ".png": "PNG",
     ".webp": "WEBP",
     ".avif": "AVIF",
+    ".heic": "HEIF",
+    ".heif": "HEIF",
 }
 
 ImageFile.MAXBLOCK = 2**25
@@ -235,6 +243,13 @@ class Engine(BaseEngine):
 
         ext = requested_extension or self.get_default_extension()
 
+        if ext in (".heic", ".heif") and not HAVE_HEIF:
+            logger.warning(
+                "[PILEngine] HEIF encoding unavailable, defaulting to %s",
+                self.extension,
+            )
+            ext = self.extension
+
         options = {"quality": quality}
 
         if ext in (".jpg", ".jpeg"):
@@ -362,7 +377,11 @@ class Engine(BaseEngine):
                         mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
                     self.image = self.image.convert(mode)
 
-            if ext in [".png", ".gif"] and self.image.mode == "CMYK":
+            if (
+                ext in [".png", ".gif", ".heic", ".heif"]
+                and self.image.mode == "CMYK"
+            ):
+                # 26.10.22: remove ".heic, .heif" in a month(when pillow_heif get updated)
                 self.image = self.image.convert("RGBA")
 
             self.image.format = FORMATS.get(
