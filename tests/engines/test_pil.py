@@ -352,6 +352,7 @@ def test_avif_svt_codec_fallback(image_basename):
         assert mock_save.call_args[1].get("codec") == "auto"
 
 
+@pytest.mark.xfail(reason="flaky test depending on the state of a dependency")
 @skip_unless_avif
 @pytest.mark.parametrize("srgb_profile", [None, "srgb.icc"])
 def test_avif_convert_cmyk_color_profile_to_srgb(srgb_profile):
