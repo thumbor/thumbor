@@ -21,7 +21,6 @@ jobs:
           - 38
           - 39
           - 310
-          - 311
     steps:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true

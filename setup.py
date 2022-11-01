@@ -73,7 +73,7 @@ if wheel is not None:
             python, abi, plat = super().get_tag()
 
             if python.startswith("cp"):
-                return "cp36", "abi3", plat
+                return "cp37", "abi3", plat
             return python, abi, plat
 
     kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
@@ -139,7 +139,6 @@ def run_setup(extension_modules=None):
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
-            "Programming Language :: Python :: 3.11",
             "Programming Language :: Python :: 3 :: Only",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
