@@ -93,7 +93,7 @@ def filter_extension_module(name, lib_objs, lib_headers):
             "-Wno-unused-parameter",
         ],
         py_limited_api=True,
-        define_macros=[("Py_LIMITED_API", "0x03060000")],
+        define_macros=[("Py_LIMITED_API", "0x03070000")],
     )
 
 
@@ -126,7 +126,7 @@ def run_setup(extension_modules=None):
         author_email="thumbor@googlegroups.com",
         url="https://github.com/thumbor/thumbor/wiki",
         license="MIT",
-        python_requires=">=3.6",
+        python_requires=">=3.7",
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
@@ -135,9 +135,11 @@ def run_setup(extension_modules=None):
             "Operating System :: MacOS",
             "Operating System :: POSIX :: Linux",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
             "Programming Language :: Python :: 3 :: Only",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",

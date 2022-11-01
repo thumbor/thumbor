@@ -21,6 +21,7 @@ jobs:
           - 38
           - 39
           - 310
+          - 311
     steps:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
@@ -59,8 +60,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@1.1.3
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@1.1.3
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
