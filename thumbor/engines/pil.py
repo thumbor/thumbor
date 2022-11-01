@@ -250,6 +250,13 @@ class Engine(BaseEngine):
             )
             ext = self.extension
 
+        if ext == ".avif" and not HAVE_AVIF:
+            logger.warning(
+                "[PILEngine] AVIF encoding unavailable, defaulting to %s",
+                self.extension,
+            )
+            ext = self.extension
+
         options = {"quality": quality}
 
         if ext in (".jpg", ".jpeg"):
@@ -306,12 +313,6 @@ class Engine(BaseEngine):
 
         if options["quality"] is None:
             options["quality"] = self.context.config.QUALITY
-
-        if ext == ".avif" and not HAVE_AVIF:
-            logger.warning(
-                "[PILEngine] AVIF encoding unavailable, defaulting to JPEG"
-            )
-            ext = ".jpg"
 
         if ext == ".avif":
             options["codec"] = self.context.config.AVIF_CODEC
