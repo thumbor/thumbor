@@ -52,7 +52,7 @@ EXTRA_LIBS_REQUIREMENTS = [
     # Going to update in a proper commit
     "cairosvg>=2.5.2",
     "pycurl==7.*,>=7.43.0",
-    "py3exiv2>=0.*,<0.7.2",
+    "piexif>=1.*,>=1.1.3",
     "pillow-avif-plugin==1.*,>=1.2.2",
     "pillow-heif>=0.7.0",
 ]
