@@ -10,10 +10,10 @@
 
 # pylint: disable=unsupported-membership-test
 
-import datetime
 from io import BytesIO
 from os.path import abspath, dirname, join
-from unittest import TestCase, skipUnless, mock
+from unittest import TestCase, mock
+import piexif
 
 from PIL import Image
 from preggy import expect
@@ -27,13 +27,6 @@ from tests.base import (
 from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.engines.pil import Engine
-
-try:
-    from pyexiv2 import ImageMetadata  # noqa pylint: disable=unused-import
-
-    METADATA_AVAILABLE = True
-except ImportError:
-    METADATA_AVAILABLE = False
 
 
 FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
@@ -190,10 +183,6 @@ class PilEngineTestCase(TestCase):
         mode, _ = engine.image_data_as_rgb()
         expect(mode).to_equal("RGB")
 
-    @skipUnless(
-        METADATA_AVAILABLE,
-        "Pyexiv2 library not found. Skipping metadata tests.",
-    )
     def test_load_image_with_metadata(self):
         engine = Engine(self.context)
         with open(
@@ -205,31 +194,19 @@ class PilEngineTestCase(TestCase):
         image = engine.image
         expect(image.format).to_equal("JPEG")
         expect(engine.metadata).Not.to_be_null()
-        expect(engine.metadata.__class__.__name__).to_equal("ImageMetadata")
+        expect(engine.metadata.__class__.__name__).to_equal("dict")
 
-        # read the xmp tags
-        xmp_keys = engine.metadata.xmp_keys
-        expect(len(xmp_keys)).to_equal(44)
-        expect("Xmp.aux.LensSerialNumber" in xmp_keys).to_be_true()
+        expect(
+            engine.metadata["Exif"][piexif.ExifIFD.LensSerialNumber]
+        ).to_equal("0000c139be")
 
-        width = engine.metadata["Xmp.aux.LensSerialNumber"].value
-        expect(width).to_equal("0000c139be")
-
-        # read EXIF tags
-        exif_keys = engine.metadata.exif_keys
-        expect(len(exif_keys)).to_equal(37)
-        expect("Exif.Image.Software" in exif_keys).to_be_true()
-        expect(engine.metadata["Exif.Image.Software"].value).to_equal(
+        expect(engine.metadata["0th"][piexif.ImageIFD.Software]).to_equal(
             "Adobe Photoshop Lightroom 4.4 (Macintosh)"
         )
 
-        # read IPTC tags
-        iptc_keys = engine.metadata.iptc_keys
-        expect(len(iptc_keys)).to_equal(6)
-        expect("Iptc.Application2.DateCreated" in iptc_keys).to_be_true()
         expect(
-            engine.metadata["Iptc.Application2.DateCreated"].value
-        ).to_equal([datetime.date(2016, 6, 23)])
+            engine.metadata["Exif"][piexif.ExifIFD.DateTimeOriginal]
+        ).to_equal("2016:06:23 13:18:05")
 
     def test_should_preserve_png_transparency(self):
         engine = Engine(self.context)
