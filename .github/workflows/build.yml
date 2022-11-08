@@ -16,38 +16,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image-tag:
-          - 37
-          - 38
-          - 39
-          - 310
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
     steps:
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
-        with:
-          key: thumbor-docker-${{ matrix.image-tag }}-{hash}
-          restore-keys: |
-            thumbor-docker-${{ matrix.image-tag }}-
       - uses: actions/checkout@v2
-      - name: Build test image
-        run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }} .
-      - name: Start test container
-        run: |
-          docker run -dt --name thumbor_test -v $(pwd):/app test_image
+      - run: apt-get update
+      - run: >
+          apt-get install --no-install-recommend -y
+          ffmpeg
+          gifsicle
+          scons
+          redis
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Fire up Redis
-        run: docker exec thumbor_test make redis
+        run: make redis
       - name: Setup
-        run: docker exec thumbor_test make setup
+        run: make setup
       - name: Compile Extensions
-        run: docker exec thumbor_test make compile_ext
+        run: make compile_ext
       - name: Run Unit Tests
-        run: docker exec thumbor_test make sequential-unit
+        run: make sequential-unit
       - name: Run Integration Tests
-        run: docker exec -e ASYNC_TEST_TIMEOUT=30 thumbor_test make integration_run
+        run: make integration_run
       - name: Lint
-        run: docker exec thumbor_test make pylint
+        run: make pylint
       - name: Generate lcov
-        run: docker exec thumbor_test coverage lcov
+        run: coverage lcov
       - name: Coveralls
         uses: coverallsapp/github-action@1.1.3
         with:
@@ -59,8 +61,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@1.1.3
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@1.1.3
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
