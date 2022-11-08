@@ -39,8 +39,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Fire up Redis
         run: make redis
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}
       - name: Setup
-        run: make setup
+        run: pip install --upgrade --upgrade-strategy eager -e .[tests]
       - name: Compile Extensions
         run: make compile_ext
       - name: Run Unit Tests
