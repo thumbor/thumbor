@@ -29,9 +29,9 @@ jobs:
           sudo apt-get install --no-install-recommends -y
           ffmpeg
           gifsicle
-          scons
           redis
           libcurl4-openssl-dev
+          libjpeg-progs
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v4
