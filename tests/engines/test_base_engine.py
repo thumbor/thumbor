@@ -315,3 +315,18 @@ class BaseEngineTestCase(TestCase):
         expect(self.image).to_equal(((1, 2), (3, 4)))
 
         expect(self.engine.get_orientation()).to_equal(1)
+
+    @mock.patch("thumbor.engines.piexif")
+    def test_load_loads_exif_when_a_module_is_available(self, mock_piexif):
+        self.engine.create_image = mock.MagicMock()
+        self.engine.exif = "wow metadata"
+        self.engine.load(None, ".jpg")
+        expect(mock_piexif.load.called).to_be_true()
+
+    @mock.patch("thumbor.engines.piexif", new=None)
+    @mock.patch("thumbor.engines.logger.error")
+    def test_load_with_no_exif_module_should_not_err(self, mock_log_error):
+        self.engine.create_image = mock.MagicMock()
+        self.engine.exif = "wow metadata"
+        self.engine.load(None, ".jpg")
+        expect(mock_log_error.called).to_be_false()
