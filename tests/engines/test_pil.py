@@ -13,8 +13,8 @@
 from io import BytesIO
 from os.path import abspath, dirname, join
 from unittest import TestCase, mock
-import piexif
 
+import piexif
 from PIL import Image
 from preggy import expect
 import pytest
@@ -26,7 +26,7 @@ from tests.base import (
 )
 from thumbor.config import Config
 from thumbor.context import Context
-from thumbor.engines.pil import Engine
+from thumbor.engines.pil import Engine, KEEP_EXIF_COPYRIGHT_TAGS
 
 
 FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
@@ -309,6 +309,33 @@ class PilEngineTestCase(TestCase):
         with Image.open(heif_bytes) as img:
             expect(img.format).to_equal("HEIF")
             expect(img.size).to_equal((691, 212))
+
+    def test_should_preserve_copyright_exif_in_image(self):
+        self.context.config.PRESERVE_EXIF_COPYRIGHT_INFO = True
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "thumbor-exif.png"), "rb") as image_file:
+            buffer_image = image_file.read()
+        engine.load(buffer_image, None)
+
+        final_bytes = BytesIO(engine.read())
+        image = Image.open(final_bytes)
+        expect(image.info.get("exif")).not_to_be_null()
+
+        exifs = piexif.load(image.info.get("exif"))
+        expect(exifs["0th"]).not_to_be_null()
+        expect(len(exifs["0th"].items())).to_equal(3)
+        for k in KEEP_EXIF_COPYRIGHT_TAGS:
+            expect(exifs["0th"][k]).not_to_be_null()
+
+    def test_should_read_image_without_copyright_exif(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "1bit.png"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, None)
+
+        final_bytes = BytesIO(engine.read())
+        image = Image.open(final_bytes)
+        expect(image.info.get("exif")).to_be_null()
 
 
 @skip_unless_avif_encoder("svt")

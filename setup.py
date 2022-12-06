@@ -52,7 +52,6 @@ EXTRA_LIBS_REQUIREMENTS = [
     # Going to update in a proper commit
     "cairosvg>=2.5.2",
     "pycurl==7.*,>=7.43.0",
-    "piexif>=1.*,>=1.1.3",
     "pillow-avif-plugin==1.*,>=1.2.2",
     "pillow-heif>=0.7.0",
 ]
@@ -129,6 +128,7 @@ def run_setup(extension_modules=None):
             "colorama==0.*,>=0.4.3",
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.2",
+            "piexif==1.*,>=1.1.3",
             "Pillow>=9.0.0",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
