@@ -31,7 +31,6 @@ TESTS_REQUIREMENTS = [
     "pre-commit==2.*,>=2.17.0",
     "preggy==1.*,>=1.4.4",
     "pylint==2.*,>=2.4.4",
-    "pyssim==0.*,>=0.4.0",
     "pytest>=6.2.5",
     "pytest-asyncio==0.*,>=0.10.0",
     "pytest-cov==3.*,>=3.0.0",
