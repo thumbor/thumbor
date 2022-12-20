@@ -255,7 +255,7 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
     @gen_test
     @pytest.mark.usefixtures("unittest_caplog")
-    async def test_avif_unavailable(self):
+    async def test_avif_unavailable_format_jpg(self):
         self.caplog.set_level(logging.WARNING)
         with mock.patch.object(thumbor.engines.pil, "HAVE_AVIF", False):
             response = await self.async_fetch(
@@ -267,7 +267,25 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
                 (
                     "thumbor",
                     logging.WARNING,
-                    "[PILEngine] AVIF encoding unavailable, defaulting to JPEG",
+                    "[PILEngine] AVIF encoding unavailable, defaulting to .jpg",
+                )
+            ]
+
+    @gen_test
+    @pytest.mark.usefixtures("unittest_caplog")
+    async def test_avif_unavailable_format_png(self):
+        self.caplog.set_level(logging.WARNING)
+        with mock.patch.object(thumbor.engines.pil, "HAVE_AVIF", False):
+            response = await self.async_fetch(
+                "/unsafe/filters:format(avif)/1x1.png"
+            )
+            expect(response.code).to_equal(200)
+            expect(response.body).to_be_png()
+            assert self.caplog.record_tuples == [
+                (
+                    "thumbor",
+                    logging.WARNING,
+                    "[PILEngine] AVIF encoding unavailable, defaulting to .png",
                 )
             ]
 

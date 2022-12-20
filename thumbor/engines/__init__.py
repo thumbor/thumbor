@@ -13,6 +13,7 @@
 
 import re
 from xml.etree.ElementTree import ParseError
+import piexif
 
 from thumbor.engines.extensions.exif_orientation_editor import (
     ExifOrientationEditor,
@@ -23,13 +24,6 @@ try:
     import cairosvg
 except ImportError:
     cairosvg = None
-
-try:
-    from pyexiv2 import ImageMetadata
-
-    METADATA_AVAILABLE = True
-except ImportError:
-    METADATA_AVAILABLE = False
 
 
 WEBP_SIDE_LIMIT = 16383
@@ -206,12 +200,11 @@ class BaseEngine:
         if image_or_frames is None:
             return
 
-        if METADATA_AVAILABLE:
-            try:
-                self.metadata = ImageMetadata.from_buffer(buffer)
-                self.metadata.read()
-            except Exception as error:  # pylint: disable=broad-except
-                logger.error("Error reading image metadata: %s", error)
+        try:
+            if getattr(self, "exif", None):
+                self.metadata = piexif.load(self.exif)
+        except Exception as error:  # pylint: disable=broad-except
+            logger.error("Error reading image metadata: %s", error)
 
         if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(
             image_or_frames, (list, tuple)

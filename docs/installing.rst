@@ -87,7 +87,7 @@ https://launchpad.net/~thumbor/+archive/ppa.
 From the source of a stable release
 -----------------------------------
 
-Download the latest stable source-code version here on github or Pypi
+Download the latest stable source-code version here on GitHub or PyPI
 and decompress it.
 
 In the path you decompressed, execute ``pip install .`` or

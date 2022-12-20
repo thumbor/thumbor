@@ -1,133 +1,74 @@
 Image Metadata
 ==============
 
-Thumbor uses `py3exiv2 <https://launchpad.net/py3exiv2>`_ to read and write image metadata.
+Thumbor uses `piexif <https://github.com/hMatoba/Piexif>`_ to read and write image metadata.
 
-If the Py3exif2 Python library is available, the PIL engine also stores image metadata
-in ``engine.metadata``.
+The image metadata is available in ``engine.metadata``.
 
 
 
 Reading and writing Metadata
 ----------------------------
-This part is copied from the `py3exiv2 Tutorial <https://python3-exiv2.readthedocs.io/en/latest/tutorial.html>`_
 
 Let's retrieve a list of all the available EXIF tags available in the image::
 
-  >>> engine.metadata.exif_keys
-  ['Exif.Image.ImageDescription',
-   'Exif.Image.XResolution',
-   'Exif.Image.YResolution',
-   'Exif.Image.ResolutionUnit',
-   'Exif.Image.Software',
-   'Exif.Image.DateTime',
-   'Exif.Image.Artist',
-   'Exif.Image.Copyright',
-   'Exif.Image.ExifTag',
-   'Exif.Photo.Flash',
-   'Exif.Photo.PixelXDimension',
-   'Exif.Photo.PixelYDimension']
+  >>> engine.metadata
+  {
+    '0th': {
+        271: b'Canon',
+        272: b'Canon EOS 5D Mark III',
+        282: (300, 1),
+        283: (300, 1),
+        296: 2,
+        305: b'Adobe Photoshop Lightroom 4.4 (Macintosh)',
+        306: b'2016:06:24 14:45:44',
+        34665: 216
+    },
+    'Exif': {
+        33434: (1, 100),
+        33437: (56, 10),
+        34850: 1,
+        34855: 640,
+        34864: 2,
+        34866: 640,
+        36864: b'0230',
+        36867: b'2016:06:23 13:18:05',
+        36868: b'2016:06:23 13:18:05',
+        37377: (6643856, 1000000),
+        37378: (4970854, 1000000),
+        37380: (0, 1),
+        37381: (3, 1),
+        37383: 5,
+        37385: 16,
+        37386: (123, 1),
+        37521: b'91',
+        37522: b'91',
+        41486: (5242880, 32768),
+        41487: (5242880, 32768),
+        41488: 4,
+        41985: 0,
+        41986: 1,
+        41987: 1,
+        41990: 0,
+        42033: b'042024004240',
+        42034: ((70, 1), (200, 1), (0, 0), (0, 0)),
+        42036: b'EF70-200mm f/2.8L IS II USM',
+        42037: b'0000c139be'},
+    'GPS': {},
+    'Interop': {},
+    '1st': {},
+    'thumbnail': None
+  }
 
-Each of those tags can be accessed with the ``[]`` operator on the metadata,
-much like a python dictionary::
+The reference to the values can be found here `Exif values <https://github.com/hMatoba/Piexif/blob/master/piexif/_exif.py>`
 
-  >>> tag = metadata[b'Exif.Image.DateTime']
-
-The value of an :class:`ExifTag` object can be accessed in two different ways:
-with the :attr:`raw_value` and with the :attr:`value` attributes::
-
-  >>> tag.raw_value
-  '2004-07-13T21:23:44Z'
-
-  >>> tag.value
-  datetime.datetime(2004, 7, 13, 21, 23, 44)
-
-The raw value is always a byte string, this is how the value is stored in the
-file. The value is lazily computed from the raw value depending on the EXIF type
-of the tag, and is represented as a convenient python object to allow easy
-manipulation.
-
-Note that querying the value of a tag may raise an :exc:`ExifValueError` if the
-format of the raw value is invalid according to the EXIF specification (may
-happen if it was written by other software that implements the specification in
-a broken manner), or if pyexiv2 doesn't know how to convert it to a convenient
-python object.
-
-Accessing the value of a tag as a python object allows easy manipulation and
-formatting::
-
-  >>> tag.value.strftime('%A %d %B %Y, %H:%M:%S')
-  'Tuesday 13 July 2004, 21:23:44'
-
-Now let's modify the value of the tag and write it back to the file::
-
-  >>> import datetime
-  >>> tag.value = datetime.datetime.today()
-
-  >>> engine.metadata.write()
-
-Similarly to reading the value of a tag, one can set either the
-:attr:`raw_value` or the :attr:`value` (which will be automatically converted to
-a correctly formatted byte string by pyexiv2).
-
-You can also add new tags to the metadata by providing a valid key and value
-pair (see exiv2's documentation for a list of valid
-`EXIF tags <http://exiv2.org/tags.html>`_)::
-
-  >>> key = 'Exif.Photo.UserComment'
-  >>> value = 'This is a useful comment.'
-  >>> engine.metadata[key] = pyexiv2.ExifTag(key, value)
-
-As a handy shortcut, you can always assign a value for a given key regardless
-of whether it's already present in the metadata.
-If a tag was present, its value is overwritten.
-If the tag was not present, one is created and its value is set::
-
-  >>> engine.metadata[key] = value
-
-The EXIF data may optionally embed a thumbnail in the JPEG or TIFF format.
-The thumbnail can be accessed, set from a JPEG file or buffer, saved to disk and
-erased::
-
-  >>> thumb = engine.metadata.exif_thumbnail
-  >>> thumb.set_from_file('/tmp/thumbnail.jpg')
-  >>> thumb.write_to_file('/tmp/copy')
-  >>> thumb.erase()
-  >>> engine.metadata.write()
+  >>> tag = metadata["Exif"][piexif.ExifIFD.DateTimeOriginal]
+  "2016:06:23 13:18:05"
 
 
-
-Installation
-------------
-
-Pyexiv2 depends on the following libraries:
-
- * boost.python (http://www.boost.org/libs/python/doc/index.html)
- * exiv2 (http://www.exiv2.org/)
-
-
-On OSX you can use homebrew to install the dependencies::
-
-    brew install boost boost-python3 exiv2
-
-    pip install py3exiv2
-
-If you are updating thumbor and already have an existing virtualenv, then you have to recreate it.
-If you have both a System Python and a Homebrew Python with the same version, then make sure
-the Virtualenv uses the Homebrew Python binary.
-
-On Linux Pyexiv2 can be installed with apt-get:
-
-    apt-get install python-all-dev libboost-python-dev libexiv2-dev
-    pip install py3exiv2
-
-
-pyexiv2.metadata API reference
+piexif API reference
 ------------------------------
 
-.. module:: pyexiv2.metadata
-.. autoclass:: ImageMetadata
-   :members: from_buffer, read, write, dimensions, mime_type,
-             exif_keys, iptc_keys, iptc_charset, xmp_keys,
-             __getitem__, __setitem__, __delitem__,
-             comment, previews, copy, buffer
+.. module:: piexif
+.. autoclass:: dict
+   :members: __getitem__, __setitem__, __delitem__

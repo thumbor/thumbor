@@ -193,7 +193,7 @@ Config.define(
     "no transparency (via alpha layer). "
     "WARNING: Depending on case, this is not a good deal. "
     "This transformation maybe causes distortions or the size of image can increase. "
-    "Images with texts, for example, the result image maybe will be distorced. "
+    "Images with texts, for example, the result image maybe will be distorted. "
     "Dark images, for example, the size of result image maybe will be bigger. "
     "You have to evaluate the majority of your use cases "
     "to take a decision about the usage of this conf.",
@@ -245,6 +245,13 @@ Config.define(
     False,
     "Preserves exif information in generated images. "
     "Increases image size in kbytes, use with caution.",
+    "Imaging",
+)
+
+Config.define(
+    "PRESERVE_EXIF_COPYRIGHT_INFO",
+    False,
+    "Preserves Exif copyright information in generated images.",
     "Imaging",
 )
 
