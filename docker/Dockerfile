@@ -1,7 +1,6 @@
 ARG PYTHON_VERSION
 FROM python:${PYTHON_VERSION}-bullseye AS builder-image
 
-ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
 ARG THUMBOR_VERSION
 
@@ -12,12 +11,10 @@ RUN apt-get update && \
         curl \
         libssl-dev \
         libcurl4-openssl-dev \
-        libexiv2-dev \
         libjpeg-dev \
         libwebp-dev \
         libjpeg-progs \
         zlib1g-dev \
-        libboost-python-dev \
         gifsicle \
         gcc \
         libcairo2-dev \
@@ -27,12 +24,6 @@ RUN apt-get update && \
 
 RUN python3 -m venv /home/thumbor/venv
 ENV PATH="/home/thumbor/venv/bin:$PATH"
-
-RUN case ${TARGETPLATFORM} in \
-        "linux/amd64")  ARCH="x86_64"  ;; \
-        "linux/arm64") ARCH="aarch64"  ;; \
-    esac && \
-    ln -s /usr/lib/${ARCH}-linux-gnu/libboost_python3*.so /usr/lib/libboost_python3.so
 
 COPY requirements.txt .
 
