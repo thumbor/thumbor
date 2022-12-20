@@ -17,10 +17,11 @@ jobs:
       fail-fast: false
       matrix:
         image-tag:
-          - 37
-          - 38
-          - 39
-          - 310
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
     steps:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
@@ -30,7 +31,7 @@ jobs:
             thumbor-docker-${{ matrix.image-tag }}-
       - uses: actions/checkout@v2
       - name: Build test image
-        run: docker build -t test_image -f TestDockerfile${{ matrix.image-tag }} .
+        run: docker build -t test_image -f TestDockerfile --build-arg PYTHON_VERSION=${{ matrix.image-tag }} .
       - name: Start test container
         run: |
           docker run -dt --name thumbor_test -v $(pwd):/app test_image
