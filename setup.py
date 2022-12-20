@@ -45,7 +45,7 @@ TESTS_REQUIREMENTS = [
 
 OPENCV_REQUIREMENTS = [
     "opencv-python-headless==4.*,>=4.2.0",
-    "numpy==1.*,>=1.18.1",
+    "numpy==1.*,<1.24.0",
 ]
 
 EXTRA_LIBS_REQUIREMENTS = [
