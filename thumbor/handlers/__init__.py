@@ -33,7 +33,7 @@ from thumbor.utils import CONTENT_TYPE, EXTENSION, logger
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
 # Handlers should not override __init__ pylint: disable=attribute-defined-outside-init,arguments-differ
-# pylint: disable=broad-except,abstract-method,too-many-branches,too-many-return-statements,too-many-statements
+# pylint: disable=broad-except,abstract-method,too-many-branches,too-many-return-statements,too-many-statements,too-many-lines
 
 
 class FetchResult:  # Data Object pylint: disable=too-few-public-methods
@@ -410,6 +410,53 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return False
 
+    def accepts_mime_type(self, mimetype=""):
+        if self.context.request and self.context.request.headers:
+            return mimetype in self.context.request.headers.get("Accept", "")
+
+        return False
+
+    def can_auto_convert_to_avif(self):
+        auto_avif = self.context.config.AUTO_AVIF
+        accepts_avif = self.accepts_mime_type("image/avif")
+
+        if (
+            auto_avif is True
+            and accepts_avif is True
+            and not self.context.request.engine.is_multiple()
+        ):
+            return self.context.request.engine.can_auto_convert_to_avif()
+
+        return False
+
+    def can_auto_convert_to_heif(self):
+        auto_heif = self.context.config.AUTO_HEIF
+        accepts_heif = self.accepts_mime_type("image/heif")
+
+        if (
+            auto_heif
+            and accepts_heif
+            and not self.context.request.engine.is_multiple()
+        ):
+            return self.context.request.engine.can_auto_convert_to_heif()
+
+        return False
+
+    def can_auto_convert_to_jpg(self):
+        auto_jpg = self.context.config.AUTO_JPG
+        accepts_all = self.accepts_mime_type("*/*")
+        accepts_jpg = self.accepts_mime_type("image/jpg")
+        accepts_jpeg = self.accepts_mime_type("image/jpeg")
+
+        if (
+            auto_jpg
+            and (accepts_all or accepts_jpg or accepts_jpeg)
+            and not self.context.request.engine.is_multiple()
+        ):
+            return True
+
+        return False
+
     def define_image_type(self, context, result):
         if result is not None:
             if isinstance(result, ResultStorageResult):
@@ -435,11 +482,24 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.debug(
                 "Image format set by AUTO_WEBP as %s.", image_extension
             )
-        elif self.can_auto_convert_png_to_jpg():
+        elif self.can_auto_convert_to_avif():
+            image_extension = ".avif"
+            logger.debug(
+                "Image format set by AUTO_AVIF as %s.", image_extension
+            )
+        elif (
+            self.can_auto_convert_png_to_jpg()
+            or self.can_auto_convert_to_jpg()
+        ):
             image_extension = ".jpg"
             logger.debug(
-                "Image format set by AUTO_PNG_TO_JPG as %s.",
+                "Image format set by AUTO_PNG_TO_JPG or AUTO_JPG as %s.",
                 image_extension,
+            )
+        elif self.can_auto_convert_to_heif():
+            image_extension = ".heif"
+            logger.debug(
+                "Image format set by AUTO_HEIF as %s.", image_extension
             )
         else:
             image_extension = context.request.engine.extension

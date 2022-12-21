@@ -409,6 +409,12 @@ class BaseEngine:
     def has_transparency(self):
         raise NotImplementedError()
 
+    def avif_enabled(self):
+        raise NotImplementedError()
+
+    def heif_enabled(self):
+        raise NotImplementedError()
+
     def cleanup(self):
         pass
 
@@ -416,3 +422,9 @@ class BaseEngine:
         can_convert = self.extension == ".png" and not self.has_transparency()
 
         return can_convert
+
+    def can_auto_convert_to_avif(self):
+        return self.avif_enabled()
+
+    def can_auto_convert_to_heif(self):
+        return self.heif_enabled()

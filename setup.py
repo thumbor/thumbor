@@ -16,13 +16,20 @@ from setuptools import Extension, setup
 
 from pathlib import Path
 
-this_directory = Path(__file__).parent
-long_description = (this_directory / "README.mkd").read_text()
-
 try:
-    from thumbor import __version__
+    import wheel.bdist_wheel
 except ImportError:
-    __version__ = "0.0.0"
+    wheel = None
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.mkd").read_text(encoding="utf-8")
+
+with open("thumbor/__init__.py") as f:
+    ns = {}
+    exec(f.read(), ns)
+    version = ns["__version__"]
+
+kwargs = {}
 
 TESTS_REQUIREMENTS = [
     "coverage==6.*,>=6.3.2",
@@ -45,7 +52,7 @@ TESTS_REQUIREMENTS = [
 
 OPENCV_REQUIREMENTS = [
     "opencv-python-headless==4.*,>=4.2.0",
-    "numpy==1.*,>=1.18.1",
+    "numpy==1.*,<1.24.0",
 ]
 
 EXTRA_LIBS_REQUIREMENTS = [
@@ -57,6 +64,18 @@ EXTRA_LIBS_REQUIREMENTS = [
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
+
+if wheel is not None:
+    # based on https://github.com/tornadoweb/tornado/blob/master/setup.py
+    class bdist_wheel_abi3(wheel.bdist_wheel.bdist_wheel):
+        def get_tag(self):
+            python, abi, plat = super().get_tag()
+
+            if python.startswith("cp"):
+                return "cp37", "abi3", plat
+            return python, abi, plat
+
+    kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
 
 
 def filter_extension_module(name, lib_objs, lib_headers):
@@ -72,6 +91,8 @@ def filter_extension_module(name, lib_objs, lib_headers):
             "-Werror",
             "-Wno-unused-parameter",
         ],
+        py_limited_api=True,
+        define_macros=[("Py_LIMITED_API", "0x03070000")],
     )
 
 
@@ -95,7 +116,7 @@ def run_setup(extension_modules=None):
 
     setup(
         name="thumbor",
-        version=__version__,
+        version=version,
         description="thumbor is an open-source photo thumbnail service by globo.com",
         long_description=long_description,
         long_description_content_type="text/markdown",
@@ -104,7 +125,7 @@ def run_setup(extension_modules=None):
         author_email="thumbor@googlegroups.com",
         url="https://github.com/thumbor/thumbor/wiki",
         license="MIT",
-        python_requires=">=3.6",
+        python_requires=">=3.7",
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
@@ -113,9 +134,11 @@ def run_setup(extension_modules=None):
             "Operating System :: MacOS",
             "Operating System :: POSIX :: Linux",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
             "Programming Language :: Python :: 3 :: Only",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
@@ -150,6 +173,7 @@ def run_setup(extension_modules=None):
             ],
         },
         ext_modules=extension_modules,
+        **kwargs,
     )
 
 

@@ -187,6 +187,27 @@ Config.define(
     "Imaging",
 )
 Config.define(
+    "AUTO_AVIF",
+    False,
+    "Specifies whether Avif format should be used automatically if the request accepts it "
+    "(via Accept header) and pillow-avif-plugin is enabled",
+    "Imaging",
+)
+Config.define(
+    "AUTO_JPG",
+    False,
+    "Specifies whether JPG format should be used automatically if the request accepts it "
+    "(via Accept header)",
+    "Imaging",
+)
+Config.define(
+    "AUTO_HEIF",
+    False,
+    "Specifies whether Heif format should be used automatically if the request accepts it "
+    "(via Accept header) and pillow-heif is enabled",
+    "Imaging",
+)
+Config.define(
     "AUTO_PNG_TO_JPG",
     False,
     "Specifies whether a PNG image should be used automatically if the png image has "
