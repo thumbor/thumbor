@@ -96,6 +96,6 @@ _bounding_box_apply(PyObject *self, PyObject *args)
 FILTER_MODULE(_bounding_box,
     "apply(image_mode, width, height, reference_mode, tolerance, buffer) -> (left, top, right, bottom)\n"
     "Calculates the bounding box necessary to trim an image based on the color of "
-    "one of the corners and the euclidian distance between the colors within a "
+    "one of the corners and the euclidean distance between the colors within a "
     "specified tolerance."
 )

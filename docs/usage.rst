@@ -44,7 +44,7 @@ If you need to specify the orientation from where to get the pixel
 color, just use ``/trim:top-left`` for the top-left pixel color or
 ``/trim:bottom-right`` for the bottom-right pixel color.
 
-Trim also supports color tolerance. The euclidian distance between the
+Trim also supports color tolerance. The euclidean distance between the
 colors of the reference pixel and the surrounding pixels is used. If the
 distance is within the tolerance they'll get trimmed. For a RGB image
 the tolerance would be within the range 0-442.
