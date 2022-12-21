@@ -528,6 +528,12 @@ class Engine(BaseEngine):
 
         return has_transparency
 
+    def avif_enabled(self):
+        return HAVE_AVIF
+
+    def heif_enabled(self):
+        return HAVE_HEIF
+
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:
             raise RuntimeError(
