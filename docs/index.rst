@@ -32,7 +32,7 @@ more details)::
 .. warning::
     Release 7.0.0 introduces a major breaking change due to the migration to python 3
     and the modernization of our codebase. Please read the
-    `release notes <https://github.com/thumbor/thumbor/releases>`_
+    `release notes <https://github.com/thumbor/thumbor/releases/tag/7.0.0>`_
     for details on how to upgrade.
 
 Contents
