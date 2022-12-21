@@ -151,6 +151,14 @@ Config.define(
 )
 
 Config.define(
+    "HEIF_QUALITY",
+    None,
+    "Quality index used for generated HEIF images. If not set (None) the same "
+    "level of JPEG quality will be used.",
+    "Imaging",
+)
+
+Config.define(
     "SRGB_PROFILE",
     None,
     "Path to the file containing the sRGB ICC profile to use when images need "
@@ -179,13 +187,34 @@ Config.define(
     "Imaging",
 )
 Config.define(
+    "AUTO_AVIF",
+    False,
+    "Specifies whether Avif format should be used automatically if the request accepts it "
+    "(via Accept header) and pillow-avif-plugin is enabled",
+    "Imaging",
+)
+Config.define(
+    "AUTO_JPG",
+    False,
+    "Specifies whether JPG format should be used automatically if the request accepts it "
+    "(via Accept header)",
+    "Imaging",
+)
+Config.define(
+    "AUTO_HEIF",
+    False,
+    "Specifies whether Heif format should be used automatically if the request accepts it "
+    "(via Accept header) and pillow-heif is enabled",
+    "Imaging",
+)
+Config.define(
     "AUTO_PNG_TO_JPG",
     False,
     "Specifies whether a PNG image should be used automatically if the png image has "
     "no transparency (via alpha layer). "
     "WARNING: Depending on case, this is not a good deal. "
     "This transformation maybe causes distortions or the size of image can increase. "
-    "Images with texts, for example, the result image maybe will be distorced. "
+    "Images with texts, for example, the result image maybe will be distorted. "
     "Dark images, for example, the size of result image maybe will be bigger. "
     "You have to evaluate the majority of your use cases "
     "to take a decision about the usage of this conf.",
@@ -237,6 +266,13 @@ Config.define(
     False,
     "Preserves exif information in generated images. "
     "Increases image size in kbytes, use with caution.",
+    "Imaging",
+)
+
+Config.define(
+    "PRESERVE_EXIF_COPYRIGHT_INFO",
+    False,
+    "Preserves Exif copyright information in generated images.",
     "Imaging",
 )
 

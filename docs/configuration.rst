@@ -343,8 +343,15 @@ well as static gifs with the smallest possible size.**
 WARNING: When using gifsicle engine, filters will be skipped, except for `cover()` filter. thumbor
 will not do smart cropping as well.
 
+AUTO_*
+~~~~~~~~~~~~
+
+These configurations indicates that thumbor will try to automatically convert
+the image format to a lighter image format, following a better compression order
+`WEBP -> AVIF -> JPG -> HEIF`.
+
 AUTO\_WEBP
-~~~~~~~~~~
+^^^^^^^^^^
 
 This option indicates whether thumbor should send WebP images
 automatically if the request comes with an "Accept" header that
@@ -354,8 +361,19 @@ specifies that the browser supports "image/webp".
 
    AUTO_WEBP = True
 
+AUTO\_AVIF
+^^^^^^^^^^
+
+This option indicates whether thumbor should send Avif images
+automatically if the request comes with an "Accept" header that
+specifies that the browser supports "image/avif" and pillow-avif-plugin is enabled.
+
+.. code:: python
+
+   AUTO_AVIF = True
+
 AUTO\_PNG\_TO\_JPG
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 This option indicates whether thumbor should transform PNG images
 automatically to JPEG. If the image is a PNG without transparency and
@@ -364,13 +382,35 @@ In the most of cases the image size will decrease.
 
 WARNING: Depending on case, this is not a good deal. This transformation
 maybe causes distortions or the size of image can increase.
-Images with texts, for example, the result image maybe will be distorced.
+Images with texts, for example, the result image maybe will be distorted.
 Dark images, for example, the size of result image maybe will be bigger.
 You have to evaluate the majority of your use cases to take a decision about the usage of this conf.
 
 .. code:: python
 
    AUTO_PNG_TO_JPG = True
+
+AUTO\_JPG
+^^^^^^^^^
+
+This option indicates whether thumbor should send JPG images
+automatically if the request comes with an "Accept" header that
+specifies that the browser supports "*/*", "image/jpg" or "image/jpeg".
+
+.. code:: python
+
+   AUTO_JPG = True
+
+AUTO\_HEIF
+^^^^^^^^^^
+
+This option indicates whether thumbor should send Heif images
+automatically if the request comes with an "Accept" header that
+specifies that the browser supports "image/heif" and pillow-heif is enabled.
+
+.. code:: python
+
+   AUTO_HEIF = True
 
 Queueing - Redis Single Node
 ----------------------------
@@ -910,7 +950,7 @@ Example of Configuration File
    ## has no transparency (via alpha layer). WARNING: Depending on case, this is
    ## not a good deal. This transformation maybe causes distortions or the size
    ## of image can increase. Images with texts, for example, the result image
-   ## maybe will be distorced. Dark images, for example, the size of result image
+   ## maybe will be distorted. Dark images, for example, the size of result image
    ## maybe will be bigger. You have to evaluate the majority of your use cases
    ## to take a decision about the usage of this conf.
    ## Defaults to: False

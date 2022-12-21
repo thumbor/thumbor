@@ -29,11 +29,22 @@ except ImportError:
     except ImportError:
         _avif = None
 
+try:
+    from pillow_heif import HeifImagePlugin
+except ImportError:
+    HeifImagePlugin = None
+
 AVIF_AVAILABLE = _avif is not None
+HEIF_AVAILABLE = HeifImagePlugin is not None
 
 skip_unless_avif = skipUnless(
     AVIF_AVAILABLE,
     "AVIF format support not found. Skipping AVIF tests.",
+)
+
+skip_unless_heif = skipUnless(
+    HEIF_AVAILABLE,
+    "HEIF format support not found. Skipping HEIF tests.",
 )
 
 
@@ -104,6 +115,12 @@ def to_be_webp(topic):
 def to_be_avif(topic):
     image = Image.open(BytesIO(topic))
     return image.format.lower() == "avif"
+
+
+@create_assertions
+def to_be_heif(topic):
+    image = Image.open(BytesIO(topic))
+    return image.format.lower() == "heif"
 
 
 @create_assertions

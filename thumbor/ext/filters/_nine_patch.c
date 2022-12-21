@@ -151,7 +151,7 @@ void paste_rectangle(bitmap *source, int sx, int sy, int sw, int sh,
 void unpack_bitmap(bitmap *bitmap, PyObject *image_mode,
         PyObject *buffer, PyObject *width, PyObject *height)
 {
-    char *image_mode_str = (char *)PyUnicode_AsUTF8(image_mode);
+    char *image_mode_str = (char *)PyUnicode_AsUTF8String(image_mode);
     bitmap->buffer = (unsigned char *) PyBytes_AsString(buffer);
     bitmap->width = (int) PyLong_AsLong(width);
     bitmap->height = (int) PyLong_AsLong(height);

@@ -20,7 +20,6 @@ def test_get_doctor_output(capsys, doctor_output):
         },
         print_version=False,
         exit_with_error=False,
-        check_pyexiv=False,
     )
     assert capsys.readouterr().out == doctor_output
 
@@ -33,6 +32,5 @@ def test_get_doctor_output_no_config(capsys, doctor_output_no_config):
         },
         print_version=False,
         exit_with_error=False,
-        check_pyexiv=False,
     )
     assert capsys.readouterr().out == doctor_output_no_config

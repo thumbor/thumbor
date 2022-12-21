@@ -13,6 +13,7 @@
 
 import re
 from xml.etree.ElementTree import ParseError
+import piexif
 
 from thumbor.engines.extensions.exif_orientation_editor import (
     ExifOrientationEditor,
@@ -23,13 +24,6 @@ try:
     import cairosvg
 except ImportError:
     cairosvg = None
-
-try:
-    from pyexiv2 import ImageMetadata
-
-    METADATA_AVAILABLE = True
-except ImportError:
-    METADATA_AVAILABLE = False
 
 
 WEBP_SIDE_LIMIT = 16383
@@ -129,6 +123,14 @@ class BaseEngine:
             img_mime = "image/jp2"
         elif buffer[4:12] in (b"ftypavif", b"ftypavis"):
             img_mime = "image/avif"
+        elif buffer[4:8] == b"ftyp" and buffer[8:12] in (
+            b"heic",
+            b"heix",
+            b"heim",
+            b"heis",
+            b"mif1",
+        ):
+            img_mime = "image/heif"
         elif buffer.startswith(b"\x00\x00\x00 ftyp"):
             img_mime = "video/mp4"
         elif buffer.startswith(b"\x1aE\xdf\xa3"):
@@ -198,12 +200,11 @@ class BaseEngine:
         if image_or_frames is None:
             return
 
-        if METADATA_AVAILABLE:
-            try:
-                self.metadata = ImageMetadata.from_buffer(buffer)
-                self.metadata.read()
-            except Exception as error:  # pylint: disable=broad-except
-                logger.error("Error reading image metadata: %s", error)
+        try:
+            if getattr(self, "exif", None):
+                self.metadata = piexif.load(self.exif)
+        except Exception as error:  # pylint: disable=broad-except
+            logger.error("Error reading image metadata: %s", error)
 
         if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(
             image_or_frames, (list, tuple)
@@ -408,6 +409,12 @@ class BaseEngine:
     def has_transparency(self):
         raise NotImplementedError()
 
+    def avif_enabled(self):
+        raise NotImplementedError()
+
+    def heif_enabled(self):
+        raise NotImplementedError()
+
     def cleanup(self):
         pass
 
@@ -415,3 +422,9 @@ class BaseEngine:
         can_convert = self.extension == ".png" and not self.has_transparency()
 
         return can_convert
+
+    def can_auto_convert_to_avif(self):
+        return self.avif_enabled()
+
+    def can_auto_convert_to_heif(self):
+        return self.heif_enabled()
