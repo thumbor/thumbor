@@ -6,7 +6,7 @@ Usage: `proportion(percentage)`
 Description
 -----------
 
-This filter applies the specified porportion to the image's height and width when cropping.
+This filter applies the specified proportion to the image's height and width when cropping.
 
 Arguments
 ---------

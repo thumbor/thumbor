@@ -5,9 +5,9 @@ unsigned char* get_curve(PyObject *points) {
     unsigned char*items = (unsigned char*)malloc(size * sizeof(char) * 2);
 
     for (i = 0; i < size; ++i) {
-        PyObject *p = PyTuple_GET_ITEM(points, i);
-        items[i * 2] = (unsigned char)PyLong_AS_LONG(PyTuple_GET_ITEM(p, 0));
-        items[i * 2 + 1] = (unsigned char)PyLong_AS_LONG(PyTuple_GET_ITEM(p, 1));
+        PyObject *p = PyTuple_GetItem(points, i);
+        items[i * 2] = (unsigned char)PyLong_AS_LONG(PyTuple_GetItem(p, 0));
+        items[i * 2 + 1] = (unsigned char)PyLong_AS_LONG(PyTuple_GetItem(p, 1));
     }
 
     return items;
