@@ -14,10 +14,22 @@ import os
 
 from setuptools import Extension, setup
 
+from pathlib import Path
+
 try:
-    from thumbor import __version__
+    import wheel.bdist_wheel
 except ImportError:
-    __version__ = "0.0.0"
+    wheel = None
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.mkd").read_text(encoding="utf-8")
+
+with open("thumbor/__init__.py") as f:
+    ns = {}
+    exec(f.read(), ns)
+    version = ns["__version__"]
+
+kwargs = {}
 
 TESTS_REQUIREMENTS = [
     "coverage==6.*,>=6.3.2",
@@ -32,7 +44,7 @@ TESTS_REQUIREMENTS = [
     "pytest-cov==3.*,>=3.0.0",
     "pytest-tldr==0.*,>=0.2.1",
     "pytest-xdist==2.*,>=2.4.0",
-    "redis==3.*,>=3.4.0",
+    "redis==4.*,>=4.2.2",
     "remotecv>=2.3.0",
     "sentry-sdk==0.*,>=0.14.1",
     "yanc==0.*,>=0.3.3",
@@ -40,17 +52,30 @@ TESTS_REQUIREMENTS = [
 
 OPENCV_REQUIREMENTS = [
     "opencv-python-headless==4.*,>=4.2.0",
-    "numpy==1.*,>=1.18.1",
+    "numpy==1.*,<1.24.0",
 ]
 
 EXTRA_LIBS_REQUIREMENTS = [
     # Going to update in a proper commit
     "cairosvg>=2.5.2",
     "pycurl==7.*,>=7.43.0",
-    "py3exiv2>=0.*,<0.7.2",
+    "pillow-avif-plugin==1.*,>=1.2.2",
+    "pillow-heif>=0.7.0",
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
+
+if wheel is not None:
+    # based on https://github.com/tornadoweb/tornado/blob/master/setup.py
+    class bdist_wheel_abi3(wheel.bdist_wheel.bdist_wheel):
+        def get_tag(self):
+            python, abi, plat = super().get_tag()
+
+            if python.startswith("cp"):
+                return "cp37", "abi3", plat
+            return python, abi, plat
+
+    kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
 
 
 def filter_extension_module(name, lib_objs, lib_headers):
@@ -66,6 +91,8 @@ def filter_extension_module(name, lib_objs, lib_headers):
             "-Werror",
             "-Wno-unused-parameter",
         ],
+        py_limited_api=True,
+        define_macros=[("Py_LIMITED_API", "0x03070000")],
     )
 
 
@@ -89,24 +116,16 @@ def run_setup(extension_modules=None):
 
     setup(
         name="thumbor",
-        version=__version__,
+        version=version,
         description="thumbor is an open-source photo thumbnail service by globo.com",
-        long_description="""
-Thumbor is a smart imaging service. It enables on-demand crop, resizing and flipping of images.
-
-It also features a VERY smart detection of important points in the image for better cropping and
-resizing, using state-of-the-art face and feature detection algorithms (more on that in Detection Algorithms).
-
-Using thumbor is very easy (after it is running). All you have to do is access it using an url for an image, like this:
-
-http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/logo-thumbor.png
-""",
+        long_description=long_description,
+        long_description_content_type="text/markdown",
         keywords="imaging face detection feature thumbnail imagemagick pil opencv",
         author="globo.com",
         author_email="thumbor@googlegroups.com",
         url="https://github.com/thumbor/thumbor/wiki",
         license="MIT",
-        python_requires=">=3.6",
+        python_requires=">=3.7",
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
@@ -115,9 +134,11 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "Operating System :: MacOS",
             "Operating System :: POSIX :: Linux",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
             "Programming Language :: Python :: 3 :: Only",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
@@ -130,6 +151,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             "colorama==0.*,>=0.4.3",
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.2",
+            "piexif==1.*,>=1.1.3",
             "Pillow>=9.0.0",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
@@ -151,6 +173,7 @@ http://<thumbor-server>/300x200/smart/thumbor.readthedocs.io/en/latest/_images/l
             ],
         },
         ext_modules=extension_modules,
+        **kwargs,
     )
 
 

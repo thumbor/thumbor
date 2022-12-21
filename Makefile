@@ -45,9 +45,13 @@ sequential-unit:
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown
+	@-redis-cli -p 26379 -a hey_you shutdown
+	@-rm /tmp/redis-sentinel.conf 2>/dev/null
 
 redis: kill_redis
+	@cp redis-sentinel.conf /tmp/redis-sentinel.conf
 	@redis-server redis.conf ; sleep 1
+	@redis-server /tmp/redis-sentinel.conf --sentinel ; sleep 1
 	@redis-cli -p 6668 -a hey_you info
 
 format:
@@ -57,7 +61,7 @@ flake:
 	@flake8 --config .flake8
 
 pylint:
-	@pylint thumbor tests
+	@pylint --load-plugins=pylint.extensions.no_self_use thumbor tests
 
 setup_docs:
 	@$(PYTHON) -m pip install -r docs/requirements.txt
@@ -162,7 +166,7 @@ test-docker-run: test-docker-37-run test-docker-38-run test-docker-39-run test-d
 test-docker-publish: test-docker-37-publish test-docker-38-publish test-docker-39-publish test-docker-310-publish
 
 test-docker-37-build:
-	@docker build -f TestDockerfile37 -t thumbor-test-37 .
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.7 -t thumbor-test-37 .
 
 test-docker-37-run:
 	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:37 make compile_ext redis sequential-unit integration flake
@@ -172,7 +176,7 @@ test-docker-37-publish:
 	@docker push thumbororg/thumbor-test:37
 
 test-docker-38-build:
-	@docker build -f TestDockerfile38 -t thumbor-test-38 .
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.8 -t thumbor-test-38 .
 
 test-docker-38-run:
 	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:38 make compile_ext redis sequential-unit integration flake
@@ -182,7 +186,7 @@ test-docker-38-publish:
 	@docker push thumbororg/thumbor-test:38
 
 test-docker-39-build:
-	@docker build -f TestDockerfile39 -t thumbor-test-39 .
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.9 -t thumbor-test-39 .
 
 test-docker-39-run:
 	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:39 make compile_ext redis sequential-unit integration flake
@@ -192,7 +196,7 @@ test-docker-39-publish:
 	@docker push thumbororg/thumbor-test:39
 
 test-docker-310-build:
-	@docker build -f TestDockerfile310 -t thumbor-test-310 .
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.10 -t thumbor-test-310 .
 
 test-docker-310-run:
 	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:310 make compile_ext redis sequential-unit integration flake

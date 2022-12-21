@@ -10,27 +10,27 @@
 
 # pylint: disable=unsupported-membership-test
 
-import datetime
 from io import BytesIO
 from os.path import abspath, dirname, join
-from unittest import TestCase, skipUnless
+from unittest import TestCase, mock
 
+import piexif
 from PIL import Image
 from preggy import expect
+import pytest
 
+from tests.base import (
+    skip_unless_avif,
+    skip_unless_avif_encoder,
+    skip_unless_heif,
+)
 from thumbor.config import Config
 from thumbor.context import Context
-from thumbor.engines.pil import Engine
-
-try:
-    from pyexiv2 import ImageMetadata  # noqa pylint: disable=unused-import
-
-    METADATA_AVAILABLE = True
-except ImportError:
-    METADATA_AVAILABLE = False
+from thumbor.engines.pil import Engine, KEEP_EXIF_COPYRIGHT_TAGS
 
 
-STORAGE_PATH = abspath(join(dirname(__file__), "../fixtures/images/"))
+FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
+STORAGE_PATH = join(FIXTURES_PATH, "images")
 
 
 class PilEngineTestCase(TestCase):
@@ -59,6 +59,23 @@ class PilEngineTestCase(TestCase):
             buffer = image_file.read()
         image = engine.create_image(buffer)
         expect(image.format).to_equal("JPEG")
+        expect(engine.subsampling).to_equal(0)
+
+    def test_load_jp2_image(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jp2"), "rb") as image_file:
+            buffer = image_file.read()
+        image = engine.create_image(buffer)
+        expect(image.format).to_equal("JPEG2000")
+        expect(engine.subsampling).to_be_null()
+
+    def test_load_psd_image(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "1x1.psd"), "rb") as image_file:
+            buffer = image_file.read()
+        image = engine.create_image(buffer)
+        expect(image.format).to_equal("PSD")
+        expect(engine.subsampling).to_be_null()
 
     def test_load_tif_16bit_per_channel_lsb(self):
         engine = Engine(self.context)
@@ -166,10 +183,6 @@ class PilEngineTestCase(TestCase):
         mode, _ = engine.image_data_as_rgb()
         expect(mode).to_equal("RGB")
 
-    @skipUnless(
-        METADATA_AVAILABLE,
-        "Pyexiv2 library not found. Skipping metadata tests.",
-    )
     def test_load_image_with_metadata(self):
         engine = Engine(self.context)
         with open(
@@ -181,31 +194,19 @@ class PilEngineTestCase(TestCase):
         image = engine.image
         expect(image.format).to_equal("JPEG")
         expect(engine.metadata).Not.to_be_null()
-        expect(engine.metadata.__class__.__name__).to_equal("ImageMetadata")
+        expect(engine.metadata.__class__.__name__).to_equal("dict")
 
-        # read the xmp tags
-        xmp_keys = engine.metadata.xmp_keys
-        expect(len(xmp_keys)).to_equal(44)
-        expect("Xmp.aux.LensSerialNumber" in xmp_keys).to_be_true()
+        expect(
+            engine.metadata["Exif"][piexif.ExifIFD.LensSerialNumber]
+        ).to_equal("0000c139be")
 
-        width = engine.metadata["Xmp.aux.LensSerialNumber"].value
-        expect(width).to_equal("0000c139be")
-
-        # read EXIF tags
-        exif_keys = engine.metadata.exif_keys
-        expect(len(exif_keys)).to_equal(37)
-        expect("Exif.Image.Software" in exif_keys).to_be_true()
-        expect(engine.metadata["Exif.Image.Software"].value).to_equal(
+        expect(engine.metadata["0th"][piexif.ImageIFD.Software]).to_equal(
             "Adobe Photoshop Lightroom 4.4 (Macintosh)"
         )
 
-        # read IPTC tags
-        iptc_keys = engine.metadata.iptc_keys
-        expect(len(iptc_keys)).to_equal(6)
-        expect("Iptc.Application2.DateCreated" in iptc_keys).to_be_true()
         expect(
-            engine.metadata["Iptc.Application2.DateCreated"].value
-        ).to_equal([datetime.date(2016, 6, 23)])
+            engine.metadata["Exif"][piexif.ExifIFD.DateTimeOriginal]
+        ).to_equal("2016:06:23 13:18:05")
 
     def test_should_preserve_png_transparency(self):
         engine = Engine(self.context)
@@ -235,3 +236,157 @@ class PilEngineTestCase(TestCase):
 
         # Image has total of 200x150=30000 pixels. Most of them should be transparent
         expect(transparent_pixels_count).to_be_greater_than(19000)
+
+    @skip_unless_avif
+    def test_convert_jpg_to_avif(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+        expect(engine.image.format).to_equal("JPEG")
+        avif_bytes = BytesIO(engine.read(".avif"))
+        with Image.open(avif_bytes) as img:
+            expect(img.format).to_equal("AVIF")
+
+    @skip_unless_avif_encoder("aom")
+    def test_avif_codec_setting(self):
+        self.context.config.AVIF_CODEC = "aom"
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+
+        with mock.patch("PIL.ImageFile.ImageFile.save") as mock_save:
+            engine.read(".avif")
+            mock_save.assert_called_once()
+            assert mock_save.call_args[1].get("codec") == "aom"
+
+    @skip_unless_avif
+    def test_avif_speed_setting(self):
+        self.context.config.AVIF_SPEED = 5
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+
+        with mock.patch("PIL.ImageFile.ImageFile.save") as mock_save:
+            engine.read(".avif")
+            mock_save.assert_called_once()
+            assert mock_save.call_args[1].get("speed") == 5
+
+    @skip_unless_avif_encoder("svt")
+    def test_avif_svt_odd_dimensions(self):
+        self.context.config.AVIF_CODEC = "svt"
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "1bit.png"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".png")
+        expect(engine.size).to_equal((691, 212))
+        avif_bytes = BytesIO(engine.read(".avif"))
+        with Image.open(avif_bytes) as img:
+            expect(img.format).to_equal("AVIF")
+            expect(img.size).to_equal((690, 212))
+
+    @skip_unless_heif
+    def test_convert_jpg_to_heif(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "image.jpg"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".jpg")
+        expect(engine.image.format).to_equal("JPEG")
+        heif_bytes = BytesIO(engine.read(".heic"))
+        with Image.open(heif_bytes) as img:
+            expect(img.format).to_equal("HEIF")
+
+    @skip_unless_heif
+    def test_heif_odd_dimensions(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "1bit.png"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, ".png")
+        expect(engine.size).to_equal((691, 212))
+        heif_bytes = BytesIO(engine.read(".heic"))
+        with Image.open(heif_bytes) as img:
+            expect(img.format).to_equal("HEIF")
+            expect(img.size).to_equal((691, 212))
+
+    def test_should_preserve_copyright_exif_in_image(self):
+        self.context.config.PRESERVE_EXIF_COPYRIGHT_INFO = True
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "thumbor-exif.png"), "rb") as image_file:
+            buffer_image = image_file.read()
+        engine.load(buffer_image, None)
+
+        final_bytes = BytesIO(engine.read())
+        image = Image.open(final_bytes)
+        expect(image.info.get("exif")).not_to_be_null()
+
+        exifs = piexif.load(image.info.get("exif"))
+        expect(exifs["0th"]).not_to_be_null()
+        expect(len(exifs["0th"].items())).to_equal(3)
+        for k in KEEP_EXIF_COPYRIGHT_TAGS:
+            expect(exifs["0th"][k]).not_to_be_null()
+
+    def test_should_read_image_without_copyright_exif(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "1bit.png"), "rb") as image_file:
+            buffer = image_file.read()
+        engine.load(buffer, None)
+
+        final_bytes = BytesIO(engine.read())
+        image = Image.open(final_bytes)
+        expect(image.info.get("exif")).to_be_null()
+
+
+@skip_unless_avif_encoder("svt")
+@pytest.mark.parametrize(
+    "image_basename", ("20x20.jpg", "Christophe_Henner_-_June_2016.jpg")
+)
+def test_avif_svt_codec_fallback(image_basename):
+    context = PilEngineTestCase().get_context()
+    context.config.AVIF_CODEC = "svt"
+    engine = Engine(context)
+    with open(join(STORAGE_PATH, image_basename), "rb") as image_file:
+        buffer = image_file.read()
+    engine.load(buffer, ".jpg")
+
+    with mock.patch("PIL.ImageFile.ImageFile.save") as mock_save:
+        engine.read(".avif")
+        mock_save.assert_called_once()
+        assert mock_save.call_args[1].get("codec") == "auto"
+
+
+@pytest.mark.xfail(reason="flaky test depending on the state of a dependency")
+@skip_unless_avif
+@pytest.mark.parametrize("srgb_profile", [None, "srgb.icc"])
+def test_avif_convert_cmyk_color_profile_to_srgb(srgb_profile):
+    context = PilEngineTestCase().get_context()
+    if srgb_profile:
+        context.config.SRGB_PROFILE = join(FIXTURES_PATH, srgb_profile)
+    engine = Engine(context)
+    with open(join(STORAGE_PATH, "cmyk-icc.jpg"), "rb") as image_file:
+        buffer = image_file.read()
+    engine.load(buffer, ".jpg")
+    expect(engine.image.getpixel((0, 0))).to_equal((102, 1, 45, 0))
+    avif_bytes = BytesIO(engine.read(".avif"))
+    with Image.open(avif_bytes) as img:
+        expect(img.format).to_equal("AVIF")
+        expect(img.mode).to_equal("RGB")
+        rgb_color = img.getpixel((0, 0))
+        expect(rgb_color).to_equal((148, 212, 212))
+
+
+@skip_unless_avif
+def test_avif_convert_gray_color_profile_to_srgb():
+    context = PilEngineTestCase().get_context()
+    engine = Engine(context)
+    with open(join(STORAGE_PATH, "grayscale-icc.jpg"), "rb") as image_file:
+        buffer = image_file.read()
+    engine.load(buffer, ".jpg")
+    expect(engine.image.getpixel((0, 0))).to_equal(186)
+    avif_bytes = BytesIO(engine.read(".avif"))
+    with Image.open(avif_bytes) as img:
+        expect(img.format).to_equal("AVIF")
+        expect(img.mode).to_equal("RGB")
+        rgb_color = img.getpixel((0, 0))
+        expect(rgb_color).to_equal((200, 200, 200))

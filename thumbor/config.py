@@ -102,7 +102,7 @@ Config.define(
 Config.define(
     "PILLOW_RESAMPLING_FILTER",
     "LANCZOS",
-    "Specify resampling filter for Pillow resize method."
+    "Specify resampling filter for Pillow resize method. "
     "One of LANCZOS, NEAREST, BILINEAR, BICUBIC, HAMMING (Pillow>=3.4.0).",
     "Imaging",
 )
@@ -112,6 +112,58 @@ Config.define(
     None,
     "Quality index used for generated WebP images. If not set (None) the same level of "
     "JPEG quality will be used. If 100 the `lossless` flag will be used.",
+    "Imaging",
+)
+
+Config.define(
+    "AVIF_QUALITY",
+    None,
+    "Quality index used for generated AVIF images. If not set (None) the same "
+    "level of JPEG quality will be used. Controls the max quantizer setting, "
+    "with quality=0 corresponding to max quantizer 63, and quality=100 to "
+    "max quantizer=0",
+    "Imaging",
+)
+
+Config.define(
+    "AVIF_SPEED",
+    None,
+    "Quality/speed trade-off (0=slower-better, 10=fastest).",
+    "Imaging",
+)
+
+Config.define(
+    "AVIF_CODEC",
+    "auto",
+    "Codec to use for encoding AVIF images. Can be `auto`, `aom`, `rav1e`, "
+    "or `svt`, depending on what is compiled into libavif.",
+    "Imaging",
+)
+
+Config.define(
+    "AVIF_CODEC_FALLBACK",
+    "auto",
+    "Codec to use for encoding AVIF images if `AVIF_CODEC` cannot be used. "
+    "For instance, if AVIF_CODEC is `svt` but an image is too small or too "
+    "large to be encoded with that codec, the image will be encoded using "
+    "the codec from this setting instead.",
+    "Imaging",
+)
+
+Config.define(
+    "HEIF_QUALITY",
+    None,
+    "Quality index used for generated HEIF images. If not set (None) the same "
+    "level of JPEG quality will be used.",
+    "Imaging",
+)
+
+Config.define(
+    "SRGB_PROFILE",
+    None,
+    "Path to the file containing the sRGB ICC profile to use when images need "
+    "to be converted from other color spaces. If None, uses the default SRGB "
+    "profile from Pillow ImageCMS.",
     "Imaging",
 )
 
@@ -135,13 +187,34 @@ Config.define(
     "Imaging",
 )
 Config.define(
+    "AUTO_AVIF",
+    False,
+    "Specifies whether Avif format should be used automatically if the request accepts it "
+    "(via Accept header) and pillow-avif-plugin is enabled",
+    "Imaging",
+)
+Config.define(
+    "AUTO_JPG",
+    False,
+    "Specifies whether JPG format should be used automatically if the request accepts it "
+    "(via Accept header)",
+    "Imaging",
+)
+Config.define(
+    "AUTO_HEIF",
+    False,
+    "Specifies whether Heif format should be used automatically if the request accepts it "
+    "(via Accept header) and pillow-heif is enabled",
+    "Imaging",
+)
+Config.define(
     "AUTO_PNG_TO_JPG",
     False,
     "Specifies whether a PNG image should be used automatically if the png image has "
     "no transparency (via alpha layer). "
     "WARNING: Depending on case, this is not a good deal. "
     "This transformation maybe causes distortions or the size of image can increase. "
-    "Images with texts, for example, the result image maybe will be distorced. "
+    "Images with texts, for example, the result image maybe will be distorted. "
     "Dark images, for example, the size of result image maybe will be bigger. "
     "You have to evaluate the majority of your use cases "
     "to take a decision about the usage of this conf.",
@@ -150,7 +223,7 @@ Config.define(
 Config.define(
     "SVG_DPI",
     150,
-    "Specify the ratio between 1in and 1px for SVG images. This is only used when"
+    "Specify the ratio between 1in and 1px for SVG images. This is only used when "
     "rasterizing SVG images having their size units in cm or inches.",
     "Imaging",
 )
@@ -197,6 +270,13 @@ Config.define(
 )
 
 Config.define(
+    "PRESERVE_EXIF_COPYRIGHT_INFO",
+    False,
+    "Preserves Exif copyright information in generated images.",
+    "Imaging",
+)
+
+Config.define(
     "ALLOW_ANIMATED_GIFS",
     True,
     "Indicates whether thumbor should enable the EXPERIMENTAL support for animated gifs.",
@@ -224,7 +304,7 @@ Config.define(
     "ENGINE_THREADPOOL_SIZE",
     0,
     "Size of the thread pool used for image transformations."
-    " The default value is 0 (don't use a threadpoool. "
+    " The default value is 0 (don't use a threadpoool). "
     "Increase this if you are seeing your IOLoop getting "
     "blocked (often indicated by your upstream HTTP "
     "requests timing out)",
@@ -672,6 +752,50 @@ Config.define(
     "Server password for the queued redis detector",
     "Queued Redis Detector",
 )
+Config.define(
+    "REDIS_QUEUE_MODE",
+    "single_node",
+    "Redis operation mode 'single_node' or 'sentinel'",
+    "Queued Redis Detector",
+)
+
+# QUEUED DETECTOR REDIS SENTINEL OPTIONS
+Config.define(
+    "REDIS_QUEUE_SENTINEL_INSTANCES",
+    "localhost:26379",
+    "Sentinel server instances for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_PASSWORD",
+    None,
+    "Sentinel server password for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_MASTER_INSTANCE",
+    "master",
+    "Sentinel server master instance for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_MASTER_PASSWORD",
+    None,
+    "Sentinel server master password for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_MASTER_DB",
+    0,
+    "Sentinel server master database index for the queued redis detector",
+    "Queued Redis Detector",
+)
+Config.define(
+    "REDIS_QUEUE_SENTINEL_SOCKET_TIMEOUT",
+    10.0,
+    "Sentinel server socket timeout for the queued redis detector",
+    "Queued Redis Detector",
+)
 
 # QUEUED DETECTOR SQS OPTIONS
 Config.define("SQS_QUEUE_KEY_ID", None, "AWS key id", "Queued SQS Detector")
@@ -743,8 +867,15 @@ Config.define(
 Config.define(
     "MAX_WAIT_SECONDS_BEFORE_IO_SHUTDOWN",
     0,
-    "The amount of time to waut before shutting down all io, after the server has been stopped",
+    "The amount of time to wait before shutting down all io, after the server has been stopped",
     "Server",
+)
+Config.define(
+    "NON_BLOCKING_SOCKETS",
+    False,
+    "If True, thumbor will ensure that the socket from the file descriptor number passed using"
+    " the --fd flag is non-blocking. This setting has no effect if the --fd flag is a path,"
+    " sockets created that way are always non-blocking.",
 )
 
 # HANDLER LISTS

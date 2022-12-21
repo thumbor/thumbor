@@ -55,8 +55,12 @@ class Storage(storages.BaseStorage):
 
         crypto_path = f"{splitext(file_abspath)[0]}.txt"
         temp_abspath = f"{crypto_path}.{str(uuid4()).replace('-', '')}"
-        with open(temp_abspath, "w", encoding="utf-8") as _file:
-            _file.write(self.context.server.security_key)
+        with open(temp_abspath, "wb") as _file:
+            try:
+                security_key = self.context.server.security_key.encode()
+            except (UnicodeDecodeError, AttributeError):
+                security_key = self.context.server.security_key
+            _file.write(security_key)
 
         move(temp_abspath, crypto_path)
         logger.debug(

@@ -105,17 +105,27 @@ def get_application(context):
     return context.modules.importer.import_class(context.app_class)(context)
 
 
+def get_socket_from_fd(fname_or_fd, *, non_blocking=False):
+    fd_number = get_as_integer(fname_or_fd)
+
+    if fd_number is not None:
+        sock = socket(fileno=fd_number)
+        if non_blocking:
+            sock.setblocking(False)
+    else:
+        sock = bind_unix_socket(fname_or_fd)
+
+    return sock
+
+
 def run_server(application, context):
     server = HTTPServer(application, xheaders=True)
 
     if context.server.fd is not None:
-        fd_number = get_as_integer(context.server.fd)
-
-        if fd_number is not None:
-            sock = socket(fileno=fd_number)
-        else:
-            sock = bind_unix_socket(context.server.fd)
-
+        sock = get_socket_from_fd(
+            context.server.fd,
+            non_blocking=context.config.NON_BLOCKING_SOCKETS,
+        )
         server.add_socket(sock)
 
         logging.debug("thumbor starting at fd %s", context.server.fd)

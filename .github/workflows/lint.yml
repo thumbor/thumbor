@@ -2,7 +2,10 @@ name: lint/formatter
 on:
   push:
   pull_request:
-    types: [opened, reopened]
+
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
 jobs:
   black:
     runs-on: ubuntu-latest
@@ -12,6 +15,10 @@ jobs:
         with:
           options: "--check --verbose"
   flake8:
+    permissions:
+      contents: read # to fetch code (actions/checkout)
+      checks: write # to update checks 
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v3
@@ -26,3 +33,15 @@ jobs:
           checkName: 'flake8'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  isort:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - uses: actions/checkout@v2
+      - name: Install isort
+        run: pip install isort
+      - name: Run isort
+        run: isort thumbor tests --profile black
+ 

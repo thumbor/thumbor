@@ -255,7 +255,7 @@ def format_error(dependency, err, msg):
     return result.strip()
 
 
-def check_modules(check_pyexiv=True):
+def check_modules():
     newline()
     errors = []
 
@@ -286,18 +286,6 @@ def check_modules(check_pyexiv=True):
             errors.append(format_error(module, str(error), error_message))
 
     warn_modules = []
-
-    if check_pyexiv:
-        warn_modules.append(
-            (
-                "pyexiv2",
-                (
-                    "If you do not need EXIF metadata, you can safely ignore this.\n"
-                    "For more information visit "
-                    "https://python3-exiv2.readthedocs.io/en/latest/."
-                ),
-            ),
-        )
 
     warnings = []
     for module, error_message in warn_modules:
@@ -436,8 +424,8 @@ def print_header(print_version=True):
     )
 
 
-def check_everything(cfg, check_pyexiv):
-    warnings, errors = check_modules(check_pyexiv)
+def check_everything(cfg):
+    warnings, errors = check_modules()
     errors += check_compiled_extensions()
     errors += check_extensibility_modules(cfg)
     errors += check_extensions(cfg)
@@ -476,14 +464,12 @@ def print_results(warnings, errors):
     print("Open an issue at https://github.com/thumbor/thumbor/issues/new")
 
 
-def run_doctor(
-    options, print_version=True, exit_with_error=True, check_pyexiv=True
-):
+def run_doctor(options, print_version=True, exit_with_error=True):
     cfg = load_config(options["config"])
     configure_colors(options["nocolor"])
 
     print_header(print_version)
-    warnings, errors = check_everything(cfg, check_pyexiv)
+    warnings, errors = check_everything(cfg)
     print_results(warnings, errors)
 
     if exit_with_error and errors:

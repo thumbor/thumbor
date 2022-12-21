@@ -10,6 +10,26 @@
 
 import logging
 from functools import wraps
+from io import BytesIO
+from PIL import Image
+
+try:
+    from PIL import ImageCms  # pylint: disable=ungrouped-imports
+except ImportError:
+    ImageCms = None
+    DEFAULT_SRGB_PROFILE = None
+    TRANSFORM_FLAGS = 0
+else:
+    DEFAULT_SRGB_PROFILE = ImageCms.ImageCmsProfile(
+        ImageCms.createProfile("sRGB")
+    )
+    TRANSFORM_FLAGS = (
+        ImageCms.FLAGS["NOTCACHE"]
+        | ImageCms.FLAGS["NOTPRECALC"]
+        | ImageCms.FLAGS["BLACKPOINTCOMPENSATION"]
+        | ImageCms.FLAGS["HIGHRESPRECALC"]
+    )
+
 
 CONTENT_TYPE = {
     ".jpg": "image/jpeg",
@@ -22,6 +42,9 @@ CONTENT_TYPE = {
     ".svg": "image/svg+xml",
     ".tif": "image/tiff",
     ".tiff": "image/tiff",
+    ".avif": "image/avif",
+    ".heic": "image/heif",
+    ".heif": "image/heif",
 }
 
 EXTENSION = {
@@ -33,6 +56,8 @@ EXTENSION = {
     "video/webm": ".webm",
     "image/svg+xml": ".svg",
     "image/tiff": ".tif",
+    "image/avif": ".avif",
+    "image/heif": ".heic",
 }
 
 
@@ -53,3 +78,97 @@ def deprecated(message):
         return wrapper_deprecated
 
     return decorator_deprecated
+
+
+def get_color_space(img):
+    icc = img.info.get("icc_profile")
+    if not icc:
+        return "RGB"
+
+    if ImageCms is None:
+        return None
+
+    buf = BytesIO(icc)
+    try:
+        orig_profile = ImageCms.ImageCmsProfile(buf)
+        color_space = orig_profile.profile.xcolor_space
+    except (AttributeError, OSError, TypeError, ValueError):
+        return None
+    else:
+        return color_space.strip()
+
+
+def ensure_srgb(img, srgb_profile=None):
+    """
+    Ensures that an image either has no ICC profile (and so is implicitly
+    sRGB) or has an sRGB color profile. If the image is sRGB, it is returned
+    unchanged. If it has a CMYK or Gray color profile, this function will
+    return an image converted to sRGB. Any color profiles in other color
+    spaces will return None.
+    """
+    img_info = dict(img.info)
+    icc = img_info.pop("icc_profile", None)
+    if not icc:
+        return img
+
+    if ImageCms is None:
+        raise RuntimeError("ImageCms is required for color profile utilities")
+
+    if srgb_profile is not None:
+        srgb_profile = ImageCms.ImageCmsProfile(srgb_profile)
+    else:
+        srgb_profile = DEFAULT_SRGB_PROFILE
+
+    buf = BytesIO(icc)
+    try:
+        orig_profile = ImageCms.ImageCmsProfile(buf)
+        color_space = orig_profile.profile.xcolor_space
+    except (AttributeError, OSError, TypeError, ValueError):
+        return None
+    finally:
+        buf.close()
+
+    if color_space == "RGB ":
+        logger.debug("Returning img (RGB)")
+        return img
+
+    if color_space not in ("GRAY", "CMYK"):
+        # Other color spaces are rare, but best not to try to convert them.
+        # Upstream understands a None return as meaning it should not
+        # use it for the target encoder.
+        logger.debug(
+            "Cannot convert to sRGB; color space = %s",
+            (color_space.strip()),
+        )
+        return None
+
+    # Probably not possible to have an animated image with CMYK or GRAY icc
+    # profile, but best leave it alone if we have one
+    if getattr(img, "is_animated", False):
+        return None
+
+    if color_space == "GRAY":
+        pil_mode = "L"
+    else:
+        pil_mode = "CMYK"
+
+    logger.debug("Converting from %s to sRGB", color_space)
+
+    transform = ImageCms.ImageCmsTransform(
+        orig_profile,
+        srgb_profile,
+        pil_mode,
+        "RGBA",
+        intent=ImageCms.INTENT_RELATIVE_COLORIMETRIC,
+        flags=TRANSFORM_FLAGS,
+    )
+
+    src_im = Image.new(pil_mode, img.size, "white")
+    src_im.paste(img)
+
+    dst_im = Image.new("RGBA", img.size, "white")
+    dst_im.info = img_info
+    dst_im = transform.apply(src_im, dst_im)
+    dst_im = dst_im.convert("RGB")
+    dst_im.info = img_info
+    return dst_im

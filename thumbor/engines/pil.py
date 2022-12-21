@@ -13,12 +13,14 @@ from io import BytesIO
 from subprocess import PIPE, Popen
 from tempfile import mkstemp
 
+import piexif
 from PIL import Image, ImageDraw, ImageFile, ImageSequence, JpegImagePlugin
 from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
-from thumbor.utils import deprecated, logger
+from thumbor.filters.fill import Filter
+from thumbor.utils import deprecated, ensure_srgb, get_color_space, logger
 
 try:
     from thumbor.ext.filters import _composite
@@ -27,6 +29,23 @@ try:
 except ImportError:
     FILTERS_AVAILABLE = False
 
+try:
+    from PIL import _avif  # pylint: disable=ungrouped-imports
+except ImportError:
+    try:
+        from pillow_avif import _avif
+    except ImportError:
+        _avif = None
+
+try:
+    from pillow_heif import HeifImagePlugin
+except ImportError:
+    HeifImagePlugin = None
+
+HAVE_AVIF = _avif is not None
+HAVE_HEIF = HeifImagePlugin is not None
+
+
 FORMATS = {
     ".tif": "PNG",  # serve tif as png
     ".jpg": "JPEG",
@@ -34,7 +53,16 @@ FORMATS = {
     ".gif": "GIF",
     ".png": "PNG",
     ".webp": "WEBP",
+    ".avif": "AVIF",
+    ".heic": "HEIF",
+    ".heif": "HEIF",
 }
+
+KEEP_EXIF_COPYRIGHT_TAGS = [
+    piexif.ImageIFD.Artist,
+    piexif.ImageIFD.Copyright,
+    piexif.ImageIFD.DateTime,
+]
 
 ImageFile.MAXBLOCK = 2**25
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -66,6 +94,10 @@ class Engine(BaseEngine):
     def gen_image(self, size, color):
         if color == "transparent":
             color = None
+        elif color == "auto":
+            color = Filter.get_median_color(self.context.modules)
+            color = f"#{color}"
+
         img = Image.new("RGBA", size, color)
 
         return img
@@ -81,10 +113,11 @@ class Engine(BaseEngine):
         self.exif = img.info.get("exif")
         self.original_mode = img.mode
 
-        self.subsampling = JpegImagePlugin.get_sampling(img)
+        if hasattr(img, "layer"):
+            self.subsampling = JpegImagePlugin.get_sampling(img)
+            if self.subsampling == -1:  # n/a for this file
+                self.subsampling = None
 
-        if self.subsampling == -1:  # n/a for this file
-            self.subsampling = None
         self.qtables = getattr(img, "quantization", None)
 
         if (
@@ -101,6 +134,18 @@ class Engine(BaseEngine):
             return frames
 
         return img
+
+    def get_exif_copyright(self):
+        exifs = piexif.load(self.image.info.get("exif"))
+        copyright_exif = {}
+        if exifs is None or "0th" not in exifs or exifs["0th"] is None:
+            return None
+
+        for copyright_tag in KEEP_EXIF_COPYRIGHT_TAGS:
+            if copyright_tag in exifs["0th"]:
+                copyright_exif[copyright_tag] = exifs["0th"][copyright_tag]
+
+        return piexif.dump({"0th": copyright_exif})
 
     def get_resize_filter(self):
         config = self.context.config
@@ -217,6 +262,20 @@ class Engine(BaseEngine):
 
         ext = requested_extension or self.get_default_extension()
 
+        if ext in (".heic", ".heif") and not HAVE_HEIF:
+            logger.warning(
+                "[PILEngine] HEIF encoding unavailable, defaulting to %s",
+                self.extension,
+            )
+            ext = self.extension
+
+        if ext == ".avif" and not HAVE_AVIF:
+            logger.warning(
+                "[PILEngine] AVIF encoding unavailable, defaulting to %s",
+                self.extension,
+            )
+            ext = self.extension
+
         options = {"quality": quality}
 
         if ext in (".jpg", ".jpeg"):
@@ -274,8 +333,59 @@ class Engine(BaseEngine):
         if options["quality"] is None:
             options["quality"] = self.context.config.QUALITY
 
+        if ext == ".avif":
+            options["codec"] = self.context.config.AVIF_CODEC
+            if self.context.config.AVIF_SPEED:
+                options["speed"] = self.context.config.AVIF_SPEED
+
+            if options["codec"] == "svt":
+                width, height = self.size
+                # SVT-AV1 has limits on min and max image dimension. If the
+                # image falls outside of those, use AVIF_CODEC_FALLBACK
+                if not 64 <= width <= 4096 or not 64 <= height <= 4096:
+                    options["codec"] = self.context.config.AVIF_CODEC_FALLBACK
+                elif width % 2 or height % 2:
+                    # SVT-AV1 requires width and height to be divisible by two
+                    width = (width // 2) * 2
+                    height = (height // 2) * 2
+                    self.crop(0, 0, width, height)
+
+            if options["quality"] == "keep":
+                options.pop("quality")
+
+            if self.image.mode not in ["RGB", "RGBA"]:
+                if self.image.mode == "P":
+                    mode = "RGBA"
+                else:
+                    mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
+                self.image = self.image.convert(mode)
+
+            # Some AVIF decoders (most notably the one in Chrome) do not
+            # display AVIF images if they have an embedded ICC profile with a
+            # color space that doesn't match the image's mode (e.g. if the
+            # mode is RGB but the profile is CMYK or GRAY).
+            #
+            # To address this issue we transform non-sRGB ICC profiles to sRGB
+            # if we're encoding to AVIF.
+            color_space = get_color_space(self.image)
+            if color_space not in ("RGB", None):
+                srgb_image = ensure_srgb(
+                    self.image, srgb_profile=self.context.config.SRGB_PROFILE
+                )
+                if srgb_image:
+                    self.image = srgb_image
+                    self.icc_profile = srgb_image.info.get("icc_profile")
+
         if self.icc_profile is not None:
             options["icc_profile"] = self.icc_profile
+
+        if (
+            self.context.config.PRESERVE_EXIF_COPYRIGHT_INFO is True
+            and self.image.info.get("exif") is not None
+        ):
+            exif_copyright = self.get_exif_copyright()
+            if exif_copyright is not None:
+                options["exif"] = exif_copyright
 
         if self.context.config.PRESERVE_EXIF_INFO:
             if self.exif is not None:
@@ -295,7 +405,11 @@ class Engine(BaseEngine):
                         mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
                     self.image = self.image.convert(mode)
 
-            if ext in [".png", ".gif"] and self.image.mode == "CMYK":
+            if (
+                ext in [".png", ".gif", ".heic", ".heif"]
+                and self.image.mode == "CMYK"
+            ):
+                # 26.10.22: remove ".heic, .heif" in a month(when pillow_heif get updated)
                 self.image = self.image.convert("RGBA")
 
             self.image.format = FORMATS.get(
@@ -413,6 +527,12 @@ class Engine(BaseEngine):
             )
 
         return has_transparency
+
+    def avif_enabled(self):
+        return HAVE_AVIF
+
+    def heif_enabled(self):
+        return HAVE_HEIF
 
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:
