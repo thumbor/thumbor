@@ -166,7 +166,7 @@ test-docker-run: test-docker-37-run test-docker-38-run test-docker-39-run test-d
 test-docker-publish: test-docker-37-publish test-docker-38-publish test-docker-39-publish test-docker-310-publish
 
 test-docker-37-build:
-	@docker build -f TestDockerfile37 -t thumbor-test-37 .
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.7 -t thumbor-test-37 .
 
 test-docker-37-run:
 	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:37 make compile_ext redis sequential-unit integration flake
@@ -176,7 +176,7 @@ test-docker-37-publish:
 	@docker push thumbororg/thumbor-test:37
 
 test-docker-38-build:
-	@docker build -f TestDockerfile38 -t thumbor-test-38 .
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.8 -t thumbor-test-38 .
 
 test-docker-38-run:
 	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:38 make compile_ext redis sequential-unit integration flake
@@ -186,7 +186,7 @@ test-docker-38-publish:
 	@docker push thumbororg/thumbor-test:38
 
 test-docker-39-build:
-	@docker build -f TestDockerfile39 -t thumbor-test-39 .
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.9 -t thumbor-test-39 .
 
 test-docker-39-run:
 	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:39 make compile_ext redis sequential-unit integration flake
@@ -196,7 +196,7 @@ test-docker-39-publish:
 	@docker push thumbororg/thumbor-test:39
 
 test-docker-310-build:
-	@docker build -f TestDockerfile310 -t thumbor-test-310 .
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.10 -t thumbor-test-310 .
 
 test-docker-310-run:
 	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:310 make compile_ext redis sequential-unit integration flake

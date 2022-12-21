@@ -60,7 +60,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: coverage.lcov
-          flag-name: run-${{ matrix.image-tag }}
+          flag-name: run-${{ matrix.python-version }}
           parallel: true
   finish:
     needs: build
