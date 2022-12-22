@@ -37,11 +37,4 @@ jobs:
       - name: Compile Extensions
         run: make compile_ext
       - name: Lint
-        run: make pylint
-      - name: Install isort
-        run: pip install isort
-      - name: Run isort
-        run: isort thumbor tests --profile black
-      - uses: psf/black@stable
-        with:
-          options: "--check --verbose"
+        run: make lint

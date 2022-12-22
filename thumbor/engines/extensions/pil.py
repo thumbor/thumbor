@@ -72,7 +72,7 @@ from struct import pack
 try:
     import PIL
     from PIL import Image
-    from PIL.GifImagePlugin import getheader, getdata
+    from PIL.GifImagePlugin import getdata, getheader
 except ImportError:
     PIL = None
 

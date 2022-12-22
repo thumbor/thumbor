@@ -15,9 +15,9 @@ from os.path import abspath, dirname, join
 from unittest import TestCase, mock
 
 import piexif
+import pytest
 from PIL import Image
 from preggy import expect
-import pytest
 
 from tests.base import (
     skip_unless_avif,
@@ -26,8 +26,7 @@ from tests.base import (
 )
 from thumbor.config import Config
 from thumbor.context import Context
-from thumbor.engines.pil import Engine, KEEP_EXIF_COPYRIGHT_TAGS
-
+from thumbor.engines.pil import KEEP_EXIF_COPYRIGHT_TAGS, Engine
 
 FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
 STORAGE_PATH = join(FIXTURES_PATH, "images")

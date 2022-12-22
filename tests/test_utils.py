@@ -12,17 +12,17 @@ import logging
 from shutil import which
 from unittest import TestCase, mock
 
-from preggy import expect
 import pytest
 from PIL import Image, ImageCms
+from preggy import expect
 
 from thumbor.utils import (
     CONTENT_TYPE,
     EXTENSION,
     deprecated,
-    logger,
     ensure_srgb,
     get_color_space,
+    logger,
 )
 
 

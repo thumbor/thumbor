@@ -8,8 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from thumbor.utils import logger
 from thumbor.metrics import BaseMetrics
+from thumbor.utils import logger
 
 
 class Metrics(BaseMetrics):

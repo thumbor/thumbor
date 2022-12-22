@@ -9,8 +9,8 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 try:
-    import numpy as np
     import cv2
+    import numpy as np
 except ImportError:
     pass
 

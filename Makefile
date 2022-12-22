@@ -57,11 +57,19 @@ redis: kill_redis
 format:
 	@black .
 
+black:
+	@black . --check
+
 flake:
 	@flake8 --config .flake8
 
 pylint:
 	@pylint --load-plugins=pylint.extensions.no_self_use thumbor tests
+
+isort:
+	@isort thumbor tests --profile black
+
+lint: black flake pylint
 
 setup_docs:
 	@$(PYTHON) -m pip install -r docs/requirements.txt

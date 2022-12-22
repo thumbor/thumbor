@@ -8,8 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from thumbor.filters import BaseFilter, filter_method
 from thumbor.ext.filters import _saturation
+from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):

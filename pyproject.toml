@@ -2,6 +2,9 @@
 line-length = 79
 target-version = ['py310']
 include = '\.pyi?$'
+extend-exclude = '''
+    ^/.env
+'''
 
 [build-system]
 requires = ["setuptools", "wheel"]
