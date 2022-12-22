@@ -32,6 +32,7 @@ with open("thumbor/__init__.py") as f:
 kwargs = {}
 
 TESTS_REQUIREMENTS = [
+    "black==22.*,>=22.12.0",
     "coverage==6.*,>=6.3.2",
     "flake8==3.*,>=3.7.9",
     "isort==5.*,>=5.11.4",
