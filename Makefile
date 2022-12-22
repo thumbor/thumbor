@@ -32,13 +32,13 @@ integration_run integration int:
 	@pytest -sv integration_tests/ -p no:tldr
 
 pint pintegration:
-	@pytest -sv integration_tests/ -p no:tldr -n `nproc`
+	@pytest -sv integration_tests/ -p no:tldr -n auto
 
 coverage:
 	@coverage report -m --fail-under=10
 
 unit:
-	@pytest -n `nproc` --cov=thumbor tests/
+	@pytest -n auto --cov=thumbor tests/
 
 sequential-unit:
 	@pytest -sv --junit-xml=test-results/unit/results.xml --cov=thumbor tests/

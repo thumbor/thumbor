@@ -48,7 +48,7 @@ jobs:
       - name: Compile Extensions
         run: make compile_ext
       - name: Run Unit Tests
-        run: make sequential-unit
+        run: make unit
       - name: Run Integration Tests
         run: make integration_run
       - name: Lint
