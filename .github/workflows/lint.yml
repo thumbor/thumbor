@@ -14,25 +14,37 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check --verbose"
-  flake8:
+  lint:
     permissions:
       contents: read # to fetch code (actions/checkout)
-      checks: write # to update checks 
+      checks: write # to update checks
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v3
-        with:
-          python-version: '3.x'
       - uses: actions/checkout@v2
-      - name: Install flake8
-        run: pip install flake8
-      - name: Run flake8
-        uses: suo/flake8-github-action@releases/v1
+      - run: sudo apt-get update -y
+      - run: >
+          sudo apt-get install --no-install-recommends -y
+          ffmpeg
+          gifsicle
+          redis
+          libcurl4-openssl-dev
+          libjpeg-progs
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v4
         with:
-          checkName: 'flake8'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          python-version: 3.11
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-lint-${{ hashFiles('setup.py') }}
+      - name: Setup
+        run: pip install --upgrade --upgrade-strategy eager -e .[tests]
+      - name: Compile Extensions
+        run: make compile_ext
+      - name: Lint
+        run: make pylint
   isort:
     runs-on: ubuntu-latest
     steps:
@@ -44,4 +56,3 @@ jobs:
         run: pip install isort
       - name: Run isort
         run: isort thumbor tests --profile black
- 

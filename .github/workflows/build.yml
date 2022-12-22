@@ -51,8 +51,6 @@ jobs:
         run: make unit
       - name: Run Integration Tests
         run: make integration_run
-      - name: Lint
-        run: make pylint
       - name: Generate lcov
         run: coverage lcov
       - name: Coveralls
