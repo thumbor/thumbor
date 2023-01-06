@@ -321,11 +321,33 @@ class PilEngineTestCase(TestCase):
         image = Image.open(final_bytes)
         expect(image.info.get("exif")).not_to_be_null()
 
-        exifs = piexif.load(image.info.get("exif"))
+        exifs = piexif.load(engine.get_exif_copyright())
+
         expect(exifs["0th"]).not_to_be_null()
         expect(len(exifs["0th"].items())).to_equal(3)
         for k in KEEP_EXIF_COPYRIGHT_TAGS:
             expect(exifs["0th"][k]).not_to_be_null()
+
+    def test_should_preserve_copyright_exif_in_image_with_broken_exif_tag(
+        self,
+    ):
+        self.context.config.PRESERVE_EXIF_COPYRIGHT_INFO = True
+        engine = Engine(self.context)
+        with open(
+            join(STORAGE_PATH, "broken-exif-tag.jpg"), "rb"
+        ) as image_file:
+            buffer_image = image_file.read()
+        engine.load(buffer_image, None)
+
+        final_bytes = BytesIO(engine.read())
+        image = Image.open(final_bytes)
+        exif_original = image.info.get("exif")
+
+        expect(exif_original).not_to_be_null()
+
+        exif = engine.get_exif_copyright()
+
+        expect(exif).to_equal(exif_original)
 
     def test_should_read_image_without_copyright_exif(self):
         engine = Engine(self.context)

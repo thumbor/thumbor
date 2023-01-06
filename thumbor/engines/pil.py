@@ -9,6 +9,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import os
+import struct
 from io import BytesIO
 from subprocess import PIPE, Popen
 from tempfile import mkstemp
@@ -136,8 +137,16 @@ class Engine(BaseEngine):
         return img
 
     def get_exif_copyright(self):
-        exifs = piexif.load(self.image.info.get("exif"))
+        try:
+            exifs = piexif.load(self.image.info.get("exif"))
+        except struct.error:
+            return self.image.info.get("exif")
+
+        return self.extract_copyright_from_exif(exifs)
+
+    def extract_copyright_from_exif(self, exifs):
         copyright_exif = {}
+
         if exifs is None or "0th" not in exifs or exifs["0th"] is None:
             return None
 

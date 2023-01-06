@@ -446,14 +446,17 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def can_auto_convert_to_jpg(self):
         auto_jpg = self.context.config.AUTO_JPG
-        accepts_all = self.accepts_mime_type("*/*")
-        accepts_jpg = self.accepts_mime_type("image/jpg")
-        accepts_jpeg = self.accepts_mime_type("image/jpeg")
+        accepts_jpg = (
+            self.accepts_mime_type("*/*")
+            or self.accepts_mime_type("image/jpg")
+            or self.accepts_mime_type("image/jpeg")
+        )
 
         if (
             auto_jpg
-            and (accepts_all or accepts_jpg or accepts_jpeg)
+            and accepts_jpg
             and not self.context.request.engine.is_multiple()
+            and not self.context.request.engine.has_transparency()
         ):
             return True
 
