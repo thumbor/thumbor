@@ -642,6 +642,13 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.exception("[BaseHander.finish_request] %s", error)
             self._error(500, f"Error while trying to fetch the image: {error}")
 
+            if self.context.config.USE_CUSTOM_ERROR_HANDLING:
+                self.context.modules.importer.error_handler.handle_error(
+                    context=self.context,
+                    handler=self.context.request_handler,
+                    exception=sys.exc_info(),
+                )
+
             return
 
         (results, content_type) = result
