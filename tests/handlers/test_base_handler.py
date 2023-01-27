@@ -223,6 +223,48 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         expect(engine.size).to_equal((2000, 2600))
 
     @gen_test
+    async def test_svg_with_px_units_and_convert_to_png_with_size(self):
+        width, height = 400, 500
+        self.context.request = mock.Mock(width=width, height=height)
+        response = await self.async_fetch(
+            f"/unsafe/{width}x{height}/Commons-logo.svg"
+        )
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
+        engine = Engine(self.context)
+        engine.load(response.body, ".png")
+        expect(engine.size).to_equal((width, height))
+
+    @gen_test
+    async def test_svg_with_inch_units_and_convert_to_png_with_size(self):
+        width, height = 400, 500
+        self.context.request = mock.Mock(width=width, height=height)
+        response = await self.async_fetch(
+            f"/unsafe/{width}x{height}/Commons-logo-inches.svg"
+        )
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
+        engine = Engine(self.context)
+        engine.load(response.body, ".png")
+        expect(engine.size).to_equal((width, height))
+
+    @gen_test
+    async def test_svg_with_px_units_and_convert_to_png_with_width(self):
+        width = 300
+        self.context.request = mock.Mock(width=width)
+        response = await self.async_fetch(
+            f"/unsafe/fit-in/{width}x/Commons-logo.svg"
+        )
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_png()
+
+        engine = Engine(self.context)
+        engine.load(response.body, ".png")
+        expect(engine.size).to_equal((width, 403))
+
+    @gen_test
     async def test_can_read_8bit_tiff_as_png(self):
         response = await self.async_fetch("/unsafe/gradient_8bit.tif")
         expect(response.code).to_equal(200)
