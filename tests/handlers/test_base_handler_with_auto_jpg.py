@@ -326,3 +326,14 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
         expect(response.body).to_be_jpeg()
+
+    @gen_test
+    async def test_should_not_convert_to_jpg_if_image_has_transparency_with_accept_jpeg(
+        self,
+    ):
+        response = await self.get_as_jpg(
+            "/unsafe/paletted-transparent.png", MIMETYPE_JPEG
+        )
+        expect(response.code).to_equal(200)
+        expect(response.headers["Content-type"]).to_equal("image/png")
+        expect(response.body).to_be_png()

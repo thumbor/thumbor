@@ -444,14 +444,17 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def can_auto_convert_to_jpg(self):
         auto_jpg = self.context.config.AUTO_JPG
-        accepts_all = self.accepts_mime_type("*/*")
-        accepts_jpg = self.accepts_mime_type("image/jpg")
-        accepts_jpeg = self.accepts_mime_type("image/jpeg")
+        accepts_jpg = (
+            self.accepts_mime_type("*/*")
+            or self.accepts_mime_type("image/jpg")
+            or self.accepts_mime_type("image/jpeg")
+        )
 
         if (
             auto_jpg
-            and (accepts_all or accepts_jpg or accepts_jpeg)
+            and accepts_jpg
             and not self.context.request.engine.is_multiple()
+            and not self.context.request.engine.has_transparency()
         ):
             return True
 
@@ -638,6 +641,13 @@ class BaseHandler(tornado.web.RequestHandler):
         except Exception as error:  # pylint: disable=broad-except
             logger.exception("[BaseHander.finish_request] %s", error)
             self._error(500, f"Error while trying to fetch the image: {error}")
+
+            if self.context.config.USE_CUSTOM_ERROR_HANDLING:
+                self.context.modules.importer.error_handler.handle_error(
+                    context=self.context,
+                    handler=self.context.request_handler,
+                    exception=sys.exc_info(),
+                )
 
             return
 
