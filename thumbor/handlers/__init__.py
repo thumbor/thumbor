@@ -287,6 +287,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
                 return
 
+        if not normalized:
+            normalized = engine.normalize()
+
         self.context.transformer = Transformer(self.context)
 
         await self.filters_runner.apply_filters(
