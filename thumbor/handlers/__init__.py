@@ -944,7 +944,10 @@ class BaseHandler(tornado.web.RequestHandler):
             )
 
             if not (is_no_storage or is_mixed_no_file_storage):
-                await storage.put(url, fetch_result.buffer)
+                try:
+                    await storage.put(url, fetch_result.buffer)
+                except Exception as error:
+                    logger.warn(f"Ignoring error when saving to storage {error}")
 
             await storage.put_crypto(url)
         except Exception as error:
