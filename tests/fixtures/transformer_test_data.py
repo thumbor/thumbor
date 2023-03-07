@@ -76,7 +76,7 @@ class MockSyncDetector(BaseDetector):
 
 class MockErrorSyncDetector(BaseDetector):
     async def detect(self):
-        raise Exception("x")  # pylint: disable=broad-exception-raised
+        raise IOError("some-io-error")
 
 
 # Test Data - pylint: disable=too-many-locals,too-many-instance-attributes

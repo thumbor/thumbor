@@ -61,7 +61,7 @@ EXTENSION = {
 }
 
 
-logger = logging.getLogger("thumbor")  # pylint: disable=invalid-name
+logger = logging.getLogger("thumbor")
 
 
 def deprecated(message):
@@ -80,6 +80,15 @@ def deprecated(message):
     return decorator_deprecated
 
 
+def get_profile_and_color_space(icc):
+    with BytesIO(icc) as buf:
+        try:
+            profile = ImageCms.ImageCmsProfile(buf)
+            return profile, profile.profile.xcolor_space.strip()
+        except (AttributeError, OSError, TypeError, ValueError):
+            return None, None
+
+
 def get_color_space(img):
     icc = img.info.get("icc_profile")
     if not icc:
@@ -88,14 +97,8 @@ def get_color_space(img):
     if ImageCms is None:
         return None
 
-    buf = BytesIO(icc)
-    try:  # pylint: disable=no-else-return
-        orig_profile = ImageCms.ImageCmsProfile(buf)
-        color_space = orig_profile.profile.xcolor_space
-    except (AttributeError, OSError, TypeError, ValueError):
-        return None
-    else:
-        return color_space.strip()
+    _, color_space = get_profile_and_color_space(icc)
+    return color_space
 
 
 def ensure_srgb(img, srgb_profile=None):
@@ -119,16 +122,12 @@ def ensure_srgb(img, srgb_profile=None):
     else:
         srgb_profile = DEFAULT_SRGB_PROFILE
 
-    buf = BytesIO(icc)
-    try:
-        orig_profile = ImageCms.ImageCmsProfile(buf)
-        color_space = orig_profile.profile.xcolor_space
-    except (AttributeError, OSError, TypeError, ValueError):
-        return None
-    finally:
-        buf.close()
+    orig_profile, color_space = get_profile_and_color_space(icc)
 
-    if color_space == "RGB ":
+    if not color_space:
+        return None
+
+    if color_space == "RGB":
         logger.debug("Returning img (RGB)")
         return img
 
@@ -136,10 +135,7 @@ def ensure_srgb(img, srgb_profile=None):
         # Other color spaces are rare, but best not to try to convert them.
         # Upstream understands a None return as meaning it should not
         # use it for the target encoder.
-        logger.debug(
-            "Cannot convert to sRGB; color space = %s",
-            (color_space.strip()),
-        )
+        logger.debug("Cannot convert to sRGB; color space = %s", color_space)
         return None
 
     # Probably not possible to have an animated image with CMYK or GRAY icc

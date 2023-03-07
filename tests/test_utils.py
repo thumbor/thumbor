@@ -112,6 +112,15 @@ def test_get_color_space_handles_invalid_icc():
     assert result is None
 
 
+@mock.patch("thumbor.utils.ImageCms.ImageCmsProfile")
+def test_get_color_space_handles_null_xcolor_space(image_cms_profile_mock):
+    image_cms_profile_mock.return_value.profile.xcolor_space = None
+    img = Image.new("RGB", (50, 50), "white")
+    img.info["icc_profile"] = b"wow icc profile with null xcolor_space"
+    result = get_color_space(img)
+    assert result is None
+
+
 def test_get_color_space_missing_imagecms_returns_none():
     with mock.patch("thumbor.utils.ImageCms", new=None):
         img = Image.open("tests/fixtures/images/cmyk-icc.jpg")
