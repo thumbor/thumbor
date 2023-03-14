@@ -158,6 +158,7 @@ def run_setup(extension_modules=None):
             "tornado==6.*,>=6.0.3",
             "thumbor-plugins-gifv==0.*,>=0.1.2",
             "webcolors==1.*,>=1.10.0",
+            "JpegIPTC>=1.4",
         ],
         extras_require={
             "all": ALL_REQUIREMENTS,
