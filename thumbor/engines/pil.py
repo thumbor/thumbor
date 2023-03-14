@@ -21,6 +21,7 @@ from thumbor.engines import BaseEngine
 from thumbor.engines.extensions.pil import GifWriter
 from thumbor.filters.fill import Filter
 from thumbor.utils import deprecated, ensure_srgb, get_color_space, logger
+from JpegIPTC import JpegIPTC
 
 try:
     from thumbor.ext.filters import _composite
@@ -80,6 +81,7 @@ class Engine(BaseEngine):
         self.qtables = None
         self.original_mode = None
         self.exif = None
+        self.iptc = None
 
         try:
             if self.context.config.MAX_PIXELS is None or int(
@@ -112,6 +114,11 @@ class Engine(BaseEngine):
         self.icc_profile = img.info.get("icc_profile")
         self.exif = img.info.get("exif")
         self.original_mode = img.mode
+
+        if self.context.config.PRESERVE_IPTC_INFO:
+            jpegiptc_object = JpegIPTC()
+            jpegiptc_object.load_from_binarydata(buffer)
+            self.iptc = jpegiptc_object.get_raw_iptc()
 
         if hasattr(img, "layer"):
             self.subsampling = JpegImagePlugin.get_sampling(img)
@@ -433,6 +440,14 @@ class Engine(BaseEngine):
         results = img_buffer.getvalue()
         img_buffer.close()
         self.extension = ext
+
+        if self.context.config.PRESERVE_IPTC_INFO:
+            jpegiptc_object_d = JpegIPTC()
+            jpegiptc_object_d.load_from_binarydata(results)
+            jpegiptc_object_d.set_raw_iptc(self.iptc)
+            newresults = jpegiptc_object_d.dump()
+            if newresults is not None:
+                results = newresults
 
         return results
 
