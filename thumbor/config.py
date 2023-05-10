@@ -279,7 +279,7 @@ Config.define(
 Config.define(
     "PRESERVE_IPTC_INFO",
     False,
-    "Preserves Jpeg IPTC information in generated images. (fetch data from original file and add it back to thumbor output)",
+    "Preserves Jpeg IPTC information in generated images.",
     "Imaging",
 )
 
