@@ -35,7 +35,6 @@ SVG_RE = re.compile(
 
 
 class EngineResult:
-
     COULD_NOT_LOAD_IMAGE = "could not load image"
 
     def __init__(

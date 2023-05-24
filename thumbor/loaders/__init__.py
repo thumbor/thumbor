@@ -12,7 +12,6 @@ from typing import Dict
 
 
 class LoaderResult:
-
     ERROR_NOT_FOUND = "not_found"
     ERROR_UPSTREAM = "upstream"
     ERROR_TIMEOUT = "timeout"

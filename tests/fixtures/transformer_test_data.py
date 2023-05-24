@@ -100,7 +100,6 @@ class TestData:
         meta=False,
         stretch=False,
     ):
-
         self.source_width = source_width
         self.source_height = source_height
         self.target_width = target_width

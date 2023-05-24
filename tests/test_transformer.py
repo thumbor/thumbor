@@ -160,7 +160,7 @@ class TransformerTestCase(TestCase):
 
     @gen_test
     async def test_can_fit_in(self):
-        for (test_data, (width, height, should_resize)) in FIT_IN_CROP_DATA:
+        for test_data, (width, height, should_resize) in FIT_IN_CROP_DATA:
             context = test_data.to_context()
             engine = context.modules.engine
             trans = Transformer(context)

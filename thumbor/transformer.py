@@ -180,10 +180,8 @@ class Transformer:
             self.context.request.detection_error = True
 
     async def do_smart_detection(self):
-        focal_points = await (
-            self.context.modules.storage.get_detector_data(
-                self.smart_storage_key
-            )
+        focal_points = await self.context.modules.storage.get_detector_data(
+            self.smart_storage_key
         )
         points_from_storage = focal_points is not None
         if focal_points is None:
