@@ -939,7 +939,9 @@ def format_value(value):
     if isinstance(value, (tuple, list, set)):
         representation = "[\n"
         for item in value:
-            representation += f"#    {item}"
+            representation += (  # pylint: disable=consider-using-join
+                f"#    {item}"
+            )
         representation += "#]"
         return representation
     return value
