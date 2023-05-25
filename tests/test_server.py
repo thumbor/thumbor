@@ -60,11 +60,11 @@ class ServerTestCase(TestCase):
         conf = Config()
         configure_log(conf, "DEBUG")
 
-        params = dict(
-            datefmt="%Y-%m-%d %H:%M:%S",
-            level=10,
-            format="%(asctime)s %(name)s:%(levelname)s %(message)s",
-        )
+        params = {
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+            "level": 10,
+            "format": "%(asctime)s %(name)s:%(levelname)s %(message)s",
+        }
 
         basic_config_mock.assert_called_with(**params)
 
@@ -73,9 +73,9 @@ class ServerTestCase(TestCase):
         conf = Config(THUMBOR_LOG_CONFIG={"level": "INFO"})
         configure_log(conf, "DEBUG")
 
-        params = dict(
-            level="INFO",
-        )
+        params = {
+            "level": "INFO",
+        }
 
         dict_config_mock.assert_called_with(params)
 

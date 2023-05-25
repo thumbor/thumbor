@@ -810,7 +810,6 @@ class BaseHandler(tornado.web.RequestHandler):
         crop_right,
         crop_bottom,
     ):
-
         if original_width == width and original_height == height:
             return None
 
@@ -961,10 +960,10 @@ class BaseHandler(tornado.web.RequestHandler):
     async def get_blacklist_contents(self):
         filename = "blacklist.txt"
 
-        exists = await (self.context.modules.storage.exists(filename))
+        exists = await self.context.modules.storage.exists(filename)
 
         if exists:
-            blacklist = await (self.context.modules.storage.get(filename))
+            blacklist = await self.context.modules.storage.get(filename)
 
             return blacklist.decode()
 
