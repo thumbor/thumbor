@@ -320,7 +320,6 @@ class GifWriter:
         # Iterate over images
         prev = ims[0]
         for im in ims[1:]:
-
             # Get difference, sum over colors
             diff = np.abs(im - prev)
             if diff.ndim == 3:
@@ -405,7 +404,6 @@ class GifWriter:
         firstFrame = True
 
         for im, palette in zip(images, palettes):
-
             if firstFrame:
                 # Write header
 

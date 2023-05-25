@@ -52,7 +52,7 @@ def encode_multipart_formdata(fields, files):
         )
         lines.append(b"")
         lines.append(value)
-    for (key, filename, value) in files:
+    for key, filename, value in files:
         lines.append(b"--" + boundary)
         lines.append(
             b'Content-Disposition: form-data; name="%s"; filename="%s"'
