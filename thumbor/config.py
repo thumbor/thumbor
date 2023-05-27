@@ -277,6 +277,13 @@ Config.define(
 )
 
 Config.define(
+    "PRESERVE_IPTC_INFO",
+    False,
+    "Preserves Jpeg IPTC information in generated images.",
+    "Imaging",
+)
+
+Config.define(
     "ALLOW_ANIMATED_GIFS",
     True,
     "Indicates whether thumbor should enable the EXPERIMENTAL support for animated gifs.",
