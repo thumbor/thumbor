@@ -161,6 +161,9 @@ def check_extensibility_modules(cfg):
             modules = [modules]
 
         for module in modules:
+            if not module:
+                continue
+
             try:
                 import_module(module)
                 print_success(f"{CHECK} {module}")
