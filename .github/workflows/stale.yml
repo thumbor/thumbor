@@ -37,4 +37,6 @@ jobs:
           days-before-issue-close: 45
           days-before-pr-close: 30
           exempt-draft-pr: true
+          exempt-issue-labels: do-not-reap
+          exempt-pr-labels: do-not-reap
           operations-per-run: 300
