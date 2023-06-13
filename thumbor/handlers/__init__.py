@@ -644,6 +644,13 @@ class BaseHandler(tornado.web.RequestHandler):
             logger.exception("[BaseHander.finish_request] %s", error)
             self._error(500, f"Error while trying to fetch the image: {error}")
 
+            if self.context.config.USE_CUSTOM_ERROR_HANDLING:
+                self.context.modules.importer.error_handler.handle_error(
+                    context=self.context,
+                    handler=self.context.request_handler,
+                    exception=sys.exc_info(),
+                )
+
             return
 
         (results, content_type) = result
@@ -805,7 +812,6 @@ class BaseHandler(tornado.web.RequestHandler):
         crop_right,
         crop_bottom,
     ):
-
         if original_width == width and original_height == height:
             return None
 
@@ -956,10 +962,10 @@ class BaseHandler(tornado.web.RequestHandler):
     async def get_blacklist_contents(self):
         filename = "blacklist.txt"
 
-        exists = await (self.context.modules.storage.exists(filename))
+        exists = await self.context.modules.storage.exists(filename)
 
         if exists:
-            blacklist = await (self.context.modules.storage.get(filename))
+            blacklist = await self.context.modules.storage.get(filename)
 
             return blacklist.decode()
 

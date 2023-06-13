@@ -89,7 +89,7 @@ def get_color_space(img):
         return None
 
     buf = BytesIO(icc)
-    try:
+    try:  # pylint: disable=no-else-return
         orig_profile = ImageCms.ImageCmsProfile(buf)
         color_space = orig_profile.profile.xcolor_space
     except (AttributeError, OSError, TypeError, ValueError):

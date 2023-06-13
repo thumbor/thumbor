@@ -277,6 +277,13 @@ Config.define(
 )
 
 Config.define(
+    "PRESERVE_IPTC_INFO",
+    False,
+    "Preserves Jpeg IPTC information in generated images.",
+    "Imaging",
+)
+
+Config.define(
     "ALLOW_ANIMATED_GIFS",
     True,
     "Indicates whether thumbor should enable the EXPERIMENTAL support for animated gifs.",
@@ -939,7 +946,9 @@ def format_value(value):
     if isinstance(value, (tuple, list, set)):
         representation = "[\n"
         for item in value:
-            representation += f"#    {item}"
+            representation += (  # pylint: disable=consider-using-join
+                f"#    {item}"
+            )
         representation += "#]"
         return representation
     return value

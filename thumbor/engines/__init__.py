@@ -35,7 +35,6 @@ SVG_RE = re.compile(
 
 
 class EngineResult:
-
     COULD_NOT_LOAD_IMAGE = "could not load image"
 
     def __init__(
@@ -173,7 +172,10 @@ class BaseEngine:
 
         try:
             buffer = cairosvg.svg2png(  # pylint: disable=no-member
-                bytestring=buffer, dpi=self.context.config.SVG_DPI
+                bytestring=buffer,
+                dpi=self.context.config.SVG_DPI,
+                output_width=self.context.request.width,
+                output_height=self.context.request.height,
             )
             mime = self.get_mimetype(buffer)
             self.extension = EXTENSION.get(mime, ".jpg")

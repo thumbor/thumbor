@@ -61,6 +61,7 @@ class BaseEngineTestCase(TestCase):
     def setUp(self):
         self.image = ((1, 2), (3, 4))
         self.context = self.get_context()
+        self.context.request = mock.MagicMock(width=0, height=0)
         self.engine = BaseEngine(self.context)
         self.engine.flip_horizontally = mock.MagicMock()
         self.engine.flip_horizontally.side_effect = self.flip_horizontally

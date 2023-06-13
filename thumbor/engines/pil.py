@@ -9,12 +9,12 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import os
-import struct
 from io import BytesIO
 from subprocess import PIPE, Popen
 from tempfile import mkstemp
 
 import piexif
+from JpegIPTC import JpegIPTC
 from PIL import Image, ImageDraw, ImageFile, ImageSequence, JpegImagePlugin
 from PIL import features as pillow_features
 
@@ -81,6 +81,7 @@ class Engine(BaseEngine):
         self.qtables = None
         self.original_mode = None
         self.exif = None
+        self.iptc = None
 
         try:
             if self.context.config.MAX_PIXELS is None or int(
@@ -114,6 +115,11 @@ class Engine(BaseEngine):
         self.exif = img.info.get("exif")
         self.original_mode = img.mode
 
+        if self.context.config.PRESERVE_IPTC_INFO:
+            jpegiptc_object = JpegIPTC()
+            jpegiptc_object.load_from_binarydata(buffer)
+            self.iptc = jpegiptc_object.get_raw_iptc()
+
         if hasattr(img, "layer"):
             self.subsampling = JpegImagePlugin.get_sampling(img)
             if self.subsampling == -1:  # n/a for this file
@@ -139,7 +145,7 @@ class Engine(BaseEngine):
     def get_exif_copyright(self):
         try:
             exifs = piexif.load(self.image.info.get("exif"))
-        except struct.error:
+        except Exception:
             return self.image.info.get("exif")
 
         return self.extract_copyright_from_exif(exifs)
@@ -434,6 +440,14 @@ class Engine(BaseEngine):
         results = img_buffer.getvalue()
         img_buffer.close()
         self.extension = ext
+
+        if self.context.config.PRESERVE_IPTC_INFO:
+            jpegiptc_object_d = JpegIPTC()
+            jpegiptc_object_d.load_from_binarydata(results)
+            jpegiptc_object_d.set_raw_iptc(self.iptc)
+            newresults = jpegiptc_object_d.dump()
+            if newresults is not None:
+                results = newresults
 
         return results
 

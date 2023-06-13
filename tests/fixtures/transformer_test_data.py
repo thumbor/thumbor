@@ -76,7 +76,7 @@ class MockSyncDetector(BaseDetector):
 
 class MockErrorSyncDetector(BaseDetector):
     async def detect(self):
-        raise Exception("x")
+        raise Exception("x")  # pylint: disable=broad-exception-raised
 
 
 # Test Data - pylint: disable=too-many-locals,too-many-instance-attributes
@@ -100,7 +100,6 @@ class TestData:
         meta=False,
         stretch=False,
     ):
-
         self.source_width = source_width
         self.source_height = source_height
         self.target_width = target_width
