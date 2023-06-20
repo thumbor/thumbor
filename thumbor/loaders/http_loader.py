@@ -143,11 +143,9 @@ async def load(
             "tornado.curl_httpclient.CurlAsyncHTTPClient"
         )
         prepare_curl_callback = _get_prepare_curl_callback(context.config)
-        exc_type = tornado.curl_httpclient.CurlError
     else:
         http_client_implementation = None  # default
         prepare_curl_callback = None
-        exc_type = tornado.httpclient.HTTPClientError
 
     tornado.httpclient.AsyncHTTPClient.configure(
         http_client_implementation,
@@ -200,7 +198,7 @@ async def load(
     start = datetime.datetime.now()
     try:
         response = await client.fetch(req, raise_error=True)
-    except exc_type as err:
+    except tornado.httpclient.HTTPClientError as err:
         response = tornado.httpclient.HTTPResponse(
             req, err.code, reason=err.message, start_time=start
         )

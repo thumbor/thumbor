@@ -206,6 +206,19 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
         expect(result.successful).to_be_true()
 
     @gen_test
+    async def test_load_not_found(self):
+        url = self.get_url("/not-found.jpg")
+        config = Config()
+        config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT = False
+        ctx = Context(None, config, None)
+
+        result = await loader.load(ctx, url)
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_be_null()
+        expect(result.successful).to_be_false()
+        expect(result.error).to_equal(LoaderResult.ERROR_NOT_FOUND)
+
+    @gen_test
     async def test_load_with_utf8_url(self):
         url = self.get_url(quote("/maracujá.jpg".encode("utf-8")))
         config = Config()
@@ -336,6 +349,27 @@ class HttpLoaderWithUserAgentForwardingTestCase(DummyAsyncHttpClientTestCase):
         result = await loader.load(ctx, url)
         expect(result).to_be_instance_of(LoaderResult)
         expect(result.buffer).to_equal("DEFAULT_USER_AGENT")
+
+
+class HttpCurlNotFoundLoaderTestCase(DummyAsyncHttpClientTestCase):
+    def get_app(self):
+        application = tornado.web.Application([(r"/", TimeoutHandler)])
+
+        return application
+
+    @gen_test
+    async def test_load_not_found(self):
+        url = self.get_url("/not-found.jpg")
+        config = Config()
+        config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT = True
+        config.HTTP_LOADER_REQUEST_TIMEOUT = 1
+        ctx = Context(None, config, None)
+
+        result = await loader.load(ctx, url)
+        expect(result).to_be_instance_of(LoaderResult)
+        expect(result.buffer).to_be_null()
+        expect(result.successful).to_be_false()
+        expect(result.error).to_equal(LoaderResult.ERROR_NOT_FOUND)
 
 
 class HttpCurlTimeoutLoaderTestCase(DummyAsyncHttpClientTestCase):
