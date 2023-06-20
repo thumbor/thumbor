@@ -153,7 +153,7 @@ class TransformerTestCase(TestCase):
         )
         trans = Transformer(context)
 
-        with expect.error_to_happen(Exception, message="x"):
+        with expect.error_to_happen(IOError, message="some-io-error"):
             await trans.transform()
 
         expect(test_data.engine.calls["resize"]).to_length(0)
