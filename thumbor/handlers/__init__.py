@@ -660,10 +660,16 @@ class BaseHandler(tornado.web.RequestHandler):
         await self._write_results_to_client(results, content_type)
 
         if should_store:
+            results = self._ensure_bytes(results)
             await self._store_results(result_storage, metrics, results)
 
         # can't cleanup before storing results as the storage requires context
         self._cleanup()
+
+    def _ensure_bytes(self, results):
+        if isinstance(results, str):
+            return results.encode()
+        return results
 
     def _cleanup(self):
         self.context.request_handler = None

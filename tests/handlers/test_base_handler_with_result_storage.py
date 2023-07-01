@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import json
 import os
 from os.path import dirname
 from shutil import which
@@ -76,6 +77,34 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         )
         expect(expected_path).to_exist()
         expect(response.body).to_be_similar_to(animated_image())
+
+    @patch("tornado.ioloop.IOLoop.instance")
+    @gen_test
+    async def test_saves_meta_to_result_storage(self, instance_mock):
+        instance_mock.return_value = self.io_loop
+        response = await self.async_fetch(
+            "/oGi9XL4nHJKGEKVHjHEp1Jg1KpM=/meta/animated.gif"
+        )
+        expect(response.code).to_equal(200)
+
+        self.context.request = Mock(
+            accepts_webp=False,
+        )
+        expected_path = self.result_storage.normalize_path(
+            "/oGi9XL4nHJKGEKVHjHEp1Jg1KpM=/meta/animated.gif"
+        )
+        expect(expected_path).to_exist()
+
+        expected_source = {
+            "frameCount": 2,
+            "height": 100,
+            "url": "animated.gif",
+            "width": 100,
+        }
+        metadata = json.loads(response.body)
+        expect(metadata).to_include("thumbor")
+        expect(metadata["thumbor"]).to_include("source")
+        expect(metadata["thumbor"]["source"]).to_be_like(expected_source)
 
 
 class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
