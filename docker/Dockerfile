@@ -25,11 +25,8 @@ RUN apt-get update && \
 RUN python3 -m venv /home/thumbor/venv
 ENV PATH="/home/thumbor/venv/bin:$PATH"
 
-COPY requirements.txt .
-
 RUN pip3 install --no-cache-dir wheel && \
-    pip3 install --no-cache-dir -r requirements.txt && \
-    pip3 install --no-cache-dir thumbor==${THUMBOR_VERSION}
+    pip3 install --no-cache-dir thumbor[all]==${THUMBOR_VERSION}
 
 FROM python:${PYTHON_VERSION}-slim-bullseye AS runner-image
 
