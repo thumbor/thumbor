@@ -152,7 +152,7 @@ def run_setup(extension_modules=None):
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            "Pillow>=9.0.0",
+            "Pillow==9.*",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
             "tornado==6.*,>=6.0.3",
