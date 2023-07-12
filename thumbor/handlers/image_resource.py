@@ -7,6 +7,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 import datetime
+import os
+import time
 
 from thumbor.engines import BaseEngine
 from thumbor.handlers import ImageApiHandler
@@ -84,4 +86,15 @@ class ImageResourceHandler(ImageApiHandler):
         await self.check_resource(file_id)
 
     async def head(self, file_id):
+        # Check security
+        if self._check_secret_key():
+            self._error(403, "Forbidden get image information")
+            return
+
+        # Update access_time and modification_time
+        now = time.time()
+        path_on_filesystem = self.context.modules.storage.path_on_filesystem(file_id[: self.context.config.MAX_ID_LENGTH])
+        if os.path.exists(path_on_filesystem):
+            os.utime(path_on_filesystem, (now, now))
+
         await self.check_resource(file_id)
