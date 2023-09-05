@@ -239,11 +239,32 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         self.auto_png_to_jpg = auto_png_to_jpg
         self.headers = None
 
+        self.accepts_webp_safari = (
+            request.user_agent.browser.family == "Safari"
+            and request.user_agent.browser.version[0] > 16
+        )
+
+        self.accepts_webp_ios = (
+            request.user_agent.browser.family == "Mobile Safari"
+            and request.user_agent.browser.version[0] > 14
+        )
+
+        self.accepts_webp_firefox = (
+            request.user_agent.browser.family == "Firefox"
+            and request.user_agent.browser.version[0] > 65
+        )
+        
+        self.accepts_webp_by_accept_header = "image/webp" in request.headers.get("Accept", "")
+        
+        self.accepts_webp_by_browser_version = (
+            self.accepts_webp_safari 
+            or self.accepts_webp_ios 
+            or self.accepts_webp_firefox
+        )
+
         if request:
             self.url = request.path
-            self.accepts_webp = "image/webp" in request.headers.get(
-                "Accept", ""
-            )
+            self.accepts_webp = self.accepts_webp_by_accept_header or self.accepts_webp_by_browser_version
             if request.headers:
                 self.headers = request.headers
 
