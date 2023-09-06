@@ -242,18 +242,16 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         
         if request:
             self.accepts_webp_browsers = [
-                ["Firefox/(?P<version>[0-9]{2,})", 65],
-                ["(?:iPad|iPhone)(.*)Version/(?P<version>[0-9]{2,})", 14],
-                ["Version/(?P<version>[0-9]{2,})(?:.*)Safari", 16]
+                r"Firefox/(6[5-9]|[7-9]\d+|\d{3,})",  # Firefox 65 and above
+                r"(?:iPad|iPhone).*Version/(1[4-9]|[2-9]\d+|\d{3,})",  # Safari on iOS 14 and above
+                r"Version/(1[6-9]|[2-9]\d+|\d{3,}).*Safari",  # Safari on MacOS 16 and above
             ]
 
             self.accepts_webp = "image/webp" in request.headers.get("Accept", "")
 
-            for browser, version in self.accepts_webp_browsers:
-                match = re.search(browser, request.headers.get("User-Agent", ""))
-                if match and int(match.group("version")) > version:
-                    self.accepts_webp = True
-                    break
+            for browser in self.accepts_webp_browsers:
+                if not self.accepts_webp:
+                    self.accepts_webp = re.search(browser, request.headers.get("User-Agent", ""))
 
             self.url = request.path
             if request.headers:
