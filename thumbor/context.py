@@ -244,7 +244,7 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
             self.accepts_webp_browsers = [
                 r"Firefox/(6[5-9]|[7-9]\d+|\d{3,})",  # Firefox 65 and above
                 r"(?:iPad|iPhone).*Version/(1[4-9]|[2-9]\d+|\d{3,})",  # Safari on iOS 14 and above
-                r"Version/(1[6-9]|[2-9]\d+|\d{3,}).*Safari",  # Safari on MacOS 16 and above
+                r"Version/(1[6-9]|[2-9]\d+|\d{3,}).*Safari",  # Safari 16 on MacOS and above
             ]
 
             self.accepts_webp = "image/webp" in request.headers.get("Accept", "")
