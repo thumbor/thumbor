@@ -239,7 +239,7 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         self.max_age = max_age
         self.auto_png_to_jpg = auto_png_to_jpg
         self.headers = None
-        
+    
         if request:
             self.accepts_webp_browsers = [
                 r"Firefox/(6[5-9]|[7-9]\d+|\d{3,})",  # Firefox 65 and above
