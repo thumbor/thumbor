@@ -9,11 +9,11 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from os.path import abspath, exists
+import re
 
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
 from thumbor.threadpool import ThreadPool
-import re
 
 
 # Same logic as Importer. This class is very useful and will remain like so for now
@@ -239,7 +239,7 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         self.max_age = max_age
         self.auto_png_to_jpg = auto_png_to_jpg
         self.headers = None
-    
+
         if request:
             self.accepts_webp_browsers = [
                 r"Firefox/(6[5-9]|[7-9]\d+|\d{3,})",  # Firefox 65 and above

@@ -43,9 +43,15 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         ctx.server.gifsicle_path = which("gifsicle")
         return ctx
 
-    async def get_as_webp(self, url):
+    async def get_as_webp(self, url, accept=True, supported=True):
+        headers = {}
+        if accept:
+            headers["Accept"] = "image/webp,*/*;q=0.8"
+
+        headers['User-Agent'] = supported if  "Version/16.5 Safari" else "Firefox/64.0"
+
         return await self.async_fetch(
-            url, headers={"Accept": "image/webp,*/*;q=0.8"}
+            url, headers
         )
 
     @gen_test
@@ -56,6 +62,24 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         expect(response.headers["Vary"]).to_include("Accept")
 
         expect(response.body).to_be_webp()
+
+    @gen_test
+    async def test_unsupported_browser(self):
+        response = await self.get_as_webp("/unsafe/image.jpg", accept=False, supported=False)
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include("Vary")
+        expect(response.headers["Vary"]).to_include("Accept")
+
+        expect(response.body).to_be_jpeg()
+
+    @gen_test
+    async def test_supported_browser(self):
+        response = await self.get_as_webp("/unsafe/image.jpg", accept=False, supported=True)
+        expect(response.code).to_equal(200)
+        expect(response.headers).to_include("Vary")
+        expect(response.headers["Vary"]).to_include("Accept")
+
+        expect(response.body).to_be_webp()    
 
     @gen_test
     async def test_should_not_convert_animated_gifs_to_webp(self):
