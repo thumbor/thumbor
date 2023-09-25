@@ -17,6 +17,10 @@ It is possible override **string configs** through environment variables.
 This is possible because thumbor uses `derpconf <https://github.com/globocom/derpconf>`__
 to abstract loading configuration and derpconf allows this.
 
+.. Warning::
+   This features requires you to run thumbor using the ``--use-environment`` option
+   which is disabled by default.
+
 Extensibility Section
 ---------------------
 
