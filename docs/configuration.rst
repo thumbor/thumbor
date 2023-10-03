@@ -13,7 +13,7 @@ In order to get a commented configuration file, just run:
 Override config through environment variable
 -----------------------------------------------
 
-It is possible overide **string configs** through environment variables.
+It is possible override **string configs** through environment variables.
 This is possible because thumbor uses `derpconf <https://github.com/globocom/derpconf>`__
 to abstract loading configuration and derpconf allows this.
 
