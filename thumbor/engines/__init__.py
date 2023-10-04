@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -29,7 +28,7 @@ except ImportError:
 WEBP_SIDE_LIMIT = 16383
 
 SVG_RE = re.compile(
-    b"<svg\s[^>]*([\"'])http[^\"']*svg[^\"']*",  # pylint: disable=anomalous-backslash-in-string
+    b"<svg\\s[^>]*([\"'])http[^\"']*svg[^\"']*",  # pylint: disable=anomalous-backslash-in-string
     re.I,
 )
 

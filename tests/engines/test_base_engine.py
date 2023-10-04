@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -82,13 +81,11 @@ class BaseEngineTestCase(TestCase):
         expect(self.engine.extension).to_equal(".png")
 
     def test_convert_svg_with_xml_preamble_to_png(self):
-        buffer = """<?xml version="1.0" encoding="utf-8"?>
+        buffer = b"""<?xml version="1.0" encoding="utf-8"?>
                     <svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
-                    </svg>""".encode(
-            "utf-8"
-        )
+                    </svg>"""
         self.engine.convert_svg_to_png(buffer)
         expect(self.engine.extension).to_equal(".png")
 

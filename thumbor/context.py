@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -124,10 +123,8 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
 
         if not exists(path):
             raise ValueError(
-                (
-                    f"Could not find security key file at {path}. "
-                    "Please verify the keypath argument."
-                )
+                f"Could not find security key file at {path}. "
+                "Please verify the keypath argument."
             )
 
         with open(path, "rb") as security_key_file:

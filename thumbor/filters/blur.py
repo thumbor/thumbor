@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
 
@@ -21,7 +19,7 @@ def generate_1d_matrix(sigma, radius):
     two_sigma_squared = float(2 * sigma * sigma)
     for column in range(matrix_size):
         adj_x = column - radius
-        exp = math.e ** -(((adj_x * adj_x)) / two_sigma_squared)
+        exp = math.e ** -((adj_x * adj_x) / two_sigma_squared)
         matrix.append(exp / math.sqrt(two_sigma_squared * math.pi))
     return tuple(matrix), matrix_size
 

@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -14,7 +13,7 @@ from datetime import datetime
 from os import fstat
 from os.path import abspath, exists, join
 
-from six.moves.urllib.parse import unquote
+from urllib.parse import unquote
 from tornado.concurrent import return_future
 
 from thumbor.loaders import LoaderResult

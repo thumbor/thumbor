@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -220,7 +219,7 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
 
     @gen_test
     async def test_load_with_utf8_url(self):
-        url = self.get_url(quote("/maracujá.jpg".encode("utf-8")))
+        url = self.get_url(quote("/maracujá.jpg".encode()))
         config = Config()
         ctx = Context(None, config, None)
 

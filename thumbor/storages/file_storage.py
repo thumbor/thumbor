@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -106,7 +105,7 @@ class Storage(storages.BaseStorage):
         if not exists(crypto_file):
             return None
 
-        with open(crypto_file, "r", encoding="utf-8") as crypto_f:
+        with open(crypto_file, encoding="utf-8") as crypto_f:
             return crypto_f.read()
 
     async def get_detector_data(self, path):
@@ -118,7 +117,7 @@ class Storage(storages.BaseStorage):
         if not resource_available:
             return None
 
-        with open(path, "r", encoding="utf-8") as detector_file:
+        with open(path, encoding="utf-8") as detector_file:
             return loads(detector_file.read())
 
     def path_on_filesystem(self, path):

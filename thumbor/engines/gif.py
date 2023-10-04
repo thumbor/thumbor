@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -60,10 +59,8 @@ class Engine(PILEngine):
             )
 
             raise GifSicleError(
-                (
-                    f"gifsicle command returned errorlevel {process.returncode} for "
-                    f'command "{gifsicle_command}" (image maybe corrupted?)'
-                )
+                f"gifsicle command returned errorlevel {process.returncode} for "
+                f'command "{gifsicle_command}" (image maybe corrupted?)'
             )
 
         return stdout_data

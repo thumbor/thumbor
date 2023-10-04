@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -184,7 +183,7 @@ class Engine(BaseEngine):
         # Nasty retry if the image is loaded for the first time and it's truncated
         try:
             draw_image = ImageDraw.Draw(self.image)
-        except IOError:
+        except OSError:
             draw_image = ImageDraw.Draw(self.image)
         draw_image.rectangle([x, y, x + width, y + height])
 
@@ -431,7 +430,7 @@ class Engine(BaseEngine):
                 ext, FORMATS[self.get_default_extension()]
             )
             self.image.save(img_buffer, self.image.format, **options)
-        except IOError:
+        except OSError:
             logger.exception(
                 "Could not save as improved image, consider to increase ImageFile.MAXBLOCK"
             )

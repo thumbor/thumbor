@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -43,10 +42,10 @@ def get_image(img):
             ) as stream:
                 body = stream.read()
                 break
-        except IOError:
+        except OSError:
             pass
     else:
-        raise IOError(f"{img} not found")
+        raise OSError(f"{img} not found")
     return body
 
 

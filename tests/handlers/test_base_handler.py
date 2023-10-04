@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -107,9 +106,7 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
 
     @gen_test
     async def test_can_get_unicode_image(self):
-        enc_url = quote(
-            "15967251_212831_19242645_АгатавЗоопарке.jpg".encode("utf-8")
-        )
+        enc_url = quote("15967251_212831_19242645_АгатавЗоопарке.jpg".encode())
         response = await self.async_fetch(f"/unsafe/{enc_url}")
         expect(response.code).to_equal(200)
         expect(response.body).to_be_similar_to(default_image())

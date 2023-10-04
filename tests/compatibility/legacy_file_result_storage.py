@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -42,7 +41,9 @@ class Storage(BaseStorage):
                 % file_abspath
             )
             return
-        temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace("-", ""))
+        temp_abspath = "{}.{}".format(
+            file_abspath, str(uuid4()).replace("-", "")
+        )
         file_dir_abspath = dirname(file_abspath)
         logger.debug(
             "[RESULT_STORAGE] putting at %s (%s)"

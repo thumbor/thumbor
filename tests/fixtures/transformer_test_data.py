@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -76,7 +75,7 @@ class MockSyncDetector(BaseDetector):
 
 class MockErrorSyncDetector(BaseDetector):
     async def detect(self):
-        raise IOError("some-io-error")
+        raise OSError("some-io-error")
 
 
 # Test Data - pylint: disable=too-many-locals,too-many-instance-attributes
@@ -202,15 +201,17 @@ class TestData:
 
     @property
     def resize_error_message(self):
-        message = "The engine resize should have been called with %sx%s" % (
-            self.target_width,
-            self.target_height,
+        message = (
+            "The engine resize should have been called with {}x{}".format(
+                self.target_width,
+                self.target_height,
+            )
         )
         if not self.engine.calls["resize"]:
             return "%s, but was never called" % message
 
         last_resize = self.engine.calls["resize"][0]
-        return "%s, but was called with %sx%s" % (
+        return "{}, but was called with {}x{}".format(
             message,
             last_resize["width"],
             last_resize["height"],

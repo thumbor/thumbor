@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -284,10 +283,8 @@ class WatermarkFilterTestCase(FilterTestCase):
 
                     test["topic_name"] = "fill out"
                     expect(
-                        (
-                            watermark_image_width == max_width
-                            or watermark_image_height == max_height
-                        )
+                        watermark_image_width == max_width
+                        or watermark_image_height == max_height
                     ).to_be_true_with_additional_info(**test)
 
                     test["topic_name"] = "image ratio"

@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -148,7 +147,7 @@ class ServerParametersTestCase(TestCase):
         params.security_key = "testé"
         expect(
             params._security_key  # pylint: disable=protected-access
-        ).to_equal("testé".encode("utf-8"))
+        ).to_equal("testé".encode())
 
     @staticmethod
     def test_loading_does_nothing_if_no_keyfile():

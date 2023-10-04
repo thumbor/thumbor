@@ -1,11 +1,10 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
-# http://www.opensource.org/licenses/mit-license
+# https://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from shutil import which
@@ -47,11 +46,13 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
     async def test_image_already_generated_by_thumbor(self):
         with open("./tests/fixtures/images/image.jpg", "rb") as fixture:
             await self.context.modules.storage.put(
-                quote("http://test.com/smart/image.jpg"), fixture.read()
+                quote("https://test.com/smart/image.jpg"), fixture.read()
             )
         crypto = CryptoURL("ACME-SEC")
         image_url = self.get_url(
-            crypto.generate(image_url=quote("http://test.com/smart/image.jpg"))
+            crypto.generate(
+                image_url=quote("https://test.com/smart/image.jpg")
+            )
         )
         url = crypto.generate(image_url=quote(image_url))
 
@@ -67,7 +68,7 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
             "rb",
         ) as fixture:
             await self.context.modules.storage.put(
-                quote("http://test.com/smart/alabama1_ap620é"), fixture.read()
+                quote("https://test.com/smart/alabama1_ap620é"), fixture.read()
             )
         crypto = CryptoURL("ACME-SEC")
         image_url = self.get_url(
@@ -76,7 +77,7 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
                     self.get_url(
                         crypto.generate(
                             image_url=quote(
-                                "http://test.com/smart/alabama1_ap620é"
+                                "https://test.com/smart/alabama1_ap620é"
                             )
                         )
                     )
@@ -93,12 +94,12 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
     async def test_image_with_utf8_url(self):
         with open("./tests/fixtures/images/maracujá.jpg", "rb") as fixture:
             await self.context.modules.storage.put(
-                quote("http://test.com/maracujá.jpg".encode("utf-8")),
+                quote("https://test.com/maracujá.jpg".encode()),
                 fixture.read(),
             )
         crypto = CryptoURL("ACME-SEC")
         image_url = self.get_url(
-            quote("/unsafe/http://test.com/maracujá.jpg".encode("utf-8"))
+            quote("/unsafe/https://test.com/maracujá.jpg".encode())
         )
         url = crypto.generate(image_url=quote(image_url))
         response = await self.async_fetch(url)
@@ -108,10 +109,10 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
     async def test_image_with_http_utf8_url(self):
         with open("./tests/fixtures/images/maracujá.jpg", "rb") as fixture:
             await self.context.modules.storage.put(
-                quote("http://test.com/maracujá.jpg".encode("utf-8")),
+                quote("https://test.com/maracujá.jpg".encode()),
                 fixture.read(),
             )
 
-        url = quote("/unsafe/http://test.com/maracujá.jpg".encode("utf-8"))
+        url = quote("/unsafe/https://test.com/maracujá.jpg".encode())
         response = await self.async_fetch(url)
         expect(response.code).to_equal(200)

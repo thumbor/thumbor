@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #   Copyright (C) 2012, Almar Klein, Ant1, Marius van Voorden
 #
 #   This code is subject to the (new) BSD license:
@@ -581,7 +580,7 @@ def readGif(filename, asNumpy=True):
 
     # Check whether it exists
     if not os.path.isfile(filename):
-        raise IOError("File not found: " + str(filename))
+        raise OSError("File not found: " + str(filename))
 
     # Load file using PIL
     pilIm = PIL.Image.open(filename)

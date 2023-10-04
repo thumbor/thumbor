@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Thumbor documentation build configuration file, created by
 # sphinx-quickstart on Mon Sep  1 13:18:38 2014.

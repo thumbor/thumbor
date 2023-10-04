@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -1042,7 +1041,7 @@ class ImageApiHandler(ContextHandler):
         # Check if image is valid
         try:
             engine.load(body, None)
-        except IOError:
+        except OSError:
             self._error(415, "Unsupported Media Type")
 
             return False

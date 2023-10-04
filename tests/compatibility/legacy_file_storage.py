@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -27,21 +26,19 @@ from thumbor.utils import logger
 class Storage(storages.BaseStorage):
     def put(self, path, bytes):
         file_abspath = self.path_on_filesystem(path)
-        temp_abspath = "%s.%s" % (file_abspath, str(uuid4()).replace("-", ""))
+        temp_abspath = "{}.{}".format(
+            file_abspath, str(uuid4()).replace("-", "")
+        )
         file_dir_abspath = dirname(file_abspath)
 
-        logger.debug(
-            "creating tempfile for %s in %s..." % (path, temp_abspath)
-        )
+        logger.debug(f"creating tempfile for {path} in {temp_abspath}...")
 
         self.ensure_dir(file_dir_abspath)
 
         with open(temp_abspath, "wb") as _file:
             _file.write(bytes)
 
-        logger.debug(
-            "moving tempfile %s to %s..." % (temp_abspath, file_abspath)
-        )
+        logger.debug(f"moving tempfile {temp_abspath} to {file_abspath}...")
         move(temp_abspath, file_abspath)
 
         return path
@@ -61,7 +58,9 @@ class Storage(storages.BaseStorage):
             )
 
         crypto_path = "%s.txt" % splitext(file_abspath)[0]
-        temp_abspath = "%s.%s" % (crypto_path, str(uuid4()).replace("-", ""))
+        temp_abspath = "{}.{}".format(
+            crypto_path, str(uuid4()).replace("-", "")
+        )
         with open(temp_abspath, "w") as _file:
             _file.write(self.context.server.security_key)
 
@@ -77,7 +76,7 @@ class Storage(storages.BaseStorage):
         file_abspath = self.path_on_filesystem(path)
 
         path = "%s.detectors.txt" % splitext(file_abspath)[0]
-        temp_abspath = "%s.%s" % (path, str(uuid4()).replace("-", ""))
+        temp_abspath = "{}.{}".format(path, str(uuid4()).replace("-", ""))
 
         file_dir_abspath = dirname(file_abspath)
         self.ensure_dir(file_dir_abspath)
@@ -128,7 +127,7 @@ class Storage(storages.BaseStorage):
 
     def path_on_filesystem(self, path):
         digest = hashlib.sha1(path.encode("utf-8")).hexdigest()
-        return "%s/%s/%s" % (
+        return "{}/{}/{}".format(
             self.context.config.FILE_STORAGE_ROOT_PATH.rstrip("/"),
             digest[:2],
             digest[2:],

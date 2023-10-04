@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -17,7 +16,7 @@ class Filter(BaseFilter):
     def get_median_color(self):
         mode, data = self.engine.image_data_as_rgb()
         red, green, blue = _fill.apply(mode, data)
-        return "%02x%02x%02x" % (  # pylint: disable=consider-using-f-string
+        return "{:02x}{:02x}{:02x}".format(  # pylint: disable=consider-using-f-string
             red,
             green,
             blue,
