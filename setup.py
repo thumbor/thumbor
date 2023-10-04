@@ -125,7 +125,7 @@ def run_setup(extension_modules=None):
         author_email="thumbor@googlegroups.com",
         url="https://github.com/thumbor/thumbor/wiki",
         license="MIT",
-        python_requires=">=3.7",
+        python_requires=">=3.8",
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
@@ -151,7 +151,7 @@ def run_setup(extension_modules=None):
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            "Pillow==9.*",
+            "Pillow==10.*, >=10.0.1",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
             "tornado==6.*,>=6.0.3",

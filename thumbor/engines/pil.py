@@ -171,14 +171,14 @@ class Engine(BaseEngine):
         )
 
         available = {
-            "LANCZOS": Image.LANCZOS,
-            "NEAREST": Image.NEAREST,
-            "BILINEAR": Image.BILINEAR,
-            "BICUBIC": Image.BICUBIC,
-            "HAMMING": Image.HAMMING,
+            "LANCZOS": Image.Resampling.LANCZOS,
+            "NEAREST": Image.Resampling.NEAREST,
+            "BILINEAR": Image.Resampling.BILINEAR,
+            "BICUBIC": Image.Resampling.BICUBIC,
+            "HAMMING": Image.Resampling.HAMMING,
         }
 
-        return available.get(resample.upper(), Image.LANCZOS)
+        return available.get(resample.upper(), Image.Resampling.LANCZOS)
 
     def draw_rectangle(self, x, y, width, height):
         # Nasty retry if the image is loaded for the first time and it's truncated
@@ -223,19 +223,19 @@ class Engine(BaseEngine):
         # PIL rotates counter clockwise
 
         if degrees == 90:
-            self.image = self.image.transpose(Image.ROTATE_90)
+            self.image = self.image.transpose(Image.Transpose.ROTATE_90)
         elif degrees == 180:
-            self.image = self.image.transpose(Image.ROTATE_180)
+            self.image = self.image.transpose(Image.Transpose.ROTATE_180)
         elif degrees == 270:
-            self.image = self.image.transpose(Image.ROTATE_270)
+            self.image = self.image.transpose(Image.Transpose.ROTATE_270)
         else:
             self.image = self.image.rotate(degrees, expand=1)
 
     def flip_vertically(self):
-        self.image = self.image.transpose(Image.FLIP_TOP_BOTTOM)
+        self.image = self.image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
     def flip_horizontally(self):
-        self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        self.image = self.image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
 
     def get_default_extension(self):
         # extension is not present => force JPEG or PNG
@@ -269,7 +269,7 @@ class Engine(BaseEngine):
                 # libimagequant might not be enabled on compile time
                 # but it's better than default octree for RGBA images
                 quantize_method = (
-                    Image.LIBIMAGEQUANT
+                    Image.Quantize.LIBIMAGEQUANT
                     if pillow_features.check("libimagequant")
                     else None
                 )
