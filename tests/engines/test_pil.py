@@ -153,15 +153,15 @@ class PilEngineTestCase(TestCase):
 
     def test_can_set_resampling_filter(self):
         to_test = {
-            "LANCZOS": Image.LANCZOS,
-            "NEAREST": Image.NEAREST,
-            "BiLinear": Image.BILINEAR,
-            "bicubic": Image.BICUBIC,
-            "garbage": Image.LANCZOS,
+            "LANCZOS": Image.Resampling.LANCZOS,
+            "NEAREST": Image.Resampling.NEAREST,
+            "BiLinear": Image.Resampling.BILINEAR,
+            "bicubic": Image.Resampling.BICUBIC,
+            "garbage": Image.Resampling.LANCZOS,
         }
 
         if hasattr(Image, "HAMMING"):
-            to_test["HAMMING"] = Image.HAMMING
+            to_test["HAMMING"] = Image.Resampling.HAMMING
 
         for setting, expected in to_test.items():
             cfg = Config(PILLOW_RESAMPLING_FILTER=setting)
@@ -170,7 +170,7 @@ class PilEngineTestCase(TestCase):
 
         cfg = Config()
         engine = Engine(Context(config=cfg))
-        expect(engine.get_resize_filter()).to_equal(Image.LANCZOS)
+        expect(engine.get_resize_filter()).to_equal(Image.Resampling.LANCZOS)
 
     def test_resize_truncated_image(self):
         engine = Engine(self.context)
