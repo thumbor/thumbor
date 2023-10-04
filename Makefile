@@ -58,7 +58,7 @@ format:
 	@black .
 
 flake:
-	@flake8 --config .flake8
+	@flake8
 
 pylint:
 	@pylint --load-plugins=pylint.extensions.no_self_use thumbor tests
