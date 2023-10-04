@@ -37,7 +37,7 @@ TESTS_REQUIREMENTS = [
     "isort==4.*,>=4.3.21",
     "pre-commit==2.*,>=2.17.0",
     "preggy==1.*,>=1.4.4",
-    "pylint==2.*,>=2.4.4",
+    "pylint==3.*",
     "pyssim==0.*,>=0.4.0",
     "pytest>=6.2.5",
     "pytest-asyncio==0.*,>=0.10.0",
@@ -52,15 +52,15 @@ TESTS_REQUIREMENTS = [
 
 OPENCV_REQUIREMENTS = [
     "opencv-python-headless==4.*,>=4.2.0",
-    "numpy==1.*,<1.24.0",
+    "numpy==1.*,<1.27.0",
 ]
 
 EXTRA_LIBS_REQUIREMENTS = [
     # Going to update in a proper commit
     "cairosvg>=2.5.2",
     "pycurl==7.*,>=7.43.0",
-    "pillow-avif-plugin==1.*,>=1.2.2",
-    "pillow-heif>=0.7.0",
+    "pillow-avif-plugin==1.*,>=1.4.0",
+    "pillow-heif>=0.13.0",
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
@@ -92,7 +92,7 @@ def filter_extension_module(name, lib_objs, lib_headers):
             "-Wno-unused-parameter",
         ],
         py_limited_api=True,
-        define_macros=[("Py_LIMITED_API", "0x03070000")],
+        define_macros=[("Py_LIMITED_API", "0x03080000")],
     )
 
 
@@ -138,6 +138,7 @@ def run_setup(extension_modules=None):
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
             "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
             "Programming Language :: Python :: 3 :: Only",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
@@ -148,13 +149,13 @@ def run_setup(extension_modules=None):
         package_data={"": ["*.xml"]},
         install_requires=[
             "colorama==0.*,>=0.4.3",
-            "derpconf==0.*,>=0.8.3",
+            "derpconf==0.*,>=0.8.4",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            "Pillow==10.*, >=10.0.1",
+            "Pillow==10.*, <10.1.0",
             "pytz>=2019.3.0",
-            "statsd==3.*,>=3.3.0",
-            "tornado==6.*,>=6.0.3",
+            "statsd==4.*,>=4.0.1",
+            "tornado==6.*,>=6.3.3",
             "thumbor-plugins-gifv==0.*,>=0.1.2",
             "webcolors==1.*,>=1.10.0",
             "JpegIPTC>=1.4",

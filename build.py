@@ -2,9 +2,9 @@
 
 import glob
 import os
-from distutils.command.build_ext import build_ext
-from distutils.core import Extension
-from distutils.errors import (
+from setuptools.extension import Extension
+from setuptools.command.build_ext import build_ext
+from setuptools.errors import (
     CCompilerError,
     DistutilsExecError,
     DistutilsPlatformError,
