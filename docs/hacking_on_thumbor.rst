@@ -17,7 +17,7 @@ We seriously advise you to use
 keep your environment clean of thumbor's dependencies and you can choose
 when to "turn them on".
 
-You'll also need python >= 3.7 and `python poetry <https://python-poetry.org/>`_.
+You'll also need python >= 3.8 and `python poetry <https://python-poetry.org/>`_.
 
 Installing poetry should be as easy as ``pip install poetry``, but you can find more about it in their website.
 
