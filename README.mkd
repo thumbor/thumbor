@@ -151,6 +151,10 @@ If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qP
 
 Join the chat at https://gitter.im/thumbor/thumbor
 
+## License
+
+Thumbor is licensed under the [MIT license](LICENSE).
+
 ## 👀 Demo
 
 You can see thumbor in action at http://thumborize.me/
