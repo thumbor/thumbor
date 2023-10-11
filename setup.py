@@ -72,7 +72,7 @@ if wheel is not None:
             python, abi, plat = super().get_tag()
 
             if python.startswith("cp"):
-                return "cp37", "abi3", plat
+                return "cp38", "abi3", plat
             return python, abi, plat
 
     kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
