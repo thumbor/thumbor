@@ -11,7 +11,7 @@
 import datetime
 import re
 import socket
-from typing import Pattern
+from typing import Callable, List, Union, Pattern
 from urllib.parse import quote, unquote, urlparse
 
 import tornado.httpclient
@@ -47,6 +47,11 @@ def _normalize_url(url):
     return url if url.startswith("http") else f"http://{url}"
 
 
+def is_image_url(path: str) -> bool:
+    allowed_image_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg']
+    return any(path.endswith(ext) for ext in allowed_image_extensions)
+
+
 def validate(context, url, normalize_url_func=_normalize_url):
     url = normalize_url_func(url)
     res = urlparse(url)
@@ -54,6 +59,9 @@ def validate(context, url, normalize_url_func=_normalize_url):
     if not res.hostname:
         return False
 
+    if not is_image_url(res.path):
+        return False
+        
     if not context.config.ALLOWED_SOURCES:
         return True
 
