@@ -99,6 +99,11 @@ jobs:
         with:
           fetch-depth: "0"
 
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+
       - name: Set output on new tags
         if: github.event_name != 'pull_request'
         run: echo "THUMBOR_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
@@ -163,7 +168,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./docker
+          file: ./docker/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}

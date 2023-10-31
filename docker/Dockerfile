@@ -21,12 +21,14 @@ RUN apt-get update && \
         build-essential && \
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir /tmp/thumbor_dist
+COPY dist/* /tmp/thumbor_dist
 
 RUN python3 -m venv /home/thumbor/venv
 ENV PATH="/home/thumbor/venv/bin:$PATH"
 
 RUN pip3 install --no-cache-dir wheel && \
-    pip3 install --no-cache-dir thumbor[all]==${THUMBOR_VERSION}
+    pip3 install --no-cache-dir --find-links=/tmp/thumbor_dist thumbor[all]==${THUMBOR_VERSION}
 
 FROM python:${PYTHON_VERSION}-slim-bullseye AS runner-image
 
