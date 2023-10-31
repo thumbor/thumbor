@@ -253,7 +253,7 @@ def format_error(dependency, err, msg):
         {err}
 
     Error Description:
-        { formatted_msg }
+        {formatted_msg}
     """
     return result.strip()
 
