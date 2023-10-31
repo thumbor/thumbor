@@ -42,7 +42,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-11]
+        os:
+          - ubuntu-20.04
+          - macOS-11
+          - macOS-12
+          - macOS-13
 
     steps:
       - uses: actions/checkout@v4
@@ -52,7 +56,7 @@ jobs:
           python-version: ${{ env.python-version }}
       - name: Set up QEMU
         if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: all
 
@@ -75,12 +79,12 @@ jobs:
 
       - run: ls -lah dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.5.1
+      - uses: pypa/gh-action-pypi-publish@v1.8.10
         if: github.event_name != 'pull_request'
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          skip_existing: true
+          skip-existing: true
 
   docker:
     needs: upload_pypi
@@ -117,7 +121,7 @@ jobs:
         run: echo "CACHE_TO=type=registry,ref=ghcr.io/thumbor/thumbor:buildcache-${{ matrix.python_version }},mode=max" >> $GITHUB_ENV
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         id: buildx
@@ -125,7 +129,7 @@ jobs:
 
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -133,7 +137,7 @@ jobs:
 
       - name: Login to Quay.io
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_IO_USERNAME }}
@@ -141,7 +145,7 @@ jobs:
 
       - name: Login to Docker Hub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -166,7 +170,7 @@ jobs:
             type=sha
 
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/Dockerfile
