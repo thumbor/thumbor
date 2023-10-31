@@ -110,7 +110,7 @@ jobs:
 
       - name: Set output on PR
         if: github.event_name == 'pull_request'
-        run: echo "THUMBOR_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        run: echo "THUMBOR_VERSION=$(cat thumbor/__init__.py | grep "__version__" | cut -d'"' -f2)" >> $GITHUB_ENV
 
       - name: Enable docker cache push
         if: github.event_name != 'pull_request'
