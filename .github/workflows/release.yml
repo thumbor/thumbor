@@ -44,8 +44,6 @@ jobs:
       matrix:
         os:
           - ubuntu-20.04
-          - macOS-11
-          - macOS-12
           - macOS-13
 
     steps:
