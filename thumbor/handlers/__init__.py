@@ -672,16 +672,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return results
 
     def _cleanup(self):
-        self.context.request_handler = None
-
-        if hasattr(self.context, "request"):
-            self.context.request.engine = None
-        self.context.modules = None
-        self.context.filters_factory = None
-        self.context.metrics = None
-        self.context.thread_pool = None
-        self.context.transformer = None
-        self.context = None  # Handlers should not override __init__ pylint: disable=attribute-defined-outside-init
+        self.context.cleanup()
 
     async def _write_results_to_client(self, results, content_type):
         max_age = self.context.config.MAX_AGE

@@ -599,3 +599,7 @@ class Engine(BaseEngine):
 
     def strip_exif(self):
         self.exif = None
+
+    def cleanup(self):
+        if self.image:
+            self.image.close()

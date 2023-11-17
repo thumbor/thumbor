@@ -9,8 +9,10 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from unittest import TestCase, mock
+from os.path import abspath, dirname, join
 
 from preggy import expect
+from PIL._util import DeferredError
 
 from thumbor.config import Config
 from thumbor.context import (
@@ -23,6 +25,9 @@ from thumbor.context import (
 from thumbor.filters import FiltersFactory
 from thumbor.importer import Importer
 from thumbor.metrics.logger_metrics import Metrics
+
+FIXTURES_PATH = abspath(join(dirname(__file__), "fixtures/"))
+STORAGE_PATH = join(FIXTURES_PATH, "images")
 
 
 class ContextTestCase(TestCase):
@@ -102,6 +107,27 @@ class ContextTestCase(TestCase):
         ctx = Context(config=cfg, importer=importer, server=server)
 
         expect(ctx.app_class).to_equal("server.app")
+
+    def test_should_cleanup_context(self):
+        cfg = Config()
+        importer = Importer(cfg)
+        importer.import_modules()
+
+        ctx = Context(config=cfg, importer=importer)
+        ctx.request = RequestParameters()
+        ctx.request.engine = ctx.modules.engine
+
+        with open(join(STORAGE_PATH, "1bit.png"), "rb") as image_file:
+            buffer = image_file.read()
+
+        ctx.modules.engine.load(buffer, "PNG")
+        expect(ctx.modules.engine.image).not_to_be_null()
+        expect(ctx.modules.engine.image.fp).not_to_be_null()
+
+        ctx.cleanup()
+
+        expect(ctx.modules.engine.image.fp).to_be_null()
+        expect(ctx.modules.engine.image.im).to_be_instance_of(DeferredError)
 
 
 class ServerParametersTestCase(TestCase):

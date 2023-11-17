@@ -69,10 +69,17 @@ class Context:  # pylint: disable=too-many-instance-attributes
         return self
 
     def __exit__(self, exception_type, value, traceback):
-        if self.modules:
+        if self.thread_pool:
+            self.thread_pool.cleanup()
+
+        self.cleanup()
+
+    def cleanup(self):
+        if hasattr(self, "modules") and self.modules:
             self.modules.cleanup()
 
-        self.thread_pool.cleanup()
+        if hasattr(self, "request") and self.request.engine:
+            self.request.engine.cleanup()
 
 
 class ServerParameters:  # pylint: disable=too-many-instance-attributes
@@ -307,3 +314,5 @@ class ContextImporter:  # pylint: disable=too-few-public-methods,too-many-instan
     def cleanup(self):
         if self.engine:
             self.engine.cleanup()
+        if self.gif_engine:
+            self.gif_engine.cleanup()
