@@ -37,14 +37,14 @@ TESTS_REQUIREMENTS = [
     "isort==4.*,>=4.3.21",
     "pre-commit==2.*,>=2.17.0",
     "preggy==1.*,>=1.4.4",
-    "pylint==2.*,>=2.4.4",
+    "pylint==3.*",
     "pyssim==0.*,>=0.4.0",
     "pytest>=6.2.5",
     "pytest-asyncio==0.*,>=0.10.0",
     "pytest-cov==3.*,>=3.0.0",
     "pytest-tldr==0.*,>=0.2.1",
     "pytest-xdist==2.*,>=2.4.0",
-    "redis==4.*,>=4.2.2",
+    "redis==5.*,>=5.0.1",
     "remotecv>=2.3.0",
     "sentry-sdk==0.*,>=0.14.1",
     "yanc==0.*,>=0.3.3",
@@ -52,7 +52,7 @@ TESTS_REQUIREMENTS = [
 
 OPENCV_REQUIREMENTS = [
     "opencv-python-headless==4.*,>=4.2.0",
-    "numpy==1.*,<1.24.0",
+    "numpy==1.*,<1.27.0",
 ]
 
 EXTRA_LIBS_REQUIREMENTS = [
@@ -72,7 +72,7 @@ if wheel is not None:
             python, abi, plat = super().get_tag()
 
             if python.startswith("cp"):
-                return "cp37", "abi3", plat
+                return "cp38", "abi3", plat
             return python, abi, plat
 
     kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
@@ -92,7 +92,7 @@ def filter_extension_module(name, lib_objs, lib_headers):
             "-Wno-unused-parameter",
         ],
         py_limited_api=True,
-        define_macros=[("Py_LIMITED_API", "0x03070000")],
+        define_macros=[("Py_LIMITED_API", "0x03080000")],
     )
 
 
@@ -125,7 +125,7 @@ def run_setup(extension_modules=None):
         author_email="thumbor@googlegroups.com",
         url="https://github.com/thumbor/thumbor/wiki",
         license="MIT",
-        python_requires=">=3.7",
+        python_requires=">=3.8",
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
@@ -134,11 +134,11 @@ def run_setup(extension_modules=None):
             "Operating System :: MacOS",
             "Operating System :: POSIX :: Linux",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
             "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
             "Programming Language :: Python :: 3 :: Only",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
@@ -152,7 +152,8 @@ def run_setup(extension_modules=None):
             "derpconf==0.*,>=0.8.3",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            "Pillow==9.*",
+            # TODO: Pillow version 10.1.0 is raising a PIL.Image.DecompressionBombError on tests
+            "Pillow==10.*, <10.1.0",
             "pytz>=2019.3.0",
             "statsd==3.*,>=3.3.0",
             "tornado==6.*,>=6.0.3",

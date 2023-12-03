@@ -155,7 +155,7 @@ def ensure_srgb(img, srgb_profile=None):
         srgb_profile,
         pil_mode,
         "RGBA",
-        intent=ImageCms.INTENT_RELATIVE_COLORIMETRIC,
+        intent=ImageCms.Intent.RELATIVE_COLORIMETRIC,
         flags=TRANSFORM_FLAGS,
     )
 
