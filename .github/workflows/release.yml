@@ -77,7 +77,7 @@ jobs:
 
       - run: ls -lah dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.8.10
+      - uses: pypa/gh-action-pypi-publish@v1.8.11
         if: github.event_name != 'pull_request'
         with:
           user: __token__
