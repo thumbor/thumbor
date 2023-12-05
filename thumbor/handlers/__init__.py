@@ -712,7 +712,11 @@ class BaseHandler(tornado.web.RequestHandler):
             buffer = results
 
         # auto-convert configured?
-        should_vary = self.context.config.AUTO_WEBP
+        should_vary = (
+            self.context.config.AUTO_WEBP
+            or self.context.config.AUTO_AVIF
+            or self.context.config.AUTO_HEIF
+        )
         # we have image (not video)
         should_vary = should_vary and content_type.startswith("image/")
         # output format is not requested via format filter
