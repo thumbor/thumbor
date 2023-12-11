@@ -351,8 +351,8 @@ AUTO_*
 ~~~~~~~~~~~~
 
 These configurations indicates that thumbor will try to automatically convert
-the image format to a lighter image format, following a better compression order
-`WEBP -> AVIF -> JPG -> HEIF`.
+the image format to a lighter image format, according to this compression order:
+`WEBP, AVIF, JPG, HEIF` — from highest (`WEBP`) to lowest (`HEIF`) priority.
 
 AUTO\_WEBP
 ^^^^^^^^^^
