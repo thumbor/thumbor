@@ -96,10 +96,10 @@ Running with Docker
 
 Running thumbor with docker is as easy as::
 
-   $ docker run -p 8888:80 minimalcompact/thumbor
+   $ docker run -p 8888:80 ghcr.io/minimalcompact/thumbor:latest
    ...
    $ curl http://localhost:8888/healthcheck
-   WORKING%  
+   WORKING%
 
 For more details check the `MinimalCompact thumbor docker image <https://github.com/MinimalCompact/thumbor>`_.
 

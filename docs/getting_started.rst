@@ -5,7 +5,7 @@ If you just want to give thumbor a try, it is pretty easy to get
 started. **It won't take more than a minute.**
 
 Just install it with ``pip install thumbor`` and start the process with
-``thumbor`` in a console. That's all you need to start transforming images. 
+``thumbor`` in a console. That's all you need to start transforming images.
 
 The image we'll be using in most of our examples is a Creative Commons licensed image by `Snapwire <https://www.pexels.com/@snapwire>`_::
 
@@ -36,11 +36,11 @@ Problems installing thumbor locally
 
 No worries! If you have a docker host accessible, just run::
 
-   $ docker run -p 8888:80 minimalcompact/thumbor
+   $ docker run -p 8888:80 ghcr.io/minimalcompact/thumbor:latest
 
 After downloading the image and running it, thumbor will be accessible at ``http://localhost:8888/``.
 
-For more information on minimalcompact/thumbor, visit their `github page <https://github.com/MinimalCompact/thumbor>`_.
+For more details check the `MinimalCompact thumbor docker image <https://github.com/MinimalCompact/thumbor>`_.
 
 Changing its size
 -----------------

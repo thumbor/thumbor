@@ -17,7 +17,7 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/stale@v4
+      - uses: actions/stale@v9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           stale-issue-message: This issue is stale because it has been open 30 days
