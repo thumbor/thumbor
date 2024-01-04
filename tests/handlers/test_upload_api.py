@@ -17,11 +17,14 @@ from tornado.testing import gen_test
 
 from tests.base import TestCase
 from tests.fixtures.images import (
+    ANIMATED_IMAGE_PATH,
     TOO_SMALL_IMAGE_PATH,
     VALID_IMAGE_PATH,
+    animated_image,
     too_heavy_image,
     too_small_image,
     valid_image,
+    svg_image,
 )
 from thumbor.config import Config
 from thumbor.context import Context
@@ -85,6 +88,51 @@ class UploadAPINewFileTestCase(UploadTestCase):
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         expect(expected_path).to_exist()
         expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+
+    @gen_test
+    async def test_can_post_image_svg_with_content_type(self):
+        filename = "logo.svg"
+        response = await self.async_post(
+            self.base_uri,
+            {"Content-Type": "image/svg+xml", "Slug": filename},
+            svg_image(),
+        )
+
+        expect(response.code).to_equal(201)
+
+        expect(response.headers).to_include("Location")
+        expect(response.headers["Location"]).to_match(
+            self.base_uri + r"/[^\/]{32}/" + filename
+        )
+
+        expected_path = self.get_path_from_location(
+            response.headers["Location"]
+        )
+        expected_path = self.upload_storage.path_on_filesystem(expected_path)
+        expect(expected_path).to_exist()
+
+    @gen_test
+    async def test_can_post_gif_with_content_type(self):
+        filename = "animated.gif"
+        response = await self.async_post(
+            self.base_uri,
+            {"Content-Type": "image/gif", "Slug": filename},
+            animated_image(),
+        )
+
+        expect(response.code).to_equal(201)
+
+        expect(response.headers).to_include("Location")
+        expect(response.headers["Location"]).to_match(
+            self.base_uri + r"/[^\/]{32}/" + filename
+        )
+
+        expected_path = self.get_path_from_location(
+            response.headers["Location"]
+        )
+        expected_path = self.upload_storage.path_on_filesystem(expected_path)
+        expect(expected_path).to_exist()
+        expect(expected_path).to_be_the_same_as(ANIMATED_IMAGE_PATH)
 
     @gen_test
     async def test_can_post_image_with_charset(self):
