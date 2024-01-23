@@ -8,10 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import os
 from io import BytesIO
-from subprocess import PIPE, Popen
-from tempfile import mkstemp
 
 import piexif
 from JpegIPTC import JpegIPTC
@@ -19,7 +16,6 @@ from PIL import Image, ImageDraw, ImageFile, ImageSequence, JpegImagePlugin
 from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
-from thumbor.engines.extensions.pil import GifWriter
 from thumbor.filters.fill import Filter
 from thumbor.utils import deprecated, ensure_srgb, get_color_space, logger
 
@@ -452,50 +448,19 @@ class Engine(BaseEngine):
         return results
 
     def read_multiple(self, images, extension=None):
-        gif_writer = GifWriter()
-        img_buffer = BytesIO()
-
-        duration = []
-        converted_images = []
-        coordinates = []
-        dispose = []
-
-        for image in images:
-            duration.append(image.info.get("duration", 80) / 1000)
-            converted_images.append(image.convert("RGB"))
-            coordinates.append((0, 0))
-            dispose.append(1)
-
-        loop = int(self.image.info.get("loop", 1))
-
-        images = gif_writer.convertImagesToPIL(converted_images, False, None)
-        gif_writer.writeGifToFile(
-            img_buffer, images, duration, loop, coordinates, dispose
+        self.image.format = FORMATS.get(
+            extension or self.extension, FORMATS[self.get_default_extension()]
         )
-
-        results = img_buffer.getvalue()
-        img_buffer.close()
-
-        tmp_fd, tmp_file_path = mkstemp()
-        temp_file = os.fdopen(tmp_fd, "wb")
-        temp_file.write(results)
-        temp_file.close()
-
-        command = ["gifsicle", "--colors", "256", tmp_file_path]
-
-        popen = Popen(  # pylint: disable=consider-using-with
-            command, stdout=PIPE
-        )
-        pipe = popen.stdout
-        pipe_output = pipe.read()
-        pipe.close()
-
-        if popen.wait() == 0:
-            results = pipe_output
-
-        os.remove(tmp_file_path)
-
-        return results
+        with BytesIO() as img_buffer:
+            images[0].save(
+                img_buffer,
+                self.image.format,
+                save_all=True,
+                append_images=images[1:],
+                duration=[im.info.get("duration", 80) / 1000 for im in images],
+                loop=int(self.image.info.get("loop", 1)),
+            )
+            return img_buffer.getvalue()
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_data(self):

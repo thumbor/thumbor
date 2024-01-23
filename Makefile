@@ -116,6 +116,7 @@ sample_images:
 	convert tests/fixtures/images/10_years_of_Wikipedia_by_Guillaume_Paumier.jpg -orient LeftBottom tests/fixtures/images/10_years_of_Wikipedia_by_Guillaume_Paumier.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/6/6d/Christophe_Henner_-_June_2016.jpg -o tests/fixtures/images/Christophe_Henner_-_June_2016.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/3/31/Giunchedi%2C_Filippo_January_2015_01.jpg -o tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg
+	curl -s https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif -o tests/fixtures/images/Rotating_earth_\(large\).gif
 	convert tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg -colorspace CMYK tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01-cmyk.jpg
 	convert tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.png
 	convert tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg -colorspace gray tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01-grayscale.jpg
