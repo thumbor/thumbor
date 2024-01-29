@@ -168,9 +168,9 @@ async def load(
                 header_key
             ) in context.config.HTTP_LOADER_FORWARD_HEADERS_WHITELIST:
                 if header_key in context.request_handler.request.headers:
-                    headers[
-                        header_key
-                    ] = context.request_handler.request.headers[header_key]
+                    headers[header_key] = (
+                        context.request_handler.request.headers[header_key]
+                    )
 
     if user_agent is None and "User-Agent" not in headers:
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
