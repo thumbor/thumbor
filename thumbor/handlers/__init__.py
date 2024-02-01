@@ -298,9 +298,9 @@ class BaseHandler(tornado.web.RequestHandler):
         self.normalize_crops(normalized, req, engine)
 
         if req.meta:
-            self.context.transformer.engine = (
-                self.context.request.engine
-            ) = JSONEngine(engine, req.image_url, req.meta_callback)
+            self.context.transformer.engine = self.context.request.engine = (
+                JSONEngine(engine, req.image_url, req.meta_callback)
+            )
 
         await self.context.transformer.transform()
         await self.after_transform()

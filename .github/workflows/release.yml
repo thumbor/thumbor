@@ -33,8 +33,9 @@ jobs:
       - name: Build package
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: artifact-sdist
           path: ./dist/thumbor-*.tar.gz
 
   build_wheels:
@@ -60,21 +61,24 @@ jobs:
           platforms: all
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.16.5
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: artifact-${{ matrix.os }}
           path: ./wheelhouse/*.whl
+          overwrite: true
 
   upload_pypi:
     name: Upload to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          pattern: artifact-*
           path: dist
+          merge-multiple: true
 
       - run: ls -lah dist
 
@@ -101,10 +105,11 @@ jobs:
         with:
           fetch-depth: "0"
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          pattern: artifact-*
           path: dist
+          merge-multiple: true
 
       - name: Set output on new tags
         if: github.event_name != 'pull_request'
