@@ -17,7 +17,7 @@ We seriously advise you to use
 keep your environment clean of thumbor's dependencies and you can choose
 when to "turn them on".
 
-You'll also need python >= 3.8 and `python poetry <https://python-poetry.org/>`_.
+You'll also need python >= 3.9 and `python poetry <https://python-poetry.org/>`_.
 
 Installing poetry should be as easy as ``pip install poetry``, but you can find more about it in their website.
 
@@ -82,7 +82,7 @@ If there was anything to merge, just run your tests again. If they pass,
 Introducing a new Dependency
 ----------------------------
 
-If we introduce a new dependency, the testing docker images need to be updated. 
+If we introduce a new dependency, the testing docker images need to be updated.
 
 If the new dependency requires changes to the docker image, make sure to update the TestDockerfile36, TestDockerfile37, TestDockerfile38 and TestDockerfile39 files.
 
