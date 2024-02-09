@@ -32,7 +32,7 @@ Other than that, we seriously advise you to use
 your environment clean of thumbor's dependencies and you can choose when
 to "turn them on".
 
-The project requires Python 3.8+, and in this version virtualenv is already installed by default, to create a virtual environment follow the next steps:
+The project requires Python 3.9+, and in this version virtualenv is already installed by default, to create a virtual environment follow the next steps:
 
 
 1. Create a virtual environment, in the folder .venv, located in the user's home folder
