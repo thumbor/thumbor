@@ -348,7 +348,7 @@ AUTO_*
 
 These configurations indicates that thumbor will try to automatically convert
 the image format to a lighter image format, according to this compression order:
-`WEBP, AVIF, JPG, HEIF` — from highest (`WEBP`) to lowest (`HEIF`) priority.
+`WEBP, AVIF, JPG, HEIF, PNG` — from highest (`WEBP`) to lowest (`PNG`) priority.
 
 AUTO\_WEBP
 ^^^^^^^^^^
@@ -400,6 +400,17 @@ specifies that the browser supports "*/*", "image/jpg" or "image/jpeg".
 .. code:: python
 
    AUTO_JPG = True
+
+AUTO\_PNG
+^^^^^^^^^
+
+This option indicates whether thumbor should send PNG images
+automatically if the request comes with an "Accept" header that
+specifies that the browser supports "image/png".
+
+.. code:: python
+
+   AUTO_PNG = True
 
 AUTO\_HEIF
 ^^^^^^^^^^
