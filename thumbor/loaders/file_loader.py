@@ -9,9 +9,10 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from datetime import datetime
-from os import fstat
-from os.path import abspath, exists, isfile, join
+from os.path import abspath, join
 from urllib.parse import unquote
+
+import aiofiles.os
 
 from thumbor.loaders import LoaderResult
 
@@ -32,24 +33,38 @@ async def load(context, path):
         result.successful = False
         return result
 
-    # keep backwards compatibility, try the actual path first
-    # if not found, unquote it and try again
-    if not exists(file_path):
-        file_path = unquote(file_path)
-
-    if exists(file_path) and isfile(file_path):
-        with open(file_path, "rb") as source_file:
-            stats = fstat(source_file.fileno())
-
-            result.successful = True
-            result.buffer = source_file.read()
-
-            result.metadata.update(
-                size=stats.st_size,
-                updated_at=datetime.utcfromtimestamp(stats.st_mtime),
-            )
-    else:
+    try:
+        # keep backwards compatibility, try the actual path first
+        # if not found, and not unquote == file_path, try again unquoted path
+        result = await file_open(file_path, result)
+    except IsADirectoryError:
         result.error = LoaderResult.ERROR_NOT_FOUND
         result.successful = False
+    except FileNotFoundError:
+        unquoted_file_path = unquote(file_path)
+        if file_path != unquoted_file_path:
+            try:
+                result = await file_open(unquoted_file_path, result)
+            except (FileNotFoundError, IsADirectoryError):
+                result.error = LoaderResult.ERROR_NOT_FOUND
+                result.successful = False
+        else:
+            result.error = LoaderResult.ERROR_NOT_FOUND
+            result.successful = False
+
+    return result
+
+
+async def file_open(file_path, result):
+    async with aiofiles.open(file_path, mode="rb") as a_file:
+        # TODO: fstat
+        stats = await aiofiles.os.stat(a_file.fileno())
+        result.buffer = await a_file.read()
+        result.successful = True
+
+        result.metadata.update(
+            size=stats.st_size,
+            updated_at=datetime.utcfromtimestamp(stats.st_mtime),
+        )
 
     return result

@@ -146,6 +146,7 @@ def run_setup(extension_modules=None):
         include_package_data=True,
         package_data={"": ["*.xml"]},
         install_requires=[
+            "aiofiles==23.*,>=23.2.1",
             "colorama==0.*,>=0.4.6",
             "derpconf==0.*,>=0.8.4",
             "libthumbor==2.*,>=2.0.2",

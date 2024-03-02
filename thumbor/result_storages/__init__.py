@@ -8,8 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import os
-from os.path import exists
+import aiofiles.os
 
 from thumbor.engines import BaseEngine
 from thumbor.loaders import LoaderResult
@@ -57,10 +56,10 @@ class BaseStorage:
     def last_updated(self):
         raise NotImplementedError()
 
-    def ensure_dir(self, path):
-        if not exists(path):
+    async def ensure_dir(self, path):
+        if not await aiofiles.os.path.exists(path):
             try:
-                os.makedirs(path)
+                await aiofiles.os.makedirs(path)
             except OSError as err:
                 # FILE ALREADY EXISTS = 17
                 if err.errno != 17:
