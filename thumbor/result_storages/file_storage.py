@@ -10,11 +10,11 @@
 
 import hashlib
 from datetime import datetime
-from os.path import abspath, dirname, exists, getmtime, isdir, isfile, join
-from shutil import move
+from os.path import abspath, dirname, exists, getmtime, join
 from urllib.parse import unquote
 from uuid import uuid4
 
+import aiofiles.os
 import pytz
 
 from thumbor.engines import BaseEngine
@@ -47,12 +47,11 @@ class Storage(BaseStorage):
             file_dir_abspath,
         )
 
-        self.ensure_dir(file_dir_abspath)
+        await self.ensure_dir(file_dir_abspath)
+        async with aiofiles.open(temp_abspath, mode="wb") as a_file:
+            await a_file.write(image_bytes)
 
-        with open(temp_abspath, "wb") as _file:
-            _file.write(image_bytes)
-
-        move(temp_abspath, file_abspath)
+        await aiofiles.os.rename(temp_abspath, file_abspath)
 
     async def get(self):
         path = self.context.request.url
@@ -67,41 +66,45 @@ class Storage(BaseStorage):
 
         logger.debug("[RESULT_STORAGE] getting from %s", file_abspath)
 
-        if isdir(file_abspath):
-            logger.warning(
-                "[RESULT_STORAGE] cache location is a directory: %s",
-                file_abspath,
-            )
-            return None
-
-        if not exists(file_abspath):
+        try:
+            file_mtime = await aiofiles.os.path.getmtime(file_abspath)
+        except FileNotFoundError:
             legacy_path = self.normalize_path_legacy(path)
-            if isfile(legacy_path):
+            if await aiofiles.os.path.isfile(legacy_path):
                 logger.debug(
                     "[RESULT_STORAGE] migrating image from old location at %s",
                     legacy_path,
                 )
-                self.ensure_dir(dirname(file_abspath))
-                move(legacy_path, file_abspath)
+                await self.ensure_dir(dirname(file_abspath))
+                await aiofiles.os.rename(legacy_path, file_abspath)
+                file_mtime = await aiofiles.os.path.getmtime(file_abspath)
+
             else:
                 logger.debug(
                     "[RESULT_STORAGE] image not found at %s", file_abspath
                 )
                 return None
 
-        if self.is_expired(file_abspath):
+        if self.is_expired(file_mtime):
             logger.debug("[RESULT_STORAGE] cached image has expired")
             return None
 
-        with open(file_abspath, "rb") as image_file:
-            buffer = image_file.read()
+        try:
+            async with aiofiles.open(file_abspath, mode="rb") as a_file:
+                buffer = await a_file.read()
+        except IsADirectoryError:
+            logger.warning(
+                "[RESULT_STORAGE] cache location is a directory: %s",
+                file_abspath,
+            )
+            return None
 
         result = ResultStorageResult(
             buffer=buffer,
             metadata={
-                "LastModified": datetime.fromtimestamp(
-                    getmtime(file_abspath)
-                ).replace(tzinfo=pytz.utc),
+                "LastModified": datetime.fromtimestamp(file_mtime).replace(
+                    tzinfo=pytz.utc
+                ),
                 "ContentLength": len(buffer),
                 "ContentType": BaseEngine.get_mimetype(buffer),
             },
@@ -145,7 +148,7 @@ class Storage(BaseStorage):
         path = path_raw.lstrip("/")
         return join("".join(path[0:2]), "".join(path[2:4]))
 
-    def is_expired(self, path):
+    def is_expired(self, mtime):
         expire_in_seconds = self.context.config.get(
             "RESULT_STORAGE_EXPIRATION_SECONDS", None
         )
@@ -153,7 +156,7 @@ class Storage(BaseStorage):
         if expire_in_seconds is None or expire_in_seconds == 0:
             return False
 
-        timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
+        timediff = datetime.now() - datetime.fromtimestamp(mtime)
         return timediff.total_seconds() > expire_in_seconds
 
     @deprecated("Use result's last_modified instead")
@@ -168,7 +171,7 @@ class Storage(BaseStorage):
             return True
         logger.debug("[RESULT_STORAGE] getting from %s", file_abspath)
 
-        if not exists(file_abspath) or self.is_expired(file_abspath):
+        if not exists(file_abspath) or self._deprecated_is_expired(file_abspath):
             logger.debug(
                 "[RESULT_STORAGE] image not found at %s", file_abspath
             )
@@ -177,3 +180,14 @@ class Storage(BaseStorage):
         return datetime.fromtimestamp(getmtime(file_abspath)).replace(
             tzinfo=pytz.utc
         )
+
+    def _deprecated_is_expired(self, path):
+        expire_in_seconds = self.context.config.get(
+            "RESULT_STORAGE_EXPIRATION_SECONDS", None
+        )
+
+        if expire_in_seconds is None or expire_in_seconds == 0:
+            return False
+
+        timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
+        return timediff.total_seconds() > expire_in_seconds

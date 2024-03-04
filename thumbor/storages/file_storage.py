@@ -9,12 +9,12 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import hashlib
-import os
 from datetime import datetime
 from json import dumps, loads
-from os.path import dirname, exists, getmtime, splitext
-from shutil import move
+from os.path import dirname, splitext
 from uuid import uuid4
+
+import aiofiles.os
 
 from thumbor import storages
 from thumbor.utils import logger
@@ -28,13 +28,13 @@ class Storage(storages.BaseStorage):
 
         logger.debug("creating tempfile for %s in %s...", path, temp_abspath)
 
-        self.ensure_dir(file_dir_abspath)
+        await self.ensure_dir(file_dir_abspath)
 
-        with open(temp_abspath, "wb") as _file:
-            _file.write(file_bytes)
+        async with aiofiles.open(temp_abspath, mode="wb") as a_file:
+            await a_file.write(file_bytes)
 
         logger.debug("moving tempfile %s to %s...", temp_abspath, file_abspath)
-        move(temp_abspath, file_abspath)
+        await aiofiles.os.rename(temp_abspath, file_abspath)
 
         return path
 
@@ -45,7 +45,7 @@ class Storage(storages.BaseStorage):
         file_abspath = self.path_on_filesystem(path)
         file_dir_abspath = dirname(file_abspath)
 
-        self.ensure_dir(file_dir_abspath)
+        await self.ensure_dir(file_dir_abspath)
 
         if not self.context.server.security_key:
             raise RuntimeError(
@@ -55,14 +55,14 @@ class Storage(storages.BaseStorage):
 
         crypto_path = f"{splitext(file_abspath)[0]}.txt"
         temp_abspath = f"{crypto_path}.{str(uuid4()).replace('-', '')}"
-        with open(temp_abspath, "wb") as _file:
+        async with aiofiles.open(temp_abspath, mode="wb") as a_file:
             try:
                 security_key = self.context.server.security_key.encode()
             except (UnicodeDecodeError, AttributeError):
                 security_key = self.context.server.security_key
-            _file.write(security_key)
+            await a_file.write(security_key)
 
-        move(temp_abspath, crypto_path)
+        await aiofiles.os.rename(temp_abspath, crypto_path)
         logger.debug(
             "Stored crypto at %s (security key: %s)",
             crypto_path,
@@ -78,12 +78,14 @@ class Storage(storages.BaseStorage):
         temp_abspath = f"{path}.{str(uuid4()).replace('-', '')}"
 
         file_dir_abspath = dirname(file_abspath)
-        self.ensure_dir(file_dir_abspath)
+        await self.ensure_dir(file_dir_abspath)
 
-        with open(temp_abspath, "w", encoding="utf-8") as _file:
-            _file.write(dumps(data))
+        async with aiofiles.open(
+            temp_abspath, mode="w", encoding="utf-8"
+        ) as a_file:
+            await a_file.write(dumps(data))
 
-        move(temp_abspath, path)
+        await aiofiles.os.rename(temp_abspath, path)
 
         return file_abspath
 
@@ -96,18 +98,22 @@ class Storage(storages.BaseStorage):
         if not resource_available:
             return None
 
-        with open(self.path_on_filesystem(path), "rb") as source_file:
-            return source_file.read()
+        async with aiofiles.open(
+            self.path_on_filesystem(path), mode="rb"
+        ) as a_file:
+            return await a_file.read()
 
     async def get_crypto(self, path):
         file_abspath = self.path_on_filesystem(path)
         crypto_file = f"{splitext(file_abspath)[0]}.txt"
 
-        if not exists(crypto_file):
+        try:
+            async with aiofiles.open(
+                crypto_file, mode="r", encoding="utf-8"
+            ) as a_file:
+                return await a_file.read()
+        except FileNotFoundError:
             return None
-
-        with open(crypto_file, "r", encoding="utf-8") as crypto_f:
-            return crypto_f.read()
 
     async def get_detector_data(self, path):
         file_abspath = self.path_on_filesystem(path)
@@ -118,8 +124,8 @@ class Storage(storages.BaseStorage):
         if not resource_available:
             return None
 
-        with open(path, "r", encoding="utf-8") as detector_file:
-            return loads(detector_file.read())
+        async with aiofiles.open(path, mode="r", encoding="utf-8") as a_file:
+            return loads(await a_file.read())
 
     def path_on_filesystem(self, path):
         digest = hashlib.sha1(path.encode("utf-8")).hexdigest()
@@ -131,18 +137,22 @@ class Storage(storages.BaseStorage):
     ):  # pylint: disable=arguments-differ
         if path_on_filesystem is None:
             path_on_filesystem = self.path_on_filesystem(path)
-        return os.path.exists(path_on_filesystem) and not self.__is_expired(
-            path_on_filesystem
-        )
+
+        try:
+            file_mtime = await aiofiles.os.path.getmtime(path_on_filesystem)
+        except FileNotFoundError:
+            return False
+        else:
+            return not self.is_expired(file_mtime)
 
     async def remove(self, path):
         n_path = self.path_on_filesystem(path)
-        return os.remove(n_path)
+        return await aiofiles.os.remove(n_path)
 
-    def __is_expired(self, path):
+    def is_expired(self, mtime):
         if self.context.config.STORAGE_EXPIRATION_SECONDS is None:
             return False
-        timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
+        timediff = datetime.now() - datetime.fromtimestamp(mtime)
         return (
             timediff.total_seconds()
             > self.context.config.STORAGE_EXPIRATION_SECONDS
