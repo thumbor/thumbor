@@ -172,3 +172,6 @@ class Engine(PILEngine):
     # gif have no exif data and thus can't be auto oriented
     def reorientate(self, override_exif=True):
         pass
+
+    def cleanup(self):
+        self.buffer = None
