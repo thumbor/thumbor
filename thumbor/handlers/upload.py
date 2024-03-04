@@ -11,6 +11,7 @@
 import mimetypes
 import uuid
 
+from thumbor.context import RequestParameters
 from thumbor.engines import BaseEngine
 from thumbor.handlers import ImageApiHandler
 
@@ -22,7 +23,7 @@ from thumbor.handlers import ImageApiHandler
 #   - or with the image content in the request body (rest style)
 ##
 class ImageUploadHandler(ImageApiHandler):
-    async def post(self):
+    async def post(self, **kwargs):
         # Check if the image uploaded is a multipart/form-data
         if self.multipart_form_data():
             file_data = self.request.files["media"][0]
@@ -35,6 +36,9 @@ class ImageUploadHandler(ImageApiHandler):
 
             # Retrieve filename from 'Slug' header
             filename = self.request.headers.get("Slug")
+
+        kwargs["request"] = self.request
+        self.context.request = RequestParameters(**kwargs)
 
         # Check if the image uploaded is valid
         if self.validate(body):
