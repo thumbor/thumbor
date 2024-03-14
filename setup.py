@@ -150,8 +150,7 @@ def run_setup(extension_modules=None):
             "derpconf==0.*,>=0.8.4",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            # TODO: Pillow version 10.1.0 is raising a PIL.Image.DecompressionBombError on tests
-            "Pillow==10.*,<10.1.0",
+            "Pillow==10.*",
             "pytz==2023.*,>=2023.3.post1",
             "statsd==4.*,>=4.0.1",
             "tornado==6.*,>=6.4",
