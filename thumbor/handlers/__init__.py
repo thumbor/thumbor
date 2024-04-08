@@ -465,6 +465,19 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return False
 
+    def can_auto_convert_to_png(self):
+        auto_png = self.context.config.AUTO_PNG
+        accepts_png = self.accepts_mime_type("image/png")
+
+        if (
+            auto_png
+            and accepts_png
+            and not self.context.request.engine.is_multiple()
+        ):
+            return True
+
+        return False
+
     def define_image_type(self, context, result):
         if result is not None:
             if isinstance(result, ResultStorageResult):
@@ -508,6 +521,11 @@ class BaseHandler(tornado.web.RequestHandler):
             image_extension = ".heif"
             logger.debug(
                 "Image format set by AUTO_HEIF as %s.", image_extension
+            )
+        elif self.can_auto_convert_to_png():
+            image_extension = ".png"
+            logger.debug(
+                "Image format set by AUTO_PNG as %s.", image_extension
             )
         else:
             image_extension = context.request.engine.extension
