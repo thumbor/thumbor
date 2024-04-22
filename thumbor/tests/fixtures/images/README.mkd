@@ -1,0 +1,17 @@
+# Requirements
+
+All test images in this folder must be generated or freely licensed.
+
+They should ideally all be regenerated (or, should they not be possible to create from scratch, re-downloaded from a reliable source) via "make sample_images".
+
+# Licensed images
+
+[Christophe_Henner_-_June_2016.jpg](https://commons.wikimedia.org/wiki/File:Christophe_Henner_-_June_2016.jpg) - Ruby Mizrahi / Wikimedia Foundation - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
+
+[Giunchedi%2C_Filippo_January_2015_01.jpg](https://commons.wikimedia.org/wiki/File:Giunchedi,_Filippo_January_2015_01.jpg) - Myleen Hollero / Wikimedia Foundation - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
+
+[Commons-logo.svg](https://en.wikipedia.org/wiki/File:Commons-logo.svg) - Wikimedia Foundation - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
+
+[10_years_of_Wikipedia_by_Guillaume_Paumier.jpg](https://commons.wikimedia.org/wiki/File:10_years_of_Wikipedia_by_Guillaume_Paumier.jpg) - Pierre-Selim Huard - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
+
+[Rotating_earth_(large).gif](https://commons.wikimedia.org/wiki/File:Rotating_earth_(large).gif) - Marvel - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
