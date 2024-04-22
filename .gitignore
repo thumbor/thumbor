@@ -35,3 +35,6 @@ opencv
 docs/_build
 test-results
 .coverage*
+
+# Don't upload bucket details
+bucket_details.py
