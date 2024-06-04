@@ -82,6 +82,10 @@ class Filter(BaseFilter):
         mos_y = self.y == "repeat"
         center_x = self.x == "center"
         center_y = self.y == "center"
+
+        inv_x = False
+        inv_y = False
+
         if not center_x and not mos_x:
             inv_x = self.x[0] == "-"
             x = int(self.x)
