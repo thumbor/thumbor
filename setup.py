@@ -32,35 +32,34 @@ with open("thumbor/__init__.py") as f:
 kwargs = {}
 
 TESTS_REQUIREMENTS = [
-    "coverage==6.*,>=6.3.2",
-    "flake8==3.*,>=3.7.9",
-    "isort==4.*,>=4.3.21",
-    "pre-commit==2.*,>=2.17.0",
+    "coverage==7.*,>=7.4.0",
+    "flake8==7.*,>=7.0.0",
+    "isort==5.*,>=5.13.2",
+    "pre-commit==3.*,>=3.6.0",
     "preggy==1.*,>=1.4.4",
-    "pylint==3.*",
-    "pyssim==0.*,>=0.4.0",
-    "pytest>=6.2.5",
-    "pytest-asyncio==0.*,>=0.10.0",
-    "pytest-cov==3.*,>=3.0.0",
-    "pytest-tldr==0.*,>=0.2.1",
-    "pytest-xdist==2.*,>=2.4.0",
+    "pylint==3.*,>=3.0.3",
+    "pyssim==0.*,>=0.7",
+    "pytest==7.*,>=7.4.4",
+    "pytest-asyncio==0.*,>=0.23.3",
+    "pytest-cov==4.*,>=4.1.0",
+    "pytest-tldr==0.*,>=0.2.5",
+    "pytest-xdist==3.*,>=3.5.0",
     "redis==5.*,>=5.0.1",
-    "remotecv>=2.3.0",
-    "sentry-sdk==0.*,>=0.14.1",
+    "remotecv==5.*,>=5.1.8",
+    "sentry-sdk==1.*,>=1.39.1",
     "yanc==0.*,>=0.3.3",
 ]
 
 OPENCV_REQUIREMENTS = [
-    "opencv-python-headless==4.*,>=4.2.0",
-    "numpy==1.*,<1.27.0",
+    "opencv-python-headless==4.*,>=4.9.0.80",
+    "numpy==1.*,>=1.26.3",
 ]
 
 EXTRA_LIBS_REQUIREMENTS = [
-    # Going to update in a proper commit
-    "cairosvg>=2.5.2",
-    "pycurl==7.*,>=7.43.0",
-    "pillow-avif-plugin==1.*,>=1.2.2",
-    "pillow-heif>=0.7.0",
+    "cairosvg==2.*,>=2.7.1",
+    "pycurl==7.*,>=7.45.2",
+    "pillow-avif-plugin==1.*,>=1.4.1",
+    "pillow-heif==0.*,>=0.14.0",
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
@@ -72,7 +71,7 @@ if wheel is not None:
             python, abi, plat = super().get_tag()
 
             if python.startswith("cp"):
-                return "cp38", "abi3", plat
+                return "cp39", "abi3", plat
             return python, abi, plat
 
     kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
@@ -125,7 +124,7 @@ def run_setup(extension_modules=None):
         author_email="thumbor@googlegroups.com",
         url="https://github.com/thumbor/thumbor/wiki",
         license="MIT",
-        python_requires=">=3.8",
+        python_requires=">=3.9",
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
@@ -134,7 +133,6 @@ def run_setup(extension_modules=None):
             "Operating System :: MacOS",
             "Operating System :: POSIX :: Linux",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
             "Programming Language :: Python :: 3.11",
@@ -148,18 +146,17 @@ def run_setup(extension_modules=None):
         include_package_data=True,
         package_data={"": ["*.xml"]},
         install_requires=[
-            "colorama==0.*,>=0.4.3",
-            "derpconf==0.*,>=0.8.3",
+            "colorama==0.*,>=0.4.6",
+            "derpconf==0.*,>=0.8.4",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            # TODO: Pillow version 10.1.0 is raising a PIL.Image.DecompressionBombError on tests
-            "Pillow==10.*, <10.1.0",
-            "pytz>=2019.3.0",
-            "statsd==3.*,>=3.3.0",
-            "tornado==6.*,>=6.0.3",
-            "thumbor-plugins-gifv==0.*,>=0.1.2",
-            "webcolors==1.*,>=1.10.0",
-            "JpegIPTC>=1.4",
+            "Pillow==10.*",
+            "pytz==2023.*,>=2023.3.post1",
+            "statsd==4.*,>=4.0.1",
+            "tornado==6.*,>=6.4",
+            "thumbor-plugins-gifv==0.*,>=0.1.5",
+            "webcolors==1.*,>=1.13.0",
+            "JpegIPTC==1.*,>=1.5",
         ],
         extras_require={
             "all": ALL_REQUIREMENTS,

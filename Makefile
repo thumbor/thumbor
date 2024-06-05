@@ -116,6 +116,7 @@ sample_images:
 	convert tests/fixtures/images/10_years_of_Wikipedia_by_Guillaume_Paumier.jpg -orient LeftBottom tests/fixtures/images/10_years_of_Wikipedia_by_Guillaume_Paumier.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/6/6d/Christophe_Henner_-_June_2016.jpg -o tests/fixtures/images/Christophe_Henner_-_June_2016.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/3/31/Giunchedi%2C_Filippo_January_2015_01.jpg -o tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg
+	curl -s https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif -o tests/fixtures/images/Rotating_earth_\(large\).gif
 	convert tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg -colorspace CMYK tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01-cmyk.jpg
 	convert tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.png
 	convert tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01.jpg -colorspace gray tests/fixtures/images/Giunchedi%2C_Filippo_January_2015_01-grayscale.jpg
@@ -159,21 +160,11 @@ sample_images:
 	# the watermark filter's logic is too complicated to reproduce with IM, the watermark test images can't be generated here
 	# similarly, the noise, colorize, redeye and fill filters generate output too unique to be reproduce with IM and can't be generated here
 
-test-docker-build: test-docker-37-build test-docker-38-build test-docker-39-build test-docker310-build
+test-docker-build: test-docker-39-build test-docker310-build test-docker311-build test-docker312-build
 
-test-docker-run: test-docker-37-run test-docker-38-run test-docker-39-run test-docker-310-run
+test-docker-run: test-docker-39-run test-docker-310-run test-docker311-build test-docker312-build
 
-test-docker-publish: test-docker-37-publish test-docker-38-publish test-docker-39-publish test-docker-310-publish
-
-test-docker-38-build:
-	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.8 -t thumbor-test-38 .
-
-test-docker-38-run:
-	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:38 make compile_ext redis sequential-unit integration flake
-
-test-docker-38-publish:
-	@docker image tag thumbor-test-38:latest thumbororg/thumbor-test:38
-	@docker push thumbororg/thumbor-test:38
+test-docker-publish: test-docker-39-publish test-docker-310-publish test-docker311-build test-docker312-build
 
 test-docker-39-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.9 -t thumbor-test-39 .
@@ -194,6 +185,26 @@ test-docker-310-run:
 test-docker-310-publish:
 	@docker image tag thumbor-test-310:latest thumbororg/thumbor-test:310
 	@docker push thumbororg/thumbor-test:310
+
+test-docker-311-build:
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.11 -t thumbor-test-311 .
+
+test-docker-311-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:311 make compile_ext redis sequential-unit integration flake
+
+test-docker-311-publish:
+	@docker image tag thumbor-test-311:latest thumbororg/thumbor-test:311
+	@docker push thumbororg/thumbor-test:311
+
+test-docker-312-build:
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.12 -t thumbor-test-312 .
+
+test-docker-312-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:312 make compile_ext redis sequential-unit integration flake
+
+test-docker-312-publish:
+	@docker image tag thumbor-test-312:latest thumbororg/thumbor-test:312
+	@docker push thumbororg/thumbor-test:312
 
 publish:
 	@python setup.py sdist

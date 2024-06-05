@@ -91,6 +91,33 @@ class PilEngineTestCase(TestCase):
         expect(image_file.format).to_equal("PNG")
         expect(image_file.size).to_equal((100, 100))
 
+    def test_load_animated_gif(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "animated.gif"), "rb") as image_file:
+            buffer = image_file.read()
+        expect(buffer).not_to_equal(None)
+        engine.load(buffer, None)
+
+        final_bytes = BytesIO(engine.read())
+        image_file = Image.open(final_bytes)
+        expect(image_file.format).to_equal("GIF")
+        expect(image_file.size).to_equal((100, 100))
+        expect(image_file.is_animated).to_be_true()
+
+    def test_load_rotating_earth_gif(self):
+        engine = Engine(self.context)
+        with open(
+            join(STORAGE_PATH, "Rotating_earth_(large).gif"), "rb"
+        ) as image_file:
+            buffer = image_file.read()
+        expect(buffer).not_to_equal(None)
+        engine.load(buffer, None)
+
+        final_bytes = BytesIO(engine.read())
+        image_file = Image.open(final_bytes)
+        expect(image_file.format).to_equal("GIF")
+        expect(image_file.size).to_equal((400, 400))
+
     def test_load_tif_16bit_per_channel_msb(self):
         engine = Engine(self.context)
         with open(
