@@ -96,6 +96,10 @@ Delphi
 ~~~~~~
 -  `DelphiThumbor <https://github.com/marlonnardi/DelphiThumbor>`__ - Delphi class to thumbor. These are used to generate safe urls among others (by `Marlon Nardi <https://github.com/marlonnardi>`__).
 
+Rust
+~~~~
+- `Thumbor <https://github.com/SteelAlloy/thumbor-rs>`__ - Rust client for the Thumbor image service. Provides a convenient builder API (by `SteelAlloy <https://github.com/SteelAlloy>`__).
+
 Implementing a library
 ----------------------
 
