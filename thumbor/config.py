@@ -20,6 +20,10 @@ from thumbor.handler_lists import BUILTIN_HANDLERS
 
 HOME = expanduser("~")
 
+# the code creates the required config options
+Config.define('ALLOWED_WIDTHS', None, 'List of allowed image widths', 'Imaging')
+Config.define('ALLOWED_HEIGHTS', None, 'List of allowed image heights', 'Imaging')
+
 Config.define(
     "THUMBOR_LOG_CONFIG", None, "Logging configuration as json", "Logging"
 )
