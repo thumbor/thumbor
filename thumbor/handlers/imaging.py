@@ -112,6 +112,15 @@ class ImagingHandler(ContextHandler):
             if not valid:
                 self._error(400, f"Malformed URL: {url}")
                 return
+        
+        allowed_widths = self.context.config.ALLOWED_WIDTHS
+        allowed_heights = self.context.config.Config.ALLOWED_HEIGHTS
+
+        # Check if allowed widths and heights are set, and if the provided dimensions are valid
+        if allowed_widths and str(width) not in allowed_widths:
+            raise ValueError(f"Width {width} is not allowed.")
+        if allowed_heights and str(height) not in allowed_heights:
+            raise ValueError(f"Height {height} is not allowed.")
 
         return await self.execute_image_operations()
 
