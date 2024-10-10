@@ -22,4 +22,4 @@ RUN apt-get update -y && \
     apt-get install -y --reinstall --no-install-recommends --no-install-suggests build-essential && \
     apt-get clean
 
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip setuptools
