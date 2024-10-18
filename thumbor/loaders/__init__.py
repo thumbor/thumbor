@@ -17,7 +17,7 @@ class LoaderResult:
     ERROR_TIMEOUT = "timeout"
     ERROR_BAD_REQUEST = "bad_request"
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         buffer: bytes = None,
         successful: bool = True,

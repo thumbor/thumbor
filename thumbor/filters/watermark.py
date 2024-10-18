@@ -164,7 +164,9 @@ class Filter(BaseFilter):
         r"(?:-?\d+)|none",
         r"(?:-?\d+)|none",
     )
-    async def watermark(self, url, x, y, alpha, w_ratio=False, h_ratio=False):
+    async def watermark(
+        self, url, x, y, alpha, w_ratio=False, h_ratio=False
+    ):  # pylint: disable=too-many-positional-arguments
         self.url = url
         self.x = x
         self.y = y
