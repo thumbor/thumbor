@@ -10,6 +10,7 @@
 
 import hashlib
 from datetime import datetime
+from os import unlink
 from os.path import abspath, dirname, exists, getmtime, isdir, isfile, join
 from shutil import move
 from urllib.parse import unquote
@@ -149,12 +150,18 @@ class Storage(BaseStorage):
         expire_in_seconds = self.context.config.get(
             "RESULT_STORAGE_EXPIRATION_SECONDS", None
         )
+        remove_expire = self.context.config.get(
+            "RESULT_STORAGE_REMOVE_EXPIRE", False
+        )
 
         if expire_in_seconds is None or expire_in_seconds == 0:
             return False
 
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
-        return timediff.total_seconds() > expire_in_seconds
+        is_expire = timediff.total_seconds() > expire_in_seconds
+        if remove_expire and is_expire:
+            unlink(path)
+        return is_expire
 
     @deprecated("Use result's last_modified instead")
     def last_updated(self):
