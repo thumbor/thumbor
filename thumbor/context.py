@@ -76,7 +76,7 @@ class Context:  # pylint: disable=too-many-instance-attributes
 
 
 class ServerParameters:  # pylint: disable=too-many-instance-attributes
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         port,
         ip,  # pylint: disable=invalid-name
@@ -137,7 +137,7 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
 
 
 class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-instance-attributes,too-many-locals
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         debug=False,
         meta=False,

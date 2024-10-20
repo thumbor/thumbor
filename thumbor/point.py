@@ -40,7 +40,7 @@ class FocalPoint:
             origin=values.get("origin", "alignment"),
         )
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         x,  # pylint: disable=invalid-name
         y,  # pylint: disable=invalid-name
@@ -57,7 +57,7 @@ class FocalPoint:
         self.origin = origin
 
     @classmethod
-    def from_square(
+    def from_square(  # pylint: disable=too-many-positional-arguments
         cls, x, y, width, height, origin="detection"
     ):  # pylint: disable=invalid-name
         center_x = x + width // 2

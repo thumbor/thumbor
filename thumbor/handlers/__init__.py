@@ -37,7 +37,7 @@ HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
 
 class FetchResult:  # Data Object pylint: disable=too-few-public-methods
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         normalized=False,
         buffer=None,
@@ -832,7 +832,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return prev_result
 
     @classmethod
-    def translate_crop_coordinates(
+    def translate_crop_coordinates(  # pylint: disable=too-many-positional-arguments
         cls,
         original_width,
         original_height,
