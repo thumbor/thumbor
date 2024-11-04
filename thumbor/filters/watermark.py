@@ -51,7 +51,7 @@ class Filter(BaseFilter):
             wm_height = round(wm_max_height)
             wm_width = round(watermark_sz[0] * wm_max_height / watermark_sz[1])
 
-        return (wm_width, wm_height)
+        return (max(wm_width, 1), max(wm_height, 1))
 
     # TODO: refactor this
     def on_image_ready(  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
@@ -160,8 +160,8 @@ class Filter(BaseFilter):
         r"(?:-?\d+p?)|center|repeat",
         r"(?:-?\d+p?)|center|repeat",
         BaseFilter.PositiveNumber,
-        r"(?:-?\d+)|none",
-        r"(?:-?\d+)|none",
+        r"(?:\d+(?:\.\d*)?|\.\d+)|none",
+        r"(?:\d+(?:\.\d*)?|\.\d+)|none",
     )
     async def watermark(
         self, url, x, y, alpha, w_ratio=False, h_ratio=False

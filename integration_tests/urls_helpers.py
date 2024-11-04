@@ -65,6 +65,8 @@ FILTERS = [
     "filters:watermark(rgba-interlaced.png,10,10,50)",
     "filters:watermark(rgba-interlaced.png,center,center,50)",
     "filters:watermark(rgba-interlaced.png,repeat,repeat,50)",
+    "filters:watermark(rgba-interlaced.png,10,10,50,9.5)",
+    "filters:watermark(rgba-interlaced.png,center,center,50,none,12.5)",
     "filters:frame(rgba.png)",
     "filters:fill(ff0000)",
     "filters:fill(auto)",

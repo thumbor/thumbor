@@ -224,6 +224,106 @@ class WatermarkFilterTestCase(FilterTestCase):
         assert ssim > 0.98
 
     @gen_test
+    async def test_watermark_filter_float_w_ratio_matches_integer(self):
+        image_float = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,50.0)",
+        )
+        image_int = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,50)",
+        )
+        ssim = self.get_ssim(image_float, image_int)
+        assert ssim == 1
+
+    @gen_test
+    async def test_watermark_filter_float_h_ratio_matches_integer(self):
+        image_float = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,none,70.0)",
+        )
+        image_int = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,none,70)",
+        )
+        ssim = self.get_ssim(image_float, image_int)
+        assert ssim == 1
+
+    @gen_test
+    async def test_watermark_filter_float_w_and_h_ratio_matches_integer(self):
+        image_float = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,-30,-200,20,60.0,80.0)",
+        )
+        image_int = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,-30,-200,20,60,80)",
+        )
+        ssim = self.get_ssim(image_float, image_int)
+        assert ssim == 1
+
+    async def get_watermark_size(self, params_string):
+        fltr = self.get_filter("thumbor.filters.watermark", params_string)
+        with open(self.get_fixture_path("source.jpg"), "rb") as source:
+            fltr.engine.load(source.read(), ".jpg")
+        await fltr.run()
+        return fltr.watermark_engine.size
+
+    @gen_test
+    async def test_watermark_filter_fractional_w_ratio_size(self):
+        size = await self.get_watermark_size(
+            "watermark(watermark.png,30,-50,20,9.5)"
+        )
+        assert size == (76, 76)
+
+    @gen_test
+    async def test_watermark_filter_fractional_h_ratio_size(self):
+        size = await self.get_watermark_size(
+            "watermark(watermark.png,30,-50,20,none,12.5)"
+        )
+        assert size == (67, 67)
+
+    @gen_test
+    async def test_watermark_filter_fractional_w_and_h_ratio_size(self):
+        size = await self.get_watermark_size(
+            "watermark(watermark.png,30,-50,20,12.7,75.25)"
+        )
+        assert size == (102, 102)
+
+    @gen_test
+    async def test_watermark_filter_tiny_ratio_keeps_one_pixel(self):
+        size = await self.get_watermark_size(
+            "watermark(watermark.png,30,-50,20,0.01)"
+        )
+        assert size == (1, 1)
+
+    def test_watermark_filter_rejects_negative_ratios(self):
+        watermark.Filter.pre_compile()
+        for ratios in ("-9.5", "none,-9.5", "-50"):
+            fltr = watermark.Filter(
+                f"watermark(watermark.png,30,-50,20,{ratios})"
+            )
+            assert fltr.params is None, ratios
+
+    def test_watermark_calc_size_fractional_ratio(self):
+        size = watermark.Filter.calc_watermark_size(
+            (600, 400), (30, 30), 0.095, False
+        )
+        assert size == (57, 57)
+
+    def test_watermark_calc_size_keeps_each_side_at_least_one_pixel(self):
+        size = watermark.Filter.calc_watermark_size(
+            (800, 600), (1200, 500), 0.001, False
+        )
+        assert size == (1, 1)
+
+    @gen_test
     async def test_watermark_filter_calculated_resizing(self):
         watermark.Filter.pre_compile()
         filter_instance = watermark.Filter(
@@ -281,18 +381,21 @@ class WatermarkFilterTestCase(FilterTestCase):
                         "h_ratio": h_ratio,
                     }
 
+                    # Sizes are rounded to whole pixels.
                     test["topic_name"] = "watermark_image_width"
-                    assert_fits_into(watermark_image_width, max_width, **test)
+                    assert_fits_into(
+                        watermark_image_width, max_width + 0.5, **test
+                    )
                     test["topic_name"] = "watermark_image_height"
                     assert_fits_into(
-                        watermark_image_height, max_height, **test
+                        watermark_image_height, max_height + 0.5, **test
                     )
 
                     test["topic_name"] = "fill out"
                     assert_true_with_info(
                         (
-                            watermark_image_width == max_width
-                            or watermark_image_height == max_height
+                            abs(watermark_image_width - max_width) <= 0.5
+                            or abs(watermark_image_height - max_height) <= 0.5
                         ),
                         **test,
                     )
