@@ -32,10 +32,12 @@ by specifying the ratio (see {ref}`Resizing <watermark-resizing>`).
   opaque) and 100 (fully transparent).
 - `w_ratio` - percentage of the width of the image the watermark should fit-in,
   defaults to 'none' (without the single quotes) which means it won't be limited
-  in the width on resizing but also won't be resized based on this value
+  in the width on resizing but also won't be resized based on this value. It
+  accepts decimal numbers (ex. 9.5)
 - `h_ratio` - percentage of the height of the image the watermark should fit-in,
   defaults to 'none' (without the single quotes) which means it won't be limited
-  in the height on resizing but also won't be resized based on this value
+  in the height on resizing but also won't be resized based on this value. It
+  accepts decimal numbers (ex. 9.5)
 
 ## Example
 
@@ -61,7 +63,9 @@ alt: Picture explaining watermark relative placement feature
 
 Resizing is being done by defining borders the watermark needs to fit in or
 being upscaled to. The ratio of the watermark will not be changed and will be
-expanded or shrinked to the size which fits best into the borders.
+expanded or shrunk to the size which fits best into the borders. The resulting
+size is rounded to whole pixels. A side that would round down to zero is kept at
+1px, so a watermark shrunk that far only approximates its ratio.
 
 Some examples are shown below with an original image having width=300 and
 height=200 and an imaginary watermark having width=30 and height=40. Borders are
@@ -116,3 +120,11 @@ Considering original image to be 300x200:
   alt: Picture explaining watermark resizing feature
   ---
   ```
+
+- **watermark(imageUrl, 30, 10, 50, 15.2)**
+
+  15.2% of the *width*: 300px\*0.152 = 45.6px, rounded to 46px. Integer ratios
+  would only reach 45px (15%) or 48px (16%).
+
+  Because the *height* isn't limited it grows in the same proportion:
+  (40/30)\*45.6px = 60.8px, rounded to 61px.
