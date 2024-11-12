@@ -24,6 +24,9 @@ Python
 Node.js
 ~~~~~~~
 
+-  `thumbor-client <https://github.com/azabroflovski/thumbor-client>`__
+    - Thumbor client for Node.js and Browser, SSR friendly
+    (by `azabroflovski <https://github.com/azabroflovski>`__).
 -  `ThumborJS <https://github.com/rafaelcaricio/ThumborJS>`__ -
    Javascript's extension to thumbor. These are used to generate safe
    urls, encrypted urls among others (by `Rafael
@@ -91,7 +94,7 @@ Objective-C
 ~~~~
 -  `DotNetThumbor <https://github.com/mi9/DotNetThumbor>`__ - DotNet client for the Thumbor image service.
    Provides an expressive fluent API.
-   
+
 Delphi
 ~~~~~~
 -  `DelphiThumbor <https://github.com/marlonnardi/DelphiThumbor>`__ - Delphi class to thumbor. These are used to generate safe urls among others (by `Marlon Nardi <https://github.com/marlonnardi>`__).
