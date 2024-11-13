@@ -148,15 +148,16 @@ def run_setup(extension_modules=None):
         install_requires=[
             "colorama==0.*,>=0.4.6",
             "derpconf==0.*,>=0.8.4",
+            "JpegIPTC==1.*,>=1.5",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
             "Pillow==10.*",
             "pytz==2023.*,>=2023.3.post1",
+            "setuptools==75.*,>=75.2.0",
             "statsd==4.*,>=4.0.1",
-            "tornado==6.*,>=6.4",
             "thumbor-plugins-gifv==0.*,>=0.1.5",
+            "tornado==6.*,>=6.4",
             "webcolors==1.*,>=1.13.0",
-            "JpegIPTC==1.*,>=1.5",
         ],
         extras_require={
             "all": ALL_REQUIREMENTS,
