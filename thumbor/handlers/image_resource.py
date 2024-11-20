@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 import datetime
+import os
+import time
 
 from thumbor.engines import BaseEngine
 from thumbor.handlers import ImageApiHandler
@@ -52,6 +54,10 @@ class ImageResourceHandler(ImageApiHandler):
         if not self.context.config.UPLOAD_PUT_ALLOWED:
             self._error(405, "Unable to modify an uploaded image")
             return
+        # Check security
+        if self._check_secret_key():
+            self._error(403, "Forbidden an uploaded image")
+            return
 
         # Check if the image uploaded is valid
         if self.validate(self.request.body):
@@ -63,6 +69,10 @@ class ImageResourceHandler(ImageApiHandler):
         # Check if image deleting is allowed
         if not self.context.config.UPLOAD_DELETE_ALLOWED:
             self._error(405, "Unable to delete an uploaded image")
+            return
+        # Check security
+        if self._check_secret_key():
+            self._error(403, "Forbidden an delete image")
             return
 
         # Check if image exists
@@ -77,4 +87,15 @@ class ImageResourceHandler(ImageApiHandler):
         await self.check_resource(file_id)
 
     async def head(self, file_id):
+        # Check security
+        if self._check_secret_key():
+            self._error(403, "Forbidden get image information")
+            return
+
+        # Update access_time and modification_time
+        now = time.time()
+        path_on_filesystem = self.context.modules.storage.path_on_filesystem(file_id[: self.context.config.MAX_ID_LENGTH])
+        if os.path.exists(path_on_filesystem):
+            os.utime(path_on_filesystem, (now, now))
+
         await self.check_resource(file_id)
