@@ -22,7 +22,7 @@ to *0.0.0.0* (listening on localhost and current IP).
 ~~~~~~~~~~~~
 
 The port that Tornado will listen for incoming request. It defaults to
-*8888*.
+*80*.
 
 -c or --conf
 ~~~~~~~~~~~~
