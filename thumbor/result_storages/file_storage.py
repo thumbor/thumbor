@@ -45,7 +45,8 @@ class Storage(BaseStorage):
             file_abspath,
             file_dir_abspath,
         )
-
+        logger.debug("[RESULT_STORAGE] put-url-file-pair [%s]-[%s]", self.context.request.url, file_abspath)
+        
         self.ensure_dir(file_dir_abspath)
 
         with open(temp_abspath, "wb") as _file:
@@ -65,7 +66,8 @@ class Storage(BaseStorage):
             return None
 
         logger.debug("[RESULT_STORAGE] getting from %s", file_abspath)
-
+        logger.debug("[RESULT_STORAGE] get-url-file-pair [%s]-[%s]", self.context.request.url, file_abspath)
+        
         if isdir(file_abspath):
             logger.warning(
                 "[RESULT_STORAGE] cache location is a directory: %s",
