@@ -49,5 +49,3 @@ Because videos (in mp4 or webm format) cannot contain alpha transparency a backg
 
 
 The color must be specified in 6 character hex, 3 character hex or color name. But 6 or 3 character hex are the preferred formats. Including a ``#`` symbol in your color will break the url if not url encoded and thumbor will error on the request. The recommendation is to not use them at all which also makes urls shorter. But if you must a leading `%23` will probably work.
-
-

@@ -2,10 +2,10 @@ import struct
 from io import BytesIO
 
 PREFIXES = [
-    b"MM\x00\x2A",  # Valid TIFF header with big-endian byte order
-    b"II\x2A\x00",  # Valid TIFF header with little-endian byte order
-    b"MM\x2A\x00",  # Invalid TIFF header, assume big-endian
-    b"II\x00\x2A",  # Invalid TIFF header, assume little-endian
+    b"MM\x00\x2a",  # Valid TIFF header with big-endian byte order
+    b"II\x2a\x00",  # Valid TIFF header with little-endian byte order
+    b"MM\x2a\x00",  # Invalid TIFF header, assume big-endian
+    b"II\x00\x2a",  # Invalid TIFF header, assume little-endian
 ]
 
 EXIF_HEADER = b"Exif\x00\x00"
