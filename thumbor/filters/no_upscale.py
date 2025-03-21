@@ -31,5 +31,5 @@ class Filter(BaseFilter):
             self.context.request.width, image_size[0]
         )
         self.context.request.height = min(
-            self.context.request.height, image_size[0]
+            self.context.request.height, image_size[1]
         )
