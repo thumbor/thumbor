@@ -146,5 +146,3 @@ _curve_apply(PyObject *self, PyObject *args)
 FILTER_MODULE(_curve,
     "apply(image_mode, buffer, curve_a, curve_r, curve_g, curve_b) -> string"
 )
-
-
