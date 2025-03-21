@@ -80,11 +80,11 @@ def return_contents(response, url, context, req_start=None):
     if req_start:
         finish = datetime.datetime.now()
         context.metrics.timing(
-            f"original_image.fetch.{code}.{netloc}",
+            f"original_image.fetch.latency.{code}.{netloc}",
             (finish - req_start).total_seconds() * 1000,
         )
         context.metrics.incr(
-            f"original_image.fetch.{code}.{netloc}",
+            f"original_image.fetch.count.{code}.{netloc}",
         )
 
     result = LoaderResult()
