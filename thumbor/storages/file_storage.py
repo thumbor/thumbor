@@ -142,8 +142,10 @@ class Storage(storages.BaseStorage):
     def __is_expired(self, path):
         if self.context.config.STORAGE_EXPIRATION_SECONDS is None:
             return False
+        remove_expire = self.context.config.STORAGE_REMOVE_EXPIRE
+
         timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
-        return (
-            timediff.total_seconds()
-            > self.context.config.STORAGE_EXPIRATION_SECONDS
-        )
+        is_expire = timediff.total_seconds() > self.context.config.STORAGE_EXPIRATION_SECONDS
+        if remove_expire and is_expire:
+            os.unlink(path)
+        return is_expire
