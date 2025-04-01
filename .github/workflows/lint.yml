@@ -17,7 +17,7 @@ jobs:
   flake8:
     permissions:
       contents: read # to fetch code (actions/checkout)
-      checks: write # to update checks 
+      checks: write # to update checks
 
     runs-on: ubuntu-latest
     steps:
@@ -44,4 +44,3 @@ jobs:
         run: pip install isort
       - name: Run isort
         run: isort thumbor tests --profile black
- 

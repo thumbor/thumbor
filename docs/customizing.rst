@@ -4,7 +4,7 @@ Customizing Thumbor
 .. toctree::
    :maxdepth: 2
 
-   custom_storages 
+   custom_storages
    custom_loaders
    custom_result_storages
    custom_filters

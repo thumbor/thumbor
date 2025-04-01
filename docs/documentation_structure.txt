@@ -67,6 +67,3 @@ Index (* About)
         * Who's using it
         * Hacking on thumbor
         * Licensing
-
-
-
