@@ -39,4 +39,3 @@ Queued Detector
 ``thumbor.detectors.queued_detector``
 
 Detector used to allow face detection process asynchronously.
-
