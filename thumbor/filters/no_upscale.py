@@ -20,6 +20,7 @@ class Filter(BaseFilter):
     async def no_upscale(self):
         image_size = self.context.request.engine.size
         orientation = self.context.request.engine.get_orientation()
+
         if self.context.config.RESPECT_ORIENTATION and orientation in [
             5,
             6,
