@@ -23,6 +23,11 @@ from thumbor.handlers import ImageApiHandler
 ##
 class ImageUploadHandler(ImageApiHandler):
     async def post(self):
+        # Check security
+        if self._check_secret_key():
+            self._error(403, "Forbidden an uploaded image")
+            return
+
         # Check if the image uploaded is a multipart/form-data
         if self.multipart_form_data():
             file_data = self.request.files["media"][0]
