@@ -59,7 +59,7 @@ EXTRA_LIBS_REQUIREMENTS = [
     "cairosvg==2.*,>=2.7.1",
     "pycurl==7.*,>=7.45.2",
     "pillow-avif-plugin==1.*,>=1.4.1",
-    "pillow-heif==0.*,>=0.14.0",
+    "pillow-heif==0.*,>=0.22.0",
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
@@ -137,6 +137,7 @@ def run_setup(extension_modules=None):
             "Programming Language :: Python :: 3.10",
             "Programming Language :: Python :: 3.11",
             "Programming Language :: Python :: 3.12",
+            "Programming Language :: Python :: 3.13",
             "Programming Language :: Python :: 3 :: Only",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
@@ -151,7 +152,7 @@ def run_setup(extension_modules=None):
             "JpegIPTC==1.*,>=1.5",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            "Pillow==10.*",
+            "Pillow>=10.4.0,<11.0.0",
             "pytz==2023.*,>=2023.3.post1",
             "setuptools==75.*,>=75.2.0",
             "statsd==4.*,>=4.0.1",
