@@ -1,5 +1,5 @@
 PYTHON = python
-.PHONY: docs build perf
+.PHONY: docs build
 
 OS := $(shell uname)
 
@@ -26,7 +26,7 @@ ci_test: build
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ "$$PERF_TEST" ]; then $(MAKE) long-perf; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
+	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
 integration_run integration int:
 	@pytest -sv integration_tests/ -p no:tldr
@@ -71,20 +71,6 @@ build_docs:
 
 docs:
 	@sphinx-reload --host 0.0.0.0 --port 5555 docs/
-
-perf-start-daemon: perf-stop-daemon
-	@start-stop-daemon -d `pwd`/perf --make-pidfile --background --start --pidfile /tmp/thumbor-perf.pid --exec `which thumbor` -- -l error -c ./thumbor.conf
-	@sleep 2
-
-# if you change this, also change in run.sh
-perf-stop-daemon:
-	@start-stop-daemon -q --stop --oknodo --remove-pidfile --pidfile /tmp/thumbor-perf.pid > /dev/null 2>&1
-
-perf: perf-start-daemon
-	@cd perf && DURATION=10 bash run.sh
-
-long-perf: perf-start-daemon
-	@cd perf && bash run.sh
 
 sample_images:
 	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 integration_tests/imgs/animated.gif
