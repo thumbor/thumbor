@@ -22,7 +22,7 @@ Arguments
 Example
 -------
 
-.. image:: images/before_convolution.png
+.. image:: images/tom_before_brightness.jpg
     :alt: Picture before the convolution filter
 
 Normalized Matrix:
@@ -37,7 +37,7 @@ Normalized Matrix:
 
     http://localhost:8888/unsafe/filters:convolution(1;2;1;2;4;2;1;2;1,3,true)/http://upload.wikimedia.org/wikipedia/commons/5/50/Vd-Orig.png
 
-.. image:: images/after_convolution1.png
+.. image:: images/tom_after_convolution1.jpg
     :alt: Picture after the convolution filter
 
 Matrix:
@@ -52,5 +52,5 @@ Matrix:
 
     http://localhost:8888/unsafe/filters:convolution(-1;-1;-1;-1;8;-1;-1;-1;-1,3,false)/http://upload.wikimedia.org/wikipedia/commons/5/50/Vd-Orig.png
 
-.. image:: images/after_convolution2.png
+.. image:: images/tom_after_convolution2.jpg
     :alt: Picture after the convolution filter

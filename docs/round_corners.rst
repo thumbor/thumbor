@@ -39,5 +39,5 @@ Examples
 
     http://localhost:8888/unsafe/filters:round_corner(30,0,0,0,1)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
-.. image:: images/rounded3.png
+.. image:: images/rounded3.jpg
     :alt: Picture after rounded corners (transparent)
