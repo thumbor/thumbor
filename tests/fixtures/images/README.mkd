@@ -15,3 +15,5 @@ They should ideally all be regenerated (or, should they not be possible to creat
 [10_years_of_Wikipedia_by_Guillaume_Paumier.jpg](https://commons.wikimedia.org/wiki/File:10_years_of_Wikipedia_by_Guillaume_Paumier.jpg) - Pierre-Selim Huard - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
 
 [Rotating_earth_(large).gif](https://commons.wikimedia.org/wiki/File:Rotating_earth_(large).gif) - Marvel - [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
+
+[weird_normalize_error.jpg](https://commons.wikimedia.org/wiki/File:2006_Ojiya_balloon_festival_011.jpg) - Kropsoq - [GFDL](https://www.gnu.org/licenses/old-licenses/fdl-1.2.html.en), [CC-BY-SA-3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en) [CC-BY-SA-2.5](https://creativecommons.org/licenses/by-sa/2.5/deed.en), [CC-BY-SA-2.1-JP](https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en)
