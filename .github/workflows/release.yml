@@ -45,8 +45,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-20.04
-          - macOS-13
+          - ubuntu-latest
+          - macOS-latest
 
     steps:
       - uses: actions/checkout@v4
