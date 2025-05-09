@@ -95,7 +95,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         image = await self.get_filtered(
             "source.jpg",
             "thumbor.filters.watermark",
-            "watermark(watermark,30,-50,60)",
+            "watermark(watermark.png,30,-50,60)",
         )
         expected = self.get_fixture("watermarkSimple.jpg")
         ssim = self.get_ssim(image, expected)
