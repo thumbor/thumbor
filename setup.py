@@ -150,7 +150,7 @@ def run_setup(extension_modules=None):
             "JpegIPTC==1.*,>=1.5",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            "Pillow>=10.4.0,<11.0.0",
+            "Pillow>=10.4.0,<12.0.0",
             "pytz==2023.*,>=2023.3.post1",
             "setuptools==78.*,>=78.1.1",
             "statsd==4.*,>=4.0.1",
