@@ -23,16 +23,16 @@ For instructions on how to get facial detection coordinates see
 Original image
 ~~~~~~~~~~~~~~
 
-.. image:: images/face_detection_original.jpg
+.. image:: images/tom_before_brightness.jpg
     :alt: Original image
 
 Image after detection
 ~~~~~~~~~~~~~~~~~~~~~
 
-Notice how red rectangles show the areas identified as faces:
+Notice how white rectangle show the area identified as face:
 
 .. image:: images/face_detection_alt.jpg
-    :alt: Red rectangles are the areas identified as faces
+    :alt: White rectangle is the area identified as face
 
 After retrieving these squares from OpenCV, thumbor calculates the
 *center of mass* of the image using *weighted average*.
@@ -131,7 +131,7 @@ corners in the image. It then returns a list of *(x, y)* values.
 
 We can see the detection taking place in the following images:
 
-.. image:: images/feature_detection_original.jpg
+.. image:: images/dice_transparent_background.png
     :alt: Original image
 
 The points identified by the good features algorithm:

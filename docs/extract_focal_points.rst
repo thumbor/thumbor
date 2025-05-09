@@ -25,26 +25,26 @@ This means that for an URL like:
 
 ::
 
-    http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
+    http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/240x220:480x260/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 Thumbor will use as original the following image URL:
 
 ::
 
-    https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
+    https://github.com/thumbor/thumbor/raw/master/example.jpg
 
 Example
 -------
 
 Original Image:
 
-.. image:: https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
+.. image:: images/tom_before_brightness.jpg
 
-Cat's eye cropped:
+Eye cropped:
 
 ::
 
-    http://localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
+    http://localhost:8888/unsafe/240x220:480x260/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 .. image:: images/extract1.jpg
 
@@ -52,7 +52,7 @@ A bigger image based on above's crop with the extract\_focal() filter:
 
 ::
 
-    http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
+    http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/240x220:480x260/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 .. image:: images/extract2.jpg
 
@@ -60,6 +60,6 @@ Without the filter that would be the result:
 
 ::
 
-    http://localhost:8888/unsafe/300x100/localhost:8888/unsafe/100x150:300x200/https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/546px-Turkish_Van_Cat.jpg
+    http://localhost:8888/unsafe/300x100/localhost:8888/unsafe/240x220:480x260/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 .. image:: images/extract3.jpg
