@@ -21,6 +21,7 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
     steps:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true

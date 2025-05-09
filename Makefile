@@ -1,5 +1,5 @@
 PYTHON = python
-.PHONY: docs build perf
+.PHONY: docs build
 
 OS := $(shell uname)
 
@@ -26,7 +26,7 @@ ci_test: build
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ "$$PERF_TEST" ]; then $(MAKE) long-perf; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
+	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
 integration_run integration int:
 	@pytest -sv integration_tests/ -p no:tldr
@@ -71,20 +71,6 @@ build_docs:
 
 docs:
 	@sphinx-reload --host 0.0.0.0 --port 5555 docs/
-
-perf-start-daemon: perf-stop-daemon
-	@start-stop-daemon -d `pwd`/perf --make-pidfile --background --start --pidfile /tmp/thumbor-perf.pid --exec `which thumbor` -- -l error -c ./thumbor.conf
-	@sleep 2
-
-# if you change this, also change in run.sh
-perf-stop-daemon:
-	@start-stop-daemon -q --stop --oknodo --remove-pidfile --pidfile /tmp/thumbor-perf.pid > /dev/null 2>&1
-
-perf: perf-start-daemon
-	@cd perf && DURATION=10 bash run.sh
-
-long-perf: perf-start-daemon
-	@cd perf && bash run.sh
 
 sample_images:
 	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 integration_tests/imgs/animated.gif
@@ -160,11 +146,11 @@ sample_images:
 	# the watermark filter's logic is too complicated to reproduce with IM, the watermark test images can't be generated here
 	# similarly, the noise, colorize, redeye and fill filters generate output too unique to be reproduce with IM and can't be generated here
 
-test-docker-build: test-docker-39-build test-docker310-build test-docker311-build test-docker312-build
+test-docker-build: test-docker-39-build test-docker310-build test-docker311-build test-docker312-build test-docker313-build
 
-test-docker-run: test-docker-39-run test-docker-310-run test-docker311-build test-docker312-build
+test-docker-run: test-docker-39-run test-docker-310-run test-docker311-run test-docker312-run test-docker313-run
 
-test-docker-publish: test-docker-39-publish test-docker-310-publish test-docker311-build test-docker312-build
+test-docker-publish: test-docker-39-publish test-docker-310-publish test-docker311-publish test-docker312-publish test-docker313-publish
 
 test-docker-39-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.9 -t thumbor-test-39 .
@@ -205,6 +191,16 @@ test-docker-312-run:
 test-docker-312-publish:
 	@docker image tag thumbor-test-312:latest thumbororg/thumbor-test:312
 	@docker push thumbororg/thumbor-test:312
+
+test-docker-313-build:
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.13 -t thumbor-test-313 .
+
+test-docker-313-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:313 make compile_ext redis sequential-unit integration flake
+
+test-docker-313-publish:
+	@docker image tag thumbor-test-313:latest thumbororg/thumbor-test:313
+	@docker push thumbororg/thumbor-test:313
 
 publish:
 	@python setup.py sdist
