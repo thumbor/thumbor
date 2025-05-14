@@ -134,9 +134,6 @@ sample_images:
 	convert tests/fixtures/filters/watermark.svg -transparent white -resize 30x30 tests/fixtures/filters/watermark.png
 	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Guido-portrait-2014.jpg/800px-Guido-portrait-2014.jpg -o tests/fixtures/filters/800px-Guido-portrait-2014.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Christophe_Henner_-_June_2016.jpg/800px-Christophe_Henner_-_June_2016.jpg -o tests/fixtures/filters/800px-Christophe_Henner_-_June_2016.jpg
-	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/800px-Coffee_berries_1.jpg -o tests/fixtures/filters/800px-Coffee_berries_1.jpg
-	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG -o tests/fixtures/filters/800px-A_small_cup_of_coffee.JPG
-	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Coffee_beans_-_ziarna_kawy.jpg/513px-Coffee_beans_-_ziarna_kawy.jpg -o tests/fixtures/filters/513px-Coffee_beans_-_ziarna_kawy.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/archive/4/47/20161122122708%21PNG_transparency_demonstration_1.png | convert - -resize 300x225 tests/fixtures/filters/PNG_transparency_demonstration_1.png
 	convert tests/fixtures/filters/PNG_transparency_demonstration_1.png -background blue -flatten tests/fixtures/filters/PNG_transparency_demonstration_1_blue.png
 	convert tests/fixtures/filters/PNG_transparency_demonstration_1.png -dither None -colors 256 tests/fixtures/images/paletted-transparent.png

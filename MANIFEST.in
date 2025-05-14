@@ -9,7 +9,6 @@ recursive-include thumbor *.png
 recursive-include thumbor *.gif
 recursive-include thumbor *.svg
 recursive-include thumbor *.webp
-recursive-include thumbor 513px-Coffee_beans_-_ziarna_kawy
 recursive-include thumbor *.c
 recursive-exclude thumbor *.pyc
 recursive-exclude thumbor *.so
