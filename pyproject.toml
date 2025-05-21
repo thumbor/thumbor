@@ -4,7 +4,7 @@ target-version = ['py310']
 include = '\.pyi?$'
 
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "setuptools-rust"]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
