@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=78.1.1", "wheel"]
+requires = ["setuptools>=78.1.1", "setuptools-rust>=1.11.1,<2.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "thumbor"
 version = "7.7.7"
 description = "thumbor is an open-source photo thumbnail service by globo.com"
-readme = { file = "README.mkd", content-type = "text/markdown" }
+readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "globo.com", email = "thumbor@googlegroups.com" }]
@@ -44,6 +44,7 @@ dependencies = [
   "Pillow>=10.4.0,<12.0.0",
   "pytz>=2023.3.post1,<2024.0.0",
   "setuptools>=78.1.1,<79.0.0",
+  "setuptools-rust>=1.11.1,<2.0.0",
   "statsd>=4.0.1,<5.0.0",
   "thumbor-plugins-gifv>=0.1.5,<1.0.0",
   "tornado>=6.4,<7.0.0",
@@ -101,7 +102,6 @@ exclude = ["integration_tests*", "docker*"]
 line-length = 79
 target-version = ['py310']
 include = '\.pyi?$'
-
 [tool.cibuildwheel]
 build = "cp3[89]* cp31[0123]*"
 
