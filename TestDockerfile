@@ -18,8 +18,14 @@ RUN apt-get update -y && \
         libssl-dev \
         libjpeg-dev \
         libwebp-dev \
+        build-essential \
+        curl \
         redis && \
     apt-get install -y --reinstall --no-install-recommends --no-install-suggests build-essential && \
     apt-get clean
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN rustc --version && cargo --version
 
 RUN pip install --upgrade pip
