@@ -10,6 +10,8 @@ use pyo3::types::PyBytes;
 
 use utils_lib::{adjust_color, bytes_per_pixel, rgb_order};
 
+const CHANNELS: usize = 3;
+
 pub struct SharpenInfo<'a> {
     pub amount: f64,
     pub radius: f64,
@@ -41,27 +43,29 @@ fn ycbcr2rgb(r: &mut f32, g: &mut f32, b: &mut f32) {
     *b = y + 1.772 * cb;
 }
 
-const CHANNELS: usize = 3;
-
 fn hat_transform(temp: &mut [f32], base: &[f32], st: usize, size: usize, sc: usize) {
     let mut i = 0;
+    let mut offset = 0;
 
     while i < sc && i < size {
-        temp[i] = 2.0 * base[st * i] + base[st * (sc - i)] + base[st * (i + sc)];
+        temp[i] = 2.0 * base[offset] + base[st * (sc - i)] + base[st * (i + sc)];
         i += 1;
+        offset += st;
     }
 
     while i + sc < size {
-        temp[i] = 2.0 * base[st * i] + base[st * (i - sc)] + base[st * (i + sc)];
+        temp[i] = 2.0 * base[offset] + base[offset - st * sc] + base[offset + st * sc];
         i += 1;
+        offset += st;
     }
 
     let two_size_minus_2_val = if size > 0 { 2 * size - 2 } else { 0 };
-
     while i < size {
-        temp[i] =
-            2.0 * base[st * i] + base[st * (i - sc)] + base[st * (two_size_minus_2_val - (i + sc))];
+        let reflected_idx_component = two_size_minus_2_val - (i + sc);
+        let reflected = st * reflected_idx_component;
+        temp[i] = 2.0 * base[offset] + base[offset - st * sc] + base[reflected];
         i += 1;
+        offset += st;
     }
 }
 

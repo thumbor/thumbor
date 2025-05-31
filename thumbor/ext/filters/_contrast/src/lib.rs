@@ -28,22 +28,18 @@ fn apply(py: Python<'_>, image_mode_str: &str, delta: i32, buffer: &[u8]) -> Py<
     let mut delta_int = delta + 100;
     delta_int = (delta_int * delta_int) / 100;
 
-    let size = buffer.len().saturating_sub(num_bytes);
-    let mut i = 0;
-    while i <= size {
-        let r = buffer[i + r_idx] as i32;
-        let g = buffer[i + g_idx] as i32;
-        let b = buffer[i + b_idx] as i32;
+    for pixel in buffer.chunks_exact_mut(num_bytes) {
+        let r = pixel[r_idx] as i32;
+        let g = pixel[g_idx] as i32;
+        let b = pixel[b_idx] as i32;
 
         let new_r = ((delta_int * (r - 128)) / 100) + 128;
         let new_g = ((delta_int * (g - 128)) / 100) + 128;
         let new_b = ((delta_int * (b - 128)) / 100) + 128;
 
-        buffer[i + r_idx] = adjust_color(new_r);
-        buffer[i + g_idx] = adjust_color(new_g);
-        buffer[i + b_idx] = adjust_color(new_b);
-
-        i += num_bytes;
+        pixel[r_idx] = adjust_color(new_r);
+        pixel[g_idx] = adjust_color(new_g);
+        pixel[b_idx] = adjust_color(new_b);
     }
 
     PyBytes::new(py, &buffer).into()
