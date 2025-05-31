@@ -35,3 +35,5 @@ opencv
 docs/_build
 test-results
 .coverage*
+
+thumbor/ext/filters/*/target/
