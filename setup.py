@@ -127,7 +127,6 @@ def run_setup(extension_modules=None):
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
-            "License :: OSI Approved :: MIT License",
             "Natural Language :: English",
             "Operating System :: MacOS",
             "Operating System :: POSIX :: Linux",
