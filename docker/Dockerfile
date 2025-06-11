@@ -21,6 +21,9 @@ RUN apt-get update && \
         build-essential && \
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:$PATH"
+
 RUN mkdir /tmp/thumbor_dist
 COPY dist/* /tmp/thumbor_dist
 
