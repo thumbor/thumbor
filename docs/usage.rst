@@ -17,9 +17,9 @@ Image Endpoint
 -  AxB:CxD means manually crop the image at left-top point AxB and
    right-bottom point CxD;
 -  fit-in means that the generated image should not be auto-cropped and
-   otherwise just fit in an imaginary box specified by ExF. If a full 
+   otherwise just fit in an imaginary box specified by ExF. If a full
    fit-in is specified, then the largest size is used for cropping (width
-   instead of height, or the other way around). If adaptive fit-in is 
+   instead of height, or the other way around). If adaptive fit-in is
    specified, it inverts requested width and height if it would get a better
    image definition;
 -  -Ex-F means resize the image to be ExF of width per height size. The
@@ -90,10 +90,10 @@ have no idea about the original image dimensions.
 If a full fit-in is used, instead of using the largest size for cropping
 it uses the smallest one, so in the above scenarios:
 
-For the image of :math:`800px` x :math:`600px`, with a full fit-in of :math:`300px` x :math:`200px`, we 
+For the image of :math:`800px` x :math:`600px`, with a full fit-in of :math:`300px` x :math:`200px`, we
 would get an image of :math:`300px` x :math:`225px`.
 
-For the image of :math:`400px` x :math:`600px`, with a full fit-in of :math:`300px` x :math:`200px`, we 
+For the image of :math:`400px` x :math:`600px`, with a full fit-in of :math:`300px` x :math:`200px`, we
 would get an image of :math:`300px` x :math:`450px`.
 
 .. TODO: Add adaptive fit in information here
@@ -280,4 +280,3 @@ The json looks like this:
             ]
         }
     }
-

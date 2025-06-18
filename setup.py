@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
@@ -56,10 +55,10 @@ OPENCV_REQUIREMENTS = [
 ]
 
 EXTRA_LIBS_REQUIREMENTS = [
-    "cairosvg==2.*,>=2.7.1",
+    "cairosvg==2.*,>=2.8.2",
     "pycurl==7.*,>=7.45.2",
     "pillow-avif-plugin==1.*,>=1.4.1",
-    "pillow-heif==0.*,>=0.14.0",
+    "pillow-heif==0.*,>=0.22.0",
 ]
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
@@ -128,7 +127,6 @@ def run_setup(extension_modules=None):
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
-            "License :: OSI Approved :: MIT License",
             "Natural Language :: English",
             "Operating System :: MacOS",
             "Operating System :: POSIX :: Linux",
@@ -137,6 +135,7 @@ def run_setup(extension_modules=None):
             "Programming Language :: Python :: 3.10",
             "Programming Language :: Python :: 3.11",
             "Programming Language :: Python :: 3.12",
+            "Programming Language :: Python :: 3.13",
             "Programming Language :: Python :: 3 :: Only",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
@@ -148,15 +147,16 @@ def run_setup(extension_modules=None):
         install_requires=[
             "colorama==0.*,>=0.4.6",
             "derpconf==0.*,>=0.8.4",
+            "JpegIPTC==1.*,>=1.5",
             "libthumbor==2.*,>=2.0.2",
             "piexif==1.*,>=1.1.3",
-            "Pillow==10.*",
+            "Pillow>=10.4.0,<12.0.0",
             "pytz==2023.*,>=2023.3.post1",
+            "setuptools==78.*,>=78.1.1",
             "statsd==4.*,>=4.0.1",
-            "tornado==6.*,>=6.4",
             "thumbor-plugins-gifv==0.*,>=0.1.5",
+            "tornado==6.*,>=6.4",
             "webcolors==1.*,>=1.13.0",
-            "JpegIPTC==1.*,>=1.5",
         ],
         extras_require={
             "all": ALL_REQUIREMENTS,

@@ -21,6 +21,7 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
     steps:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
@@ -49,7 +50,7 @@ jobs:
       - name: Generate lcov
         run: docker exec thumbor_test coverage lcov
       - name: Coveralls
-        uses: coverallsapp/github-action@v2.3.0
+        uses: coverallsapp/github-action@v2.3.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: coverage.lcov
@@ -60,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@v2.3.0
+        uses: coverallsapp/github-action@v2.3.6
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true

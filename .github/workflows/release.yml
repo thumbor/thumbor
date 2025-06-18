@@ -45,8 +45,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-20.04
-          - macOS-13
+          - ubuntu-latest
+          - macOS-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -61,7 +61,7 @@ jobs:
           platforms: all
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.18.1
+        uses: pypa/cibuildwheel@v2.23.3
 
       - uses: actions/upload-artifact@v4
         with:
@@ -82,7 +82,7 @@ jobs:
 
       - run: ls -lah dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.10.0
+      - uses: pypa/gh-action-pypi-publish@v1.12.4
         if: github.event_name != 'pull_request'
         with:
           user: __token__
@@ -99,6 +99,7 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

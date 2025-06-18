@@ -41,22 +41,37 @@ specified we'll use those to find the center of mass of the image (more
 on that in :doc:`detection_algorithms`). Otherwise we'll use the horizontal
 and vertical alignments.
 
-.. image:: images/focal-points.png
-    :alt: Default focal points if no other havebeen detected
+.. image:: images/focal_points.jpg
+    :alt: Default focal points if no other have been detected
 
 Let's say that for this image no focal points were found, so we'll use
 the vertical alignment to crop the height. Since we specified middle
 alignment for this example, we'll crop off :math:`150px` from the top and :math:`150px`
 from the bottom of the image, similarly to this image:
 
-.. image:: images/cropped_image.png
+.. image:: images/cropped_image.jpg
     :alt: The image after trimming the top and bottom
+
+::
+
+    http://localhost:8888/unsafe/300x300/filters:vertical_align(middle)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 Here's an example of how thumbor would crop width or height using
 centered alignment:
 
-.. image:: images/crop-width-height.png
-    :alt: How horizontal and vertical cropping affect the image
+.. image:: images/cropped_horizontal_image.jpg
+    :alt: How horizontal cropping affect the image
+
+::
+
+    http://localhost:8888/unsafe/400x600/filters:horizontal_align(center)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
+
+.. image:: images/cropped_vertical_image.jpg
+    :alt: How vertical cropping affect the image
+
+::
+
+    http://localhost:8888/unsafe/400x150/filters:vertical_align(middle)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 
 Resizing the Image
 ~~~~~~~~~~~~~~~~~~

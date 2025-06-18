@@ -1,5 +1,5 @@
 PYTHON = python
-.PHONY: docs build perf
+.PHONY: docs build
 
 OS := $(shell uname)
 
@@ -26,7 +26,7 @@ ci_test: build
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ "$$PERF_TEST" ]; then $(MAKE) long-perf; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
+	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
 integration_run integration int:
 	@pytest -sv integration_tests/ -p no:tldr
@@ -71,20 +71,6 @@ build_docs:
 
 docs:
 	@sphinx-reload --host 0.0.0.0 --port 5555 docs/
-
-perf-start-daemon: perf-stop-daemon
-	@start-stop-daemon -d `pwd`/perf --make-pidfile --background --start --pidfile /tmp/thumbor-perf.pid --exec `which thumbor` -- -l error -c ./thumbor.conf
-	@sleep 2
-
-# if you change this, also change in run.sh
-perf-stop-daemon:
-	@start-stop-daemon -q --stop --oknodo --remove-pidfile --pidfile /tmp/thumbor-perf.pid > /dev/null 2>&1
-
-perf: perf-start-daemon
-	@cd perf && DURATION=10 bash run.sh
-
-long-perf: perf-start-daemon
-	@cd perf && bash run.sh
 
 sample_images:
 	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 integration_tests/imgs/animated.gif
@@ -148,9 +134,6 @@ sample_images:
 	convert tests/fixtures/filters/watermark.svg -transparent white -resize 30x30 tests/fixtures/filters/watermark.png
 	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Guido-portrait-2014.jpg/800px-Guido-portrait-2014.jpg -o tests/fixtures/filters/800px-Guido-portrait-2014.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Christophe_Henner_-_June_2016.jpg/800px-Christophe_Henner_-_June_2016.jpg -o tests/fixtures/filters/800px-Christophe_Henner_-_June_2016.jpg
-	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coffee_berries_1.jpg/800px-Coffee_berries_1.jpg -o tests/fixtures/filters/800px-Coffee_berries_1.jpg
-	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG -o tests/fixtures/filters/800px-A_small_cup_of_coffee.JPG
-	curl -s https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Coffee_beans_-_ziarna_kawy.jpg/513px-Coffee_beans_-_ziarna_kawy.jpg -o tests/fixtures/filters/513px-Coffee_beans_-_ziarna_kawy.jpg
 	curl -s https://upload.wikimedia.org/wikipedia/commons/archive/4/47/20161122122708%21PNG_transparency_demonstration_1.png | convert - -resize 300x225 tests/fixtures/filters/PNG_transparency_demonstration_1.png
 	convert tests/fixtures/filters/PNG_transparency_demonstration_1.png -background blue -flatten tests/fixtures/filters/PNG_transparency_demonstration_1_blue.png
 	convert tests/fixtures/filters/PNG_transparency_demonstration_1.png -dither None -colors 256 tests/fixtures/images/paletted-transparent.png
@@ -160,11 +143,11 @@ sample_images:
 	# the watermark filter's logic is too complicated to reproduce with IM, the watermark test images can't be generated here
 	# similarly, the noise, colorize, redeye and fill filters generate output too unique to be reproduce with IM and can't be generated here
 
-test-docker-build: test-docker-39-build test-docker310-build test-docker311-build test-docker312-build
+test-docker-build: test-docker-39-build test-docker310-build test-docker311-build test-docker312-build test-docker313-build
 
-test-docker-run: test-docker-39-run test-docker-310-run test-docker311-build test-docker312-build
+test-docker-run: test-docker-39-run test-docker-310-run test-docker311-run test-docker312-run test-docker313-run
 
-test-docker-publish: test-docker-39-publish test-docker-310-publish test-docker311-build test-docker312-build
+test-docker-publish: test-docker-39-publish test-docker-310-publish test-docker311-publish test-docker312-publish test-docker313-publish
 
 test-docker-39-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.9 -t thumbor-test-39 .
@@ -205,6 +188,16 @@ test-docker-312-run:
 test-docker-312-publish:
 	@docker image tag thumbor-test-312:latest thumbororg/thumbor-test:312
 	@docker push thumbororg/thumbor-test:312
+
+test-docker-313-build:
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.13 -t thumbor-test-313 .
+
+test-docker-313-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:313 make compile_ext redis sequential-unit integration flake
+
+test-docker-313-publish:
+	@docker image tag thumbor-test-313:latest thumbororg/thumbor-test:313
+	@docker push thumbororg/thumbor-test:313
 
 publish:
 	@python setup.py sdist

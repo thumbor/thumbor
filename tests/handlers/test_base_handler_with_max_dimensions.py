@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # thumbor imaging service
@@ -91,14 +90,14 @@ class ImageOperationsWithMaxWidthAndMaxHeightShouldNotUpscale(
     @gen_test
     async def test_should_return_original_image_size(self):
         response = await self.async_fetch(
-            "/unsafe/filters:format(jpeg)/very-small-jpeg.jpg"
+            "/unsafe/filters:format(jpeg)/20x20.jpg"
         )
 
         engine = Engine(self.context)
         engine.load(response.body, ".jpg")
         expect(response.code).to_equal(200)
         expect(response.headers["Content-Type"]).to_equal("image/jpeg")
-        expect(engine.size).to_equal((100, 100))
+        expect(engine.size).to_equal((20, 20))
 
     @gen_test
     async def test_should_return_original_image_size_with_normalize(self):
