@@ -27,10 +27,7 @@ except ImportError:
 
 WEBP_SIDE_LIMIT = 16383
 
-SVG_RE = re.compile(
-    b"<svg\s[^>]*([\"'])http[^\"']*svg[^\"']*",  # pylint: disable=anomalous-backslash-in-string
-    re.I,
-)
+SVG_RE = re.compile(rb"<svg\b[^>]*?>", re.I)
 
 
 class EngineResult:
