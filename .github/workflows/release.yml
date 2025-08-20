@@ -30,8 +30,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U pip
+          pip install -U build
       - name: Build package
-        run: python setup.py sdist
+        run: python -m build --sdist
 
       - uses: actions/upload-artifact@v6
         with:

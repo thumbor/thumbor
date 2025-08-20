@@ -10,7 +10,7 @@ run-prod: compile_ext
 	@thumbor -l error -c thumbor/thumbor.conf
 
 setup:
-	@$(PYTHON) -m pip install -e .[tests]
+	@$(PYTHON) -m pip install -e .[tests,all]
 	@echo  "\n\nYou are strongly recommended to run 'pre-commit install'\n"
 
 compile_ext build:
@@ -190,6 +190,6 @@ test-docker-313-publish:
 	@docker push thumbororg/thumbor-test:313
 
 publish:
-	@python setup.py sdist
+	@python -m build --sdist
 	@twine upload dist/*
 	@rm -rf dist/
