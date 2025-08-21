@@ -167,6 +167,10 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         unsafe=False,
         hash=None,  # pylint: disable=unused-argument,redefined-builtin
         accepts_webp=False,
+        accepts_avif=False,
+        accepts_heif=False,
+        accepts_png=False,
+        accepts_jpeg=False,
         request=None,
         max_age=None,
         auto_png_to_jpg=None,
@@ -232,19 +236,55 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         self.prevent_result_storage = False
         self.unsafe = unsafe == "unsafe" or unsafe is True
         self.format = None
-        self.accepts_webp = accepts_webp
+        self._set_accepted_image_formats(
+            (
+                accepts_webp,
+                accepts_avif,
+                accepts_heif,
+                accepts_png,
+                accepts_jpeg,
+            )
+        )
         self.max_bytes = None
         self.max_age = max_age
         self.auto_png_to_jpg = auto_png_to_jpg
         self.headers = None
 
         if request:
-            self.url = request.path
-            self.accepts_webp = "image/webp" in request.headers.get(
-                "Accept", ""
+            self._set_request_headers(request)
+
+    def _set_request_headers(self, request):
+        accept_header = ""
+        self.url = request.path
+        if request.headers:
+            self.headers = request.headers
+            accept_header = request.headers.get("Accept", "")
+
+        self._set_accepted_image_formats_from_header(accept_header)
+
+    def _set_accepted_image_formats_from_header(self, accept_header):
+        self._set_accepted_image_formats(
+            (
+                "image/webp" in accept_header,
+                "image/avif" in accept_header,
+                "image/heif" in accept_header,
+                "image/png" in accept_header,
+                (
+                    "*/*" in accept_header
+                    or "image/jpg" in accept_header
+                    or "image/jpeg" in accept_header
+                ),
             )
-            if request.headers:
-                self.headers = request.headers
+        )
+
+    def _set_accepted_image_formats(self, accepted_formats):
+        (
+            self.accepts_webp,
+            self.accepts_avif,
+            self.accepts_heif,
+            self.accepts_png,
+            self.accepts_jpeg,
+        ) = accepted_formats
 
     @staticmethod
     def int_or_0(value):

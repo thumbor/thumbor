@@ -227,6 +227,10 @@ class RequestParametersTestCase(TestCase):
         expect(params.unsafe).to_be_false()
         expect(params.format).to_be_null()
         expect(params.accepts_webp).to_be_false()
+        expect(params.accepts_avif).to_be_false()
+        expect(params.accepts_heif).to_be_false()
+        expect(params.accepts_png).to_be_false()
+        expect(params.accepts_jpeg).to_be_false()
         expect(params.max_bytes).to_be_null()
         expect(params.max_age).to_be_null()
 
@@ -285,9 +289,18 @@ class RequestParametersTestCase(TestCase):
 
     @staticmethod
     def test_can_get_params_from_request():
-        request = mock.Mock(path="/test.jpg", headers={"Accept": "image/webp"})
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={
+                "Accept": "image/webp,image/avif,image/heif,image/png,image/jpeg"
+            },
+        )
         params = RequestParameters(request=request, image="/test.jpg")
         expect(params.accepts_webp).to_be_true()
+        expect(params.accepts_avif).to_be_true()
+        expect(params.accepts_heif).to_be_true()
+        expect(params.accepts_png).to_be_true()
+        expect(params.accepts_jpeg).to_be_true()
         expect(params.image_url).to_equal("/test.jpg")
 
 

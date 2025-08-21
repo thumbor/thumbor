@@ -423,6 +423,38 @@ specifies that the browser supports "image/heif" and pillow-heif is enabled.
 
    AUTO_HEIF = True
 
+AUTO\_IMAGE\_FORMAT\_PREFERENCE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This option allows you to define a custom order of preferred image formats
+for automatic conversion. When set, thumbor will iterate through the list
+and use the first format that the browser supports (via the Accept header).
+
+This setting **overrides** the individual AUTO_* format settings (AUTO_WEBP,
+AUTO_AVIF, AUTO_JPG, AUTO_PNG, AUTO_HEIF) when defined.
+
+The default order when using individual AUTO_* settings is:
+`WEBP, AVIF, JPG, HEIF, PNG` — from highest to lowest priority.
+
+With AUTO_IMAGE_FORMAT_PREFERENCE, you can customize this order according
+to your needs.
+
+.. code:: python
+
+   # Prioritize AVIF over WebP
+   AUTO_IMAGE_FORMAT_PREFERENCE = ['avif', 'webp', 'jpg', 'png', 'heif']
+
+   # Or prioritize JPG for smaller file sizes in certain scenarios
+   AUTO_IMAGE_FORMAT_PREFERENCE = ['jpg', 'webp', 'avif', 'png', 'heif']
+
+If set to an empty list (the default), thumbor will use the individual
+AUTO_* settings instead.
+
+.. code:: python
+
+   # Use individual AUTO_* settings (default behavior)
+   AUTO_IMAGE_FORMAT_PREFERENCE = []
+
 Queueing - Redis Single Node
 ----------------------------
 

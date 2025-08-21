@@ -75,6 +75,18 @@ class FileStorageTestCase(BaseFileStorageTestCase):
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
 
+    @gen_test
+    async def test_normalized_path_without_request(self):
+        del self.context.request
+
+        expect(self.file_storage).not_to_be_null()
+        expect(
+            self.file_storage.normalize_path(self.get_http_path())
+        ).to_equal(
+            f"{self.storage_path.name}/default/b6/be/"
+            "a3e916129541a9e7146f69a15eb4d7c77c98"
+        )
+
 
 class WebPFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
@@ -100,6 +112,30 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
             self.file_storage.normalize_path(self.get_http_path())
         ).to_equal(
             f"{self.storage_path.name}/auto_webp/b6/be/"
+            "a3e916129541a9e7146f69a15eb4d7c77c98"
+        )
+
+
+class PreferredFormatsFileStorageTestCase(BaseFileStorageTestCase):
+    def get_config(self):
+        self.storage_path = (
+            tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        )
+        return Config(
+            AUTO_IMAGE_FORMAT_PREFERENCE=[" avif ", "webp", "invalid"],
+            RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=self.storage_path.name,
+        )
+
+    def get_request(self):  # pylint: disable=arguments-differ
+        return RequestParameters(accepts_webp=True, accepts_avif=True)
+
+    @gen_test
+    async def test_normalized_path_with_preferred_formats_path(self):
+        expect(self.file_storage).not_to_be_null()
+        expect(
+            self.file_storage.normalize_path(self.get_http_path())
+        ).to_equal(
+            f"{self.storage_path.name}/auto_avif-webp/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
 

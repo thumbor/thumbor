@@ -16,6 +16,7 @@ from uuid import uuid4
 
 import pytz
 
+from thumbor.auto_image_format import get_auto_image_format_cache_key
 from thumbor.engines import BaseEngine
 from thumbor.result_storages import BaseStorage, ResultStorageResult
 from thumbor.utils import deprecated, logger
@@ -23,12 +24,6 @@ from thumbor.utils import deprecated, logger
 
 class Storage(BaseStorage):
     PATH_FORMAT_VERSION = "v2"
-
-    @property
-    def is_auto_webp(self):
-        return (
-            self.context.config.AUTO_WEBP and self.context.request.accepts_webp
-        )
 
     async def put(self, image_bytes):
         file_abspath = self.normalize_path(self.context.request.url)
@@ -120,9 +115,17 @@ class Storage(BaseStorage):
                 "/"
             )
         )
-        prefix = "auto_webp" if self.is_auto_webp else "default"
+        prefix = self.get_auto_image_format_cache_key() or "default"
 
         return f"{root_path}/{prefix}/{digest[:2]}/{digest[2:4]}/{digest[4:]}"
+
+    def get_auto_image_format_cache_key(self):
+        request = getattr(self.context, "request", None)
+
+        if request is None:
+            return None
+
+        return get_auto_image_format_cache_key(self.context.config, request)
 
     def normalize_path_legacy(self, path):
         path = unquote(path)
@@ -132,7 +135,12 @@ class Storage(BaseStorage):
             ),
             Storage.PATH_FORMAT_VERSION,
         ]
-        if self.is_auto_webp:
+        request = getattr(self.context, "request", None)
+        if (
+            self.context.config.AUTO_WEBP
+            and request is not None
+            and request.accepts_webp
+        ):
             path_segments.append("webp")
 
         path_segments.extend([self.partition(path), path.lstrip("/")])

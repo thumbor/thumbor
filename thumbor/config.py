@@ -228,6 +228,14 @@ Config.define(
     "Imaging",
 )
 Config.define(
+    "AUTO_IMAGE_FORMAT_PREFERENCE",
+    [],
+    "Ordered list of preferred formats to be used automatically. "
+    "Example: ['avif','webp','jpg','png','heif']. If set, this overrides "
+    "the individual AUTO_* format settings.",
+    "Imaging",
+)
+Config.define(
     "SVG_DPI",
     150,
     "Specify the ratio between 1in and 1px for SVG images. This is only used when "
