@@ -17,7 +17,7 @@ We seriously advise you to use
 keep your environment clean of thumbor's dependencies and you can choose
 when to "turn them on".
 
-You'll also need python >= 3.9 and `python poetry <https://python-poetry.org/>`_.
+You'll also need python >= 3.10 and `python poetry <https://python-poetry.org/>`_.
 
 Installing poetry should be as easy as ``pip install poetry``, but you can find more about it in their website.
 
@@ -84,7 +84,7 @@ Introducing a new Dependency
 
 If we introduce a new dependency, the testing docker images need to be updated.
 
-If the new dependency requires changes to the docker image, make sure to update the TestDockerfile36, TestDockerfile37, TestDockerfile38 and TestDockerfile39 files.
+If the new dependency requires changes to the docker image, make sure to update the TestDockerfile file.
 
 Then build and publish with::
 
@@ -101,6 +101,6 @@ If you do not wish to configure your environment with thumbor's dependencies, yo
 
 Or if you want to run a specific python version with your tests::
 
-    make test-docker-39-run
+    make test-docker-310-run
 
-Just replace '39' with the python version you want: 36, 37, 38 or 39.
+Just replace '310' with the python version you want: 310, 311, 312 or 313.
