@@ -10,10 +10,10 @@
 import glob
 import logging
 import os
+from pathlib import Path
 
 from setuptools import Extension, setup
-
-from pathlib import Path
+from setuptools_rust import RustExtension
 
 try:
     import wheel.bdist_wheel
@@ -77,6 +77,7 @@ if wheel is not None:
 
 
 def filter_extension_module(name, lib_objs, lib_headers):
+
     return Extension(
         f"thumbor.ext.filters.{name}",
         [f"thumbor/ext/filters/{name}.c"] + lib_objs,
@@ -108,6 +109,70 @@ def gather_filter_extensions():
 def run_setup(extension_modules=None):
     if extension_modules is None:
         extension_modules = []
+
+    # FIXME:Create a method similar to gather_filter_extensions
+    rust_extensions = [
+        RustExtension(
+            "thumbor.ext.filters._alpha",
+            path="thumbor/ext/filters/_alpha/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._bounding_box",
+            path="thumbor/ext/filters/_bounding_box/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._brightness",
+            path="thumbor/ext/filters/_brightness/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._colorize",
+            path="thumbor/ext/filters/_colorize/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._composite",
+            path="thumbor/ext/filters/_composite/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._contrast",
+            path="thumbor/ext/filters/_contrast/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._convolution",
+            path="thumbor/ext/filters/_convolution/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._curve",
+            path="thumbor/ext/filters/_curve/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._equalize",
+            path="thumbor/ext/filters/_equalize/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._fill",
+            path="thumbor/ext/filters/_fill/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._nine_patch",
+            path="thumbor/ext/filters/_nine_patch/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._noise",
+            path="thumbor/ext/filters/_noise/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._rgb",
+            path="thumbor/ext/filters/_rgb/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._saturation",
+            path="thumbor/ext/filters/_saturation/Cargo.toml",
+        ),
+        RustExtension(
+            "thumbor.ext.filters._sharpen",
+            path="thumbor/ext/filters/_sharpen/Cargo.toml",
+        ),
+    ]
 
     if "CFLAGS" not in os.environ:
         os.environ["CFLAGS"] = ""
@@ -152,7 +217,8 @@ def run_setup(extension_modules=None):
             "piexif==1.*,>=1.1.3",
             "Pillow>=10.4.0,<12.0.0",
             "pytz==2023.*,>=2023.3.post1",
-            "setuptools==78.*,>=78.1.1",
+            "setuptools-rust>=1.11.1,<2.0.0",
+            "setuptools==80.*,>=80.8.0",
             "statsd==4.*,>=4.0.1",
             "thumbor-plugins-gifv==0.*,>=0.1.5",
             "tornado==6.*,>=6.4",
@@ -172,6 +238,7 @@ def run_setup(extension_modules=None):
             ],
         },
         ext_modules=extension_modules,
+        rust_extensions=rust_extensions,
         **kwargs,
     )
 
