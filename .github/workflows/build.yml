@@ -29,7 +29,7 @@ jobs:
           key: thumbor-docker-${{ matrix.image-tag }}-{hash}
           restore-keys: |
             thumbor-docker-${{ matrix.image-tag }}-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build test image
         run: docker build -t test_image -f TestDockerfile --build-arg PYTHON_VERSION=${{ matrix.image-tag }} .
       - name: Start test container
