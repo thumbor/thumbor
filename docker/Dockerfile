@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION
-FROM python:${PYTHON_VERSION}-bullseye AS builder-image
+FROM python:${PYTHON_VERSION}-trixie AS builder-image
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG THUMBOR_VERSION
@@ -30,7 +30,7 @@ ENV PATH="/home/thumbor/venv/bin:$PATH"
 RUN pip3 install --no-cache-dir wheel && \
     pip3 install --no-cache-dir --find-links=/tmp/thumbor_dist thumbor[all]==${THUMBOR_VERSION}
 
-FROM python:${PYTHON_VERSION}-slim-bullseye AS runner-image
+FROM python:${PYTHON_VERSION}-slim-trixie AS runner-image
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
