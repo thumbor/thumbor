@@ -247,6 +247,7 @@ def main(arguments=None):
     url = crypto.generate(**thumbor_params)
     sys.stdout.write("URL:\n")
     sys.stdout.write(f"{url}\n")
+    # URL thumborize me com placeholder HTTP indica "Este formulário não é seguro. O autopreenchiemtno foi desativado"
 
 
 if __name__ == "__main__":
