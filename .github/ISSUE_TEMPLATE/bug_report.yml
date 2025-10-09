@@ -1,0 +1,68 @@
+name: Bug Report
+description: Report an issue with Thumbor
+title: "[Bug] "
+labels: [bug]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the following fields to help us diagnose the problem.
+        ⚠️ Don't forget to **replace your `SECURITY_KEY`** in the config with a
+        dummy one.
+
+  - type: input
+    id: request_url
+    attributes:
+      label: Thumbor Request URL
+      description: |
+        The request URL causing the issue (you may replace the domain with a
+        fake one)
+      placeholder: https://example.com/unsafe/300x200/image.jpg
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behaviour
+      description: |
+        What should have happened?
+      placeholder: The image should have been resized correctly...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behaviour
+      description: |
+        What actually happened instead?
+      placeholder: The server returned a 500 error...
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: |
+        OS you are using (e.g., Ubuntu 22.04, macOS, etc.)
+      placeholder: Ubuntu 20.04
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Your `thumbor.conf`
+      description: |
+        Paste your `thumbor.conf` contents here. **Make sure to replace your
+        `SECURITY_KEY` with a dummy key!**
+      placeholder: |
+        ALLOW_UNSAFE_URL = True
+        FILE_LOADER_ROOT_PATH = "/home/images"
+        ...
+    validations:
+      required: true
