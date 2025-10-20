@@ -94,7 +94,7 @@ class Filter(BaseFilter):
         # Handle unsuccessful load results
         if isinstance(result, LoaderResult):
             if not result.successful:
-                error_msg = getattr(result, 'error', 'Unknown error')
+                error_msg = getattr(result, "error", "Unknown error")
                 raise RuntimeError(
                     f"Failed to load frame image from {self.url}: {error_msg}"
                 )
