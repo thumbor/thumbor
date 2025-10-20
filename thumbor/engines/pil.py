@@ -313,10 +313,7 @@ class Engine(BaseEngine):
             subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
             qtables_config = self.context.config.PILLOW_JPEG_QTABLES
 
-            if (
-                subsampling_config is not None
-                or qtables_config is not None
-            ):
+            if subsampling_config is not None or qtables_config is not None:
                 # can't use 'keep' here as Pillow would try to extract
                 # qtables/subsampling and fail
                 options["quality"] = 0
@@ -325,16 +322,15 @@ class Engine(BaseEngine):
                 orig_qtables = self.qtables
 
                 if (
-                    subsampling_config == "keep"
-                    or subsampling_config is None
+                    subsampling_config == "keep" or subsampling_config is None
                 ) and (orig_subsampling is not None):
                     options["subsampling"] = orig_subsampling
                 else:
                     options["subsampling"] = subsampling_config
 
-                if (
-                    qtables_config == "keep" or qtables_config is None
-                ) and (orig_qtables and 2 <= len(orig_qtables) <= 4):
+                if (qtables_config == "keep" or qtables_config is None) and (
+                    orig_qtables and 2 <= len(orig_qtables) <= 4
+                ):
                     options["qtables"] = orig_qtables
                 else:
                     options["qtables"] = qtables_config
@@ -476,8 +472,13 @@ class Engine(BaseEngine):
         if ext in (".jpg", ".jpeg"):
             self._prepare_jpeg_options(options)
 
-        if ext == ".png" and self.context.config.PNG_COMPRESSION_LEVEL is not None:
-            options["compress_level"] = self.context.config.PNG_COMPRESSION_LEVEL
+        if (
+            ext == ".png"
+            and self.context.config.PNG_COMPRESSION_LEVEL is not None
+        ):
+            options["compress_level"] = (
+                self.context.config.PNG_COMPRESSION_LEVEL
+            )
 
         if options["quality"] is None:
             options["quality"] = self.context.config.QUALITY
