@@ -82,8 +82,22 @@ class Filter(BaseFilter):
         self.engine.image = new_engine.image
 
     async def on_fetch_done(self, result):
-        # TODO if result.successful is False how can the error be handled?
+        """
+        Handle the result of fetching the frame image.
+
+        Args:
+            result: LoaderResult object or raw buffer containing the frame image
+
+        Raises:
+            RuntimeError: If the frame image failed to load
+        """
+        # Handle unsuccessful load results
         if isinstance(result, LoaderResult):
+            if not result.successful:
+                error_msg = getattr(result, 'error', 'Unknown error')
+                raise RuntimeError(
+                    f"Failed to load frame image from {self.url}: {error_msg}"
+                )
             buffer = result.buffer
         else:
             buffer = result
