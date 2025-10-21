@@ -4,9 +4,11 @@ on:
   push:
   pull_request:
 
+# Minimal permissions: just enough to read the repo
 permissions:
   contents: read
 
+# Prevent duplicate runs for the same branch/PR
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -16,40 +18,54 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-
-      - uses: psf/black@af0ba72a73598c76189d6dd1b21d8532255d5942
+      # Run Black via the official action (no pip install needed)
+      - uses: psf/black@af0ba72a73598c76189d6dd1b21d8532255d5942 # 25.9.0
         with:
           options: "--check --verbose"
 
   flake8:
-    permissions:
-      contents: read
-      checks: write
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v5
+
+      # Create a tiny “dependency marker” so setup-python can compute a cache key.
+      # (We don’t have requirements.txt or pyproject.toml here.)
+      - name: Prepare cache dependency marker
+        run: |
+          echo "# dev tools marker for cache key" > .github/dev-requirements.txt
+
+      # Use pip cache to speed up tool installs across runs
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
           cache: "pip"
-      - uses: actions/checkout@v5
+          cache-dependency-path: ".github/dev-requirements.txt"
+
+      # Lightweight: install and run flake8 directly
       - name: Install flake8
         run: pip install flake8
       - name: Run flake8
-        uses: suo/flake8-github-action@3e87882219642e01aa8a6bbd03b4b0adb8542c2a
-        with:
-          checkName: "flake8"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: flake8 .
 
   isort:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v5
+
+      # Reuse the same dependency marker for the pip cache key
+      - name: Prepare cache dependency marker
+        run: |
+          echo "# dev tools marker for cache key" > .github/dev-requirements.txt
+
+      # Cache pip downloads for faster isort installs
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
           cache: "pip"
-      - uses: actions/checkout@v5
+          cache-dependency-path: ".github/dev-requirements.txt"
+
       - name: Install isort
         run: pip install isort
       - name: Run isort
         run: isort thumbor tests --profile black
+         
