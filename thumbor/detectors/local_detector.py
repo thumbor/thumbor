@@ -12,6 +12,9 @@ from typing import Dict
 
 import numpy as np
 
+
+import asyncio
+
 from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
 
@@ -72,14 +75,20 @@ class CascadeLoaderDetector(BaseDetector):
     async def detect(self):
         if not self.verify_cv():
             await self.next()
-
             return
 
-        features = self.get_features()
-
+       
+        try:
+            loop = asyncio.get_event_loop()
+            features = await loop.run_in_executor(None, self.get_features)
+        except Exception:
+            await self.next()
+            return
         if not features:
-            await self.next()  # pylint: disable=not-callable
+            await self.next()
+            return  
 
+    
         for (left, top, width, height), _ in features:
             offset = self.get_detection_offset(left, top, width, height)
             self.context.request.focal_points.append(
