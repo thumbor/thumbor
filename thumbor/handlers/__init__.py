@@ -483,6 +483,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 buffer = result.buffer
             else:
                 buffer = result
+
             image_extension = EXTENSION.get(
                 BaseEngine.get_mimetype(buffer), ".jpg"
             )
@@ -497,42 +498,66 @@ class BaseHandler(tornado.web.RequestHandler):
         if image_extension is not None:
             image_extension = f".{image_extension}"
             logger.debug("Image format specified as %s.", image_extension)
-        elif self.is_webp(context):
-            image_extension = ".webp"
-            logger.debug(
-                "Image format set by AUTO_WEBP as %s.", image_extension
-            )
-        elif self.can_auto_convert_to_avif():
-            image_extension = ".avif"
-            logger.debug(
-                "Image format set by AUTO_AVIF as %s.", image_extension
-            )
-        elif (
-            self.can_auto_convert_png_to_jpg()
-            or self.can_auto_convert_to_jpg()
-        ):
-            image_extension = ".jpg"
-            logger.debug(
-                "Image format set by AUTO_PNG_TO_JPG or AUTO_JPG as %s.",
-                image_extension,
-            )
-        elif self.can_auto_convert_to_heif():
-            image_extension = ".heif"
-            logger.debug(
-                "Image format set by AUTO_HEIF as %s.", image_extension
-            )
-        elif self.can_auto_convert_to_png():
-            image_extension = ".png"
-            logger.debug(
-                "Image format set by AUTO_PNG as %s.", image_extension
-            )
+
         else:
-            image_extension = context.request.engine.extension
-            logger.debug(
-                "No image format specified. Retrieving "
-                "from the image extension: %s.",
-                image_extension,
-            )
+            preference = context.config.AUTO_IMAGE_FORMAT_PREFERENCE
+
+            format_check_map = {
+                "webp": lambda: self.is_webp(context),
+                "avif": self.can_auto_convert_to_avif,
+                "jpg": lambda: self.can_auto_convert_png_to_jpg()
+                or self.can_auto_convert_to_jpg(),
+                "heif": self.can_auto_convert_to_heif,
+                "png": self.can_auto_convert_to_png,
+            }
+
+            if preference:
+                for ext in preference.split(","):
+                    ext = ext.strip().lower()
+                    check = format_check_map.get(ext)
+                    if check and check():
+                        image_extension = f".{ext}"
+                        logger.debug(
+                            "Image format set by AUTO_IMAGE_FORMAT_PREFERENCE as %s.",
+                            image_extension,
+                        )
+                        break
+            else:
+                if self.is_webp(context):
+                    image_extension = ".webp"
+                    logger.debug(
+                        "Image format set by AUTO_WEBP as %s.", image_extension
+                    )
+                elif self.can_auto_convert_to_avif():
+                    image_extension = ".avif"
+                    logger.debug(
+                        "Image format set by AUTO_AVIF as %s.", image_extension
+                    )
+                elif (
+                    self.can_auto_convert_png_to_jpg()
+                    or self.can_auto_convert_to_jpg()
+                ):
+                    image_extension = ".jpg"
+                    logger.debug(
+                        "Image format set by AUTO_PNG_TO_JPG or AUTO_JPG as %s.",
+                        image_extension,
+                    )
+                elif self.can_auto_convert_to_heif():
+                    image_extension = ".heif"
+                    logger.debug(
+                        "Image format set by AUTO_HEIF as %s.", image_extension
+                    )
+                elif self.can_auto_convert_to_png():
+                    image_extension = ".png"
+                    logger.debug(
+                        "Image format set by AUTO_PNG as %s.", image_extension
+                    )
+                else:
+                    image_extension = context.request.engine.extension
+                    logger.debug(
+                        "No image format specified. Retrieving from engine extension: %s.",
+                        image_extension,
+                    )
 
         content_type = CONTENT_TYPE.get(image_extension, CONTENT_TYPE[".jpg"])
 
