@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: psf/black@stable
+      - uses: psf/black@af0ba72a73598c76189d6dd1b21d8532255d5942 # 25.9.0
         with:
           options: "--check --verbose"
   flake8:
@@ -21,24 +21,24 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: "3.x"
       - uses: actions/checkout@v5
       - name: Install flake8
         run: pip install flake8
       - name: Run flake8
-        uses: suo/flake8-github-action@releases/v1
+        uses: suo/flake8-github-action@3e87882219642e01aa8a6bbd03b4b0adb8542c2a # v1 release
         with:
-          checkName: 'flake8'
+          checkName: "flake8"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   isort:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: "3.x"
       - uses: actions/checkout@v5
       - name: Install isort
         run: pip install isort
