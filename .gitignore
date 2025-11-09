@@ -35,3 +35,4 @@ opencv
 docs/_build
 test-results
 .coverage*
+venv/
