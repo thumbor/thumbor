@@ -40,7 +40,9 @@ class TestPILEngineTransparentResize(unittest.TestCase):
     def create_test_png(self, width, height, has_alpha=True):
         """Creates a test PNG with optional transparency"""
         mode = "RGBA" if has_alpha else "RGB"
-        image = Image.new(mode, (width, height), (255, 0, 0, 0) if has_alpha else (255, 0, 0))
+        image = Image.new(
+            mode, (width, height), (255, 0, 0, 0) if has_alpha else (255, 0, 0)
+        )
 
         # Add some visible content
         if has_alpha:
@@ -63,7 +65,9 @@ class TestPILEngineTransparentResize(unittest.TestCase):
         self.assertEqual(image.mode, "RGBA")
 
         # Perform resize
-        resized_image = image.resize((target_width, target_height), Image.Resampling.LANCZOS)
+        resized_image = image.resize(
+            (target_width, target_height), Image.Resampling.LANCZOS
+        )
 
         # Verify transparency is preserved
         self.assertEqual(resized_image.mode, "RGBA")
@@ -73,7 +77,9 @@ class TestPILEngineTransparentResize(unittest.TestCase):
 
         # Verify pixels still have transparency
         pixels = list(resized_image.getdata())
-        self.assertTrue(any(p[3] < 255 for p in pixels))  # Should have some transparent pixels
+        self.assertTrue(
+            any(p[3] < 255 for p in pixels)
+        )  # Should have some transparent pixels
 
     def test_resize_transparent_png_extreme_ratio(self):
         """Test resizing a PNG with extreme aspect ratio"""
@@ -87,7 +93,9 @@ class TestPILEngineTransparentResize(unittest.TestCase):
         self.assertEqual(image.mode, "RGBA")
 
         # Perform resize
-        resized_image = image.resize((target_width, target_height), Image.Resampling.LANCZOS)
+        resized_image = image.resize(
+            (target_width, target_height), Image.Resampling.LANCZOS
+        )
 
         # Verify transparency is preserved
         self.assertEqual(resized_image.mode, "RGBA")
@@ -97,18 +105,20 @@ class TestPILEngineTransparentResize(unittest.TestCase):
 
         # Verify pixels still have transparency
         pixels = list(resized_image.getdata())
-        self.assertTrue(any(p[3] < 255 for p in pixels))  # Should have some transparent pixels
+        self.assertTrue(
+            any(p[3] < 255 for p in pixels)
+        )  # Should have some transparent pixels
 
     def test_resize_transparent_png_verify_pixels(self):
         """Test that pixel values and transparency are preserved correctly after resize"""
         width, height = 100, 50
 
         # Create a simple transparent PNG with known pixel values
-        image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         # Add some pixels with known transparency values
         image.putpixel((0, 0), (255, 0, 0, 255))  # Fully opaque red
         image.putpixel((1, 0), (0, 255, 0, 128))  # Semi-transparent green
-        image.putpixel((2, 0), (0, 0, 255, 0))    # Fully transparent blue
+        image.putpixel((2, 0), (0, 0, 255, 0))  # Fully transparent blue
 
         # Fill a larger area with solid color to ensure fully opaque pixels survive resize
         for x in range(10):
@@ -119,7 +129,7 @@ class TestPILEngineTransparentResize(unittest.TestCase):
         resized_image = image.resize((50, 25), Image.Resampling.LANCZOS)
 
         # Verify image mode
-        self.assertEqual(resized_image.mode, 'RGBA')
+        self.assertEqual(resized_image.mode, "RGBA")
 
         # Verify that transparency variations are preserved
         # Due to interpolation during resize, we check for approximate values
@@ -129,9 +139,11 @@ class TestPILEngineTransparentResize(unittest.TestCase):
 
         # Verify we have a good range of transparency values
         self.assertGreater(max_alpha, 240)  # Close to fully opaque
-        self.assertLess(min_alpha, 10)      # Close to fully transparent
-        self.assertTrue(any(10 < p[3] < 240 for p in pixels))  # Some semi-transparent pixels
+        self.assertLess(min_alpha, 10)  # Close to fully transparent
+        self.assertTrue(
+            any(10 < p[3] < 240 for p in pixels)
+        )  # Some semi-transparent pixels
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -212,7 +212,7 @@ class Engine(BaseEngine):
             self.image = self.image.convert("RGBA")
 
         size = (int(width), int(height))
-        
+
         # Only use draft for non-transparent images since it's optimized for JPEG
         if not had_transparency:
             self.image.draft(None, size)
@@ -225,7 +225,7 @@ class Engine(BaseEngine):
             logger.warning(
                 "Transparency lost during resize. Original mode: %s, New mode: %s",
                 original_mode,
-                self.image.mode
+                self.image.mode,
             )
             # Convert back to RGBA if transparency was lost
             self.image = self.image.convert("RGBA")
