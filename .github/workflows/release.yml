@@ -56,7 +56,7 @@ jobs:
           python-version: ${{ env.python-version }}
       - name: Set up QEMU
         if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
         with:
           platforms: all
 
@@ -124,7 +124,7 @@ jobs:
         run: echo "CACHE_TO=type=registry,ref=ghcr.io/thumbor/thumbor:buildcache-${{ matrix.python_version }},mode=max" >> $GITHUB_ENV
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
 
       - name: Set up Docker Buildx
         id: buildx
