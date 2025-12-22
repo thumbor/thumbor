@@ -157,7 +157,7 @@ fn apply(
     let a_rad = a_radius as f32;
     let b_rad = b_radius as f32;
 
-    // Otimização: Definir a cor do canto uma vez
+    // Optimization: Define corner color once
     let corner_color = Pixel {
         r,
         g,
