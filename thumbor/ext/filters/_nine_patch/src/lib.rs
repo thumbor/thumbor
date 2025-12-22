@@ -348,7 +348,7 @@ fn apply(
     let nine_patch = Bitmap::new(image_mode, nine_patch_buffer, nine_patch_w, nine_patch_h);
     let info = NinePatchInfo::new(&nine_patch);
 
-    // Verificação inicial de consistência dos buffers
+    // Initial buffer consistency check
     let expected_target_size = target_w * target_h * bytes_per_pixel(image_mode);
     if target_buffer.len() < expected_target_size {
         return Err(PyValueError::new_err(
