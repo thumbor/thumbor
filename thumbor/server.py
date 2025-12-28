@@ -20,7 +20,15 @@ from socket import socket
 import tornado.ioloop
 from PIL import Image
 from tornado.httpserver import HTTPServer
-from tornado.netutil import bind_unix_socket
+
+# IMPORTS PARA SOCKETS TCP (sempre disponível)
+from tornado.netutil import bind_sockets
+
+#  Trata unix socket opcional (Linux/Mac) — Windows NÃO tem essa função
+try:
+    from tornado.netutil import bind_unix_socket
+except ImportError:
+    bind_unix_socket = None  # Windows não suporta UNIX domain sockets
 
 from thumbor.config import Config
 from thumbor.console import get_server_parameters
@@ -64,9 +72,7 @@ def get_importer(config):
 
     if importer.error_handler_class is not None:
         importer.error_handler = (
-            importer.error_handler_class(  # pylint: disable=not-callable
-                config
-            )
+            importer.error_handler_class(config)
         )
 
     return importer
@@ -83,7 +89,6 @@ def validate_config(config, server_parameters):
         )
 
     if config.ENGINE or config.USE_GIFSICLE_ENGINE:
-        # Error on Image.open when image pixel count is above MAX_IMAGE_PIXELS
         warnings.simplefilter("error", Image.DecompressionBombWarning)
 
     if config.USE_GIFSICLE_ENGINE:
@@ -97,14 +102,6 @@ def validate_config(config, server_parameters):
             )
 
 
-def get_context(server_parameters, config, importer):
-    return Context(server=server_parameters, config=config, importer=importer)
-
-
-def get_application(context):
-    return context.modules.importer.import_class(context.app_class)(context)
-
-
 def get_socket_from_fd(fname_or_fd, *, non_blocking=False):
     fd_number = get_as_integer(fname_or_fd)
 
@@ -113,6 +110,7 @@ def get_socket_from_fd(fname_or_fd, *, non_blocking=False):
         if non_blocking:
             sock.setblocking(False)
     else:
+        #  Só Linux/Mac chegam aqui (onde UNIX socket é suportado)
         sock = bind_unix_socket(fname_or_fd)
 
     return sock
@@ -121,7 +119,8 @@ def get_socket_from_fd(fname_or_fd, *, non_blocking=False):
 def run_server(application, context):
     server = HTTPServer(application, xheaders=True)
 
-    if context.server.fd is not None:
+    # Escolhe o modo correto (Linux/mac → FD/Unix socket :: Windows → TCP/IP)
+    if context.server.fd is not None and bind_unix_socket:
         sock = get_socket_from_fd(
             context.server.fd,
             non_blocking=context.config.NON_BLOCKING_SOCKETS,
@@ -129,8 +128,19 @@ def run_server(application, context):
         server.add_socket(sock)
 
         logging.debug("thumbor starting at fd %s", context.server.fd)
+
     else:
-        server.bind(context.server.port, context.server.ip)
+        # Windows + mensagem educativa no log
+        if context.server.fd is not None and not bind_unix_socket:
+            logging.warning(
+                "bind_unix_socket não é suportado no seu sistema. "
+                "Voltando para bind TCP/IP (porta padrão)."
+            )
+
+        #  Fallback TCP (padrão Windows)
+        sockets = bind_sockets(context.server.port, address=context.server.ip)
+        for sock in sockets:
+            server.add_socket(sock)
 
         logging.debug(
             "thumbor starting at %s:%d", context.server.ip, context.server.port
@@ -142,8 +152,6 @@ def run_server(application, context):
 
 
 def main(arguments=None):
-    """Runs thumbor server with the specified arguments."""
-
     if arguments is None:
         arguments = sys.argv[1:]
 
@@ -161,7 +169,7 @@ def main(arguments=None):
         application = get_application(context)
         server = run_server(application, context)
         setup_signal_handler(server, config)
-        tornado.ioloop.IOLoop.instance().start()
+        tornado.ioloop.ILoop.instance().start()
 
 
 if __name__ == "__main__":
