@@ -1096,6 +1096,13 @@ class ImageApiHandler(ContextHandler):
 
         return True
 
+    def _check_secret_key(self):
+        if not self.context.config.UPLOAD_SECURITY_MODE:
+            return False
+
+        security_key = self.request.headers.get('Authorization')
+        return security_key is None or self.context.config.SECURITY_KEY != security_key
+
     async def write_file(self, file_id, body):
         storage = self.context.modules.upload_photo_storage
         await storage.put(file_id, body)
