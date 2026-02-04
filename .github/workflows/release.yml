@@ -33,7 +33,7 @@ jobs:
       - name: Build package
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: artifact-sdist
           path: ./dist/thumbor-*.tar.gz
@@ -63,7 +63,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@faf86a6ed7efa889faf6996aa23820831055001a # v2.23.3
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: artifact-${{ matrix.os }}
           path: ./wheelhouse/*.whl
