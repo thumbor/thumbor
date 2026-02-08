@@ -14,6 +14,7 @@ setup:
 	@echo  "\n\nYou are strongly recommended to run 'pre-commit install'\n"
 
 compile_ext build:
+	@$(PYTHON) -m pip install setuptools
 	@$(PYTHON) setup.py build_ext -i
 
 test: build redis
