@@ -22,11 +22,24 @@ else:
     DEFAULT_SRGB_PROFILE = ImageCms.ImageCmsProfile(
         ImageCms.createProfile("sRGB")
     )
+
+    # Use ImageCms.FLAGS when available and fall back to ImageCms.Flags
+    # for compatibility with older and newer PIL versions.
+    # This can be refactored once the minimum PIL version is >= 12.
+
+    def _get_flag(flags, name):
+        try:
+            return flags[name]
+        except Exception:
+            return getattr(flags, name, 0)
+
+    _FLAGS = getattr(ImageCms, "FLAGS", ImageCms.Flags)
+
     TRANSFORM_FLAGS = (
-        ImageCms.FLAGS["NOTCACHE"]
-        | ImageCms.FLAGS["NOTPRECALC"]
-        | ImageCms.FLAGS["BLACKPOINTCOMPENSATION"]
-        | ImageCms.FLAGS["HIGHRESPRECALC"]
+        _get_flag(_FLAGS, "NOTCACHE")
+        | _get_flag(_FLAGS, "NOTPRECALC")
+        | _get_flag(_FLAGS, "BLACKPOINTCOMPENSATION")
+        | _get_flag(_FLAGS, "HIGHRESPRECALC")
     )
 
 
