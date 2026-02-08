@@ -143,11 +143,11 @@ sample_images:
 	# the watermark filter's logic is too complicated to reproduce with IM, the watermark test images can't be generated here
 	# similarly, the noise, colorize, redeye and fill filters generate output too unique to be reproduce with IM and can't be generated here
 
-test-docker-build: test-docker310-build test-docker311-build test-docker312-build test-docker313-build
+test-docker-build: test-docker310-build test-docker311-build test-docker312-build test-docker313-build test-docker314-build
 
-test-docker-run: test-docker-310-run test-docker311-run test-docker312-run test-docker313-run
+test-docker-run: test-docker-310-run test-docker311-run test-docker312-run test-docker313-run test-docker314-run
 
-test-docker-publish: test-docker-310-publish test-docker311-publish test-docker312-publish test-docker313-publish
+test-docker-publish: test-docker-310-publish test-docker311-publish test-docker312-publish test-docker313-publish test-docker314-publish
 
 test-docker-310-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.10 -t thumbor-test-310 .
@@ -188,6 +188,16 @@ test-docker-313-run:
 test-docker-313-publish:
 	@docker image tag thumbor-test-313:latest thumbororg/thumbor-test:313
 	@docker push thumbororg/thumbor-test:313
+
+test-docker-314-build:
+	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.14 -t thumbor-test-314 .
+
+test-docker-314-run:
+	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:314 make compile_ext redis sequential-unit integration flake
+
+test-docker-314-publish:
+	@docker image tag thumbor-test-314:latest thumbororg/thumbor-test:314
+	@docker push thumbororg/thumbor-test:314
 
 publish:
 	@python setup.py sdist
