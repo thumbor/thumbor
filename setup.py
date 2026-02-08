@@ -151,7 +151,6 @@ def run_setup(extension_modules=None):
             "piexif==1.*,>=1.1.3",
             "Pillow>=10.4.0,<12.0.0",
             "pytz==2023.*,>=2023.3.post1",
-            "setuptools==78.*,>=78.1.1",
             "statsd==4.*,>=4.0.1",
             "thumbor-plugins-gifv==0.*,>=0.1.5",
             "tornado==6.*,>=6.4",
