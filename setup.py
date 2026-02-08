@@ -10,10 +10,10 @@
 import glob
 import logging
 import os
-
-from setuptools import Extension, setup
-
 from pathlib import Path
+
+from setuptools import setup
+from setuptools_rust import RustExtension
 
 try:
     import wheel.bdist_wheel
@@ -76,38 +76,21 @@ if wheel is not None:
     kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
 
 
-def filter_extension_module(name, lib_objs, lib_headers):
-    return Extension(
-        f"thumbor.ext.filters.{name}",
-        [f"thumbor/ext/filters/{name}.c"] + lib_objs,
-        libraries=["m"],
-        include_dirs=["thumbor/ext/filters/lib"],
-        depends=["setup.py"] + lib_objs + lib_headers,
-        extra_compile_args=[
-            "-Wall",
-            "-Wextra",
-            "-Werror",
-            "-Wno-unused-parameter",
-        ],
-        py_limited_api=True,
-        define_macros=[("Py_LIMITED_API", "0x03080000")],
-    )
-
-
-def gather_filter_extensions():
-    files = glob.glob("thumbor/ext/filters/_*.c")
-    lib_objs = glob.glob("thumbor/ext/filters/lib/*.c")
-    lib_headers = glob.glob("thumbor/ext/filters/lib/*.h")
+def gather_rust_filter_extensions():
+    cargo_paths = glob.glob("thumbor/ext/filters/_*/Cargo.toml")
 
     return [
-        filter_extension_module(f[0:-2].split("/")[-1], lib_objs, lib_headers)
-        for f in files
+        RustExtension(
+            f"thumbor.ext.filters.{os.path.basename(os.path.dirname(path))}",
+            path=path,
+        )
+        for path in cargo_paths
     ]
 
 
-def run_setup(extension_modules=None):
-    if extension_modules is None:
-        extension_modules = []
+def run_setup(rust_extension_modules=None):
+    if rust_extension_modules is None:
+        rust_extension_modules = []
 
     if "CFLAGS" not in os.environ:
         os.environ["CFLAGS"] = ""
@@ -123,7 +106,7 @@ def run_setup(extension_modules=None):
         author_email="thumbor@googlegroups.com",
         url="https://github.com/thumbor/thumbor/wiki",
         license="MIT",
-        python_requires=">=3.9",
+        python_requires=">=3.10",
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
@@ -151,7 +134,8 @@ def run_setup(extension_modules=None):
             "piexif==1.*,>=1.1.3",
             "Pillow>=10.4.0,<12.0.0",
             "pytz==2023.*,>=2023.3.post1",
-            "setuptools==78.*,>=78.1.1",
+            "setuptools-rust>=1.11.1,<2.0.0",
+            "setuptools==80.*,>=80.8.0",
             "statsd==4.*,>=4.0.1",
             "thumbor-plugins-gifv==0.*,>=0.1.5",
             "tornado==6.*,>=6.4",
@@ -170,13 +154,13 @@ def run_setup(extension_modules=None):
                 "thumbor-doctor=thumbor.doctor:main",
             ],
         },
-        ext_modules=extension_modules,
+        rust_extensions=rust_extension_modules,
         **kwargs,
     )
 
 
 try:
-    run_setup(gather_filter_extensions())
+    run_setup(gather_rust_filter_extensions())
 except SystemExit as exit_error:
     print(f"\n\n{'*' * 66}")
     logging.exception(exit_error)
