@@ -240,18 +240,13 @@ class Engine(BaseEngine):
 
         return ".jpeg"
 
-    # TODO: Refactor this
-    def read(  # noqa
-        self, extension=None, quality=None
-    ):  # noqa pylint: disable=too-many-statements,too-many-branches
-        # returns image buffer in byte format.
+    def _restore_indexed_mode(self, requested_extension):
+        """
+        Restore indexed color modes (1 and P) for smaller file sizes.
 
-        img_buffer = BytesIO()
-        requested_extension = extension or self.extension
-
-        # 1 and P mode images will be much smaller if converted back to
-        # their original mode. So let's do that after resizing. Get $$.
-
+        Args:
+            requested_extension: The requested output image extension
+        """
         if (
             self.context.config.PILLOW_PRESERVE_INDEXED_MODE
             and requested_extension in [None, ".png", ".gif"]
@@ -270,122 +265,151 @@ class Engine(BaseEngine):
                 )
                 self.image = self.image.quantize(method=quantize_method)
 
-        ext = requested_extension or self.get_default_extension()
+    def _validate_extension(self, ext):
+        """
+        Validate and fallback extension if required codec is unavailable.
 
+        Args:
+            ext: The requested image extension
+
+        Returns:
+            str: Valid extension (may be fallback if codec unavailable)
+        """
         if ext in (".heic", ".heif") and not HAVE_HEIF:
             logger.warning(
                 "[PILEngine] HEIF encoding unavailable, defaulting to %s",
                 self.extension,
             )
-            ext = self.extension
+            return self.extension
 
         if ext == ".avif" and not HAVE_AVIF:
             logger.warning(
                 "[PILEngine] AVIF encoding unavailable, defaulting to %s",
                 self.extension,
             )
-            ext = self.extension
+            return self.extension
 
-        options = {"quality": quality}
+        return ext
 
-        if ext in (".jpg", ".jpeg"):
-            options["optimize"] = True
+    def _prepare_jpeg_options(self, options):
+        """
+        Configure JPEG-specific encoding options.
 
-            if self.context.config.PROGRESSIVE_JPEG:
-                # Can't simply set options['progressive'] to the value
-                # of self.context.config.PROGRESSIVE_JPEG because save
-                # operates on the presence of the key in **options, not
-                # the value of that setting.
-                options["progressive"] = True
+        Args:
+            options: Dictionary of save options to be modified in-place
+        """
+        options["optimize"] = True
 
-            if self.image.mode != "RGB":
-                self.image = self.image.convert("RGB")
-            else:
-                subsampling_config = (
-                    self.context.config.PILLOW_JPEG_SUBSAMPLING
-                )
-                qtables_config = self.context.config.PILLOW_JPEG_QTABLES
+        if self.context.config.PROGRESSIVE_JPEG:
+            # Can't simply set options['progressive'] to the value
+            # of self.context.config.PROGRESSIVE_JPEG because save
+            # operates on the presence of the key in **options, not
+            # the value of that setting.
+            options["progressive"] = True
+
+        if self.image.mode != "RGB":
+            self.image = self.image.convert("RGB")
+        else:
+            subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
+            qtables_config = self.context.config.PILLOW_JPEG_QTABLES
+
+            if subsampling_config is not None or qtables_config is not None:
+                # can't use 'keep' here as Pillow would try to extract
+                # qtables/subsampling and fail
+                options["quality"] = 0
+
+                orig_subsampling = self.subsampling
+                orig_qtables = self.qtables
 
                 if (
-                    subsampling_config is not None
-                    or qtables_config is not None
-                ):
-                    # can't use 'keep' here as Pillow would try to extract
-                    # qtables/subsampling and fail
-                    options["quality"] = 0
-
-                    orig_subsampling = self.subsampling
-                    orig_qtables = self.qtables
-
-                    if (
-                        subsampling_config == "keep"
-                        or subsampling_config is None
-                    ) and (orig_subsampling is not None):
-                        options["subsampling"] = orig_subsampling
-                    else:
-                        options["subsampling"] = subsampling_config
-
-                    if (
-                        qtables_config == "keep" or qtables_config is None
-                    ) and (orig_qtables and 2 <= len(orig_qtables) <= 4):
-                        options["qtables"] = orig_qtables
-                    else:
-                        options["qtables"] = qtables_config
-
-        if (
-            ext == ".png"
-            and self.context.config.PNG_COMPRESSION_LEVEL is not None
-        ):
-            options["compress_level"] = (
-                self.context.config.PNG_COMPRESSION_LEVEL
-            )
-
-        if options["quality"] is None:
-            options["quality"] = self.context.config.QUALITY
-
-        if ext == ".avif":
-            options["codec"] = self.context.config.AVIF_CODEC
-            if self.context.config.AVIF_SPEED:
-                options["speed"] = self.context.config.AVIF_SPEED
-
-            if options["codec"] == "svt":
-                width, height = self.size
-                # SVT-AV1 has limits on min and max image dimension. If the
-                # image falls outside of those, use AVIF_CODEC_FALLBACK
-                if not 64 <= width <= 4096 or not 64 <= height <= 4096:
-                    options["codec"] = self.context.config.AVIF_CODEC_FALLBACK
-                elif width % 2 or height % 2:
-                    # SVT-AV1 requires width and height to be divisible by two
-                    width = (width // 2) * 2
-                    height = (height // 2) * 2
-                    self.crop(0, 0, width, height)
-
-            if options["quality"] == "keep":
-                options.pop("quality")
-
-            if self.image.mode not in ["RGB", "RGBA"]:
-                if self.image.mode == "P":
-                    mode = "RGBA"
+                    subsampling_config == "keep" or subsampling_config is None
+                ) and (orig_subsampling is not None):
+                    options["subsampling"] = orig_subsampling
                 else:
-                    mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
-                self.image = self.image.convert(mode)
+                    options["subsampling"] = subsampling_config
 
-            # Some AVIF decoders (most notably the one in Chrome) do not
-            # display AVIF images if they have an embedded ICC profile with a
-            # color space that doesn't match the image's mode (e.g. if the
-            # mode is RGB but the profile is CMYK or GRAY).
-            #
-            # To address this issue we transform non-sRGB ICC profiles to sRGB
-            # if we're encoding to AVIF.
-            color_space = get_color_space(self.image)
-            if color_space not in ("RGB", None):
-                srgb_image = ensure_srgb(
-                    self.image, srgb_profile=self.context.config.SRGB_PROFILE
-                )
-                if srgb_image:
-                    self.image = srgb_image
-                    self.icc_profile = srgb_image.info.get("icc_profile")
+                if (qtables_config == "keep" or qtables_config is None) and (
+                    orig_qtables and 2 <= len(orig_qtables) <= 4
+                ):
+                    options["qtables"] = orig_qtables
+                else:
+                    options["qtables"] = qtables_config
 
+    def _prepare_avif_options(self, options):
+        """
+        Configure AVIF-specific encoding options and color space.
+
+        Args:
+            options: Dictionary of save options to be modified in-place
+        """
+        options["codec"] = self.context.config.AVIF_CODEC
+        if self.context.config.AVIF_SPEED:
+            options["speed"] = self.context.config.AVIF_SPEED
+
+        if options["codec"] == "svt":
+            width, height = self.size
+            # SVT-AV1 has limits on min and max image dimension. If the
+            # image falls outside of those, use AVIF_CODEC_FALLBACK
+            if not 64 <= width <= 4096 or not 64 <= height <= 4096:
+                options["codec"] = self.context.config.AVIF_CODEC_FALLBACK
+            elif width % 2 or height % 2:
+                # SVT-AV1 requires width and height to be divisible by two
+                width = (width // 2) * 2
+                height = (height // 2) * 2
+                self.crop(0, 0, width, height)
+
+        if options["quality"] == "keep":
+            options.pop("quality")
+
+        if self.image.mode not in ["RGB", "RGBA"]:
+            if self.image.mode == "P":
+                mode = "RGBA"
+            else:
+                mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
+            self.image = self.image.convert(mode)
+
+        # Some AVIF decoders (most notably the one in Chrome) do not
+        # display AVIF images if they have an embedded ICC profile with a
+        # color space that doesn't match the image's mode (e.g. if the
+        # mode is RGB but the profile is CMYK or GRAY).
+        #
+        # To address this issue we transform non-sRGB ICC profiles to sRGB
+        # if we're encoding to AVIF.
+        color_space = get_color_space(self.image)
+        if color_space not in ("RGB", None):
+            srgb_image = ensure_srgb(
+                self.image, srgb_profile=self.context.config.SRGB_PROFILE
+            )
+            if srgb_image:
+                self.image = srgb_image
+                self.icc_profile = srgb_image.info.get("icc_profile")
+
+    def _prepare_webp_options(self, options):
+        """
+        Configure WebP-specific encoding options.
+
+        Args:
+            options: Dictionary of save options to be modified in-place
+        """
+        if options["quality"] == 100:
+            logger.debug("webp quality is 100, using lossless instead")
+            options["lossless"] = True
+            options.pop("quality")
+
+        if self.image.mode not in ["RGB", "RGBA"]:
+            if self.image.mode == "P":
+                mode = "RGBA"
+            else:
+                mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
+            self.image = self.image.convert(mode)
+
+    def _add_metadata_to_options(self, options):
+        """
+        Add ICC profile and EXIF data to save options if configured.
+
+        Args:
+            options: Dictionary of save options to be modified in-place
+        """
         if self.icc_profile is not None:
             options["icc_profile"] = self.icc_profile
 
@@ -401,19 +425,74 @@ class Engine(BaseEngine):
             if self.exif is not None:
                 options["exif"] = self.exif
 
+    def _apply_iptc_metadata(self, image_data):
+        """
+        Apply IPTC metadata to the encoded image data.
+
+        Args:
+            image_data: Encoded image bytes
+
+        Returns:
+            bytes: Image data with IPTC metadata embedded
+        """
+        if self.context.config.PRESERVE_IPTC_INFO:
+            jpegiptc_object_d = JpegIPTC()
+            jpegiptc_object_d.load_from_binarydata(image_data)
+            jpegiptc_object_d.set_raw_iptc(self.iptc)
+            newresults = jpegiptc_object_d.dump()
+            if newresults is not None:
+                return newresults
+        return image_data
+
+    def read(self, extension=None, quality=None):
+        """
+        Encode the current image to bytes in the requested format.
+
+        Args:
+            extension: Target image format extension (e.g., '.jpg', '.png')
+            quality: Image quality (1-100, format-dependent)
+
+        Returns:
+            bytes: Encoded image data
+        """
+        img_buffer = BytesIO()
+        requested_extension = extension or self.extension
+
+        # Restore indexed color modes for smaller file sizes
+        self._restore_indexed_mode(requested_extension)
+
+        # Validate extension and fallback if codec unavailable
+        ext = requested_extension or self.get_default_extension()
+        ext = self._validate_extension(ext)
+
+        # Initialize save options
+        options = {"quality": quality}
+
+        # Apply format-specific configurations
+        if ext in (".jpg", ".jpeg"):
+            self._prepare_jpeg_options(options)
+
+        if (
+            ext == ".png"
+            and self.context.config.PNG_COMPRESSION_LEVEL is not None
+        ):
+            options["compress_level"] = (
+                self.context.config.PNG_COMPRESSION_LEVEL
+            )
+
+        if options["quality"] is None:
+            options["quality"] = self.context.config.QUALITY
+
+        if ext == ".avif":
+            self._prepare_avif_options(options)
+
+        # Add metadata (ICC profile, EXIF)
+        self._add_metadata_to_options(options)
+
+        # Format-specific pre-save conversions
         try:
             if ext == ".webp":
-                if options["quality"] == 100:
-                    logger.debug("webp quality is 100, using lossless instead")
-                    options["lossless"] = True
-                    options.pop("quality")
-
-                if self.image.mode not in ["RGB", "RGBA"]:
-                    if self.image.mode == "P":
-                        mode = "RGBA"
-                    else:
-                        mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
-                    self.image = self.image.convert(mode)
+                self._prepare_webp_options(options)
 
             if (
                 ext in [".png", ".gif", ".heic", ".heif"]
@@ -422,6 +501,7 @@ class Engine(BaseEngine):
                 # 26.10.22: remove ".heic, .heif" in a month(when pillow_heif get updated)
                 self.image = self.image.convert("RGBA")
 
+            # Save image to buffer
             self.image.format = FORMATS.get(
                 ext, FORMATS[self.get_default_extension()]
             )
@@ -436,13 +516,8 @@ class Engine(BaseEngine):
         img_buffer.close()
         self.extension = ext
 
-        if self.context.config.PRESERVE_IPTC_INFO:
-            jpegiptc_object_d = JpegIPTC()
-            jpegiptc_object_d.load_from_binarydata(results)
-            jpegiptc_object_d.set_raw_iptc(self.iptc)
-            newresults = jpegiptc_object_d.dump()
-            if newresults is not None:
-                results = newresults
+        # Apply IPTC metadata if configured
+        results = self._apply_iptc_metadata(results)
 
         return results
 
