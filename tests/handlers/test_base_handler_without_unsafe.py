@@ -47,3 +47,39 @@ class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
     async def test_getting_unsafe_image_fails(self):
         response = await self.async_fetch("/unsafe/smart/image.jpg")
         expect(response.code).to_equal(400)
+
+    @gen_test
+    async def test_hash_injection_in_image_path_is_rejected(self):
+        # Hash for 'smart/image.jpg' with key ACME-SEC is
+        # _wIUeSaeHw8dricKG2MGhqu5thk=.  By duplicating that hash inside the
+        # image path the vulnerable str.replace() would strip both occurrences
+        # and reconstruct 'smart/image.jpg', making validation pass for a URL
+        # that actually points at a different resource.
+        #
+        # Attack URL structure: /{hash}/sma/{hash}/rt/image.jpg
+        # Vulnerable code: removes all /{hash}/ → "sma" + "rt/image.jpg"
+        #                  = "smart/image.jpg" → validates incorrectly.
+        # Fixed code: strips only the leading /{hash}/ → validates
+        #             "sma/_wIUeSaeHw8dricKG2MGhqu5thk=/rt/image.jpg"
+        #             which does not match the original signature.
+        response = await self.async_fetch(
+            "/_wIUeSaeHw8dricKG2MGhqu5thk="
+            "/sma"
+            "/_wIUeSaeHw8dricKG2MGhqu5thk="
+            "/rt/image.jpg"
+        )
+        expect(response.code).to_equal(400)
+
+    @gen_test
+    async def test_url_encoded_hash_injection_in_image_path_is_rejected(self):
+        # Same bypass using the URL-percent-encoded hash (%3D instead of =).
+        # The vulnerable code performed a second str.replace() for the quoted
+        # form, so inserting the quoted hash between the two halves of the
+        # plain hash also collapsed to the original signed URL.
+        response = await self.async_fetch(
+            "/_wIUeSaeHw8dricKG2MGhqu5thk="
+            "/sma"
+            "/_wIUeSaeHw8dricKG2MGhqu5thk%3D"
+            "/rt/image.jpg"
+        )
+        expect(response.code).to_equal(400)

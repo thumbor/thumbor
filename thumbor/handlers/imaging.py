@@ -19,6 +19,14 @@ class ImagingHandler(ContextHandler):
             return super().compute_etag()
         return None
 
+    @staticmethod
+    def _strip_url_signature_prefix(url, url_signature, quoted_hash):
+        prefixes = (f"/{url_signature}/", f"/{quoted_hash}/")
+        for prefix in prefixes:
+            if url.startswith(prefix):
+                return url[len(prefix) :]
+        return url
+
     async def check_image(
         self, kwargs
     ):  # pylint: disable=too-many-return-statements
@@ -86,9 +94,9 @@ class ImagingHandler(ContextHandler):
                 self._error(400, f"Invalid hash: {self.context.request.hash}")
                 return
 
-            url_to_validate = url.replace(
-                f"/{self.context.request.hash}/", ""
-            ).replace(f"/{quoted_hash}/", "")
+            url_to_validate = self._strip_url_signature_prefix(
+                url, self.context.request.hash, quoted_hash
+            )
 
             valid = signer.validate(
                 unquote(url_signature).encode(), url_to_validate
