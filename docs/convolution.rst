@@ -15,7 +15,8 @@ image area.
 Arguments
 ---------
 
--  ``matrix_items`` - Semicolon separated matrix items.
+-  ``matrix_items`` - Semicolon separated integer or decimal matrix items.
+   Decimal values must include digits after the decimal point, e.g. ``1.5``.
 -  ``number_of_columns`` - Number of columns in the matrix.
 -  ``should_normalize`` - Whether or not we should divide each matrix item by the sum of all items.
 

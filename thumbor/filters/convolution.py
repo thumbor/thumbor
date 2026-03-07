@@ -20,7 +20,7 @@ class Filter(BaseFilter):
     """
 
     @filter_method(
-        r"(?:[-]?[\d]+\.?[\d]*[;])*(?:[-]?[\d]+\.?[\d]*)",
+        r"-?\d+(?:\.\d*)?(?:;-?\d+(?:\.\d*)?)*",
         BaseFilter.PositiveNonZeroNumber,
         BaseFilter.Boolean,
     )

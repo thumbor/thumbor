@@ -7,6 +7,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2022 globo.com thumbor@googlegroups.com
 
+import signal
+
 from preggy import expect
 from tornado.testing import gen_test
 
@@ -64,3 +66,26 @@ class ConvolutionFilterTestCase(FilterTestCase):
         except Exception as exc:  # pylint: disable=broad-except
             err = exc
         expect(err).to_be_an_error_like(ValueError)
+
+    def test_convolution_redos_does_not_hang(self):
+        Filter.pre_compile()
+
+        # PoC payload: 30 repeated elements with no trailing column count;
+        # the old `(A;)*A` pattern would backtrack exponentially here.
+        malicious = "convolution(" + ";".join(["-11"] * 30) + ")"
+
+        def _timeout_handler(signum, frame):
+            raise AssertionError(
+                "ReDoS: convolution regex did not complete within 1 second"
+            )
+
+        signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.alarm(1)
+        try:
+            result = Filter.regex.match(malicious)
+        finally:
+            signal.alarm(0)
+
+        # The input is intentionally malformed (missing column count), so the
+        # regex must not match. What matters is that it returns promptly.
+        expect(result).to_be_null()
