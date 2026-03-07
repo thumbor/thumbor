@@ -30,3 +30,34 @@ class ProportionFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("proportion.jpg")
         expect(image.size).not_to_equal(expected.size)
+
+    @gen_test
+    async def test_proportion_filter_value_above_one_is_ignored(self):
+        """Values > 1.0 must be rejected to prevent resource-exhaustion DoS."""
+        original = await self.get_filtered(
+            "source.jpg", "thumbor.filters.proportion", "proportion(1.0)"
+        )
+        oversized = await self.get_filtered(
+            "source.jpg", "thumbor.filters.proportion", "proportion(10000)"
+        )
+        expect(oversized.size).to_equal(original.size)
+
+    @gen_test
+    async def test_proportion_filter_zero_is_ignored(self):
+        original = await self.get_filtered(
+            "source.jpg", "thumbor.filters.proportion", "proportion(1.0)"
+        )
+        zeroed = await self.get_filtered(
+            "source.jpg", "thumbor.filters.proportion", "proportion(0)"
+        )
+        expect(zeroed.size).to_equal(original.size)
+
+    @gen_test
+    async def test_proportion_filter_negative_is_ignored(self):
+        original = await self.get_filtered(
+            "source.jpg", "thumbor.filters.proportion", "proportion(1.0)"
+        )
+        negative = await self.get_filtered(
+            "source.jpg", "thumbor.filters.proportion", "proportion(-0.5)"
+        )
+        expect(negative.size).to_equal(original.size)
