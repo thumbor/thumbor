@@ -21,7 +21,7 @@ class Filter(BaseFilter):
 
     @filter_method(
         r"(?:[-]?[\d]+\.?[\d]*[;])*(?:[-]?[\d]+\.?[\d]*)",
-        BaseFilter.PositiveNumber,
+        BaseFilter.PositiveNonZeroNumber,
         BaseFilter.Boolean,
     )
     async def convolution(self, matrix, columns, should_normalize=True):
