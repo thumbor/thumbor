@@ -1034,6 +1034,9 @@ Example of Configuration File
    ## The metrics backend thumbor should use to measure internal actions. This must
    ## be the full name of a python module (python must be able to import it)
    ## Defaults to: 'thumbor.metrics.logger_metrics'
+   ## Built-in metrics include per-filter counters and timings:
+   ## filter.<filter_name>.count, filter.<filter_name>.error,
+   ## filter.<filter_name>.time
    #METRICS = 'thumbor.metrics.logger_metrics'
 
    ## The loader thumbor should use to load the original image. This must be the
