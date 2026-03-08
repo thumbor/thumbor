@@ -34,6 +34,13 @@ Let's analyse it:
 - The filter method should be named according to how you want it to be invoked by thumbor (a.k.a the URL part). In our example, our filter will be invoked with ``quality(99)``;
 - The filter method is just an async function that you can do whatever you need with the image.
 
+When a metrics backend is enabled, each filter execution emits a
+``filter.<filter_name>.time`` timing. Successful executions also emit
+``filter.<filter_name>.count``, while failed executions emit
+``filter.<filter_name>.error``. The ``<filter_name>`` portion comes from the
+decorated method name, so it should stay stable if you rely on dashboards or
+alerts.
+
 And that's it, we got our filter. In order to use it, we need to put it in our ``thumbor.conf``:
 
 .. code:: python
