@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 
-from setuptools import Extension, setup
+from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 from pathlib import Path
@@ -166,8 +166,7 @@ def run_setup(extension_modules=None):
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Multimedia :: Graphics :: Presentation",
         ],
-        packages=["thumbor"],
-        package_dir={"thumbor": "thumbor"},
+        packages=find_packages(exclude=["tests", "tests.*", "integration_tests", "integration_tests.*"]),
         include_package_data=True,
         package_data={"": ["*.xml"]},
         install_requires=[
