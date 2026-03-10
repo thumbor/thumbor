@@ -65,6 +65,7 @@ EXTRA_LIBS_REQUIREMENTS = [
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
 
+
 class ExtBuilder(build_ext):
     """Allow C extension building to fail gracefully (e.g. missing compiler)."""
 
