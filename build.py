@@ -2,8 +2,9 @@
 
 import glob
 import os
-from distutils.command.build_ext import build_ext
-from distutils.core import Extension
+import sys
+from setuptools.command.build_ext import build_ext
+from setuptools import Extension
 from distutils.errors import (
     CCompilerError,
     DistutilsExecError,
@@ -48,8 +49,11 @@ class ExtBuilder(build_ext):
     def run(self):
         try:
             build_ext.run(self)
-        except (DistutilsPlatformError, FileNotFoundError):
-            pass
+        except (DistutilsPlatformError, FileNotFoundError) as e:
+            print(
+                f"WARNING: C extension build failed at run stage: {e}",
+                file=sys.stderr,
+            )
 
     def build_extension(self, ext):
         try:
@@ -59,8 +63,11 @@ class ExtBuilder(build_ext):
             DistutilsExecError,
             DistutilsPlatformError,
             ValueError,
-        ):
-            pass
+        ) as e:
+            print(
+                f"WARNING: C extension '{ext.name}' failed to build: {e}",
+                file=sys.stderr,
+            )
 
 
 def build(setup_kwargs):
