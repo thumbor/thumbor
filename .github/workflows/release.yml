@@ -56,7 +56,6 @@ jobs:
         with:
           python-version: ${{ env.python-version }}
           cache: 'pip' # caching pip dependencies
-      - run: pip install setuptools
 
       - name: Build wheels
         uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a # v3.4.0
