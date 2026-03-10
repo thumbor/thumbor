@@ -5,7 +5,7 @@ include = '\.pyi?$'
 
 [build-system]
 requires = [
-    "setuptools>=82", 
+    "setuptools>=82",
     "wheel",
     "cython"
 ]

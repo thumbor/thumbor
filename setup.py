@@ -10,8 +10,10 @@
 import glob
 import logging
 import os
+import sys
 
 from setuptools import Extension, setup
+from setuptools.command.build_ext import build_ext
 
 from pathlib import Path
 
@@ -63,6 +65,30 @@ EXTRA_LIBS_REQUIREMENTS = [
 
 ALL_REQUIREMENTS = OPENCV_REQUIREMENTS + EXTRA_LIBS_REQUIREMENTS
 
+class ExtBuilder(build_ext):
+    """Allow C extension building to fail gracefully (e.g. missing compiler)."""
+
+    def run(self):
+        try:
+            build_ext.run(self)
+        except (OSError, FileNotFoundError) as e:
+            print(
+                f"WARNING: C extension build failed at run stage: {e}",
+                file=sys.stderr,
+            )
+
+    def build_extension(self, ext):
+        try:
+            build_ext.build_extension(self, ext)
+        except (ValueError, OSError) as e:
+            print(
+                f"WARNING: C extension '{ext.name}' failed to build: {e}",
+                file=sys.stderr,
+            )
+
+
+kwargs["cmdclass"] = {"build_ext": ExtBuilder}
+
 if wheel is not None:
     # based on https://github.com/tornadoweb/tornado/blob/master/setup.py
     class bdist_wheel_abi3(wheel.bdist_wheel.bdist_wheel):
@@ -73,7 +99,7 @@ if wheel is not None:
                 return "cp39", "abi3", plat
             return python, abi, plat
 
-    kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
+    kwargs["cmdclass"]["bdist_wheel"] = bdist_wheel_abi3
 
 
 def filter_extension_module(name, lib_objs, lib_headers):
