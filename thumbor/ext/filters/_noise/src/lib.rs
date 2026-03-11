@@ -7,24 +7,10 @@
 
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use std::os::raw::{c_int, c_uint};
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
 
 use utils_lib::{adjust_color, bytes_per_pixel, rgb_order};
-
-extern "C" {
-    fn random() -> c_int;
-    fn srandom(seed: c_uint);
-}
-
-fn set_seed(seed: u32) {
-    unsafe {
-        srandom(seed as c_uint);
-    }
-}
-
-fn get_random() -> i32 {
-    unsafe { random() as i32 }
-}
 
 /// apply(image_mode, amount, buffer, seed=None) -> bytes
 ///
@@ -36,7 +22,7 @@ fn apply(
     image_mode_str: &str,
     amount: i32,
     buffer: &[u8],
-    seed: Option<u32>,
+    seed: Option<u64>,
 ) -> Py<PyBytes> {
     let mut out_buffer = buffer.to_vec();
     let num_bytes = bytes_per_pixel(image_mode_str);
@@ -45,12 +31,13 @@ fn apply(
     let b_idx = rgb_order(image_mode_str, 'B');
 
     if amount > 0 {
-        if let Some(s) = seed {
-            set_seed(s);
-        }
+        let mut rng: Box<dyn rand::RngCore> = match seed {
+            Some(s) => Box::new(StdRng::seed_from_u64(s)),
+            None => Box::new(rand::rng()),
+        };
 
         out_buffer.chunks_exact_mut(num_bytes).for_each(|chunk| {
-            let rand_val = (get_random() % amount) - (amount >> 1);
+            let rand_val = rng.random_range(0..amount) - (amount >> 1);
 
             let r = chunk[r_idx] as i32 + rand_val;
             let g = chunk[g_idx] as i32 + rand_val;
