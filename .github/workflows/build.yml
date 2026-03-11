@@ -1,7 +1,12 @@
 name: build
 on:
   push:
+    branches:
+      - master
   pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - master
 
 permissions:
   checks: write # to create new checks (coverallsapp/github-action)
