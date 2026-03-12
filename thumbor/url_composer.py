@@ -158,7 +158,7 @@ def get_options(arguments):
 
     parser = get_parser()
 
-    (parsed_options, arguments) = parser.parse_args(arguments)
+    parsed_options, arguments = parser.parse_args(arguments)
 
     if not arguments:
         return None, None

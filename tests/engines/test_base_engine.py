@@ -41,15 +41,15 @@ class BaseEngineTestCase(TestCase):
         return Context(config=cfg)
 
     def flip_horizontally(self):
-        ((first, second), (third, fourth)) = self.image
+        (first, second), (third, fourth) = self.image
         self.image = ((second, first), (fourth, third))
 
     def flip_vertically(self):
-        ((first, second), (third, fourth)) = self.image
+        (first, second), (third, fourth) = self.image
         self.image = ((third, fourth), (first, second))
 
     def rotate(self, value):
-        ((first, second), (third, fourth)) = self.image
+        (first, second), (third, fourth) = self.image
         if value == 270:
             self.image = ((third, first), (fourth, second))
         elif value == 180:
@@ -85,9 +85,7 @@ class BaseEngineTestCase(TestCase):
                     <svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
-                    </svg>""".encode(
-            "utf-8"
-        )
+                    </svg>""".encode("utf-8")
         self.engine.convert_svg_to_png(buffer)
         expect(self.engine.extension).to_equal(".png")
 
@@ -96,9 +94,7 @@ class BaseEngineTestCase(TestCase):
                     <svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
-                    </svg>""".encode(
-            "utf-16"
-        )
+                    </svg>""".encode("utf-16")
         self.engine.convert_svg_to_png(buffer)
         expect(self.engine.extension).to_equal(".png")
 
