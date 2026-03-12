@@ -17,11 +17,19 @@ from urllib.parse import quote
 
 import pytest
 import tornado.web
-from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor.engines.pil
-from tests.base import TestCase, skip_unless_avif, skip_unless_heif
+from tests.base import (
+    TestCase,
+    assert_is_avif,
+    assert_is_heif,
+    assert_is_jpeg,
+    assert_is_png,
+    assert_similar_to,
+    skip_unless_avif,
+    skip_unless_heif,
+)
 from tests.fixtures.images import (
     alabama1,
     default_image,
@@ -90,19 +98,19 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
     @gen_test
     async def test_can_get_image(self):
         response = await self.async_fetch("/unsafe/smart/image.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(default_image())
+        assert response.code == 200
+        assert_similar_to(response.body, default_image())
 
     @gen_test
     async def test_can_get_image_without_extension(self):
         response = await self.async_fetch("/unsafe/smart/image")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(default_image())
+        assert response.code == 200
+        assert_similar_to(response.body, default_image())
 
     @gen_test
     async def test_get_unknown_image_returns_not_found(self):
         response = await self.async_fetch("/unsafe/smart/imag")
-        expect(response.code).to_equal(404)
+        assert response.code == 404
 
     @gen_test
     async def test_can_get_unicode_image(self):
@@ -110,116 +118,116 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             "15967251_212831_19242645_АгатавЗоопарке.jpg".encode("utf-8")
         )
         response = await self.async_fetch(f"/unsafe/{enc_url}")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(default_image())
+        assert response.code == 200
+        assert_similar_to(response.body, default_image())
 
     @gen_test
     async def test_can_get_signed_regular_image(self):
         response = await self.async_fetch(
             "/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(default_image())
+        assert response.code == 200
+        assert_similar_to(response.body, default_image())
 
     @gen_test
     async def test_url_without_unsafe_or_hash_fails(self):
         response = await self.async_fetch("/alabama1_ap620%C3%A9.jpg")
-        expect(response.code).to_equal(400)
+        assert response.code == 400
 
     @gen_test
     async def test_url_without_image(self):
         response = await self.async_fetch("/unsafe/")
-        expect(response.code).to_equal(400)
+        assert response.code == 400
 
     @gen_test
     async def test_utf8_encoded_image_name_with_encoded_url(self):
         url = "/lc6e3kkm_2Ww7NWho8HPOe-sqLU=/smart/alabama1_ap620%C3%A9.jpg"
         response = await self.async_fetch(url)
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(alabama1())
+        assert response.code == 200
+        assert_similar_to(response.body, alabama1())
 
     @gen_test
     async def test_url_with_encoded_hash(self):
         url = "/%D1%80=/alabama1_ap620%C3%A9.jpg"
         response = await self.async_fetch(url)
-        expect(response.code).to_equal(400)
+        assert response.code == 400
 
     @gen_test
     async def test_image_with_spaces_on_url(self):
         response = await self.async_fetch("/unsafe/image%20space.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(space_image())
+        assert response.code == 200
+        assert_similar_to(response.body, space_image())
 
     @gen_test
     async def test_can_get_image_with_filter(self):
         response = await self.async_fetch(
             "/5YRxzS2yxZxj9SZ50SoZ11eIdDI=/filters:fill(blue)/image.jpg"
         )
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
     @gen_test
     async def test_can_get_image_with_invalid_quantization_table(self):
         response = await self.async_fetch("/unsafe/invalid_quantization.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(invalid_quantization())
+        assert response.code == 200
+        assert_similar_to(response.body, invalid_quantization())
 
     @gen_test
     async def test_getting_invalid_image_returns_bad_request(self):
         response = await self.async_fetch("/unsafe/image_invalid.jpg")
-        expect(response.code).to_equal(400)
+        assert response.code == 400
 
     @gen_test
     async def test_getting_invalid_watermark_returns_bad_request(self):
         response = await self.async_fetch(
             "/unsafe/filters:watermark(boom.jpg,0,0,0)/image.jpg"
         )
-        expect(response.code).to_equal(400)
+        assert response.code == 400
 
     @gen_test
     async def test_can_read_monochromatic_jpeg(self):
         response = await self.async_fetch("/unsafe/grayscale.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_read_image_with_small_width_and_no_height(self):
         response = await self.async_fetch("/unsafe/0x0:1681x596/1x/image.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_read_cmyk_jpeg(self):
         response = await self.async_fetch("/unsafe/cmyk.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_read_cmyk_jpeg_as_png(self):
         response = await self.async_fetch(
             "/unsafe/filters:format(png)/cmyk.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @gen_test
     async def test_can_read_image_svg_with_px_units_and_convert_png(self):
         response = await self.async_fetch("/unsafe/Commons-logo.svg")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
         engine = Engine(self.context)
         engine.load(response.body, ".png")
-        expect(engine.size).to_equal((1024, 1376))
+        assert engine.size == (1024, 1376)
 
     @gen_test
     async def test_can_read_image_svg_with_inch_units_and_convert_png(self):
         response = await self.async_fetch("/unsafe/Commons-logo-inches.svg")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
         engine = Engine(self.context)
         engine.load(response.body, ".png")
-        expect(engine.size).to_equal((2000, 2600))
+        assert engine.size == (2000, 2600)
 
     @gen_test
     async def test_svg_with_px_units_and_convert_to_png_with_size(self):
@@ -228,12 +236,12 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             f"/unsafe/{width}x{height}/Commons-logo.svg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
         engine = Engine(self.context)
         engine.load(response.body, ".png")
-        expect(engine.size).to_equal((width, height))
+        assert engine.size == (width, height)
 
     @gen_test
     async def test_svg_with_inch_units_and_convert_to_png_with_size(self):
@@ -242,12 +250,12 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             f"/unsafe/{width}x{height}/Commons-logo-inches.svg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
         engine = Engine(self.context)
         engine.load(response.body, ".png")
-        expect(engine.size).to_equal((width, height))
+        assert engine.size == (width, height)
 
     @gen_test
     async def test_svg_with_px_units_and_convert_to_png_with_width(self):
@@ -256,34 +264,34 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             f"/unsafe/fit-in/{width}x/Commons-logo.svg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
         engine = Engine(self.context)
         engine.load(response.body, ".png")
-        expect(engine.size).to_equal((width, 403))
+        assert engine.size == (width, 403)
 
     @gen_test
     async def test_can_read_8bit_tiff_as_png(self):
         response = await self.async_fetch("/unsafe/gradient_8bit.tif")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @gen_test
     async def test_can_read_16bit_lsb_tiff_as_png(self):
         response = await self.async_fetch(
             "/unsafe/gradient_lsb_16bperchannel.tif"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @gen_test
     async def test_can_read_16bit_msb_tiff_as_png(self):
         response = await self.async_fetch(
             "/unsafe/gradient_msb_16bperchannel.tif"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @skip_unless_avif
     @gen_test
@@ -291,8 +299,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/unsafe/filters:format(avif)/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_avif()
+        assert response.code == 200
+        assert_is_avif(response.body)
 
     @gen_test
     @pytest.mark.usefixtures("unittest_caplog")
@@ -302,8 +310,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             response = await self.async_fetch(
                 "/unsafe/filters:format(avif)/image.jpg"
             )
-            expect(response.code).to_equal(200)
-            expect(response.body).to_be_jpeg()
+            assert response.code == 200
+            assert_is_jpeg(response.body)
             assert self.caplog.record_tuples == [
                 (
                     "thumbor",
@@ -320,8 +328,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             response = await self.async_fetch(
                 "/unsafe/filters:format(avif)/1x1.png"
             )
-            expect(response.code).to_equal(200)
-            expect(response.body).to_be_png()
+            assert response.code == 200
+            assert_is_png(response.body)
             assert self.caplog.record_tuples == [
                 (
                     "thumbor",
@@ -344,15 +352,15 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             response = await self.async_fetch(
                 "/unsafe/filters:format(avif)/image.jpg"
             )
-            expect(response.code).to_equal(200)
-            expect(response.body).to_be_avif()
+            assert response.code == 200
+            assert_is_avif(response.body)
             mock_read.assert_called_with(mock.ANY, ".avif", 50)
 
     @gen_test
     async def test_can_read_heif(self):
         response = await self.async_fetch("/unsafe/image.heic")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_heif()
+        assert response.code == 200
+        assert_is_heif(response.body)
 
     @skip_unless_heif
     @gen_test
@@ -360,8 +368,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/unsafe/filters:format(heic)/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_heif()
+        assert response.code == 200
+        assert_is_heif(response.body)
 
     @skip_unless_heif
     @gen_test
@@ -377,8 +385,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             response = await self.async_fetch(
                 "/unsafe/filters:format(heif)/image.jpg"
             )
-            expect(response.code).to_equal(200)
-            expect(response.body).to_be_heif()
+            assert response.code == 200
+            assert_is_heif(response.body)
             mock_read.assert_called_with(mock.ANY, ".heif", 50)
 
     @gen_test
@@ -389,8 +397,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             response = await self.async_fetch(
                 "/unsafe/filters:format(heif)/image.jpg"
             )
-            expect(response.code).to_equal(200)
-            expect(response.body).to_be_jpeg()
+            assert response.code == 200
+            assert_is_jpeg(response.body)
             assert self.caplog.record_tuples == [
                 (
                     "thumbor",
@@ -407,8 +415,8 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             response = await self.async_fetch(
                 "/unsafe/filters:format(heif)/1x1.png"
             )
-            expect(response.code).to_equal(200)
-            expect(response.body).to_be_png()
+            assert response.code == 200
+            assert_is_png(response.body)
             assert self.caplog.record_tuples == [
                 (
                     "thumbor",
