@@ -10,7 +10,6 @@
 from collections import defaultdict
 
 import tornado
-from preggy import expect
 
 from tests.base import TestCase
 from thumbor.context import ServerParameters
@@ -89,30 +88,24 @@ class MixedStorageTestCase(BasedMixedStorageTestCase):
         await self.storage.put_crypto("path1")
         await self.storage.put_detector_data("path1", "detector")
 
-        expect(self.storage.file_storage.storage["path1"]["path"]).to_equal(
-            "path1"
-        )
-        expect(
-            self.storage.file_storage.storage["path1"]["contents"]
-        ).to_equal("contents")
-
-        contents = await self.storage.get("path1")
-        expect(contents).to_equal("contents")
-        expect(self.storage.file_storage.storage["path1"]).not_to_include(
-            "crypto"
-        )
-        expect(self.storage.crypto_storage.storage["path1"]).not_to_include(
+        assert self.storage.file_storage.storage["path1"]["path"] == "path1"
+        assert self.storage.file_storage.storage["path1"]["contents"] == (
             "contents"
         )
-        expect(
-            self.storage.crypto_storage.storage["path1"]["crypto"]
-        ).to_equal("security-key")
+
+        contents = await self.storage.get("path1")
+        assert contents == "contents"
+        assert "crypto" not in self.storage.file_storage.storage["path1"]
+        assert "contents" not in self.storage.crypto_storage.storage["path1"]
+        assert self.storage.crypto_storage.storage["path1"]["crypto"] == (
+            "security-key"
+        )
 
         contents = await self.storage.get_crypto("path1")
-        expect(contents).to_equal("security-key")
+        assert contents == "security-key"
 
         contents = await self.storage.get_detector_data("path1")
-        expect(contents).to_equal("detector")
+        assert contents == "detector"
 
 
 class MixedStorageFromConfTestCase(BasedMixedStorageTestCase):
@@ -125,17 +118,17 @@ class MixedStorageFromConfTestCase(BasedMixedStorageTestCase):
     async def test_get_data(self):
         path = await self.storage.get("path")
         _, _, _ = self.get_storages()
-        expect(self.storage.file_storage).to_be_instance_of(NoStorage)
-        expect(path).to_be_null()
+        assert isinstance(self.storage.file_storage, NoStorage)
+        assert path is None
 
     @tornado.testing.gen_test
     async def test_get_detector_data(self):
         path = await self.storage.get_detector_data("path")
-        expect(self.storage.detector_storage).to_be_instance_of(NoStorage)
-        expect(path).to_be_null()
+        assert isinstance(self.storage.detector_storage, NoStorage)
+        assert path is None
 
     @tornado.testing.gen_test
     async def test_get_crypto(self):
         path = await self.storage.get_crypto("path")
-        expect(self.storage.crypto_storage).to_be_instance_of(NoStorage)
-        expect(path).to_be_null()
+        assert isinstance(self.storage.crypto_storage, NoStorage)
+        assert path is None
