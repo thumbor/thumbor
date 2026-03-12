@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2022 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -24,7 +23,7 @@ class ConvolutionFilterTestCase(FilterTestCase):
         expected = self.get_fixture("convolution-true.png")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_convolution_filter_false(self):
@@ -36,4 +35,4 @@ class ConvolutionFilterTestCase(FilterTestCase):
         expected = self.get_fixture("convolution-false.png")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99

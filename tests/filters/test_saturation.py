@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2022 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -22,4 +21,4 @@ class SaturationFilterTestCase(FilterTestCase):
         expected = self.get_fixture("saturation.png")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99

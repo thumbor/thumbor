@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -24,4 +23,4 @@ class ColorizeFilterTestCase(FilterTestCase):
         expected = self.get_fixture("colorize.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.97)
+        assert ssim > 0.97
