@@ -9,7 +9,6 @@
 
 
 from libthumbor.url import Url
-from preggy import expect
 
 from thumbor.app import ThumborServiceApp
 from thumbor.testing import TestCase
@@ -18,8 +17,7 @@ from thumbor.testing import TestCase
 class AppTestCase(TestCase):
     def test_can_create_app(self):
         app = ThumborServiceApp(self.context)
-        expect(app).not_to_be_null()
-        expect(app.context).to_equal(self.context)
+        assert app.context == self.context
 
     def test_can_get_handlers(self):
         ctx = self.get_context()
@@ -29,9 +27,9 @@ class AppTestCase(TestCase):
         app = ThumborServiceApp(ctx)
 
         handlers = app.get_handlers()
-        expect(handlers).to_length(2)
-        expect(handlers[0][0]).to_equal(r"/health")
-        expect(handlers[1][0]).to_equal(Url.regex())
+        assert len(handlers) == 2
+        assert handlers[0][0] == r"/health"
+        assert handlers[1][0] == Url.regex()
 
     def test_can_get_handlers_with_upload(self):
         ctx = self.get_context()
@@ -40,7 +38,7 @@ class AppTestCase(TestCase):
         app = ThumborServiceApp(ctx)
 
         handlers = app.get_handlers()
-        expect(handlers).to_length(4)
+        assert len(handlers) == 4
 
     def test_can_get_handlers_with_blacklist(self):
         ctx = self.get_context()
@@ -49,4 +47,4 @@ class AppTestCase(TestCase):
         app = ThumborServiceApp(ctx)
 
         handlers = app.get_handlers()
-        expect(handlers).to_length(3)
+        assert len(handlers) == 3
