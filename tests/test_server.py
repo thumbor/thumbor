@@ -8,7 +8,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 from unittest import TestCase, mock
 
-from preggy import expect
+import pytest
 
 import thumbor.server
 from tests.fixtures.custom_error_handler import (
@@ -31,18 +31,18 @@ from thumbor.server import (
 
 class ServerTestCase(TestCase):
     def test_can_get_value_as_integer(self):
-        expect(get_as_integer("1")).to_equal(1)
-        expect(get_as_integer("a")).to_be_null()
-        expect(get_as_integer("")).to_be_null()
-        expect(get_as_integer(None)).to_be_null()
+        assert get_as_integer("1") == 1
+        assert get_as_integer("a") is None
+        assert get_as_integer("") is None
+        assert get_as_integer(None) is None
 
     def test_can_get_config_from_path(self):
         config = get_config("./tests/fixtures/thumbor_config_server_test.conf")
 
         with mock.patch.dict("os.environ", {"ENGINE": "test"}):
-            expect(config).not_to_be_null()
-            expect(config.ALLOWED_SOURCES).to_be_like(["mydomain.com"])
-            expect(config.ENGINE).to_be_like("thumbor.engines.pil")
+            assert config is not None
+            assert config.ALLOWED_SOURCES == ["mydomain.com"]
+            assert config.ENGINE == "thumbor.engines.pil"
 
     def test_can_get_config_with_env_enabled(self):
         config = get_config(
@@ -50,9 +50,9 @@ class ServerTestCase(TestCase):
         )
 
         with mock.patch.dict("os.environ", {"ENGINE": "test"}):
-            expect(config).not_to_be_null()
-            expect(config.ALLOWED_SOURCES).to_be_like(["mydomain.com"])
-            expect(config.ENGINE).to_be_like("test")
+            assert config is not None
+            assert config.ALLOWED_SOURCES == ["mydomain.com"]
+            assert config.ENGINE == "test"
 
     @mock.patch("logging.basicConfig")
     def test_can_configure_log_from_config(self, basic_config_mock):
@@ -82,8 +82,8 @@ class ServerTestCase(TestCase):
         conf = Config()
         importer = get_importer(conf)
 
-        expect(importer).not_to_be_null()
-        expect(importer.filters).not_to_be_empty()
+        assert importer is not None
+        assert importer.filters
 
     def test_can_import_with_custom_error_handler_class(self):
         conf = Config(
@@ -92,21 +92,19 @@ class ServerTestCase(TestCase):
         )
         importer = get_importer(conf)
 
-        expect(importer).not_to_be_null()
-        expect(importer.error_handler_class).not_to_be_null()
-        expect(importer.error_handler_class).to_be_instance_of(
-            CustomErrorHandler
-        )
+        assert importer is not None
+        assert importer.error_handler_class is not None
+        assert importer.error_handler_class is CustomErrorHandler
 
     def test_validate_config_security_key(self):
         server_parameters = mock.Mock(security_key=None)
         conf = Config(SECURITY_KEY=None)
 
-        with expect.error_to_happen(
-            RuntimeError,
-            message="No security key was found for this instance of thumbor. "
-            "Please provide one using the conf file or a security key file.",
-        ):
+        msg = (
+            "No security key was found for this instance of thumbor. "
+            "Please provide one using the conf file or a security key file."
+        )
+        with pytest.raises(RuntimeError, match=msg):
             validate_config(conf, server_parameters)
 
     def test_validate_config_security_key_from_config(self):
@@ -114,7 +112,7 @@ class ServerTestCase(TestCase):
         conf = Config(SECURITY_KEY="something")
 
         validate_config(conf, server_parameters)
-        expect(server_parameters.security_key).to_equal("something")
+        assert server_parameters.security_key == "something"
 
     @mock.patch.object(thumbor.server, "which")
     def test_validate_gifsicle_path(self, which_mock):
@@ -124,7 +122,7 @@ class ServerTestCase(TestCase):
         which_mock.return_value = "/usr/bin/gifsicle"
 
         validate_config(conf, server_parameters)
-        expect(server_parameters.gifsicle_path).to_equal("/usr/bin/gifsicle")
+        assert server_parameters.gifsicle_path == "/usr/bin/gifsicle"
 
     @mock.patch.object(thumbor.server, "which")
     def test_validate_null_gifsicle_path(self, which_mock):
@@ -133,11 +131,11 @@ class ServerTestCase(TestCase):
 
         which_mock.return_value = None
 
-        with expect.error_to_happen(
-            RuntimeError,
-            message="If using USE_GIFSICLE_ENGINE configuration to True, "
-            "the `gifsicle` binary must be in the PATH and must be an executable.",
-        ):
+        msg = (
+            "If using USE_GIFSICLE_ENGINE configuration to True, "
+            "the `gifsicle` binary must be in the PATH and must be an executable."
+        )
+        with pytest.raises(RuntimeError, match=msg):
             validate_config(conf, server_parameters)
 
     def test_get_context(self):
@@ -147,8 +145,7 @@ class ServerTestCase(TestCase):
         conf = Config(SECURITY_KEY="test")
         importer = get_importer(conf)
         context = get_context(server_parameters, conf, importer)
-
-        expect(context).not_to_be_null()
+        assert context.server == server_parameters
 
     def test_get_application(self):
         server_parameters = mock.Mock(
@@ -159,8 +156,7 @@ class ServerTestCase(TestCase):
         context = get_context(server_parameters, conf, importer)
         app = get_application(context)
 
-        expect(app).not_to_be_null()
-        expect(app).to_be_instance_of(ThumborServiceApp)
+        assert isinstance(app, ThumborServiceApp)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
     def test_can_run_server_with_default_params(self, server_mock):
