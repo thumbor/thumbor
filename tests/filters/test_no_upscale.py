@@ -8,7 +8,6 @@
 # Copyright (c) 2025 globo.com thumbor@googlegroups.com
 
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -39,8 +38,8 @@ class NoUpscaleFilterTestCase(FilterTestCase):
 
         await fltr.run()
 
-        expect(self.context.request.width).to_equal(300)
-        expect(self.context.request.height).to_equal(200)
+        assert self.context.request.width == 300
+        assert self.context.request.height == 200
 
     @gen_test
     async def test_no_upscale_filter_request_lower_than_image(self):
@@ -57,5 +56,5 @@ class NoUpscaleFilterTestCase(FilterTestCase):
 
         await fltr.run()
 
-        expect(self.context.request.width).to_equal(150)
-        expect(self.context.request.height).to_equal(100)
+        assert self.context.request.width == 150
+        assert self.context.request.height == 100
