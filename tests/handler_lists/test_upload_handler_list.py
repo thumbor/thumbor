@@ -7,8 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
-
 import thumbor.handler_lists.upload as handler_list
 from thumbor.handlers.image_resource import ImageResourceHandler
 from thumbor.handlers.upload import ImageUploadHandler
@@ -22,16 +20,16 @@ class UploadHandlerListTestCase(TestCase):
 
         handlers = handler_list.get_handlers(ctx)
 
-        expect(handlers).not_to_be_null()
-        expect(handlers).to_length(2)
+        assert handlers is not None
+        assert len(handlers) == 2
         url, handler, init = handlers[0]
-        expect(url).to_equal(r"/image")
-        expect(handler).to_equal(ImageUploadHandler)
-        expect(init).to_equal({"context": ctx})
+        assert url == r"/image"
+        assert handler == ImageUploadHandler
+        assert init == {"context": ctx}
         url, handler, init = handlers[1]
-        expect(url).to_equal(r"/image/(.*)")
-        expect(handler).to_equal(ImageResourceHandler)
-        expect(init).to_equal({"context": ctx})
+        assert url == r"/image/(.*)"
+        assert handler == ImageResourceHandler
+        assert init == {"context": ctx}
 
     def test_can_disable_upload(self):
         ctx = self.get_context()
@@ -39,5 +37,5 @@ class UploadHandlerListTestCase(TestCase):
 
         handlers = handler_list.get_handlers(ctx)
 
-        expect(handlers).not_to_be_null()
-        expect(handlers).to_be_empty()
+        assert handlers is not None
+        assert not handlers
