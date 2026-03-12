@@ -11,7 +11,6 @@ from shutil import which
 from urllib.parse import quote
 
 from libthumbor import CryptoURL
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import normalize_unicode_path
@@ -46,16 +45,19 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
     async def test_image_already_generated_by_thumbor(self):
         with open("./tests/fixtures/images/image.jpg", "rb") as fixture:
             await self.context.modules.storage.put(
-                quote("http://test.com/smart/image.jpg"), fixture.read()
+                quote("http://test.com/smart/image.jpg"),  # NOSONAR
+                fixture.read(),
             )
         crypto = CryptoURL("ACME-SEC")
         image_url = self.get_url(
-            crypto.generate(image_url=quote("http://test.com/smart/image.jpg"))
+            crypto.generate(
+                image_url=quote("http://test.com/smart/image.jpg")  # NOSONAR
+            )
         )
         url = crypto.generate(image_url=quote(image_url))
 
         response = await self.async_fetch(url)
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
     @gen_test
     async def test_image_already_generated_by_thumbor_2_times(self):
@@ -66,7 +68,8 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
             "rb",
         ) as fixture:
             await self.context.modules.storage.put(
-                quote("http://test.com/smart/alabama1_ap620é"), fixture.read()
+                quote("http://test.com/smart/alabama1_ap620é"),  # NOSONAR
+                fixture.read(),
             )
         crypto = CryptoURL("ACME-SEC")
         image_url = self.get_url(
@@ -75,7 +78,7 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
                     self.get_url(
                         crypto.generate(
                             image_url=quote(
-                                "http://test.com/smart/alabama1_ap620é"
+                                "http://test.com/smart/alabama1_ap620é"  # NOSONAR
                             )
                         )
                     )
@@ -86,31 +89,39 @@ class ImagingOperationsWithHttpLoaderTestCase(BaseImagingTestCase):
         url = crypto.generate(image_url=quote(image_url))
 
         response = await self.async_fetch(url)
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
     @gen_test
     async def test_image_with_utf8_url(self):
         with open("./tests/fixtures/images/maracujá.jpg", "rb") as fixture:
             await self.context.modules.storage.put(
-                quote("http://test.com/maracujá.jpg".encode("utf-8")),
+                quote(
+                    "http://test.com/maracujá.jpg".encode("utf-8")  # NOSONAR
+                ),
                 fixture.read(),
             )
         crypto = CryptoURL("ACME-SEC")
         image_url = self.get_url(
-            quote("/unsafe/http://test.com/maracujá.jpg".encode("utf-8"))
+            quote(
+                "/unsafe/http://test.com/maracujá.jpg".encode("utf-8")
+            )  # NOSONAR
         )
         url = crypto.generate(image_url=quote(image_url))
         response = await self.async_fetch(url)
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
     @gen_test
     async def test_image_with_http_utf8_url(self):
         with open("./tests/fixtures/images/maracujá.jpg", "rb") as fixture:
             await self.context.modules.storage.put(
-                quote("http://test.com/maracujá.jpg".encode("utf-8")),
+                quote(
+                    "http://test.com/maracujá.jpg".encode("utf-8")  # NOSONAR
+                ),
                 fixture.read(),
             )
 
-        url = quote("/unsafe/http://test.com/maracujá.jpg".encode("utf-8"))
+        url = quote(
+            "/unsafe/http://test.com/maracujá.jpg".encode("utf-8")
+        )  # NOSONAR
         response = await self.async_fetch(url)
-        expect(response.code).to_equal(200)
+        assert response.code == 200

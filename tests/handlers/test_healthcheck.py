@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -20,15 +19,15 @@ class HealthcheckHandlerTestCase(TestCase):
     @gen_test
     async def test_can_get_healthcheck(self):
         response = await self.async_get("/healthcheck")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_equal("WORKING")
-        expect(response.headers.get("Cache-Control")).to_equal("no-cache")
+        assert response.code == 200
+        assert response.body == b"WORKING"
+        assert response.headers.get("Cache-Control") == "no-cache"
 
     @gen_test
     async def test_can_head_healthcheck(self):
         response = await self.async_fetch("/healthcheck", method="HEAD")
-        expect(response.code).to_equal(200)
-        expect(response.headers.get("Cache-Control")).to_equal("no-cache")
+        assert response.code == 200
+        assert response.headers.get("Cache-Control") == "no-cache"
 
 
 # Same test, but configured for the root URL
@@ -45,10 +44,10 @@ class HealthcheckOnRootTestCase(TestCase):
     @gen_test
     async def test_can_get_healthcheck(self):
         response = await self.async_get("/")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_equal("WORKING")
+        assert response.code == 200
+        assert response.body == b"WORKING"
 
     @gen_test
     async def test_can_head_healthcheck(self):
         response = await self.async_fetch("/", method="HEAD")
-        expect(response.code).to_equal(200)
+        assert response.code == 200

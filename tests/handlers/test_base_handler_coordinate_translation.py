@@ -8,7 +8,6 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -49,10 +48,11 @@ class TranslateCoordinatesTestCase(TestCase):
 
     @gen_test
     async def test_should_be_a_list_of_coords(self):
-        expect(self.translate_crop_coordinates).to_be_instance_of(tuple)
+        assert isinstance(self.translate_crop_coordinates, tuple)
 
     @gen_test
     async def test_should_translate_from_original_to_resized(self):
-        expect(self.translate_crop_coordinates).to_equal(
-            self.get_coords()["expected_crop"]
+        assert (
+            self.translate_crop_coordinates
+            == self.get_coords()["expected_crop"]
         )

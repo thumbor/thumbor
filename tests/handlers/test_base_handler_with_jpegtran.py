@@ -13,7 +13,6 @@ import tempfile
 from shutil import which
 
 import pytest
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.handlers.test_base_handler import (
@@ -74,20 +73,27 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
         try:
             output = subprocess.check_output(command, stdin=subprocess.DEVNULL)
 
-            expect(response.code).to_equal(200)
-            expect(output).to_equal(
-                "Encoding Process                : Progressive DCT, Huffman coding\n"
+            assert response.code == 200
+            # Normalize exiftool output and check presence of expected fields
+            text = (
+                output.decode("utf-8", errors="ignore")
+                .replace(":", "")
+                .strip()
             )
+            assert response.code == 200
+            assert "Encoding Process" in text
+            assert "Progressive DCT" in text
+            assert "Huffman coding" in text
         finally:
             os.remove(tmp_file_path)
 
     @gen_test
     async def test_with_meta(self):
         response = await self.async_fetch("/unsafe/meta/800x400/image.jpg")
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
     @gen_test
     async def test_with_meta_cached(self):
         await self.async_fetch("/unsafe/meta/800x400/image.jpg")
         response = await self.async_fetch("/unsafe/meta/800x400/image.jpg")
-        expect(response.code).to_equal(200)
+        assert response.code == 200

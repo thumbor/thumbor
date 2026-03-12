@@ -9,7 +9,6 @@
 
 from shutil import which
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.handlers.test_base_handler import BaseImagingTestCase
@@ -45,5 +44,5 @@ class ImageOperationsImageCoverTestCase(BaseImagingTestCase):
             "/unsafe/filters:cover()/animated.gif"
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-Type"]).to_equal("image/gif")
+        assert response.code == 200
+        assert response.headers["Content-Type"] == "image/gif"

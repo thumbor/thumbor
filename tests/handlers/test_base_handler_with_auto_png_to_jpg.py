@@ -10,9 +10,9 @@
 from unittest.mock import patch
 
 from libthumbor import CryptoURL
-from preggy import expect
 from tornado.testing import gen_test
 
+from tests.base import assert_is_jpeg, assert_is_png, assert_is_webp
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import RequestParameters, ServerParameters
@@ -64,9 +64,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/unsafe/Giunchedi%2C_Filippo_January_2015_01.png"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_jpeg(response.body)
 
     @patch("thumbor.handlers.Context")
     @gen_test
@@ -82,18 +82,18 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
 
         context_mock.return_value = self.context
         response = await self.async_fetch(url)
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_shouldnt_auto_convert_png_to_jpg_if_png_has_transparency(
         self,
     ):  # NOQA
         response = await self.async_fetch("/unsafe/watermark.png")
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_png(response.body)
 
     @patch("thumbor.handlers.Context")
     @gen_test
@@ -107,9 +107,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
 
         # save on result storage
         response = await self.async_fetch(url)
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_png(response.body)
 
     @gen_test
     async def test_should_auto_convert_png_to_webp_if_auto_webp_is_true(self):
@@ -118,9 +118,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_webp(
             "/unsafe/Giunchedi%2C_Filippo_January_2015_01.png"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert_is_webp(response.body)
 
     @patch("thumbor.handlers.Context")
     @gen_test
@@ -137,9 +137,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
 
         # save on result storage
         response = await self.get_as_webp(url)
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_should_auto_convert_png_to_webp_if_auto_webp_is_true_and_png_has_transparency(  # NOQA
@@ -148,9 +148,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         self.config.AUTO_WEBP = True
 
         response = await self.get_as_webp("/unsafe/watermark.png")
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert_is_webp(response.body)
 
     @patch("thumbor.handlers.Context")
     @gen_test
@@ -165,9 +165,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
 
         # save on result storage
         response = await self.get_as_webp(url)
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert_is_webp(response.body)
 
     @patch("thumbor.handlers.imaging.RequestParameters")
     @gen_test
@@ -185,9 +185,9 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/unsafe/Giunchedi%2C_Filippo_January_2015_01.png"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_png(response.body)
 
     @patch("thumbor.handlers.imaging.RequestParameters")
     @gen_test
@@ -207,6 +207,6 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/unsafe/Giunchedi%2C_Filippo_January_2015_01.png"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_jpeg(response.body)

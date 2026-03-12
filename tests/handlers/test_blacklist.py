@@ -10,7 +10,6 @@
 import tempfile
 from os.path import abspath, dirname, join
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -39,28 +38,28 @@ class BlacklistHandlerTestCase(TestCase):
     @gen_test
     async def test_can_get_blacklist(self):
         response = await self.async_fetch("/blacklist")
-        expect(response.code).to_equal(200)
-        expect(response.body).to_equal("")
+        assert response.code == 200
+        assert response.body == b""
 
     @gen_test
     async def test_can_put_object_to_blacklist(self):
         response = await self.async_fetch(
             "/blacklist?blocked.jpg", method="PUT", body=""
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_equal("")
+        assert response.code == 200
+        assert response.body == b""
 
     @gen_test
     async def test_can_read_updated_blacklist(self):
         await self.async_fetch("/blacklist?blocked.jpg", method="PUT", body="")
         response = await self.async_fetch("/blacklist")
-        expect(response.code).to_equal(200)
-        expect(b"blocked.jpg\n" in response.body).to_equal(True)
+        assert response.code == 200
+        assert b"blocked.jpg\n" in response.body
 
     @gen_test
     async def test_cant_get_blacklisted_image(self):
         response = await self.async_fetch("/unsafe/image.jpg")
-        expect(response.code).to_equal(200)
+        assert response.code == 200
         await self.async_fetch("/blacklist?image.jpg", method="PUT", body="")
         response = await self.async_fetch("/unsafe/image.jpg")
-        expect(response.code).to_equal(400)
+        assert response.code == 400
