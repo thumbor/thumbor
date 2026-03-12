@@ -10,7 +10,6 @@
 from json import loads
 from unittest import mock
 
-from preggy import expect
 from redis import Redis, Sentinel
 from tornado.testing import gen_test
 
@@ -35,14 +34,13 @@ class SharedQueuedDetectorTestCase(DetectorTestCase):
 
     async def detector_send_to_queues(self, ctx):
         detector = QueuedDetector(ctx, 1, [])
-        expect(detector).not_to_be_null()
 
         data = await detector.detect()
-        expect(data).to_be_empty()
-        expect(ctx.request.detection_error).to_be_false()
+        assert not data
+        assert ctx.request.detection_error is False
 
         result = self.redis.get("resque:unique:queue:Detect:/image/test.jpg")
-        expect(result).to_equal("1")
+        assert result == b"1"
 
         expected_payload = {
             "queue": "Detect",
@@ -52,28 +50,26 @@ class SharedQueuedDetectorTestCase(DetectorTestCase):
         }
 
         result = self.redis.lpop("resque:queue:Detect")
-        expect(loads(result.decode("utf-8"))).to_be_like(expected_payload)
+        assert loads(result.decode("utf-8")) == expected_payload
 
     async def detector_fails_properly(self, ctx):
         detector = QueuedDetector(ctx, 1, [])
-        expect(detector).not_to_be_null()
 
         data = await detector.detect()
-        expect(data).to_be_empty()
-        expect(ctx.request.detection_error).to_be_true()
-        expect(detector.queue).to_be_null()
+        assert not data
+        assert ctx.request.detection_error is True
+        assert detector.queue is None
 
     async def detector_can_detect_twice(self, ctx):
         detector = QueuedDetector(ctx, 1, [])
-        expect(detector).not_to_be_null()
 
         data = await detector.detect()
-        expect(data).to_be_empty()
-        expect(ctx.request.detection_error).to_be_false()
-        expect(detector.queue).not_to_be_null()
+        assert not data
+        assert ctx.request.detection_error is False
+        assert detector.queue is not None
 
         data = detector.detect()
-        expect(detector.queue).not_to_be_null()
+        assert detector.queue is not None
 
 
 class QueuedDetectorTestCase(SharedQueuedDetectorTestCase):

@@ -10,7 +10,6 @@
 from os.path import abspath
 from unittest import mock
 
-from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor.detectors
@@ -28,8 +27,8 @@ class FeatureDetectorTestCase(DetectorTestCase):
 
         await FeatureDetector(self.context, 0, None).detect()
         detection_result = self.context.request.focal_points
-        expect(len(detection_result)).to_be_greater_than(1)
-        expect(detection_result[0].origin).to_equal("alignment")
+        assert len(detection_result) > 1
+        assert detection_result[0].origin == "alignment"
 
     @gen_test
     async def test_should_detect_a_single_point(self):
@@ -40,8 +39,8 @@ class FeatureDetectorTestCase(DetectorTestCase):
 
         await FeatureDetector(self.context, 0, None).detect()
         detection_result = self.context.request.focal_points
-        expect(len(detection_result)).to_equal(1)
-        expect(detection_result[0].origin).to_equal("alignment")
+        assert len(detection_result) == 1
+        assert detection_result[0].origin == "alignment"
 
     @gen_test
     async def test_should_not_detect_points(self):
@@ -50,7 +49,7 @@ class FeatureDetectorTestCase(DetectorTestCase):
 
         await FeatureDetector(self.context, 0, []).detect()
         detection_result = self.context.request.focal_points
-        expect(detection_result).to_length(0)
+        assert len(detection_result) == 0
 
     @gen_test
     async def test_should_skip_if_opencv_not_found(self):
@@ -65,4 +64,4 @@ class FeatureDetectorTestCase(DetectorTestCase):
             await FeatureDetector(self.context, 0, None).detect()
 
         detection_result = self.context.request.focal_points
-        expect(detection_result).to_length(0)
+        assert len(detection_result) == 0
