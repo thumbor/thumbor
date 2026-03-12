@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -34,18 +33,18 @@ class MaxAgeFilterTestCase(BaseMaxAgeFilterTestCase):
         response = await self.async_fetch(
             "/unsafe/smart/image.jpg", method="GET"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Cache-Control"]).to_equal("max-age=2,public")
-        expect(response.headers).to_include("Expires")
+        assert response.code == 200
+        assert response.headers["Cache-Control"] == "max-age=2,public"
+        assert "Expires" in response.headers
 
     @gen_test
     async def test_max_age_url(self):
         response = await self.async_fetch(
             "/unsafe/filters:max_age(30)/image.jpg", method="GET"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Cache-Control"]).to_equal("max-age=30,public")
-        expect(response.headers).to_include("Expires")
+        assert response.code == 200
+        assert response.headers["Cache-Control"] == "max-age=30,public"
+        assert "Expires" in response.headers
 
 
 class MaxAgeDetectorFilterTestCase(BaseMaxAgeFilterTestCase):
@@ -59,9 +58,9 @@ class MaxAgeDetectorFilterTestCase(BaseMaxAgeFilterTestCase):
         response = await self.async_fetch(
             "/unsafe/smart/image.jpg", method="GET"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Cache-Control"]).to_equal("max-age=1,public")
-        expect(response.headers).to_include("Expires")
+        assert response.code == 200
+        assert response.headers["Cache-Control"] == "max-age=1,public"
+        assert "Expires" in response.headers
 
 
 class MaxAgeErrorDectectorFilterTestCase(BaseMaxAgeFilterTestCase):
@@ -75,6 +74,6 @@ class MaxAgeErrorDectectorFilterTestCase(BaseMaxAgeFilterTestCase):
         response = await self.async_fetch(
             "/unsafe/smart/image.jpg", method="GET"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Cache-Control"]).to_equal("max-age=1,public")
-        expect(response.headers).to_include("Expires")
+        assert response.code == 200
+        assert response.headers["Cache-Control"] == "max-age=1,public"
+        assert "Expires" in response.headers
