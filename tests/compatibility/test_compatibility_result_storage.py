@@ -9,7 +9,7 @@
 
 from os.path import abspath, dirname, join
 
-from preggy import expect
+import pytest
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -62,22 +62,15 @@ class CompatibilityResultStorageTestCase(TestCase):
         ctx.request = request
         storage = Storage(ctx)
 
-        with expect.error_to_happen(
-            RuntimeError,
-            message=(
-                "The 'COMPATIBILITY_LEGACY_RESULT_STORAGE' configuration should point "
-                "to a valid result storage when using compatibility result storage."
-            ),
-        ):
+        msg = (
+            "The 'COMPATIBILITY_LEGACY_RESULT_STORAGE' configuration should "
+            "point to a valid result storage when using compatibility "
+            "result storage."
+        )
+        with pytest.raises(RuntimeError, match=msg):
             await storage.get()
 
-        with expect.error_to_happen(
-            RuntimeError,
-            message=(
-                "The 'COMPATIBILITY_LEGACY_RESULT_STORAGE' configuration should point "
-                "to a valid result storage when using compatibility result storage."
-            ),
-        ):
+        with pytest.raises(RuntimeError, match=msg):
             await storage.put(image_bytes)
 
     @gen_test
@@ -93,7 +86,6 @@ class CompatibilityResultStorageTestCase(TestCase):
         await storage.put(image_bytes)
 
         result = await storage.get()
-        expect(result).not_to_be_null()
-        expect(result).not_to_be_an_error()
-        expect(result.successful).to_be_true()
-        expect(result.buffer).to_equal(image_bytes)
+        assert result is not None
+        assert result.successful is True
+        assert result.buffer == image_bytes
