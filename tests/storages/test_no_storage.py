@@ -9,7 +9,6 @@
 
 from os.path import abspath, dirname, join
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -33,21 +32,21 @@ class NoStorageTestCase(TestCase):
         iurl = self.get_image_url("source.jpg")
         storage = NoStorage(None)
         stored = await storage.get(iurl)
-        expect(stored).to_be_null()
+        assert stored is None
 
     @gen_test
     async def test_store_knows_no_image(self):
         iurl = self.get_image_url("source.jpg")
         storage = NoStorage(None)
         exists = await storage.exists(iurl)
-        expect(exists).to_be_false()
+        assert exists is False
 
     @gen_test
     async def test_removes_image_should_be_null(self):
         iurl = self.get_image_url("source.jpg")
         storage = NoStorage(None)
         removed = await storage.remove(iurl)
-        expect(removed).to_be_null()
+        assert removed is None
 
     @gen_test
     async def test_stores_crypto_should_be_null(self):
@@ -55,7 +54,7 @@ class NoStorageTestCase(TestCase):
         storage = NoStorage(None)
         await storage.put_crypto(iurl)
         got_crypto = await storage.get_crypto(iurl)
-        expect(got_crypto).to_be_null()
+        assert got_crypto is None
 
     @gen_test
     async def test_detector_data_should_be_null(self):
@@ -63,4 +62,4 @@ class NoStorageTestCase(TestCase):
         storage = NoStorage(None)
         await storage.put_detector_data(iurl, "some data")
         data = await storage.get_detector_data(iurl)
-        expect(data).to_be_null()
+        assert data is None
