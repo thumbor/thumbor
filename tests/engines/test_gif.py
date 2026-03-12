@@ -10,8 +10,6 @@
 from os.path import abspath, dirname, join
 from shutil import which
 
-from preggy import expect
-
 from tests.base import TestCase
 from thumbor.config import Config
 from thumbor.context import RequestParameters, ServerParameters
@@ -53,14 +51,14 @@ class GifEngineTestCase(TestCase):
 
     def test_create_engine(self):
         engine = Engine(self.context)
-        expect(engine).to_be_instance_of(Engine)
+        assert isinstance(engine, Engine)
 
     def test_load_image(self):
         engine = Engine(self.context)
         with open(join(STORAGE_PATH, "animated.gif"), "rb") as image_file:
             buffer = image_file.read()
         image = engine.create_image(buffer)
-        expect(image.format).to_equal("GIF")
+        assert image.format == "GIF"
 
     def test_errors_on_gifsicle_should_not_raises_errors_when_output(self):
         engine = Engine(self.context)
@@ -71,7 +69,7 @@ class GifEngineTestCase(TestCase):
 
         engine.load(buffer, ".gif")
         result = engine.run_gifsicle("--some-invalid-opt")
-        expect(result).Not.to_be_null()
+        assert result is not None
 
     def test_is_multiple_should_returns_true_if_gif_has_many_frames(self):
         engine = Engine(self.context)
@@ -79,7 +77,7 @@ class GifEngineTestCase(TestCase):
             buffer = image_file.read()
 
         engine.load(buffer, ".gif")
-        expect(engine.is_multiple()).to_be_true()
+        assert engine.is_multiple()
 
     def test_is_multiple_should_returns_false_if_gif_has_one_frame(self):
         engine = Engine(self.context)
@@ -89,7 +87,7 @@ class GifEngineTestCase(TestCase):
             buffer = image_file.read()
 
         engine.load(buffer, ".gif")
-        expect(engine.is_multiple()).to_be_false()
+        assert not engine.is_multiple()
 
     def test_convert_to_grayscale_should_update_image(self):
         engine = Engine(self.context)
@@ -100,7 +98,7 @@ class GifEngineTestCase(TestCase):
         buffer = engine.read()
         engine.convert_to_grayscale()
 
-        expect(buffer).not_to_equal(engine.read())
+        assert buffer != engine.read()
 
     def test_convert_to_grayscale_should_not_update_image(self):
         engine = Engine(self.context)
@@ -111,4 +109,4 @@ class GifEngineTestCase(TestCase):
         buffer = engine.read()
         engine.convert_to_grayscale(False)
 
-        expect(buffer).to_equal(engine.read())
+        assert buffer == engine.read()

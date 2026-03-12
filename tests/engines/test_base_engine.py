@@ -7,14 +7,14 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-# pylint: disable=line-too-long
-
 from os.path import abspath, dirname, join
 from struct import pack
 from unittest import TestCase, mock
 from xml.etree.ElementTree import ParseError
 
-from preggy import expect
+import pytest
+
+# pylint: disable=line-too-long
 
 from thumbor.config import Config
 from thumbor.context import Context
@@ -70,7 +70,7 @@ class BaseEngineTestCase(TestCase):
         self.engine.rotate.side_effect = self.rotate
 
     def test_create_engine(self):
-        expect(self.engine).to_be_instance_of(BaseEngine)
+        assert isinstance(self.engine, BaseEngine)
 
     def test_convert_svg_to_png(self):
         buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
@@ -78,7 +78,7 @@ class BaseEngineTestCase(TestCase):
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>"""
         self.engine.convert_svg_to_png(buffer)
-        expect(self.engine.extension).to_equal(".png")
+        assert self.engine.extension == ".png"
 
     def test_convert_svg_with_xml_preamble_to_png(self):
         buffer = """<?xml version="1.0" encoding="utf-8"?>
@@ -87,7 +87,7 @@ class BaseEngineTestCase(TestCase):
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>""".encode("utf-8")
         self.engine.convert_svg_to_png(buffer)
-        expect(self.engine.extension).to_equal(".png")
+        assert self.engine.extension == ".png"
 
     def test_convert_svg_utf16_to_png(self):
         buffer = """<?xml version="1.0" encoding="utf-16"?>
@@ -96,7 +96,7 @@ class BaseEngineTestCase(TestCase):
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>""".encode("utf-16")
         self.engine.convert_svg_to_png(buffer)
-        expect(self.engine.extension).to_equal(".png")
+        assert self.engine.extension == ".png"
 
     @mock.patch("thumbor.engines.cairosvg", new=None)
     @mock.patch("thumbor.engines.logger.error")
@@ -108,8 +108,8 @@ class BaseEngineTestCase(TestCase):
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>"""
         returned_buffer = self.engine.convert_svg_to_png(buffer)
-        expect(mock_log_error.called).to_be_true()
-        expect(buffer).to_equal(returned_buffer)
+        assert mock_log_error.called
+        assert buffer == returned_buffer
 
     def test_can_identify_msb_tiff(self):
         with open(
@@ -117,7 +117,7 @@ class BaseEngineTestCase(TestCase):
         ) as image:
             buffer = image.read()
         mime = self.engine.get_mimetype(buffer)
-        expect(mime).to_equal("image/tiff")
+        assert mime == "image/tiff"
 
     def test_can_identify_lsb_tiff(self):
         with open(
@@ -125,7 +125,7 @@ class BaseEngineTestCase(TestCase):
         ) as image:
             buffer = image.read()
         mime = self.engine.get_mimetype(buffer)
-        expect(mime).to_equal("image/tiff")
+        assert mime == "image/tiff"
 
     def test_can_identify_svg_with_xml_namespace_other_than_w3(self):
         buffer = b"""<svg width="10px" height="20px" viewBox="0 0 10 20"
@@ -133,7 +133,7 @@ class BaseEngineTestCase(TestCase):
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>"""
         mime = self.engine.get_mimetype(buffer)
-        expect(mime).to_equal("image/svg+xml")
+        assert mime == "image/svg+xml"
 
     def test_can_identify_svg_with_xml_preamble_and_lots_of_gibberish(self):
         buffer = b"""<?xml version="1.0" encoding="utf-8"?>
@@ -156,19 +156,19 @@ class BaseEngineTestCase(TestCase):
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>"""
         mime = self.engine.get_mimetype(buffer)
-        expect(mime).to_equal("image/svg+xml")
+        assert mime == "image/svg+xml"
 
     def test_can_identify_avif(self):
         with open(join(STORAGE_PATH, "image.avif"), "rb") as image:
             buffer = image.read()
         mime = self.engine.get_mimetype(buffer)
-        expect(mime).to_equal("image/avif")
+        assert mime == "image/avif"
 
     def test_can_identify_heic(self):
         with open(join(STORAGE_PATH, "image.heic"), "rb") as image:
             buffer = image.read()
         mime = self.engine.get_mimetype(buffer)
-        expect(mime).to_equal("image/heif")
+        assert mime == "image/heif"
 
     def test_convert_svg_already_converted_to_png(self):
         svg_buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
@@ -177,137 +177,120 @@ class BaseEngineTestCase(TestCase):
                     </svg>"""
         png_buffer = self.engine.convert_svg_to_png(svg_buffer)
         png_buffer_dupe = self.engine.convert_svg_to_png(png_buffer)
-        expect(self.engine.extension).to_equal(".png")
-        expect(png_buffer).to_equal(png_buffer_dupe)
+        assert self.engine.extension == ".png"
+        assert png_buffer == png_buffer_dupe
 
     def test_convert_not_well_formed_svg_to_png(self):
         buffer = b"""<<svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">
                         <rect width="100%" height="10" x="0" y="0"/>
                     </svg>"""
-        with expect.error_to_happen(ParseError):
+        with pytest.raises(ParseError):
             self.engine.convert_svg_to_png(buffer)
-        expect(self.engine.extension).to_be_null()
+        assert self.engine.extension is None
 
     def test_get_orientation_no_exif(self):
-        expect(hasattr(self.engine, "exif")).to_be_false()
-        expect(self.engine.get_orientation()).to_be_null()
+        assert not hasattr(self.engine, "exif")
+        assert self.engine.get_orientation() is None
 
     def test_get_orientation_null_exif(self):
         self.engine.exif = None
-        expect(self.engine.get_orientation()).to_be_null()
+        assert self.engine.get_orientation() is None
 
     def test_get_orientation_without_orientation_in_exif(self):
         self.engine.exif = b"Exif\x00\x00II*\x00\x08\x00\x00\x00\x01\x00\x1a\x01\x05\x00\x01\x00\x00\x006\x00\x00\x00"
-        expect(self.engine.get_orientation()).to_be_null()
+        assert self.engine.get_orientation() is None
 
     def test_get_orientation(self):
         self.engine.exif = exif_str(1)
-        expect(self.engine.get_orientation()).to_equal(1)
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert self.engine.get_orientation() == 1
+        assert self.engine.get_orientation() == 1
         self.engine.exif = exif_str(6)
-        expect(self.engine.get_orientation()).to_equal(6)
-        expect(self.engine.get_orientation()).to_equal(6)
+        assert self.engine.get_orientation() == 6
+        assert self.engine.get_orientation() == 6
         self.engine.exif = exif_str(8)
-        expect(self.engine.get_orientation()).to_equal(8)
-        expect(self.engine.get_orientation()).to_equal(8)
+        assert self.engine.get_orientation() == 8
+        assert self.engine.get_orientation() == 8
 
     def test_reorientate_no_exif(self):
-        expect(hasattr(self.engine, "exif")).to_be_false()
+        assert not hasattr(self.engine, "exif")
         self.engine.reorientate()
-        expect(self.engine.get_orientation()).to_be_null()
+        assert self.engine.get_orientation() is None
 
     def test_reorientate_null_exif(self):
         self.engine.exif = None
         self.engine.reorientate()
-        expect(self.engine.get_orientation()).to_be_null()
+        assert self.engine.get_orientation() is None
 
     def test_reorientate1(self):
-        # No rotation
         self.engine.exif = exif_str(1)
         self.engine.reorientate()
-        expect(self.engine.rotate.called).to_be_false()
-        expect(self.engine.flip_horizontally.called).to_be_false()
-        expect(self.engine.flip_vertically.called).to_be_false()
-        expect(self.image).to_equal(((1, 2), (3, 4)))
-
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert not self.engine.rotate.called
+        assert not self.engine.flip_horizontally.called
+        assert not self.engine.flip_vertically.called
+        assert self.image == ((1, 2), (3, 4))
+        assert self.engine.get_orientation() == 1
 
     def test_reorientate2(self):
         self.image = ((2, 1), (4, 3))
-        # Flipped horizontally
         self.engine.exif = exif_str(2)
         self.engine.reorientate()
-        expect(self.engine.rotate.called).to_be_false()
-        expect(self.engine.flip_horizontally.called).to_be_true()
-        expect(self.engine.flip_vertically.called).to_be_false()
-        expect(self.image).to_equal(((1, 2), (3, 4)))
-
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert not self.engine.rotate.called
+        assert self.engine.flip_horizontally.called
+        assert not self.engine.flip_vertically.called
+        assert self.image == ((1, 2), (3, 4))
+        assert self.engine.get_orientation() == 1
 
     def test_reorientate3(self):
-        # Rotated 180°  Ⅎ
         self.image = ((4, 3), (2, 1))
         self.engine.exif = exif_str(3)
         self.engine.reorientate()
-        expect(self.engine.rotate.call_args[0]).to_equal((180,))
-        expect(self.engine.flip_horizontally.called).to_be_false()
-        expect(self.engine.flip_vertically.called).to_be_false()
-        expect(self.image).to_equal(((1, 2), (3, 4)))
-
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert self.engine.rotate.call_args[0] == (180,)
+        assert not self.engine.flip_horizontally.called
+        assert not self.engine.flip_vertically.called
+        assert self.image == ((1, 2), (3, 4))
+        assert self.engine.get_orientation() == 1
 
     def test_reorientate4(self):
-        # Flipped vertically
         self.image = ((3, 4), (1, 2))
         self.engine.exif = exif_str(4)
         self.engine.reorientate()
-        expect(self.engine.rotate.called).to_be_false()
-        expect(self.engine.flip_horizontally.called).to_be_false()
-        expect(self.engine.flip_vertically.called).to_be_true()
-        expect(self.image).to_equal(((1, 2), (3, 4)))
-
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert not self.engine.rotate.called
+        assert not self.engine.flip_horizontally.called
+        assert self.engine.flip_vertically.called
+        assert self.image == ((1, 2), (3, 4))
+        assert self.engine.get_orientation() == 1
 
     def test_reorientate5(self):
-        # Horizontal Mirror + Rotation 270
-        # or Vertical Mirror + Rotation 90
         self.image = ((1, 3), (2, 4))
         self.engine.exif = exif_str(5)
         self.engine.reorientate()
-        expect(self.image).to_equal(((1, 2), (3, 4)))
-
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert self.image == ((1, 2), (3, 4))
+        assert self.engine.get_orientation() == 1
 
     def test_reorientate6(self):
-        # Rotate 270°
         self.image = ((2, 4), (1, 3))
         self.engine.exif = exif_str(6)
         self.engine.reorientate()
-        expect(self.engine.rotate.call_args[0]).to_equal((270,))
-        expect(self.engine.flip_horizontally.called).to_be_false()
-        expect(self.engine.flip_vertically.called).to_be_false()
-        expect(self.image).to_equal(((1, 2), (3, 4)))
-
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert self.engine.rotate.call_args[0] == (270,)
+        assert not self.engine.flip_horizontally.called
+        assert not self.engine.flip_vertically.called
+        assert self.image == ((1, 2), (3, 4))
+        assert self.engine.get_orientation() == 1
 
     def test_reorientate7(self):
-        # Flipped horizontally and rotate 90°
         self.image = ((4, 2), (3, 1))
         self.engine.exif = exif_str(7)
         self.engine.reorientate()
-        expect(self.image).to_equal(((1, 2), (3, 4)))
-
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert self.image == ((1, 2), (3, 4))
+        assert self.engine.get_orientation() == 1
 
     def test_reorientate8(self):
-        # Rotate 90°
         self.image = ((3, 1), (4, 2))
         self.engine.exif = exif_str(8)
         self.engine.reorientate()
-        expect(self.engine.rotate.call_args[0]).to_equal((90,))
-        expect(self.engine.flip_horizontally.called).to_be_false()
-        expect(self.engine.flip_vertically.called).to_be_false()
-        expect(self.image).to_equal(((1, 2), (3, 4)))
-
-        expect(self.engine.get_orientation()).to_equal(1)
+        assert self.engine.rotate.call_args[0] == (90,)
+        assert not self.engine.flip_horizontally.called
+        assert not self.engine.flip_vertically.called
+        assert self.image == ((1, 2), (3, 4))
+        assert self.engine.get_orientation() == 1
