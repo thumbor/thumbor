@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.fixtures.watermark_fixtures import (
@@ -15,6 +14,10 @@ from tests.fixtures.watermark_fixtures import (
     RATIOS,
     SOURCE_IMAGE_SIZES,
     WATERMARK_IMAGE_SIZES,
+    assert_almost_equal,
+    assert_equal_with_info,
+    assert_fits_into,
+    assert_true_with_info,
 )
 from thumbor.config import Config
 from thumbor.context import Context
@@ -33,7 +36,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkCenter.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_centered_x(self):
@@ -44,7 +47,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkCenterX.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_centered_y(self):
@@ -55,7 +58,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkCenterY.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_repeated(self):
@@ -66,7 +69,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkRepeat.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_repeated_x(self):
@@ -77,7 +80,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkRepeatX.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_repeated_y(self):
@@ -88,7 +91,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkRepeatY.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_detect_extension_simple(self):
@@ -99,7 +102,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkSimple.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_simple(self):
@@ -110,7 +113,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkSimple.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_calculated(self):
@@ -125,7 +128,7 @@ class WatermarkFilterTestCase(FilterTestCase):
             "watermark(watermark.png,32,-160,60)",
         )
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_calculated_center(self):
@@ -140,7 +143,7 @@ class WatermarkFilterTestCase(FilterTestCase):
             "watermark(watermark.png,32,center,60)",
         )
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_calculated_repeat(self):
@@ -155,12 +158,14 @@ class WatermarkFilterTestCase(FilterTestCase):
             "watermark(watermark.png,repeat,160,60)",
         )
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_calculated_position(self):
         watermark.Filter.pre_compile()
-        filter_instance = watermark.Filter("http://dummy,0,0,0", self.context)
+        filter_instance = watermark.Filter(
+            "http://dummy,0,0,0", self.context  # NOSONAR
+        )
 
         for length, pos, expected in POSITIONS:
             test = {
@@ -168,9 +173,11 @@ class WatermarkFilterTestCase(FilterTestCase):
                 "pos": pos,
             }
 
-            expect(
-                filter_instance.detect_and_get_ratio_position(pos, length)
-            ).to_be_equal_with_additional_info(expected, **test)
+            assert_equal_with_info(
+                filter_instance.detect_and_get_ratio_position(pos, length),
+                expected,
+                **test,
+            )
 
     @gen_test
     async def test_watermark_filter_simple_big(self):
@@ -181,7 +188,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkSimpleBig.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_simple_50p_width(self):
@@ -192,7 +199,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkResize50pWidth.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_simple_70p_height(self):
@@ -203,7 +210,7 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkResize70pHeight.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_simple_60p_80p(self):
@@ -214,12 +221,14 @@ class WatermarkFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("watermarkResize60p80p.jpg")
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.98)
+        assert ssim > 0.98
 
     @gen_test
     async def test_watermark_filter_calculated_resizing(self):
         watermark.Filter.pre_compile()
-        filter_instance = watermark.Filter("http://dummy,0,0,0", self.context)
+        filter_instance = watermark.Filter(
+            "http://dummy,0,0,0", self.context  # NOSONAR
+        )
 
         for source_image_width, source_image_height in SOURCE_IMAGE_SIZES:
             for (
@@ -273,24 +282,23 @@ class WatermarkFilterTestCase(FilterTestCase):
                     }
 
                     test["topic_name"] = "watermark_image_width"
-                    expect(watermark_image_width).to_fit_into(
-                        max_width, **test
-                    )
+                    assert_fits_into(watermark_image_width, max_width, **test)
                     test["topic_name"] = "watermark_image_height"
-                    expect(watermark_image_height).to_fit_into(
-                        max_height, **test
+                    assert_fits_into(
+                        watermark_image_height, max_height, **test
                     )
 
                     test["topic_name"] = "fill out"
-                    expect(
+                    assert_true_with_info(
                         (
                             watermark_image_width == max_width
                             or watermark_image_height == max_height
-                        )
-                    ).to_be_true_with_additional_info(**test)
+                        ),
+                        **test,
+                    )
 
                     test["topic_name"] = "image ratio"
-                    expect(watermark_image).to_almost_equal(ratio, 2, **test)
+                    assert_almost_equal(watermark_image, ratio, 2, **test)
 
     @gen_test
     async def test_watermark_validate_allowed_source(self):
@@ -306,9 +314,5 @@ class WatermarkFilterTestCase(FilterTestCase):
         context = Context(config=config, importer=importer)
         filter_instance = watermark.Filter("", context)
 
-        expect(
-            filter_instance.validate("https://s2.glbimg.com/logo.jpg")
-        ).to_be_false()
-        expect(
-            filter_instance.validate("https://s.glbimg.com/logo.jpg")
-        ).to_be_true()
+        assert not filter_instance.validate("https://s2.glbimg.com/logo.jpg")
+        assert filter_instance.validate("https://s.glbimg.com/logo.jpg")
