@@ -9,7 +9,6 @@
 
 from os.path import abspath, dirname, join
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -33,37 +32,37 @@ class FileLoaderTestCase(TestCase):
     @gen_test
     async def test_should_load_file(self):
         result = await self.load_file("image.jpg")
-        expect(result).to_be_instance_of(LoaderResult)
+        assert isinstance(result, LoaderResult)
         with open(join(STORAGE_PATH, "image.jpg"), "rb") as img:
-            expect(result.buffer).to_equal(img.read())
-            expect(result.successful).to_be_true()
+            assert result.buffer == img.read()
+            assert result.successful
 
     @gen_test
     async def test_should_fail_when_inexistent_file(self):
         result = await self.load_file("image_NOT.jpg")
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(None)
-        expect(result.successful).to_be_false()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
 
     @gen_test
     async def test_should_fail_when_outside_root_path(self):
         result = await self.load_file("../__init__.py")
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(None)
-        expect(result.successful).to_be_false()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
 
     @gen_test
     async def test_should_load_file_with_spaces_in_name(self):
         result = await self.load_file("image .jpg")
-        expect(result).to_be_instance_of(LoaderResult)
+        assert isinstance(result, LoaderResult)
         with open(join(STORAGE_PATH, "image.jpg"), "rb") as img:
-            expect(result.buffer).to_equal(img.read())
-            expect(result.successful).to_be_true()
+            assert result.buffer == img.read()
+            assert result.successful
 
     @gen_test
     async def test_should_load_file_with_spaces_encoded_in_name(self):
         result = await self.load_file("image2%20.jpg")
-        expect(result).to_be_instance_of(LoaderResult)
+        assert isinstance(result, LoaderResult)
         with open(join(STORAGE_PATH, "image2%20.jpg"), "rb") as img:
-            expect(result.buffer).to_equal(img.read())
-            expect(result.successful).to_be_true()
+            assert result.buffer == img.read()
+            assert result.successful
