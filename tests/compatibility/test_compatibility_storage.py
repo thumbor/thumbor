@@ -9,7 +9,7 @@
 
 from os.path import abspath, dirname, join
 
-from preggy import expect
+import pytest
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -61,13 +61,11 @@ class CompatibilityStorageTestCase(TestCase):
         ctx = Context(server, config=config, importer=importer)
         storage = Storage(ctx)
 
-        with expect.error_to_happen(
-            RuntimeError,
-            message=(
-                "The 'COMPATIBILITY_LEGACY_STORAGE' configuration should "
-                "point to a valid storage when using compatibility storage."
-            ),
-        ):
+        msg = (
+            "The 'COMPATIBILITY_LEGACY_STORAGE' configuration should "
+            "point to a valid storage when using compatibility storage."
+        )
+        with pytest.raises(RuntimeError, match=msg):
             await storage.get("invalid-path")
 
     @gen_test
@@ -76,7 +74,7 @@ class CompatibilityStorageTestCase(TestCase):
 
         result = await storage.get("invalid-path")
 
-        expect(result).to_be_null()
+        assert result is None
 
     @gen_test
     async def test_should_get(self):
@@ -87,9 +85,8 @@ class CompatibilityStorageTestCase(TestCase):
 
         result = await storage.get(url)
 
-        expect(result).not_to_be_null()
-        expect(result).not_to_be_an_error()
-        expect(result).to_equal(image_bytes)
+        assert result is not None
+        assert result == image_bytes
 
     @gen_test
     async def test_should_put(self):
@@ -100,9 +97,8 @@ class CompatibilityStorageTestCase(TestCase):
         await storage.put(url, image_bytes)
 
         result = await storage.get(url)
-        expect(result).not_to_be_null()
-        expect(result).not_to_be_an_error()
-        expect(result).to_equal(image_bytes)
+        assert result is not None
+        assert result == image_bytes
 
     @gen_test
     async def test_should_put_detector_data(self):
@@ -114,9 +110,8 @@ class CompatibilityStorageTestCase(TestCase):
         await storage.put_detector_data(iurl, "some-data")
 
         got = await storage.get_detector_data(iurl)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
-        expect(got).to_equal("some-data")
+        assert got is not None
+        assert got == "some-data"
 
     @gen_test
     async def test_should_put_crypto(self):
@@ -128,9 +123,8 @@ class CompatibilityStorageTestCase(TestCase):
         await storage.put_crypto(iurl)
 
         got = await storage.get_crypto(iurl)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
-        expect(got).to_equal("ACME-SEC")
+        assert got is not None
+        assert got == b"ACME-SEC"
 
     @gen_test
     async def test_exists(self):
@@ -142,8 +136,8 @@ class CompatibilityStorageTestCase(TestCase):
         exists = await storage.exists(iurl)
         not_exists = await storage.exists("some-invalid-random-file.jpg")
 
-        expect(exists).to_be_true()
-        expect(not_exists).to_be_false()
+        assert exists is True
+        assert not_exists is False
 
     @gen_test
     async def test_remove(self):
@@ -152,9 +146,9 @@ class CompatibilityStorageTestCase(TestCase):
         storage = Storage(self.context)
         await storage.put(iurl, ibytes)
         exists = await storage.exists(iurl)
-        expect(exists).to_be_true()
+        assert exists is True
 
         await storage.remove(iurl)
 
         not_exists = await storage.exists(iurl)
-        expect(not_exists).to_be_false()
+        assert not_exists is False
