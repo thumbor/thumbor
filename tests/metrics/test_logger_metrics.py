@@ -7,8 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
-
 import thumbor.metrics
 from tests.base import TestCase
 from thumbor.config import Config
@@ -25,13 +23,11 @@ class LoggerMetricsTestCase(TestCase):
         return Context(None, conf, imp)
 
     def test_should_initialize_metrics(self):
-        expect(self.context.metrics).to_be_instance_of(
-            thumbor.metrics.logger_metrics.Metrics
+        assert isinstance(
+            self.context.metrics, thumbor.metrics.logger_metrics.Metrics
         )
 
     def test_should_not_fail_on_use(self):
-        expect(self.context.metrics.incr("test.count")).not_to_be_an_error()
-        expect(self.context.metrics.incr("test.count", 2)).not_to_be_an_error()
-        expect(
-            self.context.metrics.timing("test.time", 100)
-        ).not_to_be_an_error()
+        self.context.metrics.incr("test.count")
+        self.context.metrics.incr("test.count", 2)
+        self.context.metrics.timing("test.time", 100)
