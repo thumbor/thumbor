@@ -10,7 +10,6 @@
 from os.path import abspath
 from unittest.mock import patch
 
-from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor.detectors
@@ -45,11 +44,11 @@ class FaceDetectorTestCase(DetectorTestCase):
                 del FaceDetector.cascade
             await FaceDetector(self.context, 0, None).detect()
             detection_result = self.context.request.focal_points[i]
-            expect(detection_result.origin).to_equal("Face Detection")
-            expect(detection_result.x).to_be_numeric()
-            expect(detection_result.y).to_be_numeric()
-            expect(detection_result.width).to_be_numeric()
-            expect(detection_result.height).to_be_numeric()
+            assert detection_result.origin == "Face Detection"
+            assert isinstance(detection_result.x, (int, float))
+            assert isinstance(detection_result.y, (int, float))
+            assert isinstance(detection_result.width, (int, float))
+            assert isinstance(detection_result.height, (int, float))
 
     @gen_test
     async def test_should_skip_if_opencv_not_found(self):
@@ -75,7 +74,7 @@ class FaceDetectorTestCase(DetectorTestCase):
 
             # ASSERT
             detection_result = self.context.request.focal_points
-            expect(detection_result).to_length(0)
+            assert len(detection_result) == 0
 
     @gen_test
     async def test_should_not_detect(self):
@@ -89,7 +88,7 @@ class FaceDetectorTestCase(DetectorTestCase):
         )
 
         await FaceDetector(self.context, 0, []).detect()
-        expect(self.context.request.focal_points).to_be_empty()
+        assert not self.context.request.focal_points
 
     @gen_test
     async def test_should_run_on_grayscale_images(self):
@@ -110,11 +109,11 @@ class FaceDetectorTestCase(DetectorTestCase):
             del FaceDetector.cascade
         await FaceDetector(self.context, 0, None).detect()
         detection_result = self.context.request.focal_points[0]
-        expect(detection_result.origin).to_equal("Face Detection")
-        expect(detection_result.x).to_be_numeric()
-        expect(detection_result.y).to_be_numeric()
-        expect(detection_result.width).to_be_numeric()
-        expect(detection_result.height).to_be_numeric()
+        assert detection_result.origin == "Face Detection"
+        assert isinstance(detection_result.x, (int, float))
+        assert isinstance(detection_result.y, (int, float))
+        assert isinstance(detection_result.width, (int, float))
+        assert isinstance(detection_result.height, (int, float))
 
     @gen_test
     async def test_should_run_on_cmyk_images(self):
@@ -135,11 +134,11 @@ class FaceDetectorTestCase(DetectorTestCase):
             del FaceDetector.cascade
         await FaceDetector(self.context, 0, None).detect()
         detection_result = self.context.request.focal_points[0]
-        expect(detection_result.origin).to_equal("Face Detection")
-        expect(detection_result.x).to_be_numeric()
-        expect(detection_result.y).to_be_numeric()
-        expect(detection_result.width).to_be_numeric()
-        expect(detection_result.height).to_be_numeric()
+        assert detection_result.origin == "Face Detection"
+        assert isinstance(detection_result.x, (int, float))
+        assert isinstance(detection_result.y, (int, float))
+        assert isinstance(detection_result.width, (int, float))
+        assert isinstance(detection_result.height, (int, float))
 
     @gen_test
     async def test_should_run_on_images_with_alpha(self):
@@ -159,8 +158,8 @@ class FaceDetectorTestCase(DetectorTestCase):
             del FaceDetector.cascade
         await FaceDetector(self.context, 0, None).detect()
         detection_result = self.context.request.focal_points[0]
-        expect(detection_result.origin).to_equal("Face Detection")
-        expect(detection_result.x).to_be_numeric()
-        expect(detection_result.y).to_be_numeric()
-        expect(detection_result.width).to_be_numeric()
-        expect(detection_result.height).to_be_numeric()
+        assert detection_result.origin == "Face Detection"
+        assert isinstance(detection_result.x, (int, float))
+        assert isinstance(detection_result.y, (int, float))
+        assert isinstance(detection_result.width, (int, float))
+        assert isinstance(detection_result.height, (int, float))
