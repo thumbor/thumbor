@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.handlers.test_base_handler import BaseImagingTestCase
@@ -52,4 +51,4 @@ class LoaderErrorTestCase(BaseImagingTestCase):
 
         self.context.modules.loader.load = old_load
 
-        expect(response.code).to_equal(409)
+        assert response.code == 409
