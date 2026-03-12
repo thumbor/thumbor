@@ -1,7 +1,12 @@
 name: lint/formatter
 on:
   push:
+    branches:
+      - master
   pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - master
 
 permissions:
   contents: read # to fetch code (actions/checkout)
