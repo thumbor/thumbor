@@ -12,7 +12,6 @@ from datetime import datetime
 from os.path import abspath, dirname, join
 from unittest import mock
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from thumbor.config import Config
@@ -61,16 +60,14 @@ class BaseFileStorageTestCase(TestCase):
 
     @staticmethod
     def get_http_path():
-        return "http://example.com/path/to/a.jpg"
+        return "http://example.com/path/to/a.jpg"  # NOSONAR
 
 
 class FileStorageTestCase(BaseFileStorageTestCase):
     @gen_test
     async def test_normalized_path(self):
-        expect(self.file_storage).not_to_be_null()
-        expect(
-            self.file_storage.normalize_path(self.get_http_path())
-        ).to_equal(
+        assert self.file_storage is not None
+        assert self.file_storage.normalize_path(self.get_http_path()) == (
             f"{self.storage_path.name}/default/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
@@ -95,10 +92,8 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
 
     @gen_test
     async def test_normalized_path_with_auto_webp_path(self):
-        expect(self.file_storage).not_to_be_null()
-        expect(
-            self.file_storage.normalize_path(self.get_http_path())
-        ).to_equal(
+        assert self.file_storage is not None
+        assert self.file_storage.normalize_path(self.get_http_path()) == (
             f"{self.storage_path.name}/auto_webp/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
@@ -117,11 +112,11 @@ class ResultStorageResultTestCase(BaseFileStorageTestCase):
     async def test_can_get_image_from_storage(self):
         result = await self.file_storage.get()
 
-        expect(result).to_be_instance_of(ResultStorageResult)
-        expect(result.successful).to_equal(True)
-        expect(len(result)).to_equal(5319)
-        expect(len(result)).to_equal(result.metadata["ContentLength"])
-        expect(result.last_modified).to_be_instance_of(datetime)
+        assert isinstance(result, ResultStorageResult)
+        assert result.successful is True
+        assert len(result) == 5319
+        assert len(result) == result.metadata["ContentLength"]
+        assert isinstance(result.last_modified, datetime)
 
 
 class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
@@ -145,4 +140,4 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
             return_value=new_mtime,
         ):
             result = await self.file_storage.get()
-        expect(result).to_be_null()
+        assert result is None
