@@ -17,7 +17,6 @@ from unittest import mock
 from urllib.parse import quote
 
 import tornado.web
-from preggy import expect
 from tornado.httpclient import AsyncHTTPClient
 from tornado.testing import gen_test
 
@@ -84,34 +83,34 @@ class ReturnContentTestCase(TestCase):
         response_mock = ResponseMock(error="Error", code=599)
         ctx = Context(None, None, None)
         result = loader.return_contents(response_mock, "some-url", ctx)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
 
     def test_return_body_if_valid(self):
         response_mock = ResponseMock(body="body", code=200)
         ctx = Context(None, None, None)
         result = loader.return_contents(response_mock, "some-url", ctx)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("body")
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == "body"
 
     def test_return_upstream_error_on_body_none(self):
         response_mock = ResponseMock(body=None, code=200)
         ctx = Context(None, None, None)
         result = loader.return_contents(response_mock, "some-url", ctx)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
+        assert result.error == LoaderResult.ERROR_UPSTREAM
 
     def test_return_upstream_error_on_body_empty(self):
         response_mock = ResponseMock(body="", code=200)
         ctx = Context(None, None, None)
         result = loader.return_contents(response_mock, "some-url", ctx)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_UPSTREAM)
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
+        assert result.error == LoaderResult.ERROR_UPSTREAM
 
 
 class ValidateUrlTestCase(TestCase):
@@ -122,24 +121,18 @@ class ValidateUrlTestCase(TestCase):
             re.compile(r"https://www\.google\.com/img/.*"),
         ]
         ctx = Context(None, config, None)
-        expect(
-            loader.validate(ctx, "http://www.google.com/logo.jpg")
-        ).to_be_false()
-        expect(
-            loader.validate(ctx, "http://s2.glbimg.com/logo.jpg")
-        ).to_be_false()
-        expect(
-            loader.validate(
-                ctx,
-                "/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=",  # NOQA, pylint: disable=line-too-long
-            )
-        ).to_be_false()
-        expect(
-            loader.validate(ctx, "https://www.google.com/img/logo.jpg")
-        ).to_be_true()
-        expect(
-            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
-        ).to_be_true()
+        assert not loader.validate(
+            ctx, "http://www.google.com/logo.jpg"  # NOSONAR
+        )
+        assert not loader.validate(
+            ctx, "http://s2.glbimg.com/logo.jpg"  # NOSONAR
+        )
+        assert not loader.validate(  # pylint: disable=line-too-long
+            ctx,
+            "/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=",
+        )
+        assert loader.validate(ctx, "https://www.google.com/img/logo.jpg")
+        assert loader.validate(ctx, "http://s.glbimg.com/logo.jpg")  # NOSONAR
 
     def test_dot_in_string_pattern_is_literal(self):
         """Dots in plain-string patterns must not act as regex wildcards.
@@ -210,14 +203,16 @@ class ValidateUrlTestCase(TestCase):
         config = Config()
         config.ALLOWED_SOURCES = []
         ctx = Context(None, config, None)
-        is_valid = loader.validate(ctx, "http://www.google.com/logo.jpg")
-        expect(is_valid).to_be_true()
+        is_valid = loader.validate(
+            ctx, "http://www.google.com/logo.jpg"  # NOSONAR
+        )
+        assert is_valid
 
 
 class NormalizeUrlTestCase(TestCase):
     def test_should_normalize_url(self):
-        for url in ["http://some.url", "some.url"]:
-            expect(loader._normalize_url(url)).to_equal("http://some.url")
+        for url in ["http://some.url", "some.url"]:  # NOSONAR
+            assert loader._normalize_url(url) == "http://some.url"  # NOSONAR
 
     def test_should_normalize_quoted_url(self):
         url = (
@@ -229,7 +224,7 @@ class NormalizeUrlTestCase(TestCase):
             "/googlelogo_color_272x92dp.png"
         )
         result = loader._normalize_url(url)
-        expect(result).to_equal(expected)
+        assert result == expected
 
 
 class DummyAsyncHttpClientTestCase(TestCase):
@@ -267,9 +262,9 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("Hello")
-        expect(result.successful).to_be_true()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"Hello"
+        assert result.successful
 
     @gen_test
     async def test_load_not_found(self):
@@ -279,10 +274,10 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_NOT_FOUND)
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
+        assert result.error == LoaderResult.ERROR_NOT_FOUND
 
     @gen_test
     async def test_load_with_utf8_url(self):
@@ -290,8 +285,7 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
         config = Config()
         ctx = Context(None, config, None)
 
-        with expect.error_not_to_happen(UnicodeDecodeError):
-            await loader.load(ctx, url)
+        await loader.load(ctx, url)
 
     @gen_test
     async def test_load_with_curl(self):
@@ -301,9 +295,9 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("Hello")
-        expect(result.successful).to_be_true()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"Hello"
+        assert result.successful
 
 
 class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
@@ -327,8 +321,8 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None, HandlerMock(handler_mock_options))
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer.decode()).to_include("X-Server:thumbor")
+        assert isinstance(result, LoaderResult)
+        assert "X-Server:thumbor" in result.buffer.decode()
 
     @gen_test
     async def test_load_with_some_excluded_headers(self):
@@ -344,8 +338,8 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None, HandlerMock(handler_mock_options))
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer.decode()).Not.to_include("X-Server:thumbor")
+        assert isinstance(result, LoaderResult)
+        assert "X-Server:thumbor" not in result.buffer.decode()
 
     @gen_test
     async def test_load_with_all_headers(self):
@@ -360,10 +354,10 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None, HandlerMock(handler_mock_options))
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer.decode()).to_include("Dnt:1\n")
-        expect(result.buffer.decode()).to_include("X-Server:thumbor\n")
-        expect(result.buffer.decode()).to_include("X-Test:123\n")
+        assert isinstance(result, LoaderResult)
+        assert "Dnt:1\n" in result.buffer.decode()
+        assert "X-Server:thumbor\n" in result.buffer.decode()
+        assert "X-Test:123\n" in result.buffer.decode()
 
     @gen_test
     async def test_load_with_empty_accept(self):
@@ -379,10 +373,8 @@ class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None, HandlerMock(handler_mock_options))
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer.decode()).to_include(
-            "Accept:image/*;q=0.9,*/*;q=0.1\n"
-        )
+        assert isinstance(result, LoaderResult)
+        assert "Accept:image/*;q=0.9,*/*;q=0.1\n" in result.buffer.decode()
 
 
 class HttpLoaderWithUserAgentForwardingTestCase(DummyAsyncHttpClientTestCase):
@@ -401,8 +393,8 @@ class HttpLoaderWithUserAgentForwardingTestCase(DummyAsyncHttpClientTestCase):
         )
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("test-user-agent")
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"test-user-agent"
 
     @gen_test
     async def test_load_with_default_user_agent(self):
@@ -413,8 +405,8 @@ class HttpLoaderWithUserAgentForwardingTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None, HandlerMock({}))
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("DEFAULT_USER_AGENT")
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"DEFAULT_USER_AGENT"
 
 
 class HttpCurlNotFoundLoaderTestCase(DummyAsyncHttpClientTestCase):
@@ -432,10 +424,10 @@ class HttpCurlNotFoundLoaderTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_NOT_FOUND)
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
+        assert result.error == LoaderResult.ERROR_NOT_FOUND
 
 
 class HttpCurlTimeoutLoaderTestCase(DummyAsyncHttpClientTestCase):
@@ -453,9 +445,9 @@ class HttpCurlTimeoutLoaderTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
 
     @gen_test
     async def test_load_with_speed_timeout(self):
@@ -467,9 +459,9 @@ class HttpCurlTimeoutLoaderTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_be_null()
-        expect(result.successful).to_be_false()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
 
 
 class HttpTimeoutLoaderTestCase(DummyAsyncHttpClientTestCase):
@@ -487,6 +479,6 @@ class HttpTimeoutLoaderTestCase(DummyAsyncHttpClientTestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("Hello")
-        expect(result.successful).to_be_true()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"Hello"
+        assert result.successful
