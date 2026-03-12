@@ -10,7 +10,6 @@
 from os.path import abspath
 from unittest import mock
 
-from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor.detectors
@@ -28,8 +27,7 @@ class GlassesDetectorTestCase(DetectorTestCase):
             )
         )
 
-        detector = GlassesDetector(ctx, 1, [])
-        expect(detector).not_to_be_null()
+        GlassesDetector(ctx, 1, [])
 
     @gen_test
     async def test_should_detect_glasses(self):
@@ -50,11 +48,11 @@ class GlassesDetectorTestCase(DetectorTestCase):
             del GlassesDetector.cascade
         await GlassesDetector(self.context, 0, []).detect()
         detection_result = self.context.request.focal_points[0]
-        expect(detection_result.origin).to_equal("detection")
-        expect(detection_result.x).to_be_numeric()
-        expect(detection_result.y).to_be_numeric()
-        expect(detection_result.width).to_be_numeric()
-        expect(detection_result.height).to_be_numeric()
+        assert detection_result.origin == "detection"
+        assert isinstance(detection_result.x, (int, float))
+        assert isinstance(detection_result.y, (int, float))
+        assert isinstance(detection_result.width, (int, float))
+        assert isinstance(detection_result.height, (int, float))
 
     @gen_test
     async def test_should_skip_if_opencv_not_found(self):
@@ -80,4 +78,4 @@ class GlassesDetectorTestCase(DetectorTestCase):
             await GlassesDetector(self.context, 0, []).detect()
 
         detection_result = self.context.request.focal_points
-        expect(detection_result).to_length(0)
+        assert len(detection_result) == 0
