@@ -94,14 +94,49 @@ Thumbor in the Cloud
 Running with Docker
 ~~~~~~~~~~~~~~~~~~~
 
-Running thumbor with docker is as easy as::
+Running thumbor with an official Docker image is very straightforward. An official image is built and hosted on GitHub Container Registry.
 
-   $ docker run -p 8888:80 ghcr.io/minimalcompact/thumbor:latest
-   ...
-   $ curl http://localhost:8888/healthcheck
-   WORKING%
+.. code:: bash
 
-For more details check the `MinimalCompact thumbor docker image <https://github.com/MinimalCompact/thumbor>`_.
+    docker run -p 8888:8888 ghcr.io/thumbor/thumbor:latest
+
+To verify thumbor is running, you can check the health endpoint:
+
+.. code:: bash
+
+    curl http://localhost:8888/healthcheck
+
+For more information about the official Docker image, visit the `GitHub Container Registry <https://github.com/thumbor/thumbor/pkgs/container/thumbor>`_.
+
+Configuring the Docker Image
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Thumbor can be configured in Docker using environment variables or config files.
+
+**Environment Variables**
+
+Use the ``THUMBOR_`` prefix to set configuration options:
+
+.. code:: bash
+
+    docker run -p 8888:8888 \
+      -e THUMBOR_SECURITY_KEY=my-secret-key \
+      -e THUMBOR_QUALITY=85 \
+      ghcr.io/thumbor/thumbor:latest
+
+**Configuration File**
+
+Mount a config file for complex configurations:
+
+.. code:: bash
+
+    docker run -p 8888:8888 \
+      -v /path/to/thumbor.conf:/etc/thumbor/thumbor.conf \
+      ghcr.io/thumbor/thumbor:latest
+
+Generate a template config with ``thumbor-config > thumbor.conf``.
+
+For more detailed configuration options, see the :doc:`configuration` documentation.
 
 .. TODO::
    update this instructions as they are severely outdated
