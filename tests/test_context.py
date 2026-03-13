@@ -302,14 +302,13 @@ class ContextImporterTestCase(TestCase):
         ctx_importer = ContextImporter(ctx, importer)
         assert ctx_importer.context == ctx
         assert ctx_importer.importer == importer
-        assert ctx_importer.engine.__class__ == importer.engine
-        assert ctx_importer.gif_engine.__class__ == importer.gif_engine
+        assert isinstance(ctx_importer.engine, importer.engine)
+        assert isinstance(ctx_importer.gif_engine, importer.gif_engine)
 
-        assert ctx_importer.storage.__class__ == importer.storage
-        assert ctx_importer.result_storage.__class__ == importer.result_storage
-        assert (
-            ctx_importer.upload_photo_storage.__class__
-            == importer.upload_photo_storage
+        assert isinstance(ctx_importer.storage, importer.storage)
+        assert isinstance(ctx_importer.result_storage, importer.result_storage)
+        assert isinstance(
+            ctx_importer.upload_photo_storage, importer.upload_photo_storage
         )
 
         assert ctx_importer.loader == importer.loader
