@@ -186,28 +186,49 @@ class Engine(BaseEngine):
         del draw_image
 
     def resize(self, width, height):
+        # Check for transparency before any operations
+        had_transparency = self.has_transparency()
+        original_mode = self.image.mode
+
         # Indexed color modes (such as 1 and P) will be forced to use a
         # nearest neighbor resampling algorithm. So we convert them to
         # RGB(A) mode before resizing to avoid nasty scaling artifacts.
-
         if self.image.mode in ["1", "P"]:
             logger.debug(
                 "converting image from 8-bit/1-bit palette to 32-bit RGB(A) for resize"
             )
-
-            if self.image.mode == "1":
+            if had_transparency:
+                target_mode = "RGBA"
+            elif self.image.mode == "1":
                 target_mode = "RGB"
             else:
-                # convert() figures out RGB or RGBA based on palette used
+                # If image was in P mode but didn't have transparency,
+                # let convert() figure out RGB vs RGBA
                 target_mode = None
             self.image = self.image.convert(mode=target_mode)
 
+        # Ensure RGBA mode is preserved if image had transparency
+        if had_transparency and self.image.mode != "RGBA":
+            self.image = self.image.convert("RGBA")
+
         size = (int(width), int(height))
-        # Tell image loader what target size we want (only JPG for a moment)
-        self.image.draft(None, size)
+
+        # Only use draft for non-transparent images since it's optimized for JPEG
+        if not had_transparency:
+            self.image.draft(None, size)
 
         resample = self.get_resize_filter()
         self.image = self.image.resize(size, resample)
+
+        # Verify transparency was preserved
+        if had_transparency and not self.has_transparency():
+            logger.warning(
+                "Transparency lost during resize. Original mode: %s, New mode: %s",
+                original_mode,
+                self.image.mode,
+            )
+            # Convert back to RGBA if transparency was lost
+            self.image = self.image.convert("RGBA")
 
     def crop(self, left, top, right, bottom):
         self.image = self.image.crop(
