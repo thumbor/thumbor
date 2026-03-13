@@ -7,6 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import re
 from unittest import TestCase, mock
 
 import pytest
@@ -123,7 +124,7 @@ class ServerParametersTestCase(TestCase):
         assert params.keyfile == "./tests/fixtures/thumbor.key"
         assert params.log_level == "debug"
         assert params.app_class == "app"
-        assert params.security_key == b"SECURITY_KEY_FILE"
+        assert getattr(params, "_security_key") == b"SECURITY_KEY_FILE"
         assert params.fd == "fd"
         assert params.gifsicle_path == "gifsicle_path"
 
@@ -165,7 +166,7 @@ class ServerParametersTestCase(TestCase):
             "Could not find security key file at /bogus."
             " Please verify the keypath argument."
         )
-        with pytest.raises(ValueError, match=expected_msg):
+        with pytest.raises(ValueError, match=re.escape(expected_msg)):
             ServerParameters(
                 port=8888,
                 ip="0.0.0.0",
@@ -302,6 +303,7 @@ class ContextImporterTestCase(TestCase):
         ctx_importer = ContextImporter(ctx, importer)
         assert ctx_importer.context == ctx
         assert ctx_importer.importer == importer
+
         assert ctx_importer.engine.__class__ == importer.engine
         assert ctx_importer.gif_engine.__class__ == importer.gif_engine
 

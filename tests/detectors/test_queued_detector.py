@@ -68,7 +68,7 @@ class SharedQueuedDetectorTestCase(DetectorTestCase):
         assert ctx.request.detection_error is False
         assert detector.queue is not None
 
-        data = detector.detect()
+        data = await detector.detect()
         assert detector.queue is not None
 
 
