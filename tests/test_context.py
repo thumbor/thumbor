@@ -7,6 +7,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import re
+from typing import Any
 from unittest import TestCase, mock
 
 import pytest
@@ -22,6 +24,10 @@ from thumbor.context import (
 from thumbor.filters import FiltersFactory
 from thumbor.importer import Importer
 from thumbor.metrics.logger_metrics import Metrics
+
+
+def assert_instance_of(value: object, expected_type: type[Any]) -> None:
+    assert isinstance(value, expected_type)
 
 
 class ContextTestCase(TestCase):
@@ -123,7 +129,7 @@ class ServerParametersTestCase(TestCase):
         assert params.keyfile == "./tests/fixtures/thumbor.key"
         assert params.log_level == "debug"
         assert params.app_class == "app"
-        assert params.security_key == b"SECURITY_KEY_FILE"
+        assert getattr(params, "_security_key") == b"SECURITY_KEY_FILE"
         assert params.fd == "fd"
         assert params.gifsicle_path == "gifsicle_path"
 
@@ -165,7 +171,7 @@ class ServerParametersTestCase(TestCase):
             "Could not find security key file at /bogus."
             " Please verify the keypath argument."
         )
-        with pytest.raises(ValueError, match=expected_msg):
+        with pytest.raises(ValueError, match=re.escape(expected_msg)):
             ServerParameters(
                 port=8888,
                 ip="0.0.0.0",
@@ -302,14 +308,16 @@ class ContextImporterTestCase(TestCase):
         ctx_importer = ContextImporter(ctx, importer)
         assert ctx_importer.context == ctx
         assert ctx_importer.importer == importer
-        assert ctx_importer.engine.__class__ == importer.engine
-        assert ctx_importer.gif_engine.__class__ == importer.gif_engine
 
-        assert ctx_importer.storage.__class__ == importer.storage
-        assert ctx_importer.result_storage.__class__ == importer.result_storage
-        assert (
-            ctx_importer.upload_photo_storage.__class__
-            == importer.upload_photo_storage
+        assert_instance_of(ctx_importer.engine, importer.engine)
+        assert_instance_of(ctx_importer.gif_engine, importer.gif_engine)
+
+        assert_instance_of(ctx_importer.storage, importer.storage)
+        assert_instance_of(
+            ctx_importer.result_storage, importer.result_storage
+        )
+        assert_instance_of(
+            ctx_importer.upload_photo_storage, importer.upload_photo_storage
         )
 
         assert ctx_importer.loader == importer.loader

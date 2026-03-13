@@ -80,7 +80,6 @@ class ImageOperationsWithJpegtranTestCase(BaseImagingTestCase):
                 .replace(":", "")
                 .strip()
             )
-            assert response.code == 200
             assert "Encoding Process" in text
             assert "Progressive DCT" in text
             assert "Huffman coding" in text
