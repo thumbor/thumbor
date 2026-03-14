@@ -12,14 +12,12 @@ class ErrorHandler:
         dsn = config.SENTRY_DSN_URL
 
         if not dsn:
-            raise RuntimeError(
-                """
+            raise RuntimeError("""
 If you set USE_CUSTOM_ERROR_HANDLING to True, and you
 are using thumbor.error_handlers.sentry,
 then you must specify the Sentry DSN using the
 SENTRY_DSN_URL configuration."
-                """
-            )
+                """)
 
         kwargs = {
             "dsn": dsn,
