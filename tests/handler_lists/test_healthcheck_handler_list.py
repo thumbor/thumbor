@@ -7,8 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
-
 import thumbor.handler_lists.healthcheck as handler_list
 from thumbor.handlers.healthcheck import HealthcheckHandler
 from thumbor.testing import TestCase
@@ -18,11 +16,11 @@ class HealthcheckHandlerListTestCase(TestCase):
     def test_can_get_handlers(self):
         handlers = handler_list.get_handlers(self.context)
 
-        expect(handlers).not_to_be_null()
-        expect(handlers).to_length(1)
+        assert handlers is not None
+        assert len(handlers) == 1
         url, handler = handlers[0]
-        expect(url).to_equal(r"/healthcheck/?")
-        expect(handler).to_equal(HealthcheckHandler)
+        assert url == r"/healthcheck/?"
+        assert handler == HealthcheckHandler
 
     def test_can_get_handlers_with_custom_url(self):
         ctx = self.get_context()
@@ -30,8 +28,8 @@ class HealthcheckHandlerListTestCase(TestCase):
 
         handlers = handler_list.get_handlers(ctx)
 
-        expect(handlers).not_to_be_null()
-        expect(handlers).to_length(1)
+        assert handlers is not None
+        assert len(handlers) == 1
         url, handler = handlers[0]
-        expect(url).to_equal("/health")
-        expect(handler).to_equal(HealthcheckHandler)
+        assert url == "/health"
+        assert handler == HealthcheckHandler

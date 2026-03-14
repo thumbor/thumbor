@@ -9,12 +9,17 @@
 
 import re
 import tempfile
+from os.path import exists
 from shutil import rmtree
 
-from preggy import expect
 from tornado.testing import gen_test
 
-from tests.base import TestCase
+from tests.base import (
+    TestCase,
+    assert_exists,
+    assert_same_as,
+    assert_similar_to,
+)
 from tests.fixtures.images import (
     TOO_SMALL_IMAGE_PATH,
     VALID_IMAGE_PATH,
@@ -71,19 +76,20 @@ class UploadAPINewFileTestCase(UploadTestCase):
             valid_image(),
         )
 
-        expect(response.code).to_equal(201)
+        assert response.code == 201
 
-        expect(response.headers).to_include("Location")
-        expect(response.headers["Location"]).to_match(
-            self.base_uri + r"/[^\/]{32}/" + filename
+        assert "Location" in response.headers
+        assert re.search(
+            self.base_uri + r"/[^\/]{32}/" + filename,
+            response.headers["Location"],
         )
 
         expected_path = self.get_path_from_location(
             response.headers["Location"]
         )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, VALID_IMAGE_PATH)
 
     @gen_test
     async def test_can_post_image_with_charset(self):
@@ -94,19 +100,20 @@ class UploadAPINewFileTestCase(UploadTestCase):
             valid_image(),
         )
 
-        expect(response.code).to_equal(201)
+        assert response.code == 201
 
-        expect(response.headers).to_include("Location")
-        expect(response.headers["Location"]).to_match(
-            self.base_uri + r"/[^\/]{32}/" + filename
+        assert "Location" in response.headers
+        assert re.search(
+            self.base_uri + r"/[^\/]{32}/" + filename,
+            response.headers["Location"],
         )
 
         expected_path = self.get_path_from_location(
             response.headers["Location"]
         )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, VALID_IMAGE_PATH)
 
     @gen_test
     async def test_can_post_image_with_unknown_charset(self):
@@ -117,19 +124,20 @@ class UploadAPINewFileTestCase(UploadTestCase):
             valid_image(),
         )
 
-        expect(response.code).to_equal(201)
+        assert response.code == 201
 
-        expect(response.headers).to_include("Location")
-        expect(response.headers["Location"]).to_match(
-            self.base_uri + r"/[^\/]{32}/" + filename
+        assert "Location" in response.headers
+        assert re.search(
+            self.base_uri + r"/[^\/]{32}/" + filename,
+            response.headers["Location"],
         )
 
         expected_path = self.get_path_from_location(
             response.headers["Location"]
         )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, VALID_IMAGE_PATH)
 
     @gen_test
     async def test_can_post_image_without_filename(self):
@@ -138,19 +146,20 @@ class UploadAPINewFileTestCase(UploadTestCase):
             self.base_uri, {"Content-Type": "image/jpeg"}, valid_image()
         )
 
-        expect(response.code).to_equal(201)
+        assert response.code == 201
 
-        expect(response.headers).to_include("Location")
-        expect(response.headers["Location"]).to_match(
-            self.base_uri + r"/[^\/]{32}/" + filename
+        assert "Location" in response.headers
+        assert re.search(
+            self.base_uri + r"/[^\/]{32}/" + filename,
+            response.headers["Location"],
         )
 
         expected_path = self.get_path_from_location(
             response.headers["Location"]
         )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, VALID_IMAGE_PATH)
 
     @gen_test
     async def test_can_post_from_html_form(self):
@@ -160,19 +169,20 @@ class UploadAPINewFileTestCase(UploadTestCase):
             self.base_uri, {"Slug": b"another_filename.jpg"}, (image,)
         )
 
-        expect(response.code).to_equal(201)
+        assert response.code == 201
 
-        expect(response.headers).to_include("Location")
-        expect(response.headers["Location"]).to_match(
-            self.base_uri + r"/[^\/]{32}/" + filename
+        assert "Location" in response.headers
+        assert re.search(
+            self.base_uri + r"/[^\/]{32}/" + filename,
+            response.headers["Location"],
         )
 
         expected_path = self.get_path_from_location(
             response.headers["Location"]
         )
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, VALID_IMAGE_PATH)
 
 
 class UploadAPIUpdateFileTestCase(UploadTestCase):
@@ -203,7 +213,7 @@ class UploadAPIUpdateFileTestCase(UploadTestCase):
             location, {"Content-Type": "image/jpeg"}, too_small_image()
         )
 
-        expect(response.code).to_equal(204)
+        assert response.code == 204
 
         id_should_exist = (
             re.compile(self.base_uri + r"/([^\/]{32})/" + filename)
@@ -211,8 +221,8 @@ class UploadAPIUpdateFileTestCase(UploadTestCase):
             .group(1)
         )
         expected_path = self.upload_storage.path_on_filesystem(id_should_exist)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(TOO_SMALL_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, TOO_SMALL_IMAGE_PATH)
 
         id_shouldnt_exist = (
             re.compile(self.base_uri + r"/(.*)").search(location).group(1)
@@ -220,7 +230,7 @@ class UploadAPIUpdateFileTestCase(UploadTestCase):
         expected_path = self.upload_storage.path_on_filesystem(
             id_shouldnt_exist
         )
-        expect(expected_path).not_to_exist()
+        assert not exists(expected_path)
 
 
 class UploadAPIUpdateSmallIdFileTestCase(UploadTestCase):
@@ -249,12 +259,12 @@ class UploadAPIUpdateSmallIdFileTestCase(UploadTestCase):
         response = await self.async_put(
             path, {"Content-Type": "image/jpeg"}, valid_image()
         )
-        expect(response.code).to_equal(204)
+        assert response.code == 204
 
         response = await self.async_get(
             path[: 7 + 32], {"Accept": "image/jpeg"}
         )
-        expect(response.code).to_equal(404)
+        assert response.code == 404
 
     @gen_test
     async def test_can_get_actual_id_when_stored_with_large_id(self):
@@ -267,9 +277,9 @@ class UploadAPIUpdateSmallIdFileTestCase(UploadTestCase):
             path + "123456", {"Accept": "image/jpeg"}
         )
 
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
-        expect(response.body).to_be_similar_to(valid_image())
+        assert_similar_to(response.body, valid_image())
 
 
 class UploadAPIDeleteTestCase(UploadTestCase):
@@ -295,7 +305,7 @@ class UploadAPIDeleteTestCase(UploadTestCase):
         response = await self.async_post(
             self.base_uri, {"Content-Type": "image/jpeg"}, valid_image()
         )
-        expect(response.code).to_equal(201)
+        assert response.code == 201
 
         location = response.headers["Location"]
         image_id = (
@@ -304,18 +314,18 @@ class UploadAPIDeleteTestCase(UploadTestCase):
             .group(1)
         )
         image_location = self.upload_storage.path_on_filesystem(image_id)
-        expect(image_location).to_exist()
+        assert_exists(image_location)
 
         response = await self.async_delete(location, {})
-        expect(response.code).to_equal(204)
+        assert response.code == 204
 
-        expect(image_location).not_to_exist()
+        assert not exists(image_location)
 
     @gen_test
     async def test_deleting_unknown_image_returns_not_found(self):
         uri = self.base_uri + "/an/unknown/image"
         response = await self.async_delete(uri, {})
-        expect(response.code).to_equal(404)
+        assert response.code == 404
 
 
 class UploadAPIRetrieveTestCase(UploadTestCase):
@@ -340,19 +350,19 @@ class UploadAPIRetrieveTestCase(UploadTestCase):
         response = await self.async_post(
             self.base_uri, {"Content-Type": "image/jpeg"}, valid_image()
         )
-        expect(response.code).to_equal(201)
+        assert response.code == 201
 
         location = response.headers["Location"]
         response = await self.async_get(location, {"Accept": "image/jpeg"})
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(valid_image())
-        expect(response.headers["Content-Type"]).to_equal("image/jpeg")
+        assert response.code == 200
+        assert_similar_to(response.body, valid_image())
+        assert response.headers["Content-Type"] == "image/jpeg"
 
     @gen_test
     async def test_retrieving_unknown_image_returns_not_found(self):
         uri = self.base_uri + "/an/unknown/image"
         response = await self.async_get(uri, {"Accept": "image/jpeg"})
-        expect(response.code).to_equal(404)
+        assert response.code == 404
 
 
 class UploadAPIValidationTestCase(UploadTestCase):
@@ -385,75 +395,75 @@ class UploadAPIValidationTestCase(UploadTestCase):
         response = await self.async_post(
             self.base_uri, {"Content-Type": "image/jpeg"}, "invalid image"
         )
-        expect(response.code).to_equal(415)
+        assert response.code == 415
 
     @gen_test
     async def test_posting_invalid_image_through_html_form_fails(self):
         image = ("media", "crocodile9999.jpg", b"invalid image")
         response = await self.async_post_files(self.base_uri, {}, (image,))
-        expect(response.code).to_equal(415)
+        assert response.code == 415
 
     @gen_test
     async def test_modifying_existing_image_to_invalid_image(self):
         response = await self.async_post(
             self.base_uri, {"Content-Type": "image/jpeg"}, valid_image()
         )
-        expect(response.code).to_equal(201)
+        assert response.code == 201
         location = response.headers["Location"]
 
         response = await self.async_put(
             location, {"Content-Type": "image/jpeg"}, "invalid image"
         )
-        expect(response.code).to_equal(415)
+        assert response.code == 415
 
         expected_path = self.get_path_from_location(location)
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, VALID_IMAGE_PATH)
 
     @gen_test
     async def test_posting_a_too_small_image_fails(self):
         response = await self.async_post(
             self.base_uri, {"Content-Type": "image/jpeg"}, too_small_image()
         )
-        expect(response.code).to_equal(412)
+        assert response.code == 412
 
     @gen_test
     async def test_posting_a_too_small_image_from_html_form_fails(self):
         image = ("media", "crocodile9999.jpg", too_small_image())
         response = await self.async_post_files(self.base_uri, {}, (image,))
-        expect(response.code).to_equal(412)
+        assert response.code == 412
 
     @gen_test
     async def test_modifying_existing_image_to_small_image(self):
         response = await self.async_post(
             self.base_uri, {"Content-Type": "image/jpeg"}, valid_image()
         )
-        expect(response.code).to_equal(201)
+        assert response.code == 201
 
         location = response.headers["Location"]
         response = await self.async_put(
             location, {"Content-Type": "image/jpeg"}, too_small_image()
         )
-        expect(response.code).to_equal(412)
+        assert response.code == 412
 
         expected_path = self.get_path_from_location(location)
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, VALID_IMAGE_PATH)
 
     @gen_test
     async def test_posting_an_image_too_heavy_fails(self):
         response = await self.async_post(
             self.base_uri, {"Content-Type": "image/jpeg"}, too_heavy_image()
         )
-        expect(response.code).to_equal(412)
+        assert response.code == 412
 
     @gen_test
     async def test_posting_an_image_too_heavy_through_an_html_form_fails(self):
         image = ("media", "oversized9999.jpg", too_heavy_image())
         response = await self.async_post_files(self.base_uri, {}, (image,))
-        expect(response.code).to_equal(412)
+        assert response.code == 412
 
     @gen_test
     async def test_modifying_existing_image_to_heavy_image_fails(self):
@@ -465,9 +475,9 @@ class UploadAPIValidationTestCase(UploadTestCase):
         response = await self.async_put(
             location, {"Content-Type": "image/jpeg"}, too_heavy_image()
         )
-        expect(response.code).to_equal(412)
+        assert response.code == 412
 
         expected_path = self.get_path_from_location(location)
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
-        expect(expected_path).to_exist()
-        expect(expected_path).to_be_the_same_as(VALID_IMAGE_PATH)
+        assert_exists(expected_path)
+        assert_same_as(expected_path, VALID_IMAGE_PATH)
