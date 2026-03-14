@@ -1,7 +1,12 @@
 name: build
 on:
   push:
+    branches:
+      - master
   pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - master
 
 permissions:
   checks: write # to create new checks (coverallsapp/github-action)
@@ -28,7 +33,7 @@ jobs:
           key: thumbor-docker-${{ matrix.image-tag }}-{hash}
           restore-keys: |
             thumbor-docker-${{ matrix.image-tag }}-
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Build test image
         run: docker build -t test_image -f TestDockerfile --build-arg PYTHON_VERSION=${{ matrix.image-tag }} .
       - name: Start test container

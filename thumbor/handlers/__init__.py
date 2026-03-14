@@ -673,7 +673,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
             return
 
-        (results, content_type) = result
+        results, content_type = result
         await self._write_results_to_client(results, content_type)
 
         if should_store:

@@ -1,7 +1,12 @@
 name: lint/formatter
 on:
   push:
+    branches:
+      - master
   pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - master
 
 permissions:
   contents: read # to fetch code (actions/checkout)
@@ -10,8 +15,8 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: psf/black@05f0a8ce1f71fbb36e1e032d3b518c7b945089a2 # 25.11.0
+      - uses: actions/checkout@v6
+      - uses: psf/black@c6755bb741b6481d6b3d3bb563c83fa060db96c9 # 26.3.1
         with:
           options: "--check --verbose"
   flake8:
@@ -24,7 +29,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.x"
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install flake8
         run: pip install flake8
       - name: Run flake8
@@ -39,7 +44,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.x"
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install isort
         run: pip install isort
       - name: Run isort
