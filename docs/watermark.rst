@@ -35,10 +35,12 @@ Arguments
    (fully opaque) and 100 (fully transparent).
 -  ``w_ratio`` - percentage of the width of the image the watermark should fit-in, defaults to 'none'
    (without the single quotes) which means it won't be limited in the width on resizing but also won't
-   be resized based on this value
+   be resized based on this value. Sharpen amount. Can be integer or float number between :math:`0.0` and
+   :math:`100.0`.
 -  ``h_ratio`` - percentage of the height of the image the watermark should fit-in, defaults to 'none'
    (without the single quotes) which means it won't be limited in the height on resizing but also won't
-   be resized based on this value
+   be resized based on this value. Can be integer or float number between :math:`0.0` and
+   :math:`100.0`.
 
 Example
 -------
@@ -101,6 +103,15 @@ Considering original image to be 300x200:
 
   |watermark_resized_width_height|
 
+- **watermark(imageUrl, 30, 10, 50, 15.2, 17.5)**
+
+  15.2% of the *width*: 300px*0.152 = 46px
+
+  and
+
+  17.5% of the *height*: 200px*0.175 = 35px
+
+  Because percentages can be real numbers, perfect accuracy can be achieved.
 
 .. |original| image:: images/tom_before_brightness.jpg
     :alt: Picture before the watermark filter
