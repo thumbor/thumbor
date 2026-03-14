@@ -217,6 +217,71 @@ class WatermarkFilterTestCase(FilterTestCase):
         expect(ssim).to_be_greater_than(0.98)
 
     @gen_test
+    async def test_watermark_filter_float_w_ratio_matches_integer(self):
+        image_float = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,50.0)",
+        )
+        image_int = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,50)",
+        )
+        ssim = self.get_ssim(image_float, image_int)
+        expect(ssim).to_equal(1)
+
+    @gen_test
+    async def test_watermark_filter_float_h_ratio_matches_integer(self):
+        image_float = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,none,70.0)",
+        )
+        image_int = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,none,70)",
+        )
+        ssim = self.get_ssim(image_float, image_int)
+        expect(ssim).to_equal(1)
+
+    @gen_test
+    async def test_watermark_filter_float_w_and_h_ratio_matches_integer(self):
+        image_float = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,-30,-200,20,60.0,80.0)",
+        )
+        image_int = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,-30,-200,20,60,80)",
+        )
+        ssim = self.get_ssim(image_float, image_int)
+        expect(ssim).to_equal(1)
+
+    @gen_test
+    async def test_watermark_filter_fractional_float_w_ratio(self):
+        image = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,33.33)",
+        )
+        expect(image).not_to_be_null()
+        expect(len(image)).to_be_greater_than(0)
+
+    @gen_test
+    async def test_watermark_filter_fractional_float_w_and_h_ratio(self):
+        image = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.watermark",
+            "watermark(watermark.png,30,-50,20,50.5,75.25)",
+        )
+        expect(image).not_to_be_null()
+        expect(len(image)).to_be_greater_than(0)
+
+    @gen_test
     async def test_watermark_filter_calculated_resizing(self):
         watermark.Filter.pre_compile()
         filter_instance = watermark.Filter("http://dummy,0,0,0", self.context)
