@@ -21,7 +21,7 @@ jobs:
   build_sdist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v6
@@ -30,10 +30,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U pip
+          pip install -U build
       - name: Build package
-        run: python setup.py sdist
+        run: python -m build --sdist
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: artifact-sdist
           path: ./dist/thumbor-*.tar.gz
@@ -46,24 +47,21 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macOS-latest
+          - ubuntu-24.04-arm
+          - macos-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         name: Install Python
         with:
           python-version: ${{ env.python-version }}
-      - name: Set up QEMU
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
-        with:
-          platforms: all
+          cache: "pip" # caching pip dependencies
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@faf86a6ed7efa889faf6996aa23820831055001a # v2.23.3
+        uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a # v3.4.0
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: artifact-${{ matrix.os }}
           path: ./wheelhouse/*.whl
@@ -101,7 +99,7 @@ jobs:
           - "3.13"
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: "0"
 
@@ -124,11 +122,11 @@ jobs:
         run: echo "CACHE_TO=type=registry,ref=ghcr.io/thumbor/thumbor:buildcache-${{ matrix.python_version }},mode=max" >> $GITHUB_ENV
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
 
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
@@ -173,7 +171,7 @@ jobs:
             type=sha
 
       - name: Build and push
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v5
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v5
         with:
           context: .
           file: ./docker/Dockerfile

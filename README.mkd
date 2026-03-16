@@ -93,6 +93,16 @@ sudo aptitude update
 sudo aptitude install thumbor
 ```
 
+### Option 3: Docker
+
+An official Docker image is available on GitHub Container Registry:
+
+```bash
+docker run -p 8888:8888 ghcr.io/thumbor/thumbor:latest
+```
+
+For more information about the Docker image and available tags, visit the [GitHub Container Registry](https://github.com/thumbor/thumbor/pkgs/container/thumbor).
+
 For more ways, please check out [Installation](https://thumbor.readthedocs.io/en/latest/installing.html).
 
 ### Run
