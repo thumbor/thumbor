@@ -27,7 +27,6 @@ from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.engines.pil import Engine, KEEP_EXIF_COPYRIGHT_TAGS
 
-
 FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
 STORAGE_PATH = join(FIXTURES_PATH, "images")
 
