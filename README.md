@@ -84,10 +84,14 @@ pip install thumbor[all]
 
 ### Option 2: Binary
 
+Available as a package in the official repositories of
+distributions such as
+[Debian](https://packages.debian.org/source/sid/thumbor) and
+[Ubuntu](https://launchpad.net/ubuntu/+source/thumbor).
+
 ```bash
-sudo add-apt-repository ppa:thumbor/ppa
-sudo aptitude update
-sudo aptitude install thumbor
+sudo apt update
+sudo apt install thumbor
 ```
 
 ### Option 3: Docker
