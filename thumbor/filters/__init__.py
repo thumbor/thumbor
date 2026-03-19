@@ -8,6 +8,8 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import collections
+import datetime
+import functools
 import re
 
 BUILTIN_FILTERS = [
@@ -51,8 +53,28 @@ PHASE_AFTER_LOAD = "after-load"
 
 def filter_method(*args):
     def _filter_deco(filtered_function):
+        @functools.wraps(filtered_function)
         async def wrapper(self, *args2):
-            return await filtered_function(self, *args2)
+            context = self.context
+            metrics = context.metrics if context else None
+            filter_name = filtered_function.__name__
+
+            start = datetime.datetime.now()
+            try:
+                result = await filtered_function(self, *args2)
+                if metrics:
+                    metrics.incr(f"filter.{filter_name}.count")
+                return result
+            except Exception:
+                if metrics:
+                    metrics.incr(f"filter.{filter_name}.error")
+                raise
+            finally:
+                if metrics:
+                    elapsed = (
+                        datetime.datetime.now() - start
+                    ).total_seconds() * 1000
+                    metrics.timing(f"filter.{filter_name}.time", elapsed)
 
         defaults = None
         if filtered_function.__defaults__:
@@ -61,11 +83,15 @@ def filter_method(*args):
             )
             defaults = default_padding + list(filtered_function.__defaults__)
 
-        wrapper.filter_data = {
-            "name": filtered_function.__name__,
-            "params": args,
-            "defaults": defaults,
-        }
+        setattr(
+            wrapper,
+            "filter_data",
+            {
+                "name": filtered_function.__name__,
+                "params": args,
+                "defaults": defaults,
+            },
+        )
         return wrapper
 
     return _filter_deco
