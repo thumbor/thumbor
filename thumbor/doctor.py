@@ -19,7 +19,7 @@ from typing import List
 
 from colorama import Fore, init
 
-from thumbor import __release_date__, __version__
+from thumbor import __version__
 from thumbor.config import Config
 from thumbor.ext import BUILTIN_EXTENSIONS
 
@@ -419,7 +419,7 @@ def configure_colors(nocolor):
 def print_header(print_version=True):
     if print_version:
         newline()
-        header(f"Thumbor v{__version__} (of {__release_date__})")
+        header(f"Thumbor v{__version__}")
     newline()
     print(
         "Thumbor doctor will analyze your install and verify "

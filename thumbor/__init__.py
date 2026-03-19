@@ -9,5 +9,9 @@
 
 """This is the main module in thumbor"""
 
-__version__ = "7.7.7"
-__release_date__ = "15-May-2025"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("thumbor")
+except PackageNotFoundError:
+    __version__ = "0+unknown"

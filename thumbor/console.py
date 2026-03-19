@@ -9,7 +9,7 @@
 
 import argparse
 
-from thumbor import __release_date__, __version__
+from thumbor import __version__
 from thumbor.context import ServerParameters
 
 
@@ -22,7 +22,7 @@ def get_server_parameters(arguments=None):
     parser.add_argument(
         "--version",
         action="version",
-        version=f"Thumbor v{__version__} ({__release_date__})",
+        version=f"Thumbor v{__version__}",
     )
 
     parser.add_argument(
