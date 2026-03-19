@@ -11,7 +11,6 @@ import sys
 from unittest.mock import patch
 
 import pytest
-from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor.filters
@@ -120,7 +119,7 @@ class FilterParamsTestCase(TestCase):
                     {"name": "x", "params": [params["type"]]}
                 )
                 filter_instance = BaseFilter(f"x({test_data})")
-                expect(filter_instance.params[0]).to_equal(expected_data)
+                assert filter_instance.params[0] == expected_data
 
     def test_with_invalid_values_should_correctly_parse_value(self):
         for params in FILTER_PARAMS_DATA:
@@ -129,7 +128,7 @@ class FilterParamsTestCase(TestCase):
                     {"name": "x", "params": [params["type"]]}
                 )
                 filter_instance = BaseFilter(f"x({test_data})")
-                expect(filter_instance.params).to_be_null()
+                assert filter_instance.params is None
 
 
 class MyFilter(BaseFilter):
@@ -213,11 +212,11 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         pre_instances = self.runner.filter_instances[
             thumbor.filters.PHASE_PRE_LOAD
         ]
-        expect(len(post_instances)).to_equal(2)
-        expect(post_instances[0].__class__).to_equal(StringFilter)
-        expect(post_instances[1].__class__).to_equal(StringFilter)
-        expect(len(pre_instances)).to_equal(1)
-        expect(pre_instances[0].__class__).to_equal(PreLoadFilter)
+        assert len(post_instances) == 2
+        assert post_instances[0].__class__ == StringFilter
+        assert post_instances[1].__class__ == StringFilter
+        assert len(pre_instances) == 1
+        assert pre_instances[0].__class__ == PreLoadFilter
 
     @gen_test
     async def test_running_post_filters_should_run_only_post_filters(self):
@@ -228,8 +227,8 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         pre_instances = self.runner.filter_instances[
             thumbor.filters.PHASE_PRE_LOAD
         ]
-        expect(len(post_instances)).to_equal(0)
-        expect(len(pre_instances)).to_equal(1)
+        assert len(post_instances) == 0
+        assert len(pre_instances) == 1
 
     @gen_test
     async def test_running_pre_filters_should_run_only_pre_filters(self):
@@ -241,35 +240,35 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         pre_instances = self.runner.filter_instances[
             thumbor.filters.PHASE_PRE_LOAD
         ]
-        expect(len(post_instances)).to_equal(0)
-        expect(len(pre_instances)).to_equal(0)
+        assert len(post_instances) == 0
+        assert len(pre_instances) == 0
 
     def test_invalid_filter(self):
         InvalidFilter.pre_compile()
-        expect(hasattr(InvalidFilter, "runnable_method")).to_be_false()
+        assert not hasattr(InvalidFilter, "runnable_method")
 
     def test_valid_filter_creates_a_runnable_method(self):
         MyFilter.pre_compile()
-        expect(MyFilter.runnable_method).to_equal(MyFilter.my_filter)
+        assert MyFilter.runnable_method == MyFilter.my_filter
 
     @gen_test
     async def test_valid_filter_sets_correct_result_value(self):
         filter_instance = MyFilter("my_filter(1, -1.1)")
         result = await filter_instance.run()
-        expect(result).to_equal([(1, -1.1)])
+        assert result == [(1, -1.1)]
 
     @gen_test
     async def test_invalid_number_throws_an_error(self):
         filter_instance = MyFilter("my_invalid_filter(x, 1)")
         result = await filter_instance.run()
-        expect(hasattr(result, "result")).to_be_false()
+        assert not hasattr(result, "result")
 
     @gen_test
     async def test_double_string_filter_sets_correct_values(self):
         DoubleStringFilter.pre_compile()
         filter_instance = DoubleStringFilter("my_string_filter(a, b)")
         result = await filter_instance.run()
-        expect(result).to_equal([("a", "b")])
+        assert result == [("a", "b")]
 
     @gen_test
     async def test_with_strings_with_commas_sets_correct_values(self):
@@ -288,14 +287,14 @@ class RunnerWithParametersFilterTestCase(BaseFilterTestCase):
         for test, expected in tests:
             filter_instance = DoubleStringFilter(test)
             result = await filter_instance.run()
-            expect(result).to_equal(expected)
+            assert result == expected
 
     @gen_test
     async def test_with_empty_filter_should_call_filter(self):
         EmptyFilter.pre_compile()
         filter_instance = EmptyFilter("my_empty_filter()")
         result = await filter_instance.run()
-        expect(result).to_equal(["ok"])
+        assert result == ["ok"]
 
     @pytest.mark.skipif(
         sys.version_info < (3, 8),
@@ -320,8 +319,8 @@ class WithOneValidParamFilterTestCase(BaseFilterTestCase):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
-        expect(len(instances)).to_equal(1)
-        expect(instances[0].__class__).to_equal(StringFilter)
+        assert len(instances) == 1
+        assert instances[0].__class__ == StringFilter
 
 
 class WithParameterContainingColonsFilterTestCase(BaseFilterTestCase):
@@ -334,16 +333,16 @@ class WithParameterContainingColonsFilterTestCase(BaseFilterTestCase):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
-        expect(len(instances)).to_equal(2)
-        expect(instances[0].__class__).to_equal(StringFilter)
-        expect(instances[1].__class__).to_equal(StringFilter)
+        assert len(instances) == 2
+        assert instances[0].__class__ == StringFilter
+        assert instances[1].__class__ == StringFilter
 
     def test_should_understant_parameters(self):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
-        expect(instances[0].params).to_equal(["aaaa"])
-        expect(instances[1].params).to_equal(["aa:aa"])
+        assert instances[0].params == ["aaaa"]
+        assert instances[1].params == ["aa:aa"]
 
 
 class WithValidParamsFilterTestCase(BaseFilterTestCase):
@@ -356,9 +355,9 @@ class WithValidParamsFilterTestCase(BaseFilterTestCase):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
-        expect(len(instances)).to_equal(2)
-        expect(instances[0].__class__).to_equal(MyFilter)
-        expect(instances[1].__class__).to_equal(StringFilter)
+        assert len(instances) == 2
+        assert instances[0].__class__ == MyFilter
+        assert instances[1].__class__ == StringFilter
 
     @gen_test
     async def test_when_running_should_create_two_instances(self):
@@ -368,8 +367,8 @@ class WithValidParamsFilterTestCase(BaseFilterTestCase):
         ]
         for instance in instances:
             result.append(await instance.run())
-        expect(result[0]).to_equal([(1, 0.0)])
-        expect(result[1]).to_equal(["aaaa"])
+        assert result[0] == [(1, 0.0)]
+        assert result[1] == ["aaaa"]
 
 
 class WithOptionalParamFilterTestCase(BaseFilterTestCase):
@@ -382,15 +381,15 @@ class WithOptionalParamFilterTestCase(BaseFilterTestCase):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
-        expect(len(instances)).to_equal(1)
-        expect(instances[0].__class__).to_equal(OptionalParamFilter)
+        assert len(instances) == 1
+        assert instances[0].__class__ == OptionalParamFilter
 
     @gen_test
     async def test_should_understand_parameters(self):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
-        expect(await instances[0].run()).to_equal([("aa", "bb")])
+        assert await instances[0].run() == [("aa", "bb")]
 
 
 class WithOptionalParamsInOptionalFilterTestCase(BaseFilterTestCase):
@@ -403,8 +402,8 @@ class WithOptionalParamsInOptionalFilterTestCase(BaseFilterTestCase):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
-        expect(len(instances)).to_equal(1)
-        expect(instances[0].__class__).to_equal(OptionalParamFilter)
+        assert len(instances) == 1
+        assert instances[0].__class__ == OptionalParamFilter
 
     @gen_test
     async def test_should_understand_parameters(self):
@@ -412,7 +411,7 @@ class WithOptionalParamsInOptionalFilterTestCase(BaseFilterTestCase):
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
         result = await instances[0].run()
-        expect(result).to_equal([("aa", "not provided")])
+        assert result == [("aa", "not provided")]
 
 
 class WithInvalidOptionalFilterTestCase(BaseFilterTestCase):
@@ -425,7 +424,7 @@ class WithInvalidOptionalFilterTestCase(BaseFilterTestCase):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_POST_TRANSFORM
         ]
-        expect(len(instances)).to_equal(0)
+        assert len(instances) == 0
 
 
 class WithPreLoadFilterTestCase(BaseFilterTestCase):
@@ -438,11 +437,11 @@ class WithPreLoadFilterTestCase(BaseFilterTestCase):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_PRE_LOAD
         ]
-        expect(len(instances)).to_equal(1)
-        expect(instances[0].__class__).to_equal(PreLoadFilter)
+        assert len(instances) == 1
+        assert instances[0].__class__ == PreLoadFilter
 
     def should_understant_parameters(self):
         instances = self.runner.filter_instances[
             thumbor.filters.PHASE_PRE_LOAD
         ]
-        expect(instances[0].params).to_equal(["aaaa"])
+        assert instances[0].params == ["aaaa"]

@@ -7,7 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
+import pytest
 from sentry_sdk import Hub
 from sentry_sdk.transport import Transport
 
@@ -46,7 +46,7 @@ class FakeRequest:
         self.remote_ip = "127.0.0.1"
 
     def full_url(self):
-        return f"http://test/{self.url}"
+        return f"http://test/{self.url}"  # NOSONAR
 
 
 class FakeHandler:
@@ -64,7 +64,7 @@ class InvalidSentryTestCase(TestCase):
             USE_CUSTOM_ERROR_HANDLING=True,
             ERROR_HANDLER_MODULE="thumbor.error_handlers.sentry",
         )
-        with expect.error_to_happen(RuntimeError):
+        with pytest.raises(RuntimeError):
             self.get_importer()
 
     def test_when_invalid_path(self):
@@ -74,7 +74,7 @@ class InvalidSentryTestCase(TestCase):
             SENTRY_DSN_URL="https://key@sentry.io/12345",
             ERROR_HANDLER_MODULE="thumbor.error_handlers.invalid",
         )
-        with expect.error_to_happen(ImportError):
+        with pytest.raises(ImportError):
             self.get_importer()
 
 
@@ -112,37 +112,35 @@ class SentryTestCase(TestCase):
             self.context, self.http_handler, RuntimeError("Test")
         )
 
-        expect(self.transport_mock.captured_events).not_to_be_empty()
-        expect(self.transport_mock.captured_events).to_length(1)
+        assert self.transport_mock.captured_events
+        assert len(self.transport_mock.captured_events) == 1
 
         event = self.transport_mock.captured_events[0]
 
-        expect(event["exception"]["values"][0]["type"]).to_equal(
-            "RuntimeError"
-        )
+        assert event["exception"]["values"][0]["type"] == "RuntimeError"
 
-        expect(event["environment"]).to_equal("env")
+        assert event["environment"] == "env"
 
-        expect(event).to_include("extra")
-        expect(event).to_include("request")
+        assert "extra" in event
+        assert "request" in event
         request, extra = event["request"], event["extra"]
 
-        expect(extra).to_include("thumbor-version")
-        expect(extra["thumbor-version"]).to_equal(__version__)
+        assert "thumbor-version" in extra
+        assert extra["thumbor-version"] == __version__
 
-        expect(extra).to_include("thumbor-loader")
-        expect(extra["thumbor-loader"]).to_equal(self.config.LOADER)
+        assert "thumbor-loader" in extra
+        assert extra["thumbor-loader"] == self.config.LOADER
 
-        expect(extra).to_include("thumbor-storage")
-        expect(extra["thumbor-storage"]).to_equal(self.config.STORAGE)
+        assert "thumbor-storage" in extra
+        assert extra["thumbor-storage"] == self.config.STORAGE
 
-        expect(request).to_include("headers")
-        expect(request["headers"]).to_length(2)
+        assert "headers" in request
+        assert len(request["headers"]) == 2
 
-        expect(request["headers"]).to_include("Cookie")
-        expect(request["headers"]["Cookie"]).to_equal("[Filtered]")
-        expect(request["headers"]["header1"]).to_equal("value1")
+        assert "Cookie" in request["headers"]
+        assert request["headers"]["Cookie"] == "[Filtered]"
+        assert request["headers"]["header1"] == "value1"
 
-        expect(request["query_string"]).to_equal("a=1&b=2")
+        assert request["query_string"] == "a=1&b=2"
 
-        expect(event["modules"]).not_to_be_empty()
+        assert event["modules"]

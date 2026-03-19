@@ -9,7 +9,7 @@
 
 from os.path import abspath, dirname, join
 
-from preggy import expect
+import pytest
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -48,19 +48,17 @@ class CompatibilityLoaderTestCase(TestCase):
         importer.import_modules()
         ctx = Context(config=config, importer=importer)
 
-        with expect.error_to_happen(
-            RuntimeError,
-            message=(
-                "The 'COMPATIBILITY_LEGACY_LOADER' configuration should point "
-                "to a valid loader when using compatibility loader."
-            ),
-        ):
+        msg = (
+            "The 'COMPATIBILITY_LEGACY_LOADER' configuration should point "
+            "to a valid loader when using compatibility loader."
+        )
+        with pytest.raises(RuntimeError, match=msg):
             await self.load_file(ctx, "image.jpg")
 
     @gen_test
     async def test_should_load_file(self):
         result = await self.load_file(self.context, "image.jpg")
-        expect(result).to_be_instance_of(LoaderResult)
+        assert isinstance(result, LoaderResult)
         with open(join(STORAGE_PATH, "image.jpg"), "rb") as img:
-            expect(result.buffer).to_equal(img.read())
-            expect(result.successful).to_be_true()
+            assert result.buffer == img.read()
+            assert result.successful is True

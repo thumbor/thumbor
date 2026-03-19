@@ -9,9 +9,9 @@
 
 from shutil import which
 
-from preggy import expect
 from tornado.testing import gen_test
 
+from tests.base import assert_is_gif, assert_is_png
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
@@ -19,6 +19,7 @@ from thumbor.importer import Importer
 
 # pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
 # pylint: disable=too-many-lines
+
 
 MIMETYPE = "image/png"
 
@@ -50,24 +51,24 @@ class ImageOperationsWithAutoPngTestCase(BaseImagingTestCase):
     async def test_can_auto_convert_jpeg_to_png(self):
         response = await self.get_as_png("/unsafe/image.jpg")
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE
+        assert_is_png(response.body)
 
     @gen_test
     async def test_can_auto_convert_heic_to_png(self):
         response = await self.get_as_png("/unsafe/image.heic")
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE
+        assert_is_png(response.body)
 
     @gen_test
     async def test_should_not_convert_animated_gifs_to_png(self):
         response = await self.get_as_png("/unsafe/animated.gif")
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_should_convert_image_with_small_width_and_no_height_to_png(
@@ -75,53 +76,53 @@ class ImageOperationsWithAutoPngTestCase(BaseImagingTestCase):
     ):
         response = await self.get_as_png("/unsafe/0x0:1681x596/1x/image.jpg")
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE
+        assert_is_png(response.body)
 
     @gen_test
     async def test_should_convert_monochromatic_jpeg_to_png(self):
         response = await self.get_as_png("/unsafe/grayscale.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE
+        assert_is_png(response.body)
 
     @gen_test
     async def test_should_convert_cmyk_jpeg_to_png(self):
         response = await self.get_as_png("/unsafe/cmyk.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE
+        assert_is_png(response.body)
 
     @gen_test
     async def test_shouldnt_convert_to_cmyk_to_png_if_format_specified(self):
         response = await self.get_as_png(
             "/unsafe/filters:format(png)/cmyk.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @gen_test
     async def test_shouldnt_convert_cmyk_to_png_if_gif(self):
         response = await self.get_as_png(
             "/unsafe/filters:format(gif)/cmyk.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_shouldnt_convert_gif_to_png_if_format_specified(self):
         response = await self.get_as_png(
             "/unsafe/filters:format(gif)/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_should_convert_to_png_if_format_invalid(self):
         response = await self.get_as_png(
             "/unsafe/filters:format(asdf)/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE
+        assert_is_png(response.body)
