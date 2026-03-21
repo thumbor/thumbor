@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="http://www.thumbor.org">
-    <img title="thumbor" alt="thumbor" src="https://github.com/thumbor/thumbor/blob/readme/docs/thumbor-logo.png?raw=true" />
+    <img title="thumbor" alt="thumbor" src="./docs/thumbor-logo.png" />
   </a>
 </p>
 
@@ -31,24 +31,21 @@ Crop, resize, transform and much more, all on-demand and AI Powered
   <a href='https://pypi.python.org/pypi/thumbor' target='_blank'>
     <img src='https://img.shields.io/pypi/dm/thumbor.svg'/>
   </a>
-  <a href='https://www.bountysource.com/trackers/257692-globocom-thumbor?utm_source=257692&utm_medium=shield&utm_campaign=TRACKER_BADGE' target='_blank'>
-    <img src='https://www.bountysource.com/badge/tracker?tracker_id=257692'/>
-  </a>
 </p>
 
 <h4 align="center">thumbor is trusted by hundreds of companies worldwide</h4>
 <p align="center">
   <img src="./docs/wikipedia.png" alt="Wikipedia trusts thumbor" title="Wikipedia trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/globocom.png?raw=true" alt="Globo.com trusts thumbor" title="Globo.com trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/vox.png?raw=true" alt="Vox Media trusts thumbor" title="Vox Media trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/forbes-logo.png?raw=true" alt="Forbes trusts thumbor" title="Forbes trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/squareup.png?raw=true" alt="Square trusts thumbor" title="Square trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/deliveroo.png?raw=true" alt="Deliveroo trusts thumbor" title="Deliveroo trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/canalplus.png?raw=true" alt="Canal+ trusts thumbor" title="Canal+ trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/terra.png?raw=true" alt="Terra trusts thumbor" title="Terra trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/nrc.png?raw=true" alt="nrc trusts thumbor" title="nrc trusts thumbor" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/webdev.png?raw=true" alt="web.dev indicates thumbor for high-performance web sites" title="web.dev indicates thumbor for high-performance web sites" width="128" height="128" />&nbsp;
-  <img src="https://github.com/thumbor/thumbor/blob/readme/docs/aws.png?raw=true" alt="aws indicates thumbor for serverless image handling" title="aws indicates thumbor for serverless image handling" width="128" height="128" />
+  <img src="./docs/globocom.png" alt="Globo.com trusts thumbor" title="Globo.com trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="./docs/vox.png" alt="Vox Media trusts thumbor" title="Vox Media trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="./docs/forbes-logo.png" alt="Forbes trusts thumbor" title="Forbes trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="./docs/squareup.png" alt="Square trusts thumbor" title="Square trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="./docs/deliveroo.png" alt="Deliveroo trusts thumbor" title="Deliveroo trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="./docs/canalplus.png" alt="Canal+ trusts thumbor" title="Canal+ trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="./docs/terra.png" alt="Terra trusts thumbor" title="Terra trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="./docs/nrc.png" alt="nrc trusts thumbor" title="nrc trusts thumbor" width="128" height="128" />&nbsp;
+  <img src="./docs/webdev.png" alt="web.dev indicates thumbor for high-performance web sites" title="web.dev indicates thumbor for high-performance web sites" width="128" height="128" />&nbsp;
+  <img src="./docs/aws.png" alt="aws indicates thumbor for serverless image handling" title="aws indicates thumbor for serverless image handling" width="128" height="128" />
   <br />
   and many more!
 </p>
@@ -87,11 +84,25 @@ pip install thumbor[all]
 
 ### Option 2: Binary
 
+Available as a package in the official repositories of
+distributions such as
+[Debian](https://packages.debian.org/source/sid/thumbor) and
+[Ubuntu](https://launchpad.net/ubuntu/+source/thumbor).
+
 ```bash
-sudo add-apt-repository ppa:thumbor/ppa
-sudo aptitude update
-sudo aptitude install thumbor
+sudo apt update
+sudo apt install thumbor
 ```
+
+### Option 3: Docker
+
+An official Docker image is available on GitHub Container Registry:
+
+```bash
+docker run -p 8888:8888 ghcr.io/thumbor/thumbor:latest
+```
+
+For more information about the Docker image and available tags, visit the [GitHub Container Registry](https://github.com/thumbor/thumbor/pkgs/container/thumbor).
 
 For more ways, please check out [Installation](https://thumbor.readthedocs.io/en/latest/installing.html).
 
