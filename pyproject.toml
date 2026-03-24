@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "thumbor"
-version = "7.7.7"
+dynamic = ["version"]
 description = "thumbor is an open-source photo thumbnail service by globo.com"
 readme = { file = "README.mkd", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -96,6 +96,9 @@ thumbor-doctor = "thumbor.doctor:main"
 [tool.setuptools.packages.find]
 include = ["thumbor*"]
 exclude = ["integration_tests*", "docker*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "thumbor.__version__" }
 
 [tool.black]
 line-length = 79
