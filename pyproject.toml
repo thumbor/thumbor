@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "thumbor"
 dynamic = ["version"]
 description = "thumbor is an open-source photo thumbnail service by globo.com"
-readme = { file = "README.mkd", content-type = "text/markdown" }
+readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "globo.com", email = "thumbor@googlegroups.com" }]
