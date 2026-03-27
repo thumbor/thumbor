@@ -11,7 +11,6 @@ import logging
 from shutil import which
 from unittest import TestCase, mock
 
-from preggy import expect
 import pytest
 from PIL import Image, ImageCms
 
@@ -32,36 +31,36 @@ class UtilsTestCase(TestCase):
 
     @staticmethod
     def test_can_get_content_type():
-        expect(CONTENT_TYPE.get(".jpg")).to_equal("image/jpeg")
-        expect(CONTENT_TYPE.get(".jpeg")).to_equal("image/jpeg")
-        expect(CONTENT_TYPE.get(".gif")).to_equal("image/gif")
-        expect(CONTENT_TYPE.get(".png")).to_equal("image/png")
-        expect(CONTENT_TYPE.get(".webp")).to_equal("image/webp")
-        expect(CONTENT_TYPE.get(".mp4")).to_equal("video/mp4")
-        expect(CONTENT_TYPE.get(".webm")).to_equal("video/webm")
-        expect(CONTENT_TYPE.get(".svg")).to_equal("image/svg+xml")
-        expect(CONTENT_TYPE.get(".tif")).to_equal("image/tiff")
-        expect(CONTENT_TYPE.get(".tiff")).to_equal("image/tiff")
-        expect(CONTENT_TYPE.get(".avif")).to_equal("image/avif")
-        expect(CONTENT_TYPE.get(".heic")).to_equal("image/heif")
-        expect(CONTENT_TYPE.get(".heif")).to_equal("image/heif")
+        assert CONTENT_TYPE.get(".jpg") == "image/jpeg"
+        assert CONTENT_TYPE.get(".jpeg") == "image/jpeg"
+        assert CONTENT_TYPE.get(".gif") == "image/gif"
+        assert CONTENT_TYPE.get(".png") == "image/png"
+        assert CONTENT_TYPE.get(".webp") == "image/webp"
+        assert CONTENT_TYPE.get(".mp4") == "video/mp4"
+        assert CONTENT_TYPE.get(".webm") == "video/webm"
+        assert CONTENT_TYPE.get(".svg") == "image/svg+xml"
+        assert CONTENT_TYPE.get(".tif") == "image/tiff"
+        assert CONTENT_TYPE.get(".tiff") == "image/tiff"
+        assert CONTENT_TYPE.get(".avif") == "image/avif"
+        assert CONTENT_TYPE.get(".heic") == "image/heif"
+        assert CONTENT_TYPE.get(".heif") == "image/heif"
 
     @staticmethod
     def test_can_get_extension():
-        expect(EXTENSION.get("image/jpeg")).to_equal(".jpg")
-        expect(EXTENSION.get("image/gif")).to_equal(".gif")
-        expect(EXTENSION.get("image/png")).to_equal(".png")
-        expect(EXTENSION.get("image/webp")).to_equal(".webp")
-        expect(EXTENSION.get("video/mp4")).to_equal(".mp4")
-        expect(EXTENSION.get("video/webm")).to_equal(".webm")
-        expect(EXTENSION.get("image/svg+xml")).to_equal(".svg")
-        expect(EXTENSION.get("image/tiff")).to_equal(".tif")
-        expect(EXTENSION.get("image/avif")).to_equal(".avif")
-        expect(EXTENSION.get("image/heif")).to_equal(".heic")
+        assert EXTENSION.get("image/jpeg") == ".jpg"
+        assert EXTENSION.get("image/gif") == ".gif"
+        assert EXTENSION.get("image/png") == ".png"
+        assert EXTENSION.get("image/webp") == ".webp"
+        assert EXTENSION.get("video/mp4") == ".mp4"
+        assert EXTENSION.get("video/webm") == ".webm"
+        assert EXTENSION.get("image/svg+xml") == ".svg"
+        assert EXTENSION.get("image/tiff") == ".tif"
+        assert EXTENSION.get("image/avif") == ".avif"
+        assert EXTENSION.get("image/heif") == ".heic"
 
     @staticmethod
     def test_can_get_logger():
-        expect(logger.name).to_equal("thumbor")
+        assert logger.name == "thumbor"
 
     @staticmethod
     def test_deprecated_logs_msg():
@@ -78,30 +77,30 @@ class UtilsTestCase(TestCase):
     @staticmethod
     def test_can_which_by_path():
         result = which("/bin/ls")
-        expect(result).to_include("/bin/ls")
+        assert "/bin/ls" in result
 
         result = which("/tmp")
-        expect(result).to_be_null()
+        assert result is None
 
     @staticmethod
     def test_can_which_by_env():
         result = which("ls")
-        expect(result).to_include("/bin/ls")
+        assert "/bin/ls" in result
 
         result = which("invalid-command")
-        expect(result).to_be_null()
+        assert result is None
 
     @staticmethod
     def test_logger_should_be_instance_of_python_logger():
-        expect(logger).to_be_instance_of(logging.Logger)
+        assert isinstance(logger, logging.Logger)
 
     @staticmethod
     def test_logger_should_not_be_null():
-        expect(logger).not_to_be_null()
+        assert logger is not None
 
     @staticmethod
     def test_logger_should_not_be_an_error():
-        expect(logger).not_to_be_an_error()
+        assert not isinstance(logger, Exception)
 
 
 def test_get_color_space_handles_invalid_icc():
