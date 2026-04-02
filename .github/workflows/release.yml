@@ -72,7 +72,7 @@ jobs:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: artifact-*
           path: dist
@@ -103,7 +103,7 @@ jobs:
         with:
           fetch-depth: "0"
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: artifact-*
           path: dist
