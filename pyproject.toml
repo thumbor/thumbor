@@ -56,7 +56,7 @@ extra-libs = [
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",
   "pillow-avif-plugin>=1.4.1,<2.0.0",
-  "pillow-heif>=0.22.0,<1.0.0",
+  "pillow-heif>=0.22.0,<2.0.0",
 ]
 tests = [
   "build>=1.2.1,<2.0.0",
@@ -84,7 +84,7 @@ all = [
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",
   "pillow-avif-plugin>=1.4.1,<2.0.0",
-  "pillow-heif>=0.22.0,<1.0.0",
+  "pillow-heif>=0.22.0,<2.0.0",
 ]
 
 [project.scripts]
