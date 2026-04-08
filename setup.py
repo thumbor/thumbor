@@ -8,37 +8,74 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import glob
+import os
+import sys
 
-from setuptools import Extension, setup
+from setuptools import setup
+
+try:
+    from setuptools_rust import RustExtension
+except ImportError:
+    RustExtension = None
+
+try:
+    import wheel.bdist_wheel
+except ImportError:
+    wheel = None
+
+kwargs = {}
+
+if wheel is not None:
+    # based on https://github.com/tornadoweb/tornado/blob/master/setup.py
+    class bdist_wheel_abi3(wheel.bdist_wheel.bdist_wheel):
+        def get_tag(self):
+            python, abi, plat = super().get_tag()
+
+            if python.startswith("cp"):
+                return "cp39", "abi3", plat
+            return python, abi, plat
+
+    kwargs["cmdclass"] = {"bdist_wheel": bdist_wheel_abi3}
 
 
-def filter_extension_module(name, lib_objs, lib_headers):
-    return Extension(
-        f"thumbor.ext.filters.{name}",
-        [f"thumbor/ext/filters/{name}.c"] + lib_objs,
-        libraries=["m"],
-        include_dirs=["thumbor/ext/filters/lib"],
-        depends=["setup.py"] + lib_objs + lib_headers,
-        extra_compile_args=[
-            "-Wall",
-            "-Wextra",
-            "-Werror",
-            "-Wno-unused-parameter",
-        ],
-        py_limited_api=True,
-        define_macros=[("Py_LIMITED_API", "0x03080000")],
-    )
+def gather_rust_filter_extensions():
+    if RustExtension is None:
+        return []
 
-
-def gather_filter_extensions():
-    files = glob.glob("thumbor/ext/filters/_*.c")
-    lib_objs = glob.glob("thumbor/ext/filters/lib/*.c")
-    lib_headers = glob.glob("thumbor/ext/filters/lib/*.h")
+    cargo_paths = glob.glob("thumbor/ext/filters/_*/Cargo.toml")
 
     return [
-        filter_extension_module(f[0:-2].split("/")[-1], lib_objs, lib_headers)
-        for f in files
+        RustExtension(
+            f"thumbor.ext.filters.{os.path.basename(os.path.dirname(path))}",
+            path=path,
+        )
+        for path in cargo_paths
     ]
 
 
-setup(ext_modules=gather_filter_extensions())
+def ensure_build_dependencies():
+    build_commands = {
+        "bdist_wheel",
+        "build",
+        "build_ext",
+        "develop",
+        "editable_wheel",
+        "install",
+    }
+
+    if RustExtension is None and any(
+        arg in build_commands for arg in sys.argv[1:]
+    ):
+        raise RuntimeError(
+            "setuptools-rust is required to build thumbor's Rust filters. "
+            "Install dependencies with `pip install -e .[tests,all]`."
+        )
+
+
+ensure_build_dependencies()
+setup_kwargs = dict(kwargs)
+
+if RustExtension is not None:
+    setup_kwargs["rust_extensions"] = gather_rust_filter_extensions()
+
+setup(**setup_kwargs)
