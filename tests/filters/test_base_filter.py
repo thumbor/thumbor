@@ -8,7 +8,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import sys
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from preggy import expect
@@ -446,3 +446,120 @@ class WithPreLoadFilterTestCase(BaseFilterTestCase):
             thumbor.filters.PHASE_PRE_LOAD
         ]
         expect(instances[0].params).to_equal(["aaaa"])
+
+
+class FilterMethodMetricsTestCase(TestCase):
+
+    def _make_context(self):
+        def _no_multiple():
+            return False
+
+        cfg = Config()
+        importer = Importer(cfg)
+        importer.import_modules()
+        context = Context(config=cfg, importer=importer)
+        context.modules.engine.is_multiple = _no_multiple
+        context.metrics = MagicMock()
+        return context
+
+    def _make_success_filter(self, context):
+        class _SuccessFilter(BaseFilter):
+            @filter_method(BaseFilter.Number)
+            async def success_filter(self, value):
+                return value
+
+        _SuccessFilter.__module__ = "thumbor.filters.success_filter"
+        _SuccessFilter.pre_compile()
+        return _SuccessFilter("success_filter(42)", context)
+
+    def _make_error_filter(self, context):
+        class _ErrorFilter(BaseFilter):
+            @filter_method(BaseFilter.Number)
+            async def error_filter(self, value):
+                raise ValueError("boom")
+
+        _ErrorFilter.__module__ = "thumbor.filters.error_filter"
+        _ErrorFilter.pre_compile()
+        return _ErrorFilter("error_filter(1)", context)
+
+    @gen_test
+    async def test_emits_count_and_timing_on_success(self):
+        context = self._make_context()
+        instance = self._make_success_filter(context)
+        await instance.run()
+
+        incr_calls = [c[0][0] for c in context.metrics.incr.call_args_list]
+        timing_calls = [c[0][0] for c in context.metrics.timing.call_args_list]
+
+        expect(incr_calls).to_include("filter.success_filter.count")
+        expect(timing_calls).to_include("filter.success_filter.time")
+        expect(incr_calls).Not.to_include("filter.success_filter.error")
+
+    @gen_test
+    async def test_uses_filter_name_instead_of_module_name_in_metrics(self):
+        context = self._make_context()
+
+        class _AliasedFilter(BaseFilter):
+            @filter_method(BaseFilter.Number)
+            async def public_name(self, value):
+                return value
+
+        _AliasedFilter.__module__ = "thumbor.filters.internal_module_name"
+        factory = FiltersFactory([_AliasedFilter])
+        runner = factory.create_instances(context, "public_name(42)")
+        filters = runner.filter_instances[thumbor.filters.PHASE_POST_TRANSFORM]
+
+        await filters[0].run()
+
+        incr_calls = [c[0][0] for c in context.metrics.incr.call_args_list]
+        timing_calls = [c[0][0] for c in context.metrics.timing.call_args_list]
+
+        expect(incr_calls).to_include("filter.public_name.count")
+        expect(timing_calls).to_include("filter.public_name.time")
+        expect(incr_calls).Not.to_include("filter.internal_module_name.count")
+        expect(timing_calls).Not.to_include("filter.internal_module_name.time")
+
+    @gen_test
+    async def test_timing_value_is_non_negative_float(self):
+        context = self._make_context()
+        instance = self._make_success_filter(context)
+        await instance.run()
+
+        _, elapsed = context.metrics.timing.call_args[0]
+
+        expect(elapsed).to_be_numeric()
+        expect(elapsed).to_be_greater_or_equal_to(0)
+        expect(elapsed).to_be_lesser_than(5000)
+
+    @gen_test
+    async def test_emits_error_and_timing_on_exception(self):
+        context = self._make_context()
+        instance = self._make_error_filter(context)
+
+        with expect.error_to_happen(ValueError, message="boom"):
+            await instance.run()
+
+        incr_calls = [c[0][0] for c in context.metrics.incr.call_args_list]
+        timing_calls = [c[0][0] for c in context.metrics.timing.call_args_list]
+
+        expect(incr_calls).to_include("filter.error_filter.error")
+        expect(timing_calls).to_include("filter.error_filter.time")
+        expect(incr_calls).Not.to_include("filter.error_filter.count")
+
+    @gen_test
+    async def test_does_not_fail_when_metrics_is_none(self):
+        context = self._make_context()
+        context.metrics = None
+
+        class _SafeFilter(BaseFilter):
+            @filter_method(BaseFilter.Number)
+            async def safe_filter(self, value):
+                return value
+
+        _SafeFilter.__module__ = "thumbor.filters.safe_filter"
+        _SafeFilter.pre_compile()
+
+        instance = _SafeFilter("safe_filter(7)", context)
+
+        with expect.error_not_to_happen(Exception):
+            await instance.run()
