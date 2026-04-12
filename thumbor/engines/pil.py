@@ -63,10 +63,11 @@ KEEP_EXIF_COPYRIGHT_TAGS = [
 ImageFile.MAXBLOCK = 2**25
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-DECOMPRESSION_BOMB_EXCEPTIONS = (Image.DecompressionBombWarning,)
-
-if hasattr(Image, "DecompressionBombError"):
-    DECOMPRESSION_BOMB_EXCEPTIONS += (Image.DecompressionBombError,)
+DECOMPRESSION_BOMB_EXCEPTIONS = (Image.DecompressionBombWarning,) + (
+    (Image.DecompressionBombError,)
+    if hasattr(Image, "DecompressionBombError")
+    else ()
+)
 
 
 class Engine(BaseEngine):
