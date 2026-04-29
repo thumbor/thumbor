@@ -557,6 +557,12 @@ Config.define(
     "File Storage",
 )
 Config.define(
+    "STORAGE_REMOVE_EXPIRE",
+    False,
+    "Indicates whether thumbor should remove the expire image in the file storage",
+    "File Storage",
+)
+Config.define(
     "STORES_CRYPTO_KEY_FOR_EACH_IMAGE",
     False,
     "Indicates whether thumbor should store the signing key for each image in the file storage. "
@@ -601,6 +607,12 @@ Config.define(
     "UPLOAD_PUT_ALLOWED",
     False,
     "Indicates whether image overwrite should be allowed",
+    "Upload",
+)
+Config.define(
+    "UPLOAD_SECURITY_MODE",
+    False,
+    "Indicates whether authorization is required to allowed File uploads",
     "Upload",
 )
 Config.define(
@@ -728,6 +740,12 @@ Config.define(
     "Expiration in seconds of generated images in the result storage",
     "Result Storage",
 )  # Never expires
+Config.define(
+    "RESULT_STORAGE_REMOVE_EXPIRE",
+    False,
+    "Indicates whether thumbor should remove the expire image in the result storage",
+    "Result Storage",
+)
 Config.define(
     "RESULT_STORAGE_FILE_STORAGE_ROOT_PATH",
     join(tempfile.gettempdir(), "thumbor", "result_storage"),
