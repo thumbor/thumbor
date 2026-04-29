@@ -7,9 +7,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import tornado.web
+
 from thumbor.ext.filters import _nine_patch
 from thumbor.filters import BaseFilter, filter_method
 from thumbor.loaders import LoaderResult
+from thumbor.utils import logger
 
 
 class Filter(BaseFilter):
@@ -105,5 +108,17 @@ class Filter(BaseFilter):
         if buffer is not None:
             return await self.on_image_ready(buffer)
 
+        if not self.validate(self.url):
+            raise tornado.web.HTTPError(400)
+
         result = await self.context.modules.loader.load(self.context, self.url)
         await self.on_fetch_done(result)
+
+    def validate(self, url):
+        if not hasattr(self.context.modules.loader, "validate"):
+            return True
+
+        if not self.context.modules.loader.validate(self.context, url):
+            logger.warning('frame source not allowed: "%s"', url)
+            return False
+        return True
