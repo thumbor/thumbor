@@ -13,12 +13,11 @@ import sys
 from thumbor.point import FocalPoint
 from thumbor.utils import logger
 
-TRIM_ENABLED = True
 try:
     from thumbor.ext.filters import _bounding_box
 except ImportError:
     logger.warning("Error importing bounding_box filter, trimming won't work")
-    TRIM_ENABLED = False
+    _bounding_box = None
 
 
 class Transformer:
@@ -43,7 +42,7 @@ class Transformer:
         )
         if (
             self.context.request.trim is None
-            or not TRIM_ENABLED
+            or _bounding_box is None
             or is_gifsicle
         ):
             return

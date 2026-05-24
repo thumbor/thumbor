@@ -13,7 +13,7 @@ recursive-include thumbor *.c
 recursive-exclude thumbor *.pyc
 recursive-exclude thumbor *.so
 
-include LICENSE README.mkd CHANGELOG
+include LICENSE README.md CHANGELOG
 recursive-include docs *
 prune docs/_build
 

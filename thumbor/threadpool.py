@@ -7,7 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 
 from tornado.ioloop import IOLoop
 
@@ -36,7 +36,7 @@ class ThreadPool:
 
     def __init__(self, thread_pool_size):
         if thread_pool_size:
-            self.pool = ThreadPoolExecutor(thread_pool_size)
+            self.pool = concurrent.futures.ThreadPoolExecutor(thread_pool_size)
         else:
             self.pool = None
 
