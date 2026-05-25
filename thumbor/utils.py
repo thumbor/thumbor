@@ -10,6 +10,7 @@
 import logging
 from functools import wraps
 from io import BytesIO
+
 from PIL import Image
 
 try:
