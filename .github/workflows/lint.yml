@@ -45,7 +45,7 @@ jobs:
         with:
           python-version: "3.x"
       - uses: actions/checkout@v6
-      - name: Install isort
-        run: pip install isort
+      - name: Install test dependencies
+        run: python -m pip install -e ".[tests]"
       - name: Run isort
-        run: isort thumbor tests --profile black
+        run: isort thumbor tests --profile black --check-only --diff

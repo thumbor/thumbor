@@ -12,6 +12,7 @@
 
 import re
 from xml.etree.ElementTree import ParseError
+
 import piexif
 
 from thumbor.engines.extensions.exif_orientation_editor import (
