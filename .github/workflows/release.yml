@@ -194,7 +194,53 @@ jobs:
         run: |
           mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
+          platform_digest=""
+
+          for image in \
+            "ghcr.io/thumbor/thumbor" \
+            "quay.io/thumbor/thumbor" \
+            "thumbororg/thumbor"
+          do
+            manifest="$(
+              docker buildx imagetools inspect --raw "${image}@${digest}" \
+                2>/dev/null || true
+            )"
+
+            if [ -z "$manifest" ]; then
+              continue
+            fi
+
+            platform_digest="$(
+              printf '%s' "$manifest" \
+                | jq -r --arg arch "${{ matrix.platform.name }}" '
+                  if .manifests then
+                    [
+                      .manifests[]
+                      | select(
+                          .platform.os == "linux"
+                          and .platform.architecture == $arch
+                        )
+                      | .digest
+                    ][0] // empty
+                  else
+                    empty
+                  end
+                '
+            )"
+
+            if [ -z "$platform_digest" ]; then
+              platform_digest="$digest"
+            fi
+
+            break
+          done
+
+          if [ -z "$platform_digest" ]; then
+            echo "Unable to resolve platform digest from ${digest}" >&2
+            exit 1
+          fi
+
+          touch "/tmp/digests/${platform_digest#sha256:}"
 
       - name: Upload digest
         if: github.event_name != 'pull_request'
@@ -210,6 +256,7 @@ jobs:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python_version:
           - "3.10"
