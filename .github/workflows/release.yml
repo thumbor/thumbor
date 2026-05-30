@@ -59,7 +59,7 @@ jobs:
           cache: "pip" # caching pip dependencies
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a # v3.4.0
+        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084 # v3.4.1
 
       - uses: actions/upload-artifact@v7
         with:
@@ -80,7 +80,7 @@ jobs:
 
       - run: ls -lah dist
 
-      - uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+      - uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
         if: github.event_name != 'pull_request'
         with:
           user: __token__
@@ -172,7 +172,7 @@ jobs:
             type=sha
 
       - name: Build and push
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v5
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v5
         with:
           context: .
           file: ./docker/Dockerfile
