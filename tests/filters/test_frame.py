@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from thumbor.config import Config
@@ -32,9 +31,5 @@ class FrameFilterTestCase(FilterTestCase):
         context = Context(config=config, importer=importer)
         filter_instance = frame.Filter("", context)
 
-        expect(
-            filter_instance.validate("https://s2.glbimg.com/logo.jpg")
-        ).to_be_false()
-        expect(
-            filter_instance.validate("https://s.glbimg.com/logo.jpg")
-        ).to_be_true()
+        assert not filter_instance.validate("https://s2.glbimg.com/logo.jpg")
+        assert filter_instance.validate("https://s.glbimg.com/logo.jpg")

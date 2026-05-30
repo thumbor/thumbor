@@ -13,7 +13,6 @@ from unittest import TestCase, mock
 
 import pytest
 from PIL import Image, ImageCms
-from preggy import expect
 
 from thumbor.utils import (
     CONTENT_TYPE,
