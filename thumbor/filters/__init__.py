@@ -8,7 +8,9 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import collections
+import functools
 import re
+import time
 
 BUILTIN_FILTERS = [
     "thumbor.filters.brightness",
@@ -51,6 +53,7 @@ PHASE_AFTER_LOAD = "after-load"
 
 def filter_method(*args):
     def _filter_deco(filtered_function):
+        @functools.wraps(filtered_function)
         async def wrapper(self, *args2):
             return await filtered_function(self, *args2)
 
@@ -61,11 +64,15 @@ def filter_method(*args):
             )
             defaults = default_padding + list(filtered_function.__defaults__)
 
-        wrapper.filter_data = {
-            "name": filtered_function.__name__,
-            "params": args,
-            "defaults": defaults,
-        }
+        setattr(
+            wrapper,
+            "filter_data",
+            {
+                "name": filtered_function.__name__,
+                "params": args,
+                "defaults": defaults,
+            },
+        )
         return wrapper
 
     return _filter_deco
@@ -203,6 +210,10 @@ class BaseFilter:
         if self.params is None:
             return
 
+        metrics = self.context.metrics if self.context else None
+        filter_name = self.runnable_method.filter_data["name"]
+        start = time.perf_counter()
+
         if self.engine:
             if self.engine.is_multiple():
                 engines_to_run = self.engine.frame_engines()
@@ -212,8 +223,18 @@ class BaseFilter:
             engines_to_run = [None]
 
         results = []
-        for engine in engines_to_run:
-            self.engine = engine
-            results.append(await self.runnable_method(*self.params))
-
-        return results
+        try:
+            for engine in engines_to_run:
+                self.engine = engine
+                results.append(await self.runnable_method(*self.params))
+            if metrics:
+                metrics.incr(f"filter.{filter_name}.count")
+            return results
+        except Exception:
+            if metrics:
+                metrics.incr(f"filter.{filter_name}.error")
+            raise
+        finally:
+            if metrics:
+                elapsed = int(round((time.perf_counter() - start) * 1000))
+                metrics.timing(f"filter.{filter_name}.time", elapsed)
