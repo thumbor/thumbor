@@ -72,7 +72,9 @@ class FileLoaderTestCase(TestCase):
         expect(result.successful).to_be_false()
 
     @gen_test
-    async def test_should_fail_when_decoded_path_escapes_to_sibling_prefix(self):
+    async def test_should_fail_when_decoded_path_escapes_to_sibling_prefix(
+        self,
+    ):
         with TemporaryDirectory() as directory:
             root = join(directory, "images")
             sibling = join(directory, "images-sibling")
