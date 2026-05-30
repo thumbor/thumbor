@@ -1,0 +1,239 @@
+---
+name: docker release repair
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version to publish.
+        required: true
+        default: "7.8.0"
+      ref:
+        description: Git ref to build.
+        required: true
+        default: "7.8.0"
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  python-version: "3.10"
+
+jobs:
+  docker-build:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+        platform:
+          - runner: ubuntu-latest
+            name: amd64
+            os: linux/amd64
+          - runner: ubuntu-24.04-arm
+            name: arm64
+            os: linux/arm64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: "0"
+          ref: ${{ inputs.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.python-version }}
+
+      - name: Build source distribution
+        run: |
+          pip install -U pip
+          pip install -U build
+          python -m build --sdist
+
+      - name: Set release version
+        run: echo "THUMBOR_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Quay.io
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_IO_USERNAME }}
+          password: ${{ secrets.QUAY_IO_PASSWORD }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build by digest
+        id: build
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v5
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          platforms: ${{ matrix.platform.os }}
+          outputs: |
+            type=image,name=ghcr.io/thumbor/thumbor,push-by-digest=true,name-canonical=true,push=true
+            type=image,name=quay.io/thumbor/thumbor,push-by-digest=true,name-canonical=true,push=true
+            type=image,name=docker.io/thumbororg/thumbor,push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=registry,ref=ghcr.io/thumbor/thumbor:buildcache-${{ matrix.python_version }}-${{ matrix.platform.name }}
+          cache-to: type=registry,ref=ghcr.io/thumbor/thumbor:buildcache-${{ matrix.python_version }}-${{ matrix.platform.name }},mode=max
+          build-args: |
+            THUMBOR_VERSION=${{ env.THUMBOR_VERSION }}
+            PYTHON_VERSION=${{ matrix.python_version }}
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          platform_digest=""
+
+          for image in \
+            "ghcr.io/thumbor/thumbor" \
+            "quay.io/thumbor/thumbor" \
+            "thumbororg/thumbor"
+          do
+            manifest="$(
+              docker buildx imagetools inspect --raw "${image}@${digest}" \
+                2>/dev/null || true
+            )"
+
+            if [ -z "$manifest" ]; then
+              continue
+            fi
+
+            platform_digest="$(
+              printf '%s' "$manifest" \
+                | jq -r --arg arch "${{ matrix.platform.name }}" '
+                  if .manifests then
+                    [
+                      .manifests[]
+                      | select(
+                          .platform.os == "linux"
+                          and .platform.architecture == $arch
+                        )
+                      | .digest
+                    ][0] // empty
+                  else
+                    empty
+                  end
+                '
+            )"
+
+            if [ -z "$platform_digest" ]; then
+              platform_digest="$digest"
+            fi
+
+            break
+          done
+
+          if [ -z "$platform_digest" ]; then
+            echo "Unable to resolve platform digest from ${digest}" >&2
+            exit 1
+          fi
+
+          touch "/tmp/digests/${platform_digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v7
+        with:
+          name: digest-${{ matrix.python_version }}-${{ matrix.platform.name }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  docker-manifest:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: "0"
+          ref: ${{ inputs.ref }}
+
+      - name: Download digests
+        uses: actions/download-artifact@v8
+        with:
+          pattern: digest-${{ matrix.python_version }}-*
+          path: /tmp/digests
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Quay.io
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_IO_USERNAME }}
+          password: ${{ secrets.QUAY_IO_PASSWORD }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Create and push manifests
+        working-directory: /tmp/digests
+        env:
+          VERSION: ${{ inputs.version }}
+          PYTHON_VERSION: ${{ matrix.python_version }}
+        run: |
+          minor="${VERSION%.*}"
+          major="${VERSION%%.*}"
+          short_sha="$(git -C "$GITHUB_WORKSPACE" rev-parse --short=7 HEAD)"
+
+          create_manifest() {
+            image="$1"
+            refs=()
+
+            for digest in *; do
+              refs+=("${image}@sha256:${digest}")
+            done
+
+            docker buildx imagetools create \
+              -t "${image}:${VERSION}-py-${PYTHON_VERSION}" \
+              -t "${image}:${minor}-py-${PYTHON_VERSION}" \
+              -t "${image}:${major}-py-${PYTHON_VERSION}" \
+              -t "${image}:sha-${short_sha}-py-${PYTHON_VERSION}" \
+              "${refs[@]}"
+          }
+
+          create_manifest ghcr.io/thumbor/thumbor
+          create_manifest quay.io/thumbor/thumbor
+          create_manifest thumbororg/thumbor
