@@ -277,8 +277,7 @@ fn apply(
             ]
         };
 
-        let mut idx_aa = 1;
-        for i in 0..pixel_count_x {
+        for (idx_aa, i) in (1..).zip(0..pixel_count_x) {
             let aa_x_adj_i32 = (x_f32 as i32) - (pixel_count_x - i) + a_radius;
 
             let aa = 1.0 - ((idx_aa as f32 / pixel_count_x as f32) * aa_amount);
@@ -309,7 +308,6 @@ fn apply(
                     has_alpha,
                 );
             }
-            idx_aa += 1;
         }
     }
 
@@ -387,8 +385,7 @@ fn apply(
             ]
         };
 
-        let mut idx_aa = 1;
-        for i in 0..pixel_count_y {
+        for (idx_aa, i) in (1..).zip(0..pixel_count_y) {
             let aa_y_loop_i32 = y_i32 + pixel_count_y - i;
             let aa = 1.0 - ((idx_aa as f32 / pixel_count_y as f32) * aa_amount);
 
@@ -418,7 +415,6 @@ fn apply(
                     has_alpha,
                 );
             }
-            idx_aa += 1;
         }
     }
 
