@@ -60,17 +60,17 @@ class FileLoaderTestCase(TestCase):
         # %2e%2e decodes to ".." — must be blocked even though the encoded
         # form passes a naive abspath/startswith check on the raw string.
         result = await self.load_file("%2e%2e/%2e%2e/etc/passwd")
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(None)
-        expect(result.successful).to_be_false()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
 
     @gen_test
     async def test_should_fail_with_mixed_encoded_traversal(self):
         # Mix of literal ".." and percent-encoded ".." segments.
         result = await self.load_file("../%2e%2e/etc/passwd")
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(None)
-        expect(result.successful).to_be_false()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
 
     @gen_test
     async def test_should_fail_when_decoded_path_escapes_to_sibling_prefix(
@@ -91,9 +91,9 @@ class FileLoaderTestCase(TestCase):
             ctx = Context(config=config)
             result = await load(ctx, "%2e%2e/images-sibling/secret.txt")
 
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal(None)
-        expect(result.successful).to_be_false()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer is None
+        assert not result.successful
 
     @gen_test
     async def test_should_load_file_with_spaces_in_name(self):

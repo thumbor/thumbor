@@ -142,30 +142,18 @@ class ValidateUrlTestCase(TestCase):
         config = Config()
         config.ALLOWED_SOURCES = ["s.glbimg.com"]
         ctx = Context(None, config, None)
-        expect(
-            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
-        ).to_be_true()
-        expect(
-            loader.validate(ctx, "http://sXglbimgYcom/logo.jpg")
-        ).to_be_false()
-        expect(
-            loader.validate(ctx, "http://sAglbimg.com/logo.jpg")
-        ).to_be_false()
+        assert loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
+        assert not loader.validate(ctx, "http://sXglbimgYcom/logo.jpg")
+        assert not loader.validate(ctx, "http://sAglbimg.com/logo.jpg")
 
     def test_legacy_regex_string_pattern_still_works(self):
         loaders.WARNED_LEGACY_ALLOWED_SOURCE_REGEXES.clear()
         config = Config()
         config.ALLOWED_SOURCES = [r".+\.glbimg\.com"]
         ctx = Context(None, config, None)
-        expect(
-            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
-        ).to_be_true()
-        expect(
-            loader.validate(ctx, "http://media.glbimg.com/logo.jpg")
-        ).to_be_true()
-        expect(
-            loader.validate(ctx, "http://sXglbimgYcom/logo.jpg")
-        ).to_be_false()
+        assert loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
+        assert loader.validate(ctx, "http://media.glbimg.com/logo.jpg")
+        assert not loader.validate(ctx, "http://sXglbimgYcom/logo.jpg")
 
     def test_legacy_regex_string_pattern_logs_warning_once(self):
         loaders.WARNED_LEGACY_ALLOWED_SOURCE_REGEXES.clear()
@@ -177,10 +165,8 @@ class ValidateUrlTestCase(TestCase):
             loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
             loader.validate(ctx, "http://media.glbimg.com/logo.jpg")
 
-        expect(warning.call_count).to_equal(1)
-        expect(
-            "ALLOWED_SOURCES regex strings" in warning.call_args[0][0]
-        ).to_be_true()
+        assert warning.call_count == 1
+        assert "ALLOWED_SOURCES regex strings" in warning.call_args[0][0]
 
     def test_allows_compiled_regex_pattern(self):
         """Compiled patterns should work as real regexes."""
@@ -189,15 +175,9 @@ class ValidateUrlTestCase(TestCase):
             re.compile(r"https?://cdn\d+\.example\.com/.*")
         ]
         ctx = Context(None, config, None)
-        expect(
-            loader.validate(ctx, "http://cdn1.example.com/img.jpg")
-        ).to_be_true()
-        expect(
-            loader.validate(ctx, "https://cdn99.example.com/img.jpg")
-        ).to_be_true()
-        expect(
-            loader.validate(ctx, "http://cdnXX.example.com/img.jpg")
-        ).to_be_false()
+        assert loader.validate(ctx, "http://cdn1.example.com/img.jpg")
+        assert loader.validate(ctx, "https://cdn99.example.com/img.jpg")
+        assert not loader.validate(ctx, "http://cdnXX.example.com/img.jpg")
 
     def test_without_allowed_sources(self):
         config = Config()

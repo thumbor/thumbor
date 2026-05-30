@@ -14,11 +14,11 @@ from xml.etree.ElementTree import ParseError
 
 import pytest
 
-# pylint: disable=line-too-long
-
 from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.engines import BaseEngine
+
+# pylint: disable=line-too-long
 
 STORAGE_PATH = abspath(join(dirname(__file__), "../fixtures/images/"))
 

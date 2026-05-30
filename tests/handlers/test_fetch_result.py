@@ -9,7 +9,6 @@
 
 from unittest.mock import Mock
 
-
 from tests.base import TestCase
 from thumbor.handlers import FetchResult
 
