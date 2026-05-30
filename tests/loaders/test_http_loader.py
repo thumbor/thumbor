@@ -13,6 +13,7 @@
 import re
 import time
 from os.path import abspath, dirname, join
+from unittest import mock
 from urllib.parse import quote
 
 import tornado.web
@@ -22,6 +23,7 @@ from tornado.testing import gen_test
 
 import thumbor.loaders.http_loader as loader
 from tests.base import TestCase
+from thumbor import loaders
 from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.loaders import LoaderResult
@@ -138,6 +140,71 @@ class ValidateUrlTestCase(TestCase):
         expect(
             loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
         ).to_be_true()
+
+    def test_dot_in_string_pattern_is_literal(self):
+        """Dots in plain-string patterns must not act as regex wildcards.
+
+        e.g. "s.glbimg.com" must not match "sXglbimgYcom".
+        """
+        config = Config()
+        config.ALLOWED_SOURCES = ["s.glbimg.com"]
+        ctx = Context(None, config, None)
+        expect(
+            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
+        ).to_be_true()
+        expect(
+            loader.validate(ctx, "http://sXglbimgYcom/logo.jpg")
+        ).to_be_false()
+        expect(
+            loader.validate(ctx, "http://sAglbimg.com/logo.jpg")
+        ).to_be_false()
+
+    def test_legacy_regex_string_pattern_still_works(self):
+        loaders.WARNED_LEGACY_ALLOWED_SOURCE_REGEXES.clear()
+        config = Config()
+        config.ALLOWED_SOURCES = [r".+\.glbimg\.com"]
+        ctx = Context(None, config, None)
+        expect(
+            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
+        ).to_be_true()
+        expect(
+            loader.validate(ctx, "http://media.glbimg.com/logo.jpg")
+        ).to_be_true()
+        expect(
+            loader.validate(ctx, "http://sXglbimgYcom/logo.jpg")
+        ).to_be_false()
+
+    def test_legacy_regex_string_pattern_logs_warning_once(self):
+        loaders.WARNED_LEGACY_ALLOWED_SOURCE_REGEXES.clear()
+        config = Config()
+        config.ALLOWED_SOURCES = [r".+\.glbimg\.com"]
+        ctx = Context(None, config, None)
+
+        with mock.patch.object(loaders.logger, "warning") as warning:
+            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
+            loader.validate(ctx, "http://media.glbimg.com/logo.jpg")
+
+        expect(warning.call_count).to_equal(1)
+        expect(
+            "ALLOWED_SOURCES regex strings" in warning.call_args[0][0]
+        ).to_be_true()
+
+    def test_allows_compiled_regex_pattern(self):
+        """Compiled patterns should work as real regexes."""
+        config = Config()
+        config.ALLOWED_SOURCES = [
+            re.compile(r"https?://cdn[0-9]+\.example\.com/.*")
+        ]
+        ctx = Context(None, config, None)
+        expect(
+            loader.validate(ctx, "http://cdn1.example.com/img.jpg")
+        ).to_be_true()
+        expect(
+            loader.validate(ctx, "https://cdn99.example.com/img.jpg")
+        ).to_be_true()
+        expect(
+            loader.validate(ctx, "http://cdnXX.example.com/img.jpg")
+        ).to_be_false()
 
     def test_without_allowed_sources(self):
         config = Config()
