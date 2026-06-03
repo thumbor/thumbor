@@ -12,9 +12,7 @@ from typing import Dict, Pattern
 
 from thumbor.utils import logger
 
-LEGACY_ALLOWED_SOURCE_REGEX_MARKERS = re.compile(
-    r"(\\|[\^\$\*\+\?\{\}\[\]\(\)\|])"
-)
+LEGACY_ALLOWED_SOURCE_REGEX_MARKERS = re.compile(r"[\\^$*+?{}\[\]()|]")
 WARNED_LEGACY_ALLOWED_SOURCE_REGEXES = set()
 
 
