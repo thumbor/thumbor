@@ -7,8 +7,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from asyncio import to_thread
 from os import makedirs
 from os.path import abspath, dirname, join
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from preggy import expect
@@ -81,8 +83,10 @@ class FileLoaderTestCase(TestCase):
             makedirs(root)
             makedirs(sibling)
 
-            with open(join(sibling, "secret.txt"), "wb") as secret_file:
-                secret_file.write(b"secret")
+            await to_thread(
+                Path(sibling, "secret.txt").write_bytes,
+                b"secret",
+            )
 
             config = Config(FILE_LOADER_ROOT_PATH=root)
             ctx = Context(config=config)
