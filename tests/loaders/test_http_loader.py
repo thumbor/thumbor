@@ -193,7 +193,7 @@ class ValidateUrlTestCase(TestCase):
         """Compiled patterns should work as real regexes."""
         config = Config()
         config.ALLOWED_SOURCES = [
-            re.compile(r"https?://cdn[0-9]+\.example\.com/.*")
+            re.compile(r"https?://cdn\d+\.example\.com/.*")
         ]
         ctx = Context(None, config, None)
         expect(
