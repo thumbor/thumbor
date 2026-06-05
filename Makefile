@@ -1,21 +1,26 @@
-PYTHON = python
-.PHONY: docs build
+UV = uv
+UV_PROJECT_ENVIRONMENT ?= .uv-venv
+export UV_PROJECT_ENVIRONMENT
+
+.PHONY: docs build lcov setup-ci
 
 OS := $(shell uname)
 
 run: compile_ext
-	@thumbor -l debug -d -c thumbor/thumbor.conf
+	@$(UV) run thumbor -l debug -d -c thumbor/thumbor.conf
 
 run-prod: compile_ext
-	@thumbor -l error -c thumbor/thumbor.conf
+	@$(UV) run thumbor -l error -c thumbor/thumbor.conf
 
 setup:
-	@$(PYTHON) -m pip install -e .[tests,all]
+	@$(UV) sync --extra tests --extra all
 	@echo  "\n\nYou are strongly recommended to run 'pre-commit install'\n"
 
+setup-ci:
+	@$(UV) sync --locked --extra tests --extra all
+
 compile_ext build:
-	@$(PYTHON) -m pip install setuptools
-	@$(PYTHON) setup.py build_ext -i
+	@$(UV) run python setup.py build_ext -i
 
 test: build redis
 	@$(MAKE) unit coverage
@@ -25,24 +30,27 @@ test: build redis
 
 ci_test: build
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
+	@echo "TORNADO IS `$(UV) run python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
 integration_run integration int:
-	@pytest -sv integration_tests/ -p no:tldr
+	@$(UV) run pytest -sv integration_tests/ -p no:tldr
 
 pint pintegration:
-	@pytest -sv integration_tests/ -p no:tldr -n `nproc`
+	@$(UV) run pytest -sv integration_tests/ -p no:tldr -n `nproc`
 
 coverage:
-	@coverage report -m --fail-under=10
+	@$(UV) run coverage report -m --fail-under=10
+
+lcov:
+	@$(UV) run coverage lcov
 
 unit:
-	@pytest -n `nproc` --cov=thumbor tests/
+	@$(UV) run pytest -n `nproc` --cov=thumbor tests/
 
 sequential-unit:
-	@pytest -sv --junit-xml=test-results/unit/results.xml --cov=thumbor tests/
+	@$(UV) run pytest -sv --junit-xml=test-results/unit/results.xml --cov=thumbor tests/
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown
@@ -56,22 +64,22 @@ redis: kill_redis
 	@redis-cli -p 6668 -a hey_you info
 
 format:
-	@black .
+	@$(UV) run black .
 
 flake:
-	@flake8 --config .flake8
+	@$(UV) run flake8 --config .flake8
 
 pylint:
-	@pylint --load-plugins=pylint.extensions.no_self_use thumbor tests
+	@$(UV) run pylint --load-plugins=pylint.extensions.no_self_use thumbor tests
 
 setup_docs:
-	@$(PYTHON) -m pip install -r docs/requirements.txt
+	@$(UV) sync --inexact --group docs
 
 build_docs:
-	@cd docs && make html
+	@$(UV) run --group docs make -C docs html
 
 docs:
-	@sphinx-reload --host 0.0.0.0 --port 5555 docs/
+	@$(UV) run --group docs sphinx-reload --host 0.0.0.0 --port 5555 docs/
 
 sample_images:
 	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 integration_tests/imgs/animated.gif

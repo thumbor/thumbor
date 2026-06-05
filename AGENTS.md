@@ -5,21 +5,23 @@ crops, and applies filters to images on demand via URL parameters. The image
 processing pipeline is pluggable: loaders, storages, engines, detectors, and
 filters are all swappable.
 
-## Dev environment setup
+## Dev Environment Setup
 
-- **Prerequisites:** Python 3.9+, Redis, a C compiler (for native extensions)
-- Install all dependencies (creates an editable install with test extras):
+- **Prerequisites:** Python 3.10+, uv, Redis, a C compiler (for native
+  extensions)
+- Install all dependencies (creates `.uv-venv` with an editable install, test
+  tools, and optional imaging libraries):
 
   ```
   make setup
   ```
 
-  Equivalent to: `pip install -e .[tests]`
+  Equivalent to: `uv sync --extra tests --extra all`
 
 - Install pre-commit hooks (run once after setup):
 
   ```
-  pre-commit install
+  uv run pre-commit install
   ```
 
 - Compile C extensions (required before running the server or tests locally):
@@ -77,7 +79,7 @@ Other CLI entry points registered by the package:
 
   If you hit "Too many open files", run `ulimit -S -n 2048` first.
 
-- In CI, everything runs inside Docker across a Python 3.10–3.13 matrix via
+- In CI, everything runs inside Docker across a Python 3.10–3.14 matrix via
   GitHub Actions.
 
 ## Code style
@@ -90,7 +92,8 @@ Other CLI entry points registered by the package:
   `warn_return_any`). Config in `mypy.ini`.
 - Pre-commit enforces all of the above plus trailing whitespace, end-of-file
   newlines, and YAML validity.
-- CI runs `black --check`, `flake8`, and `isort` as separate jobs on every push/PR.
+- CI validates `uv.lock` and runs `black --check`, `flake8`, and `isort` on
+  every push/PR.
 
 ## Project structure
 

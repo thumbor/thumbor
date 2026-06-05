@@ -12,28 +12,28 @@ create your own clone of thumbor.
 Dependencies
 ------------
 
-We seriously advise you to use
-`virtualenv <http://pypi.python.org/pypi/virtualenv>`__ since it will
-keep your environment clean of thumbor's dependencies and you can choose
-when to "turn them on".
+Install `uv <https://docs.astral.sh/uv/>`__. The project uses uv to create
+the local ``.uv-venv``, install thumbor in editable mode, and keep dependency
+versions in sync with ``uv.lock``.
 
-You'll also need python >= 3.10 and `python poetry <https://python-poetry.org/>`_.
+You'll also need Python >= 3.10.
 
-Installing poetry should be as easy as ``pip install poetry``, but you can find more about it in their website.
-
-Other than that, you'll also need `redis-server <https://redis.io>`` installed (for queued detector unit tests).
+Other than that, you'll also need `redis-server <https://redis.io>`__
+installed (for queued detector unit tests).
 
 Initializing the Environment
 ----------------------------
 
-Once you've created your virtualenv, and installed poetry, make sure you can use poetry::
+Make sure you can use uv::
 
-    $ poetry --version
-    Poetry version 1.0.3
+    $ uv --version
+    uv 0.11.19
 
-You should see something similar. After that we just need to download all python packages with::
+You should see something similar. After that, sync the development
+environment and compile the native extensions with::
 
     $ make setup
+    $ make compile_ext
 
 Running the Tests
 -----------------
@@ -57,9 +57,14 @@ for more info on this.
 Linting your code
 -----------------
 
-Please ensure that your editor is configured to use `black <https://github.com/psf/black>`_, `flake8 <https://flake8.pycqa.org/en/latest/>`_ and `pylint <https://www.pylint.org/>`_.
+Please ensure that your editor is configured to use
+`black <https://github.com/psf/black>`_,
+`flake8 <https://flake8.pycqa.org/en/latest/>`_ and
+`pylint <https://www.pylint.org/>`_.
 
-Even if that's the case, don't forget to run ``make flake pylint`` before commiting and fixing any issues you find. That way you won't get a request for doing so in your PR.
+Even if that's the case, don't forget to run ``make flake pylint`` before
+committing and fixing any issues you find. That way you won't get a request
+for doing so in your PR.
 
 Pull Requests
 -------------
@@ -103,4 +108,4 @@ Or if you want to run a specific python version with your tests::
 
     make test-docker-310-run
 
-Just replace '310' with the python version you want: 310, 311, 312 or 313.
+Just replace '310' with the python version you want: 310, 311, 312, 313 or 314.

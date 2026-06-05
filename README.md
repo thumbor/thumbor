@@ -106,6 +106,20 @@ For more information about the Docker image and available tags, visit the [GitHu
 
 For more ways, please check out [Installation](https://thumbor.readthedocs.io/en/latest/installing.html).
 
+## Development
+
+Install [uv](https://docs.astral.sh/uv/), then sync the development
+environment and compile the native extensions:
+
+```bash
+make setup
+make compile_ext
+make unit
+```
+
+The lockfile is managed with `uv lock` and should be committed when
+dependencies change.
+
 ### Run
 
 Running it is as easy as hit:

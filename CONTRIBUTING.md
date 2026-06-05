@@ -27,35 +27,23 @@ There are a few things you'll need in order to properly start hacking on it.
 You'll need [redis-server](https://redis.io)
 installed (for queued detector unit tests).
 
-Other than that, we seriously advise you to use
-[virtualenv](http://pypi.python.org/pypi/virtualenv) since it will keep
-your environment clean of thumbor's dependencies and you can choose when
-to "turn them on".
+Other than that, install [uv](https://docs.astral.sh/uv/). The project uses
+uv to create a local `.uv-venv`, install editable dependencies, and keep the
+development environment in sync with `uv.lock`.
 
-The project requires Python 3.9+, and in this version virtualenv is already installed by default, to create a virtual environment follow the next steps:
-
-
-1. Create a virtual environment, in the folder .venv, located in the user's home folder
-```
-$ python3 -m venv ~/.venv/<my_env_name>
-```
-
-2. Activate the virtual environment
-```
-$ source ~/.venv/<my_env_name>/bin/activate
-```
-
-3. Now you can install the dependencies in your virtual environment
-4. In case you want deactivate your virtual environment:
-```
-$ deactivate
-```
+The project requires Python 3.10+.
 
 ## Initializing the Environment
 
-You can install thumbor dev dependencies with:
+You can install thumbor dev dependencies and optional imaging libraries with:
 
     $ make setup
+
+This runs `uv sync --extra tests --extra all`.
+
+Then compile the native extensions:
+
+    $ make compile_ext
 
 ## Running the Tests
 
