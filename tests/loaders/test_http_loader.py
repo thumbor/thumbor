@@ -4,7 +4,7 @@
 # https://github.com/thumbor/thumbor/wiki
 
 # Licensed under the MIT license:
-# http://www.opensource.org/licenses/mit-license
+# https://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 # Test file
@@ -124,15 +124,13 @@ class ValidateUrlTestCase(TestCase):
         assert not loader.validate(
             ctx, "http://www.google.com/logo.jpg"  # NOSONAR
         )
-        assert not loader.validate(
-            ctx, "http://s2.glbimg.com/logo.jpg"  # NOSONAR
-        )
+        assert not loader.validate(ctx, "https://s2.glbimg.com/logo.jpg")
         assert not loader.validate(  # pylint: disable=line-too-long
             ctx,
             "/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=",
         )
         assert loader.validate(ctx, "https://www.google.com/img/logo.jpg")
-        assert loader.validate(ctx, "http://s.glbimg.com/logo.jpg")  # NOSONAR
+        assert loader.validate(ctx, "https://s.glbimg.com/logo.jpg")
 
     def test_dot_in_string_pattern_is_literal(self):
         """Dots in plain-string patterns must not act as regex wildcards.
@@ -142,18 +140,18 @@ class ValidateUrlTestCase(TestCase):
         config = Config()
         config.ALLOWED_SOURCES = ["s.glbimg.com"]
         ctx = Context(None, config, None)
-        assert loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
-        assert not loader.validate(ctx, "http://sXglbimgYcom/logo.jpg")
-        assert not loader.validate(ctx, "http://sAglbimg.com/logo.jpg")
+        assert loader.validate(ctx, "https://s.glbimg.com/logo.jpg")
+        assert not loader.validate(ctx, "https://sXglbimgYcom/logo.jpg")
+        assert not loader.validate(ctx, "https://sAglbimg.com/logo.jpg")
 
     def test_legacy_regex_string_pattern_still_works(self):
         loaders.WARNED_LEGACY_ALLOWED_SOURCE_REGEXES.clear()
         config = Config()
         config.ALLOWED_SOURCES = [r".+\.glbimg\.com"]
         ctx = Context(None, config, None)
-        assert loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
-        assert loader.validate(ctx, "http://media.glbimg.com/logo.jpg")
-        assert not loader.validate(ctx, "http://sXglbimgYcom/logo.jpg")
+        assert loader.validate(ctx, "https://s.glbimg.com/logo.jpg")
+        assert loader.validate(ctx, "https://media.glbimg.com/logo.jpg")
+        assert not loader.validate(ctx, "https://sXglbimgYcom/logo.jpg")
 
     def test_legacy_regex_string_pattern_logs_warning_once(self):
         loaders.WARNED_LEGACY_ALLOWED_SOURCE_REGEXES.clear()
@@ -162,8 +160,8 @@ class ValidateUrlTestCase(TestCase):
         ctx = Context(None, config, None)
 
         with mock.patch.object(loaders.logger, "warning") as warning:
-            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
-            loader.validate(ctx, "http://media.glbimg.com/logo.jpg")
+            loader.validate(ctx, "https://s.glbimg.com/logo.jpg")
+            loader.validate(ctx, "https://media.glbimg.com/logo.jpg")
 
         assert warning.call_count == 1
         assert "ALLOWED_SOURCES regex strings" in warning.call_args[0][0]
@@ -175,17 +173,17 @@ class ValidateUrlTestCase(TestCase):
             re.compile(r"https?://cdn\d+\.example\.com/.*")
         ]
         ctx = Context(None, config, None)
-        assert loader.validate(ctx, "http://cdn1.example.com/img.jpg")
+        assert loader.validate(
+            ctx, "http://cdn1.example.com/img.jpg"  # NOSONAR
+        )
         assert loader.validate(ctx, "https://cdn99.example.com/img.jpg")
-        assert not loader.validate(ctx, "http://cdnXX.example.com/img.jpg")
+        assert not loader.validate(ctx, "https://cdnXX.example.com/img.jpg")
 
     def test_without_allowed_sources(self):
         config = Config()
         config.ALLOWED_SOURCES = []
         ctx = Context(None, config, None)
-        is_valid = loader.validate(
-            ctx, "http://www.google.com/logo.jpg"  # NOSONAR
-        )
+        is_valid = loader.validate(ctx, "https://www.google.com/logo.jpg")
         assert is_valid
 
 
@@ -210,7 +208,7 @@ class NormalizeUrlTestCase(TestCase):
 class DummyAsyncHttpClientTestCase(TestCase):
     # By default Tornado allows to create one (Async)HttpClient per
     # IOLoop instance
-    # http://www.tornadoweb.org/en/stable/httpclient.html#tornado.httpclient.AsyncHTTPClient
+    # https://www.tornadoweb.org/en/stable/httpclient.html#tornado.httpclient.AsyncHTTPClient
     # AsyncHTTPTestCase provides a lot of useful code, which starts http
     # server listening with an app running.
     # But it also constructs AsyncHttpClient, which then by default is
