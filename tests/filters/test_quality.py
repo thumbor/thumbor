@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -21,6 +20,6 @@ class QualityFilterTestCase(FilterTestCase):
         )
         expected = self.get_fixture("quality-10%.jpg")
 
-        expect(self.context.request.quality).to_equal(10)
+        assert self.context.request.quality == 10
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99

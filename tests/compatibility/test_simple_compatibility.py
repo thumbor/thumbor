@@ -7,7 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
+import pytest
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -24,14 +24,15 @@ class SimpleCompatibilityTestCase(TestCase):
         first, second, response = await compatibility_get(
             1, second=2, func=get_result
         )
-        expect(first).to_equal(1)
-        expect(second).to_equal(2)
-        expect(response).to_be_true()
+        assert first == 1
+        assert second == 2
+        assert response is True
 
     @gen_test
     async def test_fails_without_func(self):
-        with expect.error_to_happen(
-            RuntimeError,
-            message="'func' argument can't be None when calling thumbor's compatibility layer.",
-        ):
+        msg = (
+            "'func' argument can't be None when calling thumbor's "
+            "compatibility layer."
+        )
+        with pytest.raises(RuntimeError, match=msg):
             await compatibility_get(1, second=2)

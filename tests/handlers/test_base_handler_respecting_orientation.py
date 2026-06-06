@@ -9,7 +9,6 @@
 
 from shutil import which
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.handlers.test_base_handler import BaseImagingTestCase
@@ -46,15 +45,15 @@ class ImageOperationsWithRespectOrientation(BaseImagingTestCase):
         response = await self.async_fetch(
             "/unsafe/10_years_of_Wikipedia_by_Guillaume_Paumier.jpg"
         )
-        expect(response.code).to_equal(200)
+        assert response.code == 200
         engine = Engine(self.context)
         engine.load(response.body, ".jpg")
-        expect(engine.size).to_equal((4052, 3456))
+        assert engine.size == (4052, 3456)
 
     @gen_test
     async def test_should_be_ok_without_orientation_exif(self):
         response = await self.async_fetch("/unsafe/20x20.jpg")
-        expect(response.code).to_equal(200)
+        assert response.code == 200
         engine = Engine(self.context)
         engine.load(response.body, ".jpg")
-        expect(engine.size).to_equal((20, 20))
+        assert engine.size == (20, 20)

@@ -7,8 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -34,7 +32,7 @@ class BackgroundColorFilterTestCase(FilterTestCase):
         )
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.97)
+        assert ssim > 0.97
 
     @gen_test
     async def test_background_color_filter_with_auto_color(self):
@@ -50,4 +48,4 @@ class BackgroundColorFilterTestCase(FilterTestCase):
         )
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.97)
+        assert ssim > 0.97

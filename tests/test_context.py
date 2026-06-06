@@ -7,9 +7,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import re
 from unittest import TestCase, mock
 
-from preggy import expect
+import pytest
 
 from thumbor.config import Config
 from thumbor.context import (
@@ -29,19 +30,19 @@ class ContextTestCase(TestCase):
     def test_can_create_context():
         ctx = Context()
 
-        expect(ctx.server).to_be_null()
-        expect(ctx.config).to_be_null()
-        expect(ctx.modules).to_be_null()
+        assert ctx.server is None
+        assert ctx.config is None
+        assert ctx.modules is None
 
-        expect(ctx.metrics).not_to_be_null()
-        expect(ctx.metrics).to_be_instance_of(Metrics)
+        assert ctx.metrics is not None
+        assert isinstance(ctx.metrics, Metrics)
 
-        expect(ctx.filters_factory).to_be_instance_of(FiltersFactory)
-        expect(ctx.filters_factory.filter_classes_map).to_be_empty()
-        expect(ctx.request_handler).to_be_null()
-        expect(ctx.thread_pool).to_be_instance_of(ThreadPool)
-        expect(ctx.headers).to_be_instance_of(dict)
-        expect(ctx.headers).to_be_empty()
+        assert isinstance(ctx.filters_factory, FiltersFactory)
+        assert not ctx.filters_factory.filter_classes_map
+        assert ctx.request_handler is None
+        assert isinstance(ctx.thread_pool, ThreadPool)
+        assert isinstance(ctx.headers, dict)
+        assert not ctx.headers
 
     @staticmethod
     def test_can_create_context_with_importer():
@@ -50,8 +51,8 @@ class ContextTestCase(TestCase):
         importer.import_modules()
         ctx = Context(config=cfg, importer=importer)
 
-        expect(ctx.modules).not_to_be_null()
-        expect(ctx.modules.importer).to_equal(importer)
+        assert ctx.modules is not None
+        assert ctx.modules.importer == importer
 
     @staticmethod
     def test_can_create_context_without_importer_metrics():
@@ -61,8 +62,8 @@ class ContextTestCase(TestCase):
         importer = Importer(cfg)
         ctx = Context(config=cfg, importer=importer)
 
-        expect(ctx.modules).not_to_be_null()
-        expect(ctx.modules.importer).to_equal(importer)
+        assert ctx.modules is not None
+        assert ctx.modules.importer == importer
 
     @staticmethod
     def test_can_config_define_app_class():
@@ -81,7 +82,7 @@ class ContextTestCase(TestCase):
         importer = Importer(cfg)
         ctx = Context(config=cfg, importer=importer, server=server)
 
-        expect(ctx.app_class).to_equal("config.app")
+        assert ctx.app_class == "config.app"
 
     @staticmethod
     def test_can_server_app_class_override_config():
@@ -100,7 +101,7 @@ class ContextTestCase(TestCase):
         importer = Importer(cfg)
         ctx = Context(config=cfg, importer=importer, server=server)
 
-        expect(ctx.app_class).to_equal("server.app")
+        assert ctx.app_class == "server.app"
 
 
 class ServerParametersTestCase(TestCase):
@@ -117,19 +118,17 @@ class ServerParametersTestCase(TestCase):
             gifsicle_path="gifsicle_path",
         )
 
-        expect(params.port).to_equal(8888)
-        expect(params.ip).to_equal("0.0.0.0")
-        expect(params.config_path).to_equal("/my/config_path.conf")
-        expect(params.keyfile).to_equal("./tests/fixtures/thumbor.key")
-        expect(params.log_level).to_equal("debug")
-        expect(params.app_class).to_equal("app")
-        expect(
-            params._security_key  # pylint: disable=protected-access
-        ).to_equal("SECURITY_KEY_FILE")
-        expect(params.fd).to_equal("fd")
-        expect(params.gifsicle_path).to_equal("gifsicle_path")
+        assert params.port == 8888
+        assert params.ip == "0.0.0.0"
+        assert params.config_path == "/my/config_path.conf"
+        assert params.keyfile == "./tests/fixtures/thumbor.key"
+        assert params.log_level == "debug"
+        assert params.app_class == "app"
+        assert getattr(params, "_security_key") == b"SECURITY_KEY_FILE"
+        assert params.fd == "fd"
+        assert params.gifsicle_path == "gifsicle_path"
 
-        expect(params.security_key).to_equal("SECURITY_KEY_FILE")
+        assert params.security_key == b"SECURITY_KEY_FILE"
 
     @staticmethod
     def test_can_set_security_key():
@@ -145,9 +144,7 @@ class ServerParametersTestCase(TestCase):
         )
 
         params.security_key = "testé"
-        expect(
-            params._security_key  # pylint: disable=protected-access
-        ).to_equal("testé".encode("utf-8"))
+        assert params.security_key == "testé"
 
     @staticmethod
     def test_loading_does_nothing_if_no_keyfile():
@@ -161,9 +158,7 @@ class ServerParametersTestCase(TestCase):
             fd="fd",
             gifsicle_path="gifsicle_path",
         )
-        expect(
-            params._security_key  # pylint: disable=protected-access
-        ).to_be_null()
+        assert params.security_key is None
 
     @staticmethod
     def test_cant_load_invalid_security_key_file():
@@ -171,7 +166,7 @@ class ServerParametersTestCase(TestCase):
             "Could not find security key file at /bogus."
             " Please verify the keypath argument."
         )
-        with expect.error_to_happen(ValueError, message=expected_msg):
+        with pytest.raises(ValueError, match=re.escape(expected_msg)):
             ServerParameters(
                 port=8888,
                 ip="0.0.0.0",
@@ -189,58 +184,56 @@ class RequestParametersTestCase(TestCase):
     def test_can_create_request_parameters():
         params = RequestParameters()
 
-        expect(params.debug).to_be_false()
-        expect(params.meta).to_be_false()
-        expect(params.trim).to_be_null()
-        expect(params.crop).to_be_like(
-            {"top": 0, "right": 0, "bottom": 0, "left": 0}
-        )
-        expect(params.should_crop).to_be_false()
+        assert params.debug is False
+        assert params.meta is False
+        assert params.trim is None
+        assert params.crop == {"top": 0, "right": 0, "bottom": 0, "left": 0}
+        assert params.should_crop is False
 
-        expect(params.adaptive).to_be_false()
-        expect(params.full).to_be_false()
-        expect(params.fit_in).to_be_false()
-        expect(params.stretch).to_be_false()
+        assert params.adaptive is False
+        assert params.full is False
+        assert params.fit_in is False
+        assert params.stretch is False
 
-        expect(params.width).to_equal(0)
-        expect(params.height).to_equal(0)
+        assert params.width == 0
+        assert params.height == 0
 
-        expect(params.horizontal_flip).to_be_false()
-        expect(params.vertical_flip).to_be_false()
+        assert params.horizontal_flip is False
+        assert params.vertical_flip is False
 
-        expect(params.halign).to_equal("center")
-        expect(params.valign).to_equal("middle")
+        assert params.halign == "center"
+        assert params.valign == "middle"
 
-        expect(params.smart).to_be_false()
+        assert params.smart is False
 
-        expect(params.filters).to_be_empty()
-        expect(params.image_url).to_be_null()
-        expect(params.url).to_be_null()
-        expect(params.detection_error).to_be_null()
-        expect(params.quality).to_equal(80)
-        expect(params.buffer).to_be_null()
+        assert params.filters == []
+        assert params.image_url is None
+        assert params.url is None
+        assert params.detection_error is None
+        assert params.quality == 80
+        assert params.buffer is None
 
-        expect(params.focal_points).to_be_empty()
+        assert params.focal_points == []
 
-        expect(params.hash).to_be_null()
-        expect(params.prevent_result_storage).to_be_false()
-        expect(params.unsafe).to_be_false()
-        expect(params.format).to_be_null()
-        expect(params.accepts_webp).to_be_false()
-        expect(params.max_bytes).to_be_null()
-        expect(params.max_age).to_be_null()
+        assert params.hash is None
+        assert params.prevent_result_storage is False
+        assert params.unsafe is False
+        assert params.format is None
+        assert params.accepts_webp is False
+        assert params.max_bytes is None
+        assert params.max_age is None
 
     @staticmethod
     def test_can_get_params_with_trim():
         params = RequestParameters(trim="trim")
-        expect(params.trim_pos).to_equal("top-left")
-        expect(params.trim_tolerance).to_equal(0)
+        assert params.trim_pos == "top-left"
+        assert params.trim_tolerance == 0
 
     @staticmethod
     def test_can_get_params_with_trim_with_custom_pos():
         params = RequestParameters(trim="trim:bottom-right:10")
-        expect(params.trim_pos).to_equal("bottom-right")
-        expect(params.trim_tolerance).to_equal(10)
+        assert params.trim_pos == "bottom-right"
+        assert params.trim_tolerance == 10
 
     @staticmethod
     def test_can_get_params_with_crop():
@@ -250,19 +243,25 @@ class RequestParametersTestCase(TestCase):
             crop_top=30,
             crop_bottom=40,
         )
-        expect(params.crop).to_be_like(
-            {"top": 30, "right": 20, "bottom": 40, "left": 10}
-        )
+        assert params.crop == {
+            "top": 30,
+            "right": 20,
+            "bottom": 40,
+            "left": 10,
+        }
 
     @staticmethod
     def test_can_get_params_with_custom_crop():
         params = RequestParameters(
             crop={"top": 30, "right": 20, "bottom": 40, "left": 10}
         )
-        expect(params.crop).to_be_like(
-            {"top": 30, "right": 20, "bottom": 40, "left": 10}
-        )
-        expect(params.should_crop).to_be_true()
+        assert params.crop == {
+            "top": 30,
+            "right": 20,
+            "bottom": 40,
+            "left": 10,
+        }
+        assert params.should_crop is True
 
     @staticmethod
     def test_can_get_orig_dimensions():
@@ -270,25 +269,25 @@ class RequestParametersTestCase(TestCase):
             width="orig",
             height="orig",
         )
-        expect(params.width).to_equal("orig")
-        expect(params.height).to_equal("orig")
+        assert params.width == "orig"
+        assert params.height == "orig"
 
     @staticmethod
     def test_can_add_filters():
         params = RequestParameters(filters=["a", "b"])
-        expect(params.filters).to_length(2)
+        assert len(params.filters) == 2
 
     @staticmethod
     def test_can_add_focal_points():
         params = RequestParameters(focal_points=["a", "b"])
-        expect(params.focal_points).to_length(2)
+        assert len(params.focal_points) == 2
 
     @staticmethod
     def test_can_get_params_from_request():
         request = mock.Mock(path="/test.jpg", headers={"Accept": "image/webp"})
         params = RequestParameters(request=request, image="/test.jpg")
-        expect(params.accepts_webp).to_be_true()
-        expect(params.image_url).to_equal("/test.jpg")
+        assert params.accepts_webp is True
+        assert params.image_url == "/test.jpg"
 
 
 class ContextImporterTestCase(TestCase):
@@ -302,21 +301,21 @@ class ContextImporterTestCase(TestCase):
         ctx = Context(config=cfg, importer=importer)
 
         ctx_importer = ContextImporter(ctx, importer)
-        expect(ctx_importer.context).to_equal(ctx)
-        expect(ctx_importer.importer).to_equal(importer)
-        expect(ctx_importer.engine).to_be_instance_of(importer.engine)
-        expect(ctx_importer.gif_engine).to_be_instance_of(importer.gif_engine)
+        assert ctx_importer.context == ctx
+        assert ctx_importer.importer == importer
 
-        expect(ctx_importer.storage).to_be_instance_of(importer.storage)
-        expect(ctx_importer.result_storage).to_be_instance_of(
-            importer.result_storage
-        )
-        expect(ctx_importer.upload_photo_storage).to_be_instance_of(
-            importer.upload_photo_storage
+        assert ctx_importer.engine.__class__ == importer.engine
+        assert ctx_importer.gif_engine.__class__ == importer.gif_engine
+
+        assert ctx_importer.storage.__class__ == importer.storage
+        assert ctx_importer.result_storage.__class__ == importer.result_storage
+        assert (
+            ctx_importer.upload_photo_storage.__class__
+            == importer.upload_photo_storage
         )
 
-        expect(ctx_importer.loader).to_equal(importer.loader)
-        expect(ctx_importer.detectors).to_equal(importer.detectors)
-        expect(ctx_importer.filters).to_equal(importer.filters)
-        expect(ctx_importer.optimizers).to_equal(importer.optimizers)
-        expect(ctx_importer.url_signer).to_equal(importer.url_signer)
+        assert ctx_importer.loader == importer.loader
+        assert ctx_importer.detectors == importer.detectors
+        assert ctx_importer.filters == importer.filters
+        assert ctx_importer.optimizers == importer.optimizers
+        assert ctx_importer.url_signer == importer.url_signer

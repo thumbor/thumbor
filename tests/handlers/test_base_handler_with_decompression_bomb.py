@@ -11,7 +11,6 @@ import shutil
 import tempfile
 from os.path import abspath, dirname, join
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -64,9 +63,9 @@ class ImageBadRequestDecompressionBomb(TestCase):
     @gen_test
     async def test_should_bad_request_if_bigger_than_75_megapixels(self):
         response = await self.get_as_webp("/unsafe/16384x16384.png")
-        expect(response.code).to_equal(400)
+        assert response.code == 400
 
     @gen_test
     async def test_should_bad_request_if_bigger_than_75_megapixels_jpeg(self):
         response = await self.get_as_webp("/unsafe/9643x10328.jpg")
-        expect(response.code).to_equal(400)
+        assert response.code == 400

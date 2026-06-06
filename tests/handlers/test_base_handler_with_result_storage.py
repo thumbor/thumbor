@@ -13,9 +13,9 @@ from os.path import dirname
 from shutil import which
 from unittest.mock import Mock, patch
 
-from preggy import expect
 from tornado.testing import gen_test
 
+from tests.base import assert_exists, assert_similar_to
 from tests.fixtures.images import animated_image
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
@@ -66,7 +66,7 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
         )
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
         self.context.request = Mock(
             accepts_webp=False,
@@ -74,8 +74,8 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         expected_path = self.result_storage.normalize_path(
             "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
         )
-        expect(expected_path).to_exist()
-        expect(response.body).to_be_similar_to(animated_image())
+        assert_exists(expected_path)
+        assert_similar_to(response.body, animated_image())
 
     @patch("tornado.ioloop.IOLoop.instance")
     @gen_test
@@ -84,7 +84,7 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/oGi9XL4nHJKGEKVHjHEp1Jg1KpM=/meta/animated.gif"
         )
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
         self.context.request = Mock(
             accepts_webp=False,
@@ -92,7 +92,7 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
         expected_path = self.result_storage.normalize_path(
             "/oGi9XL4nHJKGEKVHjHEp1Jg1KpM=/meta/animated.gif"
         )
-        expect(expected_path).to_exist()
+        assert_exists(expected_path)
 
         expected_source = {
             "frameCount": 2,
@@ -101,9 +101,9 @@ class ImageOperationsWithResultStorageTestCase(BaseImagingTestCase):
             "width": 100,
         }
         metadata = json.loads(response.body)
-        expect(metadata).to_include("thumbor")
-        expect(metadata["thumbor"]).to_include("source")
-        expect(metadata["thumbor"]["source"]).to_be_like(expected_source)
+        assert "thumbor" in metadata
+        assert "source" in metadata["thumbor"]
+        assert metadata["thumbor"]["source"] == expected_source
 
 
 class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
@@ -153,8 +153,8 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(animated_image())
+        assert response.code == 200
+        assert_similar_to(response.body, animated_image())
 
     @patch.object(FileResultStorage, "get", side_effect=Exception)
     @gen_test
@@ -162,5 +162,5 @@ class ImageOperationsResultStorageOnlyTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/gTr2Xr9lbzIa2CT_dL_O0GByeR0=/animated.gif"
         )
-        expect(response.code).to_equal(500)
-        expect(response.body).to_be_empty()
+        assert response.code == 500
+        assert not response.body
