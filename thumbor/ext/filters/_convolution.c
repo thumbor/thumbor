@@ -48,6 +48,10 @@ _convolution_apply(PyObject *self, PyObject *args)
     }
 
     kernel_size = PyTuple_Size(kernel_tuple);
+    if (columns_count <= 0) {
+        PyErr_SetString(PyExc_ValueError, "columns must be greater than 0");
+        return NULL;
+    }
     if ((kernel_size % columns_count != 0) || (kernel_size % 2 == 0) || ((kernel_size / columns_count) % 2) == 0) {
         // TODO: error, not a valid kernel
         return NULL;

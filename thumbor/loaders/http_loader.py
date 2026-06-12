@@ -15,7 +15,11 @@ from urllib.parse import quote, unquote, urlparse
 
 import tornado.httpclient
 
-from thumbor.loaders import LoaderResult
+from thumbor.loaders import (
+    LoaderResult,
+    looks_like_legacy_allowed_source_regex,
+    warn_legacy_allowed_source_regex,
+)
 from thumbor.utils import logger
 
 try:
@@ -61,8 +65,12 @@ def validate(context, url, normalize_url_func=_normalize_url):
             pattern, Pattern
         ):
             match = url
-        else:
+        elif looks_like_legacy_allowed_source_regex(pattern):
+            warn_legacy_allowed_source_regex(pattern)
             pattern = f"^{pattern}$"
+            match = res.hostname
+        else:
+            pattern = f"^{re.escape(pattern)}$"
             match = res.hostname
 
         if re.match(pattern, match):

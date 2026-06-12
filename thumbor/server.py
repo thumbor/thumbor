@@ -26,6 +26,7 @@ from thumbor.config import Config
 from thumbor.console import get_server_parameters
 from thumbor.context import Context
 from thumbor.importer import Importer
+from thumbor.loaders import warn_legacy_allowed_sources
 from thumbor.signal_handler import setup_signal_handler
 
 
@@ -85,6 +86,8 @@ def validate_config(config, server_parameters):
     if config.ENGINE or config.USE_GIFSICLE_ENGINE:
         # Error on Image.open when image pixel count is above MAX_IMAGE_PIXELS
         warnings.simplefilter("error", Image.DecompressionBombWarning)
+
+    warn_legacy_allowed_sources(config.ALLOWED_SOURCES)
 
     if config.USE_GIFSICLE_ENGINE:
         server_parameters.gifsicle_path = which("gifsicle")

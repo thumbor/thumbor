@@ -116,6 +116,20 @@ class ServerTestCase(TestCase):
         validate_config(conf, server_parameters)
         expect(server_parameters.security_key).to_equal("something")
 
+    @mock.patch.object(thumbor.server, "warn_legacy_allowed_sources")
+    def test_validate_config_warns_about_legacy_allowed_sources(
+        self, warning_mock
+    ):
+        server_parameters = mock.Mock(security_key=None)
+        conf = Config(
+            SECURITY_KEY="something",
+            ALLOWED_SOURCES=[r".+\.glbimg\.com"],
+        )
+
+        validate_config(conf, server_parameters)
+
+        warning_mock.assert_called_once_with(conf.ALLOWED_SOURCES)
+
     @mock.patch.object(thumbor.server, "which")
     def test_validate_gifsicle_path(self, which_mock):
         server_parameters = mock.Mock(security_key=None)

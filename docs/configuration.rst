@@ -197,18 +197,29 @@ This configuration defines the source of the images that thumbor will
 load. This is only used in the HttpLoader (check the LOADER
 configuration above).
 
-.. code:: python
-
-   ALLOWED_SOURCES=['http://s.glbimg.com']
-
-Another example with wildcards:
+Plain string entries are matched literally against the request hostname. Dots
+are not wildcards.
 
 .. code:: python
 
-   ALLOWED_SOURCES=['.+\.globo\.com', '.+\.glbimg\.com']
+   ALLOWED_SOURCES = ['s.glbimg.com']
 
-This is to get any images that are in ``*.globo.com`` or ``*.glbimg.com`` and it
-will fail with any other domains.
+Regex-like string entries are accepted only for backward compatibility and
+will log a warning. For wildcard or regular expression entries, use compiled
+regular expression objects. Compiled patterns are matched against the full
+normalized image URL.
+
+.. code:: python
+
+   import re
+
+   ALLOWED_SOURCES = [
+       re.compile(r'https?://[^/]+\.globo\.com/.*'),
+       re.compile(r'https?://[^/]+\.glbimg\.com/.*'),
+   ]
+
+This is to get any images that are in ``*.globo.com`` or ``*.glbimg.com`` and
+fail with any other domains.
 
 ACCESS\_CONTROL\_ALLOW\_ORIGIN\_HEADER
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -901,8 +912,10 @@ Example of Configuration File
    ## Defaults to: 1
    #MIN_HEIGHT = 1
 
-   ## Allowed domains for the http loader to download. These are regular
-   ## expressions.
+   ## Allowed sources for the HTTP loader. Plain strings are matched literally
+   ## against the request hostname. Legacy regex-like strings still work for
+   ## compatibility, but compiled re.Pattern objects are recommended for new
+   ## regular expressions or wildcards.
    ## Defaults to: [
    #]
 

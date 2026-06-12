@@ -67,7 +67,15 @@ Config.define(
 Config.define(
     "ALLOWED_SOURCES",
     [],
-    "Allowed domains for the http loader to download. These are regular expressions.",
+    (
+        "Allowed sources for the HTTP loader. Each entry is matched against the "
+        "request hostname. Plain strings are matched literally (dots are NOT "
+        "wildcards). Regex-like strings are accepted only for backward "
+        "compatibility and log a warning; use compiled patterns for new "
+        "regular expressions: "
+        "re.compile(r'.*\\.mydomain\\.com'). Example: "
+        "ALLOWED_SOURCES = ['images.mydomain.com', re.compile(r'cdn[0-9]+\\.example\\.com')]"
+    ),
     "Imaging",
 )
 Config.define(
