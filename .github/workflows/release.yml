@@ -11,9 +11,6 @@ on:
 permissions:
   contents: read
   packages: write
-  id-token: write
-  attestations: write
-  artifact-metadata: write
 
 env:
   CIBW_PROJECT_REQUIRES_PYTHON: ">=3.10"
@@ -74,6 +71,9 @@ jobs:
     name: Upload to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/download-artifact@v8
         with:
@@ -257,6 +257,11 @@ jobs:
     needs: docker-build
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     strategy:
       fail-fast: false
       matrix:
