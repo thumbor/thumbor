@@ -15,37 +15,73 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: psf/black@87928e6d6761a4a6d22250e1fee5601b3998086e # 26.5.1
+      - uses: actions/setup-python@v6
         with:
-          options: "--check --verbose"
+          python-version: "3.14"
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.11.19"
+      - name: Install test dependencies
+        run: uv sync --locked --extra tests
+      - name: Run Black
+        run: uv run --locked --extra tests black --check --verbose .
   flake8:
-    permissions:
-      contents: read # to fetch code (actions/checkout)
-      checks: write # to update checks
-
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.x"
+          python-version: "3.14"
       - uses: actions/checkout@v7
-      - name: Install flake8
-        run: pip install flake8
-      - name: Run flake8
-        uses: suo/flake8-github-action@3e87882219642e01aa8a6bbd03b4b0adb8542c2a # v1 release
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
-          checkName: "flake8"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: "0.11.19"
+      - name: Install test dependencies
+        run: uv sync --locked --extra tests
+      - name: Run flake8
+        run: uv run --locked --extra tests flake8 --config .flake8 thumbor tests integration_tests setup.py
   isort:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.x"
+          python-version: "3.14"
       - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.11.19"
       - name: Install test dependencies
-        run: python -m pip install -e ".[tests]"
+        run: uv sync --locked --extra tests
       - name: Run isort
-        run: isort thumbor tests --profile black --check-only --diff
+        run: make isort
+  uv-macos-smoke:
+    name: uv smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - macos-15-intel
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.11.19"
+      - name: Sync, compile, and run Pylint
+        run: make setup-ci pylint
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.11.19"
+      - name: Build documentation
+        run: make setup_docs build_docs

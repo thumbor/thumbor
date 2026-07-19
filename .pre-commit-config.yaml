@@ -5,15 +5,26 @@ repos:
   - id: trailing-whitespace
   - id: end-of-file-fixer
   - id: check-yaml
-- repo: https://github.com/psf/black
-  rev: 26.3.1
+- repo: local
   hooks:
   - id: black
-- repo: https://github.com/pycqa/flake8
-  rev: 7.3.0
-  hooks:
-    - id: flake8
-- repo: https://github.com/pycqa/pylint
-  rev: v4.0.5
-  hooks:
-    - id: pylint
+    name: black
+    entry: sh scripts/run-uv run --locked --extra tests black
+    language: system
+    types: [python]
+  - id: flake8
+    name: flake8
+    entry: sh scripts/run-uv run --locked --extra tests flake8 --config .flake8
+    language: system
+    types: [python]
+  - id: isort
+    name: isort
+    entry: sh scripts/run-uv run --locked --extra tests isort --profile black
+    language: system
+    types: [python]
+  - id: pylint
+    name: pylint
+    entry: make pylint
+    language: system
+    pass_filenames: false
+    types: [python]

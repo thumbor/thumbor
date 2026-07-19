@@ -27,12 +27,14 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.python-version }}
-      - name: Install dependencies
-        run: |
-          pip install -U pip
-          pip install -U build
+      - name: Set up uv
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.11.19"
       - name: Build package
-        run: python -m build --sdist
+        run: >-
+          uv run --locked --only-group release --only-group build
+          python -m build --sdist --no-isolation
 
       - uses: actions/upload-artifact@v7
         with:
