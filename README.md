@@ -106,13 +106,35 @@ For more information about the Docker image and available tags, visit the [GitHu
 
 For more ways, please check out [Installation](https://thumbor.readthedocs.io/en/latest/installing.html).
 
+## Development
+
+Sync the development environment, install the pre-commit hooks, and run the
+test suite:
+
+```bash
+make setup
+make pre-commit  # only needed once per clone
+make compile_ext
+make test
+```
+
+`make setup` uses an existing [uv](https://docs.astral.sh/uv/) installation
+or installs the pinned version into `.uv-venv` when uv is not available.
+The development environment is stored in `.venv`. Use `make run` to start
+thumbor from this environment.
+
+The lockfile is managed with `uv lock` and should be committed when
+dependencies change.
+
 ### Run
 
-Running it is as easy as hit:
+Running an installed copy is as easy as:
 
 ```bash
 thumbor
 ```
+
+From a development checkout, use `make run` instead.
 
 After this, you can reach it on http://localhost:8888/unsafe/https://raw.githubusercontent.com/thumbor/thumbor/master/example.jpg
 
@@ -123,6 +145,9 @@ If you experience any troubles, try running:
 ```bash
 thumbor-doctor
 ```
+
+From a development checkout, run the same commands through
+`uv run --locked thumbor-doctor`.
 
 If you have a `thumbor.conf` file, you can use that to help thumbor-doctor:
 

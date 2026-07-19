@@ -5,21 +5,23 @@ crops, and applies filters to images on demand via URL parameters. The image
 processing pipeline is pluggable: loaders, storages, engines, detectors, and
 filters are all swappable.
 
-## Dev environment setup
+## Dev Environment Setup
 
-- **Prerequisites:** Python 3.9+, Redis, a C compiler (for native extensions)
-- Install all dependencies (creates an editable install with test extras):
+- **Prerequisites:** Python 3.10+, uv, Redis, a C compiler (for native
+  extensions). The uv development workflow requires macOS 13+ on macOS.
+- Install all dependencies (creates `.venv` with an editable install, test
+  tools, and optional imaging libraries):
 
   ```
   make setup
   ```
 
-  Equivalent to: `pip install -e .[tests]`
+  Equivalent to: `uv sync --locked --extra tests --extra all`
 
 - Install pre-commit hooks (run once after setup):
 
   ```
-  pre-commit install
+  make pre-commit
   ```
 
 - Compile C extensions (required before running the server or tests locally):
@@ -77,7 +79,7 @@ Other CLI entry points registered by the package:
 
   If you hit "Too many open files", run `ulimit -S -n 2048` first.
 
-- In CI, everything runs inside Docker across a Python 3.10–3.13 matrix via
+- In CI, everything runs inside Docker across a Python 3.10–3.14 matrix via
   GitHub Actions.
 
 ## Code style
@@ -86,11 +88,11 @@ Other CLI entry points registered by the package:
 - **Linter:** `flake8` (max complexity 20). Run with `make flake`.
 - **Imports:** `isort` (multi-line style 3, compatible with black).
 - **Static analysis:** `pylint`. Run with `make pylint`.
-- **Type checking:** `mypy` (strict: `disallow_untyped_defs`,
-  `warn_return_any`). Config in `mypy.ini`.
-- Pre-commit enforces all of the above plus trailing whitespace, end-of-file
-  newlines, and YAML validity.
-- CI runs `black --check`, `flake8`, and `isort` as separate jobs on every push/PR.
+- Pre-commit runs Black, Flake8, isort, and Pylint through the locked uv
+  environment. It also checks trailing whitespace, end-of-file newlines, and
+  YAML validity.
+- CI validates `uv.lock` and runs the same code-quality checks on every
+  push/PR.
 
 ## Project structure
 
@@ -122,7 +124,8 @@ Makefile              ← primary task runner (use this for all common tasks)
 - Bug fixes for the v6 stable branch go to `fixes/6.7.x`; new features go to `master`.
 - Merge `master` into your branch before opening a PR.
 - Every change must include tests. Run `make unit` to verify.
-- Run `make flake pylint` before committing (or rely on the pre-commit hooks).
+- Run `make flake isort pylint` before committing (or rely on the pre-commit
+  hooks).
 - Do not add a `thumbor.key` file with real secrets; the repo-root `thumbor.key`
   is for development only.
 

@@ -23,4 +23,7 @@ formats:
 # Specify Python requirements
 python:
   install:
-    - requirements: docs/requirements.txt
+    - method: uv
+      command: sync
+      groups:
+        - docs

@@ -1,21 +1,44 @@
-PYTHON = python
-.PHONY: docs build
+PYTHON ?= python3
+UV_VERSION ?= 0.11.19
+UV_BOOTSTRAP_DIR ?= .uv-venv
+UV = $(shell command -v uv 2>/dev/null || printf '%s' "$(UV_BOOTSTRAP_DIR)/bin/uv")
+UV_RUN = $(UV) run --locked
+UV_RUN_DEV = $(UV_RUN) --extra tests
+UV_RUN_TESTS = $(UV_RUN_DEV) --extra all
+
+.PHONY: \
+	bootstrap-uv build build_docs ci_test compile_ext coverage docs flake \
+	format isort integration integration_run int lcov pint pintegration \
+	pre-commit publish pylint run run-prod sequential-unit setup setup-ci \
+	setup_docs test unit
 
 OS := $(shell uname)
 
 run: compile_ext
-	@thumbor -l debug -d -c thumbor/thumbor.conf
+	@$(UV_RUN) --extra all thumbor -l debug -d -c thumbor/thumbor.conf
 
 run-prod: compile_ext
-	@thumbor -l error -c thumbor/thumbor.conf
+	@$(UV_RUN) --extra all thumbor -l error -c thumbor/thumbor.conf
 
-setup:
-	@$(PYTHON) -m pip install -e .[tests,all]
-	@echo  "\n\nYou are strongly recommended to run 'pre-commit install'\n"
+bootstrap-uv:
+	@if ! "$(UV)" --version >/dev/null 2>&1; then \
+		echo "Installing uv $(UV_VERSION) into $(UV_BOOTSTRAP_DIR)"; \
+		$(PYTHON) -m pip install --disable-pip-version-check --upgrade \
+			--target "$(UV_BOOTSTRAP_DIR)" "uv==$(UV_VERSION)"; \
+	fi
+
+setup: bootstrap-uv
+	@$(UV) sync --locked --extra tests --extra all
+	@echo  "\n\nYou are strongly recommended to run 'make pre-commit'\n"
+
+setup-ci:
+	@$(UV) sync --locked --extra tests --extra all
 
 compile_ext build:
-	@$(PYTHON) -m pip install setuptools
-	@$(PYTHON) setup.py build_ext -i
+	@$(UV) run --locked --group build python setup.py build_ext -i
+
+pre-commit:
+	@$(UV) run --locked --extra tests pre-commit install
 
 test: build redis
 	@$(MAKE) unit coverage
@@ -25,24 +48,27 @@ test: build redis
 
 ci_test: build
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	@echo "TORNADO IS `python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
+	@echo "TORNADO IS `$(UV_RUN_TESTS) python -c 'import tornado; import inspect; print(inspect.getfile(tornado))'`"
 	@echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	@if [ "$$LINT_TEST" ]; then $(MAKE) flake; elif [ -z "$$INTEGRATION_TEST" ]; then $(MAKE) unit coverage; else $(MAKE) integration_run; fi
 
 integration_run integration int:
-	@pytest -sv integration_tests/ -p no:tldr
+	@$(UV_RUN_TESTS) pytest -sv integration_tests/ -p no:tldr
 
 pint pintegration:
-	@pytest -sv integration_tests/ -p no:tldr -n `nproc`
+	@$(UV_RUN_TESTS) pytest -sv integration_tests/ -p no:tldr -n auto
 
 coverage:
-	@coverage report -m --fail-under=10
+	@$(UV_RUN_TESTS) coverage report -m --fail-under=10
+
+lcov:
+	@$(UV_RUN_TESTS) coverage lcov
 
 unit:
-	@pytest -n `nproc` --cov=thumbor tests/
+	@$(UV_RUN_TESTS) pytest -n auto --cov=thumbor tests/
 
 sequential-unit:
-	@pytest -sv --junit-xml=test-results/unit/results.xml --cov=thumbor tests/
+	@$(UV_RUN_TESTS) pytest -sv --junit-xml=test-results/unit/results.xml --cov=thumbor tests/
 
 kill_redis:
 	@-redis-cli -p 6668 -a hey_you shutdown
@@ -56,22 +82,26 @@ redis: kill_redis
 	@redis-cli -p 6668 -a hey_you info
 
 format:
-	@black .
+	@$(UV_RUN_DEV) isort --profile black thumbor tests integration_tests setup.py
+	@$(UV_RUN_DEV) black .
 
 flake:
-	@flake8 --config .flake8
+	@$(UV_RUN_DEV) flake8 --config .flake8 thumbor tests integration_tests setup.py
 
-pylint:
-	@pylint --load-plugins=pylint.extensions.no_self_use thumbor tests
+isort:
+	@$(UV_RUN_DEV) isort --profile black --check-only --diff thumbor tests integration_tests setup.py
+
+pylint: compile_ext
+	@$(UV_RUN_TESTS) pylint --load-plugins=pylint.extensions.no_self_use thumbor tests
 
 setup_docs:
-	@$(PYTHON) -m pip install -r docs/requirements.txt
+	@$(UV) sync --locked --inexact --group docs
 
 build_docs:
-	@cd docs && make html
+	@$(UV) run --locked --group docs make -C docs html
 
 docs:
-	@sphinx-reload --host 0.0.0.0 --port 5555 docs/
+	@$(UV) run --locked --group docs sphinx-reload --host 0.0.0.0 --port 5555 docs/
 
 sample_images:
 	convert -delay 100 -size 100x100 gradient:blue gradient:red -loop 0 integration_tests/imgs/animated.gif
@@ -153,8 +183,8 @@ test-docker-publish: test-docker-310-publish test-docker-311-publish test-docker
 test-docker-310-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.10 -t thumbor-test-310 .
 
-test-docker-310-run:
-	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:310 make compile_ext redis sequential-unit integration flake
+test-docker-310-run: test-docker-310-build
+	@docker run --rm -v "$$(pwd):/app" thumbor-test-310 make setup-ci compile_ext redis sequential-unit integration flake
 
 test-docker-310-publish:
 	@docker image tag thumbor-test-310:latest thumbororg/thumbor-test:310
@@ -163,8 +193,8 @@ test-docker-310-publish:
 test-docker-311-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.11 -t thumbor-test-311 .
 
-test-docker-311-run:
-	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:311 make compile_ext redis sequential-unit integration flake
+test-docker-311-run: test-docker-311-build
+	@docker run --rm -v "$$(pwd):/app" thumbor-test-311 make setup-ci compile_ext redis sequential-unit integration flake
 
 test-docker-311-publish:
 	@docker image tag thumbor-test-311:latest thumbororg/thumbor-test:311
@@ -173,8 +203,8 @@ test-docker-311-publish:
 test-docker-312-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.12 -t thumbor-test-312 .
 
-test-docker-312-run:
-	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:312 make compile_ext redis sequential-unit integration flake
+test-docker-312-run: test-docker-312-build
+	@docker run --rm -v "$$(pwd):/app" thumbor-test-312 make setup-ci compile_ext redis sequential-unit integration flake
 
 test-docker-312-publish:
 	@docker image tag thumbor-test-312:latest thumbororg/thumbor-test:312
@@ -183,8 +213,8 @@ test-docker-312-publish:
 test-docker-313-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.13 -t thumbor-test-313 .
 
-test-docker-313-run:
-	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:313 make compile_ext redis sequential-unit integration flake
+test-docker-313-run: test-docker-313-build
+	@docker run --rm -v "$$(pwd):/app" thumbor-test-313 make setup-ci compile_ext redis sequential-unit integration flake
 
 test-docker-313-publish:
 	@docker image tag thumbor-test-313:latest thumbororg/thumbor-test:313
@@ -193,14 +223,14 @@ test-docker-313-publish:
 test-docker-314-build:
 	@docker build -f TestDockerfile --build-arg PYTHON_VERSION=3.14 -t thumbor-test-314 .
 
-test-docker-314-run:
-	@docker run -v "$$(pwd):/app" thumbororg/thumbor-test:314 make compile_ext redis sequential-unit integration flake
+test-docker-314-run: test-docker-314-build
+	@docker run --rm -v "$$(pwd):/app" thumbor-test-314 make setup-ci compile_ext redis sequential-unit integration flake
 
 test-docker-314-publish:
 	@docker image tag thumbor-test-314:latest thumbororg/thumbor-test:314
 	@docker push thumbororg/thumbor-test:314
 
 publish:
-	@python -m build --sdist
-	@twine upload dist/*
+	@$(UV_RUN) --only-group release --only-group build python -m build --sdist --no-isolation
+	@$(UV_RUN) --only-group release python -m twine upload dist/*
 	@rm -rf dist/

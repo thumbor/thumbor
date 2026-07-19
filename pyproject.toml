@@ -8,7 +8,8 @@ dynamic = ["version"]
 description = "thumbor is an open-source photo thumbnail service by globo.com"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "globo.com", email = "thumbor@googlegroups.com" }]
 keywords = [
   "imaging",
@@ -50,7 +51,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-opencv = ["opencv-python-headless>=4.9.0.80,<6.0.0", "numpy>=1.26.3,<3.0.0"]
+opencv = [
+  "opencv-python-headless>=4.9.0.80,<4.13; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+  "opencv-python-headless>=4.9.0.80,<6.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+  "numpy>=1.26.3,<3.0.0",
+]
 extra-libs = [
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",
@@ -58,10 +63,13 @@ extra-libs = [
   "pillow-heif>=1.3.0,<2.0.0",
 ]
 tests = [
+  "black>=26.5.1,<27.0.0",
   "build>=1.2.1,<2.0.0",
   "coverage>=7.4.0,<8.0.0",
   "flake8>=7.0.0,<8.0.0",
   "isort>=5.13.2,<9.0.0",
+  "opencv-python-headless>=4.9.0.80,<4.13; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+  "opencv-python-headless>=4.9.0.80,<6.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
   "pre-commit>=3.6.0,<5.0.0",
   "preggy>=1.4.4,<2.0.0",
   "pylint>=3.0.3,<5.0.0",
@@ -78,7 +86,8 @@ tests = [
 ]
 
 all = [
-  "opencv-python-headless>=4.9.0.80,<6.0.0",
+  "opencv-python-headless>=4.9.0.80,<4.13; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+  "opencv-python-headless>=4.9.0.80,<6.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
   "numpy>=1.26.3,<3.0.0",
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",
@@ -91,6 +100,26 @@ thumbor = "thumbor.server:main"
 thumbor-url = "thumbor.url_composer:main"
 thumbor-config = "thumbor.config:generate_config"
 thumbor-doctor = "thumbor.doctor:main"
+
+[dependency-groups]
+build = [
+  "setuptools>=78.1.1",
+  "wheel>=0.45.1,<1.0.0",
+]
+docs = [
+  "sphinx-rtd-theme>=2.0.0,<4.0.0",
+  "sphinx-reload>=0.2.0,<1.0.0",
+]
+release = [
+  "build>=1.2.1,<2.0.0",
+  "twine>=6.1.0,<7.0.0",
+]
+
+[tool.uv]
+required-environments = [
+  "sys_platform == 'darwin' and platform_machine == 'x86_64'",
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
 
 [tool.setuptools.packages.find]
 include = ["thumbor*"]
