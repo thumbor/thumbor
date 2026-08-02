@@ -404,8 +404,8 @@ class BaseHandler(tornado.web.RequestHandler):
         config = self.context.config
 
         enabled = (
-            request_override is None
-            if config.AUTO_PNG_TO_JPG
+            config.AUTO_PNG_TO_JPG
+            if request_override is None
             else request_override
         )
 
