@@ -227,6 +227,10 @@ class RequestParametersTestCase(TestCase):
         expect(params.unsafe).to_be_false()
         expect(params.format).to_be_null()
         expect(params.accepts_webp).to_be_false()
+        expect(params.accepts_avif).to_be_false()
+        expect(params.accepts_heif).to_be_false()
+        expect(params.accepts_png).to_be_false()
+        expect(params.accepts_jpeg).to_be_false()
         expect(params.max_bytes).to_be_null()
         expect(params.max_age).to_be_null()
 
@@ -285,10 +289,137 @@ class RequestParametersTestCase(TestCase):
 
     @staticmethod
     def test_can_get_params_from_request():
-        request = mock.Mock(path="/test.jpg", headers={"Accept": "image/webp"})
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={
+                "Accept": "image/webp,image/avif,image/heif,image/png,image/jpeg"
+            },
+        )
         params = RequestParameters(request=request, image="/test.jpg")
         expect(params.accepts_webp).to_be_true()
+        expect(params.accepts_avif).to_be_true()
+        expect(params.accepts_heif).to_be_true()
+        expect(params.accepts_png).to_be_true()
+        expect(params.accepts_jpeg).to_be_true()
         expect(params.image_url).to_equal("/test.jpg")
+
+    @staticmethod
+    def test_accept_header_respects_quality_and_is_case_insensitive():
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={
+                "Accept": "IMAGE/AVIF;Q=0, IMAGE/WEBP;Q=0.8, image/png;q=0"
+            },
+        )
+
+        params = RequestParameters(request=request)
+
+        expect(params.accepts_avif).to_be_false()
+        expect(params.accepts_webp).to_be_true()
+        expect(params.accepts_png).to_be_false()
+
+    @staticmethod
+    def test_explicit_jpeg_rejection_overrides_accept_any():
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={"Accept": "image/jpeg;q=0,*/*;q=0.8"},
+        )
+
+        params = RequestParameters(request=request)
+
+        expect(params.accepts_jpeg).to_be_false()
+
+    @staticmethod
+    def test_accept_any_keeps_legacy_jpeg_support():
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={"Accept": "*/*;q=0.8"},
+        )
+
+        params = RequestParameters(request=request)
+
+        expect(params.accepts_jpeg).to_be_true()
+        expect(params.accepts_webp).to_be_false()
+
+    @staticmethod
+    def test_image_wildcard_accepts_image_formats():
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={"Accept": "image/*;q=0.8"},
+        )
+
+        params = RequestParameters(request=request)
+
+        expect(params.accepts_webp).to_be_true()
+        expect(params.accepts_avif).to_be_true()
+        expect(params.accepts_heif).to_be_true()
+        expect(params.accepts_png).to_be_true()
+        expect(params.accepts_jpeg).to_be_true()
+
+    @staticmethod
+    def test_image_wildcard_rejection_overrides_accept_any():
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={"Accept": "image/*;q=0,*/*;q=0.8"},
+        )
+
+        params = RequestParameters(request=request)
+
+        expect(params.accepts_webp).to_be_false()
+        expect(params.accepts_avif).to_be_false()
+        expect(params.accepts_heif).to_be_false()
+        expect(params.accepts_png).to_be_false()
+        expect(params.accepts_jpeg).to_be_false()
+
+    @staticmethod
+    def test_accept_header_parses_quoted_delimiters_before_quality():
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={"Accept": 'image/webp;profile="a,b;c";q=0,image/jpeg'},
+        )
+
+        params = RequestParameters(request=request)
+
+        expect(params.accepts_webp).to_be_false()
+        expect(params.accepts_jpeg).to_be_true()
+
+    @staticmethod
+    def test_unparameterized_media_range_controls_default_representation():
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={"Accept": "image/webp;profile=foo;q=1,image/webp;q=0"},
+        )
+
+        params = RequestParameters(request=request)
+
+        expect(params.accepts_webp).to_be_false()
+
+    @staticmethod
+    def test_canonical_jpeg_rejection_takes_precedence_over_jpg_alias():
+        request = mock.Mock(
+            path="/test.jpg",
+            headers={"Accept": "image/jpeg;q=0,image/jpg;q=1"},
+        )
+
+        params = RequestParameters(request=request)
+
+        expect(params.accepts_jpeg).to_be_false()
+
+    @staticmethod
+    def test_preserves_legacy_positional_arguments():
+        request = mock.Mock(
+            path="/legacy.jpg",
+            headers={"Accept": "image/webp"},
+        )
+        legacy_positional_arguments = [None] * 32
+        legacy_positional_arguments[28:] = [True, request, 3600, False]
+
+        params = RequestParameters(*legacy_positional_arguments)
+
+        expect(params.url).to_equal("/legacy.jpg")
+        expect(params.accepts_webp).to_be_true()
+        expect(params.max_age).to_equal(3600)
+        expect(params.auto_png_to_jpg).to_be_false()
 
 
 class ContextImporterTestCase(TestCase):

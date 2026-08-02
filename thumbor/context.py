@@ -14,6 +14,95 @@ from thumbor.metrics.logger_metrics import Metrics
 from thumbor.threadpool import ThreadPool
 
 
+def _split_http_header(value, delimiter):
+    parts = []
+    current_part = []
+    quoted = False
+    escaped = False
+
+    for character in value:
+        if escaped:
+            current_part.append(character)
+            escaped = False
+            continue
+
+        if quoted and character == "\\":
+            current_part.append(character)
+            escaped = True
+            continue
+
+        if character == '"':
+            quoted = not quoted
+        elif character == delimiter and not quoted:
+            parts.append("".join(current_part))
+            current_part = []
+            continue
+
+        current_part.append(character)
+
+    parts.append("".join(current_part))
+    return parts
+
+
+def _parse_accept_quality(value):
+    try:
+        quality = float(value.strip())
+    except ValueError:
+        return 0.0
+
+    return quality if 0 <= quality <= 1 else 0.0
+
+
+def _parse_accept_media_range(media_range):
+    parts = [part.strip() for part in _split_http_header(media_range, ";")]
+    media_type = parts[0].lower()
+
+    if not media_type:
+        return None
+
+    for parameter in parts[1:]:
+        name, separator, value = parameter.partition("=")
+        if not separator:
+            continue
+
+        if name.strip().lower() == "q":
+            return media_type, _parse_accept_quality(value)
+
+        # Parameters before q apply to the media type itself. Since thumbor
+        # cannot match those variants, the media range is not applicable.
+        return None
+
+    return media_type, 1.0
+
+
+def _parse_accept_header(accept_header):
+    accepted_media_types = {}
+
+    for media_range in _split_http_header(accept_header or "", ","):
+        parsed_media_range = _parse_accept_media_range(media_range)
+        if parsed_media_range is None:
+            continue
+
+        media_type, quality = parsed_media_range
+        accepted_media_types[media_type] = max(
+            quality,
+            accepted_media_types.get(media_type, 0.0),
+        )
+
+    return accepted_media_types
+
+
+def _accepts_media_type(accepted_media_types, *media_types, allow_any=False):
+    for media_type in media_types:
+        if media_type in accepted_media_types:
+            return accepted_media_types[media_type] > 0
+
+    if "image/*" in accepted_media_types:
+        return accepted_media_types["image/*"] > 0
+
+    return allow_any and accepted_media_types.get("*/*", 0) > 0
+
+
 # Same logic as Importer. This class is very useful and will remain like so for now
 class Context:  # pylint: disable=too-many-instance-attributes
     """
@@ -170,6 +259,10 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         request=None,
         max_age=None,
         auto_png_to_jpg=None,
+        accepts_avif=False,
+        accepts_heif=False,
+        accepts_png=False,
+        accepts_jpeg=False,
     ):
         self.debug = bool(debug)
         self.meta = bool(meta)
@@ -232,19 +325,59 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
         self.prevent_result_storage = False
         self.unsafe = unsafe == "unsafe" or unsafe is True
         self.format = None
-        self.accepts_webp = accepts_webp
+        self._set_accepted_image_formats(
+            (
+                accepts_webp,
+                accepts_avif,
+                accepts_heif,
+                accepts_png,
+                accepts_jpeg,
+            )
+        )
         self.max_bytes = None
         self.max_age = max_age
         self.auto_png_to_jpg = auto_png_to_jpg
         self.headers = None
+        self._accepted_media_types = {}
 
         if request:
-            self.url = request.path
-            self.accepts_webp = "image/webp" in request.headers.get(
-                "Accept", ""
+            self._set_request_headers(request)
+
+    def _set_request_headers(self, request):
+        accept_header = ""
+        self.url = request.path
+        if request.headers:
+            self.headers = request.headers
+            accept_header = request.headers.get("Accept", "")
+
+        self._set_accepted_image_formats_from_header(accept_header)
+
+    def _set_accepted_image_formats_from_header(self, accept_header):
+        accepted_media_types = _parse_accept_header(accept_header)
+        self._accepted_media_types = accepted_media_types
+        self._set_accepted_image_formats(
+            (
+                _accepts_media_type(accepted_media_types, "image/webp"),
+                _accepts_media_type(accepted_media_types, "image/avif"),
+                _accepts_media_type(accepted_media_types, "image/heif"),
+                _accepts_media_type(accepted_media_types, "image/png"),
+                _accepts_media_type(
+                    accepted_media_types,
+                    "image/jpeg",
+                    "image/jpg",
+                    allow_any=True,
+                ),
             )
-            if request.headers:
-                self.headers = request.headers
+        )
+
+    def _set_accepted_image_formats(self, accepted_formats):
+        (
+            self.accepts_webp,
+            self.accepts_avif,
+            self.accepts_heif,
+            self.accepts_png,
+            self.accepts_jpeg,
+        ) = accepted_formats
 
     @staticmethod
     def int_or_0(value):

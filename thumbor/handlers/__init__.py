@@ -415,8 +415,24 @@ class BaseHandler(tornado.web.RequestHandler):
         return False
 
     def accepts_mime_type(self, mimetype=""):
-        if self.context.request and self.context.request.headers:
-            return mimetype in self.context.request.headers.get("Accept", "")
+        request = self.context.request
+        if request and request.headers:
+            accepted_media_types = getattr(
+                request, "_accepted_media_types", None
+            )
+            if accepted_media_types is not None:
+                normalized_mimetype = mimetype.strip().lower()
+
+                if normalized_mimetype in accepted_media_types:
+                    return accepted_media_types[normalized_mimetype] > 0
+
+                return (
+                    normalized_mimetype.startswith("image/")
+                    and normalized_mimetype != "image/*"
+                    and accepted_media_types.get("image/*", 0) > 0
+                )
+
+            return mimetype in request.headers.get("Accept", "")
 
         return False
 
