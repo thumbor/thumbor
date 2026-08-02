@@ -65,6 +65,7 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg("/unsafe/image.avif", MIMETYPE_ALL)
 
         expect(response.code).to_equal(200)
+        expect(response.headers["Vary"]).to_include("Accept")
         expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
         expect(response.body).to_be_jpeg()
 
@@ -115,6 +116,7 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg("/unsafe/animated.gif", MIMETYPE_ALL)
 
         expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include("Vary")
         expect(response.body).to_be_gif()
 
     @gen_test
