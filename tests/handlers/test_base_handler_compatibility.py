@@ -62,6 +62,27 @@ def make_jpeg_handler(accept_header):
     return make_handler(context, CustomHandler)
 
 
+def test_is_webp_keeps_legacy_behavior():
+    context = make_context()
+    handler = make_handler(context)
+
+    expect(handler.is_webp(context)).to_be_true()
+
+    context.config.AUTO_WEBP = False
+    expect(handler.is_webp(context)).to_be_false()
+
+
+def test_can_auto_convert_to_webp_keeps_is_webp_extension_point():
+    class CustomHandler(BaseHandler):
+        def is_webp(self, context):
+            return True
+
+    context = make_context(auto_webp=False)
+    handler = make_handler(context, CustomHandler)
+
+    expect(handler.can_auto_convert_to_webp()).to_be_true()
+
+
 def test_accepts_mime_type_keeps_legacy_header_lookup():
     context = make_context(
         headers={"Accept": "image/avif,image/webp,*/*;q=0.8"}
@@ -342,6 +363,7 @@ def test_custom_accepts_mime_type_runs_after_engine_is_available():
         {"AUTO_HEIF": True},
         {"AUTO_JPG": True},
         {"AUTO_PNG": True},
+        {"AUTO_IMAGE_FORMAT_PREFERENCE": ["webp", "jpg"]},
     ],
 )
 def test_custom_accepts_mime_type_bypasses_extended_format_cache(
@@ -367,6 +389,10 @@ def test_custom_accepts_mime_type_bypasses_extended_format_cache(
     "config_overrides,expected_cache_key",
     [
         ({"AUTO_WEBP": True}, "auto_webp"),
+        (
+            {"AUTO_IMAGE_FORMAT_PREFERENCE": ["webp"]},
+            "auto_format_v1_preference_preserve_webp",
+        ),
         (
             {"AUTO_PNG_TO_JPG": True},
             "auto_format_v1_flags_png_to_jpg_default",

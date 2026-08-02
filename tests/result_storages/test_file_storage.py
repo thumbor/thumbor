@@ -7,6 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import asyncio
 import hashlib
 import tempfile
 from datetime import datetime
@@ -17,7 +18,11 @@ from urllib.parse import unquote
 from preggy import expect
 from tornado.testing import gen_test
 
-from thumbor.auto_image_format import get_auto_image_format_cache_key
+from thumbor.auto_image_format import (
+    get_active_auto_image_formats,
+    get_auto_image_format_cache_key,
+    get_normalized_auto_image_format_preference,
+)
 from thumbor.config import Config
 from thumbor.context import RequestParameters
 from thumbor.result_storages import ResultStorageResult
@@ -223,6 +228,122 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
         expect(exists(current_path)).to_be_true()
 
 
+class PreferredFormatsFileStorageTestCase(BaseFileStorageTestCase):
+    def get_config(self):
+        self.storage_path = (
+            tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        )
+        return Config(
+            AUTO_IMAGE_FORMAT_PREFERENCE=[" avif ", "webp", "invalid"],
+            RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=self.storage_path.name,
+        )
+
+    def get_request(self):  # pylint: disable=arguments-differ
+        return RequestParameters(accepts_webp=True, accepts_avif=True)
+
+    @gen_test
+    async def test_normalized_path_with_preferred_formats_path(self):
+        expect(self.file_storage).not_to_be_null()
+        expect(
+            self.file_storage.normalize_path(self.get_http_path())
+        ).to_equal(
+            f"{self.storage_path.name}/"
+            "auto_format_v1_preference_preserve_avif-webp/b6/be/"
+            "a3e916129541a9e7146f69a15eb4d7c77c98"
+        )
+
+    @gen_test
+    async def test_put_and_get_keep_accept_variants_separate(self):
+        self.context.request.url = self.get_http_path()
+        avif_bytes = await asyncio.to_thread(
+            self.read_image_fixture, "image.avif"
+        )
+
+        await self.file_storage.put(avif_bytes)
+        avif_webp_path = self.file_storage.normalize_path(
+            self.context.request.url
+        )
+
+        self.context.request = RequestParameters(
+            url=self.get_http_path(), accepts_webp=True
+        )
+        webp_bytes = await asyncio.to_thread(
+            self.read_image_fixture, "image.webp"
+        )
+
+        await self.file_storage.put(webp_bytes)
+        webp_path = self.file_storage.normalize_path(self.context.request.url)
+
+        expect(avif_webp_path).not_to_equal(webp_path)
+        expect((await self.file_storage.get()).buffer).to_equal(webp_bytes)
+
+        self.context.request = RequestParameters(
+            url=self.get_http_path(), accepts_webp=True, accepts_avif=True
+        )
+        expect((await self.file_storage.get()).buffer).to_equal(avif_bytes)
+
+
+class PreferredWebPFileStorageTestCase(BaseFileStorageTestCase):
+    def get_config(self):
+        self.storage_path = (
+            tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        )
+        return Config(
+            AUTO_WEBP=False,
+            AUTO_IMAGE_FORMAT_PREFERENCE=["webp"],
+            RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=self.storage_path.name,
+        )
+
+    def get_request(self):  # pylint: disable=arguments-differ
+        return RequestParameters(url=self.get_http_path(), accepts_webp=True)
+
+    @gen_test
+    async def test_does_not_migrate_legacy_default_into_auto_webp(self):
+        legacy_path, _ = self.put_legacy_fixture("image.jpg")
+        current_path = self.file_storage.normalize_path(
+            self.context.request.url
+        )
+
+        result = await self.file_storage.get()
+
+        expect(result).to_be_null()
+        expect(exists(legacy_path)).to_be_true()
+        expect(exists(current_path)).to_be_false()
+
+    @gen_test
+    async def test_does_not_read_previous_auto_webp_namespace(self):
+        previous_path, _ = self.put_previous_hashed_fixture(
+            "auto_webp", "image.avif"
+        )
+        current_path = self.file_storage.normalize_path(
+            self.context.request.url
+        )
+
+        result = await self.file_storage.get()
+
+        expect(result).to_be_null()
+        expect(exists(previous_path)).to_be_true()
+        expect(exists(current_path)).to_be_false()
+
+    @gen_test
+    async def test_does_not_read_previous_default_namespace(self):
+        self.context.request = RequestParameters(
+            url=self.get_http_path(), accepts_webp=False
+        )
+        previous_path, _ = self.put_previous_hashed_fixture(
+            "default", "image.avif"
+        )
+        current_path = self.file_storage.normalize_path(
+            self.context.request.url
+        )
+
+        result = await self.file_storage.get()
+
+        expect(result).to_be_null()
+        expect(exists(previous_path)).to_be_true()
+        expect(exists(current_path)).to_be_false()
+
+
 class AutoAvifFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
         self.storage_path = (
@@ -329,17 +450,22 @@ class AutoImageFormatCacheKeyTestCase(TestCase):
             get_auto_image_format_cache_key(config, RequestParameters())
         ).to_equal("auto_format_v1_flags_preserve_default")
 
-    def test_cache_key_separates_png_to_jpg_fallback(self):
+    def test_cache_key_separates_policies_and_png_to_jpg_fallback(self):
         request = RequestParameters(accepts_heif=True)
         flags_without_fallback = Config(AUTO_HEIF=True, AUTO_PNG_TO_JPG=False)
         flags_with_fallback = Config(AUTO_HEIF=True, AUTO_PNG_TO_JPG=True)
+        preference_with_fallback = Config(
+            AUTO_IMAGE_FORMAT_PREFERENCE=["heif"],
+            AUTO_PNG_TO_JPG=True,
+        )
 
         cache_keys = {
             get_auto_image_format_cache_key(flags_without_fallback, request),
             get_auto_image_format_cache_key(flags_with_fallback, request),
+            get_auto_image_format_cache_key(preference_with_fallback, request),
         }
 
-        expect(len(cache_keys)).to_equal(2)
+        expect(len(cache_keys)).to_equal(3)
 
     def test_png_to_jpg_only_uses_isolated_cache_key(self):
         expect(
@@ -360,6 +486,62 @@ class AutoImageFormatCacheKeyTestCase(TestCase):
                 RequestParameters(request=request),
             )
         ).to_be_null()
+
+    @mock.patch("thumbor.auto_image_format.logger.warning")
+    def test_invalid_preference_warns_once_and_uses_legacy_flags(
+        self, warning
+    ):
+        config = Config(
+            AUTO_WEBP=True,
+            AUTO_IMAGE_FORMAT_PREFERENCE=["invalid", 1, "INVALID"],
+        )
+        request = RequestParameters(accepts_webp=True)
+
+        expect(get_normalized_auto_image_format_preference(config)).to_equal(
+            ()
+        )
+        expect(get_active_auto_image_formats(config)).to_equal(("webp",))
+        expect(get_auto_image_format_cache_key(config, request)).to_equal(
+            "auto_webp"
+        )
+        get_normalized_auto_image_format_preference(config)
+
+        warning.assert_called_once_with(
+            "Ignoring invalid AUTO_IMAGE_FORMAT_PREFERENCE values: %r. "
+            "Valid formats are: %s.",
+            ["invalid", 1, "INVALID"],
+            "webp, avif, jpg, heif, png",
+        )
+
+    def test_normalized_preference_cache_is_published_atomically(self):
+        class ReentrantConfig:
+            def __init__(self):
+                self.AUTO_IMAGE_FORMAT_PREFERENCE = [  # pylint: disable=invalid-name
+                    "avif"
+                ]
+                self.observed_preferences = []
+                self.inspecting_cache_write = False
+
+            def __setattr__(self, name, value):
+                object.__setattr__(self, name, value)
+
+                if not name.startswith(
+                    "_AUTO_IMAGE_FORMAT_PREFERENCE_"
+                ) or object.__getattribute__(self, "inspecting_cache_write"):
+                    return
+
+                object.__setattr__(self, "inspecting_cache_write", True)
+                self.observed_preferences.append(
+                    get_normalized_auto_image_format_preference(self)
+                )
+                object.__setattr__(self, "inspecting_cache_write", False)
+
+        config = ReentrantConfig()
+
+        expect(get_normalized_auto_image_format_preference(config)).to_equal(
+            ("avif",)
+        )
+        expect(config.observed_preferences).to_equal([("avif",)])
 
 
 class ResultStorageResultTestCase(BaseFileStorageTestCase):

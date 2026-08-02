@@ -23,6 +23,8 @@ from thumbor.auto_image_format import (
     AUTO_IMAGE_FORMAT_ACCEPT_ATTRS,
     DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE,
     get_active_auto_image_formats,
+    get_normalized_auto_image_format_preference,
+    has_auto_image_format_preference,
 )
 from thumbor.context import Context, RequestParameters
 from thumbor.engines import BaseEngine, EngineResult
@@ -39,6 +41,14 @@ HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 MIMETYPE_IMAGE_WILDCARD = "image/*"
 MIMETYPE_JPEG = "image/jpeg"
 MIMETYPE_JPG = "image/jpg"
+
+PREFERENCE_AUTO_IMAGE_FORMAT_METHODS = {
+    "webp": "_supports_webp",
+    "avif": "_supports_avif",
+    "jpg": "_supports_jpg",
+    "heif": "_supports_heif",
+    "png": "_supports_png",
+}
 
 LEGACY_AUTO_IMAGE_FORMAT_METHODS = {
     "webp": "can_auto_convert_to_webp",
@@ -599,6 +609,41 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.context.config.AUTO_PNG and self._supports_png()
 
     def _resolve_auto_image_extension(self, context):
+        if has_auto_image_format_preference(context.config):
+            for image_format in get_normalized_auto_image_format_preference(
+                context.config
+            ):
+                method_name = PREFERENCE_AUTO_IMAGE_FORMAT_METHODS[
+                    image_format
+                ]
+
+                if getattr(self, method_name)():
+                    image_extension = f".{image_format}"
+                    logger.debug(
+                        "Image format set by AUTO_IMAGE_FORMAT_PREFERENCE as %s.",
+                        image_extension,
+                    )
+
+                    return image_extension
+
+            if self.can_auto_convert_png_to_jpg():
+                image_extension = ".jpg"
+                logger.debug(
+                    "Image format set by AUTO_PNG_TO_JPG as %s.",
+                    image_extension,
+                )
+
+                return image_extension
+
+            image_extension = context.request.engine.extension
+            logger.debug(
+                "No preferred image format matched. Retrieving from engine "
+                "extension: %s.",
+                image_extension,
+            )
+
+            return image_extension
+
         for image_format in DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE:
             method_name = LEGACY_AUTO_IMAGE_FORMAT_METHODS[image_format]
 
@@ -849,13 +894,7 @@ class BaseHandler(tornado.web.RequestHandler):
             buffer = results
 
         # auto-convert configured?
-        should_vary = (
-            self.context.config.AUTO_WEBP
-            or self.context.config.AUTO_AVIF
-            or self.context.config.AUTO_JPG
-            or self.context.config.AUTO_HEIF
-            or self.context.config.AUTO_PNG
-        )
+        should_vary = bool(get_active_auto_image_formats(self.context.config))
         # we have image (not video)
         should_vary = should_vary and content_type.startswith("image/")
         # output format is not requested via format filter

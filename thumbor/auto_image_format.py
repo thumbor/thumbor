@@ -7,7 +7,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2025 globo.com thumbor@googlegroups.com
 
+from thumbor.utils import logger
+
 DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE = ("webp", "avif", "jpg", "heif", "png")
+VALID_AUTO_IMAGE_FORMATS = frozenset(DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE)
 AUTO_IMAGE_FORMAT_CACHE_KEY_PREFIX = "auto_format_v1"
 
 AUTO_IMAGE_FORMAT_CONFIG_FLAGS = {
@@ -27,7 +30,69 @@ AUTO_IMAGE_FORMAT_ACCEPT_ATTRS = {
 }
 
 
+def _get_raw_auto_image_format_preference(config):
+    return tuple(getattr(config, "AUTO_IMAGE_FORMAT_PREFERENCE", ()) or ())
+
+
+def has_auto_image_format_preference(config):
+    return bool(get_normalized_auto_image_format_preference(config))
+
+
+def get_normalized_auto_image_format_preference(config):
+    raw_preference = _get_raw_auto_image_format_preference(config)
+    cached_preference = getattr(
+        config,
+        "_AUTO_IMAGE_FORMAT_PREFERENCE_CACHE",
+        None,
+    )
+
+    if cached_preference is None or cached_preference[0] != raw_preference:
+        normalized_preference = []
+        invalid_formats = []
+        seen_formats = set()
+
+        for image_format in raw_preference:
+            if not isinstance(image_format, str):
+                invalid_formats.append(image_format)
+                continue
+
+            normalized_format = image_format.strip().lower()
+
+            if normalized_format not in VALID_AUTO_IMAGE_FORMATS:
+                invalid_formats.append(image_format)
+                continue
+
+            if normalized_format in seen_formats:
+                continue
+
+            seen_formats.add(normalized_format)
+            normalized_preference.append(normalized_format)
+
+        if invalid_formats:
+            logger.warning(
+                "Ignoring invalid AUTO_IMAGE_FORMAT_PREFERENCE values: %r. "
+                "Valid formats are: %s.",
+                invalid_formats,
+                ", ".join(DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE),
+            )
+
+        cached_preference = (
+            raw_preference,
+            tuple(normalized_preference),
+        )
+        setattr(
+            config,
+            "_AUTO_IMAGE_FORMAT_PREFERENCE_CACHE",
+            cached_preference,
+        )
+
+    return cached_preference[1]
+
+
 def get_active_auto_image_formats(config):
+    if has_auto_image_format_preference(config):
+        return get_normalized_auto_image_format_preference(config)
+
     active_formats = []
 
     for image_format in DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE:
@@ -41,6 +106,9 @@ def get_active_auto_image_formats(config):
 
 def requires_auto_image_format_cache_isolation(config):
     """Return whether legacy ``default``/``auto_webp`` keys are unsafe."""
+    if has_auto_image_format_preference(config):
+        return True
+
     return getattr(config, "AUTO_PNG_TO_JPG", False) or any(
         getattr(config, AUTO_IMAGE_FORMAT_CONFIG_FLAGS[image_format], False)
         for image_format in DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE
@@ -54,6 +122,7 @@ def get_auto_image_format_cache_key(config, request):
     Result storage implementations can use this helper to keep responses for
     different ``Accept`` capabilities in separate cache namespaces.
     """
+    preference_enabled = has_auto_image_format_preference(config)
     active_formats = get_active_auto_image_formats(config)
     cache_isolation_required = requires_auto_image_format_cache_isolation(
         config
@@ -71,6 +140,7 @@ def get_auto_image_format_cache_key(config, request):
             accepted_formats.append(image_format)
 
     if cache_isolation_required:
+        policy = "preference" if preference_enabled else "flags"
         fallback = (
             "png_to_jpg"
             if getattr(config, "AUTO_PNG_TO_JPG", False)
@@ -78,7 +148,7 @@ def get_auto_image_format_cache_key(config, request):
         )
         variant = "-".join(accepted_formats) or "default"
         return (
-            f"{AUTO_IMAGE_FORMAT_CACHE_KEY_PREFIX}_flags_"
+            f"{AUTO_IMAGE_FORMAT_CACHE_KEY_PREFIX}_{policy}_"
             f"{fallback}_{variant}"
         )
 
