@@ -397,6 +397,12 @@ Images with texts, for example, the result image maybe will be distorted.
 Dark images, for example, the size of result image maybe will be bigger.
 You have to evaluate the majority of your use cases to take a decision about the usage of this conf.
 
+This conversion remains independent of ``AUTO_IMAGE_FORMAT_PREFERENCE``.
+When a preference list is configured and none of its entries can be used,
+thumbor still applies ``AUTO_PNG_TO_JPG`` as a fallback. The ``autojpg()``
+filter enables or disables this fallback for an individual request; it does
+not enable or disable a ``jpg`` entry in the preference list.
+
 .. code:: python
 
    AUTO_PNG_TO_JPG = True
@@ -433,6 +439,71 @@ specifies that the browser supports "image/heif" and pillow-heif is enabled.
 .. code:: python
 
    AUTO_HEIF = True
+
+AUTO\_IMAGE\_FORMAT\_PREFERENCE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This option defines the order in which thumbor attempts automatic output
+formats. The valid tokens are ``webp``, ``avif``, ``jpg``, ``heif`` and
+``png``. Values are stripped of surrounding whitespace and converted to
+lowercase. Duplicate values after the first occurrence, non-string values
+and unknown tokens are ignored.
+
+For each entry, thumbor checks the request's ``Accept`` header and the
+current engine's capabilities, then selects the first eligible format. AVIF
+and HEIF therefore require their respective engine support, JPEG is not
+selected for an image with transparency, and preference entries are not
+selected for multi-image input. Media types are matched case-insensitively,
+and an entry with an explicit quality value of ``q=0`` is not eligible.
+``image/*`` applies to all supported image formats, while the less specific
+``*/*`` retains the legacy behavior of enabling JPEG only. If no entry is
+eligible, thumbor preserves the engine's output format, except for the
+independent ``AUTO_PNG_TO_JPG`` fallback described above.
+
+A preference list containing at least one valid entry overrides
+``AUTO_WEBP``, ``AUTO_AVIF``, ``AUTO_JPG``, ``AUTO_PNG`` and ``AUTO_HEIF``.
+If any entries are invalid, thumbor logs one warning listing the ignored
+values. If every entry is invalid, thumbor treats the preference as empty.
+An empty preference uses the individual settings in their legacy order:
+``webp``, ``avif``, ``jpg``, ``heif``, then ``png``.
+
+.. code:: python
+
+   # Prioritize AVIF over WebP.
+   AUTO_IMAGE_FORMAT_PREFERENCE = ["avif", "webp", "jpg", "png", "heif"]
+
+   # Or prioritize JPEG for workloads where that is preferable.
+   AUTO_IMAGE_FORMAT_PREFERENCE = ["jpg", "webp", "avif", "png", "heif"]
+
+The result-storage cache key must vary with the active formats accepted by
+the request. The built-in file result storage does this automatically and
+uses an isolated namespace whenever a preference, ``AUTO_AVIF``,
+``AUTO_JPG``, ``AUTO_HEIF``, ``AUTO_PNG`` or ``AUTO_PNG_TO_JPG`` is active.
+It migrates legacy entries only for configurations where the old ``default``
+or WebP namespace is unambiguous. Custom result storages must use
+``thumbor.auto_image_format.get_auto_image_format_cache_key`` as described
+in :doc:`custom_result_storages`. When enabling or reordering this setting,
+do not migrate a legacy cached object into a new format namespace unless its
+content type is verified; a cache purge is the safest upgrade path for
+storages that cannot isolate the old entries.
+
+This namespace change also applies on upgrade when the preference remains
+empty but ``AUTO_AVIF``, ``AUTO_JPG``, ``AUTO_HEIF``, ``AUTO_PNG`` or
+``AUTO_PNG_TO_JPG`` is already enabled. Existing generated images in the
+legacy ``default`` namespace are deliberately treated as cache misses and
+regenerated. Plan for a temporarily cold cache, pre-warm it or use a gradual
+rollout if the additional origin and processing load would be significant.
+Legacy files are not removed automatically, so account for their disk usage
+until they are cleaned up separately. An ``AUTO_WEBP``-only configuration
+keeps its existing cache namespace.
+
+The default is an empty list, which retains the individual ``AUTO_*``
+settings.
+
+.. code:: python
+
+   # Use individual AUTO_* settings (default behavior).
+   AUTO_IMAGE_FORMAT_PREFERENCE = []
 
 Queueing - Redis Single Node
 ----------------------------
@@ -979,6 +1050,12 @@ Example of Configuration File
    ## to take a decision about the usage of this conf.
    ## Defaults to: False
    #AUTO_PNG_TO_JPG = False
+
+   ## Ordered list of preferred automatic output formats. Valid formats are
+   ## webp, avif, jpg, heif and png. A non-empty normalized list overrides the
+   ## individual AUTO_* settings. AUTO_PNG_TO_JPG remains independent.
+   ## Defaults to: []
+   #AUTO_IMAGE_FORMAT_PREFERENCE = []
 
    ## Specify the ratio between 1in and 1px for SVG images. This is only used
    ## whenrasterizing SVG images having their size units in cm or inches.
