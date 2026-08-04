@@ -359,7 +359,7 @@ echo "digest=$(jq -er '.["containerimage.manifest.digest"]' /tmp/ghcr-metadata.j
             echo "Digest not yet visible on Quay.io, retrying in $((attempt * 10))s..."
             sleep $((attempt * 10))
           done
-          echo "digest=$(jq -r '.["manifest.digest"]' /tmp/quay-metadata.json)" >> "$GITHUB_OUTPUT"
+echo "digest=$(jq -er '.["containerimage.manifest.digest"]' /tmp/quay-metadata.json)" >> "$GITHUB_OUTPUT"
 
       - name: Attest Quay.io image
         uses: actions/attest@v4
