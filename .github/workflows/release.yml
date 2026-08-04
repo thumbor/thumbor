@@ -335,7 +335,7 @@ jobs:
             echo "Digest not yet visible on GHCR, retrying in $((attempt * 10))s..."
             sleep $((attempt * 10))
           done
-          echo "digest=$(jq -r '.["manifest.digest"]' /tmp/ghcr-metadata.json)" >> "$GITHUB_OUTPUT"
+echo "digest=$(jq -er '.["containerimage.manifest.digest"]' /tmp/ghcr-metadata.json)" >> "$GITHUB_OUTPUT"
 
       - name: Attest GHCR image
         uses: actions/attest@v4
