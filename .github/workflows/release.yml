@@ -383,7 +383,7 @@ echo "digest=$(jq -er '.["containerimage.manifest.digest"]' /tmp/quay-metadata.j
             echo "Digest not yet visible on Docker Hub, retrying in $((attempt * 10))s..."
             sleep $((attempt * 10))
           done
-          echo "digest=$(jq -r '.["manifest.digest"]' /tmp/dockerhub-metadata.json)" >> "$GITHUB_OUTPUT"
+echo "digest=$(jq -er '.["containerimage.manifest.digest"]' /tmp/dockerhub-metadata.json)" >> "$GITHUB_OUTPUT"
 
       - name: Attest Docker Hub image
         uses: actions/attest@v4
