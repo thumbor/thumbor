@@ -50,7 +50,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-opencv = ["opencv-python-headless>=4.9.0.80,<5.0.0", "numpy>=1.26.3,<3.0.0"]
+opencv = ["opencv-python-headless>=4.9.0.80,<6.0.0", "numpy>=1.26.3,<3.0.0"]
 extra-libs = [
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",
@@ -78,7 +78,7 @@ tests = [
 ]
 
 all = [
-  "opencv-python-headless>=4.9.0.80,<5.0.0",
+  "opencv-python-headless>=4.9.0.80,<6.0.0",
   "numpy>=1.26.3,<3.0.0",
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",

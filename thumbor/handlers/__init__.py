@@ -404,8 +404,8 @@ class BaseHandler(tornado.web.RequestHandler):
         config = self.context.config
 
         enabled = (
-            request_override is None
-            if config.AUTO_PNG_TO_JPG
+            config.AUTO_PNG_TO_JPG
+            if request_override is None
             else request_override
         )
 
@@ -741,7 +741,9 @@ class BaseHandler(tornado.web.RequestHandler):
         should_vary = (
             self.context.config.AUTO_WEBP
             or self.context.config.AUTO_AVIF
+            or self.context.config.AUTO_JPG
             or self.context.config.AUTO_HEIF
+            or self.context.config.AUTO_PNG
         )
         # we have image (not video)
         should_vary = should_vary and content_type.startswith("image/")

@@ -29,6 +29,7 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.STORAGE = "thumbor.storages.no_storage"
         cfg.AUTO_PNG_TO_JPG = True
+        cfg.FILTERS = [*cfg.FILTERS, "thumbor.filters.autojpg"]
         cfg.RESULT_STORAGE = "thumbor.result_storages.file_storage"
         cfg.RESULT_STORAGE_EXPIRATION_SECONDS = 60
         cfg.RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
@@ -168,6 +169,26 @@ class ImageOperationsWithAutoPngToJpgTestCase(BaseImagingTestCase):
         expect(response.code).to_equal(200)
         expect(response.headers).to_include("Vary")
         expect(response.body).to_be_webp()
+
+    @gen_test
+    async def test_should_auto_convert_png_to_jpg_with_autojpg_true(self):
+        response = await self.async_fetch(
+            "/unsafe/filters:autojpg(true)/"
+            "Giunchedi%2C_Filippo_January_2015_01.png"
+        )
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include("Vary")
+        expect(response.body).to_be_jpeg()
+
+    @gen_test
+    async def test_shouldnt_auto_convert_png_to_jpg_with_autojpg_false(self):
+        response = await self.async_fetch(
+            "/unsafe/filters:autojpg(false)/"
+            "Giunchedi%2C_Filippo_January_2015_01.png"
+        )
+        expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include("Vary")
+        expect(response.body).to_be_png()
 
     @patch("thumbor.handlers.imaging.RequestParameters")
     @gen_test

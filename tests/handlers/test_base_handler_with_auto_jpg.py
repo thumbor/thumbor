@@ -32,6 +32,7 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         cfg.FILE_LOADER_ROOT_PATH = self.loader_path
         cfg.STORAGE = "thumbor.storages.no_storage"
         cfg.AUTO_JPG = True
+        cfg.FILTERS = [*cfg.FILTERS, "thumbor.filters.autojpg"]
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -49,10 +50,22 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         )
 
     @gen_test
+    async def test_autojpg_false_does_not_disable_auto_jpg(self):
+        response = await self.get_as_jpg(
+            "/unsafe/filters:autojpg(false)/"
+            "Giunchedi%2C_Filippo_January_2015_01.png",
+            MIMETYPE_JPEG,
+        )
+
+        expect(response.code).to_equal(200)
+        expect(response.body).to_be_jpeg()
+
+    @gen_test
     async def test_can_auto_convert_avif_to_jpg_with_accept_all(self):
         response = await self.get_as_jpg("/unsafe/image.avif", MIMETYPE_ALL)
 
         expect(response.code).to_equal(200)
+        expect(response.headers["Vary"]).to_include("Accept")
         expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
         expect(response.body).to_be_jpeg()
 
@@ -103,6 +116,7 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg("/unsafe/animated.gif", MIMETYPE_ALL)
 
         expect(response.code).to_equal(200)
+        expect(response.headers).not_to_include("Vary")
         expect(response.body).to_be_gif()
 
     @gen_test
