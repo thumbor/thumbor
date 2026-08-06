@@ -16,6 +16,11 @@ from uuid import uuid4
 
 import pytz
 
+from thumbor.auto_image_format import (
+    get_auto_image_format_cache_key,
+    get_legacy_auto_image_format_cache_key,
+    requires_auto_image_format_cache_isolation,
+)
 from thumbor.engines import BaseEngine
 from thumbor.result_storages import BaseStorage, ResultStorageResult
 from thumbor.utils import deprecated, logger
@@ -26,8 +31,14 @@ class Storage(BaseStorage):
 
     @property
     def is_auto_webp(self):
+        """Whether the request used the WebP variant in the legacy layout."""
+        request = getattr(self.context, "request", None)
+
         return (
-            self.context.config.AUTO_WEBP and self.context.request.accepts_webp
+            get_legacy_auto_image_format_cache_key(
+                self.context.config, request
+            )
+            == "auto_webp"
         )
 
     async def put(self, image_bytes):
@@ -75,7 +86,7 @@ class Storage(BaseStorage):
 
         if not exists(file_abspath):
             legacy_path = self.normalize_path_legacy(path)
-            if isfile(legacy_path):
+            if self.can_migrate_legacy_path() and isfile(legacy_path):
                 logger.debug(
                     "[RESULT_STORAGE] migrating image from old location at %s",
                     legacy_path,
@@ -120,9 +131,35 @@ class Storage(BaseStorage):
                 "/"
             )
         )
-        prefix = "auto_webp" if self.is_auto_webp else "default"
+        prefix = self.get_auto_image_format_cache_key() or "default"
 
         return f"{root_path}/{prefix}/{digest[:2]}/{digest[2:4]}/{digest[4:]}"
+
+    def get_auto_image_format_cache_key(self):
+        request = getattr(self.context, "request", None)
+
+        if request is None:
+            return None
+
+        if (
+            not requires_auto_image_format_cache_isolation(self.context.config)
+            and type(self).is_auto_webp is not Storage.is_auto_webp
+        ):
+            return "auto_webp" if self.is_auto_webp else None
+
+        return get_auto_image_format_cache_key(self.context.config, request)
+
+    def can_migrate_legacy_path(self):
+        request = getattr(self.context, "request", None)
+
+        if request is None:
+            return False
+
+        if requires_auto_image_format_cache_isolation(self.context.config):
+            return False
+
+        legacy_cache_key = "auto_webp" if self.is_auto_webp else None
+        return self.get_auto_image_format_cache_key() == legacy_cache_key
 
     def normalize_path_legacy(self, path):
         path = unquote(path)
