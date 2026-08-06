@@ -19,6 +19,11 @@ from tornado.locks import Condition
 
 import thumbor.filters
 from thumbor import __version__
+from thumbor.auto_image_format import (
+    AUTO_IMAGE_FORMAT_ACCEPT_ATTRS,
+    DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE,
+    get_active_auto_image_formats,
+)
 from thumbor.context import Context, RequestParameters
 from thumbor.engines import BaseEngine, EngineResult
 from thumbor.engines.json_engine import JSONEngine
@@ -34,8 +39,6 @@ HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 MIMETYPE_IMAGE_WILDCARD = "image/*"
 MIMETYPE_JPEG = "image/jpeg"
 MIMETYPE_JPG = "image/jpg"
-
-DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE = ("webp", "avif", "jpg", "heif", "png")
 
 LEGACY_AUTO_IMAGE_FORMAT_METHODS = {
     "webp": "can_auto_convert_to_webp",
@@ -160,7 +163,11 @@ class BaseHandler(tornado.web.RequestHandler):
             or not self.context.request.unsafe
         )
 
-        if self.context.modules.result_storage and should_store:
+        if (
+            self.context.modules.result_storage
+            and should_store
+            and self._can_use_result_storage_with_auto_image_formats()
+        ):
             start = datetime.datetime.now()
 
             try:
@@ -499,6 +506,24 @@ class BaseHandler(tornado.web.RequestHandler):
             is not BaseHandler.accepts_mime_type
         )
 
+    def _can_use_result_storage_with_auto_image_formats(self):
+        active_formats = get_active_auto_image_formats(self.context.config)
+        has_extended_format = any(
+            image_format != "webp" for image_format in active_formats
+        )
+
+        if not has_extended_format:
+            return True
+
+        if self._has_custom_accepts_mime_type():
+            return False
+
+        request = self.context.request
+        return all(
+            hasattr(request, AUTO_IMAGE_FORMAT_ACCEPT_ATTRS[image_format])
+            for image_format in active_formats
+        )
+
     def _accepts_parsed_mime_type(self, accept_attr, *mimetypes):
         accepts_mime_type_method = self.accepts_mime_type
         if self._has_custom_accepts_mime_type():
@@ -735,6 +760,7 @@ class BaseHandler(tornado.web.RequestHandler):
         should_store = (
             result_storage
             and not context.request.prevent_result_storage
+            and self._can_use_result_storage_with_auto_image_formats()
             and (
                 context.config.RESULT_STORAGE_STORES_UNSAFE
                 or not context.request.unsafe
