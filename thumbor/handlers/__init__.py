@@ -31,6 +31,10 @@ from thumbor.utils import CONTENT_TYPE, EXTENSION, logger
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
+MIMETYPE_IMAGE_WILDCARD = "image/*"
+MIMETYPE_JPEG = "image/jpeg"
+MIMETYPE_JPG = "image/jpg"
+
 DEFAULT_AUTO_IMAGE_FORMAT_PREFERENCE = ("webp", "avif", "jpg", "heif", "png")
 
 LEGACY_AUTO_IMAGE_FORMAT_METHODS = {
@@ -456,19 +460,68 @@ class BaseHandler(tornado.web.RequestHandler):
 
                 return (
                     normalized_mimetype.startswith("image/")
-                    and normalized_mimetype != "image/*"
-                    and accepted_media_types.get("image/*", 0) > 0
+                    and normalized_mimetype != MIMETYPE_IMAGE_WILDCARD
+                    and accepted_media_types.get(MIMETYPE_IMAGE_WILDCARD, 0)
+                    > 0
                 )
 
             return mimetype in request.headers.get("Accept", "")
 
         return False
 
+    def _custom_accepts_jpeg(self, accepts_mime_type_method):
+        accepted_media_types = getattr(
+            self.context.request,
+            "_accepted_media_types",
+            None,
+        )
+        if accepted_media_types is not None:
+            for mimetype in (
+                MIMETYPE_JPEG,
+                MIMETYPE_JPG,
+                MIMETYPE_IMAGE_WILDCARD,
+                "*/*",
+            ):
+                if mimetype in accepted_media_types:
+                    if accepted_media_types[mimetype] <= 0:
+                        return False
+                    break
+
+        return any(
+            accepts_mime_type_method(mimetype)
+            for mimetype in ("*/*", MIMETYPE_JPG, MIMETYPE_JPEG)
+        )
+
+    def _has_custom_accepts_mime_type(self):
+        accepts_mime_type_method = self.accepts_mime_type
+        return (
+            getattr(accepts_mime_type_method, "__func__", None)
+            is not BaseHandler.accepts_mime_type
+        )
+
+    def _accepts_parsed_mime_type(self, accept_attr, *mimetypes):
+        accepts_mime_type_method = self.accepts_mime_type
+        if self._has_custom_accepts_mime_type():
+            if accept_attr == "accepts_jpeg":
+                return self._custom_accepts_jpeg(accepts_mime_type_method)
+
+            return any(
+                accepts_mime_type_method(mimetype) for mimetype in mimetypes
+            )
+
+        request = self.context.request
+        if hasattr(request, accept_attr):
+            return bool(getattr(request, accept_attr))
+
+        return any(
+            accepts_mime_type_method(mimetype) for mimetype in mimetypes
+        )
+
     def _supports_avif(self):
         request = self.context.request
 
         return (
-            self.accepts_mime_type("image/avif")
+            self._accepts_parsed_mime_type("accepts_avif", "image/avif")
             and not request.engine.is_multiple()
             and request.engine.can_auto_convert_to_avif()
         )
@@ -480,7 +533,7 @@ class BaseHandler(tornado.web.RequestHandler):
         request = self.context.request
 
         return (
-            self.accepts_mime_type("image/heif")
+            self._accepts_parsed_mime_type("accepts_heif", "image/heif")
             and not request.engine.is_multiple()
             and request.engine.can_auto_convert_to_heif()
         )
@@ -490,10 +543,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def _supports_jpg(self):
         request = self.context.request
-        accepts_jpg = (
-            self.accepts_mime_type("*/*")
-            or self.accepts_mime_type("image/jpg")
-            or self.accepts_mime_type("image/jpeg")
+        accepts_jpg = self._accepts_parsed_mime_type(
+            "accepts_jpeg", "*/*", MIMETYPE_JPG, MIMETYPE_JPEG
         )
 
         return (
@@ -515,7 +566,7 @@ class BaseHandler(tornado.web.RequestHandler):
         request = self.context.request
 
         return (
-            self.accepts_mime_type("image/png")
+            self._accepts_parsed_mime_type("accepts_png", "image/png")
             and not request.engine.is_multiple()
         )
 
