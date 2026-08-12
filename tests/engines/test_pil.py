@@ -262,6 +262,34 @@ class PilEngineTestCase(TestCase):
         # Image has total of 200x150=30000 pixels. Most of them should be transparent
         expect(transparent_pixels_count).to_be_greater_than(19000)
 
+    def test_should_preserve_png_transparency_after_grayscale(self):
+        engine = Engine(self.context)
+
+        with open(
+            join(STORAGE_PATH, "paletted-transparent.png"), "rb"
+        ) as image_file:
+            buffer = image_file.read()
+
+        engine.load(buffer, "png")
+        expect(engine.original_mode).to_equal("P")
+        engine.resize(200, 150)
+        # Leaves the image in LA mode, which quantize() does not accept
+        engine.convert_to_grayscale()
+
+        img = Image.open(BytesIO(engine.read(".png")))
+
+        expect(img.mode).to_equal("P")
+        expect(img.format.lower()).to_equal("png")
+
+        transparent_pixels_count = sum(
+            img.convert("RGBA")
+            .split()[3]
+            .point(lambda x: 0 if x else 1)
+            .getdata()
+        )
+
+        expect(transparent_pixels_count).to_be_greater_than(19000)
+
     @skip_unless_avif
     def test_convert_jpg_to_avif(self):
         engine = Engine(self.context)
