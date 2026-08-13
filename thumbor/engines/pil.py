@@ -483,13 +483,13 @@ class Engine(BaseEngine):
     def image_data_as_rgb(self, update_image=True):
         converted_image = self.image
 
-        if converted_image.mode not in ["RGB", "RGBA"]:
-            if "A" in converted_image.mode:
+        if converted_image.mode != "RGBA":
+            if self.has_transparency():
                 converted_image = converted_image.convert("RGBA")
             elif converted_image.mode == "P":
                 # convert() figures out RGB or RGBA based on palette used
                 converted_image = converted_image.convert(None)
-            else:
+            elif converted_image.mode != "RGB":
                 converted_image = converted_image.convert("RGB")
 
         if update_image:
@@ -498,7 +498,7 @@ class Engine(BaseEngine):
         return converted_image.mode, converted_image.tobytes()
 
     def convert_to_grayscale(self, update_image=True, alpha=True):
-        if "A" in self.image.mode and alpha:
+        if alpha and self.has_transparency():
             image = self.image.convert("LA")
         else:
             image = self.image.convert("L")
