@@ -202,6 +202,16 @@ class Engine(BaseEngine):
                 # convert() figures out RGB or RGBA based on palette used
                 target_mode = None
             self.image = self.image.convert(mode=target_mode)
+        elif (
+            self.image.mode in ["L", "RGB"]
+            and "transparency" in self.image.info
+        ):
+            # Resampling blends a tRNS colorkey into its neighbours, so
+            # promote it to an alpha channel that gets resampled with the
+            # pixels
+            self.image = self.image.convert(
+                "LA" if self.image.mode == "L" else "RGBA"
+            )
 
         size = (int(width), int(height))
         # Tell image loader what target size we want (only JPG for a moment)
@@ -447,6 +457,11 @@ class Engine(BaseEngine):
                 # 26.10.22: remove ".heic, .heif" in a month(when pillow_heif get updated)
                 self.image = self.image.convert("RGBA")
 
+            if ext == ".gif" and self.image.mode == "LA":
+                # Pillow's GIF writer flattens LA to L, but picks the
+                # transparent palette entry out of RGBA
+                self.image = self.image.convert("RGBA")
+
             self.image.format = FORMATS.get(
                 ext, FORMATS[self.get_default_extension()]
             )
@@ -500,14 +515,11 @@ class Engine(BaseEngine):
     def image_data_as_rgb(self, update_image=True):
         converted_image = self.image
 
-        if converted_image.mode not in ["RGB", "RGBA"]:
-            if "A" in converted_image.mode:
+        if converted_image.has_transparency_data:
+            if converted_image.mode != "RGBA":
                 converted_image = converted_image.convert("RGBA")
-            elif converted_image.mode == "P":
-                # convert() figures out RGB or RGBA based on palette used
-                converted_image = converted_image.convert(None)
-            else:
-                converted_image = converted_image.convert("RGB")
+        elif converted_image.mode != "RGB":
+            converted_image = converted_image.convert("RGB")
 
         if update_image:
             self.image = converted_image
@@ -515,7 +527,7 @@ class Engine(BaseEngine):
         return converted_image.mode, converted_image.tobytes()
 
     def convert_to_grayscale(self, update_image=True, alpha=True):
-        if "A" in self.image.mode and alpha:
+        if alpha and self.image.has_transparency_data:
             image = self.image.convert("LA")
         else:
             image = self.image.convert("L")
