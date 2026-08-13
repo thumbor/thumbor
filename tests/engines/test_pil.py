@@ -15,7 +15,7 @@ from unittest import TestCase, mock
 
 import piexif
 import pytest
-from PIL import Image
+from PIL import Image, ImageChops
 from preggy import expect
 
 from tests.base import (
@@ -280,6 +280,12 @@ class PilEngineTestCase(TestCase):
 
         expect(img.mode).to_equal("P")
         expect(img.format.lower()).to_equal("png")
+
+        # Every pixel must be grey, so that neither a no-op grayscale nor
+        # colour reintroduced by the quantization goes unnoticed
+        red, green, blue = img.convert("RGB").split()
+        expect(ImageChops.difference(red, green).getextrema()[1]).to_equal(0)
+        expect(ImageChops.difference(green, blue).getextrema()[1]).to_equal(0)
 
         transparent_pixels_count = sum(
             img.convert("RGBA")
