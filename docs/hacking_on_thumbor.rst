@@ -12,28 +12,27 @@ create your own clone of thumbor.
 Dependencies
 ------------
 
-We seriously advise you to use
-`virtualenv <http://pypi.python.org/pypi/virtualenv>`__ since it will
-keep your environment clean of thumbor's dependencies and you can choose
-when to "turn them on".
+The project uses `uv <https://docs.astral.sh/uv/>`__ to create the local
+``.venv``, install thumbor in editable mode, and keep dependency versions in
+sync with ``uv.lock``. If uv is not already installed, ``make setup`` installs
+the pinned version into ``.uv-venv``. On macOS, this workflow requires macOS
+13 or newer.
 
-You'll also need python >= 3.10 and `python poetry <https://python-poetry.org/>`_.
+You'll also need Python >= 3.10.
 
-Installing poetry should be as easy as ``pip install poetry``, but you can find more about it in their website.
-
-Other than that, you'll also need `redis-server <https://redis.io>`` installed (for queued detector unit tests).
+Other than that, you'll also need `redis-server <https://redis.io>`__
+installed (for queued detector unit tests).
 
 Initializing the Environment
 ----------------------------
 
-Once you've created your virtualenv, and installed poetry, make sure you can use poetry::
-
-    $ poetry --version
-    Poetry version 1.0.3
-
-You should see something similar. After that we just need to download all python packages with::
+Sync the development environment and compile the native extensions with::
 
     $ make setup
+    $ make pre-commit
+    $ make compile_ext
+
+The pre-commit hooks only need to be installed once per clone.
 
 Running the Tests
 -----------------
@@ -57,9 +56,15 @@ for more info on this.
 Linting your code
 -----------------
 
-Please ensure that your editor is configured to use `black <https://github.com/psf/black>`_, `flake8 <https://flake8.pycqa.org/en/latest/>`_ and `pylint <https://www.pylint.org/>`_.
+Please ensure that your editor is configured to use
+`black <https://github.com/psf/black>`_,
+`flake8 <https://flake8.pycqa.org/en/latest/>`_,
+`isort <https://pycqa.github.io/isort/>`_, and
+`pylint <https://www.pylint.org/>`_.
 
-Even if that's the case, don't forget to run ``make flake pylint`` before commiting and fixing any issues you find. That way you won't get a request for doing so in your PR.
+Even if that's the case, don't forget to run ``make flake isort pylint`` before
+committing and fixing any issues you find. That way you won't get a request
+for doing so in your PR.
 
 Pull Requests
 -------------
@@ -70,7 +75,7 @@ branch of thumbor before asking for a pull request.
 
 To add thumbor as a valid remote for your repository::
 
-    $ git remote add thumbor git://github.com/thumbor/thumbor.git
+    $ git remote add thumbor https://github.com/thumbor/thumbor.git
 
 To merge thumbor's master with your fork::
 
@@ -95,7 +100,8 @@ Remember that you must be logged in with your docker hub account and you must be
 Running tests in docker
 -----------------------
 
-If you do not wish to configure your environment with thumbor's dependencies, you can use our docker image to run tests with::
+If you do not wish to configure your environment with thumbor's dependencies,
+you can build local Docker images and run the tests with::
 
     make test-docker-run
 
@@ -103,4 +109,6 @@ Or if you want to run a specific python version with your tests::
 
     make test-docker-310-run
 
-Just replace '310' with the python version you want: 310, 311, 312 or 313.
+These targets build the corresponding local test image before running it.
+
+Just replace '310' with the python version you want: 310, 311, 312, 313 or 314.

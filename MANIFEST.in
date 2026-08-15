@@ -13,7 +13,7 @@ recursive-include thumbor *.c
 recursive-exclude thumbor *.pyc
 recursive-exclude thumbor *.so
 
-include LICENSE README.md CHANGELOG
+include LICENSE README.md CHANGELOG uv.lock
 recursive-include docs *
 prune docs/_build
 

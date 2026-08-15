@@ -1,6 +1,12 @@
 ARG PYTHON_VERSION
+ARG UV_VERSION=0.11.19
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+
 FROM python:${PYTHON_VERSION}-slim
 WORKDIR /app
+COPY --from=uv /uv /uvx /bin/
+ENV UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/tmp/thumbor-venv
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends --no-install-suggests \
         python3-dev \
@@ -21,5 +27,3 @@ RUN apt-get update -y && \
         redis && \
     apt-get install -y --reinstall --no-install-recommends --no-install-suggests build-essential && \
     apt-get clean
-
-RUN pip install --upgrade pip

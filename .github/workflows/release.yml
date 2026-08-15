@@ -24,15 +24,17 @@ jobs:
       - uses: actions/checkout@v7
       - name: Set up Python
         id: setup-python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.python-version }}
-      - name: Install dependencies
-        run: |
-          pip install -U pip
-          pip install -U build
+      - name: Set up uv
+        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
+        with:
+          version: "0.11.19"
       - name: Build package
-        run: python -m build --sdist
+        run: >-
+          uv run --locked --only-group release --only-group build
+          python -m build --sdist --no-isolation
 
       - uses: actions/upload-artifact@v7
         with:
@@ -52,14 +54,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         name: Install Python
         with:
           python-version: ${{ env.python-version }}
           cache: "pip" # caching pip dependencies
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c # v4.1.1
+        uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074 # v4.2.0
 
       - uses: actions/upload-artifact@v7
         with:

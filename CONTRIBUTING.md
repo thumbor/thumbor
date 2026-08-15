@@ -27,35 +27,30 @@ There are a few things you'll need in order to properly start hacking on it.
 You'll need [redis-server](https://redis.io)
 installed (for queued detector unit tests).
 
-Other than that, we seriously advise you to use
-[virtualenv](http://pypi.python.org/pypi/virtualenv) since it will keep
-your environment clean of thumbor's dependencies and you can choose when
-to "turn them on".
+The project uses [uv](https://docs.astral.sh/uv/) to create a local `.venv`,
+install editable dependencies, and keep the development environment in sync
+with `uv.lock`. If uv is not already installed, `make setup` installs the
+pinned version into `.uv-venv`.
 
-The project requires Python 3.9+, and in this version virtualenv is already installed by default, to create a virtual environment follow the next steps:
-
-
-1. Create a virtual environment, in the folder .venv, located in the user's home folder
-```
-$ python3 -m venv ~/.venv/<my_env_name>
-```
-
-2. Activate the virtual environment
-```
-$ source ~/.venv/<my_env_name>/bin/activate
-```
-
-3. Now you can install the dependencies in your virtual environment
-4. In case you want deactivate your virtual environment:
-```
-$ deactivate
-```
+The project requires Python 3.10+. The uv development workflow requires
+macOS 13+ on macOS.
 
 ## Initializing the Environment
 
-You can install thumbor dev dependencies with:
+You can install thumbor dev dependencies and optional imaging libraries with:
 
     $ make setup
+
+This bootstraps uv when necessary and runs
+`uv sync --locked --extra tests --extra all`.
+
+Install the pre-commit hooks once with:
+
+    $ make pre-commit
+
+Then compile the native extensions:
+
+    $ make compile_ext
 
 ## Running the Tests
 
@@ -79,10 +74,11 @@ for more info on this.
 
 Please ensure that your editor is configured to use
 [black](https://github.com/psf/black),
-[flake8](https://flake8.pycqa.org/en/latest/) and
+[flake8](https://flake8.pycqa.org/en/latest/),
+[isort](https://pycqa.github.io/isort/), and
 [pylint](https://www.pylint.org/).
 
-Even if that's the case, don't forget to run `make flake pylint` before
+Even if that's the case, don't forget to run `make flake isort pylint` before
 committing and fixing any issues you find. That way you won't get a
 request for doing so in your PR.
 
@@ -94,7 +90,7 @@ branch of thumbor before asking for a pull request.
 
 To add thumbor as a valid remote for your repository:
 
-    $ git remote add thumbor git://github.com/thumbor/thumbor.git
+    $ git remote add thumbor https://github.com/thumbor/thumbor.git
 
 To merge thumbor's master with your fork:
 

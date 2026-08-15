@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -eu
+
+if command -v uv >/dev/null 2>&1; then
+    uv_bin=$(command -v uv)
+else
+    uv_bin="${UV_BOOTSTRAP_DIR:-.uv-venv}/bin/uv"
+fi
+
+if [ ! -x "${uv_bin}" ]; then
+    echo "uv not found; run 'make setup' first" >&2
+    exit 127
+fi
+
+exec "${uv_bin}" "$@"
