@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Set up Python
         id: setup-python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.python-version }}
       - name: Set up uv
@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         name: Install Python
         with:
           python-version: ${{ env.python-version }}
