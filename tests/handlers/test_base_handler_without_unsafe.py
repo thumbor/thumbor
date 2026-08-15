@@ -7,9 +7,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
+from tests.base import assert_similar_to
 from tests.fixtures.images import default_image
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
@@ -40,13 +40,13 @@ class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
         response = await self.async_fetch(
             "/_wIUeSaeHw8dricKG2MGhqu5thk=/smart/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(default_image())
+        assert response.code == 200
+        assert_similar_to(response.body, default_image())
 
     @gen_test
     async def test_getting_unsafe_image_fails(self):
         response = await self.async_fetch("/unsafe/smart/image.jpg")
-        expect(response.code).to_equal(400)
+        assert response.code == 400
 
     @gen_test
     async def test_hash_injection_in_image_path_is_rejected(self):
@@ -68,7 +68,7 @@ class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
             "/_wIUeSaeHw8dricKG2MGhqu5thk="
             "/rt/image.jpg"
         )
-        expect(response.code).to_equal(400)
+        assert response.code == 400
 
     @gen_test
     async def test_url_encoded_hash_injection_in_image_path_is_rejected(self):
@@ -82,4 +82,4 @@ class ImageOperationsWithoutUnsafeTestCase(BaseImagingTestCase):
             "/_wIUeSaeHw8dricKG2MGhqu5thk%3D"
             "/rt/image.jpg"
         )
-        expect(response.code).to_equal(400)
+        assert response.code == 400

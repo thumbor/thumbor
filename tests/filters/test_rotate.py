@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor.filters
@@ -27,7 +26,7 @@ class RotateFilterTestCase(FilterTestCase):
         expected = self.get_fixture("rotate.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.97)
+        assert ssim > 0.97
 
     @gen_test
     async def test_rotate_filter_with_invalid_value(self):
@@ -37,7 +36,7 @@ class RotateFilterTestCase(FilterTestCase):
         expected = self.get_fixture("source.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_equal(1)
+        assert ssim == 1
 
 
 class FakeRotateEngine:
@@ -70,7 +69,7 @@ class FakeRotateEngineRotateFilterTestCase(FilterTestCase):
         ]
         filter_instances[0].engine = FakeRotateEngine()
         await filter_instances[0].run()
-        expect(filter_instances[0].engine.rotate_val).to_be_null()
+        assert filter_instances[0].engine.rotate_val is None
 
     @gen_test
     async def test_should_equal_90(self):
@@ -82,7 +81,7 @@ class FakeRotateEngineRotateFilterTestCase(FilterTestCase):
         ]
         filter_instances[0].engine = FakeRotateEngine()
         await filter_instances[0].run()
-        expect(filter_instances[0].engine.rotate_val).to_equal(90)
+        assert filter_instances[0].engine.rotate_val == 90
 
     @gen_test
     async def test_normalized_rotate_should_equal_180(self):
@@ -94,4 +93,4 @@ class FakeRotateEngineRotateFilterTestCase(FilterTestCase):
         ]
         filter_instances[0].engine = FakeRotateEngine()
         await filter_instances[0].run()
-        expect(filter_instances[0].engine.rotate_val).to_equal(180)
+        assert filter_instances[0].engine.rotate_val == 180

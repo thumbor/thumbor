@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.fixtures.images import default_image
@@ -48,11 +47,11 @@ class BaseHandlerLoadingNormalizeImagesTestCase(BaseImagingTestCase):
         self.storage_mock.return_value = default_image()
         self.context.config.MAX_HEIGHT = 1
         response = await self.async_fetch("/unsafe/smart/image.jpg")
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
         engine = Engine(self.context)
         engine.load(response.body, None)
-        expect(engine.size).to_equal((1, 1))
+        assert engine.size == (1, 1)
 
     @gen_test
     async def test_can_normalize_image_loaded_from_upstream(self):
@@ -60,8 +59,8 @@ class BaseHandlerLoadingNormalizeImagesTestCase(BaseImagingTestCase):
         self.loader_mock.return_value = LoaderResult(buffer=default_image())
         self.context.config.MAX_HEIGHT = 1
         response = await self.async_fetch("/unsafe/smart/image.jpg")
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
         engine = Engine(self.context)
         engine.load(response.body, None)
-        expect(engine.size).to_equal((1, 1))
+        assert engine.size == (1, 1)

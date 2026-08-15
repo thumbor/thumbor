@@ -10,7 +10,6 @@
 from os.path import abspath, dirname, join
 from unittest.mock import patch
 
-from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor
@@ -55,8 +54,8 @@ class FileLoaderHttpFallbackFileTestCase(TestCase):
     @gen_test
     async def test_should_load_file(self):
         result = await loader.load(self.ctx, "image.jpg")
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("file")
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == "file"
 
 
 class FileLoaderHttpFallbackHttpTestCase(TestCase):
@@ -69,8 +68,8 @@ class FileLoaderHttpFallbackHttpTestCase(TestCase):
 
         result = await loader.load(ctx, url)
 
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("http")
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == "http"
 
     @patch.object(thumbor.loaders.http_loader, "load", dummy_http_load)
     @gen_test
@@ -81,8 +80,8 @@ class FileLoaderHttpFallbackHttpTestCase(TestCase):
 
         result = await loader.load(ctx, url)
 
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.successful).to_be_false()
-        expect(result.error).to_equal(LoaderResult.ERROR_BAD_REQUEST)
-        expect(result.extras["reason"]).to_equal("Unallowed domain")
-        expect(result.extras["source"]).to_equal(url)
+        assert isinstance(result, LoaderResult)
+        assert not result.successful
+        assert result.error == LoaderResult.ERROR_BAD_REQUEST
+        assert result.extras["reason"] == "Unallowed domain"
+        assert result.extras["source"] == url

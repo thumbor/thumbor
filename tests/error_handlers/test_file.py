@@ -10,7 +10,7 @@
 import json
 import tempfile
 
-from preggy import expect
+import pytest
 
 from tests.base import TestCase
 from thumbor import __version__
@@ -34,7 +34,7 @@ class FakeRequest:
         self.remote_ip = "127.0.0.1"
 
     def full_url(self):
-        return f"http://test/{self.url}"
+        return f"http://test/{self.url}"  # NOSONAR
 
 
 class FakeHandler:
@@ -44,7 +44,7 @@ class FakeHandler:
 
 class InvalidFileErrorHandlerTestCase(TestCase):
     def test_when_invalid_empty_configuration(self):
-        with expect.error_to_happen(RuntimeError):
+        with pytest.raises(RuntimeError):
             ErrorHandler(self.config)
 
     def test_when_invalid_configuration_of_filename_with_context_should_be_error(
@@ -54,7 +54,7 @@ class InvalidFileErrorHandlerTestCase(TestCase):
             ERROR_FILE_NAME_USE_CONTEXT="server..port",
             ERROR_FILE_LOGGER="toto",
         )
-        with expect.error_to_happen(RuntimeError):
+        with pytest.raises(RuntimeError):
             ErrorHandler(cfg)
 
 
@@ -81,26 +81,24 @@ class BasicFileErrorHandlerTestCase(TestCase):
         content = self.tmp.read()
         log = json.loads(content.decode("utf-8"))
         del log["extra"]["timestamp"]
-        expect(log).to_be_like(
-            {
-                "Http": {
-                    "url": "http://test/test/",
-                    "method": "GET",
-                    "data": [],
-                    "body": "body",
-                    "query_string": "a=1&b=2",
+        assert log == {
+            "Http": {
+                "url": "http://test/test/",  # NOSONAR
+                "method": "GET",
+                "data": [],
+                "body": "body",
+                "query_string": "a=1&b=2",
+            },
+            "interfaces.User": {"ip": "127.0.0.1"},
+            "exception": "Test",
+            "extra": {
+                "thumbor-version": __version__,
+                "Headers": {
+                    "header1": "value1",
+                    "Cookie": {"cookie1": "value", "cookie2": "value2"},
                 },
-                "interfaces.User": {"ip": "127.0.0.1"},
-                "exception": "Test",
-                "extra": {
-                    "thumbor-version": __version__,
-                    "Headers": {
-                        "header1": "value1",
-                        "Cookie": {"cookie1": "value", "cookie2": "value2"},
-                    },
-                },
-            }
-        )
+            },
+        }
 
 
 class FileErrorHandlerTestCase(TestCase):
@@ -136,23 +134,21 @@ class FileErrorHandlerTestCase(TestCase):
         # check against json version
         log = json.loads(content.decode("utf-8"))
         del log["extra"]["timestamp"]
-        expect(log).to_be_like(
-            {
-                "Http": {
-                    "url": "http://test/test/",
-                    "method": "GET",
-                    "data": [],
-                    "body": "body",
-                    "query_string": "a=1&b=2",
+        assert log == {
+            "Http": {
+                "url": "http://test/test/",  # NOSONAR
+                "method": "GET",
+                "data": [],
+                "body": "body",
+                "query_string": "a=1&b=2",
+            },
+            "interfaces.User": {"ip": "127.0.0.1"},
+            "exception": "Test",
+            "extra": {
+                "thumbor-version": __version__,
+                "Headers": {
+                    "header1": "value1",
+                    "Cookie": {"cookie1": "value", "cookie2": "value2"},
                 },
-                "interfaces.User": {"ip": "127.0.0.1"},
-                "exception": "Test",
-                "extra": {
-                    "thumbor-version": __version__,
-                    "Headers": {
-                        "header1": "value1",
-                        "Cookie": {"cookie1": "value", "cookie2": "value2"},
-                    },
-                },
-            }
-        )
+            },
+        }

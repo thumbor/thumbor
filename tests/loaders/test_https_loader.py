@@ -10,7 +10,6 @@
 from os.path import abspath, dirname, join
 
 import tornado.web
-from preggy import expect
 from tornado.testing import gen_test
 
 import thumbor.loaders.https_loader as loader
@@ -67,38 +66,35 @@ class ValidateUrlTestCase(TestCase):
         config = Config()
         config.ALLOWED_SOURCES = ["s.glbimg.com"]
         ctx = Context(None, config, None)
-        expect(
-            loader.validate(ctx, "http://www.google.com/logo.jpg")
-        ).to_be_false()
-        expect(
-            loader.validate(ctx, "http://s2.glbimg.com/logo.jpg")
-        ).to_be_false()
-        expect(
-            loader.validate(
-                ctx,
-                "/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=",  # NOQA, pylint:disable=line-too-long
-            )
-        ).to_be_false()
-        expect(
-            loader.validate(ctx, "http://s.glbimg.com/logo.jpg")
-        ).to_be_true()
+        assert not loader.validate(
+            ctx, "http://www.google.com/logo.jpg"  # NOSONAR
+        )
+        assert not loader.validate(
+            ctx, "http://s2.glbimg.com/logo.jpg"  # NOSONAR
+        )
+        assert not loader.validate(  # pylint: disable=line-too-long
+            ctx,
+            "/glob=:sfoir%20%20%3Co-pmb%20%20%20%20_%20%20%20%200%20%20g.-%3E%3Ca%20hplass=",
+        )
+        assert loader.validate(ctx, "http://s.glbimg.com/logo.jpg")  # NOSONAR
 
     @gen_test
     async def test_without_allowed_sources(self):
         config = Config()
         config.ALLOWED_SOURCES = []
         ctx = Context(None, config, None)
-        is_valid = loader.validate(ctx, "http://www.google.com/logo.jpg")
-        expect(is_valid).to_be_true()
+        is_valid = loader.validate(
+            ctx, "http://www.google.com/logo.jpg"  # NOSONAR
+        )
+        assert is_valid
 
 
 class NormalizeUrlTestCase(TestCase):
     @gen_test
     async def test_should_normalize_url(self):
-        expect(loader._normalize_url("http://some.url")).to_equal(
-            "http://some.url"
-        )
-        expect(loader._normalize_url("some.url")).to_equal("https://some.url")
+        url = "http://some.url"  # NOSONAR
+        assert loader._normalize_url(url) == url
+        assert loader._normalize_url("some.url") == "https://some.url"
 
     @gen_test
     async def test_should_normalize_quoted_url(self):
@@ -111,7 +107,7 @@ class NormalizeUrlTestCase(TestCase):
             "googlelogo_color_272x92dp.png"
         )
         result = loader._normalize_url(url)
-        expect(result).to_equal(expected)
+        assert result == expected
 
 
 class HttpsLoaderTestCase(TestCase):
@@ -127,9 +123,9 @@ class HttpsLoaderTestCase(TestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("Hello")
-        expect(result.successful).to_be_true()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"Hello"
+        assert result.successful
 
     @gen_test
     async def test_load_with_curl(self):
@@ -139,9 +135,9 @@ class HttpsLoaderTestCase(TestCase):
         ctx = Context(None, config, None)
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("Hello")
-        expect(result.successful).to_be_true()
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"Hello"
+        assert result.successful
 
 
 class HttpLoaderWithUserAgentForwardingTestCase(TestCase):
@@ -160,8 +156,8 @@ class HttpLoaderWithUserAgentForwardingTestCase(TestCase):
         )
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("test-user-agent")
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"test-user-agent"
 
     @gen_test
     async def test_load_with_default_user_agent(self):
@@ -172,5 +168,5 @@ class HttpLoaderWithUserAgentForwardingTestCase(TestCase):
         ctx = Context(None, config, None, HandlerMock({}))
 
         result = await loader.load(ctx, url)
-        expect(result).to_be_instance_of(LoaderResult)
-        expect(result.buffer).to_equal("DEFAULT_USER_AGENT")
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"DEFAULT_USER_AGENT"

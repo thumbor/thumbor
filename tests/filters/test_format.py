@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -19,11 +18,11 @@ class FormatFilterTestCase(FilterTestCase):
         await self.get_filtered(
             "source.jpg", "thumbor.filters.format", "format(invalid)"
         )
-        expect(self.context.request.format).to_be_null()
+        assert self.context.request.format is None
 
     @gen_test
     async def test_can_set_proper_format(self):
         await self.get_filtered(
             "source.jpg", "thumbor.filters.format", "format(webp)"
         )
-        expect(self.context.request.format).to_equal("webp")
+        assert self.context.request.format == "webp"

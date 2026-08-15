@@ -15,7 +15,6 @@ from os.path import abspath, dirname, exists, join
 from unittest import mock
 from urllib.parse import unquote
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from thumbor.auto_image_format import (
@@ -77,7 +76,7 @@ class BaseFileStorageTestCase(TestCase):
 
     @staticmethod
     def get_http_path():
-        return "http://example.com/path/to/a.jpg"
+        return "http://example.com/path/to/a.jpg"  # NOSONAR
 
     def put_legacy_fixture(self, filename):
         legacy_path = self.file_storage.normalize_path_legacy(
@@ -118,7 +117,7 @@ class BaseFileStorageTestCase(TestCase):
 
 class FileStorageTestCase(BaseFileStorageTestCase):
     def test_is_not_legacy_auto_webp(self):
-        expect(self.file_storage.is_auto_webp).to_be_false()
+        assert self.file_storage.is_auto_webp is False
 
     def test_is_auto_webp_override_controls_legacy_cache_key(self):
         class CustomFileStorage(FileStorage):
@@ -128,17 +127,16 @@ class FileStorageTestCase(BaseFileStorageTestCase):
 
         custom_storage = CustomFileStorage(self.context)
 
-        expect(custom_storage.normalize_path(self.get_http_path())).to_equal(
-            f"{self.storage_path.name}/auto_webp/b6/be/"
+        assert (
+            custom_storage.normalize_path(self.get_http_path())
+            == f"{self.storage_path.name}/auto_webp/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
 
     @gen_test
     async def test_normalized_path(self):
-        expect(self.file_storage).not_to_be_null()
-        expect(
-            self.file_storage.normalize_path(self.get_http_path())
-        ).to_equal(
+        assert self.file_storage is not None
+        assert self.file_storage.normalize_path(self.get_http_path()) == (
             f"{self.storage_path.name}/default/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
@@ -147,11 +145,10 @@ class FileStorageTestCase(BaseFileStorageTestCase):
     async def test_normalized_path_without_request(self):
         del self.context.request
 
-        expect(self.file_storage).not_to_be_null()
-        expect(
+        assert self.file_storage is not None
+        assert (
             self.file_storage.normalize_path(self.get_http_path())
-        ).to_equal(
-            f"{self.storage_path.name}/default/b6/be/"
+            == f"{self.storage_path.name}/default/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
 
@@ -165,9 +162,9 @@ class FileStorageTestCase(BaseFileStorageTestCase):
 
         result = await self.file_storage.get()
 
-        expect(result.buffer).to_equal(image_bytes)
-        expect(exists(legacy_path)).to_be_false()
-        expect(exists(current_path)).to_be_true()
+        assert result.buffer == image_bytes
+        assert exists(legacy_path) is False
+        assert exists(current_path) is True
 
 
 class WebPFileStorageTestCase(BaseFileStorageTestCase):
@@ -188,7 +185,7 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
         return RequestParameters(accepts_webp=True)
 
     def test_preserves_legacy_is_auto_webp_property(self):
-        expect(self.file_storage.is_auto_webp).to_be_true()
+        assert self.file_storage.is_auto_webp is True
 
     def test_is_auto_webp_override_can_disable_legacy_cache_key(self):
         class CustomFileStorage(FileStorage):
@@ -198,17 +195,16 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
 
         custom_storage = CustomFileStorage(self.context)
 
-        expect(custom_storage.normalize_path(self.get_http_path())).to_equal(
-            f"{self.storage_path.name}/default/b6/be/"
+        assert (
+            custom_storage.normalize_path(self.get_http_path())
+            == f"{self.storage_path.name}/default/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
 
     @gen_test
     async def test_normalized_path_with_auto_webp_path(self):
-        expect(self.file_storage).not_to_be_null()
-        expect(
-            self.file_storage.normalize_path(self.get_http_path())
-        ).to_equal(
+        assert self.file_storage is not None
+        assert self.file_storage.normalize_path(self.get_http_path()) == (
             f"{self.storage_path.name}/auto_webp/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
@@ -223,9 +219,9 @@ class WebPFileStorageTestCase(BaseFileStorageTestCase):
 
         result = await self.file_storage.get()
 
-        expect(result.buffer).to_equal(image_bytes)
-        expect(exists(legacy_path)).to_be_false()
-        expect(exists(current_path)).to_be_true()
+        assert result.buffer == image_bytes
+        assert exists(legacy_path) is False
+        assert exists(current_path) is True
 
 
 class PreferredFormatsFileStorageTestCase(BaseFileStorageTestCase):
@@ -243,11 +239,10 @@ class PreferredFormatsFileStorageTestCase(BaseFileStorageTestCase):
 
     @gen_test
     async def test_normalized_path_with_preferred_formats_path(self):
-        expect(self.file_storage).not_to_be_null()
-        expect(
+        assert self.file_storage is not None
+        assert (
             self.file_storage.normalize_path(self.get_http_path())
-        ).to_equal(
-            f"{self.storage_path.name}/"
+            == f"{self.storage_path.name}/"
             "auto_format_v1_preference_preserve_avif-webp/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
@@ -274,13 +269,13 @@ class PreferredFormatsFileStorageTestCase(BaseFileStorageTestCase):
         await self.file_storage.put(webp_bytes)
         webp_path = self.file_storage.normalize_path(self.context.request.url)
 
-        expect(avif_webp_path).not_to_equal(webp_path)
-        expect((await self.file_storage.get()).buffer).to_equal(webp_bytes)
+        assert avif_webp_path != webp_path
+        assert (await self.file_storage.get()).buffer == webp_bytes
 
         self.context.request = RequestParameters(
             url=self.get_http_path(), accepts_webp=True, accepts_avif=True
         )
-        expect((await self.file_storage.get()).buffer).to_equal(avif_bytes)
+        assert (await self.file_storage.get()).buffer == avif_bytes
 
 
 class PreferredWebPFileStorageTestCase(BaseFileStorageTestCase):
@@ -306,9 +301,9 @@ class PreferredWebPFileStorageTestCase(BaseFileStorageTestCase):
 
         result = await self.file_storage.get()
 
-        expect(result).to_be_null()
-        expect(exists(legacy_path)).to_be_true()
-        expect(exists(current_path)).to_be_false()
+        assert result is None
+        assert exists(legacy_path) is True
+        assert exists(current_path) is False
 
     @gen_test
     async def test_does_not_read_previous_auto_webp_namespace(self):
@@ -321,9 +316,9 @@ class PreferredWebPFileStorageTestCase(BaseFileStorageTestCase):
 
         result = await self.file_storage.get()
 
-        expect(result).to_be_null()
-        expect(exists(previous_path)).to_be_true()
-        expect(exists(current_path)).to_be_false()
+        assert result is None
+        assert exists(previous_path) is True
+        assert exists(current_path) is False
 
     @gen_test
     async def test_does_not_read_previous_default_namespace(self):
@@ -339,9 +334,9 @@ class PreferredWebPFileStorageTestCase(BaseFileStorageTestCase):
 
         result = await self.file_storage.get()
 
-        expect(result).to_be_null()
-        expect(exists(previous_path)).to_be_true()
-        expect(exists(current_path)).to_be_false()
+        assert result is None
+        assert exists(previous_path) is True
+        assert exists(current_path) is False
 
 
 class AutoAvifFileStorageTestCase(BaseFileStorageTestCase):
@@ -366,15 +361,14 @@ class AutoAvifFileStorageTestCase(BaseFileStorageTestCase):
 
         result = await self.file_storage.get()
 
-        expect(result).to_be_null()
-        expect(exists(legacy_path)).to_be_true()
-        expect(exists(current_path)).to_be_false()
+        assert result is None
+        assert exists(legacy_path) is True
+        assert exists(current_path) is False
 
     def test_uses_isolated_default_namespace(self):
-        expect(
+        assert (
             self.file_storage.normalize_path(self.context.request.url)
-        ).to_equal(
-            f"{self.storage_path.name}/"
+            == f"{self.storage_path.name}/"
             "auto_format_v1_flags_preserve_default/b6/be/"
             "a3e916129541a9e7146f69a15eb4d7c77c98"
         )
@@ -404,9 +398,9 @@ class AutoPngToJpgFileStorageTestCase(BaseFileStorageTestCase):
 
         result = await self.file_storage.get()
 
-        expect(result).to_be_null()
-        expect(exists(previous_path)).to_be_true()
-        expect(exists(current_path)).to_be_false()
+        assert result is None
+        assert exists(previous_path) is True
+        assert exists(current_path) is False
 
 
 class AutoWebPAndAvifFileStorageTestCase(BaseFileStorageTestCase):
@@ -432,23 +426,25 @@ class AutoWebPAndAvifFileStorageTestCase(BaseFileStorageTestCase):
 
         result = await self.file_storage.get()
 
-        expect(result).to_be_null()
-        expect(exists(legacy_path)).to_be_true()
-        expect(exists(current_path)).to_be_false()
+        assert result is None
+        assert exists(legacy_path) is True
+        assert exists(current_path) is False
 
 
 class AutoImageFormatCacheKeyTestCase(TestCase):
     def test_extended_formats_use_isolated_cache_keys(self):
         config = Config(AUTO_AVIF=True)
 
-        expect(
+        assert (
             get_auto_image_format_cache_key(
                 config, RequestParameters(accepts_avif=True)
             )
-        ).to_equal("auto_format_v1_flags_preserve_avif")
-        expect(
+            == "auto_format_v1_flags_preserve_avif"
+        )
+        assert (
             get_auto_image_format_cache_key(config, RequestParameters())
-        ).to_equal("auto_format_v1_flags_preserve_default")
+            == "auto_format_v1_flags_preserve_default"
+        )
 
     def test_cache_key_separates_policies_and_png_to_jpg_fallback(self):
         request = RequestParameters(accepts_heif=True)
@@ -465,14 +461,15 @@ class AutoImageFormatCacheKeyTestCase(TestCase):
             get_auto_image_format_cache_key(preference_with_fallback, request),
         }
 
-        expect(len(cache_keys)).to_equal(3)
+        assert len(cache_keys) == 3
 
     def test_png_to_jpg_only_uses_isolated_cache_key(self):
-        expect(
+        assert (
             get_auto_image_format_cache_key(
                 Config(AUTO_PNG_TO_JPG=True), RequestParameters()
             )
-        ).to_equal("auto_format_v1_flags_png_to_jpg_default")
+            == "auto_format_v1_flags_png_to_jpg_default"
+        )
 
     def test_quality_zero_does_not_enter_legacy_webp_cache(self):
         request = mock.Mock(
@@ -480,12 +477,13 @@ class AutoImageFormatCacheKeyTestCase(TestCase):
             headers={"Accept": "image/webp;q=0"},
         )
 
-        expect(
+        assert (
             get_auto_image_format_cache_key(
                 Config(AUTO_WEBP=True),
                 RequestParameters(request=request),
             )
-        ).to_be_null()
+            is None
+        )
 
     @mock.patch("thumbor.auto_image_format.logger.warning")
     def test_invalid_preference_warns_once_and_uses_legacy_flags(
@@ -497,13 +495,9 @@ class AutoImageFormatCacheKeyTestCase(TestCase):
         )
         request = RequestParameters(accepts_webp=True)
 
-        expect(get_normalized_auto_image_format_preference(config)).to_equal(
-            ()
-        )
-        expect(get_active_auto_image_formats(config)).to_equal(("webp",))
-        expect(get_auto_image_format_cache_key(config, request)).to_equal(
-            "auto_webp"
-        )
+        assert get_normalized_auto_image_format_preference(config) == ()
+        assert get_active_auto_image_formats(config) == ("webp",)
+        assert get_auto_image_format_cache_key(config, request) == "auto_webp"
         get_normalized_auto_image_format_preference(config)
 
         warning.assert_called_once_with(
@@ -516,9 +510,9 @@ class AutoImageFormatCacheKeyTestCase(TestCase):
     def test_normalized_preference_cache_is_published_atomically(self):
         class ReentrantConfig:
             def __init__(self):
-                self.AUTO_IMAGE_FORMAT_PREFERENCE = [  # pylint: disable=invalid-name
-                    "avif"
-                ]
+                # pylint: disable=invalid-name
+                self.AUTO_IMAGE_FORMAT_PREFERENCE = ["avif"]
+                # pylint: enable=invalid-name
                 self.observed_preferences = []
                 self.inspecting_cache_write = False
 
@@ -538,10 +532,8 @@ class AutoImageFormatCacheKeyTestCase(TestCase):
 
         config = ReentrantConfig()
 
-        expect(get_normalized_auto_image_format_preference(config)).to_equal(
-            ("avif",)
-        )
-        expect(config.observed_preferences).to_equal([("avif",)])
+        assert get_normalized_auto_image_format_preference(config) == ("avif",)
+        assert config.observed_preferences == [("avif",)]
 
 
 class ResultStorageResultTestCase(BaseFileStorageTestCase):
@@ -557,11 +549,11 @@ class ResultStorageResultTestCase(BaseFileStorageTestCase):
     async def test_can_get_image_from_storage(self):
         result = await self.file_storage.get()
 
-        expect(result).to_be_instance_of(ResultStorageResult)
-        expect(result.successful).to_equal(True)
-        expect(len(result)).to_equal(5319)
-        expect(len(result)).to_equal(result.metadata["ContentLength"])
-        expect(result.last_modified).to_be_instance_of(datetime)
+        assert isinstance(result, ResultStorageResult)
+        assert result.successful is True
+        assert len(result) == 5319
+        assert len(result) == result.metadata["ContentLength"]
+        assert isinstance(result.last_modified, datetime)
 
 
 class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
@@ -585,4 +577,4 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
             return_value=new_mtime,
         ):
             result = await self.file_storage.get()
-        expect(result).to_be_null()
+        assert result is None

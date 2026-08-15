@@ -11,9 +11,9 @@ import os
 from os.path import dirname
 from unittest.mock import Mock
 
-from preggy import expect
 from tornado.testing import gen_test
 
+from tests.base import assert_similar_to
 from tests.fixtures.images import not_so_animated_image
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
@@ -48,9 +48,9 @@ class ImageOperationsWithGifWithoutGifsicle(BaseImagingTestCase):
             "/5Xr8gyuWE7jL_VB72K0wvzTMm2U=/animated-one-frame.gif"
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-Type"]).to_equal("image/gif")
-        expect(response.body).to_be_similar_to(not_so_animated_image())
+        assert response.code == 200
+        assert response.headers["Content-Type"] == "image/gif"
+        assert_similar_to(response.body, not_so_animated_image())
 
 
 class ImageOperationsWithGifWithoutGifsicleOnResultStorage(
@@ -96,5 +96,5 @@ class ImageOperationsWithGifWithoutGifsicleOnResultStorage(
         response = await self.async_fetch(
             "/5Xr8gyuWE7jL_VB72K0wvzTMm2U=/animated-one-frame.gif"
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_similar_to(not_so_animated_image())
+        assert response.code == 200
+        assert_similar_to(response.body, not_so_animated_image())

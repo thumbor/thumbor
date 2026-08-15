@@ -9,7 +9,6 @@
 
 from os.path import abspath, dirname, join
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -33,7 +32,7 @@ class SimpleCompatibilityTestCase(TestCase):
         config = Config(FILE_LOADER_ROOT_PATH=STORAGE_PATH)
         ctx = Context(config=config)
         result = await compatibility_get(ctx, "image.jpg", func=load)
-        expect(result).to_be_instance_of(LoaderResult)
+        assert isinstance(result, LoaderResult)
         with open(join(STORAGE_PATH, "image.jpg"), "rb") as img:
-            expect(result.buffer).to_equal(img.read())
-            expect(result.successful).to_be_true()
+            assert result.buffer == img.read()
+            assert result.successful is True

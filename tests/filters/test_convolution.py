@@ -9,7 +9,7 @@
 
 import signal
 
-from preggy import expect
+import pytest
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -28,7 +28,7 @@ class ConvolutionFilterTestCase(FilterTestCase):
         expected = self.get_fixture("convolution-true.png")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_convolution_filter_false(self):
@@ -40,20 +40,19 @@ class ConvolutionFilterTestCase(FilterTestCase):
         expected = self.get_fixture("convolution-false.png")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     def test_zero_columns_is_rejected_by_regex(self):
         """columns=0 must not match the filter regex (DoS prevention)."""
         Filter.pre_compile()
         match = Filter.regex.match("convolution(1;2;1;2;4;2;1;2;1,0,true)")
-        expect(match).to_be_null()
+        assert match is None
 
     def test_c_extension_raises_on_zero_columns(self):
         """The C extension must raise ValueError for columns=0, not crash."""
         width, height = 2, 2
         img_bytes = bytes([128, 128, 128] * width * height)
-        err = None
-        try:
+        with pytest.raises(ValueError):
             _convolution.apply(
                 "RGB",
                 img_bytes,
@@ -63,9 +62,6 @@ class ConvolutionFilterTestCase(FilterTestCase):
                 0,
                 False,
             )
-        except Exception as exc:  # pylint: disable=broad-except
-            err = exc
-        expect(err).to_be_an_error_like(ValueError)
 
     def test_convolution_redos_does_not_hang(self):
         Filter.pre_compile()
@@ -88,4 +84,4 @@ class ConvolutionFilterTestCase(FilterTestCase):
 
         # The input is intentionally malformed (missing column count), so the
         # regex must not match. What matters is that it returns promptly.
-        expect(result).to_be_null()
+        assert result is None

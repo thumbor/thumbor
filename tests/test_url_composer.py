@@ -12,8 +12,6 @@ import sys
 from io import StringIO
 from unittest import TestCase, mock
 
-from preggy import expect
-
 import thumbor.url_composer as composer
 from thumbor.url_composer import (
     get_options,
@@ -38,7 +36,7 @@ class UrlComposerTestCase(TestCase):
             ]
         )
 
-        expect(mock_stdout.getvalue()).to_equal(
+        assert mock_stdout.getvalue() == (
             "URL:\n/G_dykuWBGyEil5JnNh9cBke0Ajo=/200x300/myserver.com/myimg.jpg\n"
         )
 
@@ -50,12 +48,12 @@ class UrlComposerTestCase(TestCase):
         with self.assertRaises(SystemExit) as system_error:
             main(["-w", "200", "-e", "300", "myserver.com/myimg.jpg"])
 
-        expect(mock_stdout.getvalue()).to_equal(
+        assert mock_stdout.getvalue() == (
             "Error: The -k or --key argument is mandatory. "
             "For more information type thumbor-url -h\n"
         )
 
-        expect(system_error.exception.code).to_equal(1)
+        assert system_error.exception.code == 1
 
     def test_get_thumbor_params(self):
         params = mock.Mock(
@@ -70,8 +68,8 @@ class UrlComposerTestCase(TestCase):
             config,
         )
 
-        expect(security_key).to_equal("SECURITY_KEY_FILE")
-        expect(thumbor_params["image_url"]).to_equal("/image/url.jpg")
+        assert security_key == b"SECURITY_KEY_FILE"
+        assert thumbor_params["image_url"] == "/image/url.jpg"
 
     def test_get_thumbor_params_with_crop(self):
         params = mock.Mock(
@@ -86,12 +84,12 @@ class UrlComposerTestCase(TestCase):
             config,
         )
 
-        expect(security_key).to_equal("SECURITY_KEY_FILE")
-        expect(thumbor_params["image_url"]).to_equal("/image/url.jpg")
-        expect(thumbor_params["crop_left"]).to_equal("300")
-        expect(thumbor_params["crop_top"]).to_equal("200")
-        expect(thumbor_params["crop_right"]).to_equal("400")
-        expect(thumbor_params["crop_bottom"]).to_equal("500")
+        assert security_key == b"SECURITY_KEY_FILE"
+        assert thumbor_params["image_url"] == "/image/url.jpg"
+        assert thumbor_params["crop_left"] == "300"
+        assert thumbor_params["crop_top"] == "200"
+        assert thumbor_params["crop_right"] == "400"
+        assert thumbor_params["crop_bottom"] == "500"
 
     def test_get_thumbor_params_full_adaptive_fitin_false(self):
         params = mock.Mock(
@@ -109,11 +107,11 @@ class UrlComposerTestCase(TestCase):
             config,
         )
 
-        expect(security_key).not_to_be_null()
-        expect(thumbor_params["fit_in"]).to_be_false()
-        expect(thumbor_params["full_fit_in"]).to_be_false()
-        expect(thumbor_params["adaptive_fit_in"]).to_be_false()
-        expect(thumbor_params["adaptive_full_fit_in"]).to_be_false()
+        assert security_key is not None
+        assert thumbor_params["fit_in"] is False
+        assert thumbor_params["full_fit_in"] is False
+        assert thumbor_params["adaptive_fit_in"] is False
+        assert thumbor_params["adaptive_full_fit_in"] is False
 
     def test_get_thumbor_params_full_adaptive_fitin(self):
         params = mock.Mock(
@@ -131,8 +129,8 @@ class UrlComposerTestCase(TestCase):
             config,
         )
 
-        expect(security_key).not_to_be_null()
-        expect(thumbor_params["adaptive_full_fit_in"]).to_be_true()
+        assert security_key is not None
+        assert thumbor_params["adaptive_full_fit_in"] is True
 
     def test_get_thumbor_params_adaptive_fitin(self):
         params = mock.Mock(
@@ -150,8 +148,8 @@ class UrlComposerTestCase(TestCase):
             config,
         )
 
-        expect(security_key).not_to_be_null()
-        expect(thumbor_params["adaptive_fit_in"]).to_be_true()
+        assert security_key is not None
+        assert thumbor_params["adaptive_fit_in"] is True
 
     def test_get_thumbor_params_full_fitin(self):
         params = mock.Mock(
@@ -169,8 +167,8 @@ class UrlComposerTestCase(TestCase):
             config,
         )
 
-        expect(security_key).not_to_be_null()
-        expect(thumbor_params["full_fit_in"]).to_be_true()
+        assert security_key is not None
+        assert thumbor_params["full_fit_in"] is True
 
     def test_get_thumbor_params_fitin(self):
         params = mock.Mock(
@@ -188,8 +186,8 @@ class UrlComposerTestCase(TestCase):
             config,
         )
 
-        expect(security_key).not_to_be_null()
-        expect(thumbor_params["fit_in"]).to_be_true()
+        assert security_key is not None
+        assert thumbor_params["fit_in"] is True
 
     def test_get_options(self):
         options, args = get_options(
@@ -204,12 +202,12 @@ class UrlComposerTestCase(TestCase):
             ]
         )
 
-        expect(options.key).to_equal("MY-SECURITY-KEY")
-        expect(options.width).to_equal(200)
-        expect(options.height).to_equal(300)
+        assert options.key == "MY-SECURITY-KEY"
+        assert options.width == 200
+        assert options.height == 300
 
-        expect(args).to_length(1)
-        expect(args[0]).to_equal("myserver.com/myimg.jpg")
+        assert len(args) == 1
+        assert args[0] == "myserver.com/myimg.jpg"
 
     def test_get_options_from_sys(self):
         argv = [
@@ -225,23 +223,23 @@ class UrlComposerTestCase(TestCase):
         with mock.patch.object(sys, "argv", argv):
             options, args = get_options(None)
 
-        expect(options.key).to_equal("MY-SECURITY-KEY")
-        expect(options.width).to_equal(200)
-        expect(options.height).to_equal(300)
+        assert options.key == "MY-SECURITY-KEY"
+        assert options.width == 200
+        assert options.height == 300
 
-        expect(args).to_length(1)
-        expect(args[0]).to_equal("myserver.com/myimg.jpg")
+        assert len(args) == 1
+        assert args[0] == "myserver.com/myimg.jpg"
 
     def test_get_options_fails_when_no_url(self):
         parsed_options, arguments = get_options(
             ["-k", "MY-SECURITY-KEY", "-w", "200", "-e", "300"]
         )
-        expect(parsed_options).to_be_null()
-        expect(arguments).to_be_null()
+        assert parsed_options is None
+        assert arguments is None
 
     def test_get_parser(self):
         parser = get_parser()
-        expect(parser).to_be_instance_of(optparse.OptionParser)
-        expect(parser.get_usage()).to_equal(
+        assert isinstance(parser, optparse.OptionParser)
+        assert parser.get_usage() == (
             "Usage: thumbor-url [options] imageurl or type thumbor-url -h (--help) for help\n"
         )

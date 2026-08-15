@@ -7,8 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
-
 import thumbor.handler_lists.healthcheck as healthcheck_handler_list
 from tests.base import TestCase
 from thumbor.config import Config
@@ -57,13 +55,13 @@ class ImporterTestCase(TestCase):
             if hasattr(importer, key.lower()):
                 prop, default_value = (getattr(importer, key.lower()), value)
 
-            if prop is tuple:
+            if isinstance(prop, tuple):
                 for index, item in enumerate(prop):
-                    expect(item).not_to_be_null().to_equal(
-                        default_value[index]
-                    )
+                    assert item is not None
+                    assert item == default_value[index]
             else:
-                expect(prop).not_to_be_null().to_equal(default_value)
+                assert prop is not None
+                assert prop == default_value
 
     @staticmethod
     def test_single_item_should_equal_file_storage():
@@ -73,7 +71,7 @@ class ImporterTestCase(TestCase):
             item_value="thumbor.storages.file_storage",
             class_name="Storage",
         )
-        expect(getattr(importer, "file_storage")).to_equal(file_storage)
+        assert getattr(importer, "file_storage") == file_storage
 
     @staticmethod
     def test_multiple_items_can_be_imported():
@@ -87,5 +85,5 @@ class ImporterTestCase(TestCase):
             ),
         )
 
-        expect(importer.detectors).to_length(2)
-        expect(importer.detectors).to_include(feature_detector)
+        assert len(importer.detectors) == 2
+        assert feature_detector in importer.detectors
