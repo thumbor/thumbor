@@ -12,7 +12,6 @@ from types import SimpleNamespace
 from unittest import mock
 
 import pytest
-from preggy import expect
 
 from thumbor.auto_image_format import get_auto_image_format_cache_key
 from thumbor.config import Config
@@ -66,10 +65,10 @@ def test_is_webp_keeps_legacy_behavior():
     context = make_context()
     handler = make_handler(context)
 
-    expect(handler.is_webp(context)).to_be_true()
+    assert handler.is_webp(context) is True
 
     context.config.AUTO_WEBP = False
-    expect(handler.is_webp(context)).to_be_false()
+    assert handler.is_webp(context) is False
 
 
 def test_can_auto_convert_to_webp_keeps_is_webp_extension_point():
@@ -80,7 +79,7 @@ def test_can_auto_convert_to_webp_keeps_is_webp_extension_point():
     context = make_context(auto_webp=False)
     handler = make_handler(context, CustomHandler)
 
-    expect(handler.can_auto_convert_to_webp()).to_be_true()
+    assert handler.can_auto_convert_to_webp() is True
 
 
 def test_accepts_mime_type_keeps_legacy_header_lookup():
@@ -89,15 +88,15 @@ def test_accepts_mime_type_keeps_legacy_header_lookup():
     )
     handler = make_handler(context)
 
-    expect(handler.accepts_mime_type("image/webp")).to_be_true()
-    expect(handler.accepts_mime_type("image/png")).to_be_false()
+    assert handler.accepts_mime_type("image/webp") is True
+    assert handler.accepts_mime_type("image/png") is False
 
 
 def test_accepts_mime_type_without_headers_returns_false():
     context = make_context(headers=None)
     handler = make_handler(context)
 
-    expect(handler.accepts_mime_type("image/webp")).to_be_false()
+    assert handler.accepts_mime_type("image/webp") is False
 
 
 def test_accepts_mime_type_preserves_literal_wildcard_semantics():
@@ -109,8 +108,8 @@ def test_accepts_mime_type_preserves_literal_wildcard_semantics():
     context = SimpleNamespace(request=request)
     handler = make_handler(context)
 
-    expect(handler.accepts_mime_type("image/jpeg")).to_be_true()
-    expect(handler.accepts_mime_type("*/*")).to_be_false()
+    assert handler.accepts_mime_type("image/jpeg") is True
+    assert handler.accepts_mime_type("*/*") is False
 
 
 @pytest.mark.parametrize(
@@ -153,7 +152,7 @@ def test_accepts_mime_type_remains_an_extension_point(
     )
     handler = make_handler(context, CustomHandler)
 
-    expect(getattr(handler, conversion_method)()).to_be_true()
+    assert getattr(handler, conversion_method)() is True
 
 
 def test_accepts_mime_type_override_can_reject_a_parsed_format():
@@ -175,7 +174,7 @@ def test_accepts_mime_type_override_can_reject_a_parsed_format():
     )
     handler = make_handler(context, CustomHandler)
 
-    expect(handler.can_auto_convert_to_avif()).to_be_false()
+    assert handler.can_auto_convert_to_avif() is False
 
 
 def test_accepts_mime_type_super_call_uses_parsed_quality():
@@ -200,8 +199,8 @@ def test_accepts_mime_type_super_call_uses_parsed_quality():
     )
     handler = make_handler(context, CustomHandler)
 
-    expect(handler.accepts_mime_type("image/avif")).to_be_false()
-    expect(handler.can_auto_convert_to_avif()).to_be_false()
+    assert handler.accepts_mime_type("image/avif") is False
+    assert handler.can_auto_convert_to_avif() is False
 
 
 def test_accepts_mime_type_super_call_honors_image_wildcard():
@@ -226,17 +225,16 @@ def test_accepts_mime_type_super_call_honors_image_wildcard():
     )
     handler = make_handler(context, CustomHandler)
 
-    expect(handler.accepts_mime_type("image/avif")).to_be_true()
-    expect(handler.accepts_mime_type("application/json")).to_be_false()
-    expect(handler.accepts_mime_type("*/*")).to_be_false()
-    expect(handler.can_auto_convert_to_avif()).to_be_true()
+    assert handler.accepts_mime_type("image/avif") is True
+    assert handler.accepts_mime_type("application/json") is False
+    assert handler.accepts_mime_type("*/*") is False
+    assert handler.can_auto_convert_to_avif() is True
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_false()
-    expect(get_auto_image_format_cache_key(context.config, request)).to_equal(
-        "auto_format_v1_flags_preserve_avif"
+    assert handler._can_use_result_storage_with_auto_image_formats() is False
+    assert (
+        get_auto_image_format_cache_key(context.config, request)
+        == "auto_format_v1_flags_preserve_avif"
     )
 
 
@@ -254,18 +252,17 @@ def test_custom_accepts_mime_type_honors_explicit_jpeg_rejection(
 ):
     handler = make_jpeg_handler(accept_header)
 
-    expect(handler.context.request.accepts_jpeg).to_be_false()
-    expect(handler.can_auto_convert_to_jpg()).to_be_false()
+    assert handler.context.request.accepts_jpeg is False
+    assert handler.can_auto_convert_to_jpg() is False
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_false()
-    expect(
+    assert handler._can_use_result_storage_with_auto_image_formats() is False
+    assert (
         get_auto_image_format_cache_key(
             handler.context.config, handler.context.request
         )
-    ).to_equal("auto_format_v1_flags_preserve_default")
+        == "auto_format_v1_flags_preserve_default"
+    )
 
 
 @pytest.mark.parametrize(
@@ -278,17 +275,16 @@ def test_custom_accepts_mime_type_honors_explicit_jpeg_rejection(
 def test_custom_accepts_mime_type_keeps_valid_jpeg_fallback(accept_header):
     handler = make_jpeg_handler(accept_header)
 
-    expect(handler.can_auto_convert_to_jpg()).to_be_true()
+    assert handler.can_auto_convert_to_jpg() is True
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_false()
-    expect(
+    assert handler._can_use_result_storage_with_auto_image_formats() is False
+    assert (
         get_auto_image_format_cache_key(
             handler.context.config, handler.context.request
         )
-    ).to_equal("auto_format_v1_flags_preserve_jpg")
+        == "auto_format_v1_flags_preserve_jpg"
+    )
 
 
 def test_custom_accepts_mime_type_bypasses_result_storage_without_calling_it():
@@ -309,15 +305,11 @@ def test_custom_accepts_mime_type_bypasses_result_storage_without_calling_it():
     handler = make_handler(context, CustomHandler)
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_false()
+    assert handler._can_use_result_storage_with_auto_image_formats() is False
 
     request.headers = {"Accept": ""}
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_false()
-    expect(calls).to_be_empty()
+    assert handler._can_use_result_storage_with_auto_image_formats() is False
+    assert not calls
 
 
 def test_custom_accepts_mime_type_runs_after_engine_is_available():
@@ -340,11 +332,9 @@ def test_custom_accepts_mime_type_runs_after_engine_is_available():
     handler = make_handler(context, CustomHandler)
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_false()
+    assert handler._can_use_result_storage_with_auto_image_formats() is False
 
-    expect(calls).to_be_empty()
+    assert not calls
 
     engine = mock.Mock()
     engine.accepts_mime_type.return_value = True
@@ -352,8 +342,8 @@ def test_custom_accepts_mime_type_runs_after_engine_is_available():
     engine.can_auto_convert_to_avif.return_value = True
     request.engine = engine
 
-    expect(handler.can_auto_convert_to_avif()).to_be_true()
-    expect(calls).to_equal(["image/avif"])
+    assert handler.can_auto_convert_to_avif() is True
+    assert calls == ["image/avif"]
 
 
 @pytest.mark.parametrize(
@@ -380,9 +370,7 @@ def test_custom_accepts_mime_type_bypasses_extended_format_cache(
     handler = make_handler(context, CustomHandler)
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_false()
+    assert handler._can_use_result_storage_with_auto_image_formats() is False
 
 
 @pytest.mark.parametrize(
@@ -416,13 +404,12 @@ def test_custom_accepts_mime_type_keeps_webp_cache(
     handler.accepts_mime_type = mock.Mock(return_value=True)
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_true()
+    assert handler._can_use_result_storage_with_auto_image_formats() is True
 
     handler.accepts_mime_type.assert_not_called()
-    expect(get_auto_image_format_cache_key(context.config, request)).to_equal(
-        expected_cache_key
+    assert (
+        get_auto_image_format_cache_key(context.config, request)
+        == expected_cache_key
     )
 
 
@@ -467,7 +454,7 @@ async def test_custom_accepts_mime_type_bypasses_result_storage_read_and_write()
 
     result_storage.get.assert_not_awaited()
     handler.get_image.assert_awaited_once_with()
-    expect(calls).to_be_empty()
+    assert not calls
 
     handler._write_results_to_client = (  # pylint: disable=protected-access
         mock.AsyncMock()
@@ -477,7 +464,7 @@ async def test_custom_accepts_mime_type_bypasses_result_storage_read_and_write()
     await handler.finish_request()
 
     result_storage.put.assert_not_awaited()
-    expect(request.prevent_result_storage).to_be_false()
+    assert request.prevent_result_storage is False
 
 
 @pytest.mark.parametrize(
@@ -512,7 +499,7 @@ def test_legacy_request_object_falls_back_to_the_accept_header(
     )
     handler = make_handler(context)
 
-    expect(getattr(handler, conversion_method)()).to_be_true()
+    assert getattr(handler, conversion_method)() is True
 
 
 def test_legacy_request_object_bypasses_result_storage():
@@ -523,9 +510,7 @@ def test_legacy_request_object_bypasses_result_storage():
     handler = make_handler(context)
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_false()
+    assert handler._can_use_result_storage_with_auto_image_formats() is False
 
 
 def test_legacy_request_object_keeps_result_storage_with_webp_only():
@@ -536,6 +521,4 @@ def test_legacy_request_object_keeps_result_storage_with_webp_only():
     handler = make_handler(context)
 
     # pylint: disable=protected-access
-    expect(
-        handler._can_use_result_storage_with_auto_image_formats()
-    ).to_be_true()
+    assert handler._can_use_result_storage_with_auto_image_formats() is True

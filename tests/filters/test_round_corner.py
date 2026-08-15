@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -24,7 +23,7 @@ class RoundCornerFilterTestCase(FilterTestCase):
         expected = self.get_fixture("round_corner.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_round_corner_filter_with_ab_radius(self):
@@ -36,7 +35,7 @@ class RoundCornerFilterTestCase(FilterTestCase):
         expected = self.get_fixture("round_corner1.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_round_corner_filter_with_blue_background(self):
@@ -48,7 +47,7 @@ class RoundCornerFilterTestCase(FilterTestCase):
         expected = self.get_fixture("round_corner2.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_round_corner_filter_without_transparent(self):
@@ -60,7 +59,7 @@ class RoundCornerFilterTestCase(FilterTestCase):
         expected = self.get_fixture("round_corner3.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_round_corner_filter_with_transparent(self):
@@ -72,7 +71,7 @@ class RoundCornerFilterTestCase(FilterTestCase):
         expected = self.get_fixture("round_corner3.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_round_corner_filter_with_transparent_by_png(self):
@@ -85,7 +84,7 @@ class RoundCornerFilterTestCase(FilterTestCase):
         expected = self.get_fixture("round_corner.png", mode="RGBA")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_round_corner_filter_with_transparent_by_webp(self):
@@ -98,4 +97,4 @@ class RoundCornerFilterTestCase(FilterTestCase):
         expected = self.get_fixture("round_corner.webp", mode="RGBA")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99

@@ -13,7 +13,7 @@ from os.path import dirname, exists, join
 from tempfile import mkdtemp
 from unittest import mock
 
-from preggy import expect
+import pytest
 from tornado.testing import gen_test
 
 from tests.base import TestCase
@@ -50,7 +50,7 @@ class FileStorageTestCase(BaseFileStorageTestCase):
     async def test_creates_root_path_if_none_found(self):
         storage = FileStorage(self.context)
         storage.ensure_dir(self.config.FILE_STORAGE_ROOT_PATH)
-        expect(exists(self.config.FILE_STORAGE_ROOT_PATH)).to_be_true()
+        assert exists(self.config.FILE_STORAGE_ROOT_PATH)
 
     @gen_test
     async def test_can_store_image_should_be_in_catalog(self):
@@ -59,8 +59,7 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         storage = FileStorage(self.context)
         await storage.put(url, image_bytes)
         got = await storage.get(url)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
+        assert got is not None
 
     @gen_test
     async def test_can_store_image_with_spaces(self):
@@ -69,9 +68,8 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         storage = FileStorage(self.context)
         await storage.put(url, image_bytes)
         got = await storage.get(url)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
-        expect(got).to_equal(image_bytes)
+        assert got is not None
+        assert got == image_bytes
 
     @gen_test
     async def test_can_store_image_with_spaces_encoded(self):
@@ -80,9 +78,8 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         storage = FileStorage(self.context)
         await storage.put(url, image_bytes)
         got = await storage.get(url)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
-        expect(got).to_equal(image_bytes)
+        assert got is not None
+        assert got == image_bytes
 
     @gen_test
     async def test_can_store_images_in_same_folder(self):
@@ -100,8 +97,7 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         await storage.put(other_iurl, ibytes)
 
         got = await storage.get(other_iurl)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
+        assert got is not None
 
     @gen_test
     async def test_can_get_image(self):
@@ -110,9 +106,8 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         storage = FileStorage(self.context)
         await storage.put(iurl, ibytes)
         got = await storage.get(iurl)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
-        expect(got).to_equal(ibytes)
+        assert got is not None
+        assert got == ibytes
 
     @gen_test
     async def test_does_not_store_if_config_says_not_to(self):
@@ -122,7 +117,7 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         await storage.put(iurl, ibytes)
         await storage.put_crypto(iurl)
         got = await storage.get_crypto(iurl)
-        expect(got).to_be_null()
+        assert got is None
 
     @gen_test
     async def test_detector_can_store_detector_data(self):
@@ -132,16 +127,15 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         await storage.put(iurl, ibytes)
         await storage.put_detector_data(iurl, "some-data")
         got = await storage.get_detector_data(iurl)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
-        expect(got).to_equal("some-data")
+        assert got is not None
+        assert got == "some-data"
 
     @gen_test
     async def test_detector_returns_none_if_no_detector_data(self):
         iurl = self.get_image_url("image_10000.jpg")
         storage = FileStorage(self.context)
         got = await storage.get_detector_data(iurl)
-        expect(got).to_be_null()
+        assert got is None
 
 
 class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
@@ -165,8 +159,7 @@ class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
             "thumbor.storages.file_storage.getmtime", return_value=new_mtime
         ):
             got = await storage.get(iurl)
-        expect(got).to_be_null()
-        expect(got).not_to_be_an_error()
+        assert got is None
 
 
 class ExpirationNoneFileStorageTestCase(BaseFileStorageTestCase):
@@ -183,8 +176,7 @@ class ExpirationNoneFileStorageTestCase(BaseFileStorageTestCase):
         storage = FileStorage(self.context)
         await storage.put(iurl, ibytes)
         got = await storage.get(iurl)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
+        assert got is not None
 
 
 class CryptoBadConfFileStorageTestCase(BaseFileStorageTestCase):
@@ -207,10 +199,7 @@ class CryptoBadConfFileStorageTestCase(BaseFileStorageTestCase):
         await storage.put(iurl, ibytes)
 
         msg = "STORES_CRYPTO_KEY_FOR_EACH_IMAGE can't be True if no SECURITY_KEY specified"
-        with expect.error_to_happen(
-            RuntimeError,
-            message=msg,
-        ):
+        with pytest.raises(RuntimeError, match=msg):
             await storage.put_crypto(iurl)
 
 
@@ -226,7 +215,7 @@ class CryptoFileStorageTestCase(BaseFileStorageTestCase):
         iurl = self.get_image_url("image_9999.jpg")
         storage = FileStorage(self.context)
         got = await storage.get_crypto(iurl)
-        expect(got).to_be_null()
+        assert got is None
 
     @gen_test
     async def test_can_store_crypto(self):
@@ -236,6 +225,5 @@ class CryptoFileStorageTestCase(BaseFileStorageTestCase):
         await storage.put(iurl, ibytes)
         await storage.put_crypto(iurl)
         got = await storage.get_crypto(iurl)
-        expect(got).not_to_be_null()
-        expect(got).not_to_be_an_error()
-        expect(got).to_equal("ACME-SEC")
+        assert got is not None
+        assert got == "ACME-SEC"

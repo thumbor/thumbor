@@ -7,7 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
@@ -22,7 +21,7 @@ class BlurFilterTestCase(FilterTestCase):
         expected = self.get_fixture("blur.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_blur_filter_with_zero_radius(self):
@@ -32,7 +31,7 @@ class BlurFilterTestCase(FilterTestCase):
         expected = self.get_fixture("source.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_equal(1)
+        assert ssim == 1
 
     @gen_test
     async def test_blur_filter_without_sigma(self):
@@ -42,7 +41,7 @@ class BlurFilterTestCase(FilterTestCase):
         expected = self.get_fixture("blur2.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_blur_filter_with_max_radius(self):
@@ -52,7 +51,7 @@ class BlurFilterTestCase(FilterTestCase):
         expected = self.get_fixture("blur3.jpg")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_blur_filter_for_png_palette_mode(self):
@@ -62,7 +61,7 @@ class BlurFilterTestCase(FilterTestCase):
         expected = self.get_fixture("256_color_palette_blur_result.png")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_blur_filter_png_with_transparency_rgba_mode(self):
@@ -75,7 +74,7 @@ class BlurFilterTestCase(FilterTestCase):
         expected = self.get_fixture("blur4.png", mode="RGBA")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99
 
     @gen_test
     async def test_blur_filter_png_with_transparency_la_mode(self):
@@ -88,4 +87,4 @@ class BlurFilterTestCase(FilterTestCase):
         expected = self.get_fixture("blur4.png", mode="LA")
 
         ssim = self.get_ssim(image, expected)
-        expect(ssim).to_be_greater_than(0.99)
+        assert ssim > 0.99

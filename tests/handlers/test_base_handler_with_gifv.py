@@ -10,7 +10,6 @@
 from shutil import which
 
 import pytest
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.handlers.test_base_handler import BaseImagingTestCase
@@ -51,8 +50,8 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
             "/unsafe/filters:gifv()/animated.gif"
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-Type"]).to_equal("video/mp4")
+        assert response.code == 200
+        assert response.headers["Content-Type"] == "video/mp4"
 
     @pytest.mark.skip(
         reason="This test is flaky due to some issue with webM and Ubuntu. Need to look"
@@ -66,8 +65,8 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
             "/unsafe/filters:gifv(webm)/animated.gif"
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-Type"]).to_equal("video/webm")
+        assert response.code == 200
+        assert response.headers["Content-Type"] == "video/webm"
 
     @gen_test
     async def test_should_convert_animated_gif_to_mp4_with_filter_without_params(  # NOQA
@@ -77,5 +76,5 @@ class ImageOperationsWithGifVTestCase(BaseImagingTestCase):
             "/unsafe/filters:gifv(mp4):background_color(ff00ff)/animated.gif"
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-Type"]).to_equal("video/mp4")
+        assert response.code == 200
+        assert response.headers["Content-Type"] == "video/mp4"

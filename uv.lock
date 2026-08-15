@@ -1525,16 +1525,6 @@ wheels = [
 ]
 
 [[package]]
-name = "preggy"
-version = "1.4.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "six" },
-    { name = "unidecode" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/30/50/4ce574c6bb4dcaf73abb7f232cc32f1364c7551411a6bbe921bed14b4a10/preggy-1.4.4.tar.gz", hash = "sha256:25ba803afde4f35ef543a60915ced2e634926235064df717c3cb3e4e3eb4670c", size = 23351, upload-time = "2019-11-26T02:38:44.365Z" }
-
-[[package]]
 name = "pycodestyle"
 version = "2.14.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2699,7 +2689,6 @@ tests = [
     { name = "opencv-python-headless", version = "4.11.0.86", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
     { name = "opencv-python-headless", version = "4.13.0.92", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
     { name = "pre-commit" },
-    { name = "preggy" },
     { name = "pylint" },
     { name = "pyssim" },
     { name = "pytest" },
@@ -2755,7 +2744,6 @@ requires-dist = [
     { name = "pillow-heif", marker = "extra == 'all'", specifier = ">=1.3.0,<2.0.0" },
     { name = "pillow-heif", marker = "extra == 'extra-libs'", specifier = ">=1.3.0,<2.0.0" },
     { name = "pre-commit", marker = "extra == 'tests'", specifier = ">=3.6.0,<5.0.0" },
-    { name = "preggy", marker = "extra == 'tests'", specifier = ">=1.4.4,<2.0.0" },
     { name = "pycurl", marker = "extra == 'all'", specifier = ">=7.45.2,<8.0.0" },
     { name = "pycurl", marker = "extra == 'extra-libs'", specifier = ">=7.45.2,<8.0.0" },
     { name = "pylint", marker = "extra == 'tests'", specifier = ">=3.0.3,<5.0.0" },
@@ -2921,15 +2909,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/94/1a15dd82efb362ac84269196e94cf00f187f7ed21c242792a923cdb1c61f/typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466", size = 109391, upload-time = "2025-08-25T13:49:26.313Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548", size = 44614, upload-time = "2025-08-25T13:49:24.86Z" },
-]
-
-[[package]]
-name = "unidecode"
-version = "1.4.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/94/7d/a8a765761bbc0c836e397a2e48d498305a865b70a8600fd7a942e85dcf63/Unidecode-1.4.0.tar.gz", hash = "sha256:ce35985008338b676573023acc382d62c264f307c8f7963733405add37ea2b23", size = 200149, upload-time = "2025-04-24T08:45:03.798Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/b7/559f59d57d18b44c6d1250d2eeaa676e028b9c527431f5d0736478a73ba1/Unidecode-1.4.0-py3-none-any.whl", hash = "sha256:c3c7606c27503ad8d501270406e345ddb480a7b5f38827eafe4fa82a137f0021", size = 235837, upload-time = "2025-04-24T08:45:01.609Z" },
 ]
 
 [[package]]

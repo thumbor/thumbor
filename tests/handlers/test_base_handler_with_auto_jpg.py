@@ -9,9 +9,9 @@
 
 from shutil import which
 
-from preggy import expect
 from tornado.testing import gen_test
 
+from tests.base import assert_is_gif, assert_is_jpeg, assert_is_png
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
@@ -19,6 +19,7 @@ from thumbor.importer import Importer
 
 # pylint: disable=broad-except,abstract-method,attribute-defined-outside-init,line-too-long,too-many-public-methods
 # pylint: disable=too-many-lines
+
 
 MIMETYPE_ALL = "*/*"
 MIMETYPE_JPG = "image/jpg"
@@ -57,57 +58,57 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
             MIMETYPE_JPEG,
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_auto_convert_avif_to_jpg_with_accept_all(self):
         response = await self.get_as_jpg("/unsafe/image.avif", MIMETYPE_ALL)
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Vary"]).to_include("Accept")
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert "Accept" in response.headers["Vary"]
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_auto_convert_avif_to_jpg_with_accept_jpg(self):
         response = await self.get_as_jpg("/unsafe/image.avif", MIMETYPE_JPG)
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_auto_convert_avif_to_jpg_with_accept_jpeg(self):
         response = await self.get_as_jpg("/unsafe/image.avif", MIMETYPE_JPEG)
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_auto_convert_heic_to_jpg_with_accept_all(self):
         response = await self.get_as_jpg("/unsafe/image.heic", MIMETYPE_ALL)
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_auto_convert_heic_to_jpg_with_accept_jpg(self):
         response = await self.get_as_jpg("/unsafe/image.heic", MIMETYPE_JPG)
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_can_auto_convert_heic_to_jpg_with_accept_jpeg(self):
         response = await self.get_as_jpg("/unsafe/image.heic", MIMETYPE_JPEG)
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_not_convert_animated_gifs_to_jpg_with_accept_all(
@@ -115,9 +116,9 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
     ):
         response = await self.get_as_jpg("/unsafe/animated.gif", MIMETYPE_ALL)
 
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_should_not_convert_animated_gifs_to_jpg_with_accept_jpg(
@@ -125,8 +126,8 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
     ):
         response = await self.get_as_jpg("/unsafe/animated.gif", MIMETYPE_JPG)
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_should_not_convert_animated_gifs_to_jpg_with_accept_jpeg(
@@ -134,8 +135,8 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
     ):
         response = await self.get_as_jpg("/unsafe/animated.gif", MIMETYPE_JPEG)
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_should_convert_image_with_small_width_and_no_height_to_jpg_with_accept_all(
@@ -145,9 +146,9 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
             "/unsafe/0x0:1681x596/1x/image.jpg", MIMETYPE_ALL
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_image_with_small_width_and_no_height_to_jpg_with_accept_jpg(
@@ -157,9 +158,9 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
             "/unsafe/0x0:1681x596/1x/image.jpg", MIMETYPE_JPG
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_image_with_small_width_and_no_height_to_jpg_with_accept_jpeg(
@@ -169,27 +170,27 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
             "/unsafe/0x0:1681x596/1x/image.jpg", MIMETYPE_JPEG
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_monochromatic_jpeg_to_jpg_with_accept_all(
         self,
     ):
         response = await self.get_as_jpg("/unsafe/grayscale.jpg", MIMETYPE_ALL)
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_monochromatic_jpeg_to_jpg_with_accept_jpg(
         self,
     ):
         response = await self.get_as_jpg("/unsafe/grayscale.jpg", MIMETYPE_JPG)
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_monochromatic_jpeg_to_jpg_with_accept_jpeg(
@@ -198,30 +199,30 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/grayscale.jpg", MIMETYPE_JPEG
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_cmyk_jpeg_to_jpg_with_accept_all(self):
         response = await self.get_as_jpg("/unsafe/cmyk.jpg", MIMETYPE_ALL)
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_cmyk_jpeg_to_jpg_with_accept_jpg(self):
         response = await self.get_as_jpg("/unsafe/cmyk.jpg", MIMETYPE_JPG)
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_cmyk_jpeg_to_jpg_with_accept_jpeg(self):
         response = await self.get_as_jpg("/unsafe/cmyk.jpg", MIMETYPE_JPEG)
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_shouldnt_convert_to_cmyk_to_jpg_if_format_specified_with_accept_all(
@@ -230,8 +231,8 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(png)/cmyk.jpg", MIMETYPE_ALL
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @gen_test
     async def test_shouldnt_convert_to_cmyk_to_jpg_if_format_specified_with_accept_jpg(
@@ -240,8 +241,8 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(png)/cmyk.jpg", MIMETYPE_JPG
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @gen_test
     async def test_shouldnt_convert_to_cmyk_to_jpg_if_format_specified_with_accept_jpeg(
@@ -250,32 +251,32 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(png)/cmyk.jpg", MIMETYPE_JPEG
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @gen_test
     async def test_shouldnt_convert_cmyk_to_jpg_if_gif_with_accept_all(self):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(gif)/cmyk.jpg", MIMETYPE_ALL
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_shouldnt_convert_cmyk_to_jpg_if_gif_with_accept_jpg(self):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(gif)/cmyk.jpg", MIMETYPE_JPG
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_shouldnt_convert_cmyk_to_jpg_if_gif_with_accept_jpeg(self):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(gif)/cmyk.jpg", MIMETYPE_JPEG
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_shouldnt_convert_gif_to_jpg_if_format_specified_with_accept_all(
@@ -284,8 +285,8 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(gif)/image.jpg", MIMETYPE_ALL
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_shouldnt_convert_gif_to_jpg_if_format_specified_with_accept_jpg(
@@ -294,8 +295,8 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(gif)/image.jpg", MIMETYPE_JPG
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_shouldnt_convert_gif_to_jpg_if_format_specified_with_accept_jpeg(
@@ -304,8 +305,8 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(gif)/image.jpg", MIMETYPE_JPEG
         )
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_should_convert_to_jpg_if_format_invalid_with_accept_all(
@@ -314,9 +315,9 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(asdf)/image.jpg", MIMETYPE_ALL
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_to_jpg_if_format_invalid_with_accept_jpg(
@@ -325,9 +326,9 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(asdf)/image.jpg", MIMETYPE_JPG
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_convert_to_jpg_if_format_invalid_with_accept_jpeg(
@@ -336,9 +337,9 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/filters:format(asdf)/image.jpg", MIMETYPE_JPEG
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal(MIMETYPE_JPEG)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert response.headers["Content-type"] == MIMETYPE_JPEG
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_not_convert_to_jpg_if_image_has_transparency_with_accept_jpeg(
@@ -347,6 +348,6 @@ class ImageOperationsWithAutoJpgTestCase(BaseImagingTestCase):
         response = await self.get_as_jpg(
             "/unsafe/paletted-transparent.png", MIMETYPE_JPEG
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers["Content-type"]).to_equal("image/png")
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert response.headers["Content-type"] == "image/png"
+        assert_is_png(response.body)

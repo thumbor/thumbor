@@ -12,9 +12,9 @@ from unittest.mock import patch
 from urllib.parse import quote
 
 from libthumbor import CryptoURL
-from preggy import expect
 from tornado.testing import gen_test
 
+from tests.base import assert_is_gif, assert_is_png, assert_is_webp
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import Context, RequestParameters, ServerParameters
@@ -50,95 +50,95 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
     @gen_test
     async def test_can_auto_convert_jpeg(self):
         response = await self.get_as_webp("/unsafe/image.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
 
-        expect(response.body).to_be_webp()
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_should_not_convert_animated_gifs_to_webp(self):
         response = await self.get_as_webp("/unsafe/animated.gif")
 
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_should_convert_image_with_small_width_and_no_height(self):
         response = await self.get_as_webp("/unsafe/0x0:1681x596/1x/image.jpg")
 
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_should_convert_monochromatic_jpeg(self):
         response = await self.get_as_webp("/unsafe/grayscale.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_should_convert_cmyk_jpeg(self):
         response = await self.get_as_webp("/unsafe/cmyk.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_shouldnt_convert_cmyk_jpeg_if_format_specified(self):
         response = await self.get_as_webp(
             "/unsafe/filters:format(png)/cmyk.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_png(response.body)
 
     @gen_test
     async def test_shouldnt_convert_cmyk_jpeg_if_gif(self):
         response = await self.get_as_webp(
             "/unsafe/filters:format(gif)/cmyk.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_shouldnt_convert_if_format_specified(self):
         response = await self.get_as_webp(
             "/unsafe/filters:format(gif)/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_gif()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_gif(response.body)
 
     @gen_test
     async def test_shouldnt_add_vary_if_format_specified(self):
         response = await self.get_as_webp(
             "/unsafe/filters:format(webp)/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).not_to_include("Vary")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" not in response.headers
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_should_add_vary_if_format_invalid(self):
         response = await self.get_as_webp(
             "/unsafe/filters:format(asdf)/image.jpg"
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_converting_return_etags(self):
         response = await self.get_as_webp("/unsafe/image.jpg")
-        expect(response.headers).to_include("Etag")
+        assert "Etag" in response.headers
 
 
 class ImageOperationsWithAutoWebPWithResultStorageTestCase(
@@ -184,17 +184,17 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(
         context_mock.return_value = self.context
         crypto = CryptoURL("ACME-SEC")
         url = crypto.generate(
-            image_url=quote("http://test.com/smart/image.jpg")
+            image_url=quote("http://test.com/smart/image.jpg")  # NOSONAR
         )
         self.context.request = self.get_request(url=url, accepts_webp=True)
         with open("./tests/fixtures/images/image.webp", "rb") as fixture:
             await self.context.modules.result_storage.put(fixture.read())
 
         response = await self.get_as_webp(url)
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
+        assert_is_webp(response.body)
 
     @patch("thumbor.handlers.Context")
     @gen_test
@@ -205,7 +205,7 @@ class ImageOperationsWithAutoWebPWithResultStorageTestCase(
         self.context.request = self.get_request(accepts_webp=True)
 
         response = await self.get_as_webp("/unsafe/image.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
+        assert_is_webp(response.body)

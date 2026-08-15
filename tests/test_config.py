@@ -10,8 +10,6 @@
 from os.path import expanduser
 from unittest import TestCase, mock
 
-from preggy import expect
-
 from thumbor.config import Config, format_value, generate_config
 
 
@@ -19,12 +17,12 @@ class ConfigTestCase(TestCase):
     @mock.patch("derpconf.config.generate_config")
     def test_can_generate_config(self, config_mock):
         generate_config()
-        expect(config_mock.called).to_be_true()
+        assert config_mock.called
 
     def test_can_format_value(self):
-        expect(format_value("qwe")).to_equal("'qwe'")
-        expect(format_value(["qwe", "rty"])).to_equal("[\n#    qwe#    rty#]")
-        expect(format_value(230)).to_equal(230)
+        assert format_value("qwe") == "'qwe'"
+        assert format_value(["qwe", "rty"]) == "[\n#    qwe#    rty#]"
+        assert format_value(230) == 230
 
 
 class ConfigValuesTestCase(TestCase):
@@ -92,34 +90,34 @@ class ConfigValuesTestCase(TestCase):
         cfg = Config()
         for key, default_value in self.get_config():
             config_value = getattr(cfg, key)
-            expect(config_value).not_to_be_null()
-            expect(config_value).to_equal(default_value)
+            assert config_value is not None
+            assert config_value == default_value
 
     def test_config_is_an_alias(self):
         Config.alias("OTHER_ENGINE", "ENGINE")
         cfg = Config(OTHER_ENGINE="x")
-        expect(cfg.ENGINE).to_equal("x")
-        expect(cfg.OTHER_ENGINE).to_equal("x")
+        assert cfg.ENGINE == "x"
+        assert cfg.OTHER_ENGINE == "x"
 
     def test_config_is_an_aliased_key(self):
         Config.alias("LOADER_ALIAS", "LOADER")
         cfg = Config(LOADER="y")
-        expect(cfg.LOADER).to_equal("y")
-        expect(cfg.LOADER_ALIAS).to_equal("y")
+        assert cfg.LOADER == "y"
+        assert cfg.LOADER_ALIAS == "y"
 
     def test_with_aliased_aliases(self):
         Config.alias("STORAGE_ALIAS", "STORAGE")
         Config.alias("STORAGE_ALIAS_ALIAS", "STORAGE_ALIAS")
         cfg = Config(STORAGE_ALIAS_ALIAS="z")
-        expect(cfg.STORAGE).to_equal("z")
-        expect(cfg.STORAGE_ALIAS).to_equal("z")
-        expect(cfg.STORAGE_ALIAS_ALIAS).to_equal("z")
+        assert cfg.STORAGE == "z"
+        assert cfg.STORAGE_ALIAS == "z"
+        assert cfg.STORAGE_ALIAS_ALIAS == "z"
 
     def test_with_aliased_aliases_with_default_values(self):
         Config.alias("STORAGE_ALIAS", "STORAGE")
         Config.alias("STORAGE_ALIAS_ALIAS", "STORAGE_ALIAS")
         cfg = Config()
-        expect(cfg.STORAGE).to_equal(self.get_default_storage())
-        expect(cfg.STORAGE_ALIAS).to_equal(self.get_default_storage())
-        expect(cfg.STORAGE_ALIAS_ALIAS).to_equal(self.get_default_storage())
-        expect(cfg.__class__.__module__).to_equal("derpconf.config")
+        assert cfg.STORAGE == self.get_default_storage()
+        assert cfg.STORAGE_ALIAS == self.get_default_storage()
+        assert cfg.STORAGE_ALIAS_ALIAS == self.get_default_storage()
+        assert cfg.__class__.__module__ == "derpconf.config"

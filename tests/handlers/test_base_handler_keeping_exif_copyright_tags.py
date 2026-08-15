@@ -10,7 +10,6 @@
 from io import BytesIO
 
 from PIL import Image
-from preggy import expect
 from tornado.testing import gen_test
 
 from tests.handlers.test_base_handler import BaseImagingTestCase
@@ -49,13 +48,13 @@ class ImageOperationsWithKeepExifCopyrightTags(BaseImagingTestCase):
         response = await self.async_fetch(
             "/unsafe/filters:strip_exif()/thumbor-exif.png"
         )
-        expect(response.code).to_equal(200)
+        assert response.code == 200
         ctx = self.context
         engine = Engine(ctx)
         engine.load(response.body, ".jpg")
         final_bytes = BytesIO(engine.read())
         image = Image.open(final_bytes)
-        expect(image.info.get("exif")).to_be_null()
+        assert image.info.get("exif") is None
 
     @gen_test
     async def test_should_return_exif_copyright_tags(self):
@@ -63,22 +62,22 @@ class ImageOperationsWithKeepExifCopyrightTags(BaseImagingTestCase):
         response = await self.async_fetch(
             "/unsafe/filters:strip_exif()/thumbor-exif.png"
         )
-        expect(response.code).to_equal(200)
+        assert response.code == 200
 
         engine = Engine(self.context)
         engine.load(response.body, ".jpg")
         final_bytes = BytesIO(engine.read())
         image = Image.open(final_bytes)
-        expect(image.info.get("exif")).not_to_be_null()
+        assert image.info.get("exif") is not None
 
     @gen_test
     async def test_should_not_return_exif_copyright_tags(self):
         self.context.config.PRESERVE_EXIF_COPYRIGHT_INFO = True
         response = await self.async_fetch("/unsafe/20x20.jpg")
-        expect(response.code).to_equal(200)
+        assert response.code == 200
         engine = Engine(self.context)
         engine.load(response.body, ".jpg")
         final_bytes = BytesIO(engine.read())
         image = Image.open(final_bytes)
 
-        expect(image.info.get("exif")).to_be_null()
+        assert image.info.get("exif") is None

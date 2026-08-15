@@ -13,7 +13,6 @@ from os.path import exists
 from unittest import skipUnless
 
 from PIL import Image
-from preggy import create_assertions
 
 from thumbor.testing import DetectorTestCase as ThumborDetectorTestCase
 from thumbor.testing import FilterTestCase as ThumborFilterTestCase
@@ -66,9 +65,8 @@ class FilterTestCase(ThumborFilterTestCase):
     pass
 
 
-@create_assertions
-def to_exist(topic):
-    return exists(topic)
+def assert_exists(path):
+    assert exists(path), f"Expected path to exist: {path}"
 
 
 def normalize_unicode_path(path):
@@ -80,8 +78,7 @@ def normalize_unicode_path(path):
     return normalized_path
 
 
-@create_assertions
-def to_be_the_same_as(topic, expected):
+def assert_same_as(topic, expected):
     topic = normalize_unicode_path(topic)
     expected = normalize_unicode_path(expected)
 
@@ -93,58 +90,49 @@ def to_be_the_same_as(topic, expected):
     topic_image = Image.open(topic)
     expected_image = Image.open(expected)
 
-    return get_ssim(topic_image, expected_image) > 0.95
+    assert get_ssim(topic_image, expected_image) > 0.95
 
 
-@create_assertions
-def to_be_similar_to(topic, expected):
+def assert_similar_to(topic, expected):
     topic_image = Image.open(BytesIO(topic))
     expected_image = Image.open(BytesIO(expected))
 
-    return get_ssim(topic_image, expected_image) > 0.95
+    assert get_ssim(topic_image, expected_image) > 0.95
 
 
-@create_assertions
-def to_be_webp(topic):
-    image = Image.open(BytesIO(topic))
-    return image.format.lower() == "webp"
+def assert_is_webp(data):
+    image = Image.open(BytesIO(data))
+    assert image.format.lower() == "webp"
 
 
-@create_assertions
-def to_be_avif(topic):
-    image = Image.open(BytesIO(topic))
-    return image.format.lower() == "avif"
+def assert_is_avif(data):
+    image = Image.open(BytesIO(data))
+    assert image.format.lower() == "avif"
 
 
-@create_assertions
-def to_be_heif(topic):
-    image = Image.open(BytesIO(topic))
-    return image.format.lower() == "heif"
+def assert_is_heif(data):
+    image = Image.open(BytesIO(data))
+    assert image.format.lower() == "heif"
 
 
-@create_assertions
-def to_be_png(topic):
-    image = Image.open(BytesIO(topic))
-    return image.format.lower() == "png"
+def assert_is_png(data):
+    image = Image.open(BytesIO(data))
+    assert image.format.lower() == "png"
 
 
-@create_assertions
-def to_be_gif(topic):
-    image = Image.open(BytesIO(topic))
-    return image.format.lower() == "gif"
+def assert_is_gif(data):
+    image = Image.open(BytesIO(data))
+    assert image.format.lower() == "gif"
 
 
-@create_assertions
-def to_be_jpeg(topic):
-    image = Image.open(BytesIO(topic))
-    return image.format.lower() == "jpeg"
+def assert_is_jpeg(data):
+    image = Image.open(BytesIO(data))
+    assert image.format.lower() == "jpeg"
 
 
-@create_assertions
-def to_be_resized(image):
-    return image.has_resized_properly()
+def assert_is_resized(image):
+    assert image.has_resized_properly()
 
 
-@create_assertions
-def to_be_cropped(image):
-    return image.has_cropped_properly()
+def assert_is_cropped(image):
+    assert image.has_cropped_properly()

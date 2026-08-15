@@ -12,9 +12,14 @@ from types import SimpleNamespace
 from unittest import mock
 
 import pytest
-from preggy import expect
 from tornado.testing import gen_test
 
+from tests.base import (
+    assert_is_avif,
+    assert_is_jpeg,
+    assert_is_png,
+    assert_is_webp,
+)
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
@@ -57,29 +62,26 @@ def resolve_preferred_extension(
     "image_format", ["webp", "avif", "jpg", "heif", "png"]
 )
 def test_resolves_every_supported_preferred_format(image_format):
-    expect(resolve_preferred_extension([image_format])).to_equal(
-        f".{image_format}"
-    )
+    assert resolve_preferred_extension([image_format]) == f".{image_format}"
 
 
 def test_skips_unsupported_preferred_format():
-    expect(
+    assert (
         resolve_preferred_extension(
             ["avif", "webp"], accepted_formats={"webp"}
         )
-    ).to_equal(".webp")
-
-
-def test_skips_jpg_for_transparent_image():
-    expect(resolve_preferred_extension(["jpg"], transparent=True)).to_equal(
-        ".gif"
+        == ".webp"
     )
 
 
+def test_skips_jpg_for_transparent_image():
+    assert resolve_preferred_extension(["jpg"], transparent=True) == ".gif"
+
+
 def test_skips_preferred_formats_for_multiple_images():
-    expect(
-        resolve_preferred_extension(["webp", "png"], multiple=True)
-    ).to_equal(".gif")
+    assert (
+        resolve_preferred_extension(["webp", "png"], multiple=True) == ".gif"
+    )
 
 
 class ImageOperationsWithAutoImageFormatPreferenceTestCase(
@@ -112,11 +114,11 @@ class ImageOperationsWithAutoImageFormatPreferenceTestCase(
     @gen_test
     async def test_can_auto_convert_to_avif(self):
         response = await self.get_as_webp_first("/unsafe/image.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
 
-        expect(response.body).to_be_avif()
+        assert_is_avif(response.body)
 
     @gen_test
     async def test_skips_preferred_format_rejected_with_quality_zero(self):
@@ -125,20 +127,20 @@ class ImageOperationsWithAutoImageFormatPreferenceTestCase(
             headers={"Accept": "image/avif;q=0,image/webp;q=0.8"},
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.headers["Vary"]).to_include("Accept")
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert "Accept" in response.headers["Vary"]
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_falls_back_to_engine_extension_when_no_match_exists(self):
         response = await self.async_fetch(
             "/unsafe/image.jpg", headers={"Accept": "image/tiff"}
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
 
-        expect(response.body).to_be_jpeg()
+        assert_is_jpeg(response.body)
 
 
 class ImageOperationsWithoutAutoImageFormatPreferenceTestCase(
@@ -171,11 +173,11 @@ class ImageOperationsWithoutAutoImageFormatPreferenceTestCase(
     @gen_test
     async def test_can_auto_convert_to_webp(self):
         response = await self.get_as_webp_first("/unsafe/image.jpg")
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
 
-        expect(response.body).to_be_webp()
+        assert_is_webp(response.body)
 
 
 class ImageOperationsWithAutoImageFormatPreferenceOverrideTestCase(
@@ -209,11 +211,11 @@ class ImageOperationsWithAutoImageFormatPreferenceOverrideTestCase(
         response = await self.async_fetch(
             "/unsafe/image.jpg", headers={"Accept": "image/webp,*/*;q=0.8"}
         )
-        expect(response.code).to_equal(200)
-        expect(response.headers).to_include("Vary")
-        expect(response.headers["Vary"]).to_include("Accept")
+        assert response.code == 200
+        assert "Vary" in response.headers
+        assert "Accept" in response.headers["Vary"]
 
-        expect(response.body).to_be_webp()
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_autojpg_false_does_not_override_explicit_jpg_preference(
@@ -227,8 +229,8 @@ class ImageOperationsWithAutoImageFormatPreferenceOverrideTestCase(
             headers={"Accept": "image/jpeg"},
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert_is_jpeg(response.body)
 
 
 class ImageOperationsWithPreferenceAndAutoPngToJpgTestCase(
@@ -260,8 +262,8 @@ class ImageOperationsWithPreferenceAndAutoPngToJpgTestCase(
             headers={"Accept": "image/webp"},
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_webp()
+        assert response.code == 200
+        assert_is_webp(response.body)
 
     @gen_test
     async def test_auto_png_to_jpg_is_fallback_after_preference(self):
@@ -270,8 +272,8 @@ class ImageOperationsWithPreferenceAndAutoPngToJpgTestCase(
             headers={"Accept": "image/png"},
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_autojpg_false_disables_only_png_to_jpg_fallback(self):
@@ -281,8 +283,8 @@ class ImageOperationsWithPreferenceAndAutoPngToJpgTestCase(
             headers={"Accept": "image/png"},
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_png()
+        assert response.code == 200
+        assert_is_png(response.body)
 
     @gen_test
     async def test_autojpg_true_keeps_png_to_jpg_fallback_enabled(self):
@@ -292,5 +294,5 @@ class ImageOperationsWithPreferenceAndAutoPngToJpgTestCase(
             headers={"Accept": "image/png"},
         )
 
-        expect(response.code).to_equal(200)
-        expect(response.body).to_be_jpeg()
+        assert response.code == 200
+        assert_is_jpeg(response.body)

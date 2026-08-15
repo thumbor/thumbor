@@ -7,8 +7,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-import preggy
-
 POSITIONS = [
     # length (either width or height), position in percent, expected string
     (800, "-20p", "-160"),
@@ -80,27 +78,23 @@ RATIOS = [
 ]
 
 
-@preggy.assertion
-def to_fit_into(topic, boundary, **kwargs):
+def assert_fits_into(topic, boundary, **kwargs):
     assert (
         topic <= boundary
     ), f"Expected topic({topic}) to fit into boundary {boundary} with test: {kwargs}"
 
 
-@preggy.assertion
-def to_be_true_with_additional_info(topic, **kwargs):
+def assert_true_with_info(topic, **kwargs):
     assert topic, f"Expected topic to be true with test: {kwargs}"
 
 
-@preggy.assertion
-def to_be_equal_with_additional_info(topic, expected, **kwargs):
+def assert_equal_with_info(topic, expected, **kwargs):
     assert (
         topic == expected
     ), f"Expected topic({topic}) to be ({expected}) with test: {kwargs}"
 
 
-@preggy.assertion
-def to_almost_equal(topic, expected, differ, **kwargs):
+def assert_almost_equal(topic, expected, differ, **kwargs):
     assert abs(1 - topic / expected) <= (differ / 100.0), (
         f"Expected topic({topic}) to be almost equal expected"
         f"({expected}) differing only in {differ}% with test: {kwargs}"
