@@ -290,6 +290,77 @@ class PilEngineTestCase(TestCase):
 
         assert transparent_pixels_count > 19000
 
+    def test_convert_to_grayscale_should_preserve_palette_transparency(self):
+        engine = Engine(self.context)
+
+        with open(
+            join(STORAGE_PATH, "paletted-transparent.png"), "rb"
+        ) as image_file:
+            buffer = image_file.read()
+
+        engine.load(buffer, "png")
+        assert engine.original_mode == "P"
+        expected_alpha = engine.image.convert("RGBA").getchannel("A").tobytes()
+
+        image = engine.convert_to_grayscale()
+
+        assert image.mode == "LA"
+        assert image.getchannel("A").tobytes() == expected_alpha
+
+    def test_image_data_as_rgb_should_preserve_colorkey_transparency(self):
+        engine = Engine(self.context)
+
+        gray = Image.new("L", (5, 5), 128)
+        png_buffer = BytesIO()
+        gray.save(png_buffer, "PNG", transparency=128)
+
+        engine.load(png_buffer.getvalue(), "png")
+        assert engine.original_mode == "L"
+        expected_alpha = engine.image.convert("RGBA").getchannel("A").tobytes()
+
+        mode, data = engine.image_data_as_rgb()
+
+        assert mode == "RGBA"
+        assert data[3::4] == expected_alpha
+
+    def test_image_data_as_rgb_should_preserve_rgb_colorkey_transparency(
+        self,
+    ):
+        engine = Engine(self.context)
+
+        magenta = Image.new("RGB", (5, 5), (255, 0, 255))
+        png_buffer = BytesIO()
+        magenta.save(png_buffer, "PNG", transparency=(255, 0, 255))
+
+        engine.load(png_buffer.getvalue(), "png")
+        assert engine.original_mode == "RGB"
+        expected_alpha = engine.image.convert("RGBA").getchannel("A").tobytes()
+
+        mode, data = engine.image_data_as_rgb()
+
+        assert mode == "RGBA"
+        assert data[3::4] == expected_alpha
+
+    def test_read_should_quantize_grayscale_images_with_alpha(self):
+        engine = Engine(self.context)
+
+        palette = Image.new("RGBA", (5, 5), (255, 0, 255, 0)).quantize()
+        png_buffer = BytesIO()
+        palette.save(png_buffer, "PNG")
+
+        engine.load(png_buffer.getvalue(), "png")
+        assert engine.original_mode == "P"
+        engine.convert_to_grayscale()
+        assert engine.image.mode == "LA"
+        expected_alpha = engine.image.getchannel("A").tobytes()
+
+        image = Image.open(BytesIO(engine.read(".png")))
+
+        assert image.mode == "P"
+        assert (
+            image.convert("RGBA").getchannel("A").tobytes() == expected_alpha
+        )
+
     @skip_unless_avif
     def test_convert_jpg_to_avif(self):
         engine = Engine(self.context)
