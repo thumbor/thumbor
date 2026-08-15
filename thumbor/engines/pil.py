@@ -262,10 +262,11 @@ class Engine(BaseEngine):
             if self.original_mode == "1":
                 self.image = self.image.convert("1")
             else:
-                # quantize() only takes L, P, RGB and RGBA. Filters that
-                # convert to grayscale leave images carrying alpha in LA
-                # mode, which it rejects with "image has wrong mode".
-                if self.image.mode == "LA":
+                # quantize() only takes L, P, RGB and RGBA, and rejects
+                # every other mode with "image has wrong mode". Filters are
+                # pluggable and can leave any of them behind: grayscale(),
+                # for one, leaves images carrying alpha in LA mode.
+                if self.image.mode not in ("L", "P", "RGB", "RGBA"):
                     self.image = self.image.convert("RGBA")
 
                 # libimagequant might not be enabled on compile time
