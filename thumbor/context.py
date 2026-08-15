@@ -7,7 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from os.path import abspath, exists
+from pathlib import Path
 
 from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
@@ -208,9 +208,36 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
         if not self.keyfile:
             return
 
-        path = abspath(self.keyfile)
+        configured_path = Path(self.keyfile)
+        path = configured_path
 
-        if not exists(path):
+        try:
+            if configured_path.is_absolute():
+                allowed_directory = configured_path.parent.resolve(strict=True)
+                path = allowed_directory / configured_path.name
+            else:
+                allowed_directory = Path.cwd().resolve(strict=True)
+                path = allowed_directory / configured_path
+
+            path = path.resolve(strict=True)
+        except (OSError, RuntimeError) as error:
+            raise ValueError(
+                (
+                    f"Could not find security key file at {path.absolute()}. "
+                    "Please verify the keypath argument."
+                )
+            ) from error
+
+        if not path.is_relative_to(allowed_directory):
+            raise ValueError(
+                (
+                    f"Security key file path {configured_path} resolves "
+                    "outside its allowed directory. Please verify the "
+                    "keypath argument."
+                )
+            )
+
+        if not path.is_file():
             raise ValueError(
                 (
                     f"Could not find security key file at {path}. "
@@ -218,7 +245,7 @@ class ServerParameters:  # pylint: disable=too-many-instance-attributes
                 )
             )
 
-        with open(path, "rb") as security_key_file:
+        with path.open("rb") as security_key_file:
             security_key = security_key_file.read().strip()
 
         self.security_key = security_key
