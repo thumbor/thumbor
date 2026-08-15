@@ -53,6 +53,24 @@ thumbor processes it.
 The secure endpoint looks like this:
 ``/<authentication code with 28 characters>/300x200/smart/path/to/image.jpg``.
 
+.. _security-key-file:
+
+Loading the key from a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The key can also come from a file, through the ``-k``/``--keyfile``
+server option. When set, the key file takes precedence over
+``SECURITY_KEY``. Before reading the file, thumbor checks its path:
+
+- An absolute path works from any working directory, but the file,
+  symlinks followed, must stay under the path's parent directory:
+  ``/etc/thumbor/thumbor.key`` may link to ``/etc/thumbor/keys/current``
+  but not to ``/root/thumbor.key``.
+- A relative path, symlinks followed, must stay under the directory
+  thumbor was started from.
+
+A path that breaks either rule stops thumbor at startup.
+
 HMAC method
 ~~~~~~~~~~~
 

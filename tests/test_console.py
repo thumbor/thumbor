@@ -7,6 +7,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from contextlib import redirect_stdout
+from io import StringIO
 from unittest import TestCase
 
 from thumbor.console import get_server_parameters
@@ -45,3 +47,13 @@ class ConsoleTestCase(TestCase):
         assert params.app_class == "custom.app"
         assert params.fd == "/tmp/fd"  # NOSONAR
         assert params.processes == 5
+
+    def test_keyfile_help_describes_the_security_key_file(self):
+        output = StringIO()
+        with redirect_stdout(output), self.assertRaises(SystemExit):
+            get_server_parameters(["--help"])
+
+        help_text = " ".join(output.getvalue().split())
+        assert "--keyfile KEYFILE The path of the security key file" in (
+            help_text
+        )
