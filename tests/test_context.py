@@ -7,6 +7,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
 
 from preggy import expect
@@ -182,6 +184,89 @@ class ServerParametersTestCase(TestCase):
                 fd="fd",
                 gifsicle_path="gifsicle_path",
             )
+
+    @staticmethod
+    def test_cant_load_relative_security_key_outside_working_directory():
+        with TemporaryDirectory() as temporary_directory:
+            temporary_path = Path(temporary_directory)
+            working_directory = temporary_path / "working-directory"
+            working_directory.mkdir()
+            (temporary_path / "thumbor.key").write_text(
+                "SECURITY_KEY_FILE", encoding="utf-8"
+            )
+
+            expected_msg = (
+                "Security key file path ../thumbor.key resolves outside "
+                "its allowed directory. Please verify the keypath argument."
+            )
+
+            with mock.patch(
+                "thumbor.context.Path.cwd", return_value=working_directory
+            ):
+                with expect.error_to_happen(ValueError, message=expected_msg):
+                    ServerParameters(
+                        port=8888,
+                        ip="0.0.0.0",
+                        config_path="/my/config_path.conf",
+                        keyfile="../thumbor.key",
+                        log_level="debug",
+                        app_class="app",
+                        fd="fd",
+                        gifsicle_path="gifsicle_path",
+                    )
+
+    @staticmethod
+    def test_can_load_absolute_security_key_outside_working_directory():
+        with TemporaryDirectory() as temporary_directory:
+            temporary_path = Path(temporary_directory)
+            working_directory = temporary_path / "working-directory"
+            working_directory.mkdir()
+            keyfile = temporary_path / "thumbor.key"
+            keyfile.write_text("SECURITY_KEY_FILE", encoding="utf-8")
+
+            with mock.patch(
+                "thumbor.context.Path.cwd", return_value=working_directory
+            ):
+                params = ServerParameters(
+                    port=8888,
+                    ip="0.0.0.0",
+                    config_path="/my/config_path.conf",
+                    keyfile=str(keyfile),
+                    log_level="debug",
+                    app_class="app",
+                    fd="fd",
+                    gifsicle_path="gifsicle_path",
+                )
+
+            expect(params.security_key).to_equal("SECURITY_KEY_FILE")
+
+    @staticmethod
+    def test_cant_load_absolute_security_key_symlink_outside_its_directory():
+        with TemporaryDirectory() as temporary_directory:
+            temporary_path = Path(temporary_directory)
+            allowed_directory = temporary_path / "keys"
+            allowed_directory.mkdir()
+            keyfile = temporary_path / "thumbor.key"
+            keyfile.write_text("SECURITY_KEY_FILE", encoding="utf-8")
+            keyfile_symlink = allowed_directory / "thumbor.key"
+            keyfile_symlink.symlink_to(keyfile)
+
+            expected_msg = (
+                f"Security key file path {keyfile_symlink} resolves outside "
+                "its allowed directory. Please verify the keypath argument."
+            )
+
+            with expect.error_to_happen(ValueError, message=expected_msg):
+                ServerParameters(
+                    port=8888,
+                    ip="0.0.0.0",
+                    config_path="/my/config_path.conf",
+                    keyfile=str(keyfile_symlink),
+                    log_level="debug",
+                    app_class="app",
+                    fd="fd",
+                    gifsicle_path="gifsicle_path",
+                )
 
 
 class RequestParametersTestCase(TestCase):
