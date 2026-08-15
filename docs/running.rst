@@ -32,8 +32,8 @@ The full path for the configuration file for this server.
 -k or --keyfile
 ~~~~~~~~~~~~~~~
 
-The full path for the file containing the security key to be used for
-this server.
+The path for the file containing the security key to be used for this
+server. See :ref:`security-key-file` for the paths thumbor accepts.
 
 -l or --log-level
 ~~~~~~~~~~~~~~~~~
