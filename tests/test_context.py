@@ -11,6 +11,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
 
+import pytest
 from preggy import expect
 
 from thumbor.config import Config
@@ -203,7 +204,7 @@ class ServerParametersTestCase(TestCase):
             with mock.patch(
                 "thumbor.context.Path.cwd", return_value=working_directory
             ):
-                with expect.error_to_happen(ValueError, message=expected_msg):
+                with pytest.raises(ValueError) as error:
                     ServerParameters(
                         port=8888,
                         ip="0.0.0.0",
@@ -214,6 +215,8 @@ class ServerParametersTestCase(TestCase):
                         fd="fd",
                         gifsicle_path="gifsicle_path",
                     )
+
+            assert str(error.value) == expected_msg
 
     @staticmethod
     def test_can_load_absolute_security_key_outside_working_directory():
@@ -238,7 +241,7 @@ class ServerParametersTestCase(TestCase):
                     gifsicle_path="gifsicle_path",
                 )
 
-            expect(params.security_key).to_equal("SECURITY_KEY_FILE")
+            assert params.security_key == b"SECURITY_KEY_FILE"
 
     @staticmethod
     def test_cant_load_absolute_security_key_symlink_outside_its_directory():
@@ -256,7 +259,7 @@ class ServerParametersTestCase(TestCase):
                 "its allowed directory. Please verify the keypath argument."
             )
 
-            with expect.error_to_happen(ValueError, message=expected_msg):
+            with pytest.raises(ValueError) as error:
                 ServerParameters(
                     port=8888,
                     ip="0.0.0.0",
@@ -267,6 +270,8 @@ class ServerParametersTestCase(TestCase):
                     fd="fd",
                     gifsicle_path="gifsicle_path",
                 )
+
+            assert str(error.value) == expected_msg
 
 
 class RequestParametersTestCase(TestCase):
