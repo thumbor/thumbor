@@ -14,6 +14,8 @@ permissions:
 
 env:
   CIBW_PROJECT_REQUIRES_PYTHON: ">=3.10"
+  RUST_TOOLCHAIN: "1.94.1"
+  RUSTUP_VERSION: "1.29.0"
   python-version: "3.10"
 
 jobs:
@@ -31,6 +33,11 @@ jobs:
         uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
         with:
           version: "0.11.19"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
       - name: Build package
         run: >-
           uv run --locked --only-group release --only-group build
@@ -60,8 +67,92 @@ jobs:
           python-version: ${{ env.python-version }}
           cache: "pip" # caching pip dependencies
 
+      - name: Install Rust
+        if: matrix.os == 'macos-latest'
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
+
       - name: Build wheels
         uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074 # v4.2.0
+        env:
+          MACOSX_DEPLOYMENT_TARGET: 10.12
+          CIBW_SKIP: "cp*-musllinux_i686"
+          CIBW_ENVIRONMENT_LINUX: 'PATH="$HOME/.cargo/bin:$PATH"'
+          CIBW_ENVIRONMENT_MACOS: 'PATH="$HOME/.cargo/bin:$PATH"'
+          CIBW_ARCHS_MACOS: universal2
+          CIBW_BEFORE_ALL_LINUX: |
+            RUST_TOOLCHAIN="${{ env.RUST_TOOLCHAIN }}"
+            RUSTUP_VERSION="${{ env.RUSTUP_VERSION }}"
+            case "$(uname -m)" in
+              x86_64)
+                if ldd --version 2>&1 | grep -qi musl; then
+                  rustup_triple="x86_64-unknown-linux-musl"
+                  rustup_sha256="9cd3fda5fd293890e36ab271af6a786ee22084b5f6c2b83fd8323cec6f0992c1"
+                else
+                  rustup_triple="x86_64-unknown-linux-gnu"
+                  rustup_sha256="4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10"
+                fi
+                ;;
+              aarch64)
+                if ldd --version 2>&1 | grep -qi musl; then
+                  rustup_triple="aarch64-unknown-linux-musl"
+                  rustup_sha256="88761caacddb92cd79b0b1f939f3990ba1997d701a38b3e8dd6746a562f2a759"
+                else
+                  rustup_triple="aarch64-unknown-linux-gnu"
+                  rustup_sha256="9732d6c5e2a098d3521fca8145d826ae0aaa067ef2385ead08e6feac88fa5792"
+                fi
+                ;;
+              *)
+                echo "Unsupported Linux architecture: $(uname -m)" >&2
+                exit 1
+                ;;
+            esac
+            rustup_url="https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/${rustup_triple}/rustup-init"
+            curl --proto '=https' --tlsv1.2 -sSf -o /tmp/rustup-init "$rustup_url"
+            echo "${rustup_sha256}  /tmp/rustup-init" | sha256sum -c -
+            chmod +x /tmp/rustup-init
+            /tmp/rustup-init -y --no-modify-path --profile minimal --default-host "$rustup_triple" --default-toolchain "$RUST_TOOLCHAIN"
+            rm /tmp/rustup-init
+            . "$HOME/.cargo/env"
+            actual_rustc="$(rustc --version)"
+            case "$actual_rustc" in
+              "rustc ${RUST_TOOLCHAIN} "*) ;;
+              *)
+                echo "Expected rustc ${RUST_TOOLCHAIN}, got ${actual_rustc}" >&2
+                exit 1
+                ;;
+            esac
+            actual_cargo="$(cargo --version)"
+            case "$actual_cargo" in
+              "cargo ${RUST_TOOLCHAIN} "*) ;;
+              *)
+                echo "Expected cargo ${RUST_TOOLCHAIN}, got ${actual_cargo}" >&2
+                exit 1
+                ;;
+            esac
+            rustc --version
+            cargo --version
+          CIBW_BEFORE_BUILD_MACOS: |
+            actual_rustc="$(rustc --version)"
+            case "$actual_rustc" in
+              "rustc ${{ env.RUST_TOOLCHAIN }} "*) ;;
+              *)
+                echo "Expected rustc ${{ env.RUST_TOOLCHAIN }}, got ${actual_rustc}" >&2
+                exit 1
+                ;;
+            esac
+            actual_cargo="$(cargo --version)"
+            case "$actual_cargo" in
+              "cargo ${{ env.RUST_TOOLCHAIN }} "*) ;;
+              *)
+                echo "Expected cargo ${{ env.RUST_TOOLCHAIN }}, got ${actual_cargo}" >&2
+                exit 1
+                ;;
+            esac
+            rustc --version
+            cargo --version
 
       - uses: actions/upload-artifact@v7
         with:

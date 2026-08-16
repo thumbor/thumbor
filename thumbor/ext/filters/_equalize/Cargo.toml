@@ -1,0 +1,12 @@
+[package]
+name = "_equalize"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+pyo3 = { version = "0.25.0", features = ["extension-module", "abi3"] }
+utils_lib = { path = "../utils_lib" }
+
+[lib]
+name = "_equalize"
+crate-type = ["cdylib"]
