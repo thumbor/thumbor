@@ -10,6 +10,7 @@
 # Test file
 # pylint: disable=protected-access
 
+import os
 import re
 import time
 from os.path import abspath, dirname, join
@@ -54,6 +55,15 @@ class EchoAllHeadersHandler(tornado.web.RequestHandler):
             self.write(f"{header}:{value}\n")
 
 
+class RecordUriHandler(tornado.web.RequestHandler):
+    def initialize(self, uris):
+        self.uris = uris
+
+    async def get(self):
+        self.uris.append(self.request.uri)
+        self.write("Hello")
+
+
 class HandlerMock:
     def __init__(self, headers):
         self.request = RequestMock(headers)
@@ -76,6 +86,29 @@ class ResponseMock:
             self.headers["Content-Type"] = content_type
 
         self.body = body
+
+
+async def load_with_client_mock(env, url):
+    config = Config()
+    ctx = Context(None, config, None)
+    client = mock.Mock()
+    client.fetch = mock.AsyncMock(
+        return_value=ResponseMock(body=b"Hello", code=200)
+    )
+
+    with (
+        mock.patch.dict(os.environ, env, clear=True),
+        mock.patch.object(
+            tornado.httpclient,
+            "AsyncHTTPClient",
+            return_value=client,
+        ) as async_http_client,
+    ):
+        await loader.load(ctx, url, return_contents_fn=mock.Mock())
+
+    async_http_client.configure.assert_called_once()
+    implementation = async_http_client.configure.call_args.args[0]
+    return implementation, client.fetch.await_args.args[0]
 
 
 class ReturnContentTestCase(TestCase):
@@ -234,6 +267,52 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
         return application
 
     @gen_test
+    async def test_load_should_use_curl_for_environment_proxy(self):
+        implementation, request = await load_with_client_mock(
+            {"http_proxy": "http://proxy.example:3128"},
+            "images.example/image.jpg",
+        )
+
+        assert implementation == "tornado.curl_httpclient.CurlAsyncHTTPClient"
+        assert request.url == "http://images.example/image.jpg"  # NOSONAR
+        assert request.prepare_curl_callback is None
+
+    @gen_test
+    async def test_load_should_use_curl_for_proxy_of_another_scheme(self):
+        implementation, _ = await load_with_client_mock(
+            {"http_proxy": "http://proxy.example:3128"},
+            "https://images.example/image.jpg",
+        )
+
+        assert implementation == "tornado.curl_httpclient.CurlAsyncHTTPClient"
+
+    @gen_test
+    async def test_load_should_ignore_uppercase_http_proxy(self):
+        implementation, _ = await load_with_client_mock(
+            {"HTTP_PROXY": "http://proxy.example:3128"},
+            "http://images.example/image.jpg",  # NOSONAR
+        )
+
+        assert implementation is None
+
+    @gen_test
+    async def test_load_should_ignore_environment_proxy_without_curl(self):
+        loader.WARNED_IGNORED_PROXY_VARIABLES.clear()
+        env = {"http_proxy": "http://proxy.example:3128"}
+        url = "http://images.example/image.jpg"  # NOSONAR
+
+        with (
+            mock.patch.object(loader, "CURL_CLIENT_AVAILABLE", False),
+            mock.patch.object(loader.logger, "warning") as warning,
+        ):
+            implementation, _ = await load_with_client_mock(env, url)
+            await load_with_client_mock(env, url)
+
+        assert implementation is None
+        assert warning.call_count == 1
+        assert warning.call_args.args[1] == "http_proxy"
+
+    @gen_test
     async def test_load_with_callback(self):
         url = self.get_url("/")
         config = Config()
@@ -276,6 +355,42 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
         assert isinstance(result, LoaderResult)
         assert result.buffer == b"Hello"
         assert result.successful
+
+
+class HttpLoaderEnvironmentProxyTestCase(DummyAsyncHttpClientTestCase):
+    def get_app(self):
+        self.requested_uris = []
+        application = tornado.web.Application(
+            [(r".*", RecordUriHandler, {"uris": self.requested_uris})]
+        )
+
+        return application
+
+    @gen_test
+    async def test_load_should_fetch_through_environment_proxy(self):
+        ctx = Context(None, Config(), None)
+        env = {"http_proxy": self.get_url("/")}
+
+        with mock.patch.dict(os.environ, env, clear=True):
+            result = await loader.load(
+                ctx, "http://images.example/image.jpg"  # NOSONAR
+            )
+
+        assert result.buffer == b"Hello"
+        assert self.requested_uris == [
+            "http://images.example/image.jpg"  # NOSONAR
+        ]
+
+    @gen_test
+    async def test_load_should_skip_environment_proxy_for_no_proxy(self):
+        ctx = Context(None, Config(), None)
+        env = {"http_proxy": self.get_url("/"), "no_proxy": "127.0.0.1"}
+
+        with mock.patch.dict(os.environ, env, clear=True):
+            result = await loader.load(ctx, self.get_url("/image.jpg"))
+
+        assert result.buffer == b"Hello"
+        assert self.requested_uris == ["/image.jpg"]
 
 
 class HttpLoaderWithHeadersForwardingTestCase(DummyAsyncHttpClientTestCase):
