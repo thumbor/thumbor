@@ -8,6 +8,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import datetime
+import os
 import re
 import socket
 from typing import Pattern
@@ -24,7 +25,10 @@ from thumbor.utils import logger
 
 try:
     import tornado.curl_httpclient  # pylint: disable=ungrouped-imports
+
+    CURL_CLIENT_AVAILABLE = True
 except (ImportError, ValueError):
+    CURL_CLIENT_AVAILABLE = False
     logger.warning(
         "pycurl usage is advised. It could not be loaded properly. Verify install..."
     )
@@ -43,6 +47,50 @@ def encode(string):
 
 def quote_url(url):
     return encode_url(unquote(url))
+
+
+# libcurl reads these itself when Tornado leaves CURLOPT_PROXY unset. It
+# skips uppercase HTTP_PROXY, which CGI servers derive from a Proxy header.
+_CURL_PROXY_ENVIRONMENT_VARIABLES = (
+    "http_proxy",
+    "https_proxy",
+    "HTTPS_PROXY",
+    "all_proxy",
+    "ALL_PROXY",
+)
+
+
+WARNED_IGNORED_PROXY_VARIABLES = set()
+
+
+def _warn_ignored_proxy_variable(name):
+    if name in WARNED_IGNORED_PROXY_VARIABLES:
+        return
+
+    WARNED_IGNORED_PROXY_VARIABLES.add(name)
+    logger.warning(
+        "Ignoring %s because pycurl could not be loaded; "
+        "images are fetched without a proxy.",
+        name,
+    )
+
+
+def _has_environment_proxy():
+    names = [
+        name
+        for name in _CURL_PROXY_ENVIRONMENT_VARIABLES
+        if os.environ.get(name)
+    ]
+    if not names:
+        return False
+
+    if CURL_CLIENT_AVAILABLE:
+        return True
+
+    for name in names:
+        _warn_ignored_proxy_variable(name)
+
+    return False
 
 
 def _normalize_url(url):
@@ -145,7 +193,11 @@ async def load(
         context.config.HTTP_LOADER_PROXY_HOST
         and context.config.HTTP_LOADER_PROXY_PORT
     )
-    if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
+    if (
+        using_proxy
+        or _has_environment_proxy()
+        or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT
+    ):
         http_client_implementation = (
             "tornado.curl_httpclient.CurlAsyncHTTPClient"
         )

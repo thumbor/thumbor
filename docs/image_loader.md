@@ -12,6 +12,15 @@ GET to it. It then returns the image's string representation.
 The http loader uses the **ALLOWED_SOURCES** configuration to determine whether
 or not an image is from a trusted source and can thus be loaded.
 
+When `http_proxy`, `https_proxy` or `all_proxy` is set in the environment, the
+http loader uses the curl client, and libcurl applies those variables and
+`no_proxy` with curl's own rules. It ignores the uppercase `HTTP_PROXY`, and it
+fetches a target matching `no_proxy` directly even when
+`HTTP_LOADER_PROXY_HOST` and `HTTP_LOADER_PROXY_PORT` are set. Otherwise those
+two settings take precedence over the proxy variables. The curl client needs
+`pycurl`, which `pip install thumbor[all]` provides. Without it the loader logs
+a warning, ignores the proxy variables and fetches images directly.
+
 `MAX_SOURCE_SIZE` remains present in the bundled legacy configuration, but the
 current HTTP loader does not consult it. Setting it does not limit downloaded
 bytes. Enforce a source-size limit in a reverse proxy or custom loader if your

@@ -5,6 +5,19 @@
 import pytest
 
 import tests.base  # NOQA
+from thumbor.loaders import http_loader
+
+PROXY_ENVIRONMENT_VARIABLES = (
+    *http_loader._CURL_PROXY_ENVIRONMENT_VARIABLES,  # pylint: disable=protected-access
+    "no_proxy",
+    "NO_PROXY",
+)
+
+
+@pytest.fixture(autouse=True)
+def clear_proxy_environment(monkeypatch):
+    for name in PROXY_ENVIRONMENT_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
 
 
 @pytest.fixture
