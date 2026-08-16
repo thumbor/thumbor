@@ -73,6 +73,9 @@ jobs:
     name: Upload to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/download-artifact@v8
         with:
@@ -85,8 +88,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         if: github.event_name != 'pull_request'
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          attestations: true
           skip-existing: true
 
   docker-build:
@@ -257,6 +259,11 @@ jobs:
     needs: docker-build
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     strategy:
       fail-fast: false
       matrix:
@@ -316,22 +323,73 @@ jobs:
             type=sha
 
       - name: Create and push GHCR manifest
+        id: ghcr-manifest
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create \
-            $(jq -cr '.tags | map(select(startswith("ghcr.io/thumbor/thumbor:")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'ghcr.io/thumbor/thumbor@sha256:%s ' *)
+          for attempt in 1 2 3 4 5; do
+            if docker buildx imagetools create \
+              --metadata-file /tmp/ghcr-metadata.json \
+              $(jq -cr '.tags | map(select(startswith("ghcr.io/thumbor/thumbor:")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+              $(printf 'ghcr.io/thumbor/thumbor@sha256:%s ' *); then
+              break
+            fi
+            [ "$attempt" -eq 5 ] && exit 1
+            echo "Digest not yet visible on GHCR, retrying in $((attempt * 10))s..."
+            sleep $((attempt * 10))
+          done
+echo "digest=$(jq -er '.["containerimage.manifest.digest"]' /tmp/ghcr-metadata.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Attest GHCR image
+        uses: actions/attest@v4
+        with:
+          subject-name: ghcr.io/thumbor/thumbor
+          subject-digest: ${{ steps.ghcr-manifest.outputs.digest }}
+          push-to-registry: true
 
       - name: Create and push Quay.io manifest
+        id: quay-manifest
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create \
-            $(jq -cr '.tags | map(select(startswith("quay.io/thumbor/thumbor:")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'quay.io/thumbor/thumbor@sha256:%s ' *)
+          for attempt in 1 2 3 4 5; do
+            if docker buildx imagetools create \
+              --metadata-file /tmp/quay-metadata.json \
+              $(jq -cr '.tags | map(select(startswith("quay.io/thumbor/thumbor:")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+              $(printf 'quay.io/thumbor/thumbor@sha256:%s ' *); then
+              break
+            fi
+            [ "$attempt" -eq 5 ] && exit 1
+            echo "Digest not yet visible on Quay.io, retrying in $((attempt * 10))s..."
+            sleep $((attempt * 10))
+          done
+echo "digest=$(jq -er '.["containerimage.manifest.digest"]' /tmp/quay-metadata.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Attest Quay.io image
+        uses: actions/attest@v4
+        with:
+          subject-name: quay.io/thumbor/thumbor
+          subject-digest: ${{ steps.quay-manifest.outputs.digest }}
+          push-to-registry: true
 
       - name: Create and push Docker Hub manifest
+        id: dockerhub-manifest
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create \
-            $(jq -cr '.tags | map(select(startswith("thumbororg/thumbor:")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'thumbororg/thumbor@sha256:%s ' *)
+          for attempt in 1 2 3 4 5; do
+            if docker buildx imagetools create \
+              --metadata-file /tmp/dockerhub-metadata.json \
+              $(jq -cr '.tags | map(select(startswith("thumbororg/thumbor:")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+              $(printf 'thumbororg/thumbor@sha256:%s ' *); then
+              break
+            fi
+            [ "$attempt" -eq 5 ] && exit 1
+            echo "Digest not yet visible on Docker Hub, retrying in $((attempt * 10))s..."
+            sleep $((attempt * 10))
+          done
+echo "digest=$(jq -er '.["containerimage.manifest.digest"]' /tmp/dockerhub-metadata.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Attest Docker Hub image
+        uses: actions/attest@v4
+        with:
+          subject-name: docker.io/thumbororg/thumbor
+          subject-digest: ${{ steps.dockerhub-manifest.outputs.digest }}
+          push-to-registry: true
