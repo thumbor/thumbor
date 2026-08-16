@@ -12,6 +12,7 @@ from tornado.web import HTTPError
 
 from thumbor.config import Config
 from thumbor.context import Context
+from thumbor.ext.filters import _nine_patch
 from thumbor.filters import frame
 from thumbor.importer import Importer
 from thumbor.testing import FilterTestCase
@@ -107,3 +108,36 @@ class FrameFilterTestCase(FilterTestCase):
 
         filter_instance = self.get_padding_filter((20, 5), **limits)
         self.assert_padding_rejected(filter_instance, (0, 1, 0, 0))
+
+
+def build_nine_patch(size, stretchy, content):
+    pixels = bytearray()
+    for y in range(size):
+        for x in range(size):
+            if (y == 0 and x in stretchy) or (x == 0 and y in stretchy):
+                pixels.extend([0, 0, 0, 255])
+            elif x in (0, size - 1) or y in (0, size - 1):
+                pixels.extend([0, 0, 0, 0])
+            else:
+                pixels.extend(content)
+    return bytes(pixels)
+
+
+def test_nine_patch_clips_cells_rounded_past_the_target():
+    content = [200, 50, 50, 255]
+    nine_patch = build_nine_patch(15, {3, 4, 10, 11}, content)
+    target = bytes([255, 255, 255, 255] * 14 * 14)
+
+    result = _nine_patch.apply("RGBA", target, 14, 14, nine_patch, 15, 15)
+
+    assert result[-4:] == bytes(content)
+
+
+def test_nine_patch_accepts_targets_smaller_than_the_fixed_cells():
+    content = [200, 50, 50, 255]
+    nine_patch = build_nine_patch(15, {3, 4, 10, 11}, content)
+    target = bytes([255, 255, 255, 255] * 2 * 2)
+
+    result = _nine_patch.apply("RGBA", target, 2, 2, nine_patch, 15, 15)
+
+    assert result == bytes(content * 4)

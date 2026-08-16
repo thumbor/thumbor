@@ -10,6 +10,7 @@
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
+from thumbor.ext.filters import _brightness
 
 
 class BrightnessFilterTestCase(FilterTestCase):
@@ -22,3 +23,10 @@ class BrightnessFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         assert ssim > 0.99
+
+
+def test_brightness_saturates_out_of_range_deltas():
+    pixel = bytes([0, 128, 255])
+
+    assert _brightness.apply("RGB", 10**8, pixel) == bytes([255, 255, 255])
+    assert _brightness.apply("RGB", -(10**8), pixel) == bytes([0, 0, 0])

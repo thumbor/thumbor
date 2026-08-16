@@ -3,6 +3,8 @@ ARG UV_VERSION=0.11.19
 FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 
 FROM python:${PYTHON_VERSION}-slim
+ARG RUST_TOOLCHAIN=1.94.1
+ARG RUSTUP_VERSION=1.29.0
 WORKDIR /app
 COPY --from=uv /uv /uvx /bin/
 ENV UV_LINK_MODE=copy \
@@ -24,6 +26,52 @@ RUN apt-get update -y && \
         libssl-dev \
         libjpeg-dev \
         libwebp-dev \
+        build-essential \
+        curl \
         redis && \
     apt-get install -y --reinstall --no-install-recommends --no-install-suggests build-essential && \
     apt-get clean
+
+ENV CARGO_HOME=/root/.cargo \
+    RUSTUP_HOME=/root/.rustup \
+    PATH="/root/.cargo/bin:${PATH}"
+
+RUN set -eux; \
+    case "$(dpkg --print-architecture)" in \
+        amd64) \
+            rustup_triple="x86_64-unknown-linux-gnu"; \
+            rustup_sha256="4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10"; \
+            ;; \
+        arm64) \
+            rustup_triple="aarch64-unknown-linux-gnu"; \
+            rustup_sha256="9732d6c5e2a098d3521fca8145d826ae0aaa067ef2385ead08e6feac88fa5792"; \
+            ;; \
+        *) \
+            echo "Unsupported Debian architecture: $(dpkg --print-architecture)" >&2; \
+            exit 1; \
+            ;; \
+    esac; \
+    rustup_url="https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/${rustup_triple}/rustup-init"; \
+    curl --proto '=https' --tlsv1.2 -sSf -o /tmp/rustup-init "$rustup_url"; \
+    echo "${rustup_sha256}  /tmp/rustup-init" | sha256sum -c -; \
+    chmod +x /tmp/rustup-init; \
+    /tmp/rustup-init -y --no-modify-path --profile minimal --default-host "$rustup_triple" --default-toolchain "$RUST_TOOLCHAIN"; \
+    rm /tmp/rustup-init; \
+    actual_rustc="$(rustc --version)"; \
+    case "$actual_rustc" in \
+        "rustc ${RUST_TOOLCHAIN} "*) ;; \
+        *) \
+            echo "Expected rustc ${RUST_TOOLCHAIN}, got ${actual_rustc}" >&2; \
+            exit 1; \
+            ;; \
+    esac; \
+    actual_cargo="$(cargo --version)"; \
+    case "$actual_cargo" in \
+        "cargo ${RUST_TOOLCHAIN} "*) ;; \
+        *) \
+            echo "Expected cargo ${RUST_TOOLCHAIN}, got ${actual_cargo}" >&2; \
+            exit 1; \
+            ;; \
+    esac
+
+RUN rustc --version && cargo --version
