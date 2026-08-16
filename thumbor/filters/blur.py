@@ -11,6 +11,7 @@ import math
 
 from thumbor.ext.filters import _convolution
 from thumbor.filters import BaseFilter, filter_method
+from thumbor.filters.convolution import validate_convolution_work
 
 MAX_RADIUS = 150
 
@@ -31,9 +32,11 @@ def apply_blur(mode, data, size, radius, sigma=0):
         sigma = radius
     radius = min(radius, MAX_RADIUS)
     matrix, matrix_size = generate_1d_matrix(sigma, radius)
+    validate_convolution_work(size[0], size[1], matrix_size)
     data = _convolution.apply(
         mode, data, size[0], size[1], matrix, matrix_size, True
     )
+    validate_convolution_work(size[0], size[1], matrix_size)
     return _convolution.apply(mode, data, size[0], size[1], matrix, 1, True)
 
 

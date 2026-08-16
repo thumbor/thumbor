@@ -10,6 +10,7 @@
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
+from thumbor.ext.filters import _contrast
 
 
 class ContrastFilterTestCase(FilterTestCase):
@@ -22,3 +23,9 @@ class ContrastFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         assert ssim > 0.98
+
+
+def test_contrast_saturates_out_of_range_deltas():
+    result = _contrast.apply("RGB", 50000, bytes([100, 128, 200]))
+
+    assert result == bytes([0, 128, 255])
