@@ -160,8 +160,8 @@ class Filter(BaseFilter):
         r"(?:-?\d+p?)|center|repeat",
         r"(?:-?\d+p?)|center|repeat",
         BaseFilter.PositiveNumber,
-        r"(?:-?\d+)|none",
-        r"(?:-?\d+)|none",
+        BaseFilter.DecimalNumber["regex"] + "|none",
+        BaseFilter.DecimalNumber["regex"] + "|none",
     )
     async def watermark(
         self, url, x, y, alpha, w_ratio=False, h_ratio=False
