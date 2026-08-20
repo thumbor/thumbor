@@ -238,6 +238,33 @@ def test_accepts_mime_type_super_call_honors_image_wildcard():
     )
 
 
+@pytest.mark.asyncio
+async def test_malformed_format_filter_does_not_suppress_vary():
+    context = SimpleNamespace(
+        config=Config(AUTO_WEBP=True),
+        request=SimpleNamespace(
+            max_age=None,
+            prevent_result_storage=False,
+            detection_error=None,
+            format="png",
+            # This shape caused polynomial backtracking in the old regex.
+            filters="format(" * 10_000,
+        ),
+        headers=None,
+    )
+    handler = make_handler(context)
+    handler._headers = {}  # pylint: disable=protected-access
+    handler.set_header = mock.Mock()
+    handler.write = mock.Mock()
+    handler.finish = mock.Mock()
+
+    await handler._write_results_to_client(  # pylint: disable=protected-access
+        b"image", "image/png"
+    )
+
+    handler.set_header.assert_any_call("Vary", "Accept")
+
+
 @pytest.mark.parametrize(
     "accept_header",
     [
