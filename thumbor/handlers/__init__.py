@@ -9,7 +9,6 @@
 
 import datetime
 import functools
-import re
 import sys
 import traceback
 
@@ -65,6 +64,29 @@ LEGACY_AUTO_IMAGE_FORMAT_LOG_MESSAGES = {
     "heif": "Image format set by AUTO_HEIF as %s.",
     "png": "Image format set by AUTO_PNG as %s.",
 }
+
+
+def _has_explicit_format_filter(filters):
+    if not isinstance(filters, str):
+        return False
+
+    marker = "format("
+    search_from = 0
+
+    while True:
+        match_start = filters.find(marker, search_from)
+        if match_start == -1:
+            return False
+
+        argument_start = match_start + len(marker)
+        closing_parenthesis = filters.find(")", argument_start)
+        if closing_parenthesis == -1:
+            return False
+        if closing_parenthesis > argument_start:
+            return True
+
+        search_from = argument_start
+
 
 # Handlers should not override __init__ pylint: disable=attribute-defined-outside-init,arguments-differ
 # pylint: disable=broad-except,abstract-method,too-many-branches,too-many-return-statements,too-many-statements,too-many-lines
@@ -900,9 +922,7 @@ class BaseHandler(tornado.web.RequestHandler):
         # output format is not requested via format filter
         should_vary = should_vary and not (
             self.context.request.format
-            and bool(  # format is supported by filter
-                re.search(r"format\([^)]+\)", self.context.request.filters)
-            )  # filter is in request
+            and _has_explicit_format_filter(self.context.request.filters)
         )
         # our image is not animated gif
         should_vary = should_vary and not self.is_animated_gif(buffer)
