@@ -108,6 +108,7 @@ build = [
 docs = [
   "sphinx-rtd-theme>=2.0.0,<4.0.0",
   "sphinx-reload>=0.2.0,<1.0.0",
+  "myst-parser>=4.0.1,<6.0.0",
 ]
 release = [
   "build>=1.2.1,<2.0.0",

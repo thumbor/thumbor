@@ -1,4 +1,0 @@
-Custom Image Optimizers
-=======================
-
-TBW.
