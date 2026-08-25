@@ -298,6 +298,9 @@ class Transformer:
             )
             crop_height = source_height
 
+        crop_width = max(1, crop_width)
+        crop_height = max(1, crop_height)
+
         crop_left = int(
             round(
                 min(
@@ -387,10 +390,7 @@ class Transformer:
             return
 
         # add 1e-5 to get .5 rounding up in Python3 as it was in Python2
-        if (
-            source_width / self.target_width * sign
-            >= source_height / self.target_height * sign
-        ):
+        if self._fits_in_by_width(source_width, source_height, sign):
             resize_height = round(
                 source_height * self.target_width / source_width + 1e-5
             )
@@ -400,6 +400,9 @@ class Transformer:
             resize_width = round(
                 source_width * self.target_height / source_height + 1e-5
             )
+
+        resize_width = max(1, resize_width)
+        resize_height = max(1, resize_height)
 
         # ensure that filter should work on the real image size
         # and not on the request size which might be smaller than the
@@ -418,6 +421,18 @@ class Transformer:
         self.context.request.height = int(max(requested_height, resize_height))
 
         self.engine.resize(resize_width, resize_height)
+
+    def _fits_in_by_width(self, source_width, source_height, sign):
+        # A zero target can only be a proportional dimension that rounded
+        # down, so the dimension the request gave has to drive the fit
+        if not self.target_height:
+            return True
+        if not self.target_width:
+            return False
+        return (
+            source_width / self.target_width * sign
+            >= source_height / self.target_height * sign
+        )
 
     def debug(self):
         if not self.context.request.focal_points:
