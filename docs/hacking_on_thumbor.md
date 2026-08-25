@@ -1,0 +1,121 @@
+# Hacking on Thumbor
+
+So you want to contribute with thumbor? Welcome onboard!
+
+There are a few things you'll need in order to properly start hacking on it.
+
+First step is to [fork it](http://help.github.com/fork-a-repo/) and create your
+own clone of thumbor.
+
+## Dependencies
+
+The project uses [uv](https://docs.astral.sh/uv/) to create the local `.venv`,
+install thumbor in editable mode, and keep dependency versions in sync with
+`uv.lock`. If uv is not already installed, `make setup` installs the pinned
+version into `.uv-venv`. On macOS, this workflow requires macOS 13 or newer.
+
+You'll also need Python >= 3.10.
+
+Other than that, you'll also need [redis-server](https://redis.io) installed
+(for queued detector unit tests).
+
+## Initializing the Environment
+
+Sync the development environment and compile the native extensions with:
+
+```
+$ make setup
+$ make pre-commit
+$ make compile_ext
+```
+
+The pre-commit hooks only need to be installed once per clone.
+
+## Running the Tests
+
+Running the tests is as easy as:
+
+```
+$ make test
+```
+
+You should see the results of running your tests after an instant.
+
+If you are experiencing "Too many open files" errors while running the tests,
+try increasing the number of open files per process, by running this command:
+
+```
+$ ulimit -S -n 2048
+```
+
+See the [file-limit discussion](http://superuser.com/questions/433746) for more
+information.
+
+## Linting your code
+
+Please ensure that your editor is configured to use
+[black](https://github.com/psf/black),
+[flake8](https://flake8.pycqa.org/en/latest/),
+[isort](https://pycqa.github.io/isort/), and [pylint](https://www.pylint.org/).
+
+Even if that's the case, don't forget to run `make flake isort pylint` before
+committing and fixing any issues you find. That way you won't get a request for
+doing so in your PR.
+
+## Pull Requests
+
+After hacking and testing your contribution, it is time to make a pull request.
+Make sure that your code is already integrated with the master branch of thumbor
+before asking for a pull request.
+
+To add thumbor as a valid remote for your repository:
+
+```
+$ git remote add thumbor https://github.com/thumbor/thumbor.git
+```
+
+To merge thumbor's master with your fork:
+
+```
+$ git pull thumbor master
+```
+
+If there was anything to merge, just run your tests again. If they pass,
+[send a pull request](http://help.github.com/send-pull-requests/).
+
+## Introducing a new Dependency
+
+If we introduce a new dependency, the testing docker images need to be updated.
+
+If the new dependency requires changes to the docker image, make sure to update
+the TestDockerfile file.
+
+Then build and publish with:
+
+```
+make test-docker-build test-docker-publish
+```
+
+Remember that you must be logged in with your Docker Hub account and you must be
+part of the
+[thumbororg](https://hub.docker.com/repository/docker/thumbororg/thumbor-test)
+team of administrators.
+
+## Running tests in docker
+
+If you do not wish to configure your environment with thumbor's dependencies,
+you can build local Docker images and run the tests with:
+
+```
+make test-docker-run
+```
+
+Or if you want to run a specific python version with your tests:
+
+```
+make test-docker-310-run
+```
+
+These targets build the corresponding local test image before running it.
+
+Just replace '310' with the python version you want: 310, 311, 312, 313 or 314.
