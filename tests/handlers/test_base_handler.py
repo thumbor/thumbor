@@ -196,6 +196,30 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         assert_is_jpeg(response.body)
 
     @gen_test
+    async def test_can_read_image_with_no_width_and_small_height(self):
+        response = await self.async_fetch("/unsafe/0x0:1x400/x1/image.jpg")
+        assert response.code == 200
+        assert_is_jpeg(response.body)
+
+    @gen_test
+    async def test_can_fit_in_image_with_extreme_aspect_ratio(self):
+        for url, expected_size in [
+            ("/unsafe/0x0:300x1/fit-in/1x1/image.jpg", (1, 1)),
+            ("/unsafe/0x0:300x1/fit-in/2x1/image.jpg", (2, 1)),
+            ("/unsafe/0x0:300x1/fit-in/50x/image.jpg", (50, 1)),
+            ("/unsafe/0x0:300x1/full-fit-in/50x/image.jpg", (50, 1)),
+            ("/unsafe/0x0:1x300/fit-in/x50/image.jpg", (1, 50)),
+            ("/unsafe/0x0:1x300/adaptive-fit-in/1x1/image.jpg", (1, 1)),
+        ]:
+            response = await self.async_fetch(url)
+            assert response.code == 200, url
+            assert_is_jpeg(response.body)
+
+            engine = Engine(self.context)
+            engine.load(response.body, ".jpg")
+            assert engine.size == expected_size, url
+
+    @gen_test
     async def test_can_read_cmyk_jpeg(self):
         response = await self.async_fetch("/unsafe/cmyk.jpg")
         assert response.code == 200
