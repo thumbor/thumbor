@@ -298,6 +298,9 @@ class Transformer:
             )
             crop_height = source_height
 
+        crop_width = max(1, crop_width)
+        crop_height = max(1, crop_height)
+
         crop_left = int(
             round(
                 min(

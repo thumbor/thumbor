@@ -101,6 +101,35 @@ class TransformerTestCase(TestCase):
             self.validate_resize(item)
 
     @gen_test
+    async def test_auto_crop_keeps_at_least_one_source_pixel(self):
+        for source_width, source_height, target_width, target_height in [
+            (1, 1, 50, 25),
+            (1, 1, 50, 10),
+            (2, 1, 500, 1),
+        ]:
+            data = TestData(
+                source_width=source_width,
+                source_height=source_height,
+                target_width=target_width,
+                target_height=target_height,
+                halign="center",
+                valign="middle",
+                focal_points=[],
+                crop_left=None,
+                crop_top=None,
+                crop_right=None,
+                crop_bottom=None,
+            )
+            context = data.to_context()
+            transformer = Transformer(context)
+
+            await transformer.transform()
+
+            crop = data.engine.calls["crop"][-1]
+            assert crop["right"] > crop["left"]
+            assert crop["bottom"] > crop["top"]
+
+    @gen_test
     async def test_can_resize_images_with_detectors(self):
         for item in TESTITEMS:
             context = item.to_context(detectors=[MockSyncDetector])
