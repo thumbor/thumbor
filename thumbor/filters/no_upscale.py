@@ -12,6 +12,16 @@ import thumbor.filters
 from thumbor.filters import BaseFilter, filter_method
 
 
+def limit_dimension(requested, image_dimension):
+    # The transformer resolves "orig" after crop and trim, so it never asks
+    # for more than the cropped source. Resolving it here would use the
+    # uncropped size.
+    if requested == "orig":
+        return requested
+
+    return min(requested, image_dimension)
+
+
 class Filter(BaseFilter):
     phase = thumbor.filters.PHASE_AFTER_LOAD
 
@@ -27,9 +37,11 @@ class Filter(BaseFilter):
             8,
         ]:
             image_size = (image_size[1], image_size[0])
-        self.context.request.width = min(
-            self.context.request.width, image_size[0]
+        self.context.request.width = limit_dimension(
+            self.context.request.width,
+            image_size[0],
         )
-        self.context.request.height = min(
-            self.context.request.height, image_size[1]
+        self.context.request.height = limit_dimension(
+            self.context.request.height,
+            image_size[1],
         )
