@@ -45,3 +45,4 @@ class Filter(BaseFilter):
             self.context.request.height,
             image_size[1],
         )
+        self.context.transformer.upscale_limit = image_size

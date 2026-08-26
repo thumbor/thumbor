@@ -10,6 +10,7 @@
 import math
 import sys
 
+from thumbor.filters.no_upscale import limit_dimension
 from thumbor.point import FocalPoint
 from thumbor.utils import logger
 
@@ -27,6 +28,9 @@ class Transformer:
         self.focal_points = None
         self.target_height = None
         self.target_width = None
+        self.requested_height = self.context.request.height
+        self.requested_width = self.context.request.width
+        self.upscale_limit = None
 
     async def transform(self):
         if self.context.config.RESPECT_ORIENTATION:
@@ -71,34 +75,38 @@ class Transformer:
             self.context.request.crop["right"] -= box[0]
             self.context.request.crop["bottom"] -= box[1]
 
-    def _calculate_target_dimensions(self):
+    def _calculate_dimensions(self, width, height):
         source_width, source_height = self.engine.size
         source_width = float(source_width)
         source_height = float(source_height)
 
-        if not self.context.request.width and not self.context.request.height:
-            self.target_width = source_width
-            self.target_height = source_height
+        if not width and not height:
+            target_width = source_width
+            target_height = source_height
         else:
-            if self.context.request.width:
-                if self.context.request.width == "orig":
-                    self.target_width = source_width
+            if width:
+                if width == "orig":
+                    target_width = source_width
                 else:
-                    self.target_width = float(self.context.request.width)
+                    target_width = float(width)
             else:
-                self.target_width = self.engine.get_proportional_width(
-                    self.context.request.height
-                )
+                target_width = self.engine.get_proportional_width(height)
 
-            if self.context.request.height:
-                if self.context.request.height == "orig":
-                    self.target_height = source_height
+            if height:
+                if height == "orig":
+                    target_height = source_height
                 else:
-                    self.target_height = float(self.context.request.height)
+                    target_height = float(height)
             else:
-                self.target_height = self.engine.get_proportional_height(
-                    self.context.request.width
-                )
+                target_height = self.engine.get_proportional_height(width)
+
+        return target_width, target_height
+
+    def _calculate_target_dimensions(self):
+        self.target_width, self.target_height = self._calculate_dimensions(
+            self.context.request.width,
+            self.context.request.height,
+        )
 
     def get_target_dimensions(self):
         """
@@ -358,25 +366,45 @@ class Transformer:
 
     def fit_in_resize(self):
         source_width, source_height = self.engine.size
+        orientation_width, orientation_height = self._calculate_dimensions(
+            self.requested_width,
+            self.requested_height,
+        )
 
         # invert width and height if image orientation is not the
         # same as request orientation and need adaptive
         if self.context.request.adaptive and (
             (
                 source_width < source_height
-                and self.target_width > self.target_height
+                and orientation_width > orientation_height
             )
             or (
                 source_width > source_height
-                and self.target_width < self.target_height
+                and orientation_width < orientation_height
             )
         ):
             tmp = self.context.request.width
             self.context.request.width = self.context.request.height
             self.context.request.height = tmp
+            tmp = self.requested_width
+            self.requested_width = self.requested_height
+            self.requested_height = tmp
             tmp = self.target_width
             self.target_width = self.target_height
             self.target_height = tmp
+
+            if self.upscale_limit:
+                # no_upscale limited the request along the unswapped axes
+                limit_width, limit_height = self.upscale_limit
+                self.context.request.width = limit_dimension(
+                    self.requested_width,
+                    limit_width,
+                )
+                self.context.request.height = limit_dimension(
+                    self.requested_height,
+                    limit_height,
+                )
+                self._calculate_target_dimensions()
 
         sign = 1
         if self.context.request.full:

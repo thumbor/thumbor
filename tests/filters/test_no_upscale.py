@@ -87,6 +87,7 @@ class NoUpscaleFilterTestCase(FilterTestCase):
 
         assert self.context.request.width == 300
         assert self.context.request.height == 200
+        assert self.context.transformer.upscale_limit == (300, 200)
 
     @gen_test
     async def test_no_upscale_filter_request_lower_than_image(self):
