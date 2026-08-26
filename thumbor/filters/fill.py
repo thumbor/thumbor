@@ -13,6 +13,12 @@ from thumbor.filters.blur import apply_blur
 
 
 class Filter(BaseFilter):
+    @staticmethod
+    def target_dimension(requested, transformed, image_size):
+        requested = image_size if requested in (0, "orig") else requested
+        transformed = image_size if transformed in (0, "orig") else transformed
+        return max(requested, transformed)
+
     def get_median_color(self):
         mode, data = self.engine.image_data_as_rgb()
         red, green, blue = _fill.apply(mode, data)
@@ -25,15 +31,15 @@ class Filter(BaseFilter):
     @filter_method(r"[\w]+", BaseFilter.Boolean)
     async def fill(self, color, fill_transparent=False):
         self.fill_engine = self.engine.__class__(self.context)
-        target_width = (
-            self.context.request.width
-            if self.context.request.width != 0
-            else self.engine.size[0]
+        target_width = self.target_dimension(
+            self.context.transformer.requested_width,
+            self.context.request.width,
+            self.engine.size[0],
         )
-        target_height = (
-            self.context.request.height
-            if self.context.request.height != 0
-            else self.engine.size[1]
+        target_height = self.target_dimension(
+            self.context.transformer.requested_height,
+            self.context.request.height,
+            self.engine.size[1],
         )
 
         # if the color is 'auto'
