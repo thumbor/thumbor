@@ -15,7 +15,7 @@ from unittest import TestCase, mock
 
 import piexif
 import pytest
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageDraw
 
 from tests.base import (
     skip_unless_avif,
@@ -255,6 +255,86 @@ class PilEngineTestCase(TestCase):
             .getdata()
         )
         assert transparent_pixels_count > 19000
+
+        alpha_histogram = img.convert("RGBA").getchannel("A").histogram()
+        assert sum(alpha_histogram[1:255]) > 0
+
+    def test_should_preserve_gif_transparency_from_indexed_source(self):
+        source = Image.new("P", (200, 200))
+        source.putpalette([255, 0, 0] + [0, 0, 0] * 255)
+        source.paste(1, (0, 100, 200, 200))
+
+        source_buffer = BytesIO()
+        source.save(source_buffer, "GIF", transparency=1)
+
+        engine = Engine(self.context)
+        engine.load(source_buffer.getvalue(), ".gif")
+        engine.resize(100, 100)
+
+        image = Image.open(BytesIO(engine.read(".gif")))
+        rgba_image = image.convert("RGBA")
+
+        assert image.mode == "P"
+        assert image.format == "GIF"
+        assert "transparency" in image.info
+        assert rgba_image.getpixel((50, 25))[3] == 255
+        assert rgba_image.getpixel((50, 75))[3] == 0
+
+    def test_should_preserve_gif_transparency_around_dark_edges(self):
+        source = Image.new("P", (400, 200), 1)
+        source.putpalette([10, 10, 10, 255, 255, 255] + [0, 0, 0] * 254)
+        draw = ImageDraw.Draw(source)
+        for x in range(0, 400, 20):
+            draw.line((x, 20, x + 60, 180), fill=0, width=3)
+
+        source_buffer = BytesIO()
+        source.save(source_buffer, "GIF", transparency=1)
+
+        engine = Engine(self.context)
+        engine.load(source_buffer.getvalue(), ".gif")
+        engine.resize(133, 66)
+
+        image = Image.open(BytesIO(engine.read(".gif")))
+        alpha = image.convert("RGBA").getchannel("A")
+
+        assert "transparency" in image.info
+        assert alpha.getextrema() == (0, 255)
+        assert alpha.getpixel((60, 2)) == 0
+
+    def test_should_keep_opaque_indexed_gif_opaque(self):
+        source = Image.new("P", (200, 200))
+        source.putpalette([255, 0, 0, 0, 0, 255] + [0, 0, 0] * 254)
+        source.paste(1, (0, 100, 200, 200))
+
+        source_buffer = BytesIO()
+        source.save(source_buffer, "GIF")
+
+        engine = Engine(self.context)
+        engine.load(source_buffer.getvalue(), ".gif")
+        engine.resize(100, 100)
+
+        image = Image.open(BytesIO(engine.read(".gif")))
+
+        assert image.mode == "P"
+        assert image.format == "GIF"
+        assert "transparency" not in image.info
+
+    def test_should_keep_gif_opaque_when_transparency_index_is_unused(self):
+        source = Image.new("P", (200, 200))
+        source.putpalette([255, 0, 0, 0, 0, 255] + [0, 0, 0] * 254)
+        source.paste(1, (0, 100, 200, 200))
+
+        source_buffer = BytesIO()
+        source.save(source_buffer, "GIF", transparency=2, optimize=False)
+
+        engine = Engine(self.context)
+        engine.load(source_buffer.getvalue(), ".gif")
+        engine.resize(100, 100)
+
+        image = Image.open(BytesIO(engine.read(".gif")))
+        alpha = image.convert("RGBA").getchannel("A")
+
+        assert alpha.getextrema() == (255, 255)
 
     def test_should_preserve_png_transparency_after_grayscale(self):
         engine = Engine(self.context)
