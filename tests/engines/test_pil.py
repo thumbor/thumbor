@@ -256,6 +256,27 @@ class PilEngineTestCase(TestCase):
         )
         assert transparent_pixels_count > 19000
 
+    def test_should_preserve_gif_transparency_from_indexed_source(self):
+        source = Image.new("P", (200, 200))
+        source.putpalette([255, 0, 0] + [0, 0, 0] * 255)
+        source.paste(1, (0, 100, 200, 200))
+
+        source_buffer = BytesIO()
+        source.save(source_buffer, "GIF", transparency=1)
+
+        engine = Engine(self.context)
+        engine.load(source_buffer.getvalue(), ".gif")
+        engine.resize(100, 100)
+
+        image = Image.open(BytesIO(engine.read(".gif")))
+        rgba_image = image.convert("RGBA")
+
+        assert image.mode == "P"
+        assert image.format == "GIF"
+        assert "transparency" in image.info
+        assert rgba_image.getpixel((50, 25))[3] == 255
+        assert rgba_image.getpixel((50, 75))[3] == 0
+
     def test_should_preserve_png_transparency_after_grayscale(self):
         engine = Engine(self.context)
 
