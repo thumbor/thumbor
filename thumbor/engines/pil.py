@@ -241,6 +241,19 @@ class Engine(BaseEngine):
 
         return ".jpeg"
 
+    def _preserve_gif_transparency(self, unquantized):
+        if unquantized.mode != "RGBA":
+            return
+
+        transparent = unquantized.getchannel("A").point(
+            lambda alpha: 255 if alpha == 0 else 0
+        )
+        histogram = self.image.histogram(transparent)
+        most_common = max(histogram)
+
+        if most_common:
+            self.image.info["transparency"] = histogram.index(most_common)
+
     # TODO: Refactor this
     def read(  # noqa
         self, extension=None, quality=None
@@ -276,7 +289,11 @@ class Engine(BaseEngine):
                     if pillow_features.check("libimagequant")
                     else None
                 )
+                unquantized = self.image
                 self.image = self.image.quantize(method=quantize_method)
+
+                if requested_extension == ".gif":
+                    self._preserve_gif_transparency(unquantized)
 
         ext = requested_extension or self.get_default_extension()
 
