@@ -166,6 +166,20 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         assert response.code == 200
 
     @gen_test
+    async def test_no_upscale_accepts_original_dimensions(self):
+        response = await self.async_fetch(
+            "/unsafe/fit-in/origxorig/"
+            "filters:no_upscale():format(png)/20x20.jpg"
+        )
+
+        assert response.code == 200
+
+        engine = Engine(self.context)
+        engine.load(response.body, ".png")
+
+        assert engine.size == (20, 20)
+
+    @gen_test
     async def test_can_get_image_with_invalid_quantization_table(self):
         response = await self.async_fetch("/unsafe/invalid_quantization.jpg")
         assert response.code == 200
