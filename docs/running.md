@@ -22,7 +22,13 @@ The port that Tornado will listen for incoming request. It defaults to *8888*.
 
 ## -c or --conf
 
-The full path for the configuration file for this server.
+Path to the configuration file for this server. The path may be absolute or
+relative to the current working directory. Shell shortcuts such as `~` are not
+expanded by thumbor; use an expanded path such as
+`--conf="$HOME/mythumbor.conf"`.
+
+If this option is omitted, thumbor searches for `thumbor.conf` as described in
+{doc}`configuration`.
 
 ## -k or --keyfile
 
@@ -34,6 +40,13 @@ server.
 The log level to be used. Possible values are: *debug*, *info*, *warning*,
 *error*, *critical* or *notset*. More on that at
 <http://docs.python.org/library/logging.html>. It defaults to *warning*.
+
+## --use-environment
+
+Enables legacy environment overrides. This option currently requires a value,
+for example `--use-environment=true`. Variable names are unprefixed and must
+exactly match configuration keys. Values remain strings. For names, typing and
+precedence, see {doc}`configuration`.
 
 ## --processes
 

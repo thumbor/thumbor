@@ -16,7 +16,7 @@ The table below show all configuration parameters to manage image upload:
 | UPLOAD_DELETE_ALLOWED   | False        | Allow image deletion           |
 | UPLOAD_PHOTO_STORAGE    | file_storage | Upload storage                 |
 | UPLOAD_DEFAULT_FILENAME | image        | Default uploaded filename      |
-| UPLOAD_MAX_SIZE         | 0            | Maximum upload size in KB      |
+| UPLOAD_MAX_SIZE         | 0            | Maximum upload size in bytes   |
 | MIN_WIDTH               | 1            | Minimum image width in pixels  |
 | MIN_HEIGHT              | 1            | Minimum image height in pixels |
 
