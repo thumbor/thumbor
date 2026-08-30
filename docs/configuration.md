@@ -601,8 +601,10 @@ SQS_QUEUE_REGION = 'us-east-1'
 This option specifies the security key that thumbor uses to sign secure URLs.
 
 ```python
-1234567890123456
+SECURITY_KEY = "replace-this-with-a-secret-key"
 ```
+
+Do not use the example value in production.
 
 ### ALLOW_UNSAFE_URL
 
