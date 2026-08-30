@@ -12,11 +12,10 @@ GET to it. It then returns the image's string representation.
 The http loader uses the **ALLOWED_SOURCES** configuration to determine whether
 or not an image is from a trusted source and can thus be loaded.
 
-You can specify the maximum size of the source image to be loaded. The http
-loader first gets the image size (without loading its contents), checks against
-your specified size and returns 404 if the source image size is larger than the
-max size. The max size option is **MAX_SOURCE_SIZE** and the default is no
-maximum size.
+`MAX_SOURCE_SIZE` remains present in the bundled legacy configuration, but the
+current HTTP loader does not consult it. Setting it does not limit downloaded
+bytes. Enforce a source-size limit in a reverse proxy or custom loader if your
+deployment requires one.
 
 To use it you should set the **LOADER** configuration to
 **'thumbor.loaders.http_loader'**.
