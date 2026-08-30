@@ -676,7 +676,7 @@ allowing thumbor to do it (as many of thumbor users do).
 ```
 
 ```python
-STORAGE_CRYPTO_KEY_FOR_EACH_IMAGE = True
+STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
 ```
 
 ## File Storage Section
