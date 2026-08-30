@@ -12,14 +12,60 @@ The face detector in the thumbor repository demonstrates how easy it is to
 implement your own custom detector. Its source lives at
 [`thumbor/detectors/face_detector/__init__.py`][face-detector].
 
-All you have to do is create a class that inherits from BaseDetector and
-implement a detect method that receives a context dictionary.
+A detector module must expose a class named `Detector` that inherits from
+`thumbor.detectors.BaseDetector`. Thumbor constructs it with the current
+request context, its position in the configured detector list, and the complete
+detector list.
 
-In the context dictionary there's a key called "focal_points" to which you
-should append any focal points you found in the picture (using the FocalPoint
-class).
+Implement an asynchronous `detect(self)` method. Focal points found by the
+detector should be appended to `self.context.request.focal_points`. If the
+detector finds no points, call `await self.next()` so the next configured
+detector can run.
 
-If your detector does not find any points, simple call the next() method passing
-in the context, so further detection can occur.
+`detect` should return `None`, as the example below does. Thumbor only reads
+the return value of the first detector. A non-`None` value is treated as a list
+of focal-point dictionaries and each item is passed to `FocalPoint.from_dict`,
+so returning `FocalPoint` objects fails. The return values of detectors reached
+through `self.next()` are discarded.
+
+```python
+from thumbor.detectors import BaseDetector
+from thumbor.point import FocalPoint
+
+
+class Detector(BaseDetector):
+    async def detect(self):
+        # Replace this with the detector's own image-analysis result.
+        detected_rectangles = []
+
+        if not detected_rectangles:
+            await self.next()
+            return
+
+        for left, top, width, height in detected_rectangles:
+            self.context.request.focal_points.append(
+                FocalPoint.from_square(
+                    left,
+                    top,
+                    width,
+                    height,
+                    origin="my-detector",
+                )
+            )
+```
+
+Add the module, not the class name, to `DETECTORS`:
+
+```python
+DETECTORS = [
+    "mylib.detectors.my_detector",
+]
+```
+
+Detector order is significant. Thumbor instantiates and calls only the first
+detector in this list; `await self.next()` constructs and invokes the next one.
+Focal points produced by a detection run are cached in the configured
+`STORAGE` with `put_detector_data`, keyed by the image URL, and later requests
+read them back with `get_detector_data` instead of running the detectors.
 
 [face-detector]: https://github.com/thumbor/thumbor/blob/master/thumbor/detectors/face_detector/__init__.py
