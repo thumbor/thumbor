@@ -163,7 +163,7 @@ Verifying security...
         Unsafe URLs are enabled.
 
     Error Description:
-        It is STRONGLY recommended that you turn off ALLOW_UNSAFE_URLS flag in production environments as this can lead to DDoS attacks against thumbor.
+        It is STRONGLY recommended that you turn off ALLOW_UNSAFE_URL flag in production environments as this can lead to DDoS attacks against thumbor.
 \tFor more information visit https://thumbor.readthedocs.io/en/latest/security.html
 
 ❓Need Help❓
