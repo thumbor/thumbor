@@ -660,12 +660,12 @@ FILE_LOADER_ROOT_PATH = "/home/thumbor/images"
 
 ### HTTP_LOADER_DEFAULT_USER_AGENT
 
-This option allows users to specify the default user-agent that thumbor will
-send when requesting images with the HTTP Loader. Defaults to 'thumbor/' (like
-thumbor/7.0.0).
+This option allows users to specify the default User-Agent that thumbor sends
+when requesting images with the HTTP Loader. Its default is generated from the
+installed thumbor version, in the form `Thumbor/<version>`.
 
 ```python
-HTTP_LOADER_DEFAULT_USER_AGENT = 'thumbor/7.0.0'
+HTTP_LOADER_DEFAULT_USER_AGENT = "my-image-service/1.0"
 ```
 
 ### HTTP_LOADER_FORWARD_USER_AGENT
