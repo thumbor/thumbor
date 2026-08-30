@@ -105,30 +105,34 @@ For more information about the official Docker image, visit the
 
 #### Configuring the Docker Image
 
-Thumbor can be configured in Docker using environment variables or config files.
+The official image uses `thumbor` as its entry point. Pass thumbor command-line
+arguments after the image name.
 
-**Environment Variables**
-
-Use the `THUMBOR_` prefix to set configuration options:
-
-```bash
-docker run -p 8888:8888 \
-  -e THUMBOR_SECURITY_KEY=my-secret-key \
-  -e THUMBOR_QUALITY=85 \
-  ghcr.io/thumbor/thumbor:latest
-```
-
-**Configuration File**
-
-Mount a config file for complex configurations:
+To use a configuration file, mount it at one of thumbor's normal lookup
+locations:
 
 ```bash
 docker run -p 8888:8888 \
-  -v /path/to/thumbor.conf:/etc/thumbor/thumbor.conf \
+  -v /path/to/thumbor.conf:/etc/thumbor.conf:ro \
   ghcr.io/thumbor/thumbor:latest
 ```
 
-Generate a template config with `thumbor-config > thumbor.conf`.
+Alternatively, mount it at another location and select it explicitly:
+
+```bash
+docker run -p 8888:8888 \
+  -v /path/to/thumbor.conf:/opt/thumbor/thumbor.conf:ro \
+  ghcr.io/thumbor/thumbor:latest \
+  --conf=/opt/thumbor/thumbor.conf
+```
+
+The official image does not translate `THUMBOR_*` environment variables into
+thumbor configuration. If you explicitly enable the core legacy environment
+mode, use exact, unprefixed configuration names and remember that their values
+remain strings; see {doc}`configuration`.
+
+Generate a template with `thumbor-config > thumbor.conf` on an installed copy
+of thumbor.
 
 For more detailed configuration options, see the {doc}`configuration`
 documentation.
