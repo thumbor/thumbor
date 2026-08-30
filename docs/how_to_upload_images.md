@@ -16,7 +16,7 @@ The table below show all configuration parameters to manage image upload:
 | UPLOAD_DELETE_ALLOWED   | False                         | Indicates whether image deletion should be allowed   |
 | UPLOAD_PHOTO_STORAGE    | thumbor.storages.file_storage | The type of storage to store uploaded images with    |
 | UPLOAD_DEFAULT_FILENAME | image                         | Default filename for image uploaded                  |
-| UPLOAD_MAX_SIZE         | 0                             | Max size in Kb for images uploaded to thumbor        |
+| UPLOAD_MAX_SIZE         | 0                             | Max size in bytes for images uploaded to thumbor     |
 | MIN_WIDTH               | 1                             | Min width in pixels for images uploaded              |
 | MIN_HEIGHT              | 1                             | Min height in pixels for images uploaded             |
 
