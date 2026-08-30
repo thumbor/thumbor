@@ -4,9 +4,11 @@ Let's see how would you run thumbor in different environments.
 
 ## Development Environment
 
-For running it locally you just need to get a proper {doc}`configuration` file.
-You can put it at `/etc/thumbor.conf`, `~/thumbor.conf` (home folder) or specify
-it when starting thumbor.
+For local development, put `thumbor.conf` in the current working directory,
+the current user's home directory, or `/etc/thumbor.conf`. If no file exists in
+those locations, thumbor uses the configuration bundled with the installed
+package. You can select another file with `-c` or `--conf`; see
+{doc}`configuration` for the complete lookup order.
 
 To verify if you have thumbor, just type:
 
@@ -40,7 +42,7 @@ Other than that, you run it using the thumbor console app specifying the
 arguments, like this:
 
 ```bash
-thumbor --port=8888 --conf="~/mythumbor.conf"
+thumbor --port=8888 --conf="$HOME/mythumbor.conf"
 ```
 
 We recommend using an application such as Supervisor

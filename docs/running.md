@@ -22,7 +22,13 @@ The port that Tornado will listen for incoming request. It defaults to *8888*.
 
 ## -c or --conf
 
-The full path for the configuration file for this server.
+Path to the configuration file for this server. The path may be absolute or
+relative to the current working directory. Shell shortcuts such as `~` are not
+expanded by thumbor; use an expanded path such as
+`--conf="$HOME/mythumbor.conf"`.
+
+If this option is omitted, thumbor searches for `thumbor.conf` as described in
+{doc}`configuration`.
 
 ## -k or --keyfile
 
