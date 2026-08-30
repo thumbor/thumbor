@@ -390,7 +390,7 @@ def check_security(cfg):
                 "Security",
                 "Unsafe URLs are enabled.",
                 "It is STRONGLY recommended that you turn off "
-                "ALLOW_UNSAFE_URLS flag in production environments "
+                "ALLOW_UNSAFE_URL flag in production environments "
                 "as this can lead to DDoS attacks against thumbor.\n"
                 "For more information visit "
                 "https://thumbor.readthedocs.io/en/latest/security.html",
