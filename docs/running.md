@@ -41,6 +41,13 @@ The log level to be used. Possible values are: *debug*, *info*, *warning*,
 *error*, *critical* or *notset*. More on that at
 <http://docs.python.org/library/logging.html>. It defaults to *warning*.
 
+## --use-environment
+
+Enables legacy environment overrides. This option currently requires a value,
+for example `--use-environment=true`. Variable names are unprefixed and must
+exactly match configuration keys. Values remain strings. For names, typing and
+precedence, see {doc}`configuration`.
+
 ## --processes
 
 Number of processes to run. By default equals 1 and means no forks created. Set
