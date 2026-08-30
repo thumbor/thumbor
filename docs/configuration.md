@@ -22,12 +22,23 @@ In order to get a commented configuration file, just run:
 thumbor-config > ./thumbor.conf
 ```
 
-## Override config through environment variable
+## Override configuration through environment variables
 
-It is possible override **string configs** through environment variables. This
-is possible because thumbor uses
-[derpconf](https://github.com/globocom/derpconf) to abstract loading
-configuration and derpconf allows this.
+Environment overrides are disabled by default. To enable the legacy derpconf
+environment lookup, pass a value to `--use-environment`, for example:
+
+```bash
+SECURITY_KEY=my-secret-key thumbor --use-environment=true
+```
+
+The environment variable name must exactly match the configuration key; there
+is no prefix. Environment values are returned as strings and override values
+loaded from `thumbor.conf` whenever that key is read. Consequently, this mode
+is safe only for string-valued settings. Boolean, integer, list, dictionary and
+other typed settings should remain in `thumbor.conf`.
+
+`--use-environment` currently requires a value. A bare `--use-environment`
+argument is not accepted.
 
 ## Extensibility Section
 
