@@ -867,13 +867,9 @@ UPLOAD_DEFAULT_FILENAME = 'image'
 
 ### GC_INTERVAL
 
-Set manual garbage collection interval in seconds. Defaults to None (no manual
-garbage collection). Try this if your thumbor is running out of memory. May
-cause an increase in CPU load.
-
-```python
-GC_INTERVAL = 60
-```
+`GC_INTERVAL` is retained in the configuration registry for compatibility, but
+the current Thumbor server does not consume it. Setting it has no effect. Use
+runtime and container memory controls instead of relying on this option.
 
 ## Generate a configuration template
 
