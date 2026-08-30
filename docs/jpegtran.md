@@ -29,7 +29,7 @@ OPTIMIZERS = [
 You can also manually specify the jpegtran path, like this:
 
 ```python
-JPEGTRAN_PATH=/usr/local/bin/jpegtran
+JPEGTRAN_PATH = "/usr/local/bin/jpegtran"
 ```
 
 Once activated, no extra url parameters are needed - jpegtran will run on all
