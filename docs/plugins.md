@@ -26,6 +26,40 @@ and Python value types exactly as documented by the plugin. Moving a list,
 boolean, number, dictionary or `None` from `thumbor.conf` to the legacy
 environment-variable interface changes it to a string.
 
+## Defining plugin configuration
+
+Plugin modules should register their defaults through `thumbor.config.Config`
+when they are imported:
+
+```python
+from thumbor.config import Config
+
+
+Config.define(
+    "MY_PLUGIN_TIMEOUT",
+    5,
+    "Maximum time in seconds for my plugin operation",
+    "My Plugin",
+)
+```
+
+Always import `Config` from `thumbor.config`, not directly from `derpconf`.
+Thumbor keeps the definition registry live, so a setting registered while a
+configured plugin is imported becomes available to the already loaded config.
+An explicit value from `thumbor.conf` continues to take precedence over the
+plugin default:
+
+```python
+MY_PLUGIN_TIMEOUT = 10
+LOADER = "my_plugin.loader"
+```
+
+The legacy Python loader also preserves uppercase plugin settings that have no
+registered default. Registration is still recommended because it supplies a
+default, description and group metadata. Plugin code can read the resolved
+value through the configuration object it receives directly or through
+`context.config`.
+
 ## Storages
 
 ### [thumbor_aws](https://github.com/thumbor-community/aws)
