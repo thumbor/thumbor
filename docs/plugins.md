@@ -1,10 +1,64 @@
 # Plugins
 
-With its pluggable architecture, thumbor provides extension points for a myriad
-of plug-in: storages, loaders, detectors, filters.
+With its pluggable architecture, Thumbor provides extension points for
+storages, result storages, loaders, detectors, filters, engines, optimizers,
+metrics, error handlers and handler lists.
 
 If your plug-in is not listed here, please create an issue with the details and
 we'll add it here.
+
+```{important}
+The projects listed here are maintained independently and may target different
+Thumbor or Python versions. Before deploying one, verify its supported
+versions, release status and configuration in the plugin's own documentation.
+A listing on this page is not a compatibility guarantee.
+```
+
+Thumbor configuration values name importable Python modules. Depending on the
+extension point, the module must expose the class expected by Thumbor:
+`Storage`, `Engine`, `Optimizer`, `Detector`, `Filter`, `Metrics` or
+`ErrorHandler`. Loader and handler-list entries are module-based interfaces.
+See the corresponding customization guide for current method signatures.
+
+Plugins may define configuration keys that are not part of Thumbor core. Those
+keys are available to the plugin through `context.config`; keep their spelling
+and Python value types exactly as documented by the plugin. Moving a list,
+boolean, number, dictionary or `None` from `thumbor.conf` to the legacy
+environment-variable interface changes it to a string.
+
+## Defining plugin configuration
+
+Plugin modules should register their defaults through `thumbor.config.Config`
+when they are imported:
+
+```python
+from thumbor.config import Config
+
+
+Config.define(
+    "MY_PLUGIN_TIMEOUT",
+    5,
+    "Maximum time in seconds for my plugin operation",
+    "My Plugin",
+)
+```
+
+Always import `Config` from `thumbor.config`, not directly from `derpconf`.
+Thumbor keeps the definition registry live, so a setting registered while a
+configured plugin is imported becomes available to the already loaded config.
+An explicit value from `thumbor.conf` continues to take precedence over the
+plugin default:
+
+```python
+MY_PLUGIN_TIMEOUT = 10
+LOADER = "my_plugin.loader"
+```
+
+The legacy Python loader also preserves uppercase plugin settings that have no
+registered default. Registration is still recommended because it supplies a
+default, description and group metadata. Plugin code can read the resolved
+value through the configuration object it receives directly or through
+`context.config`.
 
 ## Storages
 
@@ -24,8 +78,8 @@ and/or a result storage.
 - *URL:* <https://github.com/thumbor-community/aws>
 - *Installing:* `pip install tc_aws`
 
-To get exhaustive details about configuration options & setting it up, go to the
-[documentation of the plugin](https://github.com/thumbor-community).
+For complete, version-specific configuration, use the documentation in the
+plugin repository linked above.
 
 ### [thumbor_hbase](https://github.com/dhardy92/thumbor_hbase)
 

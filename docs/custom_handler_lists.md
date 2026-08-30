@@ -10,8 +10,8 @@ added using handler lists(healthcheck, blacklist...).
 Thumbor comes with three handler lists built-in:
 
 - `thumbor.handler_lists.healthcheck`;
-- `thumbor.handler_lists.blacklist`;
-- `thumbor.handler_lists.upload`.
+- `thumbor.handler_lists.upload`;
+- `thumbor.handler_lists.blacklist`.
 
 The healthcheck handler list adds a handler at whatever is in the
 `HEALTHCHECK_ROUTE` config.
@@ -24,22 +24,32 @@ images.
 
 ## Writing a new Handler List
 
-Creating your own handler list is as simple as creating a new module with a
-`get_handlers` method:
+A handler list is an importable Python module with a synchronous
+`get_handlers(context)` function. The function receives thumbor's application
+context and returns a list of Tornado handler specifications.
+
+The third item in a handler specification is passed to the handler's
+`initialize` method. Handlers that inherit from `ContextHandler` should receive
+thumbor's context using `{"context": context}`.
 
 ```python
-from typing import Any, cast
+from typing import Any
 
 from thumbor.handler_lists import HandlerList
+from thumbor.handlers import ContextHandler
 
-from my.handlers.index import IndexHandler
+
+class IndexHandler(ContextHandler):
+    async def get(self):
+        self.write("Hello from my handler")
+
 
 def get_handlers(context: Any) -> HandlerList:
-    something_enabled = cast(bool, self.context.config.SOMETHING_ENABLED)
-    if not something_enabled:
+    if not context.config.get("SOMETHING_ENABLED", False):
         return []
+
     return [
-        (r"/my-url/?", IndexHandler, {"context": self.context}),
+        (r"/my-url/?", IndexHandler, {"context": context}),
     ]
 ```
 
@@ -57,3 +67,8 @@ HANDLER_LISTS = BUILTIN_HANDLERS + [
     "my.handler_list",
 ]
 ```
+
+Handler lists are evaluated in configuration order, and the first matching
+route is used. The built-in imaging route is appended after every configured
+handler list. Keep `BUILTIN_HANDLERS` unless you intentionally want to remove
+thumbor's healthcheck, upload, and blacklist routes.
