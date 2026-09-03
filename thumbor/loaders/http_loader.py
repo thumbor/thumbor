@@ -12,6 +12,7 @@ import re
 import socket
 from typing import Pattern
 from urllib.parse import quote, unquote, urlparse
+from urllib.request import getproxies_environment, proxy_bypass_environment
 
 import tornado.httpclient
 
@@ -43,6 +44,41 @@ def encode(string):
 
 def quote_url(url):
     return encode_url(unquote(url))
+
+
+def _proxy_bypass_host(parsed_url):
+    if not parsed_url.hostname:
+        return ""
+
+    try:
+        port = parsed_url.port
+    except ValueError:
+        port = None
+
+    if port:
+        return f"{parsed_url.hostname}:{port}"
+
+    return parsed_url.hostname
+
+
+def _get_environment_proxy(
+    url,
+    getproxies_fn=getproxies_environment,
+    proxy_bypass_fn=proxy_bypass_environment,
+):
+    parsed_url = urlparse(url)
+    if not parsed_url.scheme or not parsed_url.hostname:
+        return None, False
+
+    proxies = getproxies_fn()
+    proxy_url = proxies.get(parsed_url.scheme.lower()) or proxies.get("all")
+    if not proxy_url:
+        return None, False
+
+    if proxy_bypass_fn(_proxy_bypass_host(parsed_url), proxies):
+        return None, True
+
+    return proxy_url, True
 
 
 def _normalize_url(url):
@@ -141,15 +177,24 @@ async def load(
     return_contents_fn=return_contents,
     encode_fn=encode,
 ):
-    using_proxy = (
+    url = normalize_url_func(url)
+    environment_proxy_url, has_environment_proxy = _get_environment_proxy(url)
+    using_config_proxy = (
         context.config.HTTP_LOADER_PROXY_HOST
         and context.config.HTTP_LOADER_PROXY_PORT
     )
-    if using_proxy or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT:
+    if (
+        using_config_proxy
+        or has_environment_proxy
+        or context.config.HTTP_LOADER_CURL_ASYNC_HTTP_CLIENT
+    ):
         http_client_implementation = (
             "tornado.curl_httpclient.CurlAsyncHTTPClient"
         )
-        prepare_curl_callback = _get_prepare_curl_callback(context.config)
+        prepare_curl_callback = _get_prepare_curl_callback(
+            context.config,
+            None if using_config_proxy else environment_proxy_url,
+        )
     else:
         http_client_implementation = None  # default
         prepare_curl_callback = None
@@ -182,7 +227,6 @@ async def load(
     if user_agent is None and "User-Agent" not in headers:
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
 
-    url = normalize_url_func(url)
     req = tornado.httpclient.HTTPRequest(
         url=url,
         headers=headers,
@@ -222,18 +266,32 @@ async def load(
     )
 
 
-def _get_prepare_curl_callback(config):
-    if (
-        config.HTTP_LOADER_CURL_LOW_SPEED_TIME == 0
-        or config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT == 0
-    ):
+def _get_prepare_curl_callback(config, environment_proxy_url=None):
+    using_low_speed_timeout = (
+        config.HTTP_LOADER_CURL_LOW_SPEED_TIME != 0
+        and config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT != 0
+    )
+    if not using_low_speed_timeout and not environment_proxy_url:
         return None
 
     class CurlOpts:
-        def __init__(self, config):
+        def __init__(
+            self,
+            config,
+            environment_proxy_url,
+            using_low_speed_timeout,
+        ):
             self.config = config
+            self.environment_proxy_url = environment_proxy_url
+            self.using_low_speed_timeout = using_low_speed_timeout
 
         def prepare_curl_callback(self, curl):
+            if self.environment_proxy_url:
+                curl.setopt(curl.PROXY, self.environment_proxy_url)
+
+            if not self.using_low_speed_timeout:
+                return
+
             curl.setopt(
                 curl.LOW_SPEED_TIME,
                 self.config.HTTP_LOADER_CURL_LOW_SPEED_TIME,
@@ -243,4 +301,8 @@ def _get_prepare_curl_callback(config):
                 self.config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT,
             )
 
-    return CurlOpts(config).prepare_curl_callback
+    return CurlOpts(
+        config,
+        environment_proxy_url,
+        using_low_speed_timeout,
+    ).prepare_curl_callback

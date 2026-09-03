@@ -10,6 +10,7 @@
 # Test file
 # pylint: disable=protected-access
 
+import os
 import re
 import time
 from os.path import abspath, dirname, join
@@ -62,6 +63,18 @@ class HandlerMock:
 class RequestMock:
     def __init__(self, headers):
         self.headers = headers
+
+
+class CurlMock:
+    LOW_SPEED_LIMIT = "LOW_SPEED_LIMIT"
+    LOW_SPEED_TIME = "LOW_SPEED_TIME"
+    PROXY = "PROXY"
+
+    def __init__(self):
+        self.options = {}
+
+    def setopt(self, option, value):
+        self.options[option] = value
 
 
 class ResponseMock:
@@ -205,6 +218,91 @@ class NormalizeUrlTestCase(TestCase):
         assert result == expected
 
 
+class EnvironmentProxyTestCase(TestCase):
+    def test_should_use_http_proxy_environment_variable(self):
+        env = {"http_proxy": "http://proxy.example:3128"}
+        with mock.patch.dict(os.environ, env, clear=True):
+            proxy_url, has_environment_proxy = loader._get_environment_proxy(
+                "http://images.example/image.jpg"  # NOSONAR
+            )
+
+        assert proxy_url == "http://proxy.example:3128"
+        assert has_environment_proxy
+
+    def test_should_use_https_proxy_environment_variable(self):
+        env = {"https_proxy": "http://proxy.example:3128"}
+        with mock.patch.dict(os.environ, env, clear=True):
+            proxy_url, has_environment_proxy = loader._get_environment_proxy(
+                "https://images.example/image.jpg"
+            )
+
+        assert proxy_url == "http://proxy.example:3128"
+        assert has_environment_proxy
+
+    def test_should_fallback_to_all_proxy_environment_variable(self):
+        env = {"all_proxy": "http://proxy.example:3128"}
+        with mock.patch.dict(os.environ, env, clear=True):
+            proxy_url, has_environment_proxy = loader._get_environment_proxy(
+                "https://images.example/image.jpg"
+            )
+
+        assert proxy_url == "http://proxy.example:3128"
+        assert has_environment_proxy
+
+    def test_should_respect_no_proxy_environment_variable(self):
+        env = {
+            "http_proxy": "http://proxy.example:3128",
+            "no_proxy": "images.example:8888",
+        }
+        with mock.patch.dict(os.environ, env, clear=True):
+            proxy_url, has_environment_proxy = loader._get_environment_proxy(
+                "http://images.example:8888/image.jpg"  # NOSONAR
+            )
+
+        assert proxy_url is None
+        assert has_environment_proxy
+
+    def test_should_ignore_no_proxy_without_proxy_environment_variable(self):
+        env = {"no_proxy": "images.example"}
+        with mock.patch.dict(os.environ, env, clear=True):
+            proxy_url, has_environment_proxy = loader._get_environment_proxy(
+                "http://images.example/image.jpg"  # NOSONAR
+            )
+
+        assert proxy_url is None
+        assert not has_environment_proxy
+
+
+class PrepareCurlCallbackTestCase(TestCase):
+    def test_should_return_none_without_curl_options(self):
+        assert loader._get_prepare_curl_callback(Config()) is None
+
+    def test_should_set_environment_proxy_url(self):
+        callback = loader._get_prepare_curl_callback(
+            Config(), "http://proxy.example:3128"
+        )
+        curl = CurlMock()
+
+        callback(curl)
+
+        assert curl.options[CurlMock.PROXY] == "http://proxy.example:3128"
+
+    def test_should_set_proxy_and_low_speed_options(self):
+        config = Config()
+        config.HTTP_LOADER_CURL_LOW_SPEED_TIME = 1
+        config.HTTP_LOADER_CURL_LOW_SPEED_LIMIT = 100
+        callback = loader._get_prepare_curl_callback(
+            config, "http://proxy.example:3128"
+        )
+        curl = CurlMock()
+
+        callback(curl)
+
+        assert curl.options[CurlMock.PROXY] == "http://proxy.example:3128"
+        assert curl.options[CurlMock.LOW_SPEED_TIME] == 1
+        assert curl.options[CurlMock.LOW_SPEED_LIMIT] == 100
+
+
 class DummyAsyncHttpClientTestCase(TestCase):
     # By default Tornado allows to create one (Async)HttpClient per
     # IOLoop instance
@@ -232,6 +330,91 @@ class HttpLoaderTestCase(DummyAsyncHttpClientTestCase):
         application = tornado.web.Application([(r"/", MainHandler)])
 
         return application
+
+    @gen_test
+    async def test_load_should_configure_environment_proxy(self):
+        config = Config()
+        ctx = Context(None, config, None)
+        client = mock.Mock()
+        client.fetch = mock.AsyncMock(
+            return_value=ResponseMock(body=b"Hello", code=200)
+        )
+        prepare_curl_callback = mock.Mock()
+        return_contents = mock.Mock(return_value=mock.sentinel.result)
+        env = {"http_proxy": "http://proxy.example:3128"}
+
+        with (
+            mock.patch.dict(os.environ, env, clear=True),
+            mock.patch.object(
+                loader,
+                "_get_prepare_curl_callback",
+                return_value=prepare_curl_callback,
+            ) as get_prepare_curl_callback,
+            mock.patch.object(
+                tornado.httpclient,
+                "AsyncHTTPClient",
+                return_value=client,
+            ) as async_http_client,
+        ):
+            result = await loader.load(
+                ctx,
+                "images.example/image.jpg",
+                return_contents_fn=return_contents,
+            )
+
+        async_http_client.configure.assert_called_once_with(
+            "tornado.curl_httpclient.CurlAsyncHTTPClient",
+            max_clients=config.HTTP_LOADER_MAX_CLIENTS,
+        )
+        get_prepare_curl_callback.assert_called_once_with(
+            config, "http://proxy.example:3128"
+        )
+        request = client.fetch.await_args.args[0]
+        assert request.url == "http://images.example/image.jpg"  # NOSONAR
+        assert request.prepare_curl_callback is prepare_curl_callback
+        assert result is mock.sentinel.result
+
+    @gen_test
+    async def test_load_should_not_apply_proxy_for_no_proxy_target(self):
+        config = Config()
+        ctx = Context(None, config, None)
+        client = mock.Mock()
+        client.fetch = mock.AsyncMock(
+            return_value=ResponseMock(body=b"Hello", code=200)
+        )
+        return_contents = mock.Mock(return_value=mock.sentinel.result)
+        env = {
+            "http_proxy": "http://proxy.example:3128",
+            "no_proxy": "images.example",
+        }
+
+        with (
+            mock.patch.dict(os.environ, env, clear=True),
+            mock.patch.object(
+                loader,
+                "_get_prepare_curl_callback",
+                wraps=loader._get_prepare_curl_callback,
+            ) as get_prepare_curl_callback,
+            mock.patch.object(
+                tornado.httpclient,
+                "AsyncHTTPClient",
+                return_value=client,
+            ) as async_http_client,
+        ):
+            result = await loader.load(
+                ctx,
+                "http://images.example/image.jpg",  # NOSONAR
+                return_contents_fn=return_contents,
+            )
+
+        async_http_client.configure.assert_called_once_with(
+            "tornado.curl_httpclient.CurlAsyncHTTPClient",
+            max_clients=config.HTTP_LOADER_MAX_CLIENTS,
+        )
+        get_prepare_curl_callback.assert_called_once_with(config, None)
+        request = client.fetch.await_args.args[0]
+        assert request.prepare_curl_callback is None
+        assert result is mock.sentinel.result
 
     @gen_test
     async def test_load_with_callback(self):

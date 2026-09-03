@@ -1296,6 +1296,10 @@ Example of Configuration File
    ## Defaults to: None
    #HTTP_LOADER_PROXY_PASSWORD = None
 
+   ## When HTTP_LOADER_PROXY_HOST/PORT are not set, the HTTP loader also
+   ## honors http_proxy, https_proxy, all_proxy and no_proxy environment
+   ## variables. Targets matching no_proxy bypass the environment proxy.
+
    ## The filename of CA certificates in PEM format
    ## Defaults to: None
    #HTTP_LOADER_CA_CERTS = None
