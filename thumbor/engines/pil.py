@@ -241,6 +241,16 @@ class Engine(BaseEngine):
 
         return ".jpeg"
 
+    def _preserve_gif_transparency(self):
+        """Set GIF's transparency index from an RGBA palette."""
+        if self.image.palette is None or self.image.palette.mode != "RGBA":
+            return
+
+        for color, index in self.image.palette.colors.items():
+            if color[3] == 0:
+                self.image.info["transparency"] = index
+                return
+
     # TODO: Refactor this
     def read(  # noqa
         self, extension=None, quality=None
@@ -277,6 +287,9 @@ class Engine(BaseEngine):
                     else None
                 )
                 self.image = self.image.quantize(method=quantize_method)
+
+                if requested_extension == ".gif":
+                    self._preserve_gif_transparency()
 
         ext = requested_extension or self.get_default_extension()
 
