@@ -228,6 +228,31 @@ class GifPostTransformFiltersTestCase(TestCase):
             assert result.n_frames == len(self.colors)
 
     @gen_test
+    async def test_canvas_filters_keep_animated_gif_frame_durations(self):
+        durations = [100, 200, 6010]
+        frames = [Image.new("RGB", (16, 8), color) for color in self.colors]
+        frames[0].save(
+            self.loader_path / "timed.gif",
+            save_all=True,
+            append_images=frames[1:],
+            duration=durations,
+            loop=0,
+        )
+        for path in (
+            "fit-in/8x8/filters:fill(blue)",
+            "filters:background_color(blue)",
+            "filters:frame(frame.png)",
+        ):
+            with self.subTest(path=path):
+                response = await self.async_fetch(f"/unsafe/{path}/timed.gif")
+                assert response.code == 200
+                with Image.open(BytesIO(response.body)) as result:
+                    assert [
+                        frame.info.get("duration")
+                        for frame in ImageSequence.Iterator(result)
+                    ] == durations
+
+    @gen_test
     async def test_max_bytes_stops_when_animation_ignores_quality(self):
         with mock.patch.object(
             Engine,

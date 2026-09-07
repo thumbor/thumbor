@@ -8,6 +8,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from io import BytesIO
+from itertools import chain, repeat
 
 import piexif
 from JpegIPTC import JpegIPTC
@@ -82,6 +83,7 @@ class Engine(BaseEngine):
         self.exif = None
         self.iptc = None
         self._webp_loop = 0
+        self.frame_durations = []
 
         try:
             if self.context.config.MAX_PIXELS is None or int(
@@ -191,6 +193,9 @@ class Engine(BaseEngine):
                 frames.append(frame.convert("P"))
             img.seek(0)
             self.frame_count = len(frames)
+            self.frame_durations = [
+                frame.info.get("duration", 80) for frame in frames
+            ]
 
             return frames
 
@@ -602,13 +607,19 @@ class Engine(BaseEngine):
                 image.convert("RGBA") if image.mode == "LA" else image
                 for image in images
             ]
+        # fill(), background_color() and frame() replace each frame with a
+        # new canvas, which has no duration of its own
+        loaded_durations = chain(self.frame_durations, repeat(80))
         with BytesIO() as img_buffer:
             images[0].save(
                 img_buffer,
                 self.image.format,
                 save_all=True,
                 append_images=images[1:],
-                duration=[im.info.get("duration", 80) / 1000 for im in images],
+                duration=[
+                    image.info.get("duration", loaded)
+                    for image, loaded in zip(images, loaded_durations)
+                ],
                 loop=int(self.image.info.get("loop", 1)),
             )
             return img_buffer.getvalue()
