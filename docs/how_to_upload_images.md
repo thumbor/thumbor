@@ -64,13 +64,14 @@ In order to upload a new image, you have two choices:
   file field called media (Form style).
 
 In the REST style mode you may add an optional `Slug` header to define the image
-filename, which is useful for SEO reasons. Not specifying a `Slug` causes the
-server to use the default filename for the image (`UPLOAD_DEFAULT_FILENAME`
-parameter) .
+filename, which is useful for SEO reasons. As RFC 5023 defines it, the `Slug`
+value is percent-encoded UTF-8, so `photo%20name.jpg` names the image
+`photo name.jpg`. Not specifying a `Slug` causes the server to use the default
+filename for the image (`UPLOAD_DEFAULT_FILENAME` parameter) .
 
 The HTTP response will return a `Location` header pointing on the uploaded
-image. The URI presented in `Location` header may be used to update or delete
-the image uploaded (see below).
+image, with the filename percent-encoded. The URI presented in `Location`
+header may be used to update or delete the image uploaded (see below).
 
 For examples, see
 {ref}`Upload an image via the REST API <upload-rest-api>` or
