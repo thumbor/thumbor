@@ -315,6 +315,14 @@ Config.define(
 )
 
 Config.define(
+    "ALLOW_ANIMATED_WEBP",
+    True,
+    "Preserves animated WebP inputs when using the Pillow engine. "
+    "Disable to process only the first frame.",
+    "Imaging",
+)
+
+Config.define(
     "USE_GIFSICLE_ENGINE",
     False,
     "Indicates whether thumbor should use gifsicle engine. "
