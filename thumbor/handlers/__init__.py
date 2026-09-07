@@ -380,7 +380,7 @@ class BaseHandler(tornado.web.RequestHandler):
     async def after_transform(self):
         if (
             self.context.request.extension != ".gif"
-            or self.context.config.USE_GIFSICLE_ENGINE is None
+            or not self.context.config.USE_GIFSICLE_ENGINE
         ):
             await self.filters_runner.apply_filters(
                 thumbor.filters.PHASE_POST_TRANSFORM
