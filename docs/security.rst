@@ -53,6 +53,19 @@ thumbor processes it.
 The secure endpoint looks like this:
 ``/<authentication code with 28 characters>/300x200/smart/path/to/image.jpg``.
 
+Loading the key from a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The key can also come from a file, through the ``-k``/``--keyfile``
+server option. Thumbor checks the file's path before reading it:
+
+- an absolute path works from anywhere, but the file, symlinks
+  followed, must stay inside its own directory;
+- a relative path, symlinks followed, must stay under the directory
+  thumbor was started from.
+
+A path that breaks either rule stops thumbor at startup.
+
 HMAC method
 ~~~~~~~~~~~
 
