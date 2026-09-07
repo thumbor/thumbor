@@ -507,6 +507,12 @@ class Engine(BaseEngine):
         self.image.format = FORMATS.get(
             extension or self.extension, FORMATS[self.get_default_extension()]
         )
+        if self.image.format == "GIF":
+            # Same LA flattening by Pillow's GIF writer as in read()
+            images = [
+                image.convert("RGBA") if image.mode == "LA" else image
+                for image in images
+            ]
         with BytesIO() as img_buffer:
             images[0].save(
                 img_buffer,
