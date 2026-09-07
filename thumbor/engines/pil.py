@@ -78,6 +78,8 @@ class Engine(BaseEngine):
         self.original_mode = None
         self.exif = None
         self.iptc = None
+        self._webp_durations = None
+        self._webp_loop = 0
 
         try:
             if self.context.config.MAX_PIXELS is None or int(
@@ -99,6 +101,17 @@ class Engine(BaseEngine):
         img = Image.new("RGBA", size, color)
 
         return img
+
+    def wrap(self, multiple_engine):
+        read = self.read
+        super().wrap(multiple_engine)
+        if self._webp_durations is not None:
+            # Use the regular encoder for WebP quality and metadata options.
+            # Keep the existing read_multiple contract for other engines/GIFs.
+            self.read = read
+            for frame_engine in multiple_engine.frame_engines:
+                frame_engine.icc_profile = self.icc_profile
+                frame_engine.exif = self.exif
 
     def create_image(self, buffer):
         try:
@@ -122,6 +135,19 @@ class Engine(BaseEngine):
                 self.subsampling = None
 
         self.qtables = getattr(img, "quantization", None)
+
+        if (
+            self.extension == ".webp"
+            and self.context.config.ALLOW_ANIMATED_WEBP
+            and getattr(img, "is_animated", False)
+        ):
+            # copy() loads each WebP frame before copying its duration, which
+            # Pillow populates lazily. Keep full color and alpha, not a palette.
+            frames = [frame.copy() for frame in ImageSequence.Iterator(img)]
+            self._webp_durations = [frame.info["duration"] for frame in frames]
+            self._webp_loop = img.info.get("loop", 0)
+            self.frame_count = len(frames)
+            return frames
 
         if (
             self.context.config.ALLOW_ANIMATED_GIFS
@@ -246,6 +272,12 @@ class Engine(BaseEngine):
         self, extension=None, quality=None
     ):  # noqa pylint: disable=too-many-statements,too-many-branches
         # returns image buffer in byte format.
+
+        if self._webp_durations is not None:
+            first_frame = self.frame_engines()[0]
+            self.image = first_frame.image
+            self.icc_profile = first_frame.icc_profile
+            self.exif = first_frame.exif
 
         img_buffer = BytesIO()
         requested_extension = extension or self.extension
@@ -411,6 +443,15 @@ class Engine(BaseEngine):
 
         try:
             if ext == ".webp":
+                if self._webp_durations is not None:
+                    options.update(
+                        save_all=True,
+                        append_images=[
+                            engine.image for engine in self.frame_engines()[1:]
+                        ],
+                        duration=self._webp_durations,
+                        loop=self._webp_loop,
+                    )
                 if options["quality"] == 100:
                     logger.debug("webp quality is 100, using lossless instead")
                     options["lossless"] = True
@@ -435,6 +476,9 @@ class Engine(BaseEngine):
             )
             self.image.save(img_buffer, self.image.format, **options)
         except IOError:
+            if options.get("save_all"):
+                # A static fallback would silently discard the animation.
+                raise
             logger.exception(
                 "Could not save as improved image, consider to increase ImageFile.MAXBLOCK"
             )
