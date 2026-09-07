@@ -203,9 +203,12 @@ class BaseEngine:
         except Exception as error:  # pylint: disable=broad-except
             logger.error("Error reading image metadata: %s", error)
 
-        if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(
-            image_or_frames, (list, tuple)
-        ):
+        allow_animation = (
+            self.context.config.ALLOW_ANIMATED_WEBP
+            if self.extension == ".webp"
+            else self.context.config.ALLOW_ANIMATED_GIFS
+        )
+        if allow_animation and isinstance(image_or_frames, (list, tuple)):
             self.image = image_or_frames[0]
             if len(image_or_frames) > 1:
                 self.multiple_engine = MultipleEngine(self)
