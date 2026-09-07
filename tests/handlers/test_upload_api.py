@@ -184,6 +184,35 @@ class UploadAPINewFileTestCase(UploadTestCase):
         assert_exists(expected_path)
         assert_same_as(expected_path, VALID_IMAGE_PATH)
 
+    @gen_test
+    async def test_can_post_from_html_form_with_url_encoded_filename(self):
+        filenames = (
+            ("gru\u0308n.jpg", "gru%CC%88n.jpg"),
+            ("grün.jpg", "gr%C3%BCn.jpg"),
+            ("猫.jpg", "%E7%8C%AB.jpg"),
+            ("photo #1?100%/crop.jpg", "photo%20%231%3F100%25%2Fcrop.jpg"),
+            ("photo%20name.jpg", "photo%2520name.jpg"),
+        )
+        for filename, encoded_filename in filenames:
+            with self.subTest(filename=filename):
+                response = await self.async_post_files(
+                    self.base_uri,
+                    files=(("media", filename, valid_image()),),
+                )
+
+                assert response.code == 201
+                location = response.headers["Location"]
+                assert re.fullmatch(
+                    self.base_uri
+                    + r"/[0-9a-f]{32}/"
+                    + re.escape(encoded_filename),
+                    location,
+                )
+
+                response = await self.async_get(location)
+                assert response.code == 200
+                assert_similar_to(response.body, valid_image())
+
 
 class UploadAPIUpdateFileTestCase(UploadTestCase):
     def get_context(self):
