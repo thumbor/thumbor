@@ -9,6 +9,7 @@
 
 import mimetypes
 import uuid
+from urllib.parse import quote
 
 from thumbor.engines import BaseEngine
 from thumbor.handlers import ImageApiHandler
@@ -77,4 +78,4 @@ class ImageUploadHandler(ImageApiHandler):
 
     def location(self, image_id, filename):
         base_uri = self.request.uri
-        return f"{base_uri}/{image_id}/{filename}"
+        return f"{base_uri}/{image_id}/{quote(filename, safe='')}"
