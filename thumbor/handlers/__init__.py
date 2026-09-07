@@ -402,7 +402,7 @@ class BaseHandler(tornado.web.RequestHandler):
     async def after_transform(self):
         if (
             self.context.request.extension != ".gif"
-            or self.context.config.USE_GIFSICLE_ENGINE is None
+            or not self.context.config.USE_GIFSICLE_ENGINE
         ):
             await self.filters_runner.apply_filters(
                 thumbor.filters.PHASE_POST_TRANSFORM
@@ -989,6 +989,11 @@ class BaseHandler(tornado.web.RequestHandler):
                 "Trying to downsize image with quality of %d...", quality
             )
             results = engine.read(extension, quality)
+
+            if results == initial_results:
+                # The encoder ignores quality, as read_multiple() and RGB JPEG
+                # with PILLOW_JPEG_QTABLES or PILLOW_JPEG_SUBSAMPLING do
+                return initial_results
 
         prev_result = results
 

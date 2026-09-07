@@ -17,6 +17,7 @@ from thumbor.utils import logger
 
 class Filter(BaseFilter):
     regex = r"(?:frame\((?P<url>.*?))"
+    nine_patch_buffer = None
 
     async def on_image_ready(self, buffer):
         self.nine_patch_engine.load(buffer, None)
@@ -94,6 +95,7 @@ class Filter(BaseFilter):
         self.nine_patch_engine.load(buffer, None)
         await self.storage.put(self.url, self.nine_patch_engine.read())
         await self.storage.put_crypto(self.url)
+        self.nine_patch_buffer = buffer
         await self.on_image_ready(buffer)
 
     @filter_method(BaseFilter.String)
@@ -104,8 +106,11 @@ class Filter(BaseFilter):
         )
         self.storage = self.context.modules.storage
 
-        buffer = await self.storage.get(self.url)
+        buffer = self.nine_patch_buffer
+        if buffer is None:
+            buffer = await self.storage.get(self.url)
         if buffer is not None:
+            self.nine_patch_buffer = buffer
             return await self.on_image_ready(buffer)
 
         if not self.validate(self.url):
