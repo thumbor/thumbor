@@ -15,9 +15,10 @@ from unittest import TestCase, mock
 
 import piexif
 import pytest
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageSequence
 
 from tests.base import (
+    AVIF_AVAILABLE,
     skip_unless_avif,
     skip_unless_avif_encoder,
     skip_unless_heif,
@@ -411,6 +412,57 @@ class PilEngineTestCase(TestCase):
         final_bytes = BytesIO(engine.read())
         image = Image.open(final_bytes)
         assert image.info.get("exif") is None
+
+
+@pytest.mark.parametrize(
+    "extension",
+    [
+        ".gif",
+        ".webp",
+        ".png",
+        pytest.param(
+            ".avif",
+            marks=pytest.mark.skipif(
+                not AVIF_AVAILABLE, reason="AVIF format support not found"
+            ),
+        ),
+    ],
+)
+@pytest.mark.parametrize("resize", [False, True])
+@pytest.mark.parametrize("durations", [[100, 200, 6010], None])
+def test_animated_gif_frame_durations(extension, resize, durations):
+    frames = [
+        Image.new("RGB", (32, 32), color) for color in ("red", "green", "blue")
+    ]
+    options = {} if durations is None else {"duration": durations}
+    with BytesIO() as source:
+        frames[0].save(
+            source,
+            "GIF",
+            save_all=True,
+            append_images=frames[1:],
+            loop=0,
+            optimize=False,
+            **options,
+        )
+        engine = Engine(PilEngineTestCase().get_context())
+        engine.load(source.getvalue(), ".gif")
+
+    if resize:
+        engine.resize(16, 16)
+
+    with Image.open(BytesIO(engine.read(extension))) as result:
+        assert result.size == ((16, 16) if resize else (32, 32))
+        assert result.n_frames == len(frames)
+        actual_durations = []
+        for frame in ImageSequence.Iterator(result):
+            # WebP exposes the frame duration after loading its pixels.
+            frame.load()
+            actual_durations.append(frame.info.get("duration", 0))
+
+    assert actual_durations == (
+        durations if durations is not None else [80] * len(frames)
+    )
 
 
 @skip_unless_avif_encoder("svt")

@@ -464,7 +464,7 @@ class Engine(BaseEngine):
                 self.image.format,
                 save_all=True,
                 append_images=images[1:],
-                duration=[im.info.get("duration", 80) / 1000 for im in images],
+                duration=[im.info.get("duration", 80) for im in images],
                 loop=int(self.image.info.get("loop", 1)),
             )
             return img_buffer.getvalue()
