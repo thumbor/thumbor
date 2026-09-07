@@ -137,6 +137,47 @@ of thumbor.
 For more detailed configuration options, see the {doc}`configuration`
 documentation.
 
+(docker-compose-configuration)=
+#### Docker Compose configuration
+
+For string settings, enable environment overrides in Compose with:
+
+```yaml
+services:
+  thumbor:
+    image: ghcr.io/thumbor/thumbor:latest
+    ports:
+      - "8888:8888"
+    command: ["--use-environment=True"]
+    environment:
+      SECURITY_KEY: "replace-with-your-own-key"
+```
+
+The `command` list supplies arguments to the image's `thumbor` entrypoint.
+Quote environment values so Compose treats them as strings.
+
+For settings that need other types, use the Python configuration example in
+{ref}`converting-environment-values` and mount it as follows:
+
+```yaml
+services:
+  thumbor:
+    image: ghcr.io/thumbor/thumbor:latest
+    ports:
+      - "8888:8888"
+    command: ["-c", "/etc/thumbor.conf"]
+    environment:
+      UPLOAD_ENABLED: "true"
+      UPLOAD_DELETE_ALLOWED: "false"
+      UPLOAD_PUT_ALLOWED: "false"
+      QUALITY: "85"
+    volumes:
+      - ./thumbor.conf:/etc/thumbor.conf:ro
+```
+
+Here the file converts the environment values to Python booleans and integers.
+Keep `--use-environment` out of this command to preserve those types.
+
 <!--
 TODO: Update these instructions, as they are severely outdated.
 
