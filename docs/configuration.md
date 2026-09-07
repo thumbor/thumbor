@@ -25,6 +25,7 @@ thumbor-config > ./thumbor.conf
 This command writes to standard output. Shell redirection creates or replaces
 the destination file; it does not merge with an existing configuration.
 
+(override-config-through-environment-variable)=
 ## Override configuration through environment variables
 
 Environment overrides are disabled by default. To enable the legacy derpconf
@@ -41,7 +42,48 @@ is safe only for string-valued settings. Boolean, integer, list, dictionary and
 other typed settings should remain in `thumbor.conf`.
 
 `--use-environment` currently requires a value. A bare `--use-environment`
-argument is not accepted.
+argument is not accepted. Omit the option to leave overrides disabled;
+`--use-environment=False` also enables them because the current CLI treats its
+value as a nonempty string.
+
+For boolean settings, `UPLOAD_ENABLED=True` can enable uploads because
+`"True"` is a nonempty string. However, `UPLOAD_ENABLED=False` also produces a
+nonempty string and does not disable uploads. Likewise, `QUALITY=85` remains
+a string instead of becoming an integer.
+
+(converting-environment-values)=
+### Converting environment values
+
+The Python configuration file can read and convert environment variables
+itself. For example, save this as `thumbor.conf`:
+
+```python
+import os
+
+
+def env_bool(name):
+    return os.environ.get(name, "false").strip().lower() == "true"
+
+
+UPLOAD_ENABLED = env_bool("UPLOAD_ENABLED")
+UPLOAD_DELETE_ALLOWED = env_bool("UPLOAD_DELETE_ALLOWED")
+UPLOAD_PUT_ALLOWED = env_bool("UPLOAD_PUT_ALLOWED")
+QUALITY = int(os.environ.get("QUALITY", "80"))
+```
+
+This helper enables a boolean option only for `true`, ignoring case and
+surrounding whitespace. Missing variables and other values leave it disabled.
+Set other configuration options in the file as usual.
+
+Load the file without `--use-environment`:
+
+```bash
+thumbor -c ./thumbor.conf
+```
+
+The file still reads the environment through `os.environ`. Enabling direct
+environment overrides would replace its converted values with strings again.
+See {ref}`docker-compose-configuration` for complete Compose examples.
 
 ## Extensibility Section
 
