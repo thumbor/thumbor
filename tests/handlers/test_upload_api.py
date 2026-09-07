@@ -184,6 +184,111 @@ class UploadAPINewFileTestCase(UploadTestCase):
         assert_exists(expected_path)
         assert_same_as(expected_path, VALID_IMAGE_PATH)
 
+    @gen_test
+    async def test_can_post_from_html_form_with_url_encoded_filename(self):
+        filenames = (
+            ("gru\u0308n.jpg", "gru%CC%88n.jpg"),
+            ("grün.jpg", "gr%C3%BCn.jpg"),
+            ("猫.jpg", "%E7%8C%AB.jpg"),
+            ("photo #1?100%/crop.jpg", "photo%20%231%3F100%25%2Fcrop.jpg"),
+            ("photo%20name.jpg", "photo%2520name.jpg"),
+        )
+        for filename, encoded_filename in filenames:
+            with self.subTest(filename=filename):
+                response = await self.async_post_files(
+                    self.base_uri,
+                    files=(("media", filename, valid_image()),),
+                )
+
+                assert response.code == 201
+                location = response.headers["Location"]
+                assert re.fullmatch(
+                    self.base_uri
+                    + r"/[0-9a-f]{32}/"
+                    + re.escape(encoded_filename),
+                    location,
+                )
+
+                response = await self.async_get(location)
+                assert response.code == 200
+                assert_similar_to(response.body, valid_image())
+
+    @gen_test
+    async def test_can_post_from_html_form_with_unencodable_filename(self):
+        # UTF-7 "+2AA-" decodes to the lone surrogate U+D800.
+        body = (
+            b"--boundary\r\n"
+            b'Content-Disposition: form-data; name="media"; '
+            b"filename*=utf-7''%2B2AA-.jpg\r\n"
+            b"Content-Type: image/jpeg\r\n\r\n"
+            + valid_image()
+            + b"\r\n--boundary--\r\n"
+        )
+        response = await self.async_fetch(
+            self.base_uri,
+            method="POST",
+            body=body,
+            headers={"Content-Type": "multipart/form-data; boundary=boundary"},
+        )
+
+        assert response.code == 201
+        location = response.headers["Location"]
+        assert re.fullmatch(
+            self.base_uri + r"/[0-9a-f]{32}/%3F\.jpg", location
+        )
+
+        response = await self.async_get(location)
+        assert response.code == 200
+        assert_similar_to(response.body, valid_image())
+
+    @gen_test
+    async def test_can_post_image_with_non_ascii_slug(self):
+        slugs = (
+            ("gr%C3%BCn.jpg", "gr%C3%BCn.jpg"),
+            ("grün.jpg".encode("utf-8").decode("latin1"), "gr%C3%BCn.jpg"),
+            ("gr\xfcn.jpg", "gr%EF%BF%BDn.jpg"),
+            ("gr%FCn.jpg", "gr%EF%BF%BDn.jpg"),
+            ("photo #1?100%.jpg", "photo%20%231%3F100%25.jpg"),
+        )
+        for slug, encoded_filename in slugs:
+            with self.subTest(slug=slug):
+                response = await self.async_post(
+                    self.base_uri,
+                    {"Content-Type": "image/jpeg", "Slug": slug},
+                    valid_image(),
+                )
+
+                assert response.code == 201
+                location = response.headers["Location"]
+                assert re.fullmatch(
+                    self.base_uri
+                    + r"/[0-9a-f]{32}/"
+                    + re.escape(encoded_filename),
+                    location,
+                )
+
+                response = await self.async_get(location)
+                assert response.code == 200
+                assert_similar_to(response.body, valid_image())
+
+    @gen_test
+    async def test_can_post_image_with_dot_segment_slug(self):
+        for slug in (".", "..", "%2E%2E"):
+            with self.subTest(slug=slug):
+                response = await self.async_post(
+                    self.base_uri,
+                    {"Content-Type": "image/jpeg", "Slug": slug},
+                    valid_image(),
+                )
+
+                assert response.code == 201
+                assert re.fullmatch(
+                    self.base_uri
+                    + r"/[0-9a-f]{32}/"
+                    + re.escape(self.default_filename + ".jpg"),
+                    response.headers["Location"],
+                )
+
 
 class UploadAPIUpdateFileTestCase(UploadTestCase):
     def get_context(self):
