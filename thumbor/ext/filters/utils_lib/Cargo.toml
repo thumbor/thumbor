@@ -1,0 +1,10 @@
+[package]
+name = "utils_lib"
+version = "0.1.0"
+edition = "2021"
+description = "Utility functions for image manipulation"
+license = "MIT"
+
+[lib]
+name = "utils_lib"
+path = "src/lib.rs"

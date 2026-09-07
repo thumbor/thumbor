@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=78.1.1", "wheel"]
+requires = ["setuptools>=78.1.1", "setuptools-rust>=1.11.1,<2.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -103,6 +103,7 @@ thumbor-doctor = "thumbor.doctor:main"
 [dependency-groups]
 build = [
   "setuptools>=78.1.1",
+  "setuptools-rust>=1.11.1,<2.0.0",
   "wheel>=0.45.1,<1.0.0",
 ]
 docs = [
@@ -131,7 +132,6 @@ version = { attr = "thumbor.__version__" }
 line-length = 79
 target-version = ['py310']
 include = '\.pyi?$'
-
 [tool.cibuildwheel]
 build = "cp31[01234]-*"
 

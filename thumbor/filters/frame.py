@@ -76,6 +76,20 @@ class Filter(BaseFilter):
             new_width += right
         if bottom > 0:
             new_height += bottom
+
+        max_width = self.context.config.MAX_WIDTH
+        max_height = self.context.config.MAX_HEIGHT
+        max_pixels = self.context.config.MAX_PIXELS
+        exceeds_width = bool(max_width and new_width > max_width)
+        exceeds_height = bool(max_height and new_height > max_height)
+        exceeds_pixels = (
+            max_pixels is not None and new_width * new_height > max_pixels
+        )
+        if exceeds_width or exceeds_height or exceeds_pixels:
+            raise tornado.web.HTTPError(
+                400, reason="Frame padding exceeds configured image limits"
+            )
+
         new_engine = self.context.modules.engine.__class__(self.context)
         new_engine.image = new_engine.gen_image(
             (new_width, new_height), "#fff"

@@ -11,10 +11,11 @@ import signal
 
 import pytest
 from tornado.testing import gen_test
+from tornado.web import HTTPError
 
 from tests.base import FilterTestCase
 from thumbor.ext.filters import _convolution
-from thumbor.filters.convolution import Filter
+from thumbor.filters.convolution import Filter, validate_custom_kernel
 
 
 class ConvolutionFilterTestCase(FilterTestCase):
@@ -62,6 +63,30 @@ class ConvolutionFilterTestCase(FilterTestCase):
                 0,
                 False,
             )
+
+    def test_c_extension_rejects_excessive_work(self):
+        with pytest.raises(ValueError):
+            _convolution.apply(
+                "RGB",
+                bytes([128, 128, 128]),
+                4096,
+                4096,
+                tuple(["1"] * 301),
+                301,
+                False,
+            )
+
+    def test_custom_convolution_rejects_large_kernel_shape(self):
+        with pytest.raises(HTTPError) as error:
+            validate_custom_kernel(17 * 17, 17, 10, 10)
+
+        assert error.value.status_code == 400
+
+    def test_custom_convolution_rejects_excessive_work(self):
+        with pytest.raises(HTTPError) as error:
+            validate_custom_kernel(15 * 15, 15, 4096, 4096)
+
+        assert error.value.status_code == 400
 
     def test_convolution_redos_does_not_hang(self):
         Filter.pre_compile()
