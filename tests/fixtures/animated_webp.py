@@ -19,13 +19,13 @@ def animation_bytes(file_format="WEBP", loop=2, **metadata):
                 pixels.append(tuple(color))
         frame.putdata(pixels)
         frames.append(frame)
+    metadata.setdefault("duration", DURATIONS)
     with BytesIO() as stream:
         frames[0].save(
             stream,
             file_format,
             save_all=True,
             append_images=frames[1:],
-            duration=DURATIONS,
             loop=loop,
             lossless=True,
             **metadata,

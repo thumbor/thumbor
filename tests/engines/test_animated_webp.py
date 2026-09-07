@@ -39,6 +39,21 @@ def test_webp_roundtrip_preserves_frames_timing_and_loop(loop, allow_gifs):
     ]
 
 
+@pytest.mark.parametrize("durations", [[0, 0, 0], [0, 80, 0]])
+def test_webp_roundtrip_preserves_zero_duration_frames(durations):
+    source = animation_bytes(duration=durations)
+    engine = load_engine(source)
+    assert engine.is_multiple()
+    assert engine.frame_count == 3
+
+    actual = decoded_frames(engine.read(quality=100))
+    assert len(actual) == 3
+    assert [frame.info["duration"] for frame in actual] == durations
+    assert [frame.tobytes() for frame in actual] == [
+        frame.tobytes() for frame in decoded_frames(source)
+    ]
+
+
 @pytest.mark.parametrize(
     "operation", ["resize", "crop", "flip_horizontally", "flip_vertically"]
 )
