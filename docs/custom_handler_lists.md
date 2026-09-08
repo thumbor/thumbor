@@ -35,11 +35,11 @@ from thumbor.handler_lists import HandlerList
 from my.handlers.index import IndexHandler
 
 def get_handlers(context: Any) -> HandlerList:
-    something_enabled = cast(bool, self.context.config.SOMETHING_ENABLED)
+    something_enabled = cast(bool, context.config.SOMETHING_ENABLED)
     if not something_enabled:
         return []
     return [
-        (r"/my-url/?", IndexHandler, {"context": self.context}),
+        (r"/my-url/?", IndexHandler, {"context": context}),
     ]
 ```
 

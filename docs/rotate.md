@@ -14,7 +14,8 @@ For the PIL engine the rotation is done counter-clockwise.
 ## Arguments
 
 - `angle` - `0 to 359` - The euler angle to rotate the image by. Numbers greater
-  or equal than 360 will be transformed to a equivalent angle between 0 and 359.
+  or equal than 360 will be transformed to an equivalent angle between 0 and
+  359.
 
 ## Example
 
