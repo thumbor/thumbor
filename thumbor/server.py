@@ -19,8 +19,8 @@ from socket import socket
 
 import tornado.ioloop
 from PIL import Image
+from tornado import netutil
 from tornado.httpserver import HTTPServer
-from tornado.netutil import bind_unix_socket
 
 from thumbor.config import Config
 from thumbor.console import get_server_parameters
@@ -116,6 +116,12 @@ def get_socket_from_fd(fname_or_fd, *, non_blocking=False):
         if non_blocking:
             sock.setblocking(False)
     else:
+        bind_unix_socket = getattr(netutil, "bind_unix_socket", None)
+        if bind_unix_socket is None:
+            raise RuntimeError(
+                "Unix domain sockets are not supported on this platform. "
+                "Use --ip and --port without --fd to listen on TCP."
+            )
         sock = bind_unix_socket(fname_or_fd)
 
     return sock

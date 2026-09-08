@@ -6,9 +6,11 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
+import importlib.util
 from unittest import TestCase, mock
 
 import pytest
+from tornado import netutil
 
 import thumbor.server
 from tests.fixtures.custom_error_handler import (
@@ -27,6 +29,68 @@ from thumbor.server import (
     run_server,
     validate_config,
 )
+
+
+@pytest.fixture(name="server_without_unix_sockets")
+def fixture_server_without_unix_sockets(monkeypatch):
+    monkeypatch.delattr(netutil, "bind_unix_socket", raising=False)
+    spec = importlib.util.spec_from_file_location(
+        "server_without_unix_sockets", thumbor.server.__file__
+    )
+    server_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(server_module)
+    return server_module
+
+
+def test_can_start_tcp_without_unix_sockets(server_without_unix_sockets):
+    context = mock.Mock(
+        server=mock.Mock(fd=None, port=1234, ip="127.0.0.1", processes=1)
+    )
+    with mock.patch.object(server_without_unix_sockets, "HTTPServer") as http:
+        server_without_unix_sockets.run_server(mock.Mock(), context)
+
+    http.return_value.bind.assert_called_once_with(1234, "127.0.0.1")
+    http.return_value.start.assert_called_once_with(1)
+    http.return_value.add_socket.assert_not_called()
+
+
+@pytest.mark.parametrize("non_blocking", [False, True])
+def test_can_use_fd_without_unix_sockets(
+    server_without_unix_sockets, non_blocking
+):
+    context = mock.Mock(
+        server=mock.Mock(fd="11", processes=1),
+        config=Config(NON_BLOCKING_SOCKETS=non_blocking),
+    )
+    with (
+        mock.patch.object(server_without_unix_sockets, "HTTPServer") as http,
+        mock.patch.object(server_without_unix_sockets, "socket") as socket,
+    ):
+        server_without_unix_sockets.run_server(mock.Mock(), context)
+
+    socket.assert_called_once_with(fileno=11)
+    if non_blocking:
+        socket.return_value.setblocking.assert_called_once_with(False)
+    else:
+        socket.return_value.setblocking.assert_not_called()
+    http.return_value.add_socket.assert_called_once_with(socket.return_value)
+    http.return_value.start.assert_called_once_with(1)
+    http.return_value.bind.assert_not_called()
+
+
+def test_rejects_unavailable_unix_socket(server_without_unix_sockets):
+    context = mock.Mock(
+        server=mock.Mock(fd="/tmp/thumbor.sock"), config=Config()
+    )
+    with mock.patch.object(server_without_unix_sockets, "HTTPServer") as http:
+        with pytest.raises(
+            RuntimeError, match="Unix domain sockets are not supported"
+        ):
+            server_without_unix_sockets.run_server(mock.Mock(), context)
+
+    http.return_value.bind.assert_not_called()
+    http.return_value.add_socket.assert_not_called()
+    http.return_value.start.assert_not_called()
 
 
 class ServerTestCase(TestCase):
@@ -245,7 +309,7 @@ class ServerTestCase(TestCase):
         server_instance_mock.start.assert_called_with(1)
 
     @mock.patch.object(thumbor.server, "HTTPServer")
-    @mock.patch.object(thumbor.server, "bind_unix_socket")
+    @mock.patch.object(netutil, "bind_unix_socket", create=True)
     def test_can_run_server_with_unix_socket(
         self, bind_unix_socket, server_mock
     ):

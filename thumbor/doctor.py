@@ -282,8 +282,8 @@ def check_modules():
         try:
             import_module(module)  # NOQA
             print_success(f"{CHECK} {module} is installed correctly.")
-        except ImportError as error:
-            print_error(f"{CROSS} {module} is not installed.")
+        except (ImportError, OSError) as error:
+            print_error(f"{CROSS} {module} could not be loaded.")
             print(error_message)
             newline()
             errors.append(format_error(module, str(error), error_message))
