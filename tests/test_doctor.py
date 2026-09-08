@@ -58,7 +58,10 @@ def test_doctor_finishes_when_cairo_library_is_missing(capsys):
     assert "Verifying thumbor compiled extensions..." in output
     assert "Error Message:" in output
     assert message in output
-    assert "https://cairosvg.org/" in output
+    assert (
+        "Thumbor uses CairoSVG for reading SVG files. "
+        "For more information check https://cairosvg.org/."
+    ) in output.splitlines()
     assert "Need Help" in output
 
 
