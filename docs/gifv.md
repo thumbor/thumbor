@@ -9,7 +9,7 @@ It's recommended to lock your ffmpeg version with a fixed version (chef, docker,
 etc) and if updating make sure to check that the update doesn't break gifv.
 **FFmpeg version 3.2.4 is the current recommended version.** Later version, such
 as 3.3 will break the proper conversion of gif delays to frame durations in
-videos ... meaning videos will not be the same length as equivelant gifs.
+videos ... meaning videos will not be the same length as equivalent gifs.
 
 To enable gifv, ensure ffmpeg is in PATH and enable the optimizer in your
 config:
