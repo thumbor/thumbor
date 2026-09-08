@@ -236,7 +236,7 @@ class WatermarkFilterTestCase(FilterTestCase):
             "watermark(watermark.png,30,-50,20,50)",
         )
         ssim = self.get_ssim(image_float, image_int)
-        expect(ssim).to_equal(1)
+        assert ssim == 1
 
     @gen_test
     async def test_watermark_filter_float_h_ratio_matches_integer(self):
@@ -251,7 +251,7 @@ class WatermarkFilterTestCase(FilterTestCase):
             "watermark(watermark.png,30,-50,20,none,70)",
         )
         ssim = self.get_ssim(image_float, image_int)
-        expect(ssim).to_equal(1)
+        assert ssim == 1
 
     @gen_test
     async def test_watermark_filter_float_w_and_h_ratio_matches_integer(self):
@@ -266,7 +266,7 @@ class WatermarkFilterTestCase(FilterTestCase):
             "watermark(watermark.png,-30,-200,20,60,80)",
         )
         ssim = self.get_ssim(image_float, image_int)
-        expect(ssim).to_equal(1)
+        assert ssim == 1
 
     @gen_test
     async def test_watermark_filter_fractional_float_w_ratio(self):
@@ -275,8 +275,8 @@ class WatermarkFilterTestCase(FilterTestCase):
             "thumbor.filters.watermark",
             "watermark(watermark.png,30,-50,20,33.33)",
         )
-        expect(image).not_to_be_null()
-        expect(len(image)).to_be_greater_than(0)
+        assert image is not None
+        assert len(image) > 0
 
     @gen_test
     async def test_watermark_filter_fractional_float_w_and_h_ratio(self):
@@ -285,8 +285,8 @@ class WatermarkFilterTestCase(FilterTestCase):
             "thumbor.filters.watermark",
             "watermark(watermark.png,30,-50,20,50.5,75.25)",
         )
-        expect(image).not_to_be_null()
-        expect(len(image)).to_be_greater_than(0)
+        assert image is not None
+        assert len(image) > 0
 
     @gen_test
     async def test_watermark_filter_calculated_resizing(self):
