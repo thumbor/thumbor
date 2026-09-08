@@ -22,7 +22,7 @@ from thumbor.utils import EXTENSION, logger
 
 try:
     import cairosvg
-except ImportError:
+except (ImportError, OSError):
     cairosvg = None
 
 
