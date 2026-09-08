@@ -34,7 +34,7 @@ JPEGTRAN_PATH=/usr/local/bin/jpegtran
 
 Once activated, no extra url parameters are needed - jpegtran will run on all
 jpegs automatically. If you have opted to use progressive jpegs via the
-`PROGRESSIVE_JPEG` option, jpegtran will also honor and product progressive
+`PROGRESSIVE_JPEG` option, jpegtran will also honor and produce progressive
 jpegs.
 
 It is possible to supply progressive scans file via `JPEGTRAN_SCANS_FILE` config

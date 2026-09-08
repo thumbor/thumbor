@@ -108,7 +108,7 @@ Considering original image to be 300x200:
   keep the ratio) the *height* would need to become (40/30)\*90px=120px but only
   60px is allowed.
 
-  Therefor the *height* is limiting the resizing here and *height* would become
+  Therefore the *height* is limiting the resizing here and *height* would become
   60px and *width* would be (30/40)\*60px=45px which fits into the 90px border.
 
   ```{image} images/tom_watermark_resized_width_height.jpg
