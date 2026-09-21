@@ -23,6 +23,10 @@ detector should be appended to `self.context.request.focal_points`. If the
 detector finds no points, call `await self.next()` so the next configured
 detector can run.
 
+`detect` should return `None`, as the example below does. Thumbor treats a
+non-`None` return value as a list of focal-point dictionaries and passes each
+item to `FocalPoint.from_dict`, so returning `FocalPoint` objects fails.
+
 ```python
 from thumbor.detectors import BaseDetector
 from thumbor.point import FocalPoint
@@ -57,5 +61,8 @@ DETECTORS = [
 ]
 ```
 
-Detector order is significant. `await self.next()` constructs and invokes the
-next detector in this list.
+Detector order is significant. Thumbor instantiates and calls only the first
+detector in this list; `await self.next()` constructs and invokes the next one.
+Focal points produced by a detection run are cached in the configured
+`STORAGE` with `put_detector_data`, keyed by the image URL, and later requests
+read them back with `get_detector_data` instead of running the detectors.
