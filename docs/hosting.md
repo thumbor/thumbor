@@ -167,6 +167,7 @@ services:
       - "8888:8888"
     command: ["-c", "/etc/thumbor.conf"]
     environment:
+      SECURITY_KEY: "replace-with-your-own-key"
       UPLOAD_ENABLED: "true"
       UPLOAD_DELETE_ALLOWED: "false"
       UPLOAD_PUT_ALLOWED: "false"
@@ -175,8 +176,9 @@ services:
       - ./thumbor.conf:/etc/thumbor.conf:ro
 ```
 
-Here the file converts the environment values to Python booleans and integers.
-Keep `--use-environment` out of this command to preserve those types.
+Here the file reads `SECURITY_KEY` as a string and converts the other values
+to Python booleans and integers. Keep `--use-environment` out of this command
+to preserve those types.
 
 <!--
 TODO: Update these instructions, as they are severely outdated.
