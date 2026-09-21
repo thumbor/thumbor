@@ -36,8 +36,10 @@ class ErrorHandler:
 
 `context` is thumbor's context for the current request, `handler` is the
 Tornado request handler, and `exception` is normally the
-`(type, value, traceback)` tuple returned by `sys.exc_info()`. The method is not
-awaited, so it must be a regular synchronous method.
+`(type, value, traceback)` tuple returned by `sys.exc_info()`. Thumbor passes
+all three as keyword arguments, so the parameter names `context`, `handler`
+and `exception` are part of the contract. The method is not awaited, so it
+must be a regular synchronous method.
 
 Configure the module name, not the class name, and make sure it is importable
 from thumbor's Python environment:
