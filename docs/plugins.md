@@ -22,9 +22,10 @@ See the corresponding customization guide for current method signatures.
 
 Plugins may define configuration keys that are not part of Thumbor core. Those
 keys are available to the plugin through `context.config`; keep their spelling
-and Python value types exactly as documented by the plugin. Moving a list,
-boolean, number, dictionary or `None` from `thumbor.conf` to the legacy
-environment-variable interface changes it to a string.
+and Python value types exactly as documented by the plugin. Environment
+variable overrides are always strings: moving a list, boolean, number,
+dictionary or `None` from `thumbor.conf` to an environment variable changes
+its type.
 
 ## Defining plugin configuration
 
@@ -54,11 +55,11 @@ MY_PLUGIN_TIMEOUT = 10
 LOADER = "my_plugin.loader"
 ```
 
-The legacy Python loader also preserves uppercase plugin settings that have no
-registered default. Registration is still recommended because it supplies a
-default, description and group metadata. Plugin code can read the resolved
-value through the configuration object it receives directly or through
-`context.config`.
+Any uppercase name assigned in `thumbor.conf` is kept on the loaded
+configuration even when it has no registered default. Registration is still
+recommended because it supplies a default, description and group metadata.
+Plugin code can read the resolved value through the configuration object it
+receives directly or through `context.config`.
 
 ## Storages
 
