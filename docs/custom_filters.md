@@ -55,8 +55,11 @@ FILTERS = BUILTIN_FILTERS + [
 ```
 
 Each entry in `FILTERS` is the full name of a module, not the full name of the
-class. Thumbor imports `Filter` from each configured module. List order and
-duplicate entries are preserved.
+class. Thumbor imports `Filter` from each configured module in list order and
+indexes the classes by filter name, so when two modules define the same filter
+name the last entry wins. List order does not affect execution order: filters
+run in the order they appear in the request URL. A module that fails to import
+is logged as a warning and skipped instead of stopping startup.
 
 ## Available Filter Argument Types
 
