@@ -37,9 +37,13 @@ class Engine(BaseEngine):
         """Encode and return the final image bytes."""
 ```
 
-`BaseEngine.load()` handles extension detection, SVG conversion, EXIF metadata
-and animated-frame setup before calling `create_image()`. Reuse it unless your
-format requires a different loading lifecycle.
+`BaseEngine.load()` detects the extension and converts SVG input before calling
+`create_image()`. After `create_image()` returns, it reads EXIF metadata from
+`self.exif` and wraps animated input in per-frame engines. Both steps depend on
+`create_image()`: set `self.exif` to the raw EXIF bytes when the format carries
+them, and return a list or tuple of frames for animated input so that
+`ALLOW_ANIMATED_GIFS` handling applies. Reuse `load()` unless your format
+requires a different loading lifecycle.
 
 A production engine must also implement the operations used by the filters and
 features it supports. These can include `gen_image`, `rotate`,
