@@ -2,7 +2,7 @@
 
 With its pluggable architecture, Thumbor provides extension points for
 storages, result storages, loaders, detectors, filters, engines, optimizers,
-metrics, error handlers and handler lists.
+metrics, error handlers, URL signers and handler lists.
 
 If your plug-in is not listed here, please create an issue with the details and
 we'll add it here.
@@ -16,9 +16,10 @@ A listing on this page is not a compatibility guarantee.
 
 Thumbor configuration values name importable Python modules. Depending on the
 extension point, the module must expose the class expected by Thumbor:
-`Storage`, `Engine`, `Optimizer`, `Detector`, `Filter`, `Metrics` or
-`ErrorHandler`. Loader and handler-list entries are module-based interfaces.
-See the corresponding customization guide for current method signatures.
+`Storage`, `Engine`, `Optimizer`, `Detector`, `Filter`, `Metrics`, `UrlSigner`
+or `ErrorHandler`. Loader and handler-list entries are module-based
+interfaces. See the corresponding customization guide for current method
+signatures.
 
 Plugins may define configuration keys that are not part of Thumbor core. Those
 keys are available to the plugin through `context.config`; keep their spelling
