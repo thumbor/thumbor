@@ -44,9 +44,13 @@ class Storage(BaseStorage):
 ```
 
 Implement every operation used by the features you enable. Normal image
-loading uses `put`, `get` and `exists`; uploads and image management also use
-`remove`; smart detection and per-image signing use the detector and crypto
-methods.
+loading calls `get` and, after a miss, `put` followed by `put_crypto`.
+`put_crypto` is called even when `STORES_CRYPTO_KEY_FOR_EACH_IMAGE` is
+disabled, so it must exist at least as a no-op that returns `None`, as the
+built-in file storage does. The upload `/image/<id>` routes use `exists`, `get`
+and `remove`, and the blacklist handlers use `exists`, `get` and `put`.
+Per-image signing reads the key back with `get_crypto`, and smart detection
+uses `get_detector_data` and `put_detector_data`.
 
 The request context is available as `self.context`, including
 `self.context.config`, `self.context.request` and `self.context.server`. See
