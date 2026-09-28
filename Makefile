@@ -98,7 +98,7 @@ setup_docs:
 	@$(UV) sync --locked --inexact --group docs
 
 build_docs:
-	@$(UV) run --locked --group docs make -C docs html
+	@$(UV) run --locked --group docs make -C docs html SPHINXOPTS="-W --keep-going"
 
 docs:
 	@$(UV) run --locked --group docs sphinx-reload --host 0.0.0.0 --port 5555 docs/

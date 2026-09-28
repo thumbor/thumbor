@@ -57,7 +57,7 @@ pidfile = /home/thumbor/supervisord.pid
 user = thumbor
 
 [program:thumbor]
-command=thumbor --port=800%(process_num)s --conf=<config-path>
+command=thumbor --port=800%(process_num)s --conf=/etc/thumbor800%(process_num)s.conf
 process_name=thumbor800%(process_num)s
 numprocs=4
 user=thumbor
@@ -99,7 +99,7 @@ curl http://localhost:8888/healthcheck
 ```
 
 For more information about the official Docker image, visit the
-[GitHub Container Registry](https://github.com/thumbor/thumbor/pkgs).
+[GitHub Container Registry][ghcr].
 
 #### Configuring the Docker Image
 
@@ -200,7 +200,7 @@ TODO: Update these instructions, as they are severely outdated.
 
    -  Then try something like:
 
-   http://stormy-stone-5336.herokuapp.com/unsafe/300x200/<url>
+   <http://stormy-stone-5336.herokuapp.com/unsafe/300x200/http://s.glbimg.com/jo/g1/f/original/2012/03/16/supersonic-skydiver_fran.jpg>
 
    (notice there is no listening port specified)
 
@@ -243,4 +243,7 @@ CloudFront [CDN](http://en.wikipedia.org/wiki/Content_delivery_network) at
 Amazon.
 
 The detailed information on how to do it can be seen at
-[this blog post](http://tech.yipit.com/).
+[this blog post][yipit-post].
+
+[ghcr]: https://github.com/thumbor/thumbor/pkgs/container/thumbor
+[yipit-post]: http://tech.yipit.com/2013/01/03/how-yipit-scales-thumbnailing-with-thumbor-and-cloudfront/

@@ -14,5 +14,5 @@ No arguments
 ## Example
 
 ```
-http://localhost:8888/unsafe/filters:strip_icc()/<url>
+http://localhost:8888/unsafe/filters:strip_icc()/http://videoprocessing.ucsd.edu/~stanleychan/research/pix/Blurred_foreman_0005.png
 ```

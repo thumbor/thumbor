@@ -48,8 +48,7 @@ try increasing the number of open files per process, by running this command:
 $ ulimit -S -n 2048
 ```
 
-See the [file-limit discussion](http://superuser.com/questions/433746) for more
-information.
+Read the [file-limit discussion][too-many-files] for more info on this.
 
 ## Linting your code
 
@@ -119,3 +118,5 @@ make test-docker-310-run
 These targets build the corresponding local test image before running it.
 
 Just replace '310' with the python version you want: 310, 311, 312, 313 or 314.
+
+[too-many-files]: http://superuser.com/questions/433746/is-there-a-fix-for-the-too-many-open-files-in-system-error-on-os-x-10-7-1

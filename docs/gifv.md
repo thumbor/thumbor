@@ -24,20 +24,20 @@ Once activated, you must add the `gifv()` option to your filters list. An
 example request might look like this:
 
 ```text
-http://localhost:8888/unsafe/filters:gifv()/<url>
+http://localhost:8888/unsafe/filters:gifv()/http://localhost/livingroom.gif
 ```
 
 The above example will default to using the mp4 video container with h264 video.
 You can also be explicit:
 
 ```text
-http://localhost:8888/unsafe/filters:gifv(mp4)/<url>
+http://localhost:8888/unsafe/filters:gifv(mp4)/http://localhost/livingroom.gif
 ```
 
 or use explicitly specify webm
 
 ```text
-http://localhost:8888/unsafe/filters:gifv(webm)/<url>
+http://localhost:8888/unsafe/filters:gifv(webm)/http://localhost/livingroom.gif
 ```
 
 Because videos (in mp4 or webm format) cannot contain alpha transparency a
@@ -45,15 +45,15 @@ background color will be automatically added. The default color is white. You
 can also specify a background color:
 
 ```text
-http://localhost:8888/unsafe/filters:gifv():background_color(ff00ff)/<url>
+http://localhost:8888/unsafe/filters:gifv():background_color(ff00ff)/http://localhost/livingroom.gif
 ```
 
 ```text
-http://localhost:8888/unsafe/filters:gifv():background_color(f0f)/<url>
+http://localhost:8888/unsafe/filters:gifv():background_color(f0f)/http://localhost/livingroom.gif
 ```
 
 ```text
-http://localhost:8888/unsafe/filters:gifv():background_color(magenta)/<url>
+http://localhost:8888/unsafe/filters:gifv():background_color(magenta)/http://localhost/livingroom.gif
 ```
 
 The color must be specified in 6 character hex, 3 character hex or color name.

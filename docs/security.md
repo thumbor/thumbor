@@ -34,7 +34,7 @@ We classified both scenarios above as **URL Tampering**.
 
 In order to prevent users from tampering with the URL, thumbor provides a
 configuration called `SECURITY_KEY`. This is the key used to generate a
-[hash-based message authentication code](https://en.wikipedia.org/wiki/HMAC).
+[hash-based message authentication code][hmac].
 
 The process is very straightforward. The web server that has the page using
 thumbor's image generates an authentication code for the options and image url,
@@ -86,10 +86,10 @@ In order to convert that to a "safe" url, we must sign the part
    `/1234567890123456789012345678/300x200/smart/path/to/image.jpg`.
 
 That last part gives you the new URL:
-`http://thumbor-server/<signature>/300x200/smart/path/to/image.jpg`. Notice that
-the url includes the options part `300x200/smart`. That's required for thumbor
-to generate an authentication code to match the one that signs the image
-(`1234567890123456789012345678`).
+`http://thumbor-server/1234567890123456789012345678/300x200/smart/path/to/image.jpg`.
+Notice that the url includes the options part `300x200/smart`. That's required
+for thumbor to generate an authentication code to match the one that signs the
+image (`1234567890123456789012345678`).
 
 **The code included in this documentation is illustrational and should not be
 used for any purposes.**
@@ -114,3 +114,5 @@ strict_https_loader. Check the {doc}`image_loader` page for more details.
 
 There are implementations of url generators in various languages, take a look at
 the {doc}`libraries` page to find information about them.
+
+[hmac]: http://en.wikipedia.org/wiki/Hash-based_message_authentication_code

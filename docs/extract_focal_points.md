@@ -22,7 +22,7 @@ original for the segment with the manual cropping.
 This means that for an URL like:
 
 ```
-http://thumbor/unsafe/300x100/filters:extract_focal()/<crop-url>
+http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/240x220:480x260/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 Thumbor will use as original the following image URL:
@@ -41,7 +41,7 @@ Original Image:
 Eye cropped:
 
 ```
-http://localhost:8888/unsafe/240x220:480x260/<url>
+http://localhost:8888/unsafe/240x220:480x260/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ```{image} images/extract1.jpg
@@ -50,7 +50,7 @@ http://localhost:8888/unsafe/240x220:480x260/<url>
 A bigger image based on above's crop with the extract_focal() filter:
 
 ```
-http://thumbor/unsafe/300x100/filters:extract_focal()/<crop-url>
+http://localhost:8888/unsafe/300x100/filters:extract_focal()/localhost:8888/unsafe/240x220:480x260/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ```{image} images/extract2.jpg
@@ -59,7 +59,7 @@ http://thumbor/unsafe/300x100/filters:extract_focal()/<crop-url>
 Without the filter that would be the result:
 
 ```
-http://thumbor/unsafe/300x100/<crop-url>
+http://localhost:8888/unsafe/300x100/localhost:8888/unsafe/240x220:480x260/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ```{image} images/extract3.jpg

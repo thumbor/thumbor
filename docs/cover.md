@@ -29,7 +29,7 @@ alt: Gif before cover filter
 ```
 
 ```
-http://localhost:8888/unsafe/filters:cover()/<url>
+http://localhost:8888/unsafe/filters:cover()/http://server.my/animated_static.gif
 ```
 
 ```{image} images/animated_static.gif

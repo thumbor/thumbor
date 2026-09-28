@@ -26,7 +26,7 @@ alt: Picture before the sharpen filter
 ```
 
 ```
-http://localhost:8888/unsafe/filters:sharpen(2,1.0,true)/<url>
+http://localhost:8888/unsafe/filters:sharpen(2,1.0,true)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ```{image} images/tom_after_sharpen.jpg

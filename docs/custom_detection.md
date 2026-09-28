@@ -8,10 +8,9 @@ able to use it. Just add its full name to the detectors {doc}`configuration`.
 
 ## Creating a Custom Detector
 
-The face detector in the
-[thumbor repository](https://github.com/thumbor/thumbor) demonstrates how easy
-it is to implement your own custom detector. Its source lives at
-`thumbor/detectors/face_detector/__init__.py`.
+The face detector in the thumbor repository demonstrates how easy it is to
+implement your own custom detector. Its source lives at
+[`thumbor/detectors/face_detector/__init__.py`][face-detector].
 
 All you have to do is create a class that inherits from BaseDetector and
 implement a detect method that receives a context dictionary.
@@ -22,3 +21,5 @@ class).
 
 If your detector does not find any points, simple call the next() method passing
 in the context, so further detection can occur.
+
+[face-detector]: https://github.com/thumbor/thumbor/blob/master/thumbor/detectors/face_detector/__init__.py

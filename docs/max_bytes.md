@@ -22,7 +22,7 @@ alt: Picture before the max_bytes filter
 ```
 
 ```
-http://localhost:8888/unsafe/filters:max_bytes(7500)/<url>
+http://localhost:8888/unsafe/filters:max_bytes(7500)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ```{image} images/tom_after_max_bytes.jpg

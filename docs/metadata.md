@@ -59,8 +59,7 @@ Let's retrieve a list of all the available EXIF tags available in the image:
 }
 ```
 
-The reference to the values can be found in the
-[Piexif repository](https://github.com/hMatoba/Piexif).
+The reference to the values can be found in [Exif values][exif-values].
 
 > ```pycon
 > >>> tag = metadata["Exif"][piexif.ExifIFD.DateTimeOriginal]
@@ -72,26 +71,7 @@ The reference to the values can be found in the
 ```{module} piexif
 ```
 
-```{py:class} dict()
-:module: builtins
+See the [piexif documentation](https://piexif.readthedocs.io/en/latest/) for
+its full API.
 
-Create a dictionary.
-```
-
-```{py:method} dict.__getitem__(key)
-:module: builtins
-
-Return `self[key]`.
-```
-
-```{py:method} dict.__setitem__(key, value)
-:module: builtins
-
-Set `self[key]` to `value`.
-```
-
-```{py:method} dict.__delitem__(key)
-:module: builtins
-
-Delete `self[key]`.
-```
+[exif-values]: https://github.com/hMatoba/Piexif/blob/master/piexif/_exif.py

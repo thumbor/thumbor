@@ -8,6 +8,8 @@ we'll add it here.
 
 ## Storages
 
+(thumbor-aws-by-thumbor-community)=
+
 ### [thumbor_aws](https://github.com/thumbor-community/aws)
 
 By [Thumbor Community](https://github.com/thumbor-community).
@@ -26,6 +28,8 @@ and/or a result storage.
 
 To get exhaustive details about configuration options & setting it up, go to the
 [documentation of the plugin](https://github.com/thumbor-community).
+
+(thumbor-hbase-by-damien-hardy)=
 
 ### [thumbor_hbase](https://github.com/dhardy92/thumbor_hbase)
 
@@ -66,6 +70,8 @@ thumbor.conf to read:
 STORAGE = "thumbor_hbase.storage"
 ```
 
+(thumbor-mongodb-by-damien-hardy)=
+
 ### [thumbor_mongodb](https://github.com/dhardy92/thumbor_mongodb)
 
 By [Damien Hardy](https://github.com/dhardy92).
@@ -91,6 +97,8 @@ MONGO_LOADER_SERVER_COLLECTION = 'images'
 MONGO_LOADER_DOC_FIELD = 'content'
 ```
 
+(thumbor-riak-by-damien-hardy)=
+
 ### [thumbor_riak](https://github.com/dhardy92/thumbor_riak)
 
 By [Damien Hardy](https://github.com/dhardy92).
@@ -115,6 +123,8 @@ STORAGE = 'thumbor_riak.storage'
 RIAK_STORAGE_BASEURL = "http://my-riak-install-base-url"
 ```
 
+(thumbor-rackspace-by-david-mann)=
+
 ### [thumbor_rackspace](https://github.com/CodingNinja/thumbor_rackspace)
 
 By [David Mann](https://github.com/CodingNinja).
@@ -129,7 +139,7 @@ Using it is simple, just change your configuration in thumbor.conf:
 
 ```
 # Use rackspace for result storage.
-# For more information, see the result-storage page in thumbor's wiki.
+# For more info on result storage: https://github.com/thumbor/thumbor/wiki/Result-storage
 RESULT_STORAGE = 'thumbor_rackspace.result_storages.cloudfile_storage'
 
 # Pyrax Rackspace configuration file location
@@ -140,6 +150,8 @@ RACKSPACE_RESULT_STORAGE_EXPIRES = True # Set TTL on cloudfile objects
 RACKSPACE_RESULT_STORAGES_CONTAINER = "cloudfile-container-name"
 RACKSPACE_RESULT_STORAGES_CONTAINER_ROOT = "/"
 ```
+
+(thumbor-ceph-by-laurent-barbe)=
 
 ### [thumbor_ceph](https://github.com/ksperis/thumbor_ceph)
 
@@ -171,6 +183,8 @@ CEPH_RESULT_STORAGE_POOL = 'thumbor'
 For monitors and keys, the values ​​used are those defined in the configuration
 file ceph.conf.
 
+(thumbor-spaces-by-siddhartha-mukherjee)=
+
 ### [thumbor_spaces](https://github.com/siddhartham/thumbor_spaces)
 
 By [Siddhartha Mukherjee](https://github.com/siddhartham).
@@ -185,7 +199,7 @@ Using it is simple, just change your configuration in thumbor.conf:
 
 ```
 # Use DigitalOcean Spaces for result storage.
-# For more information, see the result-storage page in thumbor's wiki.
+# For more info on result storage: https://github.com/thumbor/thumbor/wiki/Result-storage
 RESULT_STORAGE = 'thumbor_spaces.result_storages.spaces_storage'
 
 SPACES_REGION='xxx'
@@ -200,6 +214,8 @@ SPACES_BUCKET='your-bucket-name'
 ```
 
 ## Metrics
+
+(thumbor-prometheus-by-simon-effenberg)=
 
 ### [thumbor_prometheus](https://github.com/thumbor-community/prometheus)
 
@@ -224,6 +240,8 @@ PROMETHEUS_SCRAPE_PORT = 8000 # Port the prometheus client should listen on
 
 ## Extensions
 
+(thumborshortener-by-thumbor-community)=
+
 ### [thumborshortener](https://github.com/thumbor-community/shortener)
 
 By [Thumbor Community](https://github.com/thumbor-community).
@@ -241,9 +259,11 @@ The shortened URL / real URL mapping is stored within redis.
 - *Installing:* `pip install tc_shortener`
 
 To get exhaustive details about configuration options & setting it up, go to the
-[plugin documentation](http://thumbor-shortener.readthedocs.io/).
+[plugin documentation][shortener-docs].
 
 ## Engines
+
+(thumbor-video-engine-by-the-atlantic)=
 
 ### [thumbor-video-engine](https://github.com/theatlantic/thumbor-video-engine)
 
@@ -274,3 +294,5 @@ IMAGING_ENGINE = 'opencv_engine'
 
 For a full list of configuration options and filters, read
 [the project's documentation](https://thumbor-video-engine.readthedocs.io/).
+
+[shortener-docs]: http://thumbor-shortener.readthedocs.io/en/latest/
