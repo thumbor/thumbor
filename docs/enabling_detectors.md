@@ -34,14 +34,14 @@ After restarting thumbor, it should be as easy as adding a `/smart` option to
 your URLs, like:
 
 ```
-http://localhost:8888/unsafe/200x400/smart/<url>
+http://localhost:8888/unsafe/200x400/smart/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ````{note}
 Whenever you are not sure what thumbor is "seeing", use the debug mode:
 
 ```
-http://localhost:8888/unsafe/debug/200x400/smart/<url>
+http://localhost:8888/unsafe/debug/200x400/smart/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 Thumbor will draw a square on all focal points it found. That way you can be

@@ -40,13 +40,13 @@ by specifying the ratio (see {ref}`Resizing <watermark-resizing>`).
 ## Example
 
 ```
-http://thumbor/filters:watermark(<watermark-url>,-10,-10,50)/<url>
+http://thumbor-server/filters:watermark(http://my.site.com/img.png,-10,-10,50)/some/image.jpg
 ```
 
 ![Picture after the watermark filter](images/tom_after_watermark.jpg)
 
 ```
-http://thumbor/filters:watermark(<watermark-url>,10p,-20p,50)/<url>
+http://thumbor-server/filters:watermark(http://my.site.com/img.png,10p,-20p,50)/some/image.jpg
 ```
 
 ```{image} images/tom_watermark_relative.jpg

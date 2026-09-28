@@ -5,7 +5,7 @@ Usage: `convolution(matrix_items, number_of_columns, should_normalize)`
 ## Description
 
 This filter runs a convolution matrix (or kernel) on the image. See
-[image kernels](http://en.wikipedia.org/wiki/Kernel) for details on the process.
+[Kernel (image processing)][kernel] for details on the process.
 Edge pixels are always extended outside the image area.
 
 ## Arguments
@@ -33,7 +33,7 @@ Normalized Matrix:
 ```
 
 ```
-http://localhost:8888/unsafe/filters:convolution(1;2;1;2;4;2;1;2;1,3,true)/<url>
+http://localhost:8888/unsafe/filters:convolution(1;2;1;2;4;2;1;2;1,3,true)/http://upload.wikimedia.org/wikipedia/commons/5/50/Vd-Orig.png
 ```
 
 ```{image} images/tom_after_convolution1.jpg
@@ -51,7 +51,7 @@ Matrix:
 ```
 
 ```
-http://thumbor/unsafe/filters:convolution(<matrix>,3,false)/<url>
+http://localhost:8888/unsafe/filters:convolution(-1;-1;-1;-1;8;-1;-1;-1;-1,3,false)/http://upload.wikimedia.org/wikipedia/commons/5/50/Vd-Orig.png
 ```
 
 ```{image} images/tom_after_convolution2.jpg
@@ -59,3 +59,5 @@ http://thumbor/unsafe/filters:convolution(<matrix>,3,false)/<url>
 alt: Picture after the convolution filter
 ---
 ```
+
+[kernel]: http://en.wikipedia.org/wiki/Kernel_(image_processing)

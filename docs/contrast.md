@@ -20,7 +20,7 @@ alt: Picture before the contrast filter
 ```
 
 ```
-http://localhost:8888/unsafe/filters:contrast(40)/<url>
+http://localhost:8888/unsafe/filters:contrast(40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ```{image} images/tom_after_positive_contrast.jpg
@@ -30,7 +30,7 @@ alt: Picture after positive contrast
 ```
 
 ```
-http://localhost:8888/unsafe/filters:contrast(-40)/<url>
+http://localhost:8888/unsafe/filters:contrast(-40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ```{image} images/tom_after_negative_contrast.jpg

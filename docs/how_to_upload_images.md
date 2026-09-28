@@ -9,16 +9,16 @@ urls.
 
 The table below show all configuration parameters to manage image upload:
 
-| Parameter               | Default      | Purpose                        |
-| ----------------------- | ------------ | ------------------------------ |
-| UPLOAD_ENABLED          | False        | Enable file uploads            |
-| UPLOAD_PUT_ALLOWED      | False        | Allow image replacement        |
-| UPLOAD_DELETE_ALLOWED   | False        | Allow image deletion           |
-| UPLOAD_PHOTO_STORAGE    | file_storage | Upload storage                 |
-| UPLOAD_DEFAULT_FILENAME | image        | Default uploaded filename      |
-| UPLOAD_MAX_SIZE         | 0            | Maximum upload size in KB      |
-| MIN_WIDTH               | 1            | Minimum image width in pixels  |
-| MIN_HEIGHT              | 1            | Minimum image height in pixels |
+| Configuration parameter | Default                       | Description                                          |
+| ----------------------- | ----------------------------- | ---------------------------------------------------- |
+| UPLOAD_ENABLED          | False                         | Indicates whether thumbor should enable File uploads |
+| UPLOAD_PUT_ALLOWED      | False                         | Indicates whether image overwrite should be allowed  |
+| UPLOAD_DELETE_ALLOWED   | False                         | Indicates whether image deletion should be allowed   |
+| UPLOAD_PHOTO_STORAGE    | thumbor.storages.file_storage | The type of storage to store uploaded images with    |
+| UPLOAD_DEFAULT_FILENAME | image                         | Default filename for image uploaded                  |
+| UPLOAD_MAX_SIZE         | 0                             | Max size in Kb for images uploaded to thumbor        |
+| MIN_WIDTH               | 1                             | Min width in pixels for images uploaded              |
+| MIN_HEIGHT              | 1                             | Min height in pixels for images uploaded             |
 
 Here, `file_storage` means `thumbor.storages.file_storage`.
 
@@ -140,7 +140,7 @@ When using the `/image` REST end-point to upload your image via the REST API :
 ```
 curl -i -H "Content-Type: image/jpeg" -H "Slug: photo.jpg" \
     -XPOST http://thumbor-server/image \
-    --data-binary "@<image-path>"
+    --data-binary "@tests/fixtures/images/20x20.jpg"
 ```
 
 the HTTP **POST** request was send to the server :
@@ -178,14 +178,14 @@ user is free to choose the filename of the image via the `filename` field :
 
 ```
 curl -i -XPOST http://thumbor-server/image \
-    -F "media=@<image-path>;type=image/jpeg;filename=croco.jpg"
+    -F "media=@tests/fixtures/images/20x20.jpg;type=image/jpeg;filename=croco.jpg"
 ```
 
 the HTTP **POST** request was send to the server :
 
 ```
 POST /image
-Content-Type: multipart/form-data; boundary=<boundary>
+Content-Type: multipart/form-data; boundary=----------------------------11df125d8b12
 Content-Length: 822
 ```
 
@@ -210,8 +210,8 @@ To replace the previously uploaded image by another we use:
 
 ```
 curl -i -H "Content-Type: image/jpeg" -H "Slug: modified_image.jpg" \
-    -XPUT http://thumbor-server/image/<image-id>/photo.jpg \
-    --data-binary "@<image-path>"
+    -XPUT http://thumbor-server/image/05b2eda857314e559630c6f3334d818d/photo.jpg \
+    --data-binary "@tests/fixtures/images/20x20.jpg"
 ```
 
 the HTTP **PUT** request was send to the server :
@@ -241,7 +241,7 @@ Finally to delete the uploaded image we use:
 
 ```
 curl -i -XDELETE \
-    http://thumbor-server/image/<image-id>/modified_image.jpg
+    http://thumbor-server/image/05b2eda857314e559630c6f3334d818d/modified_image.jpg
 ```
 
 the HTTP **DELETE** request was send to the server :

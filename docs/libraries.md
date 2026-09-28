@@ -112,14 +112,7 @@ Here's how it was implemented in Ruby:
 ```
 def sign_in_thumbor(key, str)
     #bash command to call thumbor's decrypt method
-    signer_module = "libthumbor.url_signers.base64_hmac_sha1"
-    signature = "signer.signature(\"#{str}\").decode(\"utf-8\")"
-    script = [
-        "from #{signer_module} import UrlSigner",
-        "signer = UrlSigner(\"#{key}\")",
-        "print(#{signature})",
-    ].join("; ")
-    command = "python3 -c '#{script}'"
+    command = "python3 -c 'from libthumbor.url_signers.base64_hmac_sha1 import UrlSigner; signer = UrlSigner(\"" << key << "\"); print(signer.signature(\"" << str << "\").decode(\"utf-8\"))'"
 
     #execute it in the shell using ruby's popen mechanism
     result = Array.new
@@ -154,9 +147,7 @@ Given
 When
     I ask my library for a signed url
 Then
-    I get the URL composed of:
-        /8ammJH8D-7tXy6kU3lTvoXlhu4o=/300x200/
-        my.server.com/some/path/to/image.jpg
+    I get '/8ammJH8D-7tXy6kU3lTvoXlhu4o=/300x200/my.server.com/some/path/to/image.jpg' as url
 ```
 
 #### Scenario 2 - Thumbor matching of signature with my library signature
@@ -170,10 +161,10 @@ Given
 When
     I ask my library for an encrypted URL
 Then
-    I get the proper URL composed of:
-        /8ammJH8D-7tXy6kU3lTvoXlhu4o=/300x200/
-        my.server.com/some/path/to/image.jpg
+    I get the proper url (/8ammJH8D-7tXy6kU3lTvoXlhu4o=/300x200/my.server.com/some/path/to/image.jpg)
 ```
+
+(scenario-3-thumbor-matching-of-signature-with-my-library-signature-with-meta)=
 
 #### Scenario 3: metadata signature
 
@@ -185,10 +176,10 @@ Given
 When
     I ask my library for an encrypted URL
 Then
-    I get the proper URL composed of:
-        /Ps3ORJDqxlSQ8y00T29GdNAh2CY=/meta/
-        my.server.com/some/path/to/image.jpg
+    I get the proper url (/Ps3ORJDqxlSQ8y00T29GdNAh2CY=/meta/my.server.com/some/path/to/image.jpg)
 ```
+
+(scenario-4-thumbor-matching-of-signature-with-my-library-signature-with-smart)=
 
 #### Scenario 4: smart-crop signature
 
@@ -200,10 +191,10 @@ Given
 When
     I ask my library for an encrypted URL
 Then
-    I get the proper URL composed of:
-        /-2NHpejRK2CyPAm61FigfQgJBxw=/smart/
-        my.server.com/some/path/to/image.jpg
+    I get the proper url (/-2NHpejRK2CyPAm61FigfQgJBxw=/smart/my.server.com/some/path/to/image.jpg)
 ```
+
+(scenario-5-thumbor-matching-of-signature-with-my-library-signature-with-fit-in)=
 
 #### Scenario 5: fit-in signature
 
@@ -215,10 +206,10 @@ Given
 When
     I ask my library for an encrypted URL
 Then
-    I get the proper URL composed of:
-        /uvLnA6TJlF-Cc-L8z9pEtfasO3s=/fit-in/
-        my.server.com/some/path/to/image.jpg
+    I get the proper url (/uvLnA6TJlF-Cc-L8z9pEtfasO3s=/fit-in/my.server.com/some/path/to/image.jpg)
 ```
+
+(scenario-6-thumbor-matching-of-signature-with-my-library-signature-with-filters)=
 
 #### Scenario 6: filter signature
 
@@ -231,10 +222,7 @@ Given
 When
     I ask my library for an encrypted URL
 Then
-    I get the proper URL composed of:
-        /ZZtPCw-BLYN1g42Kh8xTcRs0Qls=/
-        filters:brightness(10):contrast(20)/
-        my.server.com/some/path/to/image.jpg
+    I get the proper url (/ZZtPCw-BLYN1g42Kh8xTcRs0Qls=/filters:brightness(10):contrast(20)/my.server.com/some/path/to/image.jpg)
 ```
 
 You should test the same kind of tests for horizontal and vertical flip,

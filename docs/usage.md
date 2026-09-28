@@ -6,8 +6,7 @@ retrieving the image and a very similar endpoint to retrieve metadata.
 ## Image Endpoint
 
 ```
-/hmac/trim/AxB:CxD/(adaptive-)(full-)fit-in/-Ex-F/HALIGN/VALIGN/smart/
-filters:<filter-chain>/*IMAGE-URI*
+/hmac/trim/AxB:CxD/(adaptive-)(full-)fit-in/-Ex-F/HALIGN/VALIGN/smart/filters:FILTERNAME(ARGUMENT):FILTERNAME(ARGUMENT)/*IMAGE-URI*
 ```
 
 - hmac is the signature that ensures {doc}`security` ;
@@ -227,11 +226,11 @@ url.
 
 Say we have the following crop URL:
 
-`http://my-server/unsafe/-300x-200/left/top/smart/image.jpg`
+`http://my-server.thumbor.org/unsafe/-300x-200/left/top/smart/path/to/my/nice/image.jpg`
 
 If we want the metadata on what thumbor would do, just change the url to be
 
-`http://my-server/unsafe/meta/-300x-200/left/top/smart/image.jpg`
+`http://my-server.thumbor.org/unsafe/meta/-300x-200/left/top/smart/path/to/my/nice/image.jpg`
 
 After the processing is finished, thumbor will return a json object containing
 metadata on the image and the operations that would have been performed.

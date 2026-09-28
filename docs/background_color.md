@@ -25,7 +25,7 @@ alt: Original picture
 ```
 
 ```
-http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(blue)/<url>
+http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(blue)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fdocs%2Fimages%2Fdice_transparent_background.png
 ```
 
 ```{image} images/dice_blue_background.png
@@ -35,7 +35,7 @@ alt: Picture after the background_color(blue) filter
 ```
 
 ```
-http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(f00)/<url>
+http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(f00)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fdocs%2Fimages%2Fdice_transparent_background.png
 ```
 
 ```{image} images/dice_red_background.png
@@ -45,7 +45,7 @@ alt: Picture after the background_color(f00) filter
 ```
 
 ```
-http://thumbor/unsafe/fit-in/300x300/filters:background_color(add8e6)/<url>
+http://localhost:8888/unsafe/fit-in/300x300/filters:background_color(add8e6)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fdocs%2Fimages%2Fdice_transparent_background.png
 ```
 
 ```{image} images/dice_lightblue_background.png

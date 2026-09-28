@@ -1,3 +1,5 @@
+(whos-using-it)=
+
 # Who's using it
 
 ```{image} images/logo-globocom.png
@@ -30,8 +32,8 @@ the best possible thumbnails.
 
 <http://yipit.com/> - yipit now uses thumbor behind the CloudFront
 [CDN](http://en.wikipedia.org/wiki/Content_delivery_network) at Amazon. Their
-detailed experience with setting up thumbor was published on
-[Yipit's engineering blog](http://tech.yipit.com/).
+detailed experience with setting up thumbor can be seen at
+[this blog post][yipit-post].
 
 > Thumbor allows Yipit to iterate quickly on new designs without having to worry
 > about introducing new image sizes.
@@ -106,9 +108,9 @@ original tee and order it immediately.
 > Thumbor made this possible and simple without having to write an image
 > processor from scrap.
 >
-> TypeTees was developed by www.prolificinteractive.com. Its Thumbor experience
-> was published on the
-> [Prolific Interactive blog](http://prolificinteractive.com/blog/).
+> TypeTees was developed by www.prolificinteractive.com and you can learn more
+> about how thumbor helped them at
+> [their engineering blog post][prolific-post].
 
 [Just Watch](http://www.justwatch.com)
 
@@ -117,6 +119,12 @@ original tee and order it immediately.
 > We're serving it behind a CloudFront custom origin like many others, and
 > features like WebP and smart cropping saved us huge amounts of time and
 > bandwidth.
+
+```{figure} https://cloud.githubusercontent.com/assets/306014/14242873/8771528a-fa52-11e5-894c-0cdbf66580ce.png
+---
+alt: Ridelink
+---
+```
 
 [Ridelink](https://ridelink.com/)
 
@@ -178,3 +186,6 @@ width: 300px
 If you are using thumbor and your site or product is not listed here, please
 create an issue and we'll include your logo and a short description on how you
 are using it here.
+
+[prolific-post]: http://prolificinteractive.com/blog/2014/05/29/threadless-typetees-neat-and-easy-thumbnails-using-thumbor-and-php/
+[yipit-post]: http://tech.yipit.com/2013/01/03/how-yipit-scales-thumbnailing-with-thumbor-and-cloudfront/

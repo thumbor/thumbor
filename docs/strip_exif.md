@@ -18,5 +18,5 @@ No arguments
 ## Example
 
 ```
-http://localhost:8888/unsafe/filters:strip_exif()/<url>
+http://localhost:8888/unsafe/filters:strip_exif()/http://www.arte.tv/static-epgapi/057460-011-A.jpg
 ```

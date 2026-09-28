@@ -33,13 +33,11 @@ window.encodeURIComponent(
 And the output will be:
 
 ```
-<url>
+https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 That's the URL we'll be using in our examples!
 ````
-
-The examples below use `<url>` as shorthand for this encoded source URL.
 
 ## Problems installing thumbor locally
 
@@ -60,7 +58,7 @@ For more details, see the
 Go to your browser and enter in the url:
 
 ```
-http://localhost:8888/unsafe/300x200/<url>
+http://localhost:8888/unsafe/300x200/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 You should see the image with $300px$ of width and $200px$ of height. Just play
@@ -69,7 +67,7 @@ with it in the url to see the image change.
 If you just want it to be proportional to the width, enter a height of 0, like:
 
 ```
-http://localhost:8888/unsafe/300x0/<url>
+http://localhost:8888/unsafe/300x0/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ## Flipping the image
@@ -79,7 +77,7 @@ How about seeing it backwards? Or upside down?
 Go to your browser and enter in the url:
 
 ```
-http://localhost:8888/unsafe/-0x-0/<url>
+http://localhost:8888/unsafe/-0x-0/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 You should see the waterfall backwards and upside down.
@@ -91,7 +89,7 @@ What if I want to change contrast or brightness?
 Go to your browser and enter in the url:
 
 ```
-http://localhost:8888/unsafe/filters:brightness(10):contrast(30)/<url>
+http://localhost:8888/unsafe/filters:brightness(10):contrast(30)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 There are many more filters to explore. Check the {doc}`filters` page for more

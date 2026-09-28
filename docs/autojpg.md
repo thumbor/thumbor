@@ -16,5 +16,5 @@ request. It does not enable or disable a `jpg` entry explicitly configured in
 ## Example
 
 ```
-http://localhost:8888/unsafe/300x300/filters:autojpg()/<url>
+http://localhost:8888/unsafe/300x300/filters:autojpg()/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```

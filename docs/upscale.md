@@ -17,5 +17,5 @@ No arguments allowed.
 ## Example
 
 ```
-http://localhost:8888/unsafe/fit-in/600x500/filters:upscale()/<url>
+http://localhost:8888/unsafe/fit-in/600x500/filters:upscale()/https://raw.githubusercontent.com/thumbor/thumbor/e86324e49d7e53acc2a8057e43f3fdd2ca5cea75/docs/images/dice_transparent_background.png
 ```

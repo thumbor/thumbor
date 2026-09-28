@@ -19,7 +19,7 @@ alt: Picture before the saturation filter
 ---
 ```
 
-http://localhost:8888/unsafe/filters:saturation(40)/<url>
+<http://localhost:8888/unsafe/filters:saturation(40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>
 
 ```{image} images/tom_after_positive_saturation.jpg
 ---
@@ -27,7 +27,7 @@ alt: Picture after positive saturation
 ---
 ```
 
-http://localhost:8888/unsafe/filters:saturation(-40)/<url>
+<http://localhost:8888/unsafe/filters:saturation(-40)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg>
 
 ```{image} images/tom_after_negative_saturation.jpg
 ---

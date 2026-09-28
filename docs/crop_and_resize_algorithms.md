@@ -58,7 +58,7 @@ alt: The image after trimming the top and bottom
 ```
 
 ```
-http://localhost:8888/unsafe/300x300/filters:vertical_align(middle)/<url>
+http://localhost:8888/unsafe/300x300/filters:vertical_align(middle)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 Here's an example of how thumbor would crop width or height using centered
@@ -71,7 +71,7 @@ alt: How horizontal cropping affect the image
 ```
 
 ```
-http://localhost:8888/unsafe/400x600/filters:horizontal_align(center)/<url>
+http://localhost:8888/unsafe/400x600/filters:horizontal_align(center)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ```{image} images/cropped_vertical_image.jpg
@@ -81,7 +81,7 @@ alt: How vertical cropping affect the image
 ```
 
 ```
-http://localhost:8888/unsafe/400x150/filters:vertical_align(middle)/<url>
+http://localhost:8888/unsafe/400x150/filters:vertical_align(middle)/https%3A%2F%2Fgithub.com%2Fthumbor%2Fthumbor%2Fraw%2Fmaster%2Fexample.jpg
 ```
 
 ## Resizing the Image

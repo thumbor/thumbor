@@ -64,8 +64,8 @@ FILTERS = BUILTIN_FILTERS + [
 Each parameter type has a regular expression that matches arguments of the given
 type, as well as a python type.
 
-For more details on each type, see `thumbor/filters/__init__.py` in the
-[thumbor repository](https://github.com/thumbor/thumbor).
+For more details on each type, see
+[`thumbor/filters/__init__.py`][base-filter] in the thumbor repository.
 
 - `BaseFilter.PositiveNumber`;
 - `BaseFilter.PositiveNonZeroNumber`;
@@ -74,3 +74,5 @@ For more details on each type, see `thumbor/filters/__init__.py` in the
 - `DecimalNumber`;
 - `Boolean`;
 - `String`.
+
+[base-filter]: https://github.com/thumbor/thumbor/blob/master/thumbor/filters/__init__.py#L91
