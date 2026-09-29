@@ -79,7 +79,7 @@ Other CLI entry points registered by the package:
 
   If you hit "Too many open files", run `ulimit -S -n 2048` first.
 
-- In CI, everything runs inside Docker across a Python 3.10–3.14 matrix via
+- In CI, everything runs inside Docker across a Python 3.10–3.15 matrix via
   GitHub Actions.
 
 ## Code style

@@ -102,6 +102,7 @@ jobs:
           - "3.12"
           - "3.13"
           - "3.14"
+          - "3.15-rc"
         platform:
           - runner: ubuntu-latest
             name: amd64
@@ -272,6 +273,7 @@ jobs:
           - "3.12"
           - "3.13"
           - "3.14"
+          - "3.15-rc"
     steps:
       - name: Download digests
         uses: actions/download-artifact@v8
