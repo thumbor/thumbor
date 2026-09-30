@@ -111,6 +111,13 @@ class Engine(BaseEngine):
         self.exif = img.info.get("exif")
         self.original_mode = img.mode
 
+        if img.mode == "1" and "transparency" in img.info:
+            # Pillow before 12.1 keeps the tRNS sample of a 1-bit PNG as
+            # read (0 or 1) while the pixels are 0 or 255, so convert()
+            # never matched a white colorkey; 12.1 reads it as 0 or 255
+            # (python-pillow/Pillow#9282)
+            img.info["transparency"] = 255 if img.info["transparency"] else 0
+
         if self.context.config.PRESERVE_IPTC_INFO:
             jpegiptc_object = JpegIPTC()
             jpegiptc_object.load_from_binarydata(buffer)
@@ -197,7 +204,9 @@ class Engine(BaseEngine):
             )
 
             if self.image.mode == "1":
-                target_mode = "RGB"
+                target_mode = (
+                    "RGBA" if "transparency" in self.image.info else "RGB"
+                )
             else:
                 # convert() figures out RGB or RGBA based on palette used
                 target_mode = None
@@ -282,7 +291,13 @@ class Engine(BaseEngine):
             and self.original_mode in ["P", "1"]
             and self.original_mode != self.image.mode
         ):
-            if self.original_mode == "1":
+            # A 1-bit source that picked up alpha, from a tRNS colorkey
+            # promoted in resize() or from a filter, cannot go back to
+            # "1", so it is quantized like a palette source
+            if (
+                self.original_mode == "1"
+                and not self.image.has_transparency_data
+            ):
                 self.image = self.image.convert("1")
             else:
                 # quantize() only takes L, P, RGB and RGBA, and rejects
@@ -444,11 +459,13 @@ class Engine(BaseEngine):
                     options.pop("quality")
 
                 if self.image.mode not in ["RGB", "RGBA"]:
-                    if self.image.mode == "P":
-                        mode = "RGBA"
-                    else:
-                        mode = "RGBA" if self.image.mode[-1] == "A" else "RGB"
-                    self.image = self.image.convert(mode)
+                    keep_alpha = (
+                        self.image.mode == "P"
+                        or self.image.has_transparency_data
+                    )
+                    self.image = self.image.convert(
+                        "RGBA" if keep_alpha else "RGB"
+                    )
 
             if (
                 ext in [".png", ".gif", ".heic", ".heif"]

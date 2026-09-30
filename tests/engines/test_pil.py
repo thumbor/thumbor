@@ -259,6 +259,117 @@ class PilEngineTestCase(TestCase):
         alpha_histogram = img.convert("RGBA").getchannel("A").histogram()
         assert sum(alpha_histogram[1:255]) > 0
 
+    def bilevel_png(self, **options):
+        bilevel = Image.new("1", (20, 20), 1)
+        bilevel.paste(0, (0, 0, 10, 20))
+        png_buffer = BytesIO()
+        bilevel.save(png_buffer, "PNG", **options)
+
+        return png_buffer.getvalue()
+
+    def test_resize_should_promote_bilevel_colorkey_to_alpha(self):
+        engine = Engine(self.context)
+
+        engine.load(self.bilevel_png(transparency=0), "png")
+        assert engine.original_mode == "1"
+        expected_alpha = (
+            engine.image.convert("RGBA")
+            .resize((10, 10), engine.get_resize_filter())
+            .getchannel("A")
+            .tobytes()
+        )
+        assert 0 < min(expected_alpha[4:6]) < max(expected_alpha[4:6]) < 255
+
+        engine.resize(10, 10)
+
+        assert engine.image.mode == "RGBA"
+        assert engine.image.getchannel("A").tobytes() == expected_alpha
+
+    def test_read_should_quantize_resized_bilevel_colorkey_image(self):
+        engine = Engine(self.context)
+
+        engine.load(self.bilevel_png(transparency=0), "png")
+        engine.resize(10, 10)
+
+        image = Image.open(BytesIO(engine.read(".png")))
+        alpha = image.convert("RGBA").getchannel("A")
+
+        assert image.mode == "P"
+        assert alpha.getpixel((0, 5)) == 0
+        assert alpha.getpixel((9, 5)) > 240
+
+    def test_read_should_keep_bilevel_colorkey_alpha_without_indexed_mode(
+        self,
+    ):
+        self.context.config.PILLOW_PRESERVE_INDEXED_MODE = False
+        engine = Engine(self.context)
+
+        engine.load(self.bilevel_png(transparency=0), "png")
+        engine.resize(10, 10)
+
+        image = Image.open(BytesIO(engine.read(".png")))
+        alpha = image.getchannel("A")
+
+        assert image.mode == "RGBA"
+        assert alpha.getpixel((0, 5)) == 0
+        assert alpha.getpixel((9, 5)) == 255
+
+    def test_read_should_keep_bilevel_colorkey_alpha_in_webp(self):
+        engine = Engine(self.context)
+
+        engine.load(self.bilevel_png(transparency=0), "png")
+        engine.resize(10, 10)
+
+        image = Image.open(BytesIO(engine.read(".webp")))
+        alpha = image.getchannel("A")
+
+        assert image.mode == "RGBA"
+        assert alpha.getpixel((0, 5)) == 0
+        assert alpha.getpixel((9, 5)) == 255
+
+    def test_read_should_keep_bilevel_colorkey_alpha_in_webp_without_resize(
+        self,
+    ):
+        engine = Engine(self.context)
+
+        engine.load(self.bilevel_png(transparency=0), "png")
+        engine.crop(0, 0, 20, 10)
+
+        image = Image.open(BytesIO(engine.read(".webp")))
+        alpha = image.getchannel("A")
+
+        assert image.mode == "RGBA"
+        assert alpha.getpixel((0, 5)) == 0
+        assert alpha.getpixel((19, 5)) == 255
+
+    def test_create_image_should_normalize_raw_bilevel_colorkey(self):
+        engine = Engine(self.context)
+        png = self.bilevel_png(transparency=1)
+        raw_key_image = Image.open(BytesIO(png))
+        raw_key_image.info["transparency"] = 1
+
+        with mock.patch.object(Image, "open", return_value=raw_key_image):
+            engine.load(png, "png")
+
+        assert engine.image.info["transparency"] == 255
+
+        engine.resize(10, 10)
+        alpha = engine.image.getchannel("A")
+
+        assert alpha.getpixel((0, 5)) == 255
+        assert alpha.getpixel((9, 5)) == 0
+
+    def test_read_should_restore_bilevel_mode_without_colorkey(self):
+        engine = Engine(self.context)
+
+        engine.load(self.bilevel_png(), "png")
+        engine.resize(10, 10)
+
+        image = Image.open(BytesIO(engine.read(".png")))
+
+        assert image.mode == "1"
+        assert "transparency" not in image.info
+
     def test_should_preserve_gif_transparency_from_indexed_source(self):
         source = Image.new("P", (200, 200))
         source.putpalette([255, 0, 0] + [0, 0, 0] * 255)
