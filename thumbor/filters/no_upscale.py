@@ -12,37 +12,9 @@ import thumbor.filters
 from thumbor.filters import BaseFilter, filter_method
 
 
-def limit_dimension(requested, image_dimension):
-    # The transformer resolves "orig" after crop and trim, so it never asks
-    # for more than the cropped source. Resolving it here would use the
-    # uncropped size.
-    if requested == "orig":
-        return requested
-
-    return min(requested, image_dimension)
-
-
 class Filter(BaseFilter):
     phase = thumbor.filters.PHASE_AFTER_LOAD
 
     @filter_method()
     async def no_upscale(self):
-        image_size = self.context.request.engine.size
-        orientation = self.context.request.engine.get_orientation()
-
-        if self.context.config.RESPECT_ORIENTATION and orientation in [
-            5,
-            6,
-            7,
-            8,
-        ]:
-            image_size = (image_size[1], image_size[0])
-        self.context.request.width = limit_dimension(
-            self.context.request.width,
-            image_size[0],
-        )
-        self.context.request.height = limit_dimension(
-            self.context.request.height,
-            image_size[1],
-        )
-        self.context.transformer.upscale_limit = image_size
+        self.context.request.no_upscale = True

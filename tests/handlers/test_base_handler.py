@@ -240,7 +240,7 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         assert_similar_to(response.body, expected.body)
 
     @gen_test
-    async def test_no_upscale_adaptive_swap_keeps_source_limits(self):
+    async def test_no_upscale_adaptive_swap_matches_plain_request(self):
         expected = await self.async_fetch(
             "/unsafe/0x0:100x200/full-fit-in/300x400/"
             "filters:no_upscale()/image.jpg"
@@ -256,8 +256,62 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         engine = Engine(self.context)
         engine.load(response.body, ".jpg")
 
-        assert engine.size == (300, 600)
+        assert engine.size == (100, 200)
         assert_similar_to(response.body, expected.body)
+
+    @gen_test
+    async def test_no_upscale_limits_to_cropped_area(self):
+        for fit_mode in ("", "fit-in/", "full-fit-in/"):
+            response = await self.async_fetch(
+                f"/unsafe/0x0:100x200/{fit_mode}300x400/"
+                "filters:no_upscale()/image.jpg"
+            )
+            filled = await self.async_fetch(
+                f"/unsafe/0x0:100x200/{fit_mode}300x400/"
+                "filters:no_upscale():fill(ff0000)/image.jpg"
+            )
+
+            assert response.code == 200
+            assert filled.code == 200
+
+            engine = Engine(self.context)
+            engine.load(response.body, ".jpg")
+            filled_engine = Engine(self.context)
+            filled_engine.load(filled.body, ".jpg")
+
+            assert engine.size == (100, 200)
+            assert filled_engine.size == (300, 400)
+
+    @gen_test
+    async def test_no_upscale_limits_to_trimmed_area(self):
+        expected = await self.async_fetch("/unsafe/trim/single_point.jpg")
+        response = await self.async_fetch(
+            "/unsafe/trim/1000x1000/filters:no_upscale()/single_point.jpg"
+        )
+
+        assert expected.code == 200
+        assert response.code == 200
+
+        engine = Engine(self.context)
+        engine.load(response.body, ".jpg")
+
+        assert engine.size == (16, 16)
+        assert_similar_to(response.body, expected.body)
+
+    @gen_test
+    async def test_upscale_cannot_bypass_no_upscale_limit(self):
+        for filters in ("no_upscale():upscale()", "upscale():no_upscale()"):
+            response = await self.async_fetch(
+                "/unsafe/0x0:100x200/fit-in/300x400/"
+                f"filters:{filters}/image.jpg"
+            )
+
+            assert response.code == 200
+
+            engine = Engine(self.context)
+            engine.load(response.body, ".jpg")
+
+            assert engine.size == (100, 200)
 
     @gen_test
     async def test_can_get_image_with_invalid_quantization_table(self):

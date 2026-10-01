@@ -286,6 +286,36 @@ class TransformerTestCase(TestCase):
         assert not engine.calls["crop"]
 
     @gen_test
+    async def test_no_upscale_limits_request_to_source(self):
+        for width, height, expected in [
+            (600, 400, (300, 200)),
+            (150, 100, (150, 100)),
+            ("orig", "orig", ("orig", "orig")),
+            ("orig", 400, ("orig", 200)),
+            (600, "orig", (300, "orig")),
+        ]:
+            data = TestData(
+                source_width=300,
+                source_height=200,
+                target_width=width,
+                target_height=height,
+                halign="center",
+                valign="middle",
+                focal_points=[],
+                crop_left=None,
+                crop_top=None,
+                crop_right=None,
+                crop_bottom=None,
+            )
+            ctx = data.to_context()
+            ctx.request.no_upscale = True
+            trans = Transformer(ctx)
+
+            await trans.transform()
+
+            assert (ctx.request.width, ctx.request.height) == expected
+
+    @gen_test
     async def test_can_extract_cover(self):
         data = TestData(
             source_width=800,

@@ -7,10 +7,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from io import BytesIO
 from json import loads
 from shutil import which
 
 import pytest
+from PIL import Image
 from tornado.testing import gen_test
 
 from tests.handlers.test_base_handler import BaseImagingTestCase
@@ -114,6 +116,17 @@ class ImageOperationsWithoutStorage(BaseImagingTestCase):
         assert response.code == 200
         obj = loads(response.body.decode("utf-8"))
         assert obj["thumbor"]["source"]["frameCount"] == 2
+
+    @gen_test
+    async def test_no_upscale_limits_gif_to_cropped_area(self):
+        response = await self.async_fetch(
+            "/unsafe/0x0:20x20/300x300/filters:no_upscale()/animated.gif"
+        )
+        assert response.code == 200
+        assert response.headers["Content-Type"] == "image/gif"
+        image = Image.open(BytesIO(response.body))
+        assert image.size == (20, 20)
+        assert image.n_frames == 2
 
     @gen_test
     async def test_max_bytes(self):

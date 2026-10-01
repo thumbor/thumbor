@@ -10,7 +10,6 @@
 import math
 import sys
 
-from thumbor.filters.no_upscale import limit_dimension
 from thumbor.point import FocalPoint
 from thumbor.utils import logger
 
@@ -30,7 +29,6 @@ class Transformer:
         self.target_width = None
         self.requested_height = self.context.request.height
         self.requested_width = self.context.request.width
-        self.upscale_limit = None
 
     async def transform(self):
         if self.context.config.RESPECT_ORIENTATION:
@@ -107,6 +105,17 @@ class Transformer:
             self.context.request.width,
             self.context.request.height,
         )
+
+    def _limit_upscale(self, width, height):
+        source_width, source_height = self.engine.size
+
+        if width != "orig":
+            width = min(width, source_width)
+        if height != "orig":
+            height = min(height, source_height)
+
+        self.context.request.width = width
+        self.context.request.height = height
 
     def get_target_dimensions(self):
         """
@@ -233,6 +242,11 @@ class Transformer:
             self.extract_cover()
 
         self.manual_crop()
+        if self.context.request.no_upscale:
+            self._limit_upscale(
+                self.context.request.width,
+                self.context.request.height,
+            )
         self._calculate_target_dimensions()
         self.adjust_focal_points()
 
@@ -393,16 +407,10 @@ class Transformer:
             self.target_width = self.target_height
             self.target_height = tmp
 
-            if self.upscale_limit:
-                # no_upscale limited the request along the unswapped axes
-                limit_width, limit_height = self.upscale_limit
-                self.context.request.width = limit_dimension(
-                    self.requested_width,
-                    limit_width,
-                )
-                self.context.request.height = limit_dimension(
-                    self.requested_height,
-                    limit_height,
+            if self.context.request.no_upscale:
+                # the request was limited along the unswapped axes
+                self._limit_upscale(
+                    self.requested_width, self.requested_height
                 )
                 self._calculate_target_dimensions()
 
