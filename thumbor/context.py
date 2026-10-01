@@ -362,6 +362,7 @@ class RequestParameters:  # pylint: disable=too-few-public-methods,too-many-inst
             )
         )
         self.max_bytes = None
+        self.no_upscale = False
         self.max_age = max_age
         self.auto_png_to_jpg = auto_png_to_jpg
         self.headers = None

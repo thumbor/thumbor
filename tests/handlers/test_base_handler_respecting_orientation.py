@@ -51,6 +51,22 @@ class ImageOperationsWithRespectOrientation(BaseImagingTestCase):
         assert engine.size == (4052, 3456)
 
     @gen_test
+    async def test_no_upscale_limits_to_oriented_size(self):
+        for dimensions in ("1000x1000", "origx1000"):
+            response = await self.async_fetch(
+                f"/unsafe/{dimensions}/filters:no_upscale()/"
+                "Giunchedi%2C_Filippo_January_2015_01-"
+                "cmyk-orientation-exif.jpg"
+            )
+
+            assert response.code == 200
+
+            engine = Engine(self.context)
+            engine.load(response.body, ".jpg")
+
+            assert engine.size == (533, 800)
+
+    @gen_test
     async def test_should_be_ok_without_orientation_exif(self):
         response = await self.async_fetch("/unsafe/20x20.jpg")
         assert response.code == 200

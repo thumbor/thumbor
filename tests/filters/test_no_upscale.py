@@ -13,69 +13,12 @@ from tornado.testing import gen_test
 from tests.base import FilterTestCase
 
 
-class FakeNoUpscaleEngine:
-    @property
-    def size(self):
-        return (300, 200)
-
-    def get_orientation(self):
-        return 1
-
-
-class FakeOrientedNoUpscaleEngine:
-    @property
-    def size(self):
-        return (100, 200)
-
-    def get_orientation(self):
-        return 6
-
-
 class NoUpscaleFilterTestCase(FilterTestCase):
     @gen_test
-    async def test_original_dimensions_respect_orientation(self):
-        fltr = self.get_filter(
-            "thumbor.filters.no_upscale",
-            "no_upscale()",
-        )
-        self.context.config.RESPECT_ORIENTATION = True
-        self.context.request.width = "orig"
-        self.context.request.height = 300
-        self.context.request.engine = FakeOrientedNoUpscaleEngine()
-
-        await fltr.run()
-
-        assert self.context.request.width == "orig"
-        assert self.context.request.height == 100
-
-    @gen_test
-    async def test_no_upscale_filter_with_original_dimensions(self):
-        dimensions = (
-            ("orig", "orig", "orig", "orig"),
-            ("orig", 400, "orig", 200),
-            (600, "orig", 300, "orig"),
-        )
-
-        for width, height, expected_width, expected_height in dimensions:
-            fltr = self.get_filter(
-                "thumbor.filters.no_upscale",
-                "no_upscale()",
-            )
-            self.context.request.width = width
-            self.context.request.height = height
-            self.context.request.engine = FakeNoUpscaleEngine()
-
-            await fltr.run()
-
-            assert self.context.request.width == expected_width
-            assert self.context.request.height == expected_height
-
-    @gen_test
-    async def test_no_upscale_filter_request_bigger_than_image(self):
+    async def test_no_upscale_filter_marks_request(self):
         def config_context(context):
             context.request.width = 600
             context.request.height = 400
-            context.request.engine = FakeNoUpscaleEngine()
 
         fltr = self.get_filter(
             "thumbor.filters.no_upscale",
@@ -83,26 +26,10 @@ class NoUpscaleFilterTestCase(FilterTestCase):
             config_context=config_context,
         )
 
-        await fltr.run()
-
-        assert self.context.request.width == 300
-        assert self.context.request.height == 200
-        assert self.context.transformer.upscale_limit == (300, 200)
-
-    @gen_test
-    async def test_no_upscale_filter_request_lower_than_image(self):
-        def config_context(context):
-            context.request.width = 150
-            context.request.height = 100
-            context.request.engine = FakeNoUpscaleEngine()
-
-        fltr = self.get_filter(
-            "thumbor.filters.no_upscale",
-            "no_upscale()",
-            config_context=config_context,
-        )
+        assert not self.context.request.no_upscale
 
         await fltr.run()
 
-        assert self.context.request.width == 150
-        assert self.context.request.height == 100
+        assert self.context.request.no_upscale
+        assert self.context.request.width == 600
+        assert self.context.request.height == 400
