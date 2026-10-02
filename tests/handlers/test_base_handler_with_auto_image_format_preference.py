@@ -5,7 +5,7 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2025 globo.com thumbor@googlegroups.com
+# Copyright (c) 2025 Marcelo Jorge Vieira <metal@alucinados.com>
 
 from shutil import which
 from types import SimpleNamespace

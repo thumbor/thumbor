@@ -5,7 +5,8 @@
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
-# Copyright (c) 2026 globo.com thumbor@googlegroups.com
+# Copyright (c) 2026 Marcelo Jorge Vieira <metal@alucinados.com>
+# Copyright (c) 2026 Pablo Santiago Blum de Aguiar <scorphus@gmail.com>
 
 import datetime
 from types import SimpleNamespace
