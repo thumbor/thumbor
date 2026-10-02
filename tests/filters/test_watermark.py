@@ -21,6 +21,7 @@ from tests.fixtures.watermark_fixtures import (
 )
 from thumbor.config import Config
 from thumbor.context import Context
+from thumbor.ext.filters import _composite
 from thumbor.filters import watermark
 from thumbor.importer import Importer
 from thumbor.testing import FilterTestCase
@@ -419,3 +420,14 @@ class WatermarkFilterTestCase(FilterTestCase):
 
         assert not filter_instance.validate("https://s2.glbimg.com/logo.jpg")
         assert filter_instance.validate("https://s.glbimg.com/logo.jpg")
+
+
+def test_composite_without_merge_keeps_alpha_values():
+    base = bytes([10, 20, 30, 255, 40, 50, 60, 100])
+    watermark_pixels = bytes([200, 210, 220, 77, 1, 2, 3, 250])
+
+    result = _composite.apply(
+        "RGBA", base, 2, 1, watermark_pixels, 2, 1, 0, 0, False
+    )
+
+    assert result == bytes([200, 210, 220, 77, 40, 50, 60, 100])
