@@ -84,7 +84,7 @@ Verifying security...
 
     Error Description:
         You should specify a unique security key for thumbor or use a command line param to specify a security key.
-\tFor more information visit https://thumbor.readthedocs.io/en/latest/running.html
+        For more information visit https://thumbor.readthedocs.io/en/latest/running.html
 
 ⛔Errors⛔
 * thumbor.storages.file_storagee
@@ -177,7 +177,7 @@ Verifying security...
 
     Error Description:
         It is STRONGLY recommended that you turn off ALLOW_UNSAFE_URL flag in production environments as this can lead to DDoS attacks against thumbor.
-\tFor more information visit https://thumbor.readthedocs.io/en/latest/security.html
+        For more information visit https://thumbor.readthedocs.io/en/latest/security.html
 
 ❓Need Help❓
 

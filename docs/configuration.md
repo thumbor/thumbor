@@ -382,6 +382,28 @@ This option indicates whether animated gifs should be supported.
 ALLOW_ANIMATED_GIFS = True
 ```
 
+### ALLOW_ANIMATED_WEBP
+
+Preserves animated WebP inputs when using the Pillow engine. Defaults to
+`True`. Frames, frame durations, loop count and transparency are retained when
+the output is WebP, including after resizing and filtering.
+
+Set this option to `False` to process only the first frame, as in earlier
+versions. This setting is independent of `ALLOW_ANIMATED_GIFS` and
+`USE_GIFSICLE_ENGINE`. Static WebP inputs keep their existing behavior. An
+explicit `format(...)` conversion to another output format uses the first
+transformed frame. As with animated GIFs, the `AUTO_*` format options do not
+convert an animated WebP, so it is served as WebP whatever the request's
+`Accept` header. Animated PNG and AVIF inputs are not enabled by this option.
+
+Every frame is decoded in full, so an animation whose frames hold more pixels
+in total than `MAX_PIXELS` allows for a single image is processed as its first
+frame.
+
+```python
+ALLOW_ANIMATED_WEBP = True
+```
+
 ### USE_GIFSICLE_ENGINE
 
 This option indicates whether [gifsicle](http://www.lcdf.org/gifsicle/man.html)

@@ -7,6 +7,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import builtins
+import importlib.util
 from os.path import abspath, dirname, join
 from struct import pack
 from unittest import TestCase, mock
@@ -14,6 +16,7 @@ from xml.etree.ElementTree import ParseError
 
 import pytest
 
+import thumbor.engines
 from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.engines import BaseEngine
@@ -21,6 +24,27 @@ from thumbor.engines import BaseEngine
 # pylint: disable=line-too-long
 
 STORAGE_PATH = abspath(join(dirname(__file__), "../fixtures/images/"))
+
+
+@pytest.mark.parametrize("error_type", [ImportError, OSError])
+def test_can_import_engine_without_cairo(error_type):
+    original_import = builtins.__import__
+    error = error_type("cannot load library libcairo-2.dll")
+
+    def import_without_cairo(name, *args, **kwargs):
+        if name == "cairosvg":
+            raise error
+        return original_import(name, *args, **kwargs)
+
+    spec = importlib.util.spec_from_file_location(
+        "engine_without_cairo", thumbor.engines.__file__
+    )
+    engine_module = importlib.util.module_from_spec(spec)
+    with mock.patch("builtins.__import__", side_effect=import_without_cairo):
+        spec.loader.exec_module(engine_module)
+
+    assert engine_module.cairosvg is None
+    assert engine_module.CAIROSVG_IMPORT_ERROR is error
 
 
 def exif_str(exif_value):
@@ -110,6 +134,19 @@ class BaseEngineTestCase(TestCase):
         returned_buffer = self.engine.convert_svg_to_png(buffer)
         assert mock_log_error.called
         assert buffer == returned_buffer
+
+    @mock.patch("thumbor.engines.cairosvg", new=None)
+    @mock.patch("thumbor.engines.logger.error")
+    def test_cairo_load_error_is_logged_when_svg_conversion_is_unavailable(
+        self, mock_log_error
+    ):
+        error = OSError("cannot load library libcairo-2.dll")
+        buffer = b"<svg/>"
+
+        with mock.patch("thumbor.engines.CAIROSVG_IMPORT_ERROR", new=error):
+            assert self.engine.convert_svg_to_png(buffer) == buffer
+
+        mock_log_error.assert_called_once_with(mock.ANY, error)
 
     def test_can_identify_msb_tiff(self):
         with open(

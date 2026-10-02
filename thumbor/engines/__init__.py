@@ -22,8 +22,11 @@ from thumbor.utils import EXTENSION, logger
 
 try:
     import cairosvg
-except ImportError:
+except (ImportError, OSError) as error:
     cairosvg = None
+    CAIROSVG_IMPORT_ERROR = error
+else:
+    CAIROSVG_IMPORT_ERROR = None
 
 
 WEBP_SIDE_LIMIT = 16383
@@ -159,10 +162,12 @@ class BaseEngine:
 
     def convert_svg_to_png(self, buffer):
         if not cairosvg:
-            msg = """[BaseEngine] convert_svg_to_png failed cairosvg not
-            imported (if you want svg conversion to png please install cairosvg)
-            """
-            logger.error(msg)
+            logger.error(
+                "[BaseEngine] convert_svg_to_png failed: CairoSVG could not "
+                "be loaded (%s)",
+                CAIROSVG_IMPORT_ERROR
+                or "install cairosvg to enable SVG conversion to PNG",
+            )
             return buffer
 
         try:
@@ -203,9 +208,12 @@ class BaseEngine:
         except Exception as error:  # pylint: disable=broad-except
             logger.error("Error reading image metadata: %s", error)
 
-        if self.context.config.ALLOW_ANIMATED_GIFS and isinstance(
-            image_or_frames, (list, tuple)
-        ):
+        allow_animation = (
+            self.context.config.ALLOW_ANIMATED_WEBP
+            if self.extension == ".webp"
+            else self.context.config.ALLOW_ANIMATED_GIFS
+        )
+        if allow_animation and isinstance(image_or_frames, (list, tuple)):
             self.image = image_or_frames[0]
             if len(image_or_frames) > 1:
                 self.multiple_engine = MultipleEngine(self)

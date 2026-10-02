@@ -402,7 +402,7 @@ class BaseHandler(tornado.web.RequestHandler):
     async def after_transform(self):
         if (
             self.context.request.extension != ".gif"
-            or self.context.config.USE_GIFSICLE_ENGINE is None
+            or not self.context.config.USE_GIFSICLE_ENGINE
         ):
             await self.filters_runner.apply_filters(
                 thumbor.filters.PHASE_POST_TRANSFORM
@@ -469,6 +469,16 @@ class BaseHandler(tornado.web.RequestHandler):
                 i += j
 
         return frames > 1
+
+    def is_animated_webp(self, data):
+        # Only the extended (VP8X) header carries the animation flag, bit 1
+        # of the flags byte that follows its chunk size.
+        return (
+            data[:4] == b"RIFF"
+            and data[8:16] == b"WEBPVP8X"
+            and len(data) > 20
+            and bool(data[20] & 0x02)
+        )
 
     def can_auto_convert_png_to_jpg(self):
         request_override = self.context.request.auto_png_to_jpg
@@ -924,8 +934,10 @@ class BaseHandler(tornado.web.RequestHandler):
             self.context.request.format
             and _has_explicit_format_filter(self.context.request.filters)
         )
-        # our image is not animated gif
-        should_vary = should_vary and not self.is_animated_gif(buffer)
+        # our image is not animated
+        should_vary = should_vary and not (
+            self.is_animated_gif(buffer) or self.is_animated_webp(buffer)
+        )
 
         if should_vary:
             self.set_header("Vary", "Accept")
@@ -989,6 +1001,11 @@ class BaseHandler(tornado.web.RequestHandler):
                 "Trying to downsize image with quality of %d...", quality
             )
             results = engine.read(extension, quality)
+
+            if results == initial_results:
+                # The encoder ignores quality, as read_multiple() and RGB JPEG
+                # with PILLOW_JPEG_QTABLES or PILLOW_JPEG_SUBSAMPLING do
+                return initial_results
 
         prev_result = results
 

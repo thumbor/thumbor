@@ -21,6 +21,8 @@ from thumbor.utils import logger
 
 
 class Filter(BaseFilter):
+    watermark_buffer = None
+
     @staticmethod
     def detect_and_get_ratio_position(pos, length):
         match = re.match("^(-?)([0-9]+)p$", pos)
@@ -182,8 +184,11 @@ class Filter(BaseFilter):
         self.storage = self.context.modules.storage
 
         try:
-            buffer = await self.storage.get(self.url)
+            buffer = self.watermark_buffer
+            if buffer is None:
+                buffer = await self.storage.get(self.url)
             if buffer is not None:
+                self.watermark_buffer = buffer
                 return self.on_image_ready(buffer)
 
             if not self.validate(self.url):
@@ -208,6 +213,7 @@ class Filter(BaseFilter):
 
             await self.storage.put(self.url, buffer)
             await self.storage.put_crypto(self.url)
+            self.watermark_buffer = buffer
             self.on_image_ready(buffer)
 
         except Exception as error:
