@@ -88,7 +88,7 @@ class ImageUploadHandler(ImageApiHandler):
         )
 
     def location(self, image_id, filename):
-        base_uri = self.request.uri
+        base_uri = self.request.path
         # RFC 2231 multipart filenames can decode to lone surrogates, which
         # UTF-8 cannot encode.
         filename = quote(filename, safe="", errors="replace")
