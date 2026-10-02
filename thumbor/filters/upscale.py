@@ -16,7 +16,7 @@ class Filter(BaseFilter):
         target_width = self.context.request.width
         target_height = self.context.request.height
 
-        source_width, source_height = self.context.request.engine.size
+        source_width, source_height = self.engine.size
 
         if source_width >= target_width or source_height >= target_height:
             return

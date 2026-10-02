@@ -9,6 +9,7 @@
 
 import mimetypes
 import uuid
+from urllib.parse import quote, unquote_to_bytes
 
 from thumbor.engines import BaseEngine
 from thumbor.handlers import ImageApiHandler
@@ -33,12 +34,13 @@ class ImageUploadHandler(ImageApiHandler):
             body = self.request.body
 
             # Retrieve filename from 'Slug' header
-            filename = self.request.headers.get("Slug")
+            filename = self.slug_filename()
 
         # Check if the image uploaded is valid
         if self.validate(body):
-            # Use the default filename for the uploaded images
-            if not filename:
+            # Use the default filename for the uploaded images. Clients
+            # resolve "." and ".." as dot-segments, dropping the image id.
+            if not filename or filename in (".", ".."):
                 content_type = self.request.headers.get(
                     "Content-Type", BaseEngine.get_mimetype(body)
                 )
@@ -75,6 +77,19 @@ class ImageUploadHandler(ImageApiHandler):
             return False
         return True
 
+    def slug_filename(self):
+        slug = self.request.headers.get("Slug")
+        if not slug:
+            return slug
+        # Tornado decodes header bytes as latin-1, while RFC 5023 defines
+        # the Slug value as percent-encoded UTF-8.
+        return unquote_to_bytes(slug.encode("latin1")).decode(
+            "utf-8", "replace"
+        )
+
     def location(self, image_id, filename):
         base_uri = self.request.uri
+        # RFC 2231 multipart filenames can decode to lone surrogates, which
+        # UTF-8 cannot encode.
+        filename = quote(filename, safe="", errors="replace")
         return f"{base_uri}/{image_id}/{filename}"
