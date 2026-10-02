@@ -92,6 +92,24 @@ class UploadAPINewFileTestCase(UploadTestCase):
         assert_same_as(expected_path, VALID_IMAGE_PATH)
 
     @gen_test
+    async def test_can_post_image_with_query_string(self):
+        response = await self.async_post(
+            self.base_uri + "?foo=bar",
+            {"Content-Type": "image/jpeg", "Slug": "photo.jpg"},
+            valid_image(),
+        )
+
+        assert response.code == 201
+        location = response.headers["Location"]
+        assert re.fullmatch(
+            self.base_uri + r"/[0-9a-f]{32}/photo\.jpg", location
+        )
+
+        response = await self.async_get(location)
+        assert response.code == 200
+        assert_similar_to(response.body, valid_image())
+
+    @gen_test
     async def test_can_post_image_with_charset(self):
         filename = self.default_filename + ".jpg"
         response = await self.async_post(
