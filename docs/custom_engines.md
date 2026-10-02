@@ -46,8 +46,9 @@ instance of the configured engine, as the PIL engine allows.
 `self.exif` and wraps animated input in per-frame engines. Both steps depend on
 `create_image()`: set `self.exif` to the raw EXIF bytes when the format carries
 them, and return a list or tuple of frames for animated input so that
-`ALLOW_ANIMATED_GIFS` handling applies. Reuse `load()` unless your format
-requires a different loading lifecycle.
+`ALLOW_ANIMATED_GIFS` handling applies (`ALLOW_ANIMATED_WEBP` also enables it
+for WebP input). Reuse `load()` unless your format requires a different loading
+lifecycle.
 
 A production engine must also implement the operations used by the filters and
 features it supports. These can include `gen_image`, `rotate`,

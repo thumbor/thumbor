@@ -16,7 +16,7 @@ class Filter(BaseFilter):
         if value <= 0 or value > 1.0:
             return
 
-        source_width, source_height = self.context.request.engine.size
+        source_width, source_height = self.engine.size
 
         new_width = source_width * value
         new_height = source_height * value

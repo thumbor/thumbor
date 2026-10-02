@@ -8,6 +8,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from io import BytesIO
+from itertools import chain, repeat
 
 import piexif
 from JpegIPTC import JpegIPTC
@@ -72,12 +73,17 @@ DECOMPRESSION_BOMB_EXCEPTIONS = (Image.DecompressionBombWarning,) + (
 
 class Engine(BaseEngine):
     def __init__(self, context):
+        # BaseEngine.__init__ assigns self.image, whose setter reads these.
+        self._image = None
+        self._webp_durations = None
         super().__init__(context)
         self.subsampling = None
         self.qtables = None
         self.original_mode = None
         self.exif = None
         self.iptc = None
+        self._webp_loop = 0
+        self.frame_durations = []
 
         try:
             if self.context.config.MAX_PIXELS is None or int(
@@ -99,6 +105,44 @@ class Engine(BaseEngine):
         img = Image.new("RGBA", size, color)
 
         return img
+
+    # Trim, detectors and the engines that filters load for overlays work
+    # on this engine's image rather than on the frame engines, so an
+    # animated WebP exposes its transformed first frame instead of the
+    # decoded one the wrapped operations leave behind.
+    @property
+    def image(self):
+        if self._is_animated_webp():
+            return self.frame_engines()[0].image
+        return self._image
+
+    @image.setter
+    def image(self, image):
+        if self._is_animated_webp():
+            self.frame_engines()[0].image = image
+        else:
+            self._image = image
+
+    def _is_animated_webp(self):
+        return self._webp_durations is not None and self.is_multiple()
+
+    def wrap(self, multiple_engine):
+        read = self.read
+        super().wrap(multiple_engine)
+        if self._webp_durations is not None:
+            # Use the regular encoder for WebP quality and metadata options.
+            # Keep the existing read_multiple contract for other engines/GIFs.
+            self.read = read
+            self.rotate = multiple_engine.do_many("rotate")
+            for frame_engine in multiple_engine.frame_engines:
+                frame_engine.icc_profile = self.icc_profile
+                frame_engine.exif = self.exif
+
+    def reorientate(self, override_exif=True):
+        super().reorientate(override_exif)
+        if self._webp_durations is not None:
+            for frame_engine in self.frame_engines():
+                frame_engine.exif = self.exif
 
     def create_image(self, buffer):
         try:
@@ -130,6 +174,15 @@ class Engine(BaseEngine):
 
         self.qtables = getattr(img, "quantization", None)
 
+        if self._can_animate_webp(img):
+            # copy() loads each WebP frame before copying its duration, which
+            # Pillow populates lazily. Keep full color and alpha, not a palette.
+            frames = [frame.copy() for frame in ImageSequence.Iterator(img)]
+            self._webp_durations = [frame.info["duration"] for frame in frames]
+            self._webp_loop = img.info.get("loop", 0)
+            self.frame_count = len(frames)
+            return frames
+
         if (
             self.context.config.ALLOW_ANIMATED_GIFS
             and self.extension == ".gif"
@@ -140,10 +193,34 @@ class Engine(BaseEngine):
                 frames.append(frame.convert("P"))
             img.seek(0)
             self.frame_count = len(frames)
+            self.frame_durations = [
+                frame.info.get("duration", 80) for frame in frames
+            ]
 
             return frames
 
         return img
+
+    def _can_animate_webp(self, img):
+        if not (
+            self.extension == ".webp"
+            and self.context.config.ALLOW_ANIMATED_WEBP
+            and getattr(img, "is_animated", False)
+        ):
+            return False
+
+        # Every frame decodes to a full RGBA canvas, while Pillow only holds
+        # a single canvas to the MAX_PIXELS limit.
+        pixels = img.n_frames * img.width * img.height
+        if Image.MAX_IMAGE_PIXELS and pixels > Image.MAX_IMAGE_PIXELS:
+            logger.warning(
+                "[PILEngine] animated WebP frames hold %d pixels, over the "
+                "MAX_PIXELS limit; using its first frame",
+                pixels,
+            )
+            return False
+
+        return True
 
     def get_exif_copyright(self):
         try:
@@ -278,6 +355,11 @@ class Engine(BaseEngine):
         self, extension=None, quality=None
     ):  # noqa pylint: disable=too-many-statements,too-many-branches
         # returns image buffer in byte format.
+
+        if self._webp_durations is not None:
+            first_frame = self.frame_engines()[0]
+            self.icc_profile = first_frame.icc_profile
+            self.exif = first_frame.exif
 
         img_buffer = BytesIO()
         requested_extension = extension or self.extension
@@ -453,6 +535,15 @@ class Engine(BaseEngine):
 
         try:
             if ext == ".webp":
+                if self._webp_durations is not None:
+                    options.update(
+                        save_all=True,
+                        append_images=[
+                            engine.image for engine in self.frame_engines()[1:]
+                        ],
+                        duration=self._webp_durations,
+                        loop=self._webp_loop,
+                    )
                 if options["quality"] == 100:
                     logger.debug("webp quality is 100, using lossless instead")
                     options["lossless"] = True
@@ -484,6 +575,9 @@ class Engine(BaseEngine):
             )
             self.image.save(img_buffer, self.image.format, **options)
         except IOError:
+            if options.get("save_all"):
+                # A static fallback would silently discard the animation.
+                raise
             logger.exception(
                 "Could not save as improved image, consider to increase ImageFile.MAXBLOCK"
             )
@@ -507,13 +601,25 @@ class Engine(BaseEngine):
         self.image.format = FORMATS.get(
             extension or self.extension, FORMATS[self.get_default_extension()]
         )
+        if self.image.format == "GIF":
+            # Same LA flattening by Pillow's GIF writer as in read()
+            images = [
+                image.convert("RGBA") if image.mode == "LA" else image
+                for image in images
+            ]
+        # fill(), background_color() and frame() replace each frame with a
+        # new canvas, which has no duration of its own
+        loaded_durations = chain(self.frame_durations, repeat(80))
         with BytesIO() as img_buffer:
             images[0].save(
                 img_buffer,
                 self.image.format,
                 save_all=True,
                 append_images=images[1:],
-                duration=[im.info.get("duration", 80) / 1000 for im in images],
+                duration=[
+                    image.info.get("duration", loaded)
+                    for image, loaded in zip(images, loaded_durations)
+                ],
                 loop=int(self.image.info.get("loop", 1)),
             )
             return img_buffer.getvalue()
