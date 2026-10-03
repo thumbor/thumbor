@@ -33,6 +33,12 @@ from thumbor.result_storages import ResultStorageResult
 from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.transformer import Transformer
+from thumbor.upload_auth import (
+    REALM,
+    get_bearer_credentials,
+    get_valid_tokens,
+    is_authorized,
+)
 from thumbor.utils import CONTENT_TYPE, EXTENSION, logger
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
@@ -1240,6 +1246,31 @@ class ContextHandler(BaseHandler):
 # Base handler for Image API operations
 ##
 class ImageApiHandler(ContextHandler):
+    AUTHENTICATED_METHODS = ("POST", "PUT", "DELETE")
+
+    def prepare(self):
+        super().prepare()
+
+        if (
+            not self.context.config.UPLOAD_AUTH_REQUIRED
+            or self.request.method not in self.AUTHENTICATED_METHODS
+        ):
+            return
+
+        credentials = get_bearer_credentials(
+            self.request.headers.get("Authorization")
+        )
+        tokens = get_valid_tokens(self.context.config.UPLOAD_AUTH_TOKENS)
+
+        if credentials is not None and is_authorized(credentials, tokens):
+            return
+
+        challenge = f'Bearer realm="{REALM}"'
+        if credentials is not None:
+            challenge += ', error="invalid_token"'
+        self.set_header("WWW-Authenticate", challenge)
+        self._error(401, "Upload API request without a valid bearer token")
+
     def validate(self, body):  # pylint: disable=arguments-renamed
         conf = self.context.config
         mime = BaseEngine.get_mimetype(body)

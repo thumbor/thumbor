@@ -923,6 +923,40 @@ Indicates whether thumbor should enable File uploads.
 UPLOAD_ENABLED = False
 ```
 
+### UPLOAD_AUTH_REQUIRED
+
+Indicates whether `POST`, `PUT` and `DELETE` requests to the upload API must
+send an `Authorization: Bearer <token>` header with one of the tokens in
+`UPLOAD_AUTH_TOKENS`. Requests without a valid token get `401 Unauthorized`.
+`GET` and `HEAD` requests are not affected. When uploads are enabled and this
+option is `True`, thumbor refuses to start if `UPLOAD_AUTH_TOKENS` is empty or
+has an invalid token. When uploads are enabled and this option is `False`,
+thumbor logs a warning at startup. See {doc}`how_to_upload_images`.
+
+```python
+UPLOAD_AUTH_REQUIRED = False
+```
+
+### UPLOAD_AUTH_TOKENS
+
+The bearer tokens that the upload API accepts when `UPLOAD_AUTH_REQUIRED` is
+`True`. Each token must be a non-empty ASCII string without whitespace. Use
+long random values, such as the output of `secrets.token_urlsafe(32)`. thumbor
+logs a warning at startup for tokens shorter than 32 characters. List more than
+one token to rotate them without downtime.
+
+```python
+UPLOAD_AUTH_TOKENS = []
+```
+
+Keep the tokens out of the configuration file by reading them from the
+environment, as described in {ref}`converting-environment-values`:
+
+```python
+UPLOAD_AUTH_REQUIRED = True
+UPLOAD_AUTH_TOKENS = os.environ["UPLOAD_AUTH_TOKENS"].split(",")
+```
+
 ### UPLOAD_PHOTO_STORAGE
 
 The type of storage to store uploaded images with.
