@@ -65,6 +65,17 @@ Config.define(
     "Imaging",
 )
 Config.define(
+    "ALLOWED_SIZES",
+    [],
+    (
+        "Sizes that image URLs may request, as 'WIDTHxHEIGHT' strings such "
+        "as '400x200'. Use 0 for an omitted or proportional dimension and "
+        "'orig' for the original one. Any other size is rejected with a 400. "
+        "Use an empty list to allow all sizes"
+    ),
+    "Imaging",
+)
+Config.define(
     "ALLOWED_SOURCES",
     [],
     (

@@ -27,6 +27,7 @@ from thumbor.server import (
     get_importer,
     main,
     run_server,
+    validate_allowed_sizes,
     validate_config,
 )
 
@@ -196,6 +197,15 @@ class ServerTestCase(TestCase):
         validate_config(conf, server_parameters)
 
         warning_mock.assert_called_once_with(conf.ALLOWED_SOURCES)
+
+    @mock.patch.object(thumbor.server, "validate_allowed_sizes")
+    def test_validate_config_validates_allowed_sizes(self, validation_mock):
+        server_parameters = mock.Mock(security_key=None)
+        conf = Config(SECURITY_KEY="something", ALLOWED_SIZES=["400x200"])
+
+        validate_config(conf, server_parameters)
+
+        validation_mock.assert_called_once_with(["400x200"])
 
     @mock.patch.object(thumbor.server, "which")
     def test_validate_gifsicle_path(self, which_mock):
@@ -380,3 +390,51 @@ class ServerTestCase(TestCase):
 
     def cleanup(self):
         ServerTestCase.cleanup_called = True
+
+
+@pytest.mark.parametrize(
+    "allowed_sizes",
+    [
+        [],
+        (),
+        ["400x200", "0x0", "400x0", "0x200"],
+        ("origx200", "400xorig", "origxorig"),
+        {"400x200", "1200x0"},
+    ],
+)
+def test_validate_allowed_sizes_accepts_valid_sizes(allowed_sizes):
+    validate_allowed_sizes(allowed_sizes)
+
+
+@pytest.mark.parametrize(
+    "allowed_sizes",
+    ["400x200", "", 400, 0, None, {"400x200": 1}, {}],
+)
+def test_validate_allowed_sizes_requires_a_list(allowed_sizes):
+    with pytest.raises(RuntimeError, match="must be a list of sizes"):
+        validate_allowed_sizes(allowed_sizes)
+
+
+@pytest.mark.parametrize(
+    "size",
+    [
+        "400",
+        "400x",
+        "x200",
+        "0400x200",
+        "400x00",
+        "400X200",
+        " 400x200",
+        "400x200 ",
+        "-400x200",
+        "400.5x200",
+        "ORIGx200",
+        "4\u0660\u0660x200",
+        "400x2\uff10\uff10",
+        400,
+        (400, 200),
+    ],
+)
+def test_validate_allowed_sizes_rejects_invalid_entries(size):
+    with pytest.raises(RuntimeError, match="Invalid ALLOWED_SIZES entry"):
+        validate_allowed_sizes(["400x200", size])

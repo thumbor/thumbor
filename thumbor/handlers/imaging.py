@@ -27,9 +27,17 @@ class ImagingHandler(ContextHandler):
                 return url[len(prefix) :]
         return url
 
+    def _is_size_allowed(self):
+        allowed_sizes = self.context.config.ALLOWED_SIZES
+        if not allowed_sizes:
+            return True
+
+        request = self.context.request
+        return f"{request.width}x{request.height}" in allowed_sizes
+
     async def check_image(
         self, kwargs
-    ):  # pylint: disable=too-many-return-statements
+    ):  # pylint: disable=too-many-return-statements,too-many-branches
         if self.context.config.MAX_ID_LENGTH > 0:
             # Check if an image with an uuid exists in storage
             exists = await self.context.modules.storage.exists(
@@ -71,6 +79,10 @@ class ImagingHandler(ContextHandler):
                 400,
                 f"URL has unsafe but unsafe is not allowed by the config: {url}",
             )
+            return
+
+        if not self._is_size_allowed():
+            self._error(400, f"Image size is not allowed by the config: {url}")
             return
 
         if self.context.config.USE_BLACKLIST:
