@@ -11,6 +11,7 @@
 import logging
 import logging.config
 import os
+import re
 import sys
 import warnings
 from os.path import dirname, expanduser
@@ -28,6 +29,13 @@ from thumbor.context import Context
 from thumbor.importer import Importer
 from thumbor.loaders import warn_legacy_allowed_sources
 from thumbor.signal_handler import setup_signal_handler
+
+# The handler compares entries with the size it parsed from the URL as text,
+# so a leading zero such as "0400x200" or a non-ASCII digit would never
+# match. re.ASCII keeps \d to 0-9.
+ALLOWED_SIZE_RE = re.compile(
+    r"(?:0|[1-9]\d*|orig)x(?:0|[1-9]\d*|orig)", re.ASCII
+)
 
 
 def get_as_integer(value):
@@ -73,6 +81,21 @@ def get_importer(config):
     return importer
 
 
+def validate_allowed_sizes(allowed_sizes):
+    if not isinstance(allowed_sizes, (list, tuple, set, frozenset)):
+        raise RuntimeError(
+            "ALLOWED_SIZES must be a list of sizes, such as ['400x200']."
+        )
+
+    for size in allowed_sizes:
+        if not isinstance(size, str) or not ALLOWED_SIZE_RE.fullmatch(size):
+            raise RuntimeError(
+                f"Invalid ALLOWED_SIZES entry {size!r}. Sizes must look like "
+                "'400x200', with 0 for a proportional dimension and 'orig' "
+                "for the original one."
+            )
+
+
 def validate_config(config, server_parameters):
     if server_parameters.security_key is None:
         server_parameters.security_key = config.SECURITY_KEY
@@ -88,6 +111,7 @@ def validate_config(config, server_parameters):
         warnings.simplefilter("error", Image.DecompressionBombWarning)
 
     warn_legacy_allowed_sources(config.ALLOWED_SOURCES)
+    validate_allowed_sizes(config.ALLOWED_SIZES)
 
     if config.USE_GIFSICLE_ENGINE:
         server_parameters.gifsicle_path = which("gifsicle")

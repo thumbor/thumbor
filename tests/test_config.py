@@ -34,6 +34,7 @@ class ConfigValuesTestCase(TestCase):
             ("MAX_WIDTH", 0),
             ("MAX_HEIGHT", 0),
             ("ALLOWED_SOURCES", []),
+            ("ALLOWED_SIZES", []),
             ("QUALITY", 80),
             ("LOADER", "thumbor.loaders.http_loader"),
             ("STORAGE", self.get_default_storage()),

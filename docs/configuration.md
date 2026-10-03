@@ -321,6 +321,28 @@ MIN_WIDTH = 1
 MIN_HEIGHT = 1
 ```
 
+### ALLOWED_SIZES
+
+The sizes that image URLs may request, as `WIDTHxHEIGHT` strings. When the list
+is not empty, thumbor answers any other size with `400 Bad Request` before it
+loads the image. It defaults to an empty list, which allows every size.
+
+Each entry must match the size in the URL exactly. A dimension that the URL
+omits or sets to `0` (proportional) counts as `0`, and `orig` counts as `orig`,
+so `/unsafe/400x/` requests `400x0`. A URL without a size requests `0x0`: add
+`"0x0"` to keep serving images without resizing them. Flips and `fit-in` do not
+change the comparison, so `-400x200` and `fit-in/400x200` both request
+`400x200`. thumbor refuses to start when an entry is not in this format.
+
+```python
+ALLOWED_SIZES = ["400x200", "550x400", "1200x0"]
+```
+
+This option only restricts the size in the URL. The image that thumbor returns
+can still be smaller (with `fit-in`, for example), and unsigned URLs can still
+vary crop, filters and other options to create new images. To stop URL
+tampering, sign your URLs as described in {doc}`security`.
+
 ### QUALITY
 
 This option defines the quality that JPEG images will be generated with. It
