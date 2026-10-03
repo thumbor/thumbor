@@ -7,6 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import os
 import shutil
 from datetime import datetime
 from os.path import dirname, exists, join
@@ -137,6 +138,52 @@ class FileStorageTestCase(BaseFileStorageTestCase):
         got = await storage.get_detector_data(iurl)
         assert got is None
 
+    @staticmethod
+    async def exists_then_removed(_path, path_on_filesystem=None):
+        os.remove(path_on_filesystem)
+        return True
+
+    @gen_test
+    async def test_get_returns_none_if_image_is_removed_after_exists(self):
+        iurl = self.get_image_url("image_removed.jpg")
+        storage = FileStorage(self.context)
+        await storage.put(iurl, self.get_image_bytes("image.jpg"))
+
+        with mock.patch.object(
+            storage, "exists", side_effect=self.exists_then_removed
+        ):
+            got = await storage.get(iurl)
+
+        assert got is None
+
+    @gen_test
+    async def test_get_detector_data_returns_none_if_removed_after_exists(
+        self,
+    ):
+        iurl = self.get_image_url("image_detector_removed.jpg")
+        storage = FileStorage(self.context)
+        await storage.put(iurl, self.get_image_bytes("image.jpg"))
+        await storage.put_detector_data(iurl, "some-data")
+
+        with mock.patch.object(
+            storage, "exists", side_effect=self.exists_then_removed
+        ):
+            got = await storage.get_detector_data(iurl)
+
+        assert got is None
+
+    @gen_test
+    async def test_exists_is_false_if_image_is_removed_before_mtime(self):
+        iurl = self.get_image_url("image_mtime_removed.jpg")
+        storage = FileStorage(self.context)
+        await storage.put(iurl, self.get_image_bytes("image.jpg"))
+
+        with mock.patch(
+            "thumbor.storages.file_storage.getmtime",
+            side_effect=FileNotFoundError,
+        ):
+            assert await storage.exists(iurl) is False
+
 
 class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
     def get_config(self):
@@ -227,3 +274,22 @@ class CryptoFileStorageTestCase(BaseFileStorageTestCase):
         got = await storage.get_crypto(iurl)
         assert got is not None
         assert got == "ACME-SEC"
+
+    @gen_test
+    async def test_get_crypto_returns_none_if_removed_after_exists(self):
+        iurl = self.get_image_url("image_crypto_removed.jpg")
+        storage = FileStorage(self.context)
+        await storage.put(iurl, self.get_image_bytes("image.jpg"))
+        await storage.put_crypto(iurl)
+
+        def exists_then_removed(path):
+            os.remove(path)
+            return True
+
+        with mock.patch(
+            "thumbor.storages.file_storage.exists",
+            side_effect=exists_then_removed,
+        ):
+            got = await storage.get_crypto(iurl)
+
+        assert got is None
