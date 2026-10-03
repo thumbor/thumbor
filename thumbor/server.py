@@ -29,6 +29,7 @@ from thumbor.context import Context
 from thumbor.importer import Importer
 from thumbor.loaders import warn_legacy_allowed_sources
 from thumbor.signal_handler import setup_signal_handler
+from thumbor.upload_auth import is_valid_token, split_tokens
 
 # The handler compares entries with the size it parsed from the URL as text,
 # so a leading zero such as "0400x200" or a non-ASCII digit would never
@@ -36,6 +37,8 @@ from thumbor.signal_handler import setup_signal_handler
 ALLOWED_SIZE_RE = re.compile(
     r"(?:0|[1-9]\d*|orig)x(?:0|[1-9]\d*|orig)", re.ASCII
 )
+
+MIN_UPLOAD_AUTH_TOKEN_LENGTH = 32
 
 
 def get_as_integer(value):
@@ -96,6 +99,43 @@ def validate_allowed_sizes(allowed_sizes):
             )
 
 
+def validate_upload_auth(config):
+    if not config.UPLOAD_ENABLED:
+        return
+
+    if not config.UPLOAD_AUTH_REQUIRED:
+        logging.warning(
+            "The upload API is enabled without authentication, so any "
+            "client can upload images. Set UPLOAD_AUTH_REQUIRED and "
+            "UPLOAD_AUTH_TOKENS to require a bearer token."
+        )
+        return
+
+    tokens = split_tokens(config.UPLOAD_AUTH_TOKENS)
+    if tokens is None:
+        raise RuntimeError("UPLOAD_AUTH_TOKENS must be a list of tokens.")
+
+    if not tokens:
+        raise RuntimeError(
+            "UPLOAD_AUTH_REQUIRED is enabled but UPLOAD_AUTH_TOKENS is empty."
+        )
+
+    for index, token in enumerate(tokens):
+        if not is_valid_token(token):
+            raise RuntimeError(
+                f"UPLOAD_AUTH_TOKENS entry at index {index} is invalid. "
+                "Tokens must be non-empty ASCII strings without whitespace."
+            )
+
+    if any(len(token) < MIN_UPLOAD_AUTH_TOKEN_LENGTH for token in tokens):
+        logging.warning(
+            "UPLOAD_AUTH_TOKENS has a token shorter than %d characters; use "
+            "a long random value such as the output of "
+            "secrets.token_urlsafe(32)",
+            MIN_UPLOAD_AUTH_TOKEN_LENGTH,
+        )
+
+
 def validate_config(config, server_parameters):
     if server_parameters.security_key is None:
         server_parameters.security_key = config.SECURITY_KEY
@@ -112,6 +152,7 @@ def validate_config(config, server_parameters):
 
     warn_legacy_allowed_sources(config.ALLOWED_SOURCES)
     validate_allowed_sizes(config.ALLOWED_SIZES)
+    validate_upload_auth(config)
 
     if config.USE_GIFSICLE_ENGINE:
         server_parameters.gifsicle_path = which("gifsicle")
