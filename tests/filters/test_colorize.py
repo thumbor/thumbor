@@ -31,3 +31,11 @@ def test_colorize_truncates_the_weighted_average():
     result = _colorize.apply("RGB", 50, 50, 50, 0, 0, 0, bytes([201, 3, 255]))
 
     assert result == bytes([100, 1, 127])
+
+
+def test_colorize_saturates_out_of_range_percentages():
+    result = _colorize.apply(
+        "RGB", 10**8, 10**8, 10**8, 255, 0, 0, bytes([10, 10, 10])
+    )
+
+    assert result == bytes([255, 0, 0])

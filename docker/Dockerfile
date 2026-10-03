@@ -17,6 +17,8 @@ RUN apt-get update && \
         zlib1g-dev \
         gifsicle \
         gcc \
+        cargo \
+        rustc \
         libcairo2-dev \
         build-essential && \
 	apt-get clean && rm -rf /var/lib/apt/lists/*

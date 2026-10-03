@@ -10,6 +10,9 @@ recursive-include thumbor *.gif
 recursive-include thumbor *.svg
 recursive-include thumbor *.webp
 recursive-include thumbor *.c
+include thumbor/ext/filters/*/Cargo.toml
+include thumbor/ext/filters/*/Cargo.lock
+include thumbor/ext/filters/*/src/*.rs
 recursive-exclude thumbor *.pyc
 recursive-exclude thumbor *.so
 
