@@ -42,6 +42,8 @@ Other CLI entry points registered by the package:
 - `thumbor-url` — compose and sign URLs
 - `thumbor-config` — generate a config file
 - `thumbor-doctor` — diagnose the local installation
+- `thumbor-cleanup`: delete expired files from the file storage and the file
+  result storage
 
 ## Running tests
 
