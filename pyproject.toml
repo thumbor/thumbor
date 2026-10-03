@@ -99,6 +99,7 @@ thumbor = "thumbor.server:main"
 thumbor-url = "thumbor.url_composer:main"
 thumbor-config = "thumbor.config:generate_config"
 thumbor-doctor = "thumbor.doctor:main"
+thumbor-cleanup = "thumbor.cleanup:main"
 
 [dependency-groups]
 build = [

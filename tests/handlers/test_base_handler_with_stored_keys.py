@@ -7,11 +7,15 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import os
+import time
+
 from tornado.testing import gen_test
 
 from tests.base import assert_similar_to
 from tests.fixtures.images import default_image
 from tests.handlers.test_base_handler import BaseImagingTestCase
+from thumbor.cleanup import main as cleanup
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.importer import Importer
@@ -26,7 +30,7 @@ class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
         cfg.STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True
 
         cfg.STORAGE = "thumbor.storages.file_storage"
-        cfg.STORAGE_FILE_STORAGE_ROOT_PATH = self.root_path
+        cfg.FILE_STORAGE_ROOT_PATH = self.root_path
 
         importer = Importer(cfg)
         importer.import_modules()
@@ -85,3 +89,32 @@ class ImageOperationsWithStoredKeysTestCase(BaseImagingTestCase):
         )
         assert response.code == 200
         assert_similar_to(response.body, default_image())
+
+    @gen_test
+    async def test_stored_security_key_survives_cleanup(self):
+        storage = self.context.modules.storage
+        await storage.put_crypto("image.jpg")
+        self.context.server.security_key = "MYKEY2"
+        expired = time.time() - 10 * 24 * 3600
+        for directory, _, names in os.walk(self.root_path):
+            for name in names:
+                os.utime(os.path.join(directory, name), (expired, expired))
+        conf = os.path.join(self.root_path, "cleanup.conf")
+        with open(conf, "w", encoding="utf-8") as conf_file:
+            conf_file.write(
+                f"FILE_STORAGE_ROOT_PATH = {self.root_path!r}\n"
+                f"RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = "
+                f"{self.root_path + '-result'!r}\n"
+                "STORAGE_EXPIRATION_SECONDS = 3600\n"
+                "STORES_CRYPTO_KEY_FOR_EACH_IMAGE = True\n"
+            )
+
+        assert cleanup(["-c", conf, "--storage", "--delete"]) == 0
+
+        try:
+            response = await self.async_fetch(
+                "/nty7gpBIRJ3GWtYDLLw6q1PgqTo=/smart/image.jpg"
+            )
+            assert response.code == 200
+        finally:
+            self.context.server.security_key = "MYKEY"
