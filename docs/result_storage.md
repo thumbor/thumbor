@@ -26,7 +26,8 @@ same path.
 By default, the file system result storage keeps images forever. You are allowed
 to specify an expiration, though, using the `RESULT_STORAGE_EXPIRATION_SECONDS`
 configuration. Again, as the name implies, it specifies the number of seconds
-with which files expire.
+with which files expire. Expired files are not deleted; {doc}`cleanup` explains
+how to remove them.
 
 To use it you should set the `RESULT_STORAGE` configuration to
 `'thumbor.result_storages.file_storage'`.

@@ -18,7 +18,8 @@ path to store the image in the filesystem.
 
 There's a **STORAGE_EXPIRATION_SECONDS** option that will determine the time in
 seconds that a file is considered to be expired. When a file is expired, thumbor
-will try to retrieve the file using the specified {doc}`image_loader`.
+will try to retrieve the file using the specified {doc}`image_loader`. Expired
+files are not deleted; {doc}`cleanup` explains how to remove them.
 
 To use the filesystem storage set the configuration option of **STORAGE** to
 **'thumbor.storages.file_storage'**.
