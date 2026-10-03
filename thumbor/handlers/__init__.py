@@ -33,6 +33,12 @@ from thumbor.result_storages import ResultStorageResult
 from thumbor.storages.mixed_storage import Storage as MixedStorage
 from thumbor.storages.no_storage import Storage as NoStorage
 from thumbor.transformer import Transformer
+from thumbor.upload_auth import (
+    UnauthorizedUpload,
+    get_bearer_credentials,
+    get_valid_tokens,
+    match_token,
+)
 from thumbor.utils import CONTENT_TYPE, EXTENSION, logger
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
@@ -1240,6 +1246,49 @@ class ContextHandler(BaseHandler):
 # Base handler for Image API operations
 ##
 class ImageApiHandler(ContextHandler):
+    AUTHENTICATED_METHODS = ("POST", "PUT", "DELETE")
+
+    def prepare(self):
+        super().prepare()
+
+        if (
+            not self.context.config.UPLOAD_AUTH_REQUIRED
+            or self.request.method not in self.AUTHENTICATED_METHODS
+        ):
+            return
+
+        credentials = get_bearer_credentials(
+            self.request.headers.get("Authorization")
+        )
+        tokens = get_valid_tokens(self.context.config.UPLOAD_AUTH_TOKENS)
+        matched = None
+        if credentials is not None:
+            matched = match_token(credentials, tokens)
+
+        if matched is not None:
+            logger.debug(
+                "Authorized %s request to the upload API with "
+                "UPLOAD_AUTH_TOKENS entry %d",
+                self.request.method,
+                matched,
+            )
+            return
+
+        # Raising instead of finishing here also stops the prepare() of
+        # any subclass that extends this one.
+        raise UnauthorizedUpload(self.request.method, credentials is not None)
+
+    def write_error(self, status_code, **kwargs):
+        error = kwargs.get("exc_info", (None, None, None))[1]
+        if isinstance(error, UnauthorizedUpload):
+            # send_error() clears the headers before calling this, so the
+            # challenge cannot be set where the error is raised.
+            self.set_header("WWW-Authenticate", error.challenge)
+            self.finish()
+            return
+
+        super().write_error(status_code, **kwargs)
+
     def validate(self, body):  # pylint: disable=arguments-renamed
         conf = self.context.config
         mime = BaseEngine.get_mimetype(body)

@@ -8,6 +8,9 @@ By default, put and delete are disabled. This is done to tighten thumbor's
 security. If you wish to enable them, please refer to the
 {doc}`how_to_upload_images` page.
 
+When `UPLOAD_AUTH_REQUIRED` is enabled, every post, put and delete request must
+send a bearer token, as described in {ref}`upload-authentication`.
+
 ## Posting
 
 Posting is the only allowed by default method. It allows new images to be sent
@@ -39,6 +42,8 @@ method of `PUT`.
 ### HTTP status code
 
 - 201 Created (success)
+- 404 Not Found (the id has characters other than letters, digits, `-` and
+  `_`)
 - 405 Method Not Allowed (if thumbor's configuration disallows putting images)
 - 412 Precondition Failed (image is too small or file is not an image)
 
@@ -53,4 +58,6 @@ called `file_path` with the same path that was used when uploading the image.
 ### HTTP status code
 
 - 200 OK (success)
+- 404 Not Found (the image does not exist, or the id has characters other
+  than letters, digits, `-` and `_`)
 - 405 Method Not Allowed (if thumbor's configuration disallows deleting images)

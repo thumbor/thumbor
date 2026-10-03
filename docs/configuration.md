@@ -909,7 +909,11 @@ SENTRY_ENVIRONMENT = 'staging'
 
 ### UPLOAD_MAX_SIZE
 
-Max size in bytes for images uploaded to thumbor.
+Max size in bytes for images uploaded to thumbor. When it is not `0`, the
+server also refuses any request body larger than this with `400 Bad Request`
+before reading it, so a client without a valid upload token cannot make
+thumbor buffer a large body. With `0`, Tornado's default limit of 100 MB
+applies.
 
 ```python
 UPLOAD_MAX_SIZE = 0
@@ -921,6 +925,47 @@ Indicates whether thumbor should enable File uploads.
 
 ```python
 UPLOAD_ENABLED = False
+```
+
+### UPLOAD_AUTH_REQUIRED
+
+Indicates whether `POST`, `PUT` and `DELETE` requests to the upload API must
+send an `Authorization: Bearer <token>` header with one of the tokens in
+`UPLOAD_AUTH_TOKENS`. Requests without a valid token get `401 Unauthorized`.
+`GET` and `HEAD` requests are not affected. When uploads are enabled and this
+option is `True`, thumbor refuses to start if `UPLOAD_AUTH_TOKENS` is empty or
+has an invalid token. When uploads are enabled and this option is `False`,
+thumbor logs a warning at startup. See {doc}`how_to_upload_images`.
+
+```python
+UPLOAD_AUTH_REQUIRED = False
+```
+
+### UPLOAD_AUTH_TOKENS
+
+The bearer tokens that the upload API accepts when `UPLOAD_AUTH_REQUIRED` is
+`True`. Each token must be a non-empty ASCII string without whitespace. Use
+long random values, such as the output of `secrets.token_urlsafe(32)`. thumbor
+logs a warning at startup for tokens shorter than 32 characters. List more than
+one token to rotate them without downtime: at the `debug` log level, thumbor
+logs the index of the token that authorized each request, so you can confirm
+that the old token is no longer used before removing it.
+
+A comma-separated string such as `"first-token,second-token"` is also accepted,
+so the tokens can come from an environment variable when
+{ref}`environment overrides <override-config-through-environment-variable>` are
+enabled. A token that contains a comma needs the list form.
+
+```python
+UPLOAD_AUTH_TOKENS = []
+```
+
+Keep the tokens out of the configuration file by reading them from the
+environment, as described in {ref}`converting-environment-values`:
+
+```python
+UPLOAD_AUTH_REQUIRED = True
+UPLOAD_AUTH_TOKENS = os.environ["UPLOAD_AUTH_TOKENS"].split(",")
 ```
 
 ### UPLOAD_PHOTO_STORAGE
