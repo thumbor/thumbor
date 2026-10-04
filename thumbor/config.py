@@ -18,6 +18,8 @@ from thumbor import __version__
 from thumbor.filters import BUILTIN_FILTERS
 from thumbor.handler_lists import BUILTIN_HANDLERS
 
+# pylint: disable=too-many-lines
+
 HOME = expanduser("~")
 
 Config.define(
@@ -754,6 +756,18 @@ Config.define(
     BUILTIN_FILTERS,
     "List of filters that thumbor will allow to be used in generated images. All of them must be "
     + "full names of python modules (python must be able to import it)",
+    "Filters",
+)
+Config.define(
+    "FORMAT_FILTER_ALLOWED_CONVERSIONS",
+    {},
+    (
+        "Output formats that the format() filter may request for each source "
+        "format, such as {'svg': ['png'], 'png': ['png', 'webp']}. A listed "
+        "source allows only the formats in its list, and any other format() "
+        "call is rejected with a 400. Sources that are not listed are not "
+        "restricted. Use an empty dict to allow every conversion"
+    ),
     "Filters",
 )
 
