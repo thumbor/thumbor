@@ -38,10 +38,11 @@ The current image engine is available as `self.engine`.
 
 When a metrics backend is enabled, each filter execution emits a
 `filter.<filter_name>.time` timing. Successful executions also emit
-`filter.<filter_name>.count`, while failed executions emit
-`filter.<filter_name>.error`. The `<filter_name>` portion comes from the
-decorated method name, so it should stay stable if you rely on dashboards or
-alerts.
+`filter.<filter_name>.count`, executions that answer the request with a 4xx
+`tornado.web.HTTPError` emit `filter.<filter_name>.rejected`, and other
+failures emit `filter.<filter_name>.error`. The `<filter_name>` portion comes
+from the decorated method name, so it should stay stable if you rely on
+dashboards or alerts.
 
 And that's it, we got our filter. In order to use it, we need to put it in our
 `thumbor.conf`:
