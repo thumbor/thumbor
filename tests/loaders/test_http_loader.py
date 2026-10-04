@@ -10,9 +10,9 @@
 # Test file
 # pylint: disable=protected-access
 
+import asyncio
 import os
 import re
-import time
 from os.path import abspath, dirname, join
 from unittest import mock
 from urllib.parse import quote
@@ -40,7 +40,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 class TimeoutHandler(tornado.web.RequestHandler):
     async def get(self):
-        time.sleep(1.2)
+        await asyncio.sleep(1.2)
         self.write("Hello")
 
 

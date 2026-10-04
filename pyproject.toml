@@ -33,6 +33,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Programming Language :: Python :: 3 :: Only",
   "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
   "Topic :: Multimedia :: Graphics :: Presentation",
@@ -59,7 +60,7 @@ opencv = [
 extra-libs = [
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",
-  "pillow-avif-plugin>=1.4.1,<2.0.0",
+  "pillow-avif-plugin>=1.4.1,<2.0.0; python_version < '3.15'",
   "pillow-heif>=1.3.0,<2.0.0",
 ]
 tests = [
@@ -90,7 +91,7 @@ all = [
   "numpy>=1.26.3,<3.0.0",
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",
-  "pillow-avif-plugin>=1.4.1,<2.0.0",
+  "pillow-avif-plugin>=1.4.1,<2.0.0; python_version < '3.15'",
   "pillow-heif>=1.3.0,<2.0.0",
 ]
 
@@ -134,7 +135,7 @@ target-version = ['py310']
 include = '\.pyi?$'
 
 [tool.cibuildwheel]
-build = "cp31[01234]-*"
+build = "cp31[012345]-*"
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64 universal2"
