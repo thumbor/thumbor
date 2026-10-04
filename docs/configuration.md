@@ -203,6 +203,47 @@ FILTERS = [
 ]
 ```
 
+### FORMAT_FILTER_ALLOWED_CONVERSIONS
+
+The output formats that the {doc}`format` filter may request for each source
+format. It defaults to an empty dict, which allows every conversion.
+
+```python
+FORMAT_FILTER_ALLOWED_CONVERSIONS = {
+    "svg": ["png"],
+    "png": ["png", "webp"],
+    "jpg": ["jpg", "webp"],
+}
+```
+
+A source in the dict allows only the formats in its list, so list the source
+format too when `format()` may keep it. Any other `format()` call for that
+source, an invalid format included, is answered with `400 Bad Request` before
+the image is encoded, and nothing is stored in the result storage. When a URL
+calls `format()` more than once, every call must be allowed. An empty list
+rejects every `format()` call for that source, and sources that are not in the
+dict are not restricted. Names are case-insensitive, and `jpeg`, `tiff` and
+`heif` match `jpg`, `tif` and `heic`. thumbor refuses to start when the option
+is not a dict of lists, a source is empty or repeated (`jpg` and `JPEG` count
+as the same source), or a list names a format that `format()` does not support.
+Sources are not checked otherwise, so a misspelled source never matches.
+
+The source is the format thumbor detects from the image content, not the
+extension in the URL: an SVG counts as `svg` even though thumbor rasterizes it
+before resizing. thumbor detects `png`, `jpg`, `gif`, `webp`, `avif`, `heic`,
+`tif` and `svg`, and treats any other content as `jpg`, so a `jpg` entry also
+applies to images it cannot identify. GIFs handled by `USE_GIFSICLE_ENGINE`
+skip filters, `format()` included, so they keep their format and are not
+checked.
+
+This option only restricts the `format()` filter. URLs without it, the
+conversions enabled by `AUTO_WEBP` and the other `AUTO_*` options, and the
+{doc}`autojpg` filter are not affected. An allowed `format()` still takes
+precedence over the `AUTO_*` options, and a rejected one fails with
+`400 Bad Request` instead of falling back to an automatic format. Images already
+in the result storage keep being served, so clear it after changing this
+option. To stop URL tampering, sign your URLs as described in {doc}`security`.
+
 ## Metadata Section
 
 ### META_CALLBACK_NAME

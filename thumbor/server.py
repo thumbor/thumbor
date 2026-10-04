@@ -26,6 +26,7 @@ from tornado.httpserver import HTTPServer
 from thumbor.config import Config
 from thumbor.console import get_server_parameters
 from thumbor.context import Context
+from thumbor.filters.format import ALLOWED_FORMATS, normalize_format
 from thumbor.importer import Importer
 from thumbor.loaders import warn_legacy_allowed_sources
 from thumbor.signal_handler import setup_signal_handler
@@ -96,6 +97,51 @@ def validate_allowed_sizes(allowed_sizes):
             )
 
 
+def validate_format_filter_allowed_conversions(conversions):
+    if not isinstance(conversions, dict):
+        raise RuntimeError(
+            "FORMAT_FILTER_ALLOWED_CONVERSIONS must be a dict of source "
+            "formats to lists of output formats, such as {'svg': ['png']}."
+        )
+
+    output_formats = {normalize_format(fmt) for fmt in ALLOWED_FORMATS}
+    sources = set()
+    for source, targets in conversions.items():
+        # Sources stay free-form: custom engines are imported after this
+        # check and can register source formats that EXTENSION lacks.
+        if not isinstance(source, str) or not normalize_format(source):
+            raise RuntimeError(
+                f"Invalid FORMAT_FILTER_ALLOWED_CONVERSIONS source {source!r}. "
+                "Sources must be format names such as 'svg'."
+            )
+
+        if normalize_format(source) in sources:
+            raise RuntimeError(
+                f"Duplicate FORMAT_FILTER_ALLOWED_CONVERSIONS source "
+                f"{source!r}. Sources are case-insensitive, and jpeg, tiff "
+                "and heif match jpg, tif and heic."
+            )
+        sources.add(normalize_format(source))
+
+        if not isinstance(targets, (list, tuple, set, frozenset)):
+            raise RuntimeError(
+                f"Invalid FORMAT_FILTER_ALLOWED_CONVERSIONS entry for "
+                f"{source!r}. Output formats must be a list such as ['png'], "
+                "or [] to reject every format() call for this source."
+            )
+
+        for target in targets:
+            if (
+                not isinstance(target, str)
+                or normalize_format(target) not in output_formats
+            ):
+                raise RuntimeError(
+                    f"Invalid FORMAT_FILTER_ALLOWED_CONVERSIONS output format "
+                    f"{target!r} for {source!r}. The format() filter supports "
+                    f"{', '.join(ALLOWED_FORMATS)}."
+                )
+
+
 def validate_config(config, server_parameters):
     if server_parameters.security_key is None:
         server_parameters.security_key = config.SECURITY_KEY
@@ -112,6 +158,9 @@ def validate_config(config, server_parameters):
 
     warn_legacy_allowed_sources(config.ALLOWED_SOURCES)
     validate_allowed_sizes(config.ALLOWED_SIZES)
+    validate_format_filter_allowed_conversions(
+        config.FORMAT_FILTER_ALLOWED_CONVERSIONS
+    )
 
     if config.USE_GIFSICLE_ENGINE:
         server_parameters.gifsicle_path = which("gifsicle")

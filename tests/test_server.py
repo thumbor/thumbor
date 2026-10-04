@@ -29,6 +29,7 @@ from thumbor.server import (
     run_server,
     validate_allowed_sizes,
     validate_config,
+    validate_format_filter_allowed_conversions,
 )
 
 
@@ -206,6 +207,22 @@ class ServerTestCase(TestCase):
         validate_config(conf, server_parameters)
 
         validation_mock.assert_called_once_with(["400x200"])
+
+    @mock.patch.object(
+        thumbor.server, "validate_format_filter_allowed_conversions"
+    )
+    def test_validate_config_validates_format_filter_allowed_conversions(
+        self, validation_mock
+    ):
+        server_parameters = mock.Mock(security_key=None)
+        conf = Config(
+            SECURITY_KEY="something",
+            FORMAT_FILTER_ALLOWED_CONVERSIONS={"svg": ["png"]},
+        )
+
+        validate_config(conf, server_parameters)
+
+        validation_mock.assert_called_once_with({"svg": ["png"]})
 
     @mock.patch.object(thumbor.server, "which")
     def test_validate_gifsicle_path(self, which_mock):
@@ -438,3 +455,67 @@ def test_validate_allowed_sizes_requires_a_list(allowed_sizes):
 def test_validate_allowed_sizes_rejects_invalid_entries(size):
     with pytest.raises(RuntimeError, match="Invalid ALLOWED_SIZES entry"):
         validate_allowed_sizes(["400x200", size])
+
+
+@pytest.mark.parametrize(
+    "conversions",
+    [
+        {},
+        {"svg": ["png"], "png": ["png", "webp"]},
+        {"SVG": ("PNG",), ".jpg": {"jpeg", "heif"}},
+        {"tiff": frozenset(["jpg"]), "gif": []},
+        {"pdf": ["png"]},
+    ],
+)
+def test_validate_format_filter_allowed_conversions_accepts_valid_values(
+    conversions,
+):
+    validate_format_filter_allowed_conversions(conversions)
+
+
+@pytest.mark.parametrize(
+    "conversions",
+    ["svg", "", [], None, 0, [("svg", ["png"])]],
+)
+def test_validate_format_filter_allowed_conversions_requires_a_dict(
+    conversions,
+):
+    with pytest.raises(RuntimeError, match="must be a dict"):
+        validate_format_filter_allowed_conversions(conversions)
+
+
+@pytest.mark.parametrize("source", ["", ".", 1, None, ("svg",)])
+def test_validate_format_filter_allowed_conversions_rejects_invalid_sources(
+    source,
+):
+    with pytest.raises(RuntimeError, match="source"):
+        validate_format_filter_allowed_conversions({source: ["png"]})
+
+
+@pytest.mark.parametrize(
+    "conversions",
+    [
+        {"jpg": ["jpg"], "JPEG": ["webp"]},
+        {"tif": [], "tiff": ["png"]},
+        {"heic": [], ".heif": []},
+    ],
+)
+def test_validate_format_filter_allowed_conversions_rejects_duplicates(
+    conversions,
+):
+    with pytest.raises(RuntimeError, match="Duplicate"):
+        validate_format_filter_allowed_conversions(conversions)
+
+
+@pytest.mark.parametrize("targets", ["png", None, {}, {"png": 1}, 1])
+def test_validate_format_filter_allowed_conversions_requires_a_list(targets):
+    with pytest.raises(RuntimeError, match="must be a list"):
+        validate_format_filter_allowed_conversions({"svg": targets})
+
+
+@pytest.mark.parametrize("target", ["bmp", "svg", "tif", "", 1, None])
+def test_validate_format_filter_allowed_conversions_rejects_invalid_targets(
+    target,
+):
+    with pytest.raises(RuntimeError, match="output format"):
+        validate_format_filter_allowed_conversions({"svg": ["png", target]})
