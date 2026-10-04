@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+# pylint: disable=too-many-lines
+
 import tempfile
 from os.path import expanduser, join
 
@@ -619,6 +621,21 @@ Config.define(
     "UPLOAD_ENABLED",
     False,
     "Indicates whether thumbor should enable File uploads",
+    "Upload",
+)
+Config.define(
+    "UPLOAD_AUTH_REQUIRED",
+    False,
+    "Indicates whether POST, PUT and DELETE requests to the upload API must "
+    "send an Authorization: Bearer header with one of UPLOAD_AUTH_TOKENS",
+    "Upload",
+)
+Config.define(
+    "UPLOAD_AUTH_TOKENS",
+    [],
+    "Bearer tokens accepted by the upload API when UPLOAD_AUTH_REQUIRED is "
+    "True. Each token must be a non-empty ASCII string without whitespace. "
+    "List more than one token to rotate them",
     "Upload",
 )
 Config.define(
