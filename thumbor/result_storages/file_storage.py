@@ -8,6 +8,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import hashlib
+import os
 from datetime import datetime
 from os.path import abspath, dirname, exists, getmtime, isdir, isfile, join
 from shutil import move
@@ -103,15 +104,23 @@ class Storage(BaseStorage):
             logger.debug("[RESULT_STORAGE] cached image has expired")
             return None
 
-        with open(file_abspath, "rb") as image_file:
-            buffer = image_file.read()
+        try:
+            with open(file_abspath, "rb") as image_file:
+                buffer = image_file.read()
+                last_modified = os.fstat(image_file.fileno()).st_mtime
+        except FileNotFoundError:
+            logger.debug(
+                "[RESULT_STORAGE] image removed before it was read: %s",
+                file_abspath,
+            )
+            return None
 
         result = ResultStorageResult(
             buffer=buffer,
             metadata={
-                "LastModified": datetime.fromtimestamp(
-                    getmtime(file_abspath)
-                ).replace(tzinfo=pytz.utc),
+                "LastModified": datetime.fromtimestamp(last_modified).replace(
+                    tzinfo=pytz.utc
+                ),
                 "ContentLength": len(buffer),
                 "ContentType": BaseEngine.get_mimetype(buffer),
             },
@@ -189,7 +198,12 @@ class Storage(BaseStorage):
         if expire_in_seconds is None or expire_in_seconds == 0:
             return False
 
-        timediff = datetime.now() - datetime.fromtimestamp(getmtime(path))
+        try:
+            mtime = getmtime(path)
+        except FileNotFoundError:
+            return True
+
+        timediff = datetime.now() - datetime.fromtimestamp(mtime)
         return timediff.total_seconds() > expire_in_seconds
 
     @deprecated("Use result's last_modified instead")

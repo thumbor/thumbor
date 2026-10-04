@@ -95,8 +95,11 @@ class Storage(storages.BaseStorage):
         if not resource_available:
             return None
 
-        with open(self.path_on_filesystem(path), "rb") as source_file:
-            return source_file.read()
+        try:
+            with open(self.path_on_filesystem(path), "rb") as source_file:
+                return source_file.read()
+        except FileNotFoundError:
+            return None
 
     async def get_crypto(self, path):
         file_abspath = self.path_on_filesystem(path)
@@ -105,8 +108,11 @@ class Storage(storages.BaseStorage):
         if not exists(crypto_file):
             return None
 
-        with open(crypto_file, "r", encoding="utf-8") as crypto_f:
-            return crypto_f.read()
+        try:
+            with open(crypto_file, "r", encoding="utf-8") as crypto_f:
+                return crypto_f.read()
+        except FileNotFoundError:
+            return None
 
     async def get_detector_data(self, path):
         file_abspath = self.path_on_filesystem(path)
@@ -117,8 +123,11 @@ class Storage(storages.BaseStorage):
         if not resource_available:
             return None
 
-        with open(path, "r", encoding="utf-8") as detector_file:
-            return loads(detector_file.read())
+        try:
+            with open(path, "r", encoding="utf-8") as detector_file:
+                return loads(detector_file.read())
+        except FileNotFoundError:
+            return None
 
     def path_on_filesystem(self, path):
         digest = hashlib.sha1(path.encode("utf-8")).hexdigest()
@@ -130,9 +139,12 @@ class Storage(storages.BaseStorage):
     ):  # pylint: disable=arguments-differ
         if path_on_filesystem is None:
             path_on_filesystem = self.path_on_filesystem(path)
-        return os.path.exists(path_on_filesystem) and not self.__is_expired(
-            path_on_filesystem
-        )
+        if not os.path.exists(path_on_filesystem):
+            return False
+        try:
+            return not self.__is_expired(path_on_filesystem)
+        except FileNotFoundError:
+            return False
 
     async def remove(self, path):
         n_path = self.path_on_filesystem(path)

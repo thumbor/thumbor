@@ -9,12 +9,14 @@
 
 import asyncio
 import hashlib
+import os
 import tempfile
 from datetime import datetime
 from os.path import abspath, dirname, exists, join
 from unittest import mock
 from urllib.parse import unquote
 
+import pytz
 from tornado.testing import gen_test
 
 from thumbor.auto_image_format import (
@@ -554,6 +556,49 @@ class ResultStorageResultTestCase(BaseFileStorageTestCase):
         assert len(result) == 5319
         assert len(result) == result.metadata["ContentLength"]
         assert isinstance(result.last_modified, datetime)
+
+
+class VanishingFileStorageTestCase(BaseFileStorageTestCase):
+    def get_config(self):
+        config = super().get_config()
+        config.RESULT_STORAGE_EXPIRATION_SECONDS = 60
+        return config
+
+    def get_request(self):  # pylint: disable=arguments-differ
+        return RequestParameters(url="/unsafe/10x10/image.jpg")
+
+    @gen_test
+    async def test_last_modified_is_the_mtime_of_the_file_read(self):
+        await self.file_storage.put(self.read_image_fixture("image.jpg"))
+        path = self.file_storage.normalize_path(self.context.request.url)
+
+        result = await self.file_storage.get()
+
+        assert result.last_modified == datetime.fromtimestamp(
+            os.path.getmtime(path)
+        ).replace(tzinfo=pytz.utc)
+
+    @gen_test
+    async def test_get_returns_none_if_image_is_removed_before_read(self):
+        await self.file_storage.put(self.read_image_fixture("image.jpg"))
+
+        def checked_then_removed(path):
+            os.remove(path)
+            return False
+
+        with mock.patch.object(
+            self.file_storage, "is_expired", side_effect=checked_then_removed
+        ):
+            result = await self.file_storage.get()
+
+        assert result is None
+
+    def test_is_expired_if_image_is_removed_before_mtime(self):
+        with mock.patch(
+            "thumbor.result_storages.file_storage.getmtime",
+            side_effect=FileNotFoundError,
+        ):
+            assert self.file_storage.is_expired("/missing") is True
 
 
 class ExpiredFileStorageTestCase(BaseFileStorageTestCase):
