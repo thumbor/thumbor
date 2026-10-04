@@ -85,6 +85,7 @@ class ConfigValuesTestCase(TestCase):
                     "thumbor.filters.stretch",
                 ],
             ),
+            ("FORMAT_FILTER_ALLOWED_CONVERSIONS", {}),
         )
 
     def test_default_values(self):
