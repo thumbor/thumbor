@@ -26,9 +26,11 @@ from tornado.httpserver import HTTPServer
 from thumbor.config import Config
 from thumbor.console import get_server_parameters
 from thumbor.context import Context
+from thumbor.filters.format import ALLOWED_FORMATS, normalize_format
 from thumbor.importer import Importer
 from thumbor.loaders import warn_legacy_allowed_sources
 from thumbor.signal_handler import setup_signal_handler
+from thumbor.utils import EXTENSION
 
 # The handler compares entries with the size it parsed from the URL as text,
 # so a leading zero such as "0400x200" or a non-ASCII digit would never
@@ -36,6 +38,12 @@ from thumbor.signal_handler import setup_signal_handler
 ALLOWED_SIZE_RE = re.compile(
     r"(?:0|[1-9]\d*|orig)x(?:0|[1-9]\d*|orig)", re.ASCII
 )
+
+FORMAT_FILTER_OUTPUT_FORMATS = {
+    normalize_format(fmt) for fmt in ALLOWED_FORMATS
+}
+KNOWN_SOURCE_FORMATS = {ext.lstrip(".") for ext in EXTENSION.values()}
+SOURCE_FORMAT_RE = re.compile(r"[a-z0-9]+", re.ASCII)
 
 
 def get_as_integer(value):
@@ -96,6 +104,69 @@ def validate_allowed_sizes(allowed_sizes):
             )
 
 
+def validate_format_filter_allowed_conversions(conversions):
+    if not isinstance(conversions, dict):
+        raise RuntimeError(
+            "FORMAT_FILTER_ALLOWED_CONVERSIONS must be a dict of source "
+            "formats to lists of output formats, such as {'svg': ['png']}."
+        )
+
+    sources = set()
+    for source, targets in conversions.items():
+        normalized = validate_conversion_source(source)
+        if normalized in sources:
+            raise RuntimeError(
+                f"Duplicate FORMAT_FILTER_ALLOWED_CONVERSIONS source "
+                f"{source!r}. Sources are case-insensitive, and jpeg, tiff "
+                "and heif match jpg, tif and heic."
+            )
+        sources.add(normalized)
+        validate_conversion_targets(source, targets)
+
+
+def validate_conversion_source(source):
+    normalized = normalize_format(source) if isinstance(source, str) else ""
+    if not SOURCE_FORMAT_RE.fullmatch(normalized):
+        raise RuntimeError(
+            f"Invalid FORMAT_FILTER_ALLOWED_CONVERSIONS source {source!r}. "
+            "Sources must be format names such as 'svg', and there is no "
+            "wildcard: content thumbor cannot identify is checked as 'jpg'."
+        )
+
+    # Sources stay free-form: custom engines are imported after this
+    # check and can register source formats that EXTENSION lacks.
+    if normalized not in KNOWN_SOURCE_FORMATS:
+        logging.warning(
+            "FORMAT_FILTER_ALLOWED_CONVERSIONS source %r is not a format "
+            "thumbor reports, so it only matches with an engine that "
+            "reports it. Content thumbor cannot identify, JPEG 2000 and "
+            "PSD included, is checked as 'jpg'.",
+            source,
+        )
+
+    return normalized
+
+
+def validate_conversion_targets(source, targets):
+    if not isinstance(targets, (list, tuple, set, frozenset)):
+        raise RuntimeError(
+            f"Invalid FORMAT_FILTER_ALLOWED_CONVERSIONS entry for "
+            f"{source!r}. Output formats must be a list such as ['png'], "
+            "or [] to reject every format() call for this source."
+        )
+
+    for target in targets:
+        if (
+            not isinstance(target, str)
+            or normalize_format(target) not in FORMAT_FILTER_OUTPUT_FORMATS
+        ):
+            raise RuntimeError(
+                f"Invalid FORMAT_FILTER_ALLOWED_CONVERSIONS output format "
+                f"{target!r} for {source!r}. The format() filter supports "
+                f"{', '.join(ALLOWED_FORMATS)}."
+            )
+
+
 def validate_config(config, server_parameters):
     if server_parameters.security_key is None:
         server_parameters.security_key = config.SECURITY_KEY
@@ -112,6 +183,9 @@ def validate_config(config, server_parameters):
 
     warn_legacy_allowed_sources(config.ALLOWED_SOURCES)
     validate_allowed_sizes(config.ALLOWED_SIZES)
+    validate_format_filter_allowed_conversions(
+        config.FORMAT_FILTER_ALLOWED_CONVERSIONS
+    )
 
     if config.USE_GIFSICLE_ENGINE:
         server_parameters.gifsicle_path = which("gifsicle")
