@@ -27,8 +27,10 @@ def validate(context, url):
     )
 
 
-def return_contents(response, url, context):
-    return http_loader.return_contents(response, url, context)
+def return_contents(response, url, context, req_start=None):
+    return http_loader.return_contents(
+        response, url, context, req_start=req_start
+    )
 
 
 async def load(context, url):

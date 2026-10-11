@@ -10,10 +10,13 @@
 # Test file
 # pylint: disable=protected-access,line-too-long
 
+import datetime
 from os.path import abspath, dirname, join
+from unittest import mock
 
 import tornado.web
-from tornado.testing import gen_test
+from tornado.httpclient import AsyncHTTPClient
+from tornado.testing import AsyncHTTPSTestCase, gen_test
 
 import thumbor.loaders.strict_https_loader as loader
 from tests.base import TestCase
@@ -77,6 +80,23 @@ class ReturnContentTestCase(TestCase):
         result = loader.return_contents(response_mock, "some-url", ctx)
         assert isinstance(result, LoaderResult)
         assert result.buffer == "body"
+
+    @gen_test
+    async def test_return_body_if_valid_with_req_start(self):
+        response_mock = ResponseMock(body="body", code=200)
+        ctx = Context(None, None, None)
+        ctx.metrics = mock.Mock()
+        result = loader.return_contents(
+            response_mock,
+            "https://some.url/image.jpg",
+            ctx,
+            req_start=datetime.datetime.now(),
+        )
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == "body"
+        assert result.successful
+        timed = [call.args[0] for call in ctx.metrics.timing.call_args_list]
+        assert "original_image.fetch.latency.200.some_url" in timed
 
     @gen_test
     async def test_return_upstream_error_on_body_none(self):
@@ -143,3 +163,25 @@ class NormalizeUrlTestCase(TestCase):
         expected = "https://www.google.ca/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"  # NOQA
         result = loader._normalize_url(url)
         assert result == expected
+
+
+class LoadTestCase(AsyncHTTPSTestCase):
+    def get_app(self):
+        return tornado.web.Application([(r"/", MainHandler)])
+
+    def tearDown(self):
+        AsyncHTTPClient().close()
+        super().tearDown()
+
+    @gen_test
+    async def test_load_from_https_server(self):
+        url = self.get_url("/")
+        config = Config()
+        config.HTTP_LOADER_VALIDATE_CERTS = False
+        ctx = Context(None, config, None)
+
+        assert loader.validate(ctx, url)
+        result = await loader.load(ctx, url)
+        assert isinstance(result, LoaderResult)
+        assert result.buffer == b"Hello"
+        assert result.successful
