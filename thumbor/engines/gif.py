@@ -95,6 +95,7 @@ class Engine(PILEngine):
         raise NotImplementedError()
 
     def resize(self, width, height):
+        width, height = int(width), int(height)
         if width == 0 and height == 0:
             return
 
@@ -108,6 +109,12 @@ class Engine(PILEngine):
         self.operations.append(arguments)
 
     def crop(self, left, top, right, bottom):
+        left, top, right, bottom = (
+            int(left),
+            int(top),
+            int(right),
+            int(bottom),
+        )
         arguments = f"--crop {left},{top}-{right},{bottom}"
         self.operations.append(arguments)
         self.flush_operations()
