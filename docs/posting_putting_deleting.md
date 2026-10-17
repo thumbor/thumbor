@@ -8,6 +8,9 @@ By default, put and delete are disabled. This is done to tighten thumbor's
 security. If you wish to enable them, please refer to the
 {doc}`how_to_upload_images` page.
 
+When `UPLOAD_AUTH_REQUIRED` is enabled, every post, put and delete request must
+send a bearer token, as described in {ref}`upload-authentication`.
+
 ## Posting
 
 Posting is the only allowed by default method. It allows new images to be sent

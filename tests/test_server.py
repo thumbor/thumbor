@@ -29,6 +29,7 @@ from thumbor.server import (
     run_server,
     validate_allowed_sizes,
     validate_config,
+    validate_upload_auth,
 )
 
 
@@ -206,6 +207,15 @@ class ServerTestCase(TestCase):
         validate_config(conf, server_parameters)
 
         validation_mock.assert_called_once_with(["400x200"])
+
+    @mock.patch.object(thumbor.server, "validate_upload_auth")
+    def test_validate_config_validates_upload_auth(self, validation_mock):
+        server_parameters = mock.Mock(security_key=None)
+        conf = Config(SECURITY_KEY="something")
+
+        validate_config(conf, server_parameters)
+
+        validation_mock.assert_called_once_with(conf)
 
     @mock.patch.object(thumbor.server, "which")
     def test_validate_gifsicle_path(self, which_mock):
@@ -438,3 +448,123 @@ def test_validate_allowed_sizes_requires_a_list(allowed_sizes):
 def test_validate_allowed_sizes_rejects_invalid_entries(size):
     with pytest.raises(RuntimeError, match="Invalid ALLOWED_SIZES entry"):
         validate_allowed_sizes(["400x200", size])
+
+
+UPLOAD_TOKEN = "a" * 32
+
+
+def test_validate_upload_auth_ignores_disabled_uploads(caplog):
+    conf = Config(
+        UPLOAD_ENABLED=False, UPLOAD_AUTH_REQUIRED=True, UPLOAD_AUTH_TOKENS=[]
+    )
+
+    validate_upload_auth(conf)
+
+    assert caplog.records == []
+
+
+def test_validate_upload_auth_warns_without_authentication(caplog):
+    conf = Config(UPLOAD_ENABLED=True, UPLOAD_AUTH_REQUIRED=False)
+
+    validate_upload_auth(conf)
+
+    assert [record.levelname for record in caplog.records] == ["WARNING"]
+    assert "without authentication" in caplog.text
+
+
+@pytest.mark.parametrize(
+    "tokens",
+    [
+        [UPLOAD_TOKEN],
+        (UPLOAD_TOKEN, "b" * 40),
+        {UPLOAD_TOKEN},
+        [f" {UPLOAD_TOKEN} "],
+        f"{UPLOAD_TOKEN},{'b' * 40}",
+    ],
+)
+def test_validate_upload_auth_accepts_valid_tokens(tokens, caplog):
+    conf = Config(
+        UPLOAD_ENABLED=True,
+        UPLOAD_AUTH_REQUIRED=True,
+        UPLOAD_AUTH_TOKENS=tokens,
+    )
+
+    validate_upload_auth(conf)
+
+    assert caplog.records == []
+
+
+@pytest.mark.parametrize("tokens", [[], ()])
+def test_validate_upload_auth_requires_tokens(tokens):
+    conf = Config(
+        UPLOAD_ENABLED=True,
+        UPLOAD_AUTH_REQUIRED=True,
+        UPLOAD_AUTH_TOKENS=tokens,
+    )
+
+    with pytest.raises(RuntimeError, match="UPLOAD_AUTH_TOKENS is empty"):
+        validate_upload_auth(conf)
+
+
+@pytest.mark.parametrize("tokens", [None, 123, {"token": 1}, b"token"])
+def test_validate_upload_auth_requires_a_list(tokens):
+    conf = Config(
+        UPLOAD_ENABLED=True,
+        UPLOAD_AUTH_REQUIRED=True,
+        UPLOAD_AUTH_TOKENS=tokens,
+    )
+
+    with pytest.raises(RuntimeError, match="must be a list of tokens"):
+        validate_upload_auth(conf)
+
+
+@pytest.mark.parametrize(
+    "token",
+    [
+        "",
+        "   ",
+        "secret with-space",
+        "secret\twith-tab",
+        "s\u00e9cret-non-ascii",
+        123,
+        b"secret-bytes",
+    ],
+)
+def test_validate_upload_auth_rejects_invalid_tokens(token):
+    conf = Config(
+        UPLOAD_ENABLED=True,
+        UPLOAD_AUTH_REQUIRED=True,
+        UPLOAD_AUTH_TOKENS=[UPLOAD_TOKEN, token],
+    )
+
+    with pytest.raises(
+        RuntimeError, match="entry at index 1 is invalid"
+    ) as error:
+        validate_upload_auth(conf)
+
+    assert "secret" not in str(error.value)
+
+
+def test_validate_upload_auth_rejects_empty_comma_separated_tokens():
+    conf = Config(
+        UPLOAD_ENABLED=True,
+        UPLOAD_AUTH_REQUIRED=True,
+        UPLOAD_AUTH_TOKENS=f"{UPLOAD_TOKEN},",
+    )
+
+    with pytest.raises(RuntimeError, match="entry at index 1 is invalid"):
+        validate_upload_auth(conf)
+
+
+def test_validate_upload_auth_warns_about_short_tokens(caplog):
+    conf = Config(
+        UPLOAD_ENABLED=True,
+        UPLOAD_AUTH_REQUIRED=True,
+        UPLOAD_AUTH_TOKENS=[UPLOAD_TOKEN, "short-secret"],
+    )
+
+    validate_upload_auth(conf)
+
+    assert [record.levelname for record in caplog.records] == ["WARNING"]
+    assert "shorter than 32 characters" in caplog.text
+    assert "short-secret" not in caplog.text
