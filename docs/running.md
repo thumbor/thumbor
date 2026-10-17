@@ -69,3 +69,8 @@ thumbor-url.
 
 In order to use it, type `thumbor-url -h` and it will present all options
 available.
+
+### Cleaning expired files
+
+The file storage and the file result storage keep expired files on disk.
+thumbor comes with `thumbor-cleanup` to delete them; see {doc}`cleanup`.
