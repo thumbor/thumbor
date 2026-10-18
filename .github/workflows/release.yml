@@ -13,8 +13,8 @@ permissions:
   packages: write
 
 env:
-  CIBW_PROJECT_REQUIRES_PYTHON: ">=3.10"
-  python-version: "3.10"
+  CIBW_PROJECT_REQUIRES_PYTHON: ">=3.11"
+  python-version: "3.11"
 
 jobs:
   # Heavily inspired on https://github.com/tornadoweb/tornado/blob/master/.github/workflows/build.yml
@@ -97,7 +97,6 @@ jobs:
       fail-fast: false
       matrix:
         python_version:
-          - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
@@ -268,7 +267,6 @@ jobs:
       fail-fast: false
       matrix:
         python_version:
-          - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"

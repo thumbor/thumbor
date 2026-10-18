@@ -32,7 +32,7 @@ install editable dependencies, and keep the development environment in sync
 with `uv.lock`. If uv is not already installed, `make setup` installs the
 pinned version into `.uv-venv`.
 
-The project requires Python 3.10+. The uv development workflow requires
+The project requires Python 3.11+. The uv development workflow requires
 macOS 13+ on macOS.
 
 ## Initializing the Environment

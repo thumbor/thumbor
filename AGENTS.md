@@ -7,7 +7,7 @@ filters are all swappable.
 
 ## Dev Environment Setup
 
-- **Prerequisites:** Python 3.10+, uv, Redis, a C compiler (for native
+- **Prerequisites:** Python 3.11+, uv, Redis, a C compiler (for native
   extensions). The uv development workflow requires macOS 13+ on macOS.
 - Install all dependencies (creates `.venv` with an editable install, test
   tools, and optional imaging libraries):
@@ -79,12 +79,12 @@ Other CLI entry points registered by the package:
 
   If you hit "Too many open files", run `ulimit -S -n 2048` first.
 
-- In CI, everything runs inside Docker across a Python 3.10–3.15 matrix via
+- In CI, everything runs inside Docker across a Python 3.11–3.15 matrix via
   GitHub Actions.
 
 ## Code style
 
-- **Formatter:** `black` (line length 79, target Python 3.10). Run with `make format`.
+- **Formatter:** `black` (line length 79, target Python 3.11). Run with `make format`.
 - **Linter:** `flake8` (max complexity 20). Run with `make flake`.
 - **Imports:** `isort` (multi-line style 3, compatible with black).
 - **Static analysis:** `pylint`. Run with `make pylint`.

@@ -22,7 +22,6 @@ jobs:
       fail-fast: false
       matrix:
         image-tag:
-          - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
@@ -37,7 +36,7 @@ jobs:
             thumbor-docker-${{ matrix.image-tag }}-
       - uses: actions/checkout@v7
       - name: Check every uv sync/run uses --locked
-        if: matrix.image-tag == '3.10'
+        if: matrix.image-tag == '3.11'
         shell: bash
         run: |
           git grep -nE \

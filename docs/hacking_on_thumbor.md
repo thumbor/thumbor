@@ -14,7 +14,7 @@ install thumbor in editable mode, and keep dependency versions in sync with
 `uv.lock`. If uv is not already installed, `make setup` installs the pinned
 version into `.uv-venv`. On macOS, this workflow requires macOS 13 or newer.
 
-You'll also need Python >= 3.10.
+You'll also need Python >= 3.11.
 
 Other than that, you'll also need [redis-server](https://redis.io) installed
 (for queued detector unit tests).
@@ -112,11 +112,11 @@ make test-docker-run
 Or if you want to run a specific python version with your tests:
 
 ```
-make test-docker-310-run
+make test-docker-311-run
 ```
 
 These targets build the corresponding local test image before running it.
 
-Just replace '310' with the python version you want: 310, 311, 312, 313, 314 or 315.
+Just replace '311' with the python version you want: 311, 312, 313, 314 or 315.
 
 [too-many-files]: http://superuser.com/questions/433746/is-there-a-fix-for-the-too-many-open-files-in-system-error-on-os-x-10-7-1

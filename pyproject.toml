@@ -7,7 +7,7 @@ name = "thumbor"
 dynamic = ["version"]
 description = "thumbor is an open-source photo thumbnail service by globo.com"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "globo.com", email = "thumbor@googlegroups.com" }]
@@ -28,7 +28,6 @@ classifiers = [
   "Operating System :: MacOS",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -131,11 +130,11 @@ version = { attr = "thumbor.__version__" }
 
 [tool.black]
 line-length = 79
-target-version = ['py310']
+target-version = ['py311']
 include = '\.pyi?$'
 
 [tool.cibuildwheel]
-build = "cp31[012345]-*"
+build = "cp31[12345]-*"
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64 universal2"
