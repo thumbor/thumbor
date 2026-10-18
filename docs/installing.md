@@ -4,7 +4,7 @@ thumbor is distributed as a Python package and can be installed with any
 standards-compliant Python package installer.
 
 ```{warning}
-Current thumbor releases require Python 3.10 or newer. Please refer to
+Current thumbor releases require Python 3.11 or newer. Please refer to
 [release notes](https://github.com/thumbor/thumbor/releases)
 for details on how to upgrade.
 ```
