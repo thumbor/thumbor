@@ -650,6 +650,22 @@ class PilEngineTestCase(TestCase):
         assert alpha.getpixel((2, 5)) == 0
         assert alpha.getpixel((7, 5)) == 255
 
+    def test_read_should_clip_32bit_grayscale_to_16bit_png(self):
+        for extension in (".png", ".tif"):
+            with self.subTest(extension=extension):
+                engine = Engine(self.context)
+                engine.image = Image.new("I", (3, 1))
+                engine.image.putdata([-5, 1000, 70000])
+
+                image = Image.open(BytesIO(engine.read(extension)))
+
+                assert image.format == "PNG"
+                assert [image.getpixel((x, 0)) for x in range(3)] == [
+                    0,
+                    1000,
+                    65535,
+                ]
+
     @skip_unless_avif
     def test_convert_jpg_to_avif(self):
         engine = Engine(self.context)

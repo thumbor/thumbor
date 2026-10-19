@@ -570,9 +570,15 @@ class Engine(BaseEngine):
                 # transparent palette entry out of RGBA
                 self.image = self.image.convert("RGBA")
 
-            self.image.format = FORMATS.get(
+            image_format = FORMATS.get(
                 ext, FORMATS[self.get_default_extension()]
             )
+            if image_format == "PNG" and self.image.mode == "I":
+                # Pillow 12 and older clipped I to 16 bits on PNG save;
+                # Pillow 13 refuses to write it
+                self.image = self.image.convert("I;16")
+
+            self.image.format = image_format
             self.image.save(img_buffer, self.image.format, **options)
         except IOError:
             if options.get("save_all"):
