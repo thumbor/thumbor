@@ -824,6 +824,47 @@ def test_animated_gif_frame_durations(extension, resize, durations):
     )
 
 
+def test_animated_gif_frames_keep_their_colors():
+    frames = []
+    for offset in (0, 8, 16):
+        frame = Image.new("RGB", (32, 32), (40, 90, 160))
+        ImageDraw.Draw(frame).rectangle(
+            [offset, 8, offset + 8, 16], fill=(250, 200, 30)
+        )
+        frames.append(frame)
+    with BytesIO() as source:
+        frames[0].save(
+            source, "GIF", save_all=True, append_images=frames[1:], loop=0
+        )
+        with Image.open(source) as decoded:
+            modes = {frame.mode for frame in ImageSequence.Iterator(decoded)}
+        # Only frames written with a local palette decode as RGB
+        assert modes == {"P", "RGB"}
+        engine = Engine(PilEngineTestCase().get_context())
+        engine.load(source.getvalue(), ".gif")
+
+    with Image.open(BytesIO(engine.read(".gif"))) as result:
+        actual = [
+            frame.convert("RGB").tobytes()
+            for frame in ImageSequence.Iterator(result)
+        ]
+
+    assert actual == [frame.tobytes() for frame in frames]
+
+
+def test_animated_gif_frames_sharing_a_palette_keep_it():
+    engine = Engine(PilEngineTestCase().get_context())
+    with open(
+        join(STORAGE_PATH, "Rotating_earth_(large).gif"), "rb"
+    ) as image_file:
+        engine.load(image_file.read(), ".gif")
+
+    palettes = {
+        tuple(frame.image.getpalette()) for frame in engine.frame_engines()
+    }
+    assert len(palettes) == 1
+
+
 @skip_unless_avif_encoder("svt")
 @pytest.mark.parametrize(
     "image_basename", ("20x20.jpg", "Christophe_Henner_-_June_2016.jpg")
