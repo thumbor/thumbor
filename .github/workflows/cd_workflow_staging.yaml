@@ -1,0 +1,18 @@
+name: CD Deploy - Staging
+on:
+  push:
+    branches:
+      - 'skip' # deploy triggered via remote_workflow.yaml from github-builder
+
+jobs:
+  deploy:
+    secrets: inherit
+    uses: NSXBet/github-workflows/.github/workflows/deploy_v2.yaml@main
+    with:
+      sonar: false
+      steps: '["build","push","versioning","deploy"]'
+      debug_mode: true
+      apps_filter: '["no_filter"]'
+      environment: staging
+      config_path: kubernetes
+      docker_buildargs: eyJlbXB0eSI6ICJlbXB0eSJ9

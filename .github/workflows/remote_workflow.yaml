@@ -1,0 +1,55 @@
+name: GitHub Builder Remote Workflow
+run-name: Deploy to ${{ inputs.environment }} from branch ${{ github.ref_name }}
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target Deploy Environment
+        type: choice
+        required: true
+        options:
+        - staging
+        - homol
+        - production
+        default: staging
+      config_path:
+        description: Declarative Manifest Path
+        type: string
+        required: true
+        default: kubernetes
+      debug_mode:
+        description: Enable Debug
+        type: boolean
+      sonar:
+        description: Enable SonarCloud Analysis
+        type: boolean
+        default: false
+      docker_buildargs:
+        description: Docker Build Args Base64 JSON Encoded OR Comma Separated List
+          of Secrets or Environment Variables names to be used as Docker Build Args
+        type: string
+        required: false
+        default: eyJlbXB0eSI6ICJlbXB0eSJ9
+      apps_filter:
+        description: JSON array string list of apps to build and deploy. If not set,
+          all apps will be deployed
+        type: string
+        required: false
+        default: '["no_filter"]'
+      steps:
+        description: JSON array string list of steps to build, push, version and deploy
+        type: string
+        required: false
+        default: '["build","push","versioning","deploy"]'
+jobs:
+  deploy:
+    secrets: inherit
+    uses: NSXBet/github-workflows/.github/workflows/deploy_v2.yaml@main
+    with:
+      sonar: ${{ inputs.sonar }}
+      steps: ${{ inputs.steps }}
+      debug_mode: ${{ inputs.debug_mode }}
+      apps_filter: ${{ inputs.apps_filter }}
+      environment: ${{ inputs.environment }}
+      config_path: ${{ inputs.config_path }}
+      docker_buildargs: ${{ inputs.docker_buildargs }}

@@ -1,5 +1,5 @@
 # NSXBet Thumbor local stack: thumbor + statsd_exporter + prometheus + grafana
-# Usage: docker compose -f docker/docker-compose.yaml up
+# Usage: THUMBOR_PORT=8890 docker compose -f docker/docker-compose.nsx.yaml up
 name: thumbor-local
 
 services:
@@ -8,10 +8,16 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.nsx
     ports:
-      - "8888:8888"
+      - "${THUMBOR_PORT:-8888}:8888"
     environment:
-      STATSD_HOST: statsd-exporter
-    command: ["thumbor", "-c", "/etc/thumbor/thumbor.conf", "-p", "8888", "-l", "debug"]
+      # thumbor imports METRICS module by name; make /etc/thumbor importable.
+      PYTHONPATH: /etc/thumbor
+    volumes:
+      # Local conf: permissive allowlist + file_loader with bundled fixtures.
+      - ../conf:/etc/thumbor/conf:ro
+      - ../nsx_metrics.py:/etc/thumbor/nsx_metrics.py:ro
+      - ../docker/fixtures:/fixtures:ro
+    command: ["thumbor", "-a", "thumbor_video_engine.app.ThumborServiceApp", "-c", "/etc/thumbor/conf/thumbor.local.conf", "-p", "8888", "-l", "debug"]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8888/healthcheck"]
       interval: 5s
@@ -24,7 +30,7 @@ services:
     image: prom/statsd-exporter:v0.28.0
     ports:
       - "9102:9102" # Prometheus scrape port
-      - "8125:8125/udp" # statsd ingest (host debugging only)
+      - "8125:8125/udp" # statsd UDP ingest (host debugging only)
     command:
       - "--statsd.mapping-config=/etc/statsd-exporter/mappings.conf"
     volumes:

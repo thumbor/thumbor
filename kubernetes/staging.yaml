@@ -1,0 +1,61 @@
+kubernetes:
+  base:
+    sourceRepo:
+      name: thumbor
+      org: NSXBet
+    monoRepo:
+      url: git@github.com:NSXBet/monorepo-gitops.git
+      appsFolder: apps-config
+      argoCDValues: helms/argocd/values.yaml
+      repository: monorepo-gitops
+    containerRegistry:
+      url: 492684252576.dkr.ecr.us-east-1.amazonaws.com
+    deployConfig:
+      cluster: EKS-NSX-Staging-1
+      environment: staging
+      steps:
+        - build
+        - push
+        - versioning
+        - deploy
+      service:
+        istio: enabled
+    metadata:
+      team: frontend
+  apps:
+    - name: thumbor
+      dockerfile: docker/Dockerfile.nsx
+      imagePullPolicy: Always
+      kind: deployment
+      envs:
+        - name: APP_ENVIRONMENT
+          value: staging
+      resources:
+        # ffmpeg transcoding is CPU/memory heavy — sized above default web apps.
+        limits:
+          cpu: "2"
+          memory: 4Gi
+        requests:
+          cpu: 500m
+          memory: 1Gi
+      hpa:
+        maxReplicas: 10
+        minReplicas: 2
+        targetCPUUtilizationPercentage: 70
+      service:
+        metrics:
+          port: 9102
+        healthcheck:
+          initialDelaySeconds: 10
+          interval: 10
+          path: /healthcheck
+          port: 8888
+          timeoutSeconds: 5
+        istio: true
+        ports:
+          - containerPort: 8888
+            name: thumbor-stg
+            virtualservice:
+              gateway: internal-gateway
+              hosts:
+                - thumbor-stg.nsx.dev
