@@ -1,0 +1,57 @@
+# NSXBet Thumbor local stack: thumbor + statsd_exporter + prometheus + grafana
+# Usage: docker compose -f docker/docker-compose.yaml up
+name: thumbor-local
+
+services:
+  thumbor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.nsx
+    ports:
+      - "8888:8888"
+    environment:
+      STATSD_HOST: statsd-exporter
+    command: ["thumbor", "-c", "/etc/thumbor/thumbor.conf", "-p", "8888", "-l", "debug"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8888/healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks: [local]
+
+  statsd-exporter:
+    image: prom/statsd-exporter:v0.28.0
+    ports:
+      - "9102:9102" # Prometheus scrape port
+      - "8125:8125/udp" # statsd ingest (host debugging only)
+    command:
+      - "--statsd.mapping-config=/etc/statsd-exporter/mappings.conf"
+    volumes:
+      - ./statsd-mappings.conf:/etc/statsd-exporter/mappings.conf:ro
+    networks: [local]
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks: [local]
+
+  grafana:
+    image: grafana/grafana:10.4.5
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana-datasource.yaml:/etc/grafana/provisioning/datasources/prometheus.yaml:ro
+      - ../monitoring/grafana:/etc/grafana/provisioning/dashboards-json:ro
+      - ./grafana-dashboards-provider.yaml:/etc/grafana/provisioning/dashboards/provider.yaml:ro
+    networks: [local]
+
+networks:
+  local:

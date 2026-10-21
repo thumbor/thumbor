@@ -234,3 +234,6 @@ publish:
 	@$(UV_RUN) --only-group release --only-group build python -m build --sdist --no-isolation
 	@$(UV_RUN) --only-group release python -m twine upload dist/*
 	@rm -rf dist/
+
+# --- NSXBet targets (local run + smoke tests) ---
+-include nsx-targets.mk
