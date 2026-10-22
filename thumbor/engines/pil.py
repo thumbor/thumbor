@@ -12,7 +12,14 @@ from itertools import chain, repeat
 
 import piexif
 from JpegIPTC import JpegIPTC
-from PIL import Image, ImageDraw, ImageFile, ImageSequence, JpegImagePlugin
+from PIL import (
+    GifImagePlugin,
+    Image,
+    ImageDraw,
+    ImageFile,
+    ImageSequence,
+    JpegImagePlugin,
+)
 from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
@@ -63,6 +70,9 @@ KEEP_EXIF_COPYRIGHT_TAGS = [
 
 ImageFile.MAXBLOCK = 2**25
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+GifImagePlugin.LOADING_STRATEGY = (
+    GifImagePlugin.LoadingStrategy.RGB_AFTER_DIFFERENT_PALETTE_ONLY
+)
 
 DECOMPRESSION_BOMB_EXCEPTIONS = (Image.DecompressionBombWarning,) + (
     (Image.DecompressionBombError,)
@@ -190,7 +200,11 @@ class Engine(BaseEngine):
             frames = []
 
             for frame in ImageSequence.Iterator(img):
-                frames.append(frame.convert("P"))
+                # A frame with its own palette decodes as RGB, and
+                # convert("P") would dither it to the web palette
+                frames.append(
+                    frame.convert("P", palette=Image.Palette.ADAPTIVE)
+                )
             img.seek(0)
             self.frame_count = len(frames)
             self.frame_durations = [
