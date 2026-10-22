@@ -7,10 +7,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-# pylint: disable=unsupported-membership-test
+# pylint: disable=unsupported-membership-test,too-many-lines
 
 from io import BytesIO
 from os.path import abspath, dirname, join
+from random import Random
 from unittest import TestCase, mock
 
 import piexif
@@ -876,3 +877,171 @@ def test_avif_convert_gray_color_profile_to_srgb():
         assert img.mode == "RGB"
         rgb_color = img.getpixel((0, 0))
         assert rgb_color == (200, 200, 200)
+
+
+def _animated_gif(frames, disposal, **options):
+    with BytesIO() as source:
+        frames[0].save(
+            source,
+            "GIF",
+            save_all=True,
+            append_images=frames[1:],
+            loop=0,
+            disposal=disposal,
+            **options,
+        )
+        return source.getvalue()
+
+
+def _frame_alphas(buffer):
+    with Image.open(BytesIO(buffer)) as image:
+        return [
+            frame.convert("RGBA").getchannel("A").tobytes()
+            for frame in ImageSequence.Iterator(image)
+        ]
+
+
+def _visible_pixels(frame):
+    # Premultiplied, so every transparent pixel compares equal
+    return frame.convert("RGBA").convert("RGBa").tobytes()
+
+
+def _visible_frames(buffer):
+    with Image.open(BytesIO(buffer)) as image:
+        return [
+            _visible_pixels(frame) for frame in ImageSequence.Iterator(image)
+        ]
+
+
+def _expected_alphas(engine):
+    # convert() on a copy, since it rewrites the palette of a P image
+    return [
+        frame.image.copy().convert("RGBA").getchannel("A").tobytes()
+        for frame in engine.frame_engines()
+    ]
+
+
+def _assert_alphas_match(actual, expected):
+    assert len(actual) == len(expected)
+    for frame_alphas, expected_alphas in zip(actual, expected):
+        # GIF has no partial alpha, so resampled edges may go either way
+        mismatches = [
+            alpha
+            for alpha, expected_alpha in zip(frame_alphas, expected_alphas)
+            if expected_alpha in (0, 255)
+            and (alpha == 0) != (expected_alpha == 0)
+        ]
+        assert not mismatches
+
+
+def _moving_squares(*fills):
+    frames = []
+    for offset, fill in enumerate(fills):
+        frame = Image.new("RGBA", (48, 24), (0, 0, 0, 0))
+        ImageDraw.Draw(frame).rectangle(
+            [offset * 16, 4, offset * 16 + 12, 16], fill=fill + (255,)
+        )
+        frames.append(frame)
+    return frames
+
+
+@pytest.mark.parametrize("resize", [False, True])
+def test_animated_gif_frames_clear_what_moved_away(resize):
+    frames = _moving_squares((220, 40, 60), (40, 160, 60), (40, 60, 220))
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(_animated_gif(frames, disposal=2), ".gif")
+    if resize:
+        engine.resize(24, 12)
+    expected = _expected_alphas(engine)
+
+    actual = _frame_alphas(engine.read(".gif"))
+
+    _assert_alphas_match(actual, expected)
+
+
+def test_animated_gif_frames_keep_opaque_edges_in_the_transparent_color():
+    frames = _moving_squares((220, 40, 60), (40, 160, 60), (40, 60, 220))
+    for frame in frames:
+        ImageDraw.Draw(frame).rectangle([0, 21, 47, 23], fill=(0, 0, 0, 255))
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(_animated_gif(frames, disposal=2), ".gif")
+
+    result = engine.read(".gif")
+
+    assert _visible_frames(result) == [_visible_pixels(f) for f in frames]
+
+
+@pytest.mark.parametrize("resize", [False, True])
+def test_animated_gif_frames_clear_after_an_opaque_frame(resize):
+    frames = []
+    for offset in range(3):
+        frame = Image.new("P", (48, 24), 0 if offset else 1)
+        frame.putpalette([0, 0, 0, 40, 60, 220, 220, 40, 60])
+        ImageDraw.Draw(frame).rectangle(
+            [offset * 16, 4, offset * 16 + 12, 16], fill=2
+        )
+        frames.append(frame)
+    source = _animated_gif(frames, disposal=2, transparency=0, optimize=False)
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(source, ".gif")
+    if resize:
+        engine.resize(24, 12)
+    expected = _expected_alphas(engine)
+
+    actual = _frame_alphas(engine.read(".gif"))
+
+    # Decoders that restore a disposed frame to its background color, as
+    # Pillow does, need a transparent entry even in an opaque frame
+    _assert_alphas_match(actual, expected)
+
+
+def test_animated_gif_frames_clear_after_an_opaque_canvas():
+    frames = _moving_squares((220, 40, 60), (40, 160, 60), (40, 60, 220))
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(_animated_gif(frames, disposal=2), ".gif")
+    engine.frame_engines()[1].image = Image.new("RGB", (48, 24), (40, 60, 220))
+    expected = _expected_alphas(engine)
+
+    actual = _frame_alphas(engine.read(".gif"))
+
+    _assert_alphas_match(actual, expected)
+
+
+def test_animated_gif_frames_clear_after_a_frame_using_every_color():
+    frames = _moving_squares((220, 40, 60), (40, 160, 60), (40, 60, 220))
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(_animated_gif(frames, disposal=2), ".gif")
+    rng = Random(0)
+    every_color = Image.new("P", (48, 24))
+    every_color.putpalette([rng.randrange(256) for _ in range(768)])
+    every_color.putdata([index % 256 for index in range(48 * 24)])
+    engine.frame_engines()[0].image = every_color
+    expected = _expected_alphas(engine)
+
+    actual = _frame_alphas(engine.read(".gif"))
+
+    _assert_alphas_match(actual, expected)
+    assert actual[1].count(0) > 0
+
+
+def test_animated_gif_frames_that_never_clear_keep_their_disposal():
+    frames = []
+    for count in range(1, 4):
+        frame = Image.new("RGBA", (48, 24), (0, 0, 0, 0))
+        for offset in range(count):
+            ImageDraw.Draw(frame).rectangle(
+                [offset * 16, 4, offset * 16 + 12, 16], fill=(220, 40, 60, 255)
+            )
+        frames.append(frame)
+    source = _animated_gif(frames, disposal=1)
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(source, ".gif")
+
+    result = engine.read(".gif")
+
+    with Image.open(BytesIO(result)) as image:
+        disposals = [
+            frame.disposal_method for frame in ImageSequence.Iterator(image)
+        ]
+    assert disposals == [0] * len(frames)
+    assert _frame_alphas(result) == _frame_alphas(source)
