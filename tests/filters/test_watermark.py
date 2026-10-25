@@ -21,7 +21,7 @@ from tests.fixtures.watermark_fixtures import (
 )
 from thumbor.config import Config
 from thumbor.context import Context
-from thumbor.ext.filters import _composite
+from thumbor.ext.filters import _alpha, _composite
 from thumbor.filters import watermark
 from thumbor.importer import Importer
 from thumbor.testing import FilterTestCase
@@ -431,3 +431,10 @@ def test_composite_without_merge_keeps_alpha_values():
     )
 
     assert result == bytes([200, 210, 220, 77, 40, 50, 60, 100])
+
+
+def test_alpha_saturates_out_of_range_deltas():
+    pixel = bytes([1, 2, 3, 200])
+
+    assert _alpha.apply("RGBA", 10**8, pixel) == bytes([1, 2, 3, 0])
+    assert _alpha.apply("RGBA", -(10**8), pixel) == bytes([1, 2, 3, 255])

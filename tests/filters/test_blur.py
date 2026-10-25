@@ -7,9 +7,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+import pytest
 from tornado.testing import gen_test
+from tornado.web import HTTPError
 
 from tests.base import FilterTestCase
+from thumbor.filters.blur import apply_blur
 
 
 class BlurFilterTestCase(FilterTestCase):
@@ -88,3 +91,10 @@ class BlurFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         assert ssim > 0.99
+
+
+def test_blur_rejects_excessive_convolution_work():
+    with pytest.raises(HTTPError) as error:
+        apply_blur("RGB", bytes([128, 128, 128]), (4096, 4096), 150)
+
+    assert error.value.status_code == 400

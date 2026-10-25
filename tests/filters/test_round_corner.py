@@ -14,6 +14,7 @@ from PIL import Image, ImageChops
 from tornado.testing import gen_test
 
 from tests.base import FilterTestCase
+from thumbor.ext.filters import _round_corner
 
 
 async def round_transparent_image(source, radius, extension=".png"):
@@ -183,3 +184,30 @@ class RoundCornerFilterTestCase(FilterTestCase):
 
         ssim = self.get_ssim(image, expected)
         assert ssim > 0.99
+
+    @gen_test
+    async def test_round_corner_filter_without_vertical_radius(self):
+        image = await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.round_corner",
+            "round_corner(50|0,255,0,0)",
+        )
+        expected = self.get_fixture("source.jpg")
+
+        assert image.tobytes() == expected.tobytes()
+
+
+@pytest.mark.parametrize(
+    "width,height,a_radius,b_radius",
+    [(1, 1, 10, 10), (20, 1, 10, 10), (5, 4, 10, 0), (5, 4, 0, 10)],
+)
+def test_round_corner_without_radius_keeps_pixels(
+    width, height, a_radius, b_radius
+):
+    pixels = bytes(i % 256 for i in range(width * height * 3))
+
+    result = _round_corner.apply(
+        1, "RGB", a_radius, b_radius, 255, 0, 0, width, height, pixels, False
+    )
+
+    assert bytes(result) == pixels
