@@ -558,21 +558,23 @@ class Engine(BaseEngine):
                         "RGBA" if keep_alpha else "RGB"
                     )
 
-            if (
-                ext in [".png", ".gif", ".heic", ".heif"]
-                and self.image.mode == "CMYK"
-            ):
-                # 26.10.22: remove ".heic, .heif" in a month(when pillow_heif get updated)
+            image_format = FORMATS.get(
+                ext, FORMATS[self.get_default_extension()]
+            )
+
+            if image_format in ("PNG", "GIF") and self.image.mode == "CMYK":
                 self.image = self.image.convert("RGBA")
+
+            if image_format in ("PNG", "HEIF") and self.image.mode == "F":
+                # Neither writer stores floats; L clamps to 0-255 like the
+                # RGB conversion of the JPEG, WebP and AVIF outputs
+                self.image = self.image.convert("L")
 
             if ext == ".gif" and self.image.mode == "LA":
                 # Pillow's GIF writer flattens LA to L, but picks the
                 # transparent palette entry out of RGBA
                 self.image = self.image.convert("RGBA")
 
-            image_format = FORMATS.get(
-                ext, FORMATS[self.get_default_extension()]
-            )
             if image_format == "PNG" and self.image.mode == "I":
                 # Pillow 12 and older clipped I to 16 bits on PNG save;
                 # Pillow 13 refuses to write it
