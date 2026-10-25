@@ -67,7 +67,7 @@ tests = [
   "build>=1.2.1,<2.0.0",
   "coverage>=7.4.0,<8.0.0",
   "flake8>=7.0.0,<8.0.0",
-  "isort>=5.13.2,<9.0.0",
+  "isort>=5.13.2,<10.0.0",
   "opencv-python-headless>=4.9.0.80,<4.13; sys_platform == 'darwin' and platform_machine == 'x86_64'",
   "opencv-python-headless>=4.9.0.80,<5.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
   "pre-commit>=3.6.0,<5.0.0",
