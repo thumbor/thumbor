@@ -5,6 +5,10 @@ updates:
     directory: "/"
     schedule:
       interval: monthly
+    ignore:
+      # opencv-python-headless 5 has no cv2.CascadeClassifier, which the
+      # cascade detectors and the redeye filter need. See thumbor/thumbor#1945.
+      - dependency-name: opencv-python-headless
 
   - package-ecosystem: "github-actions"
     directory: "/"

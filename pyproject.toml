@@ -53,7 +53,7 @@ dependencies = [
 [project.optional-dependencies]
 opencv = [
   "opencv-python-headless>=4.9.0.80,<4.13; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-  "opencv-python-headless>=4.9.0.80,<6.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+  "opencv-python-headless>=4.9.0.80,<5.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
   "numpy>=1.26.3,<3.0.0",
 ]
 extra-libs = [
@@ -69,7 +69,7 @@ tests = [
   "flake8>=7.0.0,<8.0.0",
   "isort>=5.13.2,<9.0.0",
   "opencv-python-headless>=4.9.0.80,<4.13; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-  "opencv-python-headless>=4.9.0.80,<6.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+  "opencv-python-headless>=4.9.0.80,<5.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
   "pre-commit>=3.6.0,<5.0.0",
   "pylint>=3.0.3,<5.0.0",
   "pyssim>=0.7,<1.0.0",
@@ -86,7 +86,7 @@ tests = [
 
 all = [
   "opencv-python-headless>=4.9.0.80,<4.13; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-  "opencv-python-headless>=4.9.0.80,<6.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+  "opencv-python-headless>=4.9.0.80,<5.0.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
   "numpy>=1.26.3,<3.0.0",
   "cairosvg>=2.8.2,<3.0.0",
   "pycurl>=7.45.2,<8.0.0",
