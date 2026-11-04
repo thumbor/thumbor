@@ -8,7 +8,7 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 from io import BytesIO
-from itertools import chain, repeat
+from itertools import chain, product, repeat
 
 import piexif
 from JpegIPTC import JpegIPTC
@@ -350,6 +350,136 @@ class Engine(BaseEngine):
         if most_common:
             self.image.info["transparency"] = histogram.index(most_common)
 
+    @staticmethod
+    def _gif_frame(image):
+        # Same LA flattening by Pillow's GIF writer as in read()
+        if image.mode == "LA":
+            image = image.convert("RGBA")
+
+        # Quantized as Pillow's GIF writer would, so the palette and the
+        # transparent pixels of each frame are known before writing
+        if Image.getmodebase(image.mode) == "RGB":
+            image = image.convert("P", palette=Image.Palette.ADAPTIVE)
+
+        # The writer marks the transparent palette entry only on the frames
+        # it quantizes itself, not on those create_image() quantized from
+        # RGBA, so they would lose their transparency
+        if (
+            image.mode == "P"
+            and "transparency" not in image.info
+            and image.palette.mode == "RGBA"
+        ):
+            for rgba, index in image.palette.colors.items():
+                if rgba[3] == 0:
+                    image.info["transparency"] = index
+                    break
+
+        return image
+
+    @staticmethod
+    def _palette_indexes(frame):
+        return Image.frombytes("L", frame.size, frame.tobytes())
+
+    def _transparent_pixels(self, frame):
+        transparency = frame.info.get("transparency")
+        if frame.mode != "P" or transparency is None:
+            return None
+
+        return self._palette_indexes(frame).point(
+            lambda index: 255 if index == transparency else 0
+        )
+
+    def _clears_pixels(self, frames):
+        previous = None
+        for position, frame in enumerate(frames):
+            transparent = self._transparent_pixels(frame)
+            if position and transparent is not None:
+                visible = (
+                    None
+                    if previous is None
+                    else previous.point(lambda value: 255 - value)
+                )
+                if transparent.histogram(mask=visible)[255]:
+                    return True
+            previous = transparent
+
+        return False
+
+    def _disposable_gif_frames(self, frames):
+        # Pillow crops every frame after a disposed one to what differs from
+        # a background painted with the first frame's transparent entry, so
+        # a visible pixel of that color at the edge is cropped away, and
+        # its palette optimization renumbers that entry without repainting
+        # the background. Decoders other than browsers also restore a
+        # disposed frame to transparent only when it has a transparent
+        # entry, which that optimization drops when no pixel uses it. So
+        # the palettes are trimmed here instead, and every transparent
+        # entry gets a color that no frame uses. They stay RGB, since an
+        # RGBA one in the first frame makes Pillow 11.0 raise "invalid
+        # palette size".
+        used_colors = set()
+        for frame in frames:
+            if frame.mode == "P":
+                palette = frame.getpalette()
+                used_colors.update(
+                    zip(palette[::3], palette[1::3], palette[2::3])
+                )
+            else:
+                used_colors.update((gray,) * 3 for gray in range(256))
+        unused_color = next(
+            color
+            for color in product(range(256), repeat=3)
+            if color not in used_colors
+        )
+
+        disposable = []
+        for frame in frames:
+            if frame.mode != "P":
+                disposable.append(frame)
+                continue
+
+            palette = frame.getpalette()
+            palette += [0] * (768 - len(palette))
+            counts = frame.histogram()
+            used = [index for index, count in enumerate(counts) if count]
+            transparency = frame.info.get("transparency")
+            # A frame that uses all 256 entries has none left for a
+            # transparent one, so its rarest color is folded into the
+            # nearest.
+            folded = None
+            if transparency not in used and len(used) == 256:
+                folded = min(used, key=counts.__getitem__)
+                used.remove(folded)
+            colors = [palette[index * 3 : index * 3 + 3] for index in used]
+
+            positions = [0] * 256
+            for position, index in enumerate(used):
+                positions[index] = position
+            if folded is not None:
+                rarest = palette[folded * 3 : folded * 3 + 3]
+                positions[folded] = min(
+                    (
+                        sum((a - b) ** 2 for a, b in zip(color, rarest)),
+                        position,
+                    )
+                    for position, color in enumerate(colors)
+                )[1]
+
+            if transparency in used:
+                transparency = used.index(transparency)
+            else:
+                transparency = len(used)
+                colors.append(None)
+            colors[transparency] = unused_color
+
+            trimmed = self._palette_indexes(frame).point(positions)
+            trimmed.putpalette([value for color in colors for value in color])
+            trimmed.info.update(frame.info)
+            trimmed.info["transparency"] = transparency
+            disposable.append(trimmed)
+
+        return disposable
+
     # TODO: Refactor this
     def read(  # noqa
         self, extension=None, quality=None
@@ -607,12 +737,15 @@ class Engine(BaseEngine):
         self.image.format = FORMATS.get(
             extension or self.extension, FORMATS[self.get_default_extension()]
         )
+        options = {}
         if self.image.format == "GIF":
-            # Same LA flattening by Pillow's GIF writer as in read()
-            images = [
-                image.convert("RGBA") if image.mode == "LA" else image
-                for image in images
-            ]
+            images = [self._gif_frame(image) for image in images]
+            # A GIF frame cannot clear what the previous one drew unless that
+            # one is disposed of. Every frame here is a whole canvas, so
+            # disposing of all of them is what keeps each one exact.
+            if self._clears_pixels(images):
+                images = self._disposable_gif_frames(images)
+                options.update(disposal=2, optimize=False)
         # fill(), background_color() and frame() replace each frame with a
         # new canvas, which has no duration of its own
         loaded_durations = chain(self.frame_durations, repeat(80))
@@ -627,6 +760,7 @@ class Engine(BaseEngine):
                     for image, loaded in zip(images, loaded_durations)
                 ],
                 loop=int(self.image.info.get("loop", 1)),
+                **options,
             )
             return img_buffer.getvalue()
 
