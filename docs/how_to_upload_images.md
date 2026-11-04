@@ -9,16 +9,18 @@ urls.
 
 The table below show all configuration parameters to manage image upload:
 
-| Configuration parameter | Default                       | Description                                          |
-| ----------------------- | ----------------------------- | ---------------------------------------------------- |
-| UPLOAD_ENABLED          | False                         | Indicates whether thumbor should enable File uploads |
-| UPLOAD_PUT_ALLOWED      | False                         | Indicates whether image overwrite should be allowed  |
-| UPLOAD_DELETE_ALLOWED   | False                         | Indicates whether image deletion should be allowed   |
-| UPLOAD_PHOTO_STORAGE    | thumbor.storages.file_storage | The type of storage to store uploaded images with    |
-| UPLOAD_DEFAULT_FILENAME | image                         | Default filename for image uploaded                  |
-| UPLOAD_MAX_SIZE         | 0                             | Max size in bytes for images uploaded to thumbor     |
-| MIN_WIDTH               | 1                             | Min width in pixels for images uploaded              |
-| MIN_HEIGHT              | 1                             | Min height in pixels for images uploaded             |
+| Configuration parameter | Default                       | Description                                                 |
+| ----------------------- | ----------------------------- | ----------------------------------------------------------- |
+| UPLOAD_ENABLED          | False                         | Indicates whether thumbor should enable File uploads        |
+| UPLOAD_AUTH_REQUIRED    | False                         | Indicates whether POST, PUT and DELETE need a bearer token  |
+| UPLOAD_AUTH_TOKENS      | []                            | Bearer tokens accepted when `UPLOAD_AUTH_REQUIRED` is True  |
+| UPLOAD_PUT_ALLOWED      | False                         | Indicates whether image overwrite should be allowed         |
+| UPLOAD_DELETE_ALLOWED   | False                         | Indicates whether image deletion should be allowed          |
+| UPLOAD_PHOTO_STORAGE    | thumbor.storages.file_storage | The type of storage to store uploaded images with           |
+| UPLOAD_DEFAULT_FILENAME | image                         | Default filename for image uploaded                         |
+| UPLOAD_MAX_SIZE         | 0                             | Max size in bytes for images uploaded to thumbor            |
+| MIN_WIDTH               | 1                             | Min width in pixels for images uploaded                     |
+| MIN_HEIGHT              | 1                             | Min height in pixels for images uploaded                    |
 
 Here, `file_storage` means `thumbor.storages.file_storage`.
 
@@ -37,6 +39,67 @@ parameters are set to `False` by default for security reasons.
 
 Finally the upload constraints (max size, image width and height) will be
 controlled by `UPLOAD_MAX_SIZE`, `MIN_WIDTH` and `MIN_HEIGHT` parameters.
+
+(upload-authentication)=
+
+## Authentication
+
+By default, any client that reaches thumbor can upload images, and can replace
+or delete them when `UPLOAD_PUT_ALLOWED` or `UPLOAD_DELETE_ALLOWED` are
+enabled. thumbor logs a warning at startup when uploads are enabled without
+authentication.
+
+Set `UPLOAD_AUTH_REQUIRED` to `True` and list the accepted tokens in
+`UPLOAD_AUTH_TOKENS` to require a bearer token on `POST`, `PUT` and `DELETE`
+requests:
+
+```python
+import os
+
+UPLOAD_ENABLED = True
+UPLOAD_AUTH_REQUIRED = True
+UPLOAD_AUTH_TOKENS = os.environ["UPLOAD_AUTH_TOKENS"].split(",")
+```
+
+Each token must be a non-empty ASCII string without whitespace, and thumbor
+refuses to start when the list is empty or has an invalid token. Generate long
+random tokens, for example with:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+Clients send the token in the `Authorization` header:
+
+```
+curl -i -H "Authorization: Bearer $UPLOAD_AUTH_TOKEN" \
+    -H "Content-Type: image/jpeg" -XPOST http://thumbor-server/image \
+    --data-binary "@tests/fixtures/images/20x20.jpg"
+```
+
+A request without a token, with another authentication scheme or with a token
+that is not in the list gets `401 Unauthorized` with a `WWW-Authenticate`
+header, before thumbor decodes or stores the image and before it checks
+`UPLOAD_PUT_ALLOWED` and `UPLOAD_DELETE_ALLOWED`.
+
+To rotate a token, add the new one to `UPLOAD_AUTH_TOKENS`, update the clients
+and then remove the old one.
+
+Keep in mind that:
+
+- The token travels in clear text in every request, so expose the upload API
+  only over HTTPS.
+- Tokens are meant for server-to-server calls. Do not embed them in web pages
+  or mobile apps, where anyone can read them.
+- Every token can upload, replace and delete images. There are no per-token
+  permissions.
+- `GET` and `HEAD` requests to `/image/<id>` do not need a token. Uploaded
+  images are also served by the regular imaging URLs, so authentication
+  protects uploads and changes, not reads.
+- thumbor receives the whole request body before it checks the token. Limit
+  the request body size at your reverse proxy (for example with
+  `client_max_body_size` in nginx) so unauthenticated clients cannot send
+  large bodies.
 
 ## API Usage
 
@@ -82,6 +145,8 @@ For examples, see
 The status code returned will be :
 
 - 201 Created (success)
+- 401 Unauthorized (authentication is required and the token is missing or
+  invalid)
 - 415 Unsupported Media Type (image type is not allowed)
 - 412 Precondition Failed (image is too small or the file is not an image)
 
@@ -109,6 +174,8 @@ For an example, see {ref}`Modifying an image <modify-uploaded-image>`.
 The status code returned will be :
 
 - 204 No Content (success)
+- 401 Unauthorized (authentication is required and the token is missing or
+  invalid)
 - 405 Method Not Allowed (if thumbor's configuration disallows putting images)
 - 415 Unsupported Media Type (image type is not allowed)
 - 412 Precondition Failed (image is too small or file is not an image)
@@ -125,6 +192,8 @@ For an example, see {ref}`Deleting an image <delete-uploaded-image>`.
 #### HTTP status code
 
 - 204 No Content (success)
+- 401 Unauthorized (authentication is required and the token is missing or
+  invalid)
 - 404 Not Found (image doesn't exists)
 - 405 Method Not Allowed (if thumbor's configuration disallows deleting images)
 
