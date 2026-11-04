@@ -666,6 +666,32 @@ class PilEngineTestCase(TestCase):
                     65535,
                 ]
 
+    def test_read_should_clamp_float_grayscale_to_8bit_png(self):
+        for extension in (".png", ".tif"):
+            with self.subTest(extension=extension):
+                engine = Engine(self.context)
+                engine.image = Image.new("F", (3, 1))
+                engine.image.putdata([-5.0, 100.5, 300.0])
+
+                image = Image.open(BytesIO(engine.read(extension)))
+
+                assert image.format == "PNG"
+                assert image.mode == "L"
+                assert [image.getpixel((x, 0)) for x in range(3)] == [
+                    0,
+                    100,
+                    255,
+                ]
+
+    def test_read_should_convert_cmyk_tif_to_png(self):
+        engine = Engine(self.context)
+        engine.image = Image.new("CMYK", (1, 1), (0, 255, 255, 0))
+
+        image = Image.open(BytesIO(engine.read(".tif")))
+
+        assert image.format == "PNG"
+        assert image.getpixel((0, 0)) == (255, 0, 0, 255)
+
     @skip_unless_avif
     def test_convert_jpg_to_avif(self):
         engine = Engine(self.context)
@@ -738,6 +764,28 @@ class PilEngineTestCase(TestCase):
         with Image.open(heif_bytes) as img:
             assert img.format == "HEIF"
             assert img.size == (691, 212)
+
+    @skip_unless_heif
+    def test_convert_float_grayscale_to_heif(self):
+        engine = Engine(self.context)
+        engine.image = Image.new("F", (64, 64), 100.5)
+
+        heif_bytes = BytesIO(engine.read(".heic"))
+        with Image.open(heif_bytes) as img:
+            assert img.format == "HEIF"
+            assert img.mode == "L"
+            assert abs(img.getpixel((32, 32)) - 100) <= 2
+
+    @skip_unless_heif
+    def test_convert_cmyk_to_heif(self):
+        engine = Engine(self.context)
+        engine.image = Image.new("CMYK", (64, 64), (0, 255, 255, 0))
+
+        heif_bytes = BytesIO(engine.read(".heic"))
+        with Image.open(heif_bytes) as img:
+            assert img.format == "HEIF"
+            red, green, blue = img.convert("RGB").getpixel((32, 32))
+            assert red >= 250 and green <= 5 and blue <= 5
 
     def test_should_preserve_copyright_exif_in_image(self):
         self.context.config.PRESERVE_EXIF_COPYRIGHT_INFO = True
