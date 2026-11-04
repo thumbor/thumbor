@@ -777,6 +777,13 @@ This options specifies the default expiration time in seconds for the storage.
 STORAGE_EXPIRATION_SECONDS = 60  # 1 minute
 ```
 
+With the file storage, `None` disables the expiration and `0` makes every file
+count as expired. The same expiration applies to uploaded images when
+`UPLOAD_PHOTO_STORAGE` is `thumbor.storages.file_storage` (directly or through
+`thumbor.storages.mixed_storage`), since they are kept in
+`FILE_STORAGE_ROOT_PATH` too. Expired files stay on disk until they are
+replaced or removed; see {doc}`cleanup`.
+
 ### STORES_CRYPTO_KEY_FOR_EACH_IMAGE
 
 This option specifies whether thumbor should store the key for each image (thus
