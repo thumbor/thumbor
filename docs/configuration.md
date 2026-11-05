@@ -495,7 +495,7 @@ AUTO_PNG_TO_JPG = True
 
 This option indicates whether thumbor should send JPG images automatically if
 the request comes with an "Accept" header that specifies that the browser
-supports `*/*`, `image/jpg` or `image/jpeg`.
+supports `*/*`, `image/*`, `image/jpg` or `image/jpeg`.
 
 ```python
 AUTO_JPG = True
@@ -505,7 +505,7 @@ AUTO_JPG = True
 
 This option indicates whether thumbor should send PNG images automatically if
 the request comes with an "Accept" header that specifies that the browser
-supports "image/png".
+supports `image/png` or `image/*`.
 
 ```python
 AUTO_PNG = True
@@ -534,8 +534,10 @@ engine's capabilities, then selects the first eligible format. AVIF and HEIF
 therefore require their respective engine support, JPEG is not selected for an
 image with transparency, and preference entries are not selected for multi-image
 input. Media types are matched case-insensitively, and an entry with an explicit
-quality value of `q=0` is not eligible. `image/*` applies to all supported image
-formats, while the less specific `*/*` retains the legacy behavior of enabling
+quality value of `q=0` is not eligible. `image/*` applies only to PNG and JPEG,
+because browsers send it without being able to decode every format: WebP, AVIF
+and HEIF are selected only when the header lists `image/webp`, `image/avif` or
+`image/heif`. The less specific `*/*` retains the legacy behavior of enabling
 JPEG only. If no entry is eligible, thumbor preserves the engine's output
 format, except for the independent `AUTO_PNG_TO_JPG` fallback described above.
 
