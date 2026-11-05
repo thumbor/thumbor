@@ -14,7 +14,12 @@ from urllib.parse import quote
 from libthumbor import CryptoURL
 from tornado.testing import gen_test
 
-from tests.base import assert_is_gif, assert_is_png, assert_is_webp
+from tests.base import (
+    assert_is_gif,
+    assert_is_jpeg,
+    assert_is_png,
+    assert_is_webp,
+)
 from tests.handlers.test_base_handler import BaseImagingTestCase
 from thumbor.config import Config
 from thumbor.context import Context, RequestParameters, ServerParameters
@@ -55,6 +60,22 @@ class ImageOperationsWithAutoWebPTestCase(BaseImagingTestCase):
         assert "Accept" in response.headers["Vary"]
 
         assert_is_webp(response.body)
+
+    @gen_test
+    async def test_should_not_convert_when_only_image_wildcard_is_accepted(
+        self,
+    ):
+        response = await self.async_fetch(
+            "/unsafe/image.jpg",
+            headers={
+                "Accept": "image/png,image/svg+xml,image/*;q=0.8,"
+                "video/*;q=0.8,*/*;q=0.5"
+            },
+        )
+
+        assert response.code == 200
+        assert "Accept" in response.headers["Vary"]
+        assert_is_jpeg(response.body)
 
     @gen_test
     async def test_should_not_convert_animated_gifs_to_webp(self):
