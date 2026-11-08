@@ -221,21 +221,23 @@ def test_accepts_mime_type_super_call_honors_image_wildcard():
     request = RequestParameters(request=tornado_request)
     request.engine = engine
     context = SimpleNamespace(
-        config=Config(AUTO_AVIF=True),
+        config=Config(AUTO_AVIF=True, AUTO_PNG=True),
         request=request,
     )
     handler = make_handler(context, CustomHandler)
 
-    assert handler.accepts_mime_type("image/avif") is True
+    assert handler.accepts_mime_type("image/png") is True
+    assert handler.accepts_mime_type("image/avif") is False
     assert handler.accepts_mime_type("application/json") is False
     assert handler.accepts_mime_type("*/*") is False
-    assert handler.can_auto_convert_to_avif() is True
+    assert handler.can_auto_convert_to_avif() is False
+    assert handler.can_auto_convert_to_png() is True
 
     # pylint: disable=protected-access
     assert handler._can_use_result_storage_with_auto_image_formats() is False
     assert (
         get_auto_image_format_cache_key(context.config, request)
-        == "auto_format_v1_flags_preserve_avif"
+        == "auto_format_v1_flags_preserve_png"
     )
 
 
