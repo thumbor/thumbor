@@ -7,8 +7,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from io import BytesIO
 from os.path import abspath, dirname, join
 from shutil import which
+
+from PIL import Image
 
 from tests.base import TestCase
 from thumbor.config import Config
@@ -70,6 +73,41 @@ class GifEngineTestCase(TestCase):
         engine.load(buffer, ".gif")
         result = engine.run_gifsicle("--some-invalid-opt")
         assert result is not None
+
+    def load_animated_gif(self):
+        engine = Engine(self.context)
+        with open(join(STORAGE_PATH, "animated.gif"), "rb") as image_file:
+            engine.load(image_file.read(), ".gif")
+        return engine
+
+    def test_resize_passes_integer_dimensions_to_gifsicle(self):
+        engine = self.load_animated_gif()
+
+        engine.resize(70.0, 50.9)
+        engine.resize(70.0, 0)
+        engine.resize(0, 50.9)
+        engine.resize(0.0, 0.0)
+
+        assert engine.operations == [
+            "--resize 70x50",
+            "--resize-width 70",
+            "--resize-height 50",
+        ]
+
+    def test_crop_passes_integer_coordinates_to_gifsicle(self):
+        engine = self.load_animated_gif()
+
+        engine.crop(1.0, 2.5, 30.0, 40.9)
+
+        assert tuple(engine.size) == (29, 38)
+
+    def test_read_resizes_with_float_dimensions(self):
+        engine = self.load_animated_gif()
+
+        engine.resize(70.0, 70.0)
+        result = engine.read(".gif")
+
+        assert Image.open(BytesIO(result)).size == (70, 70)
 
     def test_is_multiple_should_returns_true_if_gif_has_many_frames(self):
         engine = Engine(self.context)

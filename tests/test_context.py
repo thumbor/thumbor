@@ -430,7 +430,7 @@ class RequestParametersTestCase(TestCase):
         assert params.accepts_webp is False
 
     @staticmethod
-    def test_image_wildcard_accepts_image_formats():
+    def test_image_wildcard_accepts_only_png_and_jpeg():
         request = mock.Mock(
             path="/test.jpg",
             headers={"Accept": "image/*;q=0.8"},
@@ -438,11 +438,49 @@ class RequestParametersTestCase(TestCase):
 
         params = RequestParameters(request=request)
 
-        assert params.accepts_webp is True
-        assert params.accepts_avif is True
-        assert params.accepts_heif is True
+        assert params.accepts_webp is False
+        assert params.accepts_avif is False
+        assert params.accepts_heif is False
         assert params.accepts_png is True
         assert params.accepts_jpeg is True
+
+    def test_browser_accept_headers_enable_only_listed_formats(self):
+        # Image Accept values from MDN's "List of default Accept values".
+        browsers = {
+            "Safari before macOS Big Sur": (
+                "image/png,image/svg+xml,image/*;q=0.8,video/*;q=0.8,"
+                "*/*;q=0.5",
+                (False, False, False),
+            ),
+            "Safari since macOS Big Sur": (
+                "image/webp,image/png,image/svg+xml,image/*;q=0.8,"
+                "video/*;q=0.8,*/*;q=0.5",
+                (True, False, False),
+            ),
+            "Firefox 128 to 157": (
+                "image/avif,image/webp,image/png,image/svg+xml,"
+                "image/*;q=0.8,*/*;q=0.5",
+                (True, True, False),
+            ),
+            "Chrome and Edge 121 and later": (
+                "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+                (True, True, False),
+            ),
+        }
+
+        for browser, (accept, expected) in browsers.items():
+            with self.subTest(browser):
+                request = mock.Mock(
+                    path="/test.jpg", headers={"Accept": accept}
+                )
+
+                params = RequestParameters(request=request)
+
+                assert (
+                    params.accepts_webp,
+                    params.accepts_avif,
+                    params.accepts_heif,
+                ) == expected
 
     @staticmethod
     def test_image_wildcard_rejection_overrides_accept_any():
