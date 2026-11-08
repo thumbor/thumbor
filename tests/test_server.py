@@ -7,6 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 import importlib.util
+import os
 from unittest import TestCase, mock
 
 import pytest
@@ -438,3 +439,68 @@ def test_validate_allowed_sizes_requires_a_list(allowed_sizes):
 def test_validate_allowed_sizes_rejects_invalid_entries(size):
     with pytest.raises(RuntimeError, match="Invalid ALLOWED_SIZES entry"):
         validate_allowed_sizes(["400x200", size])
+
+
+def test_get_config_looks_up_etc_before_home_and_working_directory():
+    with mock.patch.object(thumbor.server.Config, "load") as load_mock:
+        get_config(None)
+
+    lookup_paths = load_mock.call_args.kwargs["lookup_paths"]
+    assert lookup_paths[:3] == [
+        "/etc/",
+        os.path.expanduser("~"),
+        os.curdir,
+    ]
+
+
+@pytest.fixture(name="config_dirs")
+def fixture_config_dirs(tmp_path, monkeypatch):
+    etc = tmp_path / "etc"
+    home = tmp_path / "home"
+    working = tmp_path / "working"
+    for directory in (etc, home, working):
+        directory.mkdir()
+
+    load = thumbor.server.Config.load
+
+    def load_with_temporary_etc(path, conf_name=None, lookup_paths=()):
+        lookup_paths = [
+            str(etc) if lookup_path == "/etc/" else lookup_path
+            for lookup_path in lookup_paths
+        ]
+        return load(path, conf_name=conf_name, lookup_paths=lookup_paths)
+
+    monkeypatch.setattr(thumbor.server.Config, "load", load_with_temporary_etc)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.chdir(working)
+    return etc, home, working
+
+
+def test_get_config_prefers_etc_over_home_and_working_directory(config_dirs):
+    etc, home, working = config_dirs
+    (etc / "thumbor.conf").write_text('ALLOWED_SOURCES = ["etc"]\n')
+    (home / "thumbor.conf").write_text('ALLOWED_SOURCES = ["home"]\n')
+    (working / "thumbor.conf").write_text('ALLOWED_SOURCES = ["working"]\n')
+
+    config = get_config(None)
+
+    assert config.ALLOWED_SOURCES == ["etc"]
+
+
+def test_get_config_prefers_home_over_working_directory(config_dirs):
+    _, home, working = config_dirs
+    (home / "thumbor.conf").write_text('ALLOWED_SOURCES = ["home"]\n')
+    (working / "thumbor.conf").write_text('ALLOWED_SOURCES = ["working"]\n')
+
+    config = get_config(None)
+
+    assert config.ALLOWED_SOURCES == ["home"]
+
+
+def test_get_config_falls_back_to_working_directory(config_dirs):
+    _, _, working = config_dirs
+    (working / "thumbor.conf").write_text('ALLOWED_SOURCES = ["working"]\n')
+
+    config = get_config(None)
+
+    assert config.ALLOWED_SOURCES == ["working"]
