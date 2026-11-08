@@ -4,11 +4,11 @@ Let's see how would you run thumbor in different environments.
 
 ## Development Environment
 
-For local development, put `thumbor.conf` in the current working directory,
-the current user's home directory, or `/etc/thumbor.conf`. If no file exists in
-those locations, thumbor uses the configuration bundled with the installed
-package. You can select another file with `-c` or `--conf`; see
-{doc}`configuration` for the complete lookup order.
+For local development, put `thumbor.conf` in `/etc`, the current user's home
+directory, or the current working directory. If no file exists in those
+locations, thumbor uses the configuration bundled with the installed package.
+You can select another file with `-c` or `--conf`; see {doc}`configuration`
+for the complete lookup order.
 
 To verify if you have thumbor, just type:
 
