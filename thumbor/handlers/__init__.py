@@ -25,7 +25,11 @@ from thumbor.auto_image_format import (
     get_normalized_auto_image_format_preference,
     has_auto_image_format_preference,
 )
-from thumbor.context import Context, RequestParameters
+from thumbor.context import (
+    IMAGE_WILDCARD_MEDIA_TYPES,
+    Context,
+    RequestParameters,
+)
 from thumbor.engines import BaseEngine, EngineResult
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.loaders import LoaderResult
@@ -508,8 +512,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     return accepted_media_types[normalized_mimetype] > 0
 
                 return (
-                    normalized_mimetype.startswith("image/")
-                    and normalized_mimetype != MIMETYPE_IMAGE_WILDCARD
+                    normalized_mimetype in IMAGE_WILDCARD_MEDIA_TYPES
                     and accepted_media_types.get(MIMETYPE_IMAGE_WILDCARD, 0)
                     > 0
                 )

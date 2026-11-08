@@ -13,6 +13,13 @@ from thumbor.filters import FiltersFactory
 from thumbor.metrics.logger_metrics import Metrics
 from thumbor.threadpool import ThreadPool
 
+# Browsers send image/* even for formats they cannot decode (no WebP in
+# Safari before macOS Big Sur, no HEIF in Chrome or Firefox), so the
+# wildcard only stands for formats every browser decodes.
+IMAGE_WILDCARD_MEDIA_TYPES = frozenset(
+    ("image/gif", "image/jpeg", "image/jpg", "image/png")
+)
+
 
 def _split_http_header(value, delimiter):
     parts = []
@@ -96,6 +103,9 @@ def _accepts_media_type(accepted_media_types, *media_types, allow_any=False):
     for media_type in media_types:
         if media_type in accepted_media_types:
             return accepted_media_types[media_type] > 0
+
+    if not IMAGE_WILDCARD_MEDIA_TYPES.issuperset(media_types):
+        return False
 
     if "image/*" in accepted_media_types:
         return accepted_media_types["image/*"] > 0
