@@ -7,6 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 import importlib.util
+import os
 from unittest import TestCase, mock
 
 import pytest
@@ -438,3 +439,50 @@ def test_validate_allowed_sizes_requires_a_list(allowed_sizes):
 def test_validate_allowed_sizes_rejects_invalid_entries(size):
     with pytest.raises(RuntimeError, match="Invalid ALLOWED_SIZES entry"):
         validate_allowed_sizes(["400x200", size])
+
+
+def test_get_config_looks_up_etc_before_home_and_working_directory():
+    with mock.patch.object(thumbor.server.Config, "load") as load_mock:
+        get_config(None)
+
+    lookup_paths = load_mock.call_args.kwargs["lookup_paths"]
+    assert lookup_paths[:3] == [
+        "/etc/",
+        os.path.expanduser("~"),
+        os.curdir,
+    ]
+
+
+@pytest.fixture(name="home_and_working_dirs")
+def fixture_home_and_working_dirs(tmp_path, monkeypatch):
+    if os.path.exists("/etc/thumbor.conf"):
+        pytest.skip("/etc/thumbor.conf takes precedence on this machine")
+
+    home = tmp_path / "home"
+    working = tmp_path / "working"
+    home.mkdir()
+    working.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.chdir(working)
+    return home, working
+
+
+def test_get_config_prefers_home_over_working_directory(
+    home_and_working_dirs,
+):
+    home, working = home_and_working_dirs
+    (home / "thumbor.conf").write_text('ALLOWED_SOURCES = ["home"]\n')
+    (working / "thumbor.conf").write_text('ALLOWED_SOURCES = ["working"]\n')
+
+    config = get_config(None)
+
+    assert config.ALLOWED_SOURCES == ["home"]
+
+
+def test_get_config_falls_back_to_working_directory(home_and_working_dirs):
+    _, working = home_and_working_dirs
+    (working / "thumbor.conf").write_text('ALLOWED_SOURCES = ["working"]\n')
+
+    config = get_config(None)
+
+    assert config.ALLOWED_SOURCES == ["working"]
