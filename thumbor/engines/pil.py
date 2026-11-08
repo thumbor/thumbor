@@ -7,12 +7,20 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from contextlib import contextmanager
 from io import BytesIO
 from itertools import chain, product, repeat
 
 import piexif
 from JpegIPTC import JpegIPTC
-from PIL import Image, ImageDraw, ImageFile, ImageSequence, JpegImagePlugin
+from PIL import (
+    GifImagePlugin,
+    Image,
+    ImageDraw,
+    ImageFile,
+    ImageSequence,
+    JpegImagePlugin,
+)
 from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
@@ -69,6 +77,64 @@ DECOMPRESSION_BOMB_EXCEPTIONS = (Image.DecompressionBombWarning,) + (
     if hasattr(Image, "DecompressionBombError")
     else ()
 )
+
+
+def _gif_transparency_indexes(data):
+    indexes = []
+    pending = None
+    position = 13
+    if data[10] & 0x80:
+        position += 3 << ((data[10] & 7) + 1)
+    while data[position] != 0x3B:
+        block = data[position]
+        position += 1
+        if block == 0x21:
+            label = data[position]
+            position += 1
+            if label == 0xF9:
+                pending = (
+                    data[position + 4] if data[position + 1] & 1 else None
+                )
+        elif block == 0x2C:
+            indexes.append(pending)
+            pending = None
+            packed = data[position + 8]
+            position += 9
+            if packed & 0x80:
+                position += 3 << ((packed & 7) + 1)
+            position += 1
+        else:
+            raise ValueError(f"unexpected GIF block {block:#04x}")
+        while data[position]:
+            position += data[position] + 1
+        position += 1
+    return indexes
+
+
+def _gif_frames_share_transparency(data):
+    try:
+        first, *rest = _gif_transparency_indexes(data)
+    except (IndexError, ValueError):
+        return False
+    return first is None or all(index == first for index in rest)
+
+
+@contextmanager
+def _gif_palette_frames(data):
+    # Pillow decodes every frame after the first as RGB. Frames sharing the
+    # global palette can stay palette images instead, composited on one
+    # palette canvas, but that canvas is tagged with the first frame's
+    # transparent index: a later frame that changes or drops it paints the
+    # entry as an opaque color, which would then render transparent.
+    previous = GifImagePlugin.LOADING_STRATEGY
+    if _gif_frames_share_transparency(data):
+        GifImagePlugin.LOADING_STRATEGY = (
+            GifImagePlugin.LoadingStrategy.RGB_AFTER_DIFFERENT_PALETTE_ONLY
+        )
+    try:
+        yield
+    finally:
+        GifImagePlugin.LOADING_STRATEGY = previous
 
 
 class Engine(BaseEngine):
@@ -189,8 +255,13 @@ class Engine(BaseEngine):
         ):
             frames = []
 
-            for frame in ImageSequence.Iterator(img):
-                frames.append(frame.convert("P"))
+            with _gif_palette_frames(buffer):
+                for frame in ImageSequence.Iterator(img):
+                    # A frame with its own palette decodes as RGB, and
+                    # convert("P") would dither it to the web palette
+                    frames.append(
+                        frame.convert("P", palette=Image.Palette.ADAPTIVE)
+                    )
             img.seek(0)
             self.frame_count = len(frames)
             self.frame_durations = [
@@ -688,21 +759,23 @@ class Engine(BaseEngine):
                         "RGBA" if keep_alpha else "RGB"
                     )
 
-            if (
-                ext in [".png", ".gif", ".heic", ".heif"]
-                and self.image.mode == "CMYK"
-            ):
-                # 26.10.22: remove ".heic, .heif" in a month(when pillow_heif get updated)
+            image_format = FORMATS.get(
+                ext, FORMATS[self.get_default_extension()]
+            )
+
+            if image_format in ("PNG", "GIF") and self.image.mode == "CMYK":
                 self.image = self.image.convert("RGBA")
+
+            if image_format in ("PNG", "HEIF") and self.image.mode == "F":
+                # Neither writer stores floats; L clamps to 0-255 like the
+                # RGB conversion of the JPEG, WebP and AVIF outputs
+                self.image = self.image.convert("L")
 
             if ext == ".gif" and self.image.mode == "LA":
                 # Pillow's GIF writer flattens LA to L, but picks the
                 # transparent palette entry out of RGBA
                 self.image = self.image.convert("RGBA")
 
-            image_format = FORMATS.get(
-                ext, FORMATS[self.get_default_extension()]
-            )
             if image_format == "PNG" and self.image.mode == "I":
                 # Pillow 12 and older clipped I to 16 bits on PNG save;
                 # Pillow 13 refuses to write it

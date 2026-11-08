@@ -16,7 +16,7 @@ from unittest import TestCase, mock
 
 import piexif
 import pytest
-from PIL import Image, ImageChops, ImageDraw, ImageSequence
+from PIL import GifImagePlugin, Image, ImageChops, ImageDraw, ImageSequence
 
 from tests.base import (
     AVIF_AVAILABLE,
@@ -26,7 +26,11 @@ from tests.base import (
 )
 from thumbor.config import Config
 from thumbor.context import Context
-from thumbor.engines.pil import KEEP_EXIF_COPYRIGHT_TAGS, Engine
+from thumbor.engines.pil import (
+    KEEP_EXIF_COPYRIGHT_TAGS,
+    Engine,
+    _gif_frames_share_transparency,
+)
 
 FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
 STORAGE_PATH = join(FIXTURES_PATH, "images")
@@ -667,6 +671,32 @@ class PilEngineTestCase(TestCase):
                     65535,
                 ]
 
+    def test_read_should_clamp_float_grayscale_to_8bit_png(self):
+        for extension in (".png", ".tif"):
+            with self.subTest(extension=extension):
+                engine = Engine(self.context)
+                engine.image = Image.new("F", (3, 1))
+                engine.image.putdata([-5.0, 100.5, 300.0])
+
+                image = Image.open(BytesIO(engine.read(extension)))
+
+                assert image.format == "PNG"
+                assert image.mode == "L"
+                assert [image.getpixel((x, 0)) for x in range(3)] == [
+                    0,
+                    100,
+                    255,
+                ]
+
+    def test_read_should_convert_cmyk_tif_to_png(self):
+        engine = Engine(self.context)
+        engine.image = Image.new("CMYK", (1, 1), (0, 255, 255, 0))
+
+        image = Image.open(BytesIO(engine.read(".tif")))
+
+        assert image.format == "PNG"
+        assert image.getpixel((0, 0)) == (255, 0, 0, 255)
+
     @skip_unless_avif
     def test_convert_jpg_to_avif(self):
         engine = Engine(self.context)
@@ -739,6 +769,28 @@ class PilEngineTestCase(TestCase):
         with Image.open(heif_bytes) as img:
             assert img.format == "HEIF"
             assert img.size == (691, 212)
+
+    @skip_unless_heif
+    def test_convert_float_grayscale_to_heif(self):
+        engine = Engine(self.context)
+        engine.image = Image.new("F", (64, 64), 100.5)
+
+        heif_bytes = BytesIO(engine.read(".heic"))
+        with Image.open(heif_bytes) as img:
+            assert img.format == "HEIF"
+            assert img.mode == "L"
+            assert abs(img.getpixel((32, 32)) - 100) <= 2
+
+    @skip_unless_heif
+    def test_convert_cmyk_to_heif(self):
+        engine = Engine(self.context)
+        engine.image = Image.new("CMYK", (64, 64), (0, 255, 255, 0))
+
+        heif_bytes = BytesIO(engine.read(".heic"))
+        with Image.open(heif_bytes) as img:
+            assert img.format == "HEIF"
+            red, green, blue = img.convert("RGB").getpixel((32, 32))
+            assert red >= 250 and green <= 5 and blue <= 5
 
     def test_should_preserve_copyright_exif_in_image(self):
         self.context.config.PRESERVE_EXIF_COPYRIGHT_INFO = True
@@ -839,6 +891,145 @@ def test_animated_gif_frame_durations(extension, resize, durations):
     assert actual_durations == (
         durations if durations is not None else [80] * len(frames)
     )
+
+
+def test_animated_gif_frames_keep_their_colors():
+    frames = []
+    for offset in (0, 8, 16):
+        frame = Image.new("RGB", (32, 32), (40, 90, 160))
+        ImageDraw.Draw(frame).rectangle(
+            [offset, 8, offset + 8, 16], fill=(250, 200, 30)
+        )
+        frames.append(frame)
+    with BytesIO() as source:
+        frames[0].save(
+            source, "GIF", save_all=True, append_images=frames[1:], loop=0
+        )
+        engine = Engine(PilEngineTestCase().get_context())
+        engine.load(source.getvalue(), ".gif")
+
+    with Image.open(BytesIO(engine.read(".gif"))) as result:
+        actual = [
+            frame.convert("RGB").tobytes()
+            for frame in ImageSequence.Iterator(result)
+        ]
+
+    assert actual == [frame.tobytes() for frame in frames]
+
+
+def test_animated_gif_frames_sharing_a_palette_keep_it():
+    engine = Engine(PilEngineTestCase().get_context())
+    with open(
+        join(STORAGE_PATH, "Rotating_earth_(large).gif"), "rb"
+    ) as image_file:
+        engine.load(image_file.read(), ".gif")
+
+    palettes = {
+        tuple(frame.image.getpalette()) for frame in engine.frame_engines()
+    }
+    assert len(palettes) == 1
+
+
+GIF_PALETTE = bytes([0, 0, 0, 30, 60, 90, 200, 100, 20, 250, 250, 250])
+
+
+def global_palette_gif(transparencies, disposal=0):
+    frames = []
+    for index, transparency in enumerate(transparencies):
+        frame = Image.new("P", (24, 24), 1)
+        frame.putpalette(GIF_PALETTE)
+        draw = ImageDraw.Draw(frame)
+        draw.rectangle([index * 4, 2, index * 4 + 6, 10], fill=2)
+        if transparency == 0:
+            draw.rectangle([2, 12, 10, 20], fill=0)
+        else:
+            # entry 0 is an opaque color in this frame
+            draw.rectangle([12, 2, 19, 11], fill=0)
+            if transparency is not None:
+                draw.rectangle([2, 12, 10, 20], fill=transparency)
+        if transparency is not None:
+            frame.info["transparency"] = transparency
+        frames.append(frame)
+    with BytesIO() as output:
+        frames[0].save(
+            output,
+            "GIF",
+            save_all=True,
+            append_images=frames[1:],
+            palette=GIF_PALETTE + bytes(768 - len(GIF_PALETTE)),
+            optimize=False,
+            disposal=disposal,
+            loop=0,
+        )
+        return output.getvalue()
+
+
+def rgba_frames(data):
+    with Image.open(BytesIO(data)) as image:
+        return [
+            frame.convert("RGBA").tobytes()
+            for frame in ImageSequence.Iterator(image)
+        ]
+
+
+@pytest.mark.parametrize(
+    "transparencies, shared",
+    [
+        ((None, None, None), True),
+        ((0, 0, 0), True),
+        ((None, 0, 0), True),
+        ((0, 0, 2), False),
+        ((0, None, 0), False),
+    ],
+)
+def test_gif_frames_share_transparency(transparencies, shared):
+    data = global_palette_gif(transparencies)
+
+    assert _gif_frames_share_transparency(data) is shared
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        global_palette_gif((None, None))[:10],
+        global_palette_gif((None, None))[:40],
+        b"GIF89a" + bytes(40),
+        b"\x89PNG\r\n\x1a\n" + bytes(40),
+    ],
+)
+def test_gif_frames_share_transparency_rejects_broken_data(data):
+    assert _gif_frames_share_transparency(data) is False
+
+
+@pytest.mark.parametrize("transparencies", [(0, 0, 2), (0, None, 0)])
+def test_animated_gif_changing_transparent_index_keeps_opaque_pixels(
+    transparencies,
+):
+    source = global_palette_gif(transparencies)
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(source, ".gif")
+
+    assert rgba_frames(engine.read(".gif")) == rgba_frames(source)
+
+
+def test_animated_gif_frames_with_one_transparent_index_keep_the_palette():
+    source = global_palette_gif((0, 0, 0))
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(source, ".gif")
+
+    palettes = {
+        tuple(frame.image.getpalette()) for frame in engine.frame_engines()
+    }
+    assert len(palettes) == 1
+    assert rgba_frames(engine.read(".gif")) == rgba_frames(source)
+
+
+def test_animated_gif_load_restores_the_pillow_loading_strategy():
+    previous = GifImagePlugin.LOADING_STRATEGY
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(global_palette_gif((0, 0, 0)), ".gif")
+
+    assert GifImagePlugin.LOADING_STRATEGY is previous
 
 
 @skip_unless_avif_encoder("svt")
