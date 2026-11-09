@@ -11,6 +11,7 @@ import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
+import tornado.web
 from tornado.testing import gen_test
 
 import thumbor.filters
@@ -569,6 +570,43 @@ class FilterMethodMetricsTestCase(TestCase):
             context.metrics.timing.call_args[0][0]
             == "filter.error_filter.time"
         )
+
+    def _make_http_error_filter(self, context, status_code):
+        class _HttpErrorFilter(BaseFilter):
+            @filter_method(BaseFilter.Number)
+            async def http_error_filter(self, value):
+                raise tornado.web.HTTPError(status_code)
+
+        _HttpErrorFilter.__module__ = "thumbor.filters.http_error_filter"
+        _HttpErrorFilter.pre_compile()
+        return _HttpErrorFilter("http_error_filter(1)", context)
+
+    @gen_test
+    async def test_emits_rejected_on_client_http_error(self):
+        context = self._make_context()
+        instance = self._make_http_error_filter(context, 400)
+
+        with pytest.raises(tornado.web.HTTPError):
+            await instance.run()
+
+        context.metrics.incr.assert_called_once_with(
+            "filter.http_error_filter.rejected"
+        )
+        context.metrics.timing.assert_called_once()
+
+    @gen_test
+    async def test_emits_error_on_http_errors_outside_4xx(self):
+        for status_code in (302, 500):
+            with self.subTest(status_code=status_code):
+                context = self._make_context()
+                instance = self._make_http_error_filter(context, status_code)
+
+                with pytest.raises(tornado.web.HTTPError):
+                    await instance.run()
+
+                context.metrics.incr.assert_called_once_with(
+                    "filter.http_error_filter.error"
+                )
 
     @gen_test
     async def test_does_not_fail_when_metrics_is_none(self):
