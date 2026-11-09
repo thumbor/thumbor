@@ -23,6 +23,7 @@ from tests.base import (
 from tests.fixtures.images import (
     TOO_SMALL_IMAGE_PATH,
     VALID_IMAGE_PATH,
+    svg_image,
     too_heavy_image,
     too_small_image,
     valid_image,
@@ -90,6 +91,17 @@ class UploadAPINewFileTestCase(UploadTestCase):
         expected_path = self.upload_storage.path_on_filesystem(expected_path)
         assert_exists(expected_path)
         assert_same_as(expected_path, VALID_IMAGE_PATH)
+
+    @gen_test
+    async def test_can_post_svg_image(self):
+        response = await self.async_post(
+            self.base_uri,
+            {"Content-Type": "image/svg+xml", "Slug": "picture.svg"},
+            svg_image(),
+        )
+
+        assert response.code == 201
+        assert response.headers["Location"].endswith("/picture.svg")
 
     @gen_test
     async def test_can_post_image_with_query_string(self):
