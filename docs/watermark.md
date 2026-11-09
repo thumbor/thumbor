@@ -8,6 +8,9 @@ This filter adds a watermark to the image. It can be positioned inside the image
 with the alpha channel specified and optionally resized based on the image size
 by specifying the ratio (see {ref}`Resizing <watermark-resizing>`).
 
+An SVG watermark is drawn at the width and height the document declares before
+any resizing.
+
 ## Arguments
 
 - `imageUrl` - Watermark image URL. It is very important to understand that the
