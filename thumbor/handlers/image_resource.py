@@ -7,9 +7,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 import datetime
+import re
 
 from thumbor.engines import BaseEngine
 from thumbor.handlers import ImageApiHandler
+
+IMAGE_ID_RE = re.compile(r"[A-Za-z0-9_-]+", re.ASCII)
+IMAGE_NOT_FOUND = "Image not found at the given URL"
 
 
 ##
@@ -17,8 +21,22 @@ from thumbor.handlers import ImageApiHandler
 # This handler support GET, PUT and DELETE method to manipulate existing images
 ##
 class ImageResourceHandler(ImageApiHandler):
-    async def check_resource(self, file_id):
+    def get_image_id(self, file_id):
+        # The upload storage shares its namespace with the other stored
+        # keys, so only ids shaped like the ones this API creates are
+        # looked up.
         file_id = file_id[: self.context.config.MAX_ID_LENGTH]
+        if IMAGE_ID_RE.fullmatch(file_id):
+            return file_id
+
+        self._error(404, IMAGE_NOT_FOUND)
+        return None
+
+    async def check_resource(self, file_id):
+        file_id = self.get_image_id(file_id)
+        if file_id is None:
+            return
+
         # Check if image exists
         exists = await self.context.modules.storage.exists(file_id)
 
@@ -43,10 +61,13 @@ class ImageResourceHandler(ImageApiHandler):
             self.write(body)
             self.finish()
         else:
-            self._error(404, "Image not found at the given URL")
+            self._error(404, IMAGE_NOT_FOUND)
 
     async def put(self, file_id):
-        file_id = file_id[: self.context.config.MAX_ID_LENGTH]
+        file_id = self.get_image_id(file_id)
+        if file_id is None:
+            return
+
         # Check if image overwriting is allowed
         if not self.context.config.UPLOAD_PUT_ALLOWED:
             self._error(405, "Unable to modify an uploaded image")
@@ -58,7 +79,10 @@ class ImageResourceHandler(ImageApiHandler):
             self.set_status(204)
 
     async def delete(self, file_id):
-        file_id = file_id[: self.context.config.MAX_ID_LENGTH]
+        file_id = self.get_image_id(file_id)
+        if file_id is None:
+            return
+
         # Check if image deleting is allowed
         if not self.context.config.UPLOAD_DELETE_ALLOWED:
             self._error(405, "Unable to delete an uploaded image")
@@ -70,7 +94,7 @@ class ImageResourceHandler(ImageApiHandler):
             await self.context.modules.storage.remove(file_id)
             self.set_status(204)
         else:
-            self._error(404, "Image not found at the given URL")
+            self._error(404, IMAGE_NOT_FOUND)
 
     async def get(self, file_id):
         await self.check_resource(file_id)
