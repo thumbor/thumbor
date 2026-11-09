@@ -49,7 +49,7 @@ def get_config(config_path, use_environment=False):
     if use_environment:
         Config.allow_environment_variables()
 
-    lookup_paths = [os.curdir, expanduser("~"), "/etc/", dirname(__file__)]
+    lookup_paths = ["/etc/", expanduser("~"), os.curdir, dirname(__file__)]
 
     return Config.load(
         config_path, conf_name="thumbor.conf", lookup_paths=lookup_paths
