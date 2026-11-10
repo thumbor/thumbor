@@ -382,6 +382,23 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         assert_is_png(response.body)
 
     @gen_test
+    async def test_orig_with_a_proportional_dimension(self):
+        for url in (
+            "/unsafe/origx0/image.jpg",
+            "/unsafe/0xorig/image.jpg",
+            "/unsafe/origx/image.jpg",
+            "/unsafe/xorig/image.jpg",
+            "/unsafe/fit-in/origx0/image.jpg",
+            "/unsafe/fit-in/0xorig/image.jpg",
+        ):
+            response = await self.async_fetch(url)
+
+            assert response.code == 200, url
+            engine = Engine(self.context)
+            engine.load(response.body, ".jpg")
+            assert engine.size == (300, 400), url
+
+    @gen_test
     async def test_can_read_image_svg_with_px_units_and_convert_png(self):
         response = await self.async_fetch("/unsafe/Commons-logo.svg")
         assert response.code == 200
