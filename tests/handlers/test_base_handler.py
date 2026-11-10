@@ -62,6 +62,10 @@ class BaseHandlerTestApp(tornado.web.Application):
         super().__init__([(r"/error", ErrorHandler)])
 
 
+RED = (255, 0, 0, 255)
+BLUE = (0, 0, 255, 255)
+
+
 class BaseImagingTestCase(TestCase):
     def setUp(self):
         self.root_path = tempfile.mkdtemp()
@@ -442,6 +446,116 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
         engine = Engine(self.context)
         engine.load(response.body, ".png")
         assert engine.size == (width, 403)
+
+    async def fetch_png_pixels(self, url, *positions):
+        response = await self.async_fetch(url)
+        assert response.code == 200
+        assert_is_png(response.body)
+
+        engine = Engine(self.context)
+        engine.load(response.body, ".png")
+        image = engine.image.convert("RGBA")
+        return image.size, [image.getpixel(position) for position in positions]
+
+    @gen_test
+    async def test_svg_fit_in_keeps_the_aspect_ratio(self):
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/fit-in/100x100/red-blue-200x100.svg", (0, 0), (99, 49)
+        )
+
+        assert size == (100, 50)
+        assert pixels == [RED, BLUE]
+
+    @gen_test
+    async def test_svg_stretch_fills_the_requested_box(self):
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/400x400/filters:stretch()/red-blue-200x100.svg",
+            (0, 0),
+            (399, 399),
+        )
+
+        assert size == (400, 400)
+        assert pixels == [RED, BLUE]
+
+    @gen_test
+    async def test_svg_no_upscale_keeps_the_document_size(self):
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/fit-in/400x400/filters:no_upscale()/red-blue-200x100.svg",
+            (0, 0),
+            (199, 99),
+        )
+
+        assert size == (200, 100)
+        assert pixels == [RED, BLUE]
+
+    @gen_test
+    async def test_svg_fits_in_a_box_smaller_than_its_aspect_ratio(self):
+        size, _ = await self.fetch_png_pixels(
+            "/unsafe/fit-in/1x1/red-blue-200x100.svg"
+        )
+
+        assert size == (1, 1)
+
+    @gen_test
+    async def test_svg_accepts_orig_as_a_dimension(self):
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/origx100/red-blue-200x100.svg", (0, 0), (199, 99)
+        )
+
+        assert size == (200, 100)
+        assert pixels == [RED, BLUE]
+
+    @gen_test
+    async def test_svg_orig_keeps_the_document_size_on_that_axis(self):
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/400xorig/red-blue-200x100.svg", (0, 0), (399, 99)
+        )
+
+        assert size == (400, 100)
+        assert pixels == [RED, BLUE]
+
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/origx400/red-blue-200x100.svg", (0, 0), (199, 399)
+        )
+
+        assert size == (200, 400)
+        assert pixels == [RED, BLUE]
+
+    @gen_test
+    async def test_svg_manual_crop_uses_document_coordinates(self):
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/10x10:110x60/fit-in/50x50/red-blue-200x100.svg",
+            (40, 12),
+            (48, 12),
+        )
+
+        assert size == (50, 25)
+        assert pixels == [RED, BLUE]
+
+    @gen_test
+    async def test_svg_focal_filter_follows_the_raster_scale(self):
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/400x400/filters:focal(150x0:200x100)/red-blue-200x100.svg",
+            (0, 0),
+            (399, 399),
+        )
+
+        assert size == (400, 400)
+        assert pixels == [BLUE, BLUE]
+
+    @gen_test
+    async def test_svg_watermark_keeps_the_document_size(self):
+        size, pixels = await self.fetch_png_pixels(
+            "/unsafe/300x400/filters:watermark(red-blue-200x100.svg,0,0,0)"
+            ":format(png)/image.jpg",
+            (50, 50),
+            (150, 50),
+            (250, 50),
+        )
+
+        assert size == (300, 400)
+        assert pixels[:2] == [RED, BLUE]
+        assert pixels[2] not in (RED, BLUE)
 
     @gen_test
     async def test_can_read_8bit_tiff_as_png(self):

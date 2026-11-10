@@ -59,6 +59,9 @@ This crop is performed before the rest of the operations, so it can be used as a
 you just need to get that celebrity face on a big picture full of people, as an
 example.
 
+For an SVG source the two points are in the pixels of the size the document
+declares, whatever size the URL asks for.
+
 ### Fit in
 
 The fit-in argument specifies that the image should not be auto-cropped and
@@ -95,6 +98,10 @@ would get an image of $300px$ x $225px$.
 For the image of $400px$ x $600px$, with a full fit-in of $300px$ x $200px$, we
 would get an image of $300px$ x $450px$.
 
+An SVG source is drawn at the size the fit-in asks for, even when that is
+larger than the size the document declares, since a vector has no pixels to
+enlarge. Add the `no_upscale()` filter to hold it at the declared size.
+
 % TODO: Add adaptive fit in information here
 
 ### Image Size
@@ -120,6 +127,9 @@ you an $800x300$ image.
 
 If you use $origxorig$, Thumbor will use the original size of the image and thus
 won't do any cropping or resizing.
+
+An SVG source is cropped and resized like a raster of the size the document
+declares, except that it is drawn sharp at the size the result needs.
 
 **The default value (in case it is omitted) for this option is to use
 proportional size (0) to the original image.**
