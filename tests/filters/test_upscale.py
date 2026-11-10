@@ -12,7 +12,56 @@ from tornado.testing import gen_test
 from tests.base import FilterTestCase
 
 
+def fit_in(width, height):
+    def config_context(context):
+        context.request.fit_in = True
+        context.request.width = width
+        context.request.height = height
+
+    return config_context
+
+
 class UpscaleFilterTestCase(FilterTestCase):
+    async def get_upscaled(self, width, height):
+        return await self.get_filtered(
+            "source.jpg",
+            "thumbor.filters.upscale",
+            "upscale()",
+            config_context=fit_in(width, height),
+        )
+
+    @gen_test
+    async def test_upscale_filter_with_an_omitted_dimension(self):
+        source_width, source_height = self.get_fixture("source.jpg").size
+
+        for width, height in ((1000, 0), (805, 0), (0, 1000)):
+            image = await self.get_upscaled(width, height)
+
+            if width:
+                expected = (width, int(source_height * width / source_width))
+            else:
+                expected = (int(source_width * height / source_height), height)
+            assert image.size == expected, (width, height)
+
+    @gen_test
+    async def test_upscale_filter_with_orig_keeps_the_source_size(self):
+        source_size = self.get_fixture("source.jpg").size
+
+        for width, height in (
+            ("orig", "orig"),
+            ("orig", 1000),
+            (1000, "orig"),
+        ):
+            image = await self.get_upscaled(width, height)
+
+            assert image.size == source_size, (width, height)
+
+    @gen_test
+    async def test_upscale_filter_without_a_size_keeps_the_source_size(self):
+        image = await self.get_upscaled(0, 0)
+
+        assert image.size == self.get_fixture("source.jpg").size
+
     @gen_test
     async def test_upscale_filter_with_fit_in_big(self):
         def config_context(context):
