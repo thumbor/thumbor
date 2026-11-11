@@ -368,6 +368,48 @@ class ImagingOperationsTestCase(BaseImagingTestCase):
             assert engine.size == expected_size, url
 
     @gen_test
+    async def test_upscale_with_orig_or_an_omitted_dimension(self):
+        for url, expected_size in (
+            ("/unsafe/fit-in/600x/filters:upscale()/image.jpg", (600, 800)),
+            ("/unsafe/fit-in/x800/filters:upscale()/image.jpg", (600, 800)),
+            ("/unsafe/fit-in/600x0/filters:upscale()/image.jpg", (600, 800)),
+            (
+                "/unsafe/fit-in/origxorig/filters:upscale()/image.jpg",
+                (300, 400),
+            ),
+            (
+                "/unsafe/fit-in/600xorig/filters:upscale()/image.jpg",
+                (300, 400),
+            ),
+            (
+                "/unsafe/fit-in/origx600/filters:upscale()/image.jpg",
+                (300, 400),
+            ),
+            ("/unsafe/origx200/filters:upscale()/image.jpg", (300, 200)),
+            (
+                "/unsafe/fit-in/origx600/filters:no_upscale():upscale()"
+                "/image.jpg",
+                (300, 400),
+            ),
+            ("/unsafe/fit-in/x769/filters:upscale()/no_face.jpg", (1025, 769)),
+            ("/unsafe/fit-in/805x/filters:upscale()/no_face.jpg", (805, 603)),
+            (
+                "/unsafe/adaptive-fit-in/x800/filters:upscale()/no_face.jpg",
+                (1066, 800),
+            ),
+            (
+                "/unsafe/adaptive-fit-in/800xorig/filters:upscale()/image.jpg",
+                (300, 400),
+            ),
+        ):
+            response = await self.async_fetch(url)
+
+            assert response.code == 200, url
+            engine = Engine(self.context)
+            engine.load(response.body, ".jpg")
+            assert engine.size == expected_size, url
+
+    @gen_test
     async def test_can_read_cmyk_jpeg(self):
         response = await self.async_fetch("/unsafe/cmyk.jpg")
         assert response.code == 200
