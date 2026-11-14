@@ -11,6 +11,7 @@ import re
 import tempfile
 from os.path import exists
 from shutil import rmtree
+from unittest import mock
 
 from tornado.testing import gen_test
 
@@ -19,10 +20,13 @@ from tests.base import (
     assert_exists,
     assert_same_as,
     assert_similar_to,
+    skip_unless_jxl,
 )
 from tests.fixtures.images import (
     TOO_SMALL_IMAGE_PATH,
     VALID_IMAGE_PATH,
+    get_abs_path,
+    get_image,
     too_heavy_image,
     too_small_image,
     valid_image,
@@ -517,6 +521,77 @@ class UploadAPIValidationTestCase(UploadTestCase):
     async def test_posting_invalid_image_fails(self):
         response = await self.async_post(
             self.base_uri, {"Content-Type": "image/jpeg"}, "invalid image"
+        )
+        assert response.code == 415
+
+    @gen_test
+    async def test_posting_jxl_with_an_unreadable_header_fails(self):
+        response = await self.async_post(
+            self.base_uri, {"Content-Type": "image/jxl"}, b"\xff\x0a"
+        )
+        assert response.code == 415
+
+    @skip_unless_jxl
+    @gen_test
+    async def test_posting_truncated_jxl_fails(self):
+        response = await self.async_post(
+            self.base_uri,
+            {"Content-Type": "image/jxl"},
+            get_image(get_abs_path("image-truncated.jxl")),
+        )
+        assert response.code == 415
+
+    @skip_unless_jxl
+    @gen_test
+    async def test_posting_jxl(self):
+        response = await self.async_post(
+            self.base_uri,
+            {"Content-Type": "image/jxl"},
+            get_image(get_abs_path("image.jxl")),
+        )
+        assert response.code == 201
+        assert response.headers["Location"].endswith("/image.jxl")
+
+    @skip_unless_jxl
+    @gen_test
+    async def test_names_a_jxl_the_host_has_no_mime_type_for(self):
+        with mock.patch("mimetypes.guess_extension", return_value=None):
+            response = await self.async_post(
+                self.base_uri,
+                {"Content-Type": "image/jxl"},
+                get_image(get_abs_path("image.jxl")),
+            )
+        assert response.code == 201
+        assert response.headers["Location"].endswith("/image.jxl")
+
+    @gen_test
+    async def test_names_an_image_after_its_content(self):
+        def guess_extension(mime, _strict):
+            return {"image/jp2": ".jp2"}.get(mime)
+
+        with mock.patch("mimetypes.guess_extension", guess_extension):
+            response = await self.async_post(
+                self.base_uri,
+                {"Content-Type": "application/x-thumbor-test"},
+                get_image(get_abs_path("image.jp2")),
+            )
+        assert response.code == 201
+        assert response.headers["Location"].endswith("/image.jp2")
+
+    @gen_test
+    async def test_posting_animated_jxl_fails(self):
+        response = await self.async_post(
+            self.base_uri,
+            {"Content-Type": "image/jxl"},
+            get_image(get_abs_path("animated.jxl")),
+        )
+        assert response.code == 415
+
+    @gen_test
+    async def test_posting_what_only_the_plugin_takes_for_jxl_fails(self):
+        body = b"ABCD" + get_image(get_abs_path("image-container.jxl"))[4:]
+        response = await self.async_post(
+            self.base_uri, {"Content-Type": "image/jxl"}, body
         )
         assert response.code == 415
 

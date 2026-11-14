@@ -352,6 +352,54 @@ defaults to 80.
 QUALITY = 90
 ```
 
+(jpeg-xl-configuration)=
+
+### JXL_QUALITY, JXL_EFFORT and JXL_THREADS
+
+thumbor reads and writes JPEG XL when Pillow has a plugin for the format.
+`pip install thumbor[jxl]` installs
+[pillow-jxl-plugin](https://github.com/Isotr0py/pillow-jpegxl-plugin), the
+plugin thumbor is tested with. It is licensed under the GPL-3.0, so it is not
+part of `thumbor[all]`, and it has no wheels for Python 3.15 yet, where the
+extra installs nothing. Without a plugin a JPEG XL source is answered with a
+400 and `format(jxl)` keeps the format of the source.
+
+- `JXL_QUALITY` is the quality of the JPEG XL output. It defaults to `None`,
+  which uses `QUALITY`. From 100 up the image is encoded without loss.
+- `JXL_EFFORT` goes from 1 (fastest) to 10 (slowest). It defaults to 3.
+  `None` leaves the choice to the encoder, whose own default, 7, takes several
+  times longer for files of about the same size.
+- `JXL_THREADS` is the number of threads the codec may use for one image. It
+  defaults to 1. `None` lets the codec use every core.
+
+```python
+JXL_QUALITY = 75
+JXL_EFFORT = 4
+JXL_THREADS = 2
+```
+
+A JPEG XL source is served as JPEG XL unless a filter or one of the `AUTO_*`
+options picks another format. An animated one is refused with a 400. 16-bit
+RGB is reduced to 8 bits per channel, and so are float samples.
+
+The pixels of a JPEG XL source arrive already rotated to the orientation the
+file stores, with or without `RESPECT_ORIENTATION`, and the orientation in
+its EXIF is reset to match. A JPEG that was recompressed into JPEG XL is read
+the same way. EXIF that the file keeps compressed is not read.
+
+The output has 8 bits per channel and carries no ICC profile. An image with
+one is converted to sRGB first. A CMYK image that a filter already turned
+into RGB and an image whose profile cannot be used are written as they are.
+EXIF is written only when `PRESERVE_EXIF_INFO` or
+`PRESERVE_EXIF_COPYRIGHT_INFO` ask for it. Since JPEG XL decoders ignore the
+orientation in the EXIF, `PRESERVE_EXIF_INFO` also makes thumbor rotate the
+pixels to it before writing them, so a source stored sideways comes out with
+its width and height swapped.
+
+`MAX_PIXELS` is checked against the header before anything is decoded. JPEG
+XL can carry extra channels besides color and alpha, and each of them after
+the first counts as one more image of the same size.
+
 ### MAX_AGE
 
 This option defines the number of seconds that images should remain in the

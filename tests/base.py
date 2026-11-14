@@ -8,9 +8,10 @@
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
 import unicodedata
+from contextlib import contextmanager
 from io import BytesIO
 from os.path import exists
-from unittest import skipUnless
+from unittest import mock, skipUnless
 
 from PIL import Image
 
@@ -32,8 +33,14 @@ try:
 except ImportError:
     HeifImagePlugin = None
 
+try:
+    import pillow_jxl  # noqa pylint: disable=unused-import
+except ImportError:
+    pass
+
 AVIF_AVAILABLE = _avif is not None
 HEIF_AVAILABLE = HeifImagePlugin is not None
+JXL_AVAILABLE = "JXL" in Image.OPEN and "JXL" in Image.SAVE
 
 skip_unless_avif = skipUnless(
     AVIF_AVAILABLE,
@@ -44,6 +51,40 @@ skip_unless_heif = skipUnless(
     HEIF_AVAILABLE,
     "HEIF format support not found. Skipping HEIF tests.",
 )
+
+skip_unless_jxl = skipUnless(
+    JXL_AVAILABLE,
+    "JPEG XL format support not found. Skipping JPEG XL tests.",
+)
+
+
+@contextmanager
+def pillow_formats(opener=None, saver=None):
+    """
+    Lets a test give Pillow a JPEG XL opener or saver of its own, or none
+    when the argument is None, and puts the registries back afterwards.
+    """
+    # Pillow registers its plugins the first time it needs them. One that
+    # registered inside the patches would be forgotten when they end.
+    Image.init()
+    formats = [name for name in Image.ID if name != "JXL"]
+
+    with (
+        mock.patch.dict(Image.OPEN),
+        mock.patch.dict(Image.SAVE),
+        mock.patch.object(Image, "ID", formats),
+    ):
+        Image.OPEN.pop("JXL", None)
+        Image.SAVE.pop("JXL", None)
+
+        if opener is not None:
+            Image.OPEN["JXL"] = opener
+            Image.ID.append("JXL")
+
+        if saver is not None:
+            Image.SAVE["JXL"] = saver
+
+        yield
 
 
 def skip_unless_avif_encoder(codec_name):

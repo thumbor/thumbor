@@ -17,10 +17,12 @@ from PIL import Image, ImageCms
 from thumbor.utils import (
     CONTENT_TYPE,
     EXTENSION,
+    convert_to_srgb,
     deprecated,
     ensure_srgb,
     get_color_space,
     logger,
+    renders_as_srgb,
 )
 
 
@@ -161,3 +163,171 @@ def test_ensure_srgb_returns_none_for_animated_cmyk():
     with mock.patch.object(img, "is_animated", new=True, create=True):
         retval = ensure_srgb(img)
         assert retval is None
+
+
+def linear_p3_image(mode="RGB"):
+    image = Image.open("tests/fixtures/images/image-linear-p3.jpg")
+
+    return image.convert(mode), image.info["icc_profile"]
+
+
+def srgb_icc():
+    return ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
+
+
+def test_convert_to_srgb_converts_an_rgb_profile():
+    img, icc = linear_p3_image()
+    img.info["exif"] = b"exif"
+
+    converted = convert_to_srgb(img, icc)
+
+    assert converted.mode == "RGB"
+    assert converted.tobytes() != img.tobytes()
+    assert converted.info == {
+        key: value for key, value in img.info.items() if key != "icc_profile"
+    }
+    assert "exif" in converted.info
+
+
+def test_convert_to_srgb_keeps_the_alpha_channel():
+    img, icc = linear_p3_image("RGBA")
+    img.putalpha(Image.linear_gradient("L").resize(img.size))
+
+    converted = convert_to_srgb(img, icc)
+
+    assert converted.mode == "RGBA"
+    assert converted.getchannel("A").tobytes() == (
+        img.getchannel("A").tobytes()
+    )
+    assert converted.convert("RGB").tobytes() != img.convert("RGB").tobytes()
+
+
+def test_convert_to_srgb_returns_an_srgb_image_unchanged():
+    img = Image.effect_noise((16, 16), 64).convert("RGB")
+
+    assert convert_to_srgb(img, srgb_icc()) is img
+
+
+def test_convert_to_srgb_keeps_a_gray_image_gray():
+    img = Image.open("tests/fixtures/images/grayscale-icc.jpg")
+    icc = img.info["icc_profile"]
+
+    converted = convert_to_srgb(img, icc)
+
+    assert converted.mode == "L"
+    assert converted.tobytes() != img.tobytes()
+
+    with_alpha = img.convert("LA")
+    with_alpha.putalpha(Image.linear_gradient("L").resize(img.size))
+
+    converted = convert_to_srgb(with_alpha, icc)
+
+    assert converted.mode == "LA"
+    assert converted.getchannel("A").tobytes() == (
+        with_alpha.getchannel("A").tobytes()
+    )
+
+
+def test_convert_to_srgb_converts_cmyk_to_rgb():
+    img = Image.open("tests/fixtures/images/cmyk-icc.jpg")
+
+    converted = convert_to_srgb(img, img.info["icc_profile"])
+
+    assert converted.mode == "RGB"
+    assert converted.tobytes() != img.convert("RGB").tobytes()
+
+
+def test_convert_to_srgb_uses_the_given_srgb_profile(tmp_path):
+    img, icc = linear_p3_image()
+    profile_path = tmp_path / "target.icc"
+    profile_path.write_bytes(icc)
+
+    assert convert_to_srgb(img, icc) is not img
+    assert convert_to_srgb(img, icc, str(profile_path)) is img
+
+
+def test_convert_to_srgb_converts_a_gray_image_with_an_rgb_profile():
+    img, icc = linear_p3_image("L")
+
+    converted = convert_to_srgb(img, icc)
+
+    assert converted.mode == "L"
+    assert converted.tobytes() != img.tobytes()
+
+    with_alpha = img.convert("LA")
+    with_alpha.putalpha(Image.linear_gradient("L").resize(img.size))
+
+    converted = convert_to_srgb(with_alpha, icc)
+
+    assert converted.mode == "LA"
+    assert converted.getchannel("A").tobytes() == (
+        with_alpha.getchannel("A").tobytes()
+    )
+
+
+def test_convert_to_srgb_converts_an_rgb_image_with_a_gray_profile():
+    gray = Image.open("tests/fixtures/images/grayscale-icc.jpg")
+    icc = gray.info["icc_profile"]
+    expected = convert_to_srgb(gray, icc)
+
+    converted = convert_to_srgb(gray.convert("RGB"), icc)
+
+    assert converted.mode == "RGB"
+    assert converted.convert("L").tobytes() == expected.tobytes()
+
+    with_alpha = gray.convert("RGBA")
+    with_alpha.putalpha(Image.linear_gradient("L").resize(gray.size))
+
+    converted = convert_to_srgb(with_alpha, icc)
+
+    assert converted.mode == "RGBA"
+    assert converted.getchannel("A").tobytes() == (
+        with_alpha.getchannel("A").tobytes()
+    )
+    assert converted.convert("RGB").convert("L").tobytes() == (
+        expected.tobytes()
+    )
+
+
+@pytest.mark.parametrize("tag", [b"rXYZ", b"rTRC"])
+def test_convert_to_srgb_refuses_a_profile_it_cannot_use(tag):
+    img = Image.new("RGB", (8, 8))
+
+    assert convert_to_srgb(img, srgb_icc().replace(tag, b"none", 1)) is None
+
+
+def test_renders_as_srgb():
+    _, linear_p3 = linear_p3_image()
+    gray = Image.open("tests/fixtures/images/grayscale-icc.jpg")
+    cmyk = Image.open("tests/fixtures/images/cmyk-icc.jpg")
+
+    assert renders_as_srgb(srgb_icc())
+    assert not renders_as_srgb(linear_p3)
+    assert not renders_as_srgb(gray.info["icc_profile"])
+    assert not renders_as_srgb(cmyk.info["icc_profile"])
+    assert not renders_as_srgb(srgb_icc().replace(b"rXYZ", b"none", 1))
+    assert not renders_as_srgb(b"invalid")
+    assert not renders_as_srgb(None)
+
+    with mock.patch("thumbor.utils.ImageCms", new=None):
+        assert not renders_as_srgb(srgb_icc())
+
+
+@pytest.mark.parametrize("mode", ["P", "CMYK", "I;16"])
+def test_convert_to_srgb_refuses_a_mode_the_profile_does_not_describe(mode):
+    img, icc = linear_p3_image(mode)
+
+    assert convert_to_srgb(img, icc) is None
+
+
+def test_convert_to_srgb_refuses_an_invalid_profile():
+    img = Image.new("RGB", (8, 8))
+
+    assert convert_to_srgb(img, b"invalid") is None
+
+
+def test_convert_to_srgb_needs_imagecms():
+    img, icc = linear_p3_image()
+
+    with mock.patch("thumbor.utils.ImageCms", new=None):
+        assert convert_to_srgb(img, icc) is None

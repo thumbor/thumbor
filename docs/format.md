@@ -5,7 +5,11 @@ Usage: `format(image-format)`
 ## Description
 
 This filter specifies the output format of the image. The output must be one of:
-"webp", "jpeg", "gif", "png", "avif" or "heic".
+"webp", "jpeg", "gif", "png", "avif", "heic" or "jxl".
+
+"jxl" needs a Pillow plugin for JPEG XL, as described in
+{ref}`jpeg-xl-configuration`. Without one the image keeps the format of its
+source. An animated GIF or WebP is not converted to "jxl".
 
 ## Arguments
 
