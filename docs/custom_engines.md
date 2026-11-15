@@ -42,8 +42,10 @@ required, but the `frame` filter calls `read()` without arguments on a new
 instance of the configured engine, as the PIL engine allows.
 
 `BaseEngine.load()` detects the extension and converts SVG input before calling
-`create_image()`. After `create_image()` returns, it reads EXIF metadata from
-`self.exif` and wraps animated input in per-frame engines. Both steps depend on
+`create_image()`. After `create_image()` returns, it keeps `self.exif` to read
+the EXIF metadata from when `engine.metadata` is asked for, unless
+`create_image()` set `self.metadata` itself, and wraps animated input in
+per-frame engines. Both steps depend on
 `create_image()`: set `self.exif` to the raw EXIF bytes when the format carries
 them, and return a list or tuple of frames for animated input so that
 `ALLOW_ANIMATED_GIFS` handling applies (`ALLOW_ANIMATED_WEBP` also enables it
