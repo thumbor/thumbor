@@ -9,6 +9,7 @@
 
 # pylint: disable=unsupported-membership-test,too-many-lines
 
+import struct
 from io import BytesIO
 from os.path import abspath, dirname, join
 from random import Random
@@ -20,6 +21,7 @@ from PIL import GifImagePlugin, Image, ImageChops, ImageDraw, ImageSequence
 
 from tests.base import (
     AVIF_AVAILABLE,
+    HEIF_AVAILABLE,
     skip_unless_avif,
     skip_unless_avif_encoder,
     skip_unless_heif,
@@ -1252,3 +1254,177 @@ def test_animated_gif_frames_that_never_clear_keep_their_disposal():
         ]
     assert disposals == [0] * len(frames)
     assert _frame_alphas(result) == _frame_alphas(source)
+
+
+GRAY_16BIT_SAMPLES = (0x2000, 0x8000, 0xFEFF, 0xFFFF)
+GRAY_16BIT_AS_8BIT = [0x20, 0x80, 0xFE, 0xFF]
+GRAY_BAND = 16
+
+
+def gray_16bit_engine(mode="I;16", **info):
+    byte_order = ">" if mode == "I;16B" else "<"
+    row = b"".join(
+        struct.pack(f"{byte_order}H", sample) * GRAY_BAND
+        for sample in GRAY_16BIT_SAMPLES
+    )
+    size = (GRAY_BAND * len(GRAY_16BIT_SAMPLES), GRAY_BAND)
+    image = Image.frombytes(mode, size, row * GRAY_BAND)
+    image.info.update(info)
+    engine = Engine(Context(config=Config()))
+    engine.image = image
+
+    return engine
+
+
+def gray_bands(image, band=0):
+    middle = GRAY_BAND // 2
+    image = image.convert("RGBA")
+
+    return [
+        image.getpixel((GRAY_BAND * index + middle, middle))[band]
+        for index in range(len(GRAY_16BIT_SAMPLES))
+    ]
+
+
+@pytest.mark.parametrize("mode", ["I;16", "I;16L", "I;16B"])
+@pytest.mark.parametrize(
+    "extension, tolerance",
+    [
+        (".gif", 0),
+        (".webp", 0),
+        (".jpg", 2),
+        pytest.param(
+            ".avif",
+            2,
+            marks=pytest.mark.skipif(
+                not AVIF_AVAILABLE, reason="AVIF format support not found"
+            ),
+        ),
+    ],
+)
+def test_16bit_grayscale_is_scaled_down_for_8bit_formats(
+    mode, extension, tolerance
+):
+    engine = gray_16bit_engine(mode)
+
+    image = Image.open(BytesIO(engine.read(extension, 100)))
+
+    for got, expected in zip(gray_bands(image), GRAY_16BIT_AS_8BIT):
+        assert abs(got - expected) <= tolerance
+
+
+@pytest.mark.parametrize(
+    "extension, tolerance",
+    [
+        (".png", 0),
+        (".tif", 0),
+        pytest.param(
+            ".heic",
+            0x100,
+            marks=pytest.mark.skipif(
+                not HEIF_AVAILABLE, reason="HEIF format support not found"
+            ),
+        ),
+    ],
+)
+@pytest.mark.parametrize("mode", ["I;16", "I;16B"])
+def test_16bit_grayscale_keeps_its_depth_where_the_format_holds_it(
+    mode, extension, tolerance
+):
+    engine = gray_16bit_engine(mode)
+
+    image = Image.open(BytesIO(engine.read(extension, 100)))
+
+    assert image.mode == "I;16"
+    for got, expected in zip(image.getextrema(), (0x2000, 0xFFFF)):
+        assert abs(got - expected) <= tolerance
+
+
+def test_16bit_grayscale_big_endian_is_resized_like_little_endian():
+    little = gray_16bit_engine("I;16", dpi=(300, 300))
+    big = gray_16bit_engine("I;16B", dpi=(300, 300))
+
+    for engine in (little, big):
+        engine.resize(GRAY_BAND * 2, GRAY_BAND // 2)
+
+    assert (
+        big.image.convert("I").tobytes() == little.image.convert("I").tobytes()
+    )
+    assert big.image.info == {"dpi": (300, 300)}
+
+
+@pytest.mark.parametrize("mode", ["I;16", "I;16L", "I;16B"])
+def test_16bit_grayscale_is_scaled_down_for_the_filters(mode):
+    engine = gray_16bit_engine(mode)
+
+    data_mode, data = engine.image_data_as_rgb()
+
+    assert data_mode == "RGB"
+    assert data == engine.image.tobytes()
+    assert gray_bands(engine.image) == GRAY_16BIT_AS_8BIT
+
+
+@pytest.mark.parametrize("update_image", [True, False])
+def test_16bit_grayscale_is_scaled_down_to_8bit_grayscale(update_image):
+    engine = gray_16bit_engine()
+
+    image = engine.convert_to_grayscale(update_image=update_image)
+
+    assert image.mode == "L"
+    assert gray_bands(image) == GRAY_16BIT_AS_8BIT
+    assert engine.image.mode == ("L" if update_image else "I;16")
+
+
+def test_16bit_grayscale_is_scaled_down_when_it_gains_alpha():
+    engine = gray_16bit_engine()
+
+    engine.enable_alpha()
+
+    assert engine.image.mode == "RGBA"
+    assert gray_bands(engine.image) == GRAY_16BIT_AS_8BIT
+    assert gray_bands(engine.image, band=3) == [255, 255, 255, 255]
+
+
+def test_16bit_grayscale_colorkey_follows_the_samples():
+    engine = gray_16bit_engine(transparency=0x8000)
+
+    assert engine.has_transparency()
+
+    mode, _ = engine.image_data_as_rgb()
+
+    assert mode == "RGBA"
+    assert gray_bands(engine.image) == GRAY_16BIT_AS_8BIT
+    assert gray_bands(engine.image, band=3) == [255, 0, 255, 255]
+
+
+@pytest.mark.parametrize("alpha, mode", [(True, "LA"), (False, "L")])
+def test_16bit_grayscale_colorkey_reaches_8bit_grayscale(alpha, mode):
+    engine = gray_16bit_engine(transparency=0x8000)
+
+    engine.convert_to_grayscale(alpha=alpha)
+
+    assert engine.image.mode == mode
+    assert gray_bands(engine.image) == GRAY_16BIT_AS_8BIT
+    assert gray_bands(engine.image, band=3) == [255, 0, 255, 255]
+
+
+def test_16bit_grayscale_keeps_what_the_image_carries():
+    engine = gray_16bit_engine(icc_profile=b"profile", dpi=(300, 300))
+
+    engine.convert_to_grayscale()
+
+    assert engine.image.info == {"icc_profile": b"profile", "dpi": (300, 300)}
+
+
+def test_16bit_grayscale_colorkey_reaches_an_8bit_format():
+    engine = gray_16bit_engine(transparency=0x8000)
+
+    image = Image.open(BytesIO(engine.read(".webp", 100)))
+
+    assert gray_bands(image, band=3) == [255, 0, 255, 255]
+
+
+def test_16bit_grayscale_colorkey_of_no_sample_is_not_transparency():
+    engine = gray_16bit_engine(transparency=0x4000)
+
+    assert not engine.has_transparency()

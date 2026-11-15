@@ -93,6 +93,44 @@ def deprecated(message):
     return decorator_deprecated
 
 
+def to_8_bits(img):
+    """
+    Returns a 16-bit grayscale image as an 8-bit one that keeps the high
+    byte of each sample, as Pillow does when it reads 16-bit RGB. Pillow's
+    conversions to the 8-bit modes clip the samples to 255 instead, which
+    leaves the image almost entirely white. Any other image is returned
+    unchanged.
+    """
+    if img.mode not in ("I;16", "I;16L", "I;16B"):
+        return img
+
+    rawmode = "L;16B" if img.mode == "I;16B" else "L;16"
+    reduced = Image.frombytes("L", img.size, img.tobytes(), "raw", rawmode)
+    reduced.info = img.info.copy()
+    colorkey = reduced.info.get("transparency")
+
+    if isinstance(colorkey, int):
+        reduced.info["transparency"] = colorkey >> 8
+
+    return reduced
+
+
+def to_little_endian(img):
+    """
+    Returns a big-endian 16-bit grayscale image as a little-endian one.
+    Pillow resamples the bytes of a big-endian image as little-endian
+    samples, which scrambles it, and pillow_heif refuses the mode. Any other
+    image is returned unchanged.
+    """
+    if img.mode != "I;16B":
+        return img
+
+    swapped = Image.frombytes("I;16", img.size, img.tobytes(), "raw", "I;16B")
+    swapped.info = img.info.copy()
+
+    return swapped
+
+
 def get_profile_and_color_space(icc):
     with BytesIO(icc) as buf:
         try:
