@@ -24,6 +24,7 @@ from PIL import (
 from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
+from thumbor.engines.extensions.exif_orientation_editor import EXIF_HEADER
 from thumbor.filters.fill import Filter
 from thumbor.utils import deprecated, ensure_srgb, get_color_space, logger
 
@@ -137,6 +138,27 @@ def _gif_palette_frames(data):
         GifImagePlugin.LOADING_STRATEGY = previous
 
 
+def _with_exif_header(exif):
+    if not isinstance(exif, bytes):
+        # Pillow hands the iTXt or zTXt chunk of a PNG named "exif" as text
+        return None
+
+    # Pillow hands the EXIF of a WebP, an AVIF or a HEIF as the file stores
+    # it, for a WebP most often a bare TIFF block. Neither the orientation
+    # editor nor the JPEG writer takes that for EXIF.
+    if exif.startswith((b"II", b"MM")):
+        return EXIF_HEADER + exif
+
+    return exif
+
+
+def _without_exif_header(exif):
+    if exif and exif.startswith(EXIF_HEADER):
+        return exif[len(EXIF_HEADER) :]
+
+    return exif
+
+
 class Engine(BaseEngine):
     def __init__(self, context):
         # BaseEngine.__init__ assigns self.image, whose setter reads these.
@@ -218,7 +240,7 @@ class Engine(BaseEngine):
 
             return None
         self.icc_profile = img.info.get("icc_profile")
-        self.exif = img.info.get("exif")
+        self.exif = _with_exif_header(img.info.get("exif"))
         self.original_mode = img.mode
 
         if img.mode == "1" and "transparency" in img.info:
@@ -724,7 +746,7 @@ class Engine(BaseEngine):
 
         if (
             self.context.config.PRESERVE_EXIF_COPYRIGHT_INFO is True
-            and self.image.info.get("exif") is not None
+            and isinstance(self.image.info.get("exif"), bytes)
         ):
             exif_copyright = self.get_exif_copyright()
             if exif_copyright is not None:
@@ -745,6 +767,9 @@ class Engine(BaseEngine):
                         duration=self._webp_durations,
                         loop=self._webp_loop,
                     )
+                    if "exif" in options:
+                        # Pillow strips the header for a still WebP only
+                        options["exif"] = _without_exif_header(options["exif"])
                 if options["quality"] == 100:
                     logger.debug("webp quality is 100, using lossless instead")
                     options["lossless"] = True
