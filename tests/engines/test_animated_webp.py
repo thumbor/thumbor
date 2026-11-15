@@ -84,11 +84,33 @@ def test_webp_transforms_every_frame(operation):
     assert [im.info["duration"] for im in actual] == DURATIONS
 
 
-@pytest.mark.parametrize("preserve_exif", [False, True])
-def test_webp_orientation_rotates_every_frame(preserve_exif):
+def exif_chunk(data):
+    position = 12
+    while position < len(data):
+        name = data[position : position + 4]
+        size = int.from_bytes(data[position + 4 : position + 8], "little")
+        if name == b"EXIF":
+            return data[position + 8 : position + 8 + size]
+        position += 8 + size + size % 2
+    return None
+
+
+def oriented_animation(with_header):
     exif = Image.Exif()
     exif[274] = 6
-    source = animation_bytes(exif=exif.tobytes())
+    exif[271] = "thumbor"
+    source = animation_bytes(
+        exif=exif.tobytes() if with_header else exif.tobytes()[6:]
+    )
+    assert exif_chunk(source).startswith(b"Exif\x00\x00") is with_header
+
+    return source
+
+
+@pytest.mark.parametrize("with_header", [False, True])
+@pytest.mark.parametrize("preserve_exif", [False, True])
+def test_webp_orientation_rotates_every_frame(preserve_exif, with_header):
+    source = oriented_animation(with_header)
     engine = load_engine(source, PRESERVE_EXIF_INFO=preserve_exif)
     engine.reorientate()
     assert engine.size == (32, 64)
@@ -102,6 +124,33 @@ def test_webp_orientation_rotates_every_frame(preserve_exif):
     assert [im.tobytes() for im in actual] == [im.tobytes() for im in expected]
     with Image.open(BytesIO(result)) as image:
         assert image.getexif().get(274) == (1 if preserve_exif else None)
+
+
+@pytest.mark.parametrize("with_header", [False, True])
+def test_webp_animation_stores_exif_without_the_header(with_header):
+    engine = load_engine(
+        oriented_animation(with_header), PRESERVE_EXIF_INFO=True
+    )
+    result = engine.read(quality=100)
+
+    assert exif_chunk(result).startswith((b"II", b"MM"))
+    with Image.open(BytesIO(result)) as image:
+        assert image.n_frames == 3
+        assert image.getexif()[271] == "thumbor"
+        assert image.getexif()[274] == 6
+
+
+def test_webp_animation_stores_copyright_exif_without_the_header():
+    exif = Image.Exif()
+    exif[315] = "thumbor"
+    source = animation_bytes(exif=exif.tobytes()[6:])
+    engine = load_engine(source, PRESERVE_EXIF_COPYRIGHT_INFO=True)
+    result = engine.read(quality=100)
+
+    assert exif_chunk(result).startswith((b"II", b"MM"))
+    with Image.open(BytesIO(result)) as image:
+        assert image.n_frames == 3
+        assert image.getexif()[315] == "thumbor"
 
 
 def test_webp_animation_can_be_disabled_independently():

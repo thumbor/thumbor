@@ -7,8 +7,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+from io import BytesIO
+from os.path import join
 from shutil import which
 
+from PIL import Image
 from tornado.testing import gen_test
 
 from tests.handlers.test_base_handler import BaseImagingTestCase
@@ -73,3 +76,43 @@ class ImageOperationsWithRespectOrientation(BaseImagingTestCase):
         engine = Engine(self.context)
         engine.load(response.body, ".jpg")
         assert engine.size == (20, 20)
+
+
+class WebpSourceWithRespectOrientation(BaseImagingTestCase):
+    def get_context(self):
+        exif = Image.Exif()
+        exif[274] = 6
+        exif[271] = "thumbor"
+        image = Image.new("RGB", (60, 40), "red")
+        image.save(join(self.root_path, "sideways.webp"), exif=exif.tobytes())
+
+        cfg = Config(SECURITY_KEY="ACME-SEC")
+        cfg.LOADER = "thumbor.loaders.file_loader"
+        cfg.FILE_LOADER_ROOT_PATH = self.root_path
+        cfg.STORAGE = "thumbor.storages.no_storage"
+        cfg.RESPECT_ORIENTATION = True
+        cfg.PRESERVE_EXIF_INFO = True
+
+        importer = Importer(cfg)
+        importer.import_modules()
+        server = ServerParameters(
+            8889, "localhost", "thumbor.conf", None, "info", None
+        )
+        server.security_key = "ACME-SEC"
+
+        return Context(server, cfg, importer)
+
+    @gen_test
+    async def test_should_rotate_a_webp_by_its_exif(self):
+        for image_format in ("webp", "jpeg"):
+            with self.assertNoLogs("thumbor", "ERROR"):
+                response = await self.async_fetch(
+                    f"/unsafe/filters:format({image_format})/sideways.webp"
+                )
+
+            assert response.code == 200
+
+            with Image.open(BytesIO(response.body)) as image:
+                assert image.size == (40, 60)
+                assert image.getexif()[271] == "thumbor"
+                assert image.getexif()[274] == 1
