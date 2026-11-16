@@ -6,15 +6,17 @@ thumbor.
 When no configuration path is provided, thumbor looks for `thumbor.conf` in
 this order:
 
-1. the current working directory;
+1. `/etc`;
 2. the current user's home directory;
-3. `/etc`;
+3. the current working directory;
 4. the installed `thumbor` package directory.
 
-The first file found is loaded. Pass `-c` or `--conf` to load a specific file
-instead. An explicit path is used as provided; thumbor does not expand `~` in
-that argument. Relative explicit paths are resolved from the current working
-directory.
+The first file found is loaded, so the directories go from most to least
+trusted: a `thumbor.conf` dropped into the working directory cannot shadow
+`/etc/thumbor.conf` or the one in your home directory. Pass `-c` or `--conf`
+to load a specific file instead. An explicit path is used as provided; thumbor
+does not expand `~` in that argument. Relative explicit paths are resolved from
+the current working directory.
 
 To generate a commented template for the installed version, run:
 
