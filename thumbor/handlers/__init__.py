@@ -1247,6 +1247,11 @@ class ImageApiHandler(ContextHandler):
         conf = self.context.config
         mime = BaseEngine.get_mimetype(body)
 
+        if mime == "image/svg+xml":
+            self._error(415, "Unsupported Media Type")
+
+            return False
+
         if mime == "image/gif" and self.context.config.USE_GIFSICLE_ENGINE:
             engine = self.context.modules.gif_engine
         else:

@@ -12,6 +12,9 @@ ask for a $600x400$ image, thumbor will still return a $300x200$ image.
 When the URL also crops or trims the image, the limit is the area left after
 cropping and trimming, so that area is never upscaled either.
 
+For an SVG source, the original size is the width and height the document
+declares.
+
 ## Arguments
 
 No arguments allowed.

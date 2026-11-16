@@ -9,17 +9,23 @@
 
 import builtins
 import importlib.util
+from io import BytesIO
 from os.path import abspath, dirname, join
 from struct import pack
 from unittest import TestCase, mock
 from xml.etree.ElementTree import ParseError
 
+import cairosvg
 import pytest
+from PIL import Image
 
 import thumbor.engines
 from thumbor.config import Config
-from thumbor.context import Context
-from thumbor.engines import BaseEngine
+from thumbor.context import Context, RequestParameters
+from thumbor.engines import BaseEngine, svg_document_size
+from thumbor.filters import FiltersFactory, no_upscale
+from thumbor.point import FocalPoint
+from thumbor.url import Url
 
 # pylint: disable=line-too-long
 
@@ -133,7 +139,7 @@ class BaseEngineTestCase(TestCase):
                     </svg>"""
         returned_buffer = self.engine.convert_svg_to_png(buffer)
         assert mock_log_error.called
-        assert buffer == returned_buffer
+        assert returned_buffer == buffer
 
     @mock.patch("thumbor.engines.cairosvg", new=None)
     @mock.patch("thumbor.engines.logger.error")
@@ -331,3 +337,278 @@ class BaseEngineTestCase(TestCase):
         assert not self.engine.flip_vertically.called
         assert self.image == ((1, 2), (3, 4))
         assert self.engine.get_orientation() == 1
+
+
+RED_BLUE_SVG = (
+    b'<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100" '
+    b'viewBox="0 0 200 100"><rect width="100" height="100" fill="#ff0000"/>'
+    b'<rect x="100" width="100" height="100" fill="#0000ff"/></svg>'
+)
+RED = (255, 0, 0, 255)
+BLUE = (0, 0, 255, 255)
+
+
+def svg_request(url):
+    return RequestParameters(**Url.parse_decrypted(url))
+
+
+def svg_engine(request, filters=(no_upscale.Filter,), **config):
+    context = Context(
+        config=Config(
+            SECURITY_KEY="ACME-SEC", ENGINE="thumbor.engines", **config
+        )
+    )
+    context.filters_factory = FiltersFactory(filters)
+    context.request = request
+    engine = BaseEngine(context)
+    request.engine = engine
+    return engine
+
+
+def rasterize(engine, buffer=RED_BLUE_SVG):
+    png = engine.convert_svg_to_png(buffer)
+    assert engine.extension == ".png"
+    return Image.open(BytesIO(png)).convert("RGBA")
+
+
+@pytest.mark.parametrize(
+    "url, expected_size",
+    [
+        ("/fit-in/100x100/red-blue.svg", (100, 50)),
+        ("/fit-in/400x400/red-blue.svg", (400, 200)),
+        ("/fit-in/400x400/filters:no_upscale()/red-blue.svg", (200, 100)),
+        (
+            "/fit-in/400x400/filters:format(png):no_upscale()/red-blue.svg",
+            (200, 100),
+        ),
+        (
+            "/fit-in/400x400/filters:watermark(no_upscale().svg,0,0,0)/red-blue.svg",
+            (400, 200),
+        ),
+        ("/full-fit-in/400x400/red-blue.svg", (800, 400)),
+        ("/adaptive-fit-in/100x200/red-blue.svg", (200, 100)),
+        ("/400x400/filters:stretch()/red-blue.svg", (800, 400)),
+        ("/400x400/filters:no_upscale()/red-blue.svg", (200, 100)),
+        ("/100x100/red-blue.svg", (200, 100)),
+        ("/400x400/red-blue.svg", (800, 400)),
+        ("/100x0/red-blue.svg", (100, 50)),
+        ("/0x0/red-blue.svg", (200, 100)),
+        ("/origx100/red-blue.svg", (200, 100)),
+    ],
+)
+def test_svg_is_drawn_at_the_size_the_transforms_need(url, expected_size):
+    image = rasterize(svg_engine(svg_request(url)))
+
+    width, height = image.size
+    assert image.size == expected_size
+    assert image.getpixel((0, 0)) == RED
+    assert image.getpixel((width - 1, height - 1)) == BLUE
+
+
+@pytest.mark.parametrize(
+    "url, expected_size, expected_request_size",
+    [
+        ("/origx400/red-blue.svg", (800, 400), (200, 400)),
+        ("/400xorig/red-blue.svg", (400, 200), (400, 100)),
+        ("/10x10:110x60/400xorig/red-blue.svg", (800, 400), (400, 50)),
+        ("/fit-in/origx50/red-blue.svg", (100, 50), (200, 50)),
+        ("/origxorig/red-blue.svg", (200, 100), ("orig", "orig")),
+    ],
+)
+def test_svg_orig_means_the_document_size(
+    url, expected_size, expected_request_size
+):
+    request = svg_request(url)
+
+    image = rasterize(svg_engine(request))
+
+    assert image.size == expected_size
+    assert (request.width, request.height) == expected_request_size
+
+
+def test_svg_crop_and_focal_points_follow_the_raster_scale():
+    request = svg_request("/10x10:110x60/200x100/red-blue.svg")
+    request.focal_points.append(FocalPoint.from_square(150, 0, 50, 100))
+
+    image = rasterize(svg_engine(request))
+
+    assert image.size == (400, 200)
+    assert request.crop == {"left": 20, "top": 20, "right": 220, "bottom": 120}
+    point = request.focal_points[0]
+    assert (point.x, point.y, point.width, point.height) == (
+        350,
+        100,
+        100,
+        200,
+    )
+    assert point.weight == 20000
+
+
+def test_svg_ignores_no_upscale_when_the_filter_is_not_registered():
+    request = svg_request("/fit-in/400x400/filters:no_upscale()/red-blue.svg")
+
+    assert rasterize(svg_engine(request, filters=())).size == (400, 200)
+
+
+def test_svg_accepts_a_request_whose_filters_are_a_list():
+    request = RequestParameters(width=400, height=400)
+
+    assert rasterize(svg_engine(request)).size == (800, 400)
+
+
+@pytest.mark.parametrize(
+    "config, expected_size",
+    [({"MAX_WIDTH": 1000}, (1000, 500)), ({"MAX_HEIGHT": 100}, (200, 100))],
+)
+def test_svg_raster_stays_within_max_width_and_height(config, expected_size):
+    engine = svg_engine(svg_request("/1000x1000/red-blue.svg"), **config)
+
+    assert rasterize(engine).size == expected_size
+
+
+@pytest.mark.parametrize(
+    "url, config, expected_size, expected_request_size",
+    [
+        ("/origxorig/red-blue.svg", {"MAX_WIDTH": 100}, (100, 50), (100, 50)),
+        ("/origx20/red-blue.svg", {"MAX_WIDTH": 100}, (100, 50), (100, 20)),
+        ("/400xorig/red-blue.svg", {"MAX_HEIGHT": 50}, (100, 50), (400, 50)),
+        (
+            "/10x10:110x60/origxorig/red-blue.svg",
+            {"MAX_WIDTH": 100},
+            (100, 50),
+            (50, 25),
+        ),
+        (
+            "/origxorig/red-blue.svg",
+            {"MAX_PIXELS": 5000},
+            (100, 50),
+            (100, 50),
+        ),
+    ],
+)
+def test_svg_orig_follows_the_size_limits(
+    url, config, expected_size, expected_request_size
+):
+    request = svg_request(url)
+
+    image = rasterize(svg_engine(request, **config))
+
+    assert image.size == expected_size
+    assert (request.width, request.height) == expected_request_size
+
+
+@pytest.mark.parametrize("max_pixels", [0, "abc"])
+def test_svg_raster_uses_pillows_limit_when_max_pixels_is_unusable(
+    max_pixels,
+):
+    engine = svg_engine(
+        svg_request("/400x400/red-blue.svg"), MAX_PIXELS=max_pixels
+    )
+
+    with mock.patch.object(Image, "MAX_IMAGE_PIXELS", 10000):
+        assert rasterize(engine).size == (140, 70)
+
+
+def test_svg_one_pixel_floor_falls_back_to_the_request_box():
+    banner = (
+        b'<svg xmlns="http://www.w3.org/2000/svg" width="5000" height="1">'
+        b'<rect width="100%" height="100%" fill="#f00"/></svg>'
+    )
+    engine = svg_engine(svg_request("/100x100/banner.svg"), MAX_WIDTH=1000)
+
+    assert rasterize(engine, banner).size == (100, 100)
+
+
+@pytest.mark.parametrize(
+    "url, max_pixels, expected_size",
+    [
+        ("/400x400/red-blue.svg", None, (800, 400)),
+        ("/400x400/red-blue.svg", 80000, (400, 200)),
+        ("/400x400/red-blue.svg", 79999, (399, 200)),
+        ("/400x400/red-blue.svg", 10000, (140, 70)),
+        ("/0x0/red-blue.svg", 10000, (140, 70)),
+    ],
+)
+def test_svg_raster_stays_within_max_pixels(url, max_pixels, expected_size):
+    engine = svg_engine(svg_request(url), MAX_PIXELS=max_pixels)
+
+    assert rasterize(engine).size == expected_size
+
+
+@pytest.mark.parametrize(
+    "width, height, url, expected_size",
+    [
+        (20000, 10, "/1000x1000/banner.svg", (32767, 16)),
+        (20000, 10, "/fit-in/1000x1000/banner.svg", (2000, 1)),
+        (33000, 10, "/100x100/banner.svg", (32767, 10)),
+        (33000, 10, "/0x0/banner.svg", (32767, 10)),
+        (1, 40000, "/100x100/banner.svg", (100, 100)),
+    ],
+)
+def test_svg_with_an_extreme_aspect_ratio_stays_drawable(
+    width, height, url, expected_size
+):
+    banner = (
+        b'<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">'
+        b'<rect width="100%%" height="100%%" fill="#f00"/></svg>'
+        % (width, height)
+    )
+    engine = svg_engine(svg_request(url))
+
+    assert rasterize(engine, banner).size == expected_size
+
+
+def test_svg_without_a_request_is_drawn_at_the_document_size():
+    context = Context(
+        config=Config(SECURITY_KEY="ACME-SEC", ENGINE="thumbor.engines")
+    )
+
+    assert rasterize(BaseEngine(context)).size == (200, 100)
+
+
+def test_svg_loaded_by_another_engine_keeps_the_document_size():
+    engine = svg_engine(svg_request("/400x400/red-blue.svg"))
+    watermark_engine = BaseEngine(engine.context)
+
+    assert rasterize(watermark_engine).size == (200, 100)
+
+
+@pytest.mark.parametrize(
+    "max_pixels, expected_size", [(None, (300, 200)), (10000, (121, 81))]
+)
+def test_svg_without_a_size_is_drawn_at_the_requested_box(
+    max_pixels, expected_size
+):
+    engine = svg_engine(
+        svg_request("/300x200/no-size.svg"), MAX_PIXELS=max_pixels
+    )
+    sizeless = (
+        b'<svg xmlns="http://www.w3.org/2000/svg">'
+        b'<rect width="50" height="50"/></svg>'
+    )
+
+    assert rasterize(engine, sizeless).size == expected_size
+
+
+@pytest.mark.parametrize(
+    "declaration",
+    [
+        'width="2in" height="1in"',
+        'width="20em" height="10em"',
+        'width="100mm" height="50mm"',
+        'width="100%" height="100%" viewBox="0 0 40 20"',
+        'viewBox="0 0 40 20"',
+    ],
+)
+@pytest.mark.parametrize("dpi", [72, 150])
+def test_svg_document_size_matches_what_cairosvg_draws(declaration, dpi):
+    document = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" {declaration}>'
+        '<rect width="100%" height="100%" fill="#f00"/></svg>'
+    ).encode()
+    drawn = Image.open(BytesIO(cairosvg.svg2png(bytestring=document, dpi=dpi)))
+
+    tree = thumbor.engines.svg_parser.Tree(bytestring=document)
+    width, height = svg_document_size(tree, dpi)
+
+    assert (round(width), round(height)) == drawn.size

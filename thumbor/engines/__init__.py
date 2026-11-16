@@ -10,10 +10,14 @@
 # This is a base class, it makes sense to have many public methods and instance attributes
 # pylint: disable=attribute-defined-outside-init,too-many-public-methods,unused-argument,too-many-instance-attributes,broad-except
 
+import math
 import re
+from io import BytesIO
+from types import SimpleNamespace
 from xml.etree.ElementTree import ParseError
 
 import piexif
+from PIL import Image
 
 from thumbor.engines.extensions.exif_orientation_editor import (
     ExifOrientationEditor,
@@ -22,16 +26,68 @@ from thumbor.utils import EXTENSION, logger
 
 try:
     import cairosvg
+    from cairosvg import helpers as svg_helpers
+    from cairosvg import parser as svg_parser
+    from cairosvg import surface as svg_surface
 except (ImportError, OSError) as error:
-    cairosvg = None
+    cairosvg = svg_helpers = svg_parser = svg_surface = None
     CAIROSVG_IMPORT_ERROR = error
 else:
     CAIROSVG_IMPORT_ERROR = None
 
 
 WEBP_SIDE_LIMIT = 16383
+CAIRO_SIDE_LIMIT = 32767
 
 SVG_RE = re.compile(rb"<svg\b[^>]*?>", re.I)
+NO_UPSCALE_FILTER_RE = re.compile(r"(?:^|\):)no_upscale\(\)")
+
+
+def svg_document_size(tree, dpi):
+    """Size, in pixels at ``dpi``, that CairoSVG draws the document at
+    when no output size is requested."""
+    viewport = SimpleNamespace(
+        dpi=dpi, context_width=None, context_height=None
+    )
+    viewport.font_size = svg_helpers.size(viewport, "12pt")
+    width, height, _ = svg_helpers.node_format(viewport, tree)
+    return width, height
+
+
+def _svg_raster_size(svg_width, svg_height, scale):
+    output_width = svg_width * scale
+    return round(output_width), round(svg_height * (output_width / svg_width))
+
+
+def _svg_raster_pixels(svg_width, svg_height, scale):
+    width, height = _svg_raster_size(svg_width, svg_height, scale)
+    return width * height
+
+
+def _max_pixels(config):
+    max_pixels = config.MAX_PIXELS
+    if max_pixels is None:
+        return None
+    try:
+        if int(max_pixels):
+            return max_pixels
+    except (TypeError, ValueError):
+        pass
+    # The PIL engine leaves Pillow's own limit in place for zero and for
+    # values it cannot read.
+    return Image.MAX_IMAGE_PIXELS
+
+
+def _requested_pixels(dimension):
+    if isinstance(dimension, int) and dimension > 0:
+        return dimension
+    return None
+
+
+def _orientation_differs(source_width, source_height, width, height):
+    return (source_width < source_height and width > height) or (
+        source_width > source_height and width < height
+    )
 
 
 class EngineResult:
@@ -170,13 +226,21 @@ class BaseEngine:
             )
             return buffer
 
+        dpi = self.context.config.SVG_DPI
         try:
-            buffer = cairosvg.svg2png(  # pylint: disable=no-member
-                bytestring=buffer,
-                dpi=self.context.config.SVG_DPI,
-                output_width=self.context.request.width,
-                output_height=self.context.request.height,
+            tree = svg_parser.Tree(bytestring=buffer)
+            output_width, output_height = self._svg_output_size(
+                *svg_document_size(tree, dpi)
             )
+            output = BytesIO()
+            svg_surface.PNGSurface(
+                tree,
+                output,
+                dpi,
+                output_width=output_width,
+                output_height=output_height,
+            ).finish()
+            buffer = output.getvalue()
             mime = self.get_mimetype(buffer)
             self.extension = EXTENSION.get(mime, ".jpg")
         except ParseError:
@@ -187,6 +251,164 @@ class BaseEngine:
             self.extension = extension
 
         return buffer
+
+    def _svg_output_size(self, svg_width, svg_height):
+        if svg_width <= 0 or svg_height <= 0:
+            return self._svg_request_box()
+
+        # The request describes the image being served, not auxiliary
+        # images such as a watermark loaded through the same context.
+        request = getattr(self.context, "request", None)
+        is_request_image = request is not None and self is getattr(
+            request, "engine", None
+        )
+        scale = 1
+        if is_request_image:
+            region_width, region_height = self._svg_crop_region(
+                svg_width, svg_height
+            )
+            # orig is read from a raster after normalize() shrinks it past
+            # the size limits, so it shrinks along with the document here.
+            limit = min(1, self._limit_svg_scale(1, svg_width, svg_height))
+            orig_size = (region_width * limit, region_height * limit)
+            scale = self._svg_request_scale(
+                region_width, region_height, orig_size
+            )
+        scale = self._limit_svg_scale(scale, svg_width, svg_height)
+        if not self._svg_raster_fits(
+            *_svg_raster_size(svg_width, svg_height, scale)
+        ):
+            return self._svg_request_box()
+        if scale == 1:
+            return None, None
+
+        if is_request_image:
+            self._scale_svg_request(scale, *orig_size)
+
+        return svg_width * scale, None
+
+    def _svg_raster_fits(self, width, height):
+        config = self.context.config
+        if max(width, height) > CAIRO_SIDE_LIMIT:
+            return False
+        if config.MAX_WIDTH and width > config.MAX_WIDTH:
+            return False
+        if config.MAX_HEIGHT and height > config.MAX_HEIGHT:
+            return False
+        max_pixels = _max_pixels(config)
+        return not max_pixels or width * height <= max_pixels
+
+    def _svg_request_box(self):
+        request = getattr(self.context, "request", None)
+        if request is None:
+            return None, None
+        width = _requested_pixels(request.width)
+        height = _requested_pixels(request.height)
+        if width and height:
+            scale = self._limit_svg_scale(1, width, height)
+            width, height = width * scale, height * scale
+        return width, height
+
+    def _svg_request_scale(self, region_width, region_height, orig_size):
+        request = self.context.request
+        target_width, target_height = self._svg_target_size(*orig_size)
+        ratios = (target_width / region_width, target_height / region_height)
+        fits_in = request.fit_in and not request.full
+        scale = min(ratios) if fits_in else max(ratios)
+        if self._no_upscale_requested():
+            scale = min(scale, 1)
+
+        return scale
+
+    def _no_upscale_requested(self):
+        filters = self.context.request.filters
+        if not isinstance(filters, str):
+            return False
+        if not NO_UPSCALE_FILTER_RE.search(filters):
+            return False
+        factory = getattr(self.context, "filters_factory", None)
+        return (
+            factory is not None and "no_upscale" in factory.filter_classes_map
+        )
+
+    def _svg_crop_region(self, svg_width, svg_height):
+        request = self.context.request
+        if not request.should_crop:
+            return svg_width, svg_height
+
+        def limit(dimension, maximum):
+            return min(max(dimension, 0), maximum)
+
+        crop = request.crop
+        left = limit(crop["left"], svg_width)
+        top = limit(crop["top"], svg_height)
+        right = limit(crop["right"], svg_width)
+        bottom = limit(crop["bottom"], svg_height)
+        if left >= right or top >= bottom:
+            return svg_width, svg_height
+
+        return right - left, bottom - top
+
+    def _svg_target_size(self, source_width, source_height):
+        request = self.context.request
+        width = source_width if request.width == "orig" else request.width
+        height = source_height if request.height == "orig" else request.height
+        if not width and not height:
+            return source_width, source_height
+        if not width:
+            width = source_width * height / source_height
+        if not height:
+            height = source_height * width / source_width
+
+        if (
+            request.fit_in
+            and request.adaptive
+            and _orientation_differs(
+                source_width, source_height, width, height
+            )
+        ):
+            width, height = height, width
+
+        return width, height
+
+    def _limit_svg_scale(self, scale, svg_width, svg_height):
+        # The raster exists before normalize() and Pillow can shrink or
+        # refuse it, and cairo refuses surfaces with a side above
+        # CAIRO_SIDE_LIMIT, so the document is never drawn past any of them.
+        config = self.context.config
+        limits = [scale, CAIRO_SIDE_LIMIT / max(svg_width, svg_height)]
+        if config.MAX_WIDTH:
+            limits.append(config.MAX_WIDTH / svg_width)
+        if config.MAX_HEIGHT:
+            limits.append(config.MAX_HEIGHT / svg_height)
+        max_pixels = _max_pixels(config)
+        if max_pixels:
+            limits.append(math.sqrt(max_pixels / (svg_width * svg_height)))
+        scale = min(limits)
+        # CairoSVG rounds each side, which can overshoot MAX_PIXELS.
+        while (
+            max_pixels
+            and _svg_raster_pixels(svg_width, svg_height, scale) > max_pixels
+        ):
+            scale = (round(svg_width * scale) - 1) / svg_width
+
+        # CairoSVG rejects a raster whose side rounds to zero pixels.
+        return max(scale, 1 / min(svg_width, svg_height))
+
+    def _scale_svg_request(self, scale, orig_width, orig_height):
+        request = self.context.request
+        if request.width == "orig":
+            request.width = round(orig_width)
+        if request.height == "orig":
+            request.height = round(orig_height)
+        for side in ("left", "top", "right", "bottom"):
+            request.crop[side] = round(request.crop[side] * scale)
+        for point in request.focal_points:
+            point.x = round(point.x * scale)
+            point.y = round(point.y * scale)
+            point.width = round(point.width * scale)
+            point.height = round(point.height * scale)
+            point.weight = point.weight * scale * scale
 
     def load(self, buffer, extension):
         self.extension = extension
