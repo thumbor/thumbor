@@ -12,6 +12,8 @@ import functools
 import re
 import time
 
+import tornado.web
+
 BUILTIN_FILTERS = [
     "thumbor.filters.brightness",
     "thumbor.filters.colorize",
@@ -49,6 +51,15 @@ STRIP_QUOTE = re.compile(r"^'(.+)'$")
 PHASE_POST_TRANSFORM = "post_transform"
 PHASE_PRE_LOAD = "pre-load"
 PHASE_AFTER_LOAD = "after-load"
+
+
+def failure_metric(error):
+    if (
+        isinstance(error, tornado.web.HTTPError)
+        and 400 <= error.status_code < 500
+    ):
+        return "rejected"
+    return "error"
 
 
 def filter_method(*args):
@@ -230,9 +241,9 @@ class BaseFilter:
             if metrics:
                 metrics.incr(f"filter.{filter_name}.count")
             return results
-        except Exception:
+        except Exception as error:
             if metrics:
-                metrics.incr(f"filter.{filter_name}.error")
+                metrics.incr(f"filter.{filter_name}.{failure_metric(error)}")
             raise
         finally:
             if metrics:
