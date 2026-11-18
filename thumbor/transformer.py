@@ -78,25 +78,23 @@ class Transformer:
         source_width = float(source_width)
         source_height = float(source_height)
 
-        if not width and not height:
-            target_width = source_width
-            target_height = source_height
-        else:
-            if width:
-                if width == "orig":
-                    target_width = source_width
-                else:
-                    target_width = float(width)
-            else:
-                target_width = self.engine.get_proportional_width(height)
+        if width == "orig":
+            width = source_width
+        if height == "orig":
+            height = source_height
 
-            if height:
-                if height == "orig":
-                    target_height = source_height
-                else:
-                    target_height = float(height)
-            else:
-                target_height = self.engine.get_proportional_height(width)
+        if not width and not height:
+            return source_width, source_height
+
+        if width:
+            target_width = float(width)
+        else:
+            target_width = self.engine.get_proportional_width(height)
+
+        if height:
+            target_height = float(height)
+        else:
+            target_height = self.engine.get_proportional_height(width)
 
         return target_width, target_height
 

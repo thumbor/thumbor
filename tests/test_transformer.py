@@ -316,6 +316,47 @@ class TransformerTestCase(TestCase):
             assert (ctx.request.width, ctx.request.height) == expected
 
     @gen_test
+    async def test_orig_with_a_proportional_dimension(self):
+        for width, height, options in [
+            ("orig", 0, {}),
+            (0, "orig", {}),
+            ("orig", 0, {"fit_in": True}),
+            (0, "orig", {"fit_in": True}),
+            ("orig", 0, {"fit_in": True, "full": True}),
+            (0, "orig", {"fit_in": True, "adaptive": True}),
+            ("orig", 0, {"no_upscale": True}),
+        ]:
+            options = dict(options)
+            no_upscale = options.pop("no_upscale", False)
+            data = TestData(
+                source_width=300,
+                source_height=200,
+                target_width=width,
+                target_height=height,
+                halign="center",
+                valign="middle",
+                focal_points=[],
+                crop_left=None,
+                crop_top=None,
+                crop_right=None,
+                crop_bottom=None,
+                **options,
+            )
+            ctx = data.to_context()
+            ctx.request.no_upscale = no_upscale
+            engine = ctx.modules.engine
+            trans = Transformer(ctx)
+
+            await trans.transform()
+
+            assert trans.get_target_dimensions() == (300, 200)
+            assert all(
+                call == {"width": 300, "height": 200}
+                for call in engine.calls["resize"]
+            )
+            assert not engine.calls["crop"]
+
+    @gen_test
     async def test_can_extract_cover(self):
         data = TestData(
             source_width=800,
