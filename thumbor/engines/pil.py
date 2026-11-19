@@ -24,6 +24,7 @@ from PIL import (
 from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
+from thumbor.engines.extensions import jxl
 from thumbor.filters.fill import Filter
 from thumbor.utils import deprecated, ensure_srgb, get_color_space, logger
 
@@ -47,6 +48,11 @@ try:
 except ImportError:
     HeifImagePlugin = None
 
+try:
+    import pillow_jxl
+except ImportError:
+    pillow_jxl = None
+
 HAVE_AVIF = _avif is not None
 HAVE_HEIF = HeifImagePlugin is not None
 
@@ -61,6 +67,7 @@ FORMATS = {
     ".avif": "AVIF",
     ".heic": "HEIF",
     ".heif": "HEIF",
+    ".jxl": "JXL",
 }
 
 KEEP_EXIF_COPYRIGHT_TAGS = [
@@ -137,6 +144,13 @@ def _gif_palette_frames(data):
         GifImagePlugin.LOADING_STRATEGY = previous
 
 
+def _open_image(buffer):
+    if jxl.is_jxl(buffer):
+        return jxl.open_image(buffer)
+
+    return Image.open(BytesIO(buffer))
+
+
 class Engine(BaseEngine):
     def __init__(self, context):
         # BaseEngine.__init__ assigns self.image, whose setter reads these.
@@ -159,6 +173,13 @@ class Engine(BaseEngine):
         except (AttributeError, TypeError, ValueError):  # invalid type
             logger.info(
                 "MAX_PIXELS config variable set to invalid type. Has to be int on None"
+            )
+
+        jxl.claim_only_jxl()
+
+        if pillow_jxl is not None:
+            pillow_jxl.JpegXLImagePlugin.DECODE_THREADS = jxl.codec_threads(
+                self.context.config.JXL_THREADS
             )
 
     def gen_image(self, size, color):
@@ -212,7 +233,7 @@ class Engine(BaseEngine):
 
     def create_image(self, buffer):
         try:
-            img = Image.open(BytesIO(buffer))
+            img = _open_image(buffer)
         except DECOMPRESSION_BOMB_EXCEPTIONS as error:
             logger.warning("[PILEngine] create_image failed: %s", error)
 
@@ -619,6 +640,17 @@ class Engine(BaseEngine):
             )
             ext = self.extension
 
+        if ext == ".jxl" and not jxl.can_encode():
+            ext = (
+                self.extension
+                if self.extension != ".jxl"
+                else self.get_default_extension()
+            )
+            logger.warning(
+                "[PILEngine] JPEG XL encoding unavailable, defaulting to %s",
+                ext,
+            )
+
         options = {"quality": quality}
 
         if ext in (".jpg", ".jpeg"):
@@ -719,6 +751,23 @@ class Engine(BaseEngine):
                     self.image = srgb_image
                     self.icc_profile = srgb_image.info.get("icc_profile")
 
+        if ext == ".jxl":
+            config = self.context.config
+
+            if config.PRESERVE_EXIF_INFO:
+                # JPEG XL decoders show the image as the codestream orients
+                # it, whatever the EXIF written next to it says
+                self.exif = jxl.with_exif_header(self.exif)
+                self.reorientate()
+
+            options = jxl.encoder_options(
+                options["quality"], config.JXL_EFFORT, config.JXL_THREADS
+            )
+            self.image = jxl.prepare_image(
+                self.image, self.icc_profile, config.SRGB_PROFILE
+            )
+            self.icc_profile = None
+
         if self.icc_profile is not None:
             options["icc_profile"] = self.icc_profile
 
@@ -733,6 +782,9 @@ class Engine(BaseEngine):
         if self.context.config.PRESERVE_EXIF_INFO:
             if self.exif is not None:
                 options["exif"] = self.exif
+
+        if ext == ".jxl" and options["exif"]:
+            options["exif"] = jxl.exif_to_box(options["exif"])
 
         try:
             if ext == ".webp":
@@ -893,6 +945,9 @@ class Engine(BaseEngine):
 
     def heif_enabled(self):
         return HAVE_HEIF
+
+    def jxl_enabled(self):
+        return jxl.can_encode()
 
     def paste(self, other_engine, pos, merge=True):
         if merge and not FILTERS_AVAILABLE:

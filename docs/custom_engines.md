@@ -54,10 +54,12 @@ A production engine must also implement the operations used by the filters and
 features it supports. These can include `gen_image`, `rotate`,
 `image_data_as_rgb`, `get_image_data`, `set_image_data`, `get_image_mode`,
 `paste`, `enable_alpha`, `convert_to_grayscale`, `draw_rectangle`,
-`extract_cover`, `has_transparency`, `avif_enabled`, `heif_enabled` and
-`read_multiple`. Unsupported optional operations should fail explicitly or be
-paired with configuration that prevents the corresponding feature from being
-selected.
+`extract_cover`, `has_transparency`, `avif_enabled`, `heif_enabled`,
+`jxl_enabled` and `read_multiple`. `jxl_enabled` tells whether the engine
+writes JPEG XL: `BaseEngine` answers no, and `JXL_QUALITY` is only used for an
+engine that answers yes. Unsupported optional operations should fail
+explicitly or be paired with configuration that prevents the corresponding
+feature from being selected.
 
 The active request and configuration are available through `self.context`.
 Thumbor creates a new engine for every request and does not call `cleanup()`

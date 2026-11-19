@@ -13,6 +13,15 @@ from urllib.parse import quote, unquote_to_bytes
 
 from thumbor.engines import BaseEngine
 from thumbor.handlers import ImageApiHandler
+from thumbor.utils import EXTENSION
+
+
+def _extension_from_body(body):
+    mime = BaseEngine.get_mimetype(body)
+
+    # What mimetypes knows depends on the Python version and on the files of
+    # the host
+    return mimetypes.guess_extension(mime, False) or EXTENSION.get(mime)
 
 
 ##
@@ -48,9 +57,7 @@ class ImageUploadHandler(ImageApiHandler):
                     content_type.split(";", 1)[0], False
                 )
                 if extension is None:  # Content-Type is unknown, try with body
-                    extension = mimetypes.guess_extension(
-                        BaseEngine.get_mimetype(body), False
-                    )
+                    extension = _extension_from_body(body)
                 if extension == ".jpe":
                     extension = (
                         ".jpg"  # Hack because mimetypes return .jpe by default

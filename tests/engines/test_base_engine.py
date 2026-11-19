@@ -207,6 +207,32 @@ class BaseEngineTestCase(TestCase):
         mime = self.engine.get_mimetype(buffer)
         assert mime == "image/heif"
 
+    def test_can_identify_jp2(self):
+        with open(join(STORAGE_PATH, "image.jp2"), "rb") as image:
+            buffer = image.read()
+        mime = self.engine.get_mimetype(buffer)
+        assert mime == "image/jp2"
+
+    def test_can_identify_jxl_codestream(self):
+        with open(join(STORAGE_PATH, "image.jxl"), "rb") as image:
+            buffer = image.read()
+        mime = self.engine.get_mimetype(buffer)
+        assert mime == "image/jxl"
+
+    def test_can_identify_jxl_container(self):
+        with open(join(STORAGE_PATH, "image-container.jxl"), "rb") as image:
+            buffer = image.read()
+        assert buffer.startswith(b"\x00\x00\x00\x0c")
+        mime = self.engine.get_mimetype(buffer)
+        assert mime == "image/jxl"
+
+    def test_does_not_take_every_12_byte_box_for_jp2(self):
+        mime = self.engine.get_mimetype(b"\x00\x00\x00\x0cftypavif")
+        assert mime == "image/avif"
+
+    def test_cannot_write_jxl_unless_an_engine_says_so(self):
+        assert not self.engine.jxl_enabled()
+
     def test_convert_svg_already_converted_to_png(self):
         svg_buffer = """<svg width="10px" height="20px" viewBox="0 0 10 20"
                     xmlns="http://www.w3.org/2000/svg">

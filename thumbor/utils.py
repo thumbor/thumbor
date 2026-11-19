@@ -11,7 +11,7 @@ import logging
 from functools import wraps
 from io import BytesIO
 
-from PIL import Image
+from PIL import Image, ImageChops
 
 try:
     from PIL import ImageCms  # pylint: disable=ungrouped-imports
@@ -43,6 +43,30 @@ else:
         | _get_flag(_FLAGS, "HIGHRESPRECALC")
     )
 
+_PROBE_LEVELS = range(0, 256, 17)
+
+SRGB_PROBES = {
+    "GRAY": Image.frombytes("L", (256, 1), bytes(range(256))),
+    "RGB": Image.frombytes(
+        "RGB",
+        (len(_PROBE_LEVELS) ** 3, 1),
+        bytes(
+            channel
+            for red in _PROBE_LEVELS
+            for green in _PROBE_LEVELS
+            for blue in _PROBE_LEVELS
+            for channel in (red, green, blue)
+        ),
+    ),
+}
+
+# Filters leave a gray image in RGB and an RGB one in gray, each with the
+# profile it came with
+PROFILE_MODES = {
+    "GRAY": ("L", "LA", "RGB", "RGBA"),
+    "RGB": ("L", "LA", "RGB", "RGBA"),
+    "CMYK": ("CMYK",),
+}
 
 CONTENT_TYPE = {
     ".jpg": "image/jpeg",
@@ -58,6 +82,7 @@ CONTENT_TYPE = {
     ".avif": "image/avif",
     ".heic": "image/heif",
     ".heif": "image/heif",
+    ".jxl": "image/jxl",
 }
 
 EXTENSION = {
@@ -71,6 +96,7 @@ EXTENSION = {
     "image/tiff": ".tif",
     "image/avif": ".avif",
     "image/heif": ".heic",
+    "image/jxl": ".jxl",
 }
 
 
@@ -181,3 +207,109 @@ def ensure_srgb(img, srgb_profile=None):
     dst_im = dst_im.convert("RGB")
     dst_im.info = img_info
     return dst_im
+
+
+def _srgb_transform(profile, srgb_profile, source, mode):
+    return ImageCms.ImageCmsTransform(
+        profile,
+        srgb_profile,
+        source.mode,
+        mode,
+        intent=ImageCms.Intent.RELATIVE_COLORIMETRIC,
+        flags=TRANSFORM_FLAGS,
+    ).apply(source)
+
+
+def _matches_srgb(profile, color_space, srgb_profile):
+    probe = SRGB_PROBES.get(color_space)
+
+    if probe is None:
+        return False
+
+    difference = ImageChops.difference(
+        probe.convert("RGB"),
+        _srgb_transform(profile, srgb_profile, probe, "RGB"),
+    )
+
+    # sRGB profiles from different vendors round one level apart at most
+    return max(high for _, high in difference.getextrema()) <= 1
+
+
+def renders_as_srgb(icc):
+    """
+    Whether an RGB or gray ICC profile renders colors as sRGB does.
+    """
+    if not icc or ImageCms is None:
+        return False
+
+    profile, color_space = get_profile_and_color_space(icc)
+
+    try:
+        return _matches_srgb(profile, color_space, DEFAULT_SRGB_PROFILE)
+    except (OSError, TypeError, ValueError):
+        return False
+
+
+def convert_to_srgb(img, icc, srgb_profile=None):
+    """
+    Converts an image from the color space of its ICC profile to sRGB,
+    keeping gray images gray and the alpha channel as it is. The image is
+    returned unchanged when the profile already renders as sRGB, and the
+    result carries no profile. Returns None when the image cannot be
+    converted: its mode does not match the color space of the profile, the
+    profile cannot be read or used, or ImageCms is not available.
+    """
+    if ImageCms is None:
+        return None
+
+    profile, color_space = get_profile_and_color_space(icc)
+
+    if img.mode not in PROFILE_MODES.get(color_space, ()):
+        return None
+
+    if srgb_profile is not None:
+        srgb_profile = ImageCms.ImageCmsProfile(srgb_profile)
+    else:
+        srgb_profile = DEFAULT_SRGB_PROFILE
+
+    try:
+        if _matches_srgb(profile, color_space, srgb_profile):
+            return img
+
+        logger.debug("Converting from %s to sRGB", color_space)
+
+        if color_space == "CMYK":
+            converted = _srgb_transform(profile, srgb_profile, img, "RGB")
+        elif color_space == "GRAY":
+            # Every color band holds samples in the tone curve of the profile
+            bands = [
+                _srgb_transform(profile, srgb_profile, band, "RGB").convert(
+                    "L"
+                )
+                for band, name in zip(img.split(), img.getbands())
+                if name != "A"
+            ]
+            converted = (
+                bands[0] if len(bands) == 1 else Image.merge("RGB", bands)
+            )
+        else:
+            converted = _srgb_transform(
+                profile, srgb_profile, img.convert("RGB"), "RGB"
+            )
+
+            if img.mode in ("L", "LA"):
+                converted = converted.convert("L")
+
+        if "A" in img.getbands():
+            converted.putalpha(img.getchannel("A"))
+    except (OSError, TypeError, ValueError) as error:
+        # lcms opens profiles it cannot use as a source, a device link or
+        # one with tags missing among them
+        logger.debug("Cannot convert to sRGB: %s", error)
+        return None
+
+    converted.info = {
+        key: value for key, value in img.info.items() if key != "icc_profile"
+    }
+
+    return converted

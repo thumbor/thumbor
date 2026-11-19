@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
+# pylint: disable=too-many-lines
+
 import tempfile
 from os.path import expanduser, join
 
@@ -174,6 +176,32 @@ Config.define(
     None,
     "Quality index used for generated HEIF images. If not set (None) the same "
     "level of JPEG quality will be used.",
+    "Imaging",
+)
+
+Config.define(
+    "JXL_QUALITY",
+    None,
+    "Quality index used for generated JPEG XL images. If not set (None) the "
+    "same level of JPEG quality will be used. If 100 the image is encoded "
+    "without loss.",
+    "Imaging",
+)
+
+Config.define(
+    "JXL_EFFORT",
+    3,
+    "Effort the JPEG XL encoder spends on each image, from 1 (fastest) to 10 "
+    "(slowest). If not set (None) the encoder uses its own default, 7, which "
+    "takes several times longer.",
+    "Imaging",
+)
+
+Config.define(
+    "JXL_THREADS",
+    1,
+    "Number of threads the JPEG XL codec may use for one image. Set it to "
+    "None to let the codec use every core.",
     "Imaging",
 )
 

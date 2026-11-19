@@ -18,6 +18,7 @@ import piexif
 from thumbor.engines.extensions.exif_orientation_editor import (
     ExifOrientationEditor,
 )
+from thumbor.engines.extensions.jxl import is_jxl
 from thumbor.utils import EXTENSION, logger
 
 try:
@@ -30,6 +31,8 @@ else:
 
 
 WEBP_SIDE_LIMIT = 16383
+
+JP2_SIGNATURE = b"\x00\x00\x00\x0cjP  \r\n\x87\n"
 
 SVG_RE = re.compile(rb"<svg\b[^>]*?>", re.I)
 
@@ -118,8 +121,10 @@ class BaseEngine:
             img_mime = "image/jpeg"
         elif buffer.startswith(b"WEBP", 8):
             img_mime = "image/webp"
-        elif buffer.startswith(b"\x00\x00\x00\x0c"):
+        elif buffer.startswith(JP2_SIGNATURE):
             img_mime = "image/jp2"
+        elif is_jxl(buffer):
+            img_mime = "image/jxl"
         elif buffer[4:12] in (b"ftypavif", b"ftypavis"):
             img_mime = "image/avif"
         elif buffer[4:8] == b"ftyp" and buffer[8:12] in (
@@ -419,6 +424,9 @@ class BaseEngine:
 
     def heif_enabled(self):
         raise NotImplementedError()
+
+    def jxl_enabled(self):
+        return False
 
     def cleanup(self):
         pass

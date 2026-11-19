@@ -31,6 +31,7 @@ from thumbor.context import (
     RequestParameters,
 )
 from thumbor.engines import BaseEngine, EngineResult
+from thumbor.engines.extensions.jxl import engine_can_encode
 from thumbor.engines.json_engine import JSONEngine
 from thumbor.loaders import LoaderResult
 from thumbor.result_storages import ResultStorageResult
@@ -764,6 +765,12 @@ class BaseHandler(tornado.web.RequestHandler):
                 quality = self.context.config.HEIF_QUALITY
                 if quality is None:
                     quality = 75
+            elif (
+                image_extension == ".jxl"
+                and self.context.config.JXL_QUALITY is not None
+                and engine_can_encode(context.request.engine)
+            ):
+                quality = self.context.config.JXL_QUALITY
             else:
                 quality = self.context.config.QUALITY
 
@@ -1256,6 +1263,11 @@ class ImageApiHandler(ContextHandler):
         try:
             engine.load(body, None)
         except IOError:
+            self._error(415, "Unsupported Media Type")
+
+            return False
+
+        if engine.image is None:
             self._error(415, "Unsupported Media Type")
 
             return False
