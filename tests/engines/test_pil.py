@@ -30,6 +30,7 @@ from thumbor.engines.pil import (
     KEEP_EXIF_COPYRIGHT_TAGS,
     Engine,
     _gif_frames_share_transparency,
+    _gif_transparency_indexes,
 )
 
 FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
@@ -1175,6 +1176,19 @@ def test_animated_gif_frames_keep_opaque_edges_in_the_transparent_color():
 
     result = engine.read(".gif")
 
+    assert _visible_frames(result) == [_visible_pixels(f) for f in frames]
+
+
+def test_animated_gif_starting_transparent_keeps_a_single_header():
+    blank = Image.new("RGBA", (48, 24), (0, 0, 0, 0))
+    frames = [blank, *_moving_squares((220, 40, 60)), blank]
+    engine = Engine(PilEngineTestCase().get_context())
+    engine.load(_animated_gif(frames, disposal=2), ".gif")
+
+    result = engine.read(".gif")
+
+    # Pillow reads past a second GIF header, browsers and gifsicle do not
+    assert len(_gif_transparency_indexes(result)) == len(frames)
     assert _visible_frames(result) == [_visible_pixels(f) for f in frames]
 
 
