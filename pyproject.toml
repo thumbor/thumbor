@@ -42,7 +42,6 @@ dependencies = [
   "derpconf>=0.8.4,<1.0.0",
   "JpegIPTC>=1.5,<2.0.0",
   "libthumbor>=2.0.2,<3.0.0",
-  "piexif>=1.1.3,<2.0.0",
   "Pillow>=10.4.0,<14.0.0",
   "pytz>=2023.3.post1,<2027.0.0",
   "statsd>=4.0.1,<5.0.0",

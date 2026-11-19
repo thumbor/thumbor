@@ -13,8 +13,7 @@
 import re
 from xml.etree.ElementTree import ParseError
 
-import piexif
-
+from thumbor.engines.extensions.exif import read_exif
 from thumbor.engines.extensions.exif_orientation_editor import (
     ExifOrientationEditor,
 )
@@ -96,6 +95,10 @@ class MultipleEngine:
 
 
 class BaseEngine:
+    _metadata = None
+    _metadata_source = None
+    _metadata_set = False
+
     def __init__(self, context):
         self.context = context
         self.image = None
@@ -104,7 +107,29 @@ class BaseEngine:
         self.source_height = None
         self.icc_profile = None
         self.frame_count = 1
-        self.metadata = None
+
+    @property
+    def metadata(self):
+        """
+        The EXIF of the source image as a ``PIL.Image.Exif``, read the first
+        time it is asked for. ``None`` when the image has no EXIF that can
+        be read.
+        """
+        source, self._metadata_source = self._metadata_source, None
+
+        if source:
+            try:
+                self._metadata = read_exif(source)
+            except Exception as error:  # pylint: disable=broad-except
+                logger.error("Error reading image metadata: %s", error)
+
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        self._metadata_source = None
+        self._metadata = value
+        self._metadata_set = True
 
     @classmethod
     def get_mimetype(cls, buffer):
@@ -198,15 +223,16 @@ class BaseEngine:
         if self.extension == ".svg":
             buffer = self.convert_svg_to_png(buffer)
 
+        self._metadata = None
+        self._metadata_source = None
+        self._metadata_set = False
+
         image_or_frames = self.create_image(buffer)
         if image_or_frames is None:
             return
 
-        try:
-            if getattr(self, "exif", None):
-                self.metadata = piexif.load(self.exif)
-        except Exception as error:  # pylint: disable=broad-except
-            logger.error("Error reading image metadata: %s", error)
+        if not self._metadata_set:
+            self._metadata_source = getattr(self, "exif", None)
 
         allow_animation = (
             self.context.config.ALLOW_ANIMATED_WEBP

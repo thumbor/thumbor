@@ -14,9 +14,15 @@ from os.path import abspath, dirname, join
 from random import Random
 from unittest import TestCase, mock
 
-import piexif
 import pytest
-from PIL import GifImagePlugin, Image, ImageChops, ImageDraw, ImageSequence
+from PIL import (
+    ExifTags,
+    GifImagePlugin,
+    Image,
+    ImageChops,
+    ImageDraw,
+    ImageSequence,
+)
 
 from tests.base import (
     AVIF_AVAILABLE,
@@ -221,21 +227,16 @@ class PilEngineTestCase(TestCase):
         engine.load(buffer, None)
         image = engine.image
         assert image.format == "JPEG"
-        assert engine.metadata is not None
-        assert engine.metadata.__class__.__name__ == "dict"
+        assert isinstance(engine.metadata, Image.Exif)
 
+        details = engine.metadata.get_ifd(ExifTags.IFD.Exif)
+
+        assert details[ExifTags.Base.LensSerialNumber] == "0000c139be"
         assert (
-            engine.metadata["Exif"][piexif.ExifIFD.LensSerialNumber]
-            == b"0000c139be"
+            engine.metadata[ExifTags.Base.Software]
+            == "Adobe Photoshop Lightroom 4.4 (Macintosh)"
         )
-        assert (
-            engine.metadata["0th"][piexif.ImageIFD.Software]
-            == b"Adobe Photoshop Lightroom 4.4 (Macintosh)"
-        )
-        assert (
-            engine.metadata["Exif"][piexif.ExifIFD.DateTimeOriginal]
-            == b"2016:06:23 13:18:05"
-        )
+        assert details[ExifTags.Base.DateTimeOriginal] == "2016:06:23 13:18:05"
 
     def test_should_preserve_png_transparency(self):
         engine = Engine(self.context)
@@ -803,12 +804,12 @@ class PilEngineTestCase(TestCase):
         image = Image.open(final_bytes)
         assert image.info.get("exif") is not None
 
-        exifs = piexif.load(engine.get_exif_copyright())
+        exif = Image.Exif()
+        exif.load(engine.get_exif_copyright())
 
-        assert exifs["0th"] is not None
-        assert len(exifs["0th"].items()) == 3
+        assert sorted(exif) == sorted(KEEP_EXIF_COPYRIGHT_TAGS)
         for k in KEEP_EXIF_COPYRIGHT_TAGS:
-            assert exifs["0th"][k] is not None
+            assert exif[k]
 
     def test_should_preserve_copyright_exif_in_image_with_broken_exif_tag(
         self,

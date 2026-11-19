@@ -11,9 +11,9 @@ from contextlib import contextmanager
 from io import BytesIO
 from itertools import chain, product, repeat
 
-import piexif
 from JpegIPTC import JpegIPTC
 from PIL import (
+    ExifTags,
     GifImagePlugin,
     Image,
     ImageDraw,
@@ -24,6 +24,7 @@ from PIL import (
 from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
+from thumbor.engines.extensions.exif import keep_tags
 from thumbor.filters.fill import Filter
 from thumbor.utils import deprecated, ensure_srgb, get_color_space, logger
 
@@ -64,9 +65,9 @@ FORMATS = {
 }
 
 KEEP_EXIF_COPYRIGHT_TAGS = [
-    piexif.ImageIFD.Artist,
-    piexif.ImageIFD.Copyright,
-    piexif.ImageIFD.DateTime,
+    ExifTags.Base.Artist,
+    ExifTags.Base.Copyright,
+    ExifTags.Base.DateTime,
 ]
 
 ImageFile.MAXBLOCK = 2**25
@@ -294,24 +295,15 @@ class Engine(BaseEngine):
         return True
 
     def get_exif_copyright(self):
+        exif = self.image.info.get("exif")
+
         try:
-            exifs = piexif.load(self.image.info.get("exif"))
-        except Exception:
-            return self.image.info.get("exif")
-
-        return self.extract_copyright_from_exif(exifs)
-
-    def extract_copyright_from_exif(self, exifs):
-        copyright_exif = {}
-
-        if exifs is None or "0th" not in exifs or exifs["0th"] is None:
-            return None
-
-        for copyright_tag in KEEP_EXIF_COPYRIGHT_TAGS:
-            if copyright_tag in exifs["0th"]:
-                copyright_exif[copyright_tag] = exifs["0th"][copyright_tag]
-
-        return piexif.dump({"0th": copyright_exif})
+            return keep_tags(exif, KEEP_EXIF_COPYRIGHT_TAGS)
+        except Exception:  # pylint: disable=broad-except
+            # EXIF that cannot be read is kept whole, as it has been since
+            # 7.4.4, when it is bytes: no writer takes the text that a PNG
+            # can have for EXIF
+            return exif if isinstance(exif, bytes) else None
 
     def get_resize_filter(self):
         config = self.context.config
