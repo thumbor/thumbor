@@ -9,6 +9,7 @@
 
 # pylint: disable=unsupported-membership-test,too-many-lines
 
+import logging
 from io import BytesIO
 from os.path import abspath, dirname, join
 from random import Random
@@ -16,10 +17,20 @@ from unittest import TestCase, mock
 
 import piexif
 import pytest
-from PIL import GifImagePlugin, Image, ImageChops, ImageDraw, ImageSequence
+from PIL import (
+    ExifTags,
+    GifImagePlugin,
+    Image,
+    ImageChops,
+    ImageDraw,
+    ImageOps,
+    ImageSequence,
+    PngImagePlugin,
+)
 
 from tests.base import (
     AVIF_AVAILABLE,
+    HEIF_AVAILABLE,
     skip_unless_avif,
     skip_unless_avif_encoder,
     skip_unless_heif,
@@ -30,6 +41,8 @@ from thumbor.engines.pil import (
     KEEP_EXIF_COPYRIGHT_TAGS,
     Engine,
     _gif_frames_share_transparency,
+    _with_exif_header,
+    _without_exif_header,
 )
 
 FIXTURES_PATH = abspath(join(dirname(__file__), "../fixtures/"))
@@ -1252,3 +1265,145 @@ def test_animated_gif_frames_that_never_clear_keep_their_disposal():
         ]
     assert disposals == [0] * len(frames)
     assert _frame_alphas(result) == _frame_alphas(source)
+
+
+EXIF_SOURCES = ["JPEG", "PNG", "WEBP"] + (["AVIF"] if AVIF_AVAILABLE else [])
+EXIF_OUTPUTS = [".jpg", ".png", ".webp"] + (
+    [".avif"] if AVIF_AVAILABLE else []
+)
+
+
+def _source_with_exif(image_format):
+    image = Image.new("RGB", (60, 40), "red")
+    image.paste("blue", (0, 0, 30, 40))
+    exif = Image.Exif()
+    exif[ExifTags.Base.Orientation] = 6
+    exif[ExifTags.Base.Make] = "thumbor"
+
+    with BytesIO() as buffer:
+        image.save(buffer, image_format, exif=exif.tobytes(), quality=100)
+        return buffer.getvalue()
+
+
+def _engine_with_exif(image_format, **settings):
+    config = Config(SECURITY_KEY="ACME-SEC", **settings)
+    engine = Engine(Context(config=config))
+    engine.load(_source_with_exif(image_format), None)
+
+    return engine
+
+
+@pytest.mark.parametrize("image_format", EXIF_SOURCES)
+def test_reorientate_reads_the_exif_of_the_source(image_format, caplog):
+    source = _source_with_exif(image_format)
+    with Image.open(BytesIO(source)) as image:
+        expected = ImageOps.exif_transpose(image).convert("RGB")
+    engine = _engine_with_exif(image_format)
+
+    with caplog.at_level(logging.ERROR, logger="thumbor"):
+        assert engine.get_orientation() == 6
+        engine.reorientate()
+
+    assert engine.size == (40, 60)
+    assert engine.get_orientation() == 1
+    assert caplog.records == []
+
+    assert engine.image.convert("RGB").tobytes() == expected.tobytes()
+
+
+@pytest.mark.parametrize("image_format", EXIF_SOURCES)
+@pytest.mark.parametrize("extension", EXIF_OUTPUTS)
+def test_preserved_exif_reaches_the_output(image_format, extension):
+    engine = _engine_with_exif(image_format, PRESERVE_EXIF_INFO=True)
+
+    with Image.open(BytesIO(engine.read(extension, 80))) as result:
+        exif = result.getexif()
+
+    assert exif[ExifTags.Base.Make] == "thumbor"
+    assert exif[ExifTags.Base.Orientation] == 6
+
+
+BARE_EXIF_SOURCES = (
+    ["WEBP"]
+    + (["AVIF"] if AVIF_AVAILABLE else [])
+    + (["HEIF"] if HEIF_AVAILABLE else [])
+)
+
+
+@pytest.mark.parametrize("image_format", BARE_EXIF_SOURCES)
+def test_exif_stored_without_the_header_reaches_a_jpeg(image_format):
+    exif = Image.Exif()
+    exif[ExifTags.Base.Make] = "thumbor"
+    bare_exif = exif.tobytes().removeprefix(b"Exif\x00\x00")
+
+    with BytesIO() as buffer:
+        image = Image.new("RGB", (60, 40), "red")
+        image.save(buffer, image_format, exif=bare_exif)
+        source = buffer.getvalue()
+
+    with Image.open(BytesIO(source)) as image:
+        assert image.info["exif"].startswith((b"II", b"MM"))
+
+    config = Config(SECURITY_KEY="ACME-SEC", PRESERVE_EXIF_INFO=True)
+    engine = Engine(Context(config=config))
+    engine.load(source, None)
+
+    with Image.open(BytesIO(engine.read(".jpg", 80))) as result:
+        assert result.getexif()[ExifTags.Base.Make] == "thumbor"
+
+
+@pytest.mark.parametrize("chunk", ["iTXt", "zTXt"])
+def test_exif_that_comes_as_text_is_ignored(chunk):
+    text = PngImagePlugin.PngInfo()
+    if chunk == "iTXt":
+        text.add_itxt("exif", "not exif")
+    else:
+        text.add_text("exif", "not exif", zip=True)
+
+    with BytesIO() as buffer:
+        Image.new("RGB", (60, 40), "red").save(buffer, "PNG", pnginfo=text)
+        source = buffer.getvalue()
+
+    assert chunk.encode() in source
+    with Image.open(BytesIO(source)) as image:
+        assert isinstance(image.info["exif"], str)
+
+    config = Config(SECURITY_KEY="ACME-SEC", PRESERVE_EXIF_INFO=True)
+    engine = Engine(Context(config=config))
+    engine.load(source, None)
+
+    assert engine.exif is None
+
+    with Image.open(BytesIO(engine.read(".png", 80))) as result:
+        assert result.size == (60, 40)
+        assert "exif" not in result.info
+
+
+@pytest.mark.parametrize(
+    "exif, expected",
+    [
+        (None, None),
+        ("text", None),
+        (b"", b""),
+        (b"MM\x00*tiff", b"Exif\x00\x00MM\x00*tiff"),
+        (b"II*\x00tiff", b"Exif\x00\x00II*\x00tiff"),
+        (b"Exif\x00\x00MM\x00*tiff", b"Exif\x00\x00MM\x00*tiff"),
+        (b"something else", b"something else"),
+    ],
+)
+def test_adds_the_exif_header_to_a_bare_tiff_block(exif, expected):
+    assert _with_exif_header(exif) == expected
+
+
+@pytest.mark.parametrize(
+    "exif, expected",
+    [
+        (None, None),
+        (b"", b""),
+        (b"Exif\x00\x00MM\x00*tiff", b"MM\x00*tiff"),
+        (b"MM\x00*tiff", b"MM\x00*tiff"),
+        (b"something else", b"something else"),
+    ],
+)
+def test_strips_the_exif_header(exif, expected):
+    assert _without_exif_header(exif) == expected

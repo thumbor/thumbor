@@ -47,8 +47,10 @@ instance of the configured engine, as the PIL engine allows.
 `create_image()`: set `self.exif` to the raw EXIF bytes when the format carries
 them, and return a list or tuple of frames for animated input so that
 `ALLOW_ANIMATED_GIFS` handling applies (`ALLOW_ANIMATED_WEBP` also enables it
-for WebP input). Reuse `load()` unless your format requires a different loading
-lifecycle.
+for WebP input). The EXIF bytes have to start with the `Exif\0\0` header:
+`get_orientation()` and `reorientate()` read no orientation from a bare TIFF
+block, which a decoder may hand over for a WebP, an AVIF or a HEIF. Reuse
+`load()` unless your format requires a different loading lifecycle.
 
 A production engine must also implement the operations used by the filters and
 features it supports. These can include `gen_image`, `rotate`,
