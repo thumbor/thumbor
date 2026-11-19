@@ -542,6 +542,14 @@ class Engine(BaseEngine):
                 transparency = len(used)
                 colors.append(None)
             colors[transparency] = unused_color
+            # Pillow writes a second GIF header, which browsers and gifsicle
+            # stop at, before a frame that matches the background it paints
+            # with the first frame's transparent entry. Only an entirely
+            # transparent frame with the first frame's palette does, so an
+            # entirely transparent first frame gets a palette no other frame
+            # can have.
+            if frame is frames[0] and len(colors) == 1:
+                colors.append(unused_color)
 
             trimmed = self._palette_indexes(frame).point(positions)
             trimmed.putpalette([value for color in colors for value in color])
