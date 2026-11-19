@@ -25,7 +25,14 @@ from PIL import features as pillow_features
 
 from thumbor.engines import BaseEngine
 from thumbor.filters.fill import Filter
-from thumbor.utils import deprecated, ensure_srgb, get_color_space, logger
+from thumbor.utils import (
+    deprecated,
+    ensure_srgb,
+    get_color_space,
+    logger,
+    to_8_bits,
+    to_little_endian,
+)
 
 try:
     from thumbor.ext.filters import _composite
@@ -370,6 +377,7 @@ class Engine(BaseEngine):
                 "LA" if self.image.mode == "L" else "RGBA"
             )
 
+        self.image = to_little_endian(self.image)
         size = (int(width), int(height))
         # Tell image loader what target size we want (only JPG for a moment)
         self.image.draft(None, size)
@@ -619,6 +627,9 @@ class Engine(BaseEngine):
             )
             ext = self.extension
 
+        if FORMATS.get(ext) not in ("PNG", "HEIF"):
+            self.image = to_8_bits(self.image)
+
         options = {"quality": quality}
 
         if ext in (".jpg", ".jpeg"):
@@ -781,6 +792,9 @@ class Engine(BaseEngine):
                 # Pillow 13 refuses to write it
                 self.image = self.image.convert("I;16")
 
+            if image_format == "HEIF":
+                self.image = to_little_endian(self.image)
+
             self.image.format = image_format
             self.image.save(img_buffer, self.image.format, **options)
         except IOError:
@@ -849,7 +863,7 @@ class Engine(BaseEngine):
         return self.image.mode
 
     def image_data_as_rgb(self, update_image=True):
-        converted_image = self.image
+        converted_image = to_8_bits(self.image)
 
         if converted_image.has_transparency_data:
             if converted_image.mode != "RGBA":
@@ -863,10 +877,9 @@ class Engine(BaseEngine):
         return converted_image.mode, converted_image.tobytes()
 
     def convert_to_grayscale(self, update_image=True, alpha=True):
-        if alpha and self.image.has_transparency_data:
-            image = self.image.convert("LA")
-        else:
-            image = self.image.convert("L")
+        image = to_8_bits(self.image)
+        mode = "LA" if alpha and image.has_transparency_data else "L"
+        image = image.convert(mode)
 
         if update_image:
             self.image = image
@@ -881,10 +894,8 @@ class Engine(BaseEngine):
         if has_transparency:
             # If the image has alpha channel,
             # we check for any pixels that are not opaque (255)
-            has_transparency = (
-                min(self.image.convert("RGBA").getchannel("A").getextrema())
-                < 255
-            )
+            image = to_8_bits(self.image).convert("RGBA")
+            has_transparency = min(image.getchannel("A").getextrema()) < 255
 
         return has_transparency
 
@@ -929,7 +940,7 @@ class Engine(BaseEngine):
 
     def enable_alpha(self):
         if self.image.mode != "RGBA":
-            self.image = self.image.convert("RGBA")
+            self.image = to_8_bits(self.image).convert("RGBA")
 
     def strip_icc(self):
         self.icc_profile = None
