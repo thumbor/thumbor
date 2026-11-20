@@ -48,6 +48,14 @@ for example `--use-environment=true`. Variable names are unprefixed and must
 exactly match configuration keys. Values remain strings. For names, typing and
 precedence, see {doc}`configuration`.
 
+## --environment-prefix
+
+Reads only the environment variables that start with the given prefix. With
+`--environment-prefix=THUMBOR_`, `THUMBOR_SECURITY_KEY` overrides
+`SECURITY_KEY` and a plain `SECURITY_KEY` is ignored. It needs
+`--use-environment` and a derpconf newer than 0.8.4; see
+{ref}`environment-prefix`.
+
 ## --processes
 
 Number of processes to run. By default equals 1 and means no forks created. Set

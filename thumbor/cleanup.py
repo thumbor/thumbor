@@ -269,6 +269,13 @@ def get_options(arguments):
         "them, like the server does. A true or false value is accepted too.",
     )
     parser.add_argument(
+        "--environment-prefix",
+        metavar="PREFIX",
+        default="",
+        help="Read only the environment variables that start with PREFIX, "
+        "such as THUMBOR_, like the server does. Needs --use-environment.",
+    )
+    parser.add_argument(
         "--storage",
         action="store_true",
         help="Clean FILE_STORAGE_ROOT_PATH.",
@@ -327,6 +334,9 @@ def get_options(arguments):
         parser.error(
             "at least one of --storage and --result-storage is required"
         )
+
+    if options.environment_prefix and not options.use_environment:
+        parser.error("--environment-prefix needs --use-environment")
 
     return options
 
@@ -412,7 +422,9 @@ def main(arguments=None):
     options = get_options(arguments)
 
     try:
-        config = get_config(options.conf, options.use_environment)
+        config = get_config(
+            options.conf, options.use_environment, options.environment_prefix
+        )
         targets = get_targets(config, options)
     except (ConfigurationError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)

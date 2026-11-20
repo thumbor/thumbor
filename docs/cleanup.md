@@ -27,6 +27,9 @@ environment inside it as described in {ref}`converting-environment-values`.
 - `-c`, `--conf`: the thumbor configuration file.
 - `--use-environment`: read string settings from environment variables named
   after them, like the server does. `--use-environment=True` is accepted too.
+- `--environment-prefix`: read only the environment variables that start with
+  this prefix, such as `THUMBOR_`, like the server does. Needs
+  `--use-environment`; see {ref}`environment-prefix`.
 - `--storage`: clean `FILE_STORAGE_ROOT_PATH` using
   `STORAGE_EXPIRATION_SECONDS`.
 - `--result-storage`: clean `RESULT_STORAGE_FILE_STORAGE_ROOT_PATH` using

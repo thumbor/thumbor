@@ -36,7 +36,8 @@ SECURITY_KEY=my-secret-key thumbor --use-environment=true
 ```
 
 The environment variable name must exactly match the configuration key; there
-is no prefix. Environment values are returned as strings and override values
+is no prefix unless you pass one, as described in {ref}`environment-prefix`.
+Environment values are returned as strings and override values
 loaded from `thumbor.conf` whenever that key is read. Consequently, this mode
 is safe only for string-valued settings. Boolean, integer, list, dictionary and
 other typed settings should remain in `thumbor.conf`.
@@ -51,6 +52,39 @@ is a nonempty string. `UPLOAD_ENABLED=False` also enables them, even when
 `thumbor.conf` leaves them disabled, because `"False"` is a nonempty string
 too. Likewise, `QUALITY=85` stays the string `"85"`, which the JPEG encoder
 rejects, so JPEG output fails instead of using quality 85.
+
+(environment-prefix)=
+### Reading only prefixed variables
+
+Without a prefix, every variable in the process environment whose name equals
+a configuration key overrides that key, including the ones the platform adds
+on its own. Kubernetes, by default, gives each pod variables for the Services
+in its namespace: a Service named `statsd` adds a `STATSD_PORT` variable
+holding a URL such as `udp://10.0.0.11:8125`, which replaces thumbor's
+`STATSD_PORT`.
+
+To read only the variables meant for thumbor, pass a prefix:
+
+```bash
+THUMBOR_SECURITY_KEY=my-secret-key thumbor --use-environment=true --environment-prefix=THUMBOR_
+```
+
+Now `THUMBOR_SECURITY_KEY` overrides `SECURITY_KEY`, and a plain `SECURITY_KEY`
+or `STATSD_PORT` in the environment is ignored. The prefix is used as given,
+so include the underscore. `--environment-prefix` does nothing on its own and
+is rejected without `--use-environment`.
+
+A Kubernetes Service named `thumbor` adds `THUMBOR_PORT`,
+`THUMBOR_SERVICE_HOST` and `THUMBOR_SERVICE_PORT`, among others. With the
+`THUMBOR_` prefix they stand for `PORT`, `SERVICE_HOST` and `SERVICE_PORT`,
+which are not configuration keys of thumbor itself, so they change nothing.
+You can also stop Kubernetes from adding these variables by setting
+`enableServiceLinks: false` in the pod specification.
+
+The prefix is applied by derpconf, the library that loads thumbor's
+configuration, and needs a derpconf release newer than 0.8.4. With 0.8.4,
+thumbor stops with a configuration error instead of reading unprefixed
+variables.
 
 (converting-environment-values)=
 ### Converting environment values

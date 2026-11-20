@@ -14,11 +14,13 @@ import os
 import re
 import sys
 import warnings
+from inspect import signature
 from os.path import dirname, expanduser
 from shutil import which
 from socket import socket
 
 import tornado.ioloop
+from derpconf.config import ConfigurationError
 from PIL import Image
 from tornado import netutil
 from tornado.httpserver import HTTPServer
@@ -45,9 +47,32 @@ def get_as_integer(value):
         return None
 
 
-def get_config(config_path, use_environment=False):
-    if use_environment:
+def derpconf_takes_prefix():
+    parameters = signature(Config.allow_environment_variables).parameters
+
+    return "prefix" in parameters
+
+
+def allow_environment_variables(prefix=""):
+    if not prefix:
         Config.allow_environment_variables()
+        return
+
+    # derpconf 0.8.4, which thumbor still accepts, takes no prefix.
+    if not derpconf_takes_prefix():
+        raise ConfigurationError(
+            "--environment-prefix needs a derpconf newer than 0.8.4: the "
+            "installed one cannot read environment variables under a prefix."
+        )
+
+    Config.allow_environment_variables(  # pylint: disable=unexpected-keyword-arg
+        prefix=prefix
+    )
+
+
+def get_config(config_path, use_environment=False, environment_prefix=""):
+    if use_environment:
+        allow_environment_variables(environment_prefix)
 
     lookup_paths = [os.curdir, expanduser("~"), "/etc/", dirname(__file__)]
 
@@ -183,7 +208,9 @@ def main(arguments=None):
 
     server_parameters = get_server_parameters(arguments)
     config = get_config(
-        server_parameters.config_path, server_parameters.use_environment
+        server_parameters.config_path,
+        server_parameters.use_environment,
+        server_parameters.environment_prefix,
     )
     configure_log(config, server_parameters.log_level.upper())
 
