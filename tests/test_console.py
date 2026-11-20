@@ -7,7 +7,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 globo.com thumbor@googlegroups.com
 
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from unittest import TestCase
 
@@ -25,6 +25,7 @@ class ConsoleTestCase(TestCase):
         assert params.app_class == "thumbor.app.ThumborServiceApp"
         assert params.fd is None
         assert params.processes == 1
+        assert params.environment_prefix == ""
 
     def test_can_get_custom_server_parameters(self):
         params = get_server_parameters(
@@ -47,6 +48,24 @@ class ConsoleTestCase(TestCase):
         assert params.app_class == "custom.app"
         assert params.fd == "/tmp/fd"  # NOSONAR
         assert params.processes == 5
+
+    def test_can_get_environment_prefix(self):
+        params = get_server_parameters(
+            ["--use-environment=true", "--environment-prefix=THUMBOR_"]
+        )
+
+        assert params.use_environment
+        assert params.environment_prefix == "THUMBOR_"
+
+    def test_environment_prefix_needs_use_environment(self):
+        errors = StringIO()
+        with redirect_stderr(errors), self.assertRaises(SystemExit) as error:
+            get_server_parameters(["--environment-prefix=THUMBOR_"])
+
+        assert error.exception.code == 2
+        assert "--environment-prefix needs --use-environment" in (
+            errors.getvalue()
+        )
 
     def test_keyfile_help_describes_the_security_key_file(self):
         output = StringIO()

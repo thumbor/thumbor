@@ -129,7 +129,9 @@ docker run -p 8888:8888 \
 The official image does not translate `THUMBOR_*` environment variables into
 thumbor configuration. If you explicitly enable the core legacy environment
 mode, use exact, unprefixed configuration names and remember that their values
-remain strings; see {doc}`configuration`.
+remain strings; see {doc}`configuration`. To read `THUMBOR_*` variables
+instead, see {ref}`environment-prefix` for `--environment-prefix` and the
+derpconf it needs.
 
 Generate a template with `thumbor-config > thumbor.conf` on an installed copy
 of thumbor.

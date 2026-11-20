@@ -96,6 +96,14 @@ def get_server_parameters(arguments=None):
     )
 
     parser.add_argument(
+        "--environment-prefix",
+        metavar="PREFIX",
+        default="",
+        help="Read only the environment variables that start with PREFIX, "
+        "such as THUMBOR_. Needs --use-environment [default: no prefix].",
+    )
+
+    parser.add_argument(
         "--processes",
         default=1,
         type=int,
@@ -106,6 +114,9 @@ def get_server_parameters(arguments=None):
     )
 
     options = parser.parse_args(arguments)
+
+    if options.environment_prefix and not options.use_environment:
+        parser.error("--environment-prefix needs --use-environment")
 
     return ServerParameters(
         port=options.port,
@@ -118,4 +129,5 @@ def get_server_parameters(arguments=None):
         fd=options.fd,
         use_environment=options.use_environment,
         processes=options.processes,
+        environment_prefix=options.environment_prefix,
     )

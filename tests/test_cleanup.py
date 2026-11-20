@@ -19,6 +19,8 @@ from thumbor.config import Config
 from thumbor.context import Context
 from thumbor.storages.file_storage import Storage as FileStorage
 
+# pylint: disable=too-many-lines
+
 EXPIRATION = 60 * 60
 OLD = EXPIRATION + 3600 + 600
 WITHIN_GRACE = EXPIRATION + 600
@@ -943,6 +945,45 @@ def test_environment_is_ignored_unless_asked(tmp_path, monkeypatch, arguments):
     assert image.exists()
 
 
+def test_environment_prefix_reaches_derpconf(tmp_path, monkeypatch):
+    prefixes = []
+    monkeypatch.setattr(
+        Config,
+        "allow_environment_variables",
+        lambda prefix="": prefixes.append(prefix),
+    )
+
+    code = run(
+        tmp_path,
+        "--storage",
+        "--use-environment",
+        "--environment-prefix",
+        "THUMBOR_",
+        STORAGE_EXPIRATION_SECONDS=EXPIRATION,
+    )
+
+    assert code == 0
+    assert prefixes == ["THUMBOR_"]
+
+
+def test_environment_prefix_older_derpconf_cannot_apply_is_rejected(
+    tmp_path, monkeypatch, capsys
+):
+    monkeypatch.setattr(Config, "allow_environment_variables", lambda: None)
+
+    code = run(
+        tmp_path,
+        "--storage",
+        "--use-environment",
+        "--environment-prefix",
+        "THUMBOR_",
+        STORAGE_EXPIRATION_SECONDS=EXPIRATION,
+    )
+
+    assert code == 2
+    assert "newer than 0.8.4" in capsys.readouterr().err
+
+
 def test_environment_expiration_is_a_string_and_rejected(
     tmp_path, monkeypatch, capsys
 ):
@@ -981,6 +1022,13 @@ def test_missing_config_file_is_rejected(tmp_path, capsys):
         ["--storage", "--older-than", "soon"],
         ["--storage", "--temp-older-than", "0"],
         ["--storage", "--use-environment", "maybe"],
+        ["--storage", "--environment-prefix", "THUMBOR_"],
+        [
+            "--storage",
+            "--use-environment=false",
+            "--environment-prefix",
+            "THUMBOR_",
+        ],
     ],
 )
 def test_invalid_arguments_exit_with_usage_error(arguments):

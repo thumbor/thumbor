@@ -10,6 +10,7 @@ import importlib.util
 from unittest import TestCase, mock
 
 import pytest
+from derpconf.config import ConfigurationError
 from tornado import netutil
 
 import thumbor.server
@@ -30,6 +31,9 @@ from thumbor.server import (
     validate_allowed_sizes,
     validate_config,
 )
+
+SERVER_TEST_CONFIG = "./tests/fixtures/thumbor_config_server_test.conf"
+DERPCONF_HAS_PREFIX = thumbor.server.derpconf_takes_prefix()
 
 
 @pytest.fixture(name="server_without_unix_sockets")
@@ -123,6 +127,81 @@ class ServerTestCase(TestCase):
             assert config is not None
             assert config.ALLOWED_SOURCES == ["mydomain.com"]
             assert config.ENGINE == "test"
+
+    def test_get_config_passes_prefix_to_derpconf(self):
+        prefixes = []
+
+        def allow_with_prefix(prefix=""):
+            prefixes.append(prefix)
+
+        with mock.patch.object(
+            Config, "allow_environment_variables", allow_with_prefix
+        ):
+            get_config(SERVER_TEST_CONFIG, True, "THUMBOR_")
+
+        assert prefixes == ["THUMBOR_"]
+
+    def test_get_config_without_prefix_works_with_older_derpconf(self):
+        calls = []
+
+        def allow_without_prefix():
+            calls.append("called")
+
+        with mock.patch.object(
+            Config, "allow_environment_variables", allow_without_prefix
+        ):
+            get_config(SERVER_TEST_CONFIG, True)
+
+        assert calls == ["called"]
+
+    def test_get_config_rejects_prefix_older_derpconf_cannot_apply(self):
+        calls = []
+
+        def allow_without_prefix():
+            calls.append("called")
+
+        with (
+            mock.patch.object(
+                Config, "allow_environment_variables", allow_without_prefix
+            ),
+            pytest.raises(ConfigurationError, match="newer than 0.8.4"),
+        ):
+            get_config(SERVER_TEST_CONFIG, True, "THUMBOR_")
+
+        assert not calls
+
+    def test_get_config_ignores_prefix_when_environment_is_off(self):
+        with mock.patch.object(
+            Config, "allow_environment_variables"
+        ) as allow_mock:
+            get_config(SERVER_TEST_CONFIG, False, "THUMBOR_")
+
+        allow_mock.assert_not_called()
+
+    @pytest.mark.skipif(
+        not DERPCONF_HAS_PREFIX, reason="the installed derpconf has no prefix"
+    )
+    def test_get_config_reads_only_prefixed_variables(self):
+        environment = {"THUMBOR_ENGINE": "prefixed", "ENGINE": "plain"}
+
+        with (
+            mock.patch.object(Config, "_allow_environment_variables", False),
+            mock.patch.object(Config, "_environment_variables_prefix", ""),
+            mock.patch.dict("os.environ", environment),
+        ):
+            config = get_config(SERVER_TEST_CONFIG, True, "THUMBOR_")
+
+            assert config.ENGINE == "prefixed"
+
+    @pytest.mark.skipif(
+        DERPCONF_HAS_PREFIX, reason="the installed derpconf has a prefix"
+    )
+    def test_get_config_rejects_prefix_with_installed_derpconf(self):
+        with (
+            mock.patch.object(Config, "_allow_environment_variables", False),
+            pytest.raises(ConfigurationError, match="newer than 0.8.4"),
+        ):
+            get_config(SERVER_TEST_CONFIG, True, "THUMBOR_")
 
     @mock.patch("logging.basicConfig")
     def test_can_configure_log_from_config(self, basic_config_mock):
@@ -378,6 +457,7 @@ class ServerTestCase(TestCase):
             fd=None,
             ip="0.0.0.0",
             port=1234,
+            environment_prefix="",
         )
         get_server_parameters_mock.return_value = server_parameters
 
