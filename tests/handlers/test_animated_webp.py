@@ -139,6 +139,33 @@ class AnimatedWebPTestCase(TestCase):
         assert "Vary" not in response.headers
 
     @gen_test
+    async def test_explicit_format_converts_the_first_transformed_frame(self):
+        for requested, image_format in (
+            ("jpeg", "JPEG"),
+            ("jpg", "JPEG"),
+            ("png", "PNG"),
+            ("gif", "GIF"),
+        ):
+            with self.subTest(format=requested):
+                url = f"/unsafe/32x0/filters:format({requested})/{{}}"
+                animated = await self.async_fetch(url.format("opaque.webp"))
+                static = await self.async_fetch(
+                    url.format("opaque-first.webp")
+                )
+                assert animated.code == static.code == 200
+                with (
+                    Image.open(BytesIO(animated.body)) as image,
+                    Image.open(BytesIO(static.body)) as expected,
+                ):
+                    assert image.format == image_format
+                    assert image.size == (32, 16)
+                    assert getattr(image, "n_frames", 1) == 1
+                    assert (
+                        image.convert("RGB").tobytes()
+                        == expected.convert("RGB").tobytes()
+                    )
+
+    @gen_test
     async def test_static_webp_output_keeps_vary_header(self):
         self.config.AUTO_JPG = True
         response = await self.async_fetch(

@@ -22,6 +22,7 @@ class Filter(BaseFilter):
         elif (
             file_format.lower() in ("jpeg", "jpg")
             and self.context.request.engine.is_multiple()
+            and self.context.request.engine.extension == ".gif"
         ):
             logger.debug(
                 "Format cannot hold multiple frames: %s", file_format.lower()
