@@ -435,6 +435,12 @@ class Engine(BaseEngine):
         # The writer marks the transparent palette entry only on the frames
         # it quantizes itself, not on those create_image() quantized from
         # RGBA, so they would lose their transparency
+        Engine._mark_transparent_entry(image)
+
+        return image
+
+    @staticmethod
+    def _mark_transparent_entry(image):
         if (
             image.mode == "P"
             and "transparency" not in image.info
@@ -444,8 +450,6 @@ class Engine(BaseEngine):
                 if rgba[3] == 0:
                     image.info["transparency"] = index
                     break
-
-        return image
 
     @staticmethod
     def _palette_indexes(frame):
@@ -819,6 +823,18 @@ class Engine(BaseEngine):
             if self._clears_pixels(images):
                 images = self._disposable_gif_frames(images)
                 options.update(disposal=2, optimize=False)
+        elif self.image.format in ("WEBP", "AVIF", "HEIF"):
+            # None of these holds a palette, and the writers that convert a
+            # palette frame look for its transparency in different places:
+            # pillow_heif only in info, the WebP writer of Pillow 10 and
+            # pillow-avif-plugin 1.4.1 only in the palette. Each frame gets
+            # both, which is cheaper than holding all of them as RGBA
+            for image in images:
+                self._mark_transparent_entry(image)
+                transparency = image.info.get("transparency")
+                if image.mode == "P" and transparency is not None:
+                    image.apply_transparency()
+                    image.info["transparency"] = transparency
         # fill(), background_color() and frame() replace each frame with a
         # new canvas, which has no duration of its own
         loaded_durations = chain(self.frame_durations, repeat(80))
