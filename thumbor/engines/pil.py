@@ -79,6 +79,24 @@ DECOMPRESSION_BOMB_EXCEPTIONS = (Image.DecompressionBombWarning,) + (
 )
 
 
+# Pillow 10 loses the content of every frame it decodes after one of them
+# grew the canvas, unless they are decoded as RGB
+PILLOW_LOSES_GROWN_GIF_FRAMES = (
+    int(pillow_features.version("pil").split(".")[0]) < 11
+)
+
+
+def _require_gif_frame_on_the_screen(data, position):
+    if not PILLOW_LOSES_GROWN_GIF_FRAMES:
+        return
+    screen_width, screen_height, left, top, width, height = (
+        int.from_bytes(data[offset : offset + 2], "little")
+        for offset in (6, 8, *range(position, position + 8, 2))
+    )
+    if left + width > screen_width or top + height > screen_height:
+        raise ValueError("GIF frame past the logical screen")
+
+
 def _gif_transparency_indexes(data):
     indexes = []
     pending = None
@@ -96,6 +114,7 @@ def _gif_transparency_indexes(data):
                     data[position + 4] if data[position + 1] & 1 else None
                 )
         elif block == 0x2C:
+            _require_gif_frame_on_the_screen(data, position)
             indexes.append(pending)
             pending = None
             packed = data[position + 8]
@@ -253,15 +272,7 @@ class Engine(BaseEngine):
             self.context.config.ALLOW_ANIMATED_GIFS
             and self.extension == ".gif"
         ):
-            frames = []
-
-            with _gif_palette_frames(buffer):
-                for frame in ImageSequence.Iterator(img):
-                    # A frame with its own palette decodes as RGB, and
-                    # convert("P") would dither it to the web palette
-                    frames.append(
-                        frame.convert("P", palette=Image.Palette.ADAPTIVE)
-                    )
+            frames = self._gif_frames(img, buffer)
             img.seek(0)
             self.frame_count = len(frames)
             self.frame_durations = [
@@ -271,6 +282,23 @@ class Engine(BaseEngine):
             return frames
 
         return img
+
+    @staticmethod
+    def _gif_frames(img, data):
+        frames = []
+        with _gif_palette_frames(data):
+            for frame in ImageSequence.Iterator(img):
+                # Pillow grows the canvas when a frame leaves the logical
+                # screen, where browsers clip the frame
+                if frames and frame.size != frames[0].size:
+                    frame = frame.crop((0, 0, *frames[0].size))
+                # A frame with its own palette decodes as RGB, and
+                # convert("P") would dither it to the web palette
+                frames.append(
+                    frame.convert("P", palette=Image.Palette.ADAPTIVE)
+                )
+
+        return frames
 
     def _can_animate_webp(self, img):
         if not (
